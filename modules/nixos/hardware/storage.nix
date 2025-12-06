@@ -1,0 +1,6 @@
+{ ... }:
+
+{
+  # Storage hardware configuration
+}
+

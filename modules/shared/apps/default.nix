@@ -1,0 +1,10 @@
+{ ... }:
+
+{
+  imports = [
+    ./browsers
+    ./editors
+    ./terminals
+  ];
+}
+
