@@ -88,7 +88,7 @@ def gc-all [] {
   let trash = $"($env.XDG_DATA_HOME? | default $"($env.HOME)/.local/share")/Trash"
   if ($trash | path exists) {
     try {
-      rm -rf $trash
+    rm -rf $trash
     } catch {
       # If trash can't be removed as user, attempt with sudo. If that fails, inform and continue.
       try {

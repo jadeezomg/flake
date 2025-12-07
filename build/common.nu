@@ -56,17 +56,47 @@ export def print-info [msg: string] {
   print $"($theme_icons.info) ($msg)"
 }
 
-# Print header with better formatting using nushell features
-export def print-header [title: string] {
-  # Generate bar using nushell's fill command
-  let width = 75
-  let bar = ("━" | fill --width $width --character "━")
-  
-  # Print each line with proper formatting
-  print $"(ansi ($theme_colors.header))($bar)(ansi reset)"
-  print $"(ansi ($theme_colors.header))▲ ($title)(ansi reset)"
-  print $"(ansi ($theme_colors.header))($bar)(ansi reset)"
-  print ""
+# Print a single-line header with short tapered bars around the title
+export def print-header [
+  title: string,
+  icon?: string = "▲",
+  bar_len?: int = 8
+] {
+  # Clamp bar length to 4..12 and make it even for symmetry
+  let base_len = (if ($bar_len | is-empty) { 8 } else { $bar_len })
+  let len_clamped = (if $base_len < 4 { 4 } else if $base_len > 12 { 12 } else { $base_len })
+  let len = (if ($len_clamped mod 2) == 0 { $len_clamped } else { $len_clamped + 1 })
+  let half = ($len // 2)
+
+  # Build tapered bars: dotted outwards to solid near the title
+  let left_bar = (
+    if $half <= 2 {
+      ("━" | fill --width $half --character "━")
+    } else {
+      let gradient = ["┄" "┄" "┈" "┈" "╼" "━" "━"]
+      ($gradient | last $half | str join "")
+    }
+  )
+  let right_bar = (
+    if $half <= 2 {
+      ("━" | fill --width $half --character "━")
+    } else {
+      let gradient = ["━" "━" "╾" "┈" "┈" "┄" "┄"]
+      ($gradient | first $half | str join "")
+    }
+  )
+
+  let line = $"($left_bar) ($icon) ($title) ($right_bar)"
+  let line_len = ($line | str length)
+  let cols = (try { term size | get columns } catch { 80 })
+  let width = (if $cols < $line_len { $line_len } else { $cols })
+  let pad_total = ($width - $line_len)
+  let pad_left = ($pad_total // 2)
+  let pad_right = ($pad_total - $pad_left)
+  let left_pad = (" " | fill --width $pad_left --character " ")
+  let right_pad = (" " | fill --width $pad_right --character " ")
+
+  print $"(ansi ($theme_colors.header))($left_pad)($line)($right_pad)(ansi reset)"
 }
 
 # Print a table with structured data using nushell's table command
