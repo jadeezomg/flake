@@ -12,12 +12,14 @@ def main [] {
     print-info "Working tree clean. Nothing to commit."
     return
   }
-  $status | each { |line| print $"  ($line)" }
+  $status | each { |line| print-info $"  ($line)" }
 
   print ""
   print-header "DIFF STATS"
-  git -C $repo diff --stat
-  git -C $repo diff --shortstat
+  let diff_stat = (git -C $repo diff --stat | lines)
+  if ($diff_stat | is-not-empty) {
+    $diff_stat | each { |line| print-info $line }
+  }
   print ""
 
   let msg = (input "Commit message (or 'abort' to cancel): " | str trim)
@@ -37,14 +39,35 @@ def main [] {
     print $commit_res.stderr
     return
   }
+  print ""
+  print-header "COMMIT"
+  if ($commit_res.stdout | is-not-empty) {
+    $commit_res.stdout | lines | each { |line| print-success $line }
+  }
+  git -C $repo show --stat -1
 
   notify "Flake Git" "Pushing..." "pending"
   let push_res = (^git -C $repo push | complete)
   if $push_res.exit_code == 0 {
     notify "Flake Git" "Push successful" "success"
+    if ($push_res.stdout | is-not-empty) {
+      print ""
+      print-header "PUSH"
+      $push_res.stdout | lines | each { |line| print-success $line }
+    }
   } else {
     print-error "Push failed:"
     print $push_res.stderr
+    return
+  }
+
+  print ""
+  print-header "POST-STATUS"
+  let post_status = (git -C $repo status --short)
+  if ($post_status | is-empty) {
+    print-success "Working tree clean."
+  } else {
+    $post_status | each { |line| print-info $"  ($line)" }
   }
 }
 
