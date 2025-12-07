@@ -29,12 +29,12 @@ def main [] {
     return
   }
 
-  notify "Flake Git" "Staging changes..." "pending"
+  notify "Flake Git" "Running git workflow..." "pending"
   git -C $repo add -A
 
-  notify "Flake Git" "Committing changes..." "pending"
   let commit_res = (^git -C $repo commit -m $msg | complete)
   if $commit_res.exit_code != 0 {
+    notify "Flake Git" "Commit failed" "error"
     print-error "Commit failed:"
     print $commit_res.stderr
     return
@@ -46,16 +46,15 @@ def main [] {
   }
   git -C $repo show --stat -1
 
-  notify "Flake Git" "Pushing..." "pending"
   let push_res = (^git -C $repo push | complete)
   if $push_res.exit_code == 0 {
-    notify "Flake Git" "Push successful" "success"
     if ($push_res.stdout | is-not-empty) {
       print ""
       print-header "PUSH"
       $push_res.stdout | lines | each { |line| print-success $line }
     }
   } else {
+    notify "Flake Git" "Push failed" "error"
     print-error "Push failed:"
     print $push_res.stderr
     return
@@ -69,6 +68,8 @@ def main [] {
   } else {
     $post_status | each { |line| print-info $"  ($line)" }
   }
+
+  notify "Flake Git" "Git workflow complete" "success"
 }
 
 
