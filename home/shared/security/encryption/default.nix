@@ -5,5 +5,3 @@
     ./age-sops.nix
   ];
 }
-
-

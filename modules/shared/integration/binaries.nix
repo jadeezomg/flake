@@ -3,4 +3,3 @@
 {
   # Binary integration configuration
 }
-

@@ -9,4 +9,3 @@
     pkgs-unstable.proton-pass
   ];
 }
-

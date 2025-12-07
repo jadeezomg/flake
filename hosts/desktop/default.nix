@@ -1,4 +1,11 @@
-{ config, pkgs, hostData, hostKey, user, ... }:
+{
+  config,
+  pkgs,
+  hostData,
+  hostKey,
+  user,
+  ...
+}:
 
 let
   host = hostData.hosts.${hostKey} or { };
@@ -41,4 +48,3 @@ in
     deleteOlderThan = "30d";
   };
 }
-

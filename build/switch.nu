@@ -6,7 +6,9 @@ use common.nu *
 
 def pre-flight-checks [flake_path: string] {
   notify "Flake Switch" "Running pre-flight checks..."
-  let result = (nix flake check $flake_path --no-write-lock-file | complete)
+  let cmd = $"nix flake check ($flake_path) --no-write-lock-file"
+  print-info $"→ ($cmd)"
+  let result = (^bash -lc $cmd | complete)
   if $result.exit_code == 0 {
     notify "Flake Switch" "Flake validation passed"
   } else {
@@ -19,14 +21,15 @@ def post-build-tasks [fast, script_dir: string] {
     notify "Flake Switch" "Running post-build tasks..."
     
     # Update caches (except nix-index which is slow)
+    print-info $"→ nu ($script_dir)/update-caches.nu --all-except-nix"
     nu $"($script_dir)/update-caches.nu" --all-except-nix
     
     # Source user vars (if they exist)
     # Note: source requires a constant path, so we use a workaround
     let user_vars_path = $"/etc/profiles/per-user/($env.USER)/etc/profile.d/hm-session-vars.sh"
     if ($user_vars_path | path exists) {
-      # Source the file using nu -c
-      nu -c $"source ($user_vars_path)"
+      print-info $"→ source ($user_vars_path)"
+      ^bash -lc $"source '$user_vars_path'"
     }
     
     notify "Flake Switch" "System rebuild complete"
@@ -37,7 +40,7 @@ def post-build-tasks [fast, script_dir: string] {
 
 def main [host?: string, --fast] {
   let flake_path = (get-flake-path)
-  let script_dir = ($nu.current-exe | path dirname)
+  let script_dir = $"($flake_path)/build"
   let target_host = (get-host $host)
   
   if not $fast {
@@ -47,7 +50,9 @@ def main [host?: string, --fast] {
   }
   
   notify "Flake Switch" $"Building and switching configuration for ($target_host)..."
-  sudo nixos-rebuild switch --flake $"($flake_path)#($target_host)"
+  let switch_cmd = $"sudo nixos-rebuild switch --flake '($flake_path)#($target_host)'"
+  print-info $"→ ($switch_cmd)"
+  ^bash -lc $switch_cmd
   
   post-build-tasks $fast $script_dir
 }

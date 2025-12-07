@@ -7,4 +7,3 @@
     ./binaries.nix
   ];
 }
-

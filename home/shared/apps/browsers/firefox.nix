@@ -6,4 +6,3 @@
     package = pkgs.firefox;
   };
 }
-

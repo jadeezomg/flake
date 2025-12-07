@@ -16,4 +16,3 @@
   # General hardware modules can be imported here
   # Host-specific hardware configuration should be in hosts/<hostname>/default.nix
 }
-

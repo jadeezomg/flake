@@ -1,4 +1,12 @@
-{ config, pkgs, inputs, hostData, hostKey, user, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  hostData,
+  hostKey,
+  user,
+  ...
+}:
 
 let
   host = hostData.hosts.${hostKey} or { };
@@ -30,4 +38,3 @@ in
   # System configuration
   system.stateVersion = 4; # Darwin state version
 }
-

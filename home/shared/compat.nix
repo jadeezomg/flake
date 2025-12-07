@@ -1,4 +1,11 @@
-{ config, lib, hostKey, user, hostData, ... }:
+{
+  config,
+  lib,
+  hostKey,
+  user,
+  hostData,
+  ...
+}:
 
 let
   host = hostData.hosts.${hostKey} or { };
@@ -20,9 +27,9 @@ in
     #   hms  - home-manager switch
     #   hmn  - home-manager news
     #   hm   - home-manager (with flake path)
-    
+
     { config, pkgs, ... }:
-    
+
     {
       # This file is not used when running with --flake
       # It's only here to prevent error messages from legacy home-manager commands
@@ -43,4 +50,3 @@ in
     }
   '';
 }
-

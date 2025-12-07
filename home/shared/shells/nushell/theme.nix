@@ -6,4 +6,3 @@
     source ${inputs.nu-scripts}/themes/nu-themes/birds-of-paradise.nu
   '';
 }
-

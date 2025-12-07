@@ -8,4 +8,3 @@
     sd # Better sed
   ];
 }
-

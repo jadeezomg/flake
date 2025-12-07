@@ -7,7 +7,7 @@
     };
 
     nix-darwin = {
-       url = "github:nix-darwin/nix-darwin/master";
+      url = "github:nix-darwin/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -99,74 +99,118 @@
       lib = nixpkgs.lib;
       # Import host data
       hostData = import ./data/hosts/hosts.nix;
-      linuxSystems = [ "x86_64-linux" "aarch64-linux" ];
-      darwinSystems = [ "aarch64-darwin" "x86_64-darwin" ];
+      linuxSystems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+      darwinSystems = [
+        "aarch64-darwin"
+        "x86_64-darwin"
+      ];
       # Helper to get pkgs for a system
-      getPkgs = system: import nixpkgs {
-        inherit system;
-        config = {
-          allowUnfree = true;
+      getPkgs =
+        system:
+        import nixpkgs {
+          inherit system;
+          config = {
+            allowUnfree = true;
+          };
+          overlays = [
+            nur.overlays.default
+          ];
         };
-        overlays = [
-          nur.overlays.default
-        ];
-      };
 
       # Helper to get unstable pkgs for a system
-      getPkgsUnstable = system: import nixpkgs-unstable {
-        inherit system;
-        config = {
-          allowUnfree = true;
+      getPkgsUnstable =
+        system:
+        import nixpkgs-unstable {
+          inherit system;
+          config = {
+            allowUnfree = true;
+          };
+          overlays = [
+            nur.overlays.default
+          ];
         };
-        overlays = [
-          nur.overlays.default
-        ];
-      };
 
       # Common specialArgs for all configurations
-      commonSpecialArgs = inputs // { 
+      commonSpecialArgs = inputs // {
         inherit hostData;
         inherit inputs;
       };
 
       # Shared home module sets
-      baseHomeModules = isDarwin:
+      baseHomeModules =
+        isDarwin:
         if isDarwin then
-          [ ./home/shared ./home/darwin ]
+          [
+            ./home/shared
+            ./home/darwin
+          ]
         else
-          [ ./home/shared ./home/nixos ];
+          [
+            ./home/shared
+            ./home/nixos
+          ];
       homeModules = isDarwin: [ inputs.sops-nix.homeManagerModules.sops ] ++ baseHomeModules isDarwin;
 
       # Helper to create home-manager configuration for any host
       # Usage: mkHomeManagerModule { hostKey = "framework"; user = "jadee"; isDarwin = false; }
-      mkHomeManagerModule = { hostKey, user, isDarwin ? false }: {
-        home-manager = {
-          useGlobalPkgs = true;
-          useUserPackages = true;
-          backupFileExtension = "backup";
-          users.${user} = { config, pkgs, inputs, hostData, user, hostKey, ... }: {
-            imports = homeModules isDarwin;
-            home = {
-              username = user;
-              homeDirectory = hostData.hosts.${hostKey}.homeDirectory;
-              stateVersion = hostData.hosts.${hostKey}.stateVersion;
+      mkHomeManagerModule =
+        {
+          hostKey,
+          user,
+          isDarwin ? false,
+        }:
+        {
+          home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            backupFileExtension = "backup";
+            users.${user} =
+              {
+                config,
+                pkgs,
+                inputs,
+                hostData,
+                user,
+                hostKey,
+                ...
+              }:
+              {
+                imports = homeModules isDarwin;
+                home = {
+                  username = user;
+                  homeDirectory = hostData.hosts.${hostKey}.homeDirectory;
+                  stateVersion = hostData.hosts.${hostKey}.stateVersion;
+                };
+              };
+            extraSpecialArgs = {
+              inherit
+                inputs
+                hostData
+                user
+                hostKey
+                ;
+              inherit (inputs) nu-scripts;
             };
           };
-          extraSpecialArgs = {
-            inherit inputs hostData user hostKey;
-            inherit (inputs) nu-scripts;
-          };
         };
-      };
 
       # Helper to create standalone home-manager configuration
       # Usage: mkHomeConfiguration { hostKey = "framework"; user = "jadee"; isDarwin = false; }
-      mkHomeConfiguration = { hostKey, user, isDarwin ? false }:
+      mkHomeConfiguration =
+        {
+          hostKey,
+          user,
+          isDarwin ? false,
+        }:
         let
           host = hostData.hosts.${hostKey} or { };
           system = host.system or (if isDarwin then "aarch64-darwin" else "x86_64-linux");
           pkgs = getPkgs system;
-        in home-manager.lib.homeManagerConfiguration {
+        in
+        home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
           modules = homeModules isDarwin ++ [
             {
@@ -178,7 +222,12 @@
             }
           ];
           extraSpecialArgs = {
-            inherit inputs hostData user hostKey;
+            inherit
+              inputs
+              hostData
+              user
+              hostKey
+              ;
             inherit (inputs) nu-scripts;
             pkgs-unstable = getPkgsUnstable system;
             host = host;
@@ -186,12 +235,14 @@
         };
 
       # Build outputs per host
-      mkHostOutputs = hostKey: host:
+      mkHostOutputs =
+        hostKey: host:
         let
           system = host.system or "x86_64-linux";
           isDarwin = lib.elem system darwinSystems;
           user = host.username or "jadee";
-        in {
+        in
+        {
           nixosConfigurations = lib.optionalAttrs (!isDarwin) {
             ${hostKey} = lib.nixosSystem {
               inherit system;
@@ -220,7 +271,10 @@
               modules = [
                 sops-nix.darwinModules.sops
                 home-manager.darwinModules.home-manager
-                (mkHomeManagerModule { inherit hostKey user; isDarwin = true; })
+                (mkHomeManagerModule {
+                  inherit hostKey user;
+                  isDarwin = true;
+                })
                 nix-homebrew.darwinModules.nix-homebrew
                 {
                   nix-homebrew = {
@@ -249,19 +303,20 @@
         };
 
       # Aggregate all per-host outputs
-      hostOutputs =
-        lib.foldl' lib.recursiveUpdate { }
-          (lib.mapAttrsToList mkHostOutputs (hostData.hosts or { }));
+      hostOutputs = lib.foldl' lib.recursiveUpdate { } (
+        lib.mapAttrsToList mkHostOutputs (hostData.hosts or { })
+      );
 
     in
     {
       # Formatters for all systems
-      formatter = lib.genAttrs (linuxSystems ++ darwinSystems) (system:
-        (getPkgs system).nixfmt-rfc-style
+      formatter = lib.genAttrs (linuxSystems ++ darwinSystems) (
+        system: (getPkgs system).nixfmt-rfc-style
       );
 
       # Dev shells with tooling (formatter, language servers)
-      devShells = lib.genAttrs (linuxSystems ++ darwinSystems) (system:
+      devShells = lib.genAttrs (linuxSystems ++ darwinSystems) (
+        system:
         let
           pkgs = getPkgs system;
         in
@@ -275,5 +330,6 @@
           };
         }
       );
-    } // hostOutputs;
+    }
+    // hostOutputs;
 }

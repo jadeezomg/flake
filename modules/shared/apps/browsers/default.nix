@@ -8,4 +8,3 @@
     # chromium  # Uncomment to use Chromium instead of Chrome
   ];
 }
-

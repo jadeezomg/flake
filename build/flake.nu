@@ -27,7 +27,8 @@ def main [cmd?: string, ...args: string] {
   if ($cmd | is-empty) {
     print-header "FLAKE COMMANDS"
     let rows = ($cmds | select key modes usage desc | rename command modes usage description)
-    print-table $rows --compact
+    let table_txt = ($rows | table --expand | str join (char newline))
+    print $table_txt
     return
   }
 

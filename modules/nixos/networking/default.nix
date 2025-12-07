@@ -1,4 +1,9 @@
-{ config, pkgs, host, ... }:
+{
+  config,
+  pkgs,
+  host,
+  ...
+}:
 
 {
   networking.hostName = host.hostname or "nixos";
@@ -11,4 +16,3 @@
   # Enable networking
   networking.networkmanager.enable = true;
 }
-

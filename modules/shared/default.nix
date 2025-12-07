@@ -10,4 +10,3 @@
     ./integration
   ];
 }
-

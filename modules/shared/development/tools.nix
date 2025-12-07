@@ -14,4 +14,3 @@
     nixd # Alternative Nix language server
   ];
 }
-

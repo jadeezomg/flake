@@ -8,4 +8,3 @@
     ./keyrings.nix
   ];
 }
-

@@ -18,23 +18,23 @@
     extraEnv = ''
       # Flake configuration path
       $env.FLAKE = $"($env.HOME)/.dotfiles/flake"
-      
+
       let posh = "${pkgs.oh-my-posh}/bin/oh-my-posh"
-      
+
       # Oh My Posh theme configuration
       # Available themes: https://ohmyposh.dev/docs/themes
       let posh_theme = "tiwahu"
-      
+
       # Set up Oh My Posh prompt
       $env.PROMPT_COMMAND = {|| 
         let exit_code = (if ($env.LAST_EXIT_CODE) == null { 0 } else { $env.LAST_EXIT_CODE })
         ^$posh print primary --config $posh_theme --shell nushell --status $exit_code
       }
-      
+
       $env.PROMPT_COMMAND_RIGHT = {|| 
         ^$posh print right --config $posh_theme --shell nushell
       }
-      
+
       # Prompt indicators
       $env.PROMPT_INDICATOR = {|| "> " }
       $env.PROMPT_INDICATOR_VI_INSERT = {|| ": " }
@@ -76,4 +76,3 @@
     '';
   };
 }
-

@@ -7,4 +7,3 @@
     xh # Better curl
   ];
 }
-

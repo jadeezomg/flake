@@ -3,4 +3,3 @@
 {
   # Storage hardware configuration
 }
-

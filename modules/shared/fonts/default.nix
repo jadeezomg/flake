@@ -7,4 +7,3 @@
     nerd-fonts.iosevka-term-slab
   ];
 }
-

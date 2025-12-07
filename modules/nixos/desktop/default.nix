@@ -18,4 +18,3 @@
     desktopManager.gnome.enable = true;
   };
 }
-
