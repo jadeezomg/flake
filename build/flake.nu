@@ -36,6 +36,7 @@ def main [
     { key: "untracked",      script: "untracked.nu",      usage: "flake untracked",                             modes: "",                             desc: "List untracked files in the repo" }
     { key: "fmt",            script: "fmt.nu",            usage: "flake fmt",                                   modes: "",                             desc: "Format Nix files with nixfmt" }
     { key: "reload-services",script: "reload-services.nu",usage: "flake reload-services",                       modes: "",                             desc: "Reload user services (Wayland, mako)" }
+    { key: "git",            script: "git-update.nu",     usage: "flake git",                                   modes: "",                             desc: "Show git status/diff, commit (prompt), and push" }
   ]
 
   if ($cmd | is-empty) {
