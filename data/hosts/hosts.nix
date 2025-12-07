@@ -30,7 +30,7 @@ rec {
 
   hosts = {
     framework = sharedNixOSHost // rec {
-      hostname = "jadee-framework-nixos";
+      hostname = "framework-nixos";
       description = "Jadee Framework NixOS Host";
       user = sharedNixOSUser // {
         # Host-specific overrides can go here
@@ -45,7 +45,7 @@ rec {
     };
 
     desktop = sharedNixOSHost // rec {
-      hostname = "jadee-desktop-nixos";
+      hostname = "desktop-nixos";
       description = "Jadee Desktop NixOS Host";
       user = sharedNixOSUser // {
         # Host-specific overrides can go here
@@ -54,7 +54,7 @@ rec {
     };
 
     caya = rec {
-      hostname = "jadee-caya-darwin";
+      hostname = "caya-darwin";
       description = "Jadee Caya Darwin Host";
       username = "jadee"; # Change this to your actual macOS Apple account username
       system = "aarch64-darwin";

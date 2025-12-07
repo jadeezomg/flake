@@ -5,6 +5,7 @@
     ./apps
     ./shells
     ./compat.nix
+    ./security
   ];
 }
 

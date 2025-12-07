@@ -8,27 +8,15 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  # TODO: Run 'nixos-generate-config' on your desktop machine to generate
-  # the actual hardware configuration for your specific hardware.
-  # 
-  # To generate: sudo nixos-generate-config --dir /path/to/flake/hosts/desktop/
-  # Then copy the fileSystems, boot, and hardware sections here.
+  # Temporary root fs to satisfy flake checks. Replace with real values from
+  # `nixos-generate-config` on the desktop machine.
+  fileSystems."/" = {
+    device = "none";
+    fsType = "tmpfs";
+    options = [ "mode=755" "size=1G" ];
+  };
 
-  # Placeholder - REPLACE WITH ACTUAL VALUES FROM YOUR DESKTOP MACHINE
-  # fileSystems."/" =
-  #   { device = "/dev/disk/by-uuid/YOUR-ROOT-UUID";
-  #     fsType = "ext4";
-  #   };
-
-  # fileSystems."/boot" =
-  #   { device = "/dev/disk/by-uuid/YOUR-BOOT-UUID";
-  #     fsType = "vfat";
-  #     options = [ "fmask=0077" "dmask=0077" ];
-  #   };
-
-  # swapDevices =
-  #   [ { device = "/dev/disk/by-uuid/YOUR-SWAP-UUID"; }
-  #   ];
+  swapDevices = [ ];
 
   # nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 }

@@ -50,8 +50,6 @@
       url = "github:TudorAndrei/cursor-nixos-flake";
     };
 
-
-
     nix-homebrew = {
       url = "github:zhaofengli-wip/nix-homebrew";
     };
@@ -103,9 +101,6 @@
       hostData = import ./data/hosts/hosts.nix;
       linuxSystems = [ "x86_64-linux" "aarch64-linux" ];
       darwinSystems = [ "aarch64-darwin" "x86_64-darwin" ];
-      forAllSystems = f: nixpkgs.lib.genAttrs (linuxSystems ++ darwinSystems) f;
-
-
       # Helper to get pkgs for a system
       getPkgs = system: import nixpkgs {
         inherit system;
@@ -134,31 +129,35 @@
         inherit inputs;
       };
 
+      # Shared home module sets
+      baseHomeModules = isDarwin:
+        if isDarwin then
+          [ ./home/shared ./home/darwin ]
+        else
+          [ ./home/shared ./home/nixos ];
+      homeModules = isDarwin: [ inputs.sops-nix.homeManagerModules.sops ] ++ baseHomeModules isDarwin;
+
       # Helper to create home-manager configuration for any host
       # Usage: mkHomeManagerModule { hostKey = "framework"; user = "jadee"; isDarwin = false; }
-      mkHomeManagerModule = { hostKey, user, isDarwin ? false }:
-        let
-          host = hostData.hosts.${hostKey} or { };
-          homeModules = if isDarwin then [ ./home/shared ./home/darwin ] else [ ./home/shared ./home/nixos ];
-        in {
-          home-manager = {
-            useGlobalPkgs = true;
-            useUserPackages = true;
-            backupFileExtension = "backup";
-            users.${user} = { config, pkgs, inputs, hostData, user, hostKey, ... }: {
-              imports = homeModules;
-              home = {
-                username = user;
-                homeDirectory = hostData.hosts.${hostKey}.homeDirectory;
-                stateVersion = hostData.hosts.${hostKey}.stateVersion;
-              };
-            };
-            extraSpecialArgs = {
-              inherit inputs hostData user hostKey;
-              inherit (inputs) nu-scripts;
+      mkHomeManagerModule = { hostKey, user, isDarwin ? false }: {
+        home-manager = {
+          useGlobalPkgs = true;
+          useUserPackages = true;
+          backupFileExtension = "backup";
+          users.${user} = { config, pkgs, inputs, hostData, user, hostKey, ... }: {
+            imports = homeModules isDarwin;
+            home = {
+              username = user;
+              homeDirectory = hostData.hosts.${hostKey}.homeDirectory;
+              stateVersion = hostData.hosts.${hostKey}.stateVersion;
             };
           };
+          extraSpecialArgs = {
+            inherit inputs hostData user hostKey;
+            inherit (inputs) nu-scripts;
+          };
         };
+      };
 
       # Helper to create standalone home-manager configuration
       # Usage: mkHomeConfiguration { hostKey = "framework"; user = "jadee"; isDarwin = false; }
@@ -167,10 +166,9 @@
           host = hostData.hosts.${hostKey} or { };
           system = host.system or (if isDarwin then "aarch64-darwin" else "x86_64-linux");
           pkgs = getPkgs system;
-          homeModules = if isDarwin then [ ./home/shared ./home/darwin ] else [ ./home/shared ./home/nixos ];
         in home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
-          modules = homeModules ++ [
+          modules = homeModules isDarwin ++ [
             {
               home = {
                 username = user;
@@ -187,6 +185,74 @@
           };
         };
 
+      # Build outputs per host
+      mkHostOutputs = hostKey: host:
+        let
+          system = host.system or "x86_64-linux";
+          isDarwin = lib.elem system darwinSystems;
+          user = host.username or "jadee";
+        in {
+          nixosConfigurations = lib.optionalAttrs (!isDarwin) {
+            ${hostKey} = lib.nixosSystem {
+              inherit system;
+              pkgs = getPkgs system;
+              specialArgs = commonSpecialArgs // {
+                pkgs-unstable = getPkgsUnstable system;
+                host = host;
+                inherit hostKey user;
+              };
+              modules = [
+                ./hosts/${hostKey}
+                sops-nix.nixosModules.sops
+                home-manager.nixosModules.home-manager
+                (mkHomeManagerModule { inherit hostKey user; })
+              ];
+            };
+          };
+
+          darwinConfigurations = lib.optionalAttrs isDarwin {
+            ${hostKey} = nix-darwin.lib.darwinSystem {
+              inherit system;
+              specialArgs = commonSpecialArgs // {
+                host = host;
+                inherit hostKey user;
+              };
+              modules = [
+                sops-nix.darwinModules.sops
+                home-manager.darwinModules.home-manager
+                (mkHomeManagerModule { inherit hostKey user; isDarwin = true; })
+                nix-homebrew.darwinModules.nix-homebrew
+                {
+                  nix-homebrew = {
+                    inherit user;
+                    enable = true;
+                    taps = {
+                      "homebrew/homebrew-core" = inputs.homebrew-core;
+                      "homebrew/homebrew-cask" = inputs.homebrew-cask;
+                      "homebrew/homebrew-bundle" = inputs.homebrew-bundle;
+                    };
+                    mutableTaps = false;
+                    autoMigrate = true;
+                  };
+                }
+                ./hosts/${hostKey}
+              ];
+            };
+          };
+
+          homeConfigurations = {
+            ${hostKey} = mkHomeConfiguration {
+              inherit hostKey user;
+              isDarwin = isDarwin;
+            };
+          };
+        };
+
+      # Aggregate all per-host outputs
+      hostOutputs =
+        lib.foldl' lib.recursiveUpdate { }
+          (lib.mapAttrsToList mkHostOutputs (hostData.hosts or { }));
+
     in
     {
       # Formatters for all systems
@@ -199,115 +265,15 @@
         let
           pkgs = getPkgs system;
         in
-        pkgs.mkShell {
-          packages = [
-            pkgs.nixfmt-rfc-style
-            pkgs.nil
-            pkgs.nixd
-          ];
+        {
+          default = pkgs.mkShell {
+            packages = [
+              pkgs.nixfmt-rfc-style
+              pkgs.nil
+              pkgs.nixd
+            ];
+          };
         }
       );
-
-      # NixOS Configurations
-      nixosConfigurations = {
-        framework = let
-          host = hostData.hosts.framework or { };
-          system = host.system or "x86_64-linux";
-          hostKey = "framework";
-          user = host.username or "jadee";
-        in lib.nixosSystem {
-          inherit system;
-          pkgs = getPkgs system;
-          specialArgs = commonSpecialArgs // { 
-            pkgs-unstable = getPkgsUnstable system;
-            host = host;
-            inherit hostKey user;
-          };
-          modules = [
-            ./hosts/framework
-            sops-nix.nixosModules.sops
-            home-manager.nixosModules.home-manager
-            (mkHomeManagerModule { inherit hostKey user; })
-          ];
-        };
-
-        desktop = let
-          host = hostData.hosts.desktop or { };
-          system = host.system or "x86_64-linux";
-          hostKey = "desktop";
-          user = host.username or "jadee";
-        in lib.nixosSystem {
-          inherit system;
-          pkgs = getPkgs system;
-          specialArgs = commonSpecialArgs // { 
-            pkgs-unstable = getPkgsUnstable system;
-            host = host;
-            inherit hostKey user;
-          };
-          modules = [
-            ./hosts/desktop
-            sops-nix.nixosModules.sops
-            home-manager.nixosModules.home-manager
-            (mkHomeManagerModule { inherit hostKey user; })
-          ];
-        };
-      };
-
-      # Standalone Home Manager Configurations
-      # Allows using: home-manager switch --flake .#framework
-      homeConfigurations = {
-        framework = let
-          host = hostData.hosts.framework or { };
-          hostKey = "framework";
-          user = host.username or "jadee";
-        in mkHomeConfiguration { inherit hostKey user; };
-
-        desktop = let
-          host = hostData.hosts.desktop or { };
-          hostKey = "desktop";
-          user = host.username or "jadee";
-        in mkHomeConfiguration { inherit hostKey user; };
-
-        caya = let
-          host = hostData.hosts.caya or { };
-          hostKey = "caya";
-          user = host.username or "jadee";
-        in mkHomeConfiguration { inherit hostKey user; isDarwin = true; };
-      };
-
-      # Darwin Configurations
-      darwinConfigurations = {
-        caya = let
-          host = hostData.hosts.caya or { };
-          system = host.system or "aarch64-darwin";
-          hostKey = "caya";
-          user = host.username or "jadee";
-        in nix-darwin.lib.darwinSystem {
-          inherit system;
-          specialArgs = commonSpecialArgs // {
-            host = host;
-            inherit hostKey user;
-          };
-          modules = [
-            home-manager.darwinModules.home-manager
-            (mkHomeManagerModule { inherit hostKey user; isDarwin = true; })
-            nix-homebrew.darwinModules.nix-homebrew
-            {
-              nix-homebrew = {
-                inherit user;
-                enable = true;
-                taps = {
-                  "homebrew/homebrew-core" = inputs.homebrew-core;
-                  "homebrew/homebrew-cask" = inputs.homebrew-cask;
-                  "homebrew/homebrew-bundle" = inputs.homebrew-bundle;
-                };
-                mutableTaps = false;
-                autoMigrate = true;
-              };
-            }
-            ./hosts/caya
-          ];
-        };
-      };
-    };
+    } // hostOutputs;
 }

@@ -1,0 +1,9 @@
+{ ... }:
+
+{
+  imports = [
+    ./age-sops.nix
+  ];
+}
+
+

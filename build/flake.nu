@@ -1,18 +1,10 @@
 #!/usr/bin/env nu
 # Overview of flake build scripts
-# Usage: flake.nu
 
 use common.nu *
 use theme.nu *
 
 # Dispatcher for flake helper scripts.
-# Usage:
-#   flake                 # show help
-#   flake build [host] [mode]
-#   flake switch [host] [--fast]
-#   flake update [input]
-#   flake gc <mode> [value]
-#   flake health | caches | generation | init | check-backups | clean-backups
 def main [cmd?: string, ...args: string] {
   let flake_path = (get-flake-path)
   let cmds = [
