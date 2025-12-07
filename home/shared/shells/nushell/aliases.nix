@@ -1,4 +1,4 @@
-{ ... }:
+{ hostKey ? "framework", ... }:
 
 {
   programs.nushell.shellAliases = {
@@ -9,17 +9,19 @@
     
     # Navigation shortcuts
     cd = "z";
-    ".." = "cd ..";
-    "..." = "cd ../..";
-    "...." = "cd ../../..";
-    "....." = "cd ../../../..";
+    ".." = "z ..";
+    "..." = "z ../..";
+    "...." = "z ../../..";
+    "....." = "z ../../../..";
     
     # Editor shortcuts
     zed = "zeditor";
+    code = "cursor";
     
     # General shortcuts
     cl = "clear";
     h = "history";
+    fuck = "pay-respects nushell --alias"; 
     
     # Git shortcuts
     gst = "git status";
@@ -41,6 +43,23 @@
     alias search = rg --smart-case
     alias searchf = fd --type f
     alias searchd = fd --type d
+    
+    # Home Manager shortcuts (using nushell string interpolation)
+    alias hm = home-manager --flake $"($env.FLAKE)#${hostKey}"
+    alias hms = home-manager switch --flake $"($env.FLAKE)#${hostKey}"
+    alias hmn = home-manager news --flake $"($env.FLAKE)#${hostKey}"
+    
+    # Flake build scripts shortcuts
+    alias flake = nu $"($env.FLAKE)/build/flake.nu"
+    alias flake-init = nu $"($env.FLAKE)/build/init.nu"
+    alias flake-build = nu $"($env.FLAKE)/build/build.nu"
+    alias flake-switch = nu $"($env.FLAKE)/build/switch.nu"
+    alias flake-update = nu $"($env.FLAKE)/build/update.nu"
+    alias flake-gc = nu $"($env.FLAKE)/build/gc.nu"
+    alias flake-health = nu $"($env.FLAKE)/build/health.nu"
+    alias flake-rollback = nu $"($env.FLAKE)/build/rollback.nu"
+    alias flake-generation = nu $"($env.FLAKE)/build/generation.nu"
+    alias flake-caches = nu $"($env.FLAKE)/build/update-caches.nu"
   '';
 }
 

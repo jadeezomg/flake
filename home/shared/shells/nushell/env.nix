@@ -16,6 +16,9 @@
 
     # Additional environment setup
     extraEnv = ''
+      # Flake configuration path
+      $env.FLAKE = $"($env.HOME)/.dotfiles/flake"
+      
       let posh = "${pkgs.oh-my-posh}/bin/oh-my-posh"
       
       # Oh My Posh theme configuration

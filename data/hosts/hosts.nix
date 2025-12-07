@@ -5,7 +5,7 @@ rec {
     username = "jadee";
     fullName = "Jonas Hippauf";
     email = "me@jadee.fyi";
-    description = "main user account";
+    description = "jadee";
     extraGroups = [
       "input"
       "networkmanager"

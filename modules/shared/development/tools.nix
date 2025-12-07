@@ -9,6 +9,9 @@
     tokei # Code metrics
     uv # Python package manager
     gh # GitHub CLI
+    nixfmt-rfc-style # Nix formatter
+    nil # Nix language server
+    nixd # Alternative Nix language server
   ];
 }
 
