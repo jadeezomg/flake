@@ -253,9 +253,14 @@ export def get-host [host?: string] {
   if ($detected | is-not-empty) {
     return $detected
   }
-  
-  # Fallback to framework
-  return "framework"
+
+  # If we cannot detect, prompt the user for a host
+  let prompted = (input "Host not detected. Enter host (e.g. framework/desktop/...): " | str trim)
+  if ($prompted | is-empty) {
+    print-error "Host is required; please provide one or run 'flake init <host>'."
+    exit 1
+  }
+  return $prompted
 }
 
 # Set the default host for this flake

@@ -1,15 +1,31 @@
 #!/usr/bin/env nu
 # Build NixOS configuration without switching
-# Usage: build.nu <host> <mode>
+# Usage: build.nu [host] [mode]
 # Modes: build, boot, dry, dev
 
 use common.nu *
 
-def main [host?: string, mode: string = "build"] {
+def main [host_or_mode?: string, mode?: string] {
   let flake_path = (get-flake-path)
-  let target_host = (get-host $host)
+  let modes = ["build" "boot" "dry" "dev"]
+
+  let candidate = ($host_or_mode | default "")
+  let is_mode_first = ($modes | any { |m| $m == $candidate })
+  let selected_mode = (
+    if $is_mode_first { $host_or_mode }
+    else { $mode | default "build" }
+  )
+
+  let modes_txt = ($modes | str join ", ")
+  if (not ($modes | any { |m| $m == $selected_mode })) {
+    print-error $"Invalid mode: ($selected_mode)"
+    print $"Modes: ($modes_txt)"
+    exit 1
+  }
+
+  let target_host = (if $is_mode_first { get-host "" } else { get-host $host_or_mode })
   
-  match $mode {
+  match $selected_mode {
     "build" => {
       notify "Flake Build" $"Building configuration for ($target_host)..." "pending"
       let cmd = $"cd /tmp && sudo nixos-rebuild build --flake '($flake_path)#($target_host)'"
@@ -37,8 +53,8 @@ def main [host?: string, mode: string = "build"] {
       ^bash -c $cmd
     }
     _ => {
-      print-error $"Invalid mode: ($mode)"
-      print "Modes: build, boot, dry, dev"
+      print-error $"Invalid mode: ($selected_mode)"
+      print $"Modes: ($modes_txt)"
       exit 1
     }
   }
