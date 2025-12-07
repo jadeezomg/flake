@@ -60,37 +60,50 @@ export def print-info [msg: string] {
 export def print-header [
   title: string,
   icon?: string = "▲",
-  bar_len?: int = 8
+  bar_len?: any = null
 ] {
-  # Clamp bar length to 4..12 and make it even for symmetry
-  let base_len = (if ($bar_len | is-empty) { 8 } else { $bar_len })
-  let len_clamped = (if $base_len < 4 { 4 } else if $base_len > 12 { 12 } else { $base_len })
-  let len = (if ($len_clamped mod 2) == 0 { $len_clamped } else { $len_clamped + 1 })
-  let half = ($len // 2)
+  let cols = (try { term size | get columns } catch { 100 })
 
-  # Build tapered bars: dotted outwards to solid near the title
-  let left_bar = (
-    if $half <= 2 {
-      ("━" | fill --width $half --character "━")
-    } else {
-      let gradient = ["┄" "┄" "┈" "┈" "╼" "━" "━"]
-      ($gradient | last $half | str join "")
+  # Compute bar lengths with a left-aligned layout
+  let core_len = (($icon | str length) + ($title | str length) + 4)  # spaces + icon
+  let left_target = 12
+  let min_left = 4
+
+  let space = (if ($cols - $core_len) < 0 { 0 } else { $cols - $core_len })
+  let desired_left = (if ($bar_len | is-empty) { $left_target } else { $bar_len })
+  let left_len = (
+    if $space == 0 { 0 }
+    else {
+      let want = (if $desired_left < $min_left { $min_left } else { $desired_left })
+      if $want > $space { $space } else { $want }
     }
   )
-  let right_bar = (
-    if $half <= 2 {
-      ("━" | fill --width $half --character "━")
-    } else {
-      let gradient = ["━" "━" "╾" "┈" "┈" "┄" "┄"]
-      ($gradient | first $half | str join "")
-    }
-  )
+  let right_len = (if $space < $left_len { 0 } else { $space - $left_len })
+
+  # Build tapered bars (progressive: spaced middle dots -> dots -> light -> solid)
+  let make_bar = {|bar_len is_left|
+    0..<$bar_len
+    | each { |i|
+        let dist = if $is_left { $bar_len - 1 - $i } else { $i }
+        if $dist >= 10 {
+          if ($dist mod 2) == 0 { "·" } else { " " }                  # spaced middle dots
+        } else if $dist >= 6 {
+          "·"                                                         # tight middle dots
+        } else if $dist >= 3 {
+          "╼"                                                         # light taper
+        } else {
+          "━"                                                         # solid near the title
+        }
+      }
+    | str join ""
+  }
+
+  let left_bar = (do $make_bar $left_len true)
+  let right_bar = (do $make_bar $right_len false)
 
   let line = $"($left_bar) ($icon) ($title) ($right_bar)"
   let line_len = ($line | str length)
-  let cols = (try { term size | get columns } catch { 80 })
-  let width = (if $cols < $line_len { $line_len } else { $cols })
-  let pad_total = ($width - $line_len)
+  let pad_total = (if $cols > $line_len { $cols - $line_len } else { 0 })
   let pad_left = ($pad_total // 2)
   let pad_right = ($pad_total - $pad_left)
   let left_pad = (" " | fill --width $pad_left --character " ")
