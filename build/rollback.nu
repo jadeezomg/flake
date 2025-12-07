@@ -5,8 +5,8 @@
 use common.nu *
 
 def main [] {
-  notify "Flake Rollback" "Rolling back to previous generation..."
+  notify "Flake Rollback" "Rolling back to previous generation..." "pending"
   sudo nixos-rebuild switch --rollback
-  notify "Flake Rollback" "Rollback complete"
+  notify "Flake Rollback" "Rollback complete" "success"
 }
 

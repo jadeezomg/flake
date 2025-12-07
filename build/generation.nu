@@ -22,15 +22,15 @@ def list-generations [] {
 }
 
 def switch-generation [num: int] {
-  notify "Flake Generation" $"Switching to generation ($num)..."
+  notify "Flake Generation" $"Switching to generation ($num)..." "pending"
   sudo nix-env --switch-generation $num -p /nix/var/nix/profiles/system
-  notify "Flake Generation" "Generation switch complete"
+  notify "Flake Generation" "Generation switch complete" "success"
 }
 
 def delete-generation [num: int] {
-  notify "Flake Generation" $"Deleting generation ($num)..."
+  notify "Flake Generation" $"Deleting generation ($num)..." "pending"
   sudo nix-env --delete-generations $num -p /nix/var/nix/profiles/system
-  notify "Flake Generation" "Generation deleted"
+  notify "Flake Generation" "Generation deleted" "success"
 }
 
 def main [action: string = "list", num?: int] {

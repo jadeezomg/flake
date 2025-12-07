@@ -4,7 +4,7 @@
 use common.nu *
 
 def main [] {
-  notify "Flake Reload Services" "Reloading user services..."
+  notify "Flake Reload Services" "Reloading user services..." "pending"
 
   # Reload user daemon
   ^systemctl --user daemon-reload
@@ -25,7 +25,7 @@ def main [] {
     ^makoctl reload
   }
 
-  notify "Flake Reload Services" "Reloaded user services"
+  notify "Flake Reload Services" "Reloaded user services" "success"
 }
 
 

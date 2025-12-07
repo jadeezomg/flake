@@ -8,9 +8,9 @@ def main [input?: string] {
   let flake_path = (get-flake-path)
   
   if ($input | is-empty) {
-    notify "Flake Update" "Updating all flake inputs..."
+    notify "Flake Update" "Updating all flake inputs..." "pending"
     nix flake update --flake $flake_path
-    notify "Flake Update" "Flake inputs updated. See terminal for details."
+    notify "Flake Update" "Flake inputs updated. See terminal for details." "success"
     
     print ""
     print "Input changes:"
@@ -22,9 +22,9 @@ def main [input?: string] {
       }
       | take 10
   } else {
-    notify "Flake Update" $"Updating input: ($input)..."
+    notify "Flake Update" $"Updating input: ($input)..." "pending"
     nix flake update --update-input $input --flake $flake_path
-    notify "Flake Update" $"Updated input: ($input)"
+    notify "Flake Update" $"Updated input: ($input)" "success"
   }
 }
 

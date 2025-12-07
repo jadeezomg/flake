@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 
 {
   # X server configuration (required for GDM and XWayland compatibility)
@@ -17,4 +17,9 @@
     displayManager.gdm.enable = true;
     desktopManager.gnome.enable = true;
   };
+
+  # Desktop notifications
+  environment.systemPackages = with pkgs; [
+    libnotify
+  ];
 }

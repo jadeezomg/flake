@@ -6,17 +6,17 @@ use common.nu *
 def main [] {
   let flake_path = (get-flake-path)
 
-  notify "Flake Untracked" "Checking for untracked files..."
+  notify "Flake Untracked" "Checking for untracked files..." "pending"
 
   let untracked = (git -C $flake_path ls-files --others --exclude-standard | lines | where ($it | is-not-empty))
 
   if ($untracked | is-empty) {
-    notify "Flake Untracked" "Repository is clean. No untracked files."
+    notify "Flake Untracked" "Repository is clean. No untracked files." "success"
     return
   }
 
   let count = ($untracked | length)
-  notify "Flake Untracked" $"Found ($count) untracked files. See terminal for list."
+  notify "Flake Untracked" $"Found ($count) untracked files. See terminal for list." "info"
   print ""
 
   $untracked | each { |file|

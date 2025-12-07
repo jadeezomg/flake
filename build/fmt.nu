@@ -11,20 +11,20 @@ def main [] {
     exit 1
   }
 
-  notify "Flake Fmt" "Formatting Nix files..."
+  notify "Flake Fmt" "Formatting Nix files..." "pending"
 
   let files = (glob $"($flake_path)/**/*.nix")
   let count = ($files | length)
 
   if $count == 0 {
-    notify "Flake Fmt" "No .nix files found."
+    notify "Flake Fmt" "No .nix files found." "info"
     return
   }
 
   # Run nixfmt per file to avoid argument length issues
   $files | each { |f| ^nixfmt $f }
 
-  notify "Flake Fmt" $"Formatted ($count) files"
+  notify "Flake Fmt" $"Formatted ($count) files" "success"
 }
 
 

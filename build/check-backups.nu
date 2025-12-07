@@ -5,7 +5,7 @@
 use common.nu *
 
 def main [] {
-  notify "Flake Check Backups" "Scanning for backup files..."
+  notify "Flake Check Backups" "Scanning for backup files..." "pending"
   print ""
   
   let config_dir = $"($env.HOME)/.config"
@@ -15,7 +15,7 @@ def main [] {
   let backup_count = ($backups | length)
   
   if $backup_count == 0 {
-    notify "Flake Check Backups" "No backup files found"
+    notify "Flake Check Backups" "No backup files found" "success"
   } else {
     # Use structured data for better table formatting
     let backup_table = ($backups | each { |file|

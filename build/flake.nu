@@ -5,13 +5,27 @@ use common.nu *
 use theme.nu *
 
 # Dispatcher for flake helper scripts.
-def main [cmd?: string, ...args: string] {
+def main [
+  cmd?: string,
+  --fast (-f),
+  --dry-run,
+  --all (-A),
+  --all-except-nix (-e),
+  --apps (-a),
+  --launcher (-l),
+  --wallpapers (-w),
+  --bat (-b),
+  --tldr (-t),
+  --icons (-i),
+  --nix (-n),
+  ...args: string
+] {
   let flake_path = (get-flake-path)
   let cmds = [
     { key: "build",          script: "build.nu",          usage: "flake build [host] [mode]",                   modes: "build | boot | dry | dev",     desc: "Build NixOS config (no switch)" }
     { key: "switch",         script: "switch.nu",         usage: "flake switch [host] [--fast]",                modes: "",                             desc: "Build & switch NixOS config" }
     { key: "health",         script: "health.nu",         usage: "flake health",                                modes: "",                             desc: "System health check" }
-    { key: "gc",             script: "gc.nu",             usage: "flake gc <keep|days|all> [value]",            modes: "keep | days | all",            desc: "Garbage collect generations" }
+    { key: "gc",             script: "gc.nu",             usage: "flake gc <keep|days|all> [value]",            modes: "keep | days | all",            desc: "Garbage collect generations (keep N, delete older than days, or deep clean)" }
     { key: "update",         script: "update.nu",         usage: "flake update [input]",                        modes: "",                             desc: "Update flake inputs" }
     { key: "caches",         script: "update-caches.nu",  usage: "flake caches [flags]",                        modes: "",                             desc: "Update caches (bat, tldr, icons, nix)" }
     { key: "check-backups",  script: "check-backups.nu",  usage: "flake check-backups",                         modes: "",                             desc: "Scan ~/.config for *.backup / *.bkp files" }
@@ -41,6 +55,23 @@ def main [cmd?: string, ...args: string] {
   }
 
   let script_path = $"($flake_path)/build/($entry.script)"
-  ^nu $script_path ...$args
+  let forwarded_flags = (
+    []
+      | append (if $fast { "--fast" } else { null })
+      | append (if $dry_run { "--dry-run" } else { null })
+      | append (if $all { "--all" } else { null })
+      | append (if $all_except_nix { "--all-except-nix" } else { null })
+      | append (if $apps { "--apps" } else { null })
+      | append (if $launcher { "--launcher" } else { null })
+      | append (if $wallpapers { "--wallpapers" } else { null })
+      | append (if $bat { "--bat" } else { null })
+      | append (if $tldr { "--tldr" } else { null })
+      | append (if $icons { "--icons" } else { null })
+      | append (if $nix { "--nix" } else { null })
+      | where { |x| $x != null }
+  )
+
+  let pass_args = ($args | append $forwarded_flags)
+  ^nu $script_path ...$pass_args
 }
 

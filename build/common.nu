@@ -8,13 +8,34 @@ export def get-flake-path [] {
   $env.FLAKE? | default $"($env.HOME)/.dotfiles/flake"
 }
 
-# Send desktop notification
-export def notify [title: string, message: string] {
+# Send desktop notification (or pretty console fallback)
+export def notify [
+  title: string,
+  message: string,
+  status?: string = "info"
+] {
+  let icon = (match $status {
+    "success" => $theme_icons.success
+    "error" => $theme_icons.error
+    "pending" => $theme_icons.pending
+    _ => $theme_icons.info
+  })
+
+  let color = (match $status {
+    "success" => $theme_colors.success_bold
+    "error" => $theme_colors.error_bold
+    "pending" => $theme_colors.pending_bold
+    _ => $theme_colors.info_bold
+  })
+
+  let pretty_title = $"(ansi $color)($icon) ($title)(ansi reset)"
+  let notify_title = $title 
+
   let notify_cmd = (which notify-send)
   if ($notify_cmd | is-not-empty) {
-    ^notify-send --app-name="flake-build" $title $message
+    ^notify-send --app-name="flake-build" $notify_title $message
   } else {
-    print $"($title): ($message)"
+    print $"($pretty_title): ($message)"
   }
 }
 
