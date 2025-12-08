@@ -24,7 +24,6 @@
     # General shortcuts
     cl = "clear";
     h = "history";
-    fuck = "pay-respects nushell --alias";
 
     # Git shortcuts
     gst = "git status";
@@ -38,7 +37,7 @@
     # Quick directory navigation using zoxide
     # Use 'z' for smart navigation, or these shortcuts for common directories
     alias zz = z $env.HOME
-    alias zc = z $env.XDG_CONFIG_HOME
+    alias zc = z $"($env.HOME)/.config"
     alias zd = z $"($env.HOME)/Downloads"
     alias zp = z $"($env.HOME)/.dotfiles"
 

@@ -4,6 +4,7 @@
 use common.nu *
 
 def main [] {
+  print-header "GIT UPDATE"
   let repo = (get-flake-path)
 
   print-header "GIT STATUS"
@@ -69,6 +70,7 @@ def main [] {
     $post_status | each { |line| print-info $"  ($line)" }
   }
 
+  print-header "END"
   notify "Flake Git" "Git workflow complete" "success"
 }
 

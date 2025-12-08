@@ -5,6 +5,7 @@
 use common.nu *
 
 def main [] {
+  print-header "CHECK BACKUPS"
   notify "Flake Check Backups" "Scanning for backup files..." "pending"
   print ""
   
@@ -44,4 +45,5 @@ def main [] {
     print ""
     print-info $"Total: ($backup_count) backup files"
   }
+  print-header "END"
 }

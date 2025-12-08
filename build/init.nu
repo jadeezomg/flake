@@ -6,6 +6,7 @@
 use common.nu *
 
 def main [host?: string] {
+  print-header "INIT"
   let flake_path = (get-flake-path)
   
   if ($host | is-empty) {
@@ -45,5 +46,6 @@ def main [host?: string] {
   print "  flake-switch"
   print "  flake-build build"
   print "  flake-health"
+  print-header "END"
 }
 

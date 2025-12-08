@@ -148,10 +148,10 @@ def check-services [] {
 }
 
 def main [] {
+  print-header "SYSTEM HEALTH"
   let flake_path = (get-flake-path)
   
   notify "Flake Health" "Running system health check..." "pending"
-  print-header "SYSTEM HEALTH"
   
   check-flake-status $flake_path
   print ""

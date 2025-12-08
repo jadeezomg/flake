@@ -4,6 +4,7 @@
 use common.nu *
 
 def main [] {
+  print-header "FMT"
   let flake_path = (get-flake-path)
 
   if not (command-exists "nixfmt") {
@@ -25,6 +26,7 @@ def main [] {
   $files | each { |f| ^nixfmt $f }
 
   notify "Flake Fmt" $"Formatted ($count) files" "success"
+  print-header "END"
 }
 
 

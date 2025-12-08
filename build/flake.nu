@@ -37,7 +37,6 @@ def main [
     { key: "fmt",            script: "fmt.nu",            usage: "fmt",                                     desc: "Format Nix files with nixfmt" }
     { key: "reload-services",script: "reload-services.nu",usage: "reload-services",                         desc: "Reload user services (Wayland, mako)" }
     { key: "git",            script: "git-update.nu",     usage: "git",                                     desc: "Show git status/diff, commit (prompt), and push" }
-    { key: "test-header",    script: "test-header.nu",    usage: "test-header [--len N] [--icon ICON] [--all]", desc: "Preview print-header output" }
   ]
 
   if ($cmd | is-empty) {

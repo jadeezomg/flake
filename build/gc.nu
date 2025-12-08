@@ -87,14 +87,12 @@ def gc-all [] {
   show-progress "Cleaning trash directory"
   let trash = $"($env.XDG_DATA_HOME? | default $"($env.HOME)/.local/share")/Trash"
   if ($trash | path exists) {
-    try {
-    rm -rf $trash
-    } catch {
-      # If trash can't be removed as user, attempt with sudo. If that fails, inform and continue.
-      try {
-        sudo rm -rf $trash
-      } catch {
-        notify "Flake GC" $"Skipping trash cleanup (permission denied at: ($trash))" "info"
+    let trash_rm = (^rm -rf $trash | complete)
+    if $trash_rm.exit_code != 0 {
+      let trash_rm_sudo = (^sudo rm -rf $trash | complete)
+      if $trash_rm_sudo.exit_code != 0 {
+        let err = ($trash_rm_sudo.stderr | default $trash_rm.stderr | str trim)
+        notify "Flake GC" $"Skipping trash cleanup (permission denied at: ($trash)). ($err)" "info"
       }
     }
   }
@@ -104,6 +102,7 @@ def gc-all [] {
 }
 
 def main [mode: string, value?: string] {
+  print-header "GC"
   match $mode {
     "keep" => {
       let count = ($value | default "5" | into int)
@@ -120,5 +119,6 @@ def main [mode: string, value?: string] {
       exit 1
     }
   }
+  print-header "END"
 }
 

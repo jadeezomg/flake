@@ -43,6 +43,7 @@ def post-build-tasks [fast, script_dir: string] {
 }
 
 def main [host?: string, --fast] {
+  print-header "SWITCH"
   let flake_path = (get-flake-path)
   let script_dir = $"($flake_path)/build"
   let target_host = (get-host $host)
@@ -61,5 +62,6 @@ def main [host?: string, --fast] {
   print ""
   
   post-build-tasks $fast $script_dir
+  print-header "END"
 }
 

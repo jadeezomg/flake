@@ -4,6 +4,7 @@
 use common.nu *
 
 def main [] {
+  print-header "RELOAD SERVICES"
   notify "Flake Reload Services" "Reloading user services..." "pending"
 
   # Reload user daemon
@@ -26,6 +27,7 @@ def main [] {
   }
 
   notify "Flake Reload Services" "Reloaded user services" "success"
+  print-header "END"
 }
 
 

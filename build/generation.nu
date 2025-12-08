@@ -34,6 +34,7 @@ def delete-generation [num: int] {
 }
 
 def main [action: string = "list", num?: int] {
+  print-header "GENERATION"
   match $action {
     "list" => list-generations
     "switch" => {
@@ -56,5 +57,6 @@ def main [action: string = "list", num?: int] {
       exit 1
     }
   }
+  print-header "END"
 }
 

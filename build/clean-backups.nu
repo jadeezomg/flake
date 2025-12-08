@@ -5,6 +5,7 @@
 use common.nu *
 
 def main [--dry-run] {
+  print-header "CLEAN BACKUPS"
   let config_dir = $"($env.HOME)/.config"
   
   if $dry_run {
@@ -35,4 +36,5 @@ def main [--dry-run] {
       notify "Flake Clean Backups" $"Removed ($count) backup files" "success"
     }
   }
+  print-header "END"
 }

@@ -6,6 +6,7 @@
 use common.nu *
 
 def main [host_or_mode?: string, mode?: string] {
+  print-header "BUILD"
   let flake_path = (get-flake-path)
   let modes = ["build" "boot" "dry" "dev"]
 
@@ -58,5 +59,6 @@ def main [host_or_mode?: string, mode?: string] {
       exit 1
     }
   }
+  print-header "END"
 }
 

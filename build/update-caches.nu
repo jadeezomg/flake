@@ -69,6 +69,7 @@ def main [
   --icons (-i)
   --nix (-n)
 ] {
+  print-header "UPDATE CACHES"
   # Determine requested operations
   let ops = (
     if $all {
@@ -123,4 +124,5 @@ def main [
     print-error $"Some operations failed: ($failed | str join ', ')"
     exit 1
   }
+  print-header "END"
 }

@@ -4,6 +4,7 @@
 use common.nu *
 
 def main [] {
+  print-header "UNTRACKED"
   let flake_path = (get-flake-path)
 
   notify "Flake Untracked" "Checking for untracked files..." "pending"
@@ -26,6 +27,7 @@ def main [] {
   }
 
   print ""
+  print-header "END"
 }
 
 
