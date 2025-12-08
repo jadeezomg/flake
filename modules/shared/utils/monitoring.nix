@@ -1,7 +1,6 @@
 { pkgs, ... }:
 {
   environment.systemPackages = with pkgs; [
-    bottom # Better htop alternative
     btop # Better htop alternative
     mesa-demos # Info for OpenGL & Mesa
     hyperfine # Command-line benchmarking tool
