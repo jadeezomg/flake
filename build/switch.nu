@@ -5,10 +5,10 @@
 use common.nu *
 use theme.nu *
 
-def pre-flight-checks [flake_path: string] {
+def check [flake_path: string] {
   notify "Flake Switch" "Running pre-flight checks..." "pending"
-  let cmd = $"nix flake check ($flake_path) --no-write-lock-file"
-  let cmd_pretty = $"(ansi ($theme_colors.info_bold))nix flake check(ansi reset) (ansi white)($flake_path)(ansi reset) (ansi ($theme_colors.pending_bold))--no-write-lock-file(ansi reset)"
+  let cmd = $"nix flake check --all-systems ($flake_path) --no-write-lock-file"
+  let cmd_pretty = $"(ansi ($theme_colors.info_bold))nix flake check --all-systems(ansi reset) (ansi white)($flake_path)(ansi reset) (ansi ($theme_colors.pending_bold))--no-write-lock-file(ansi reset)"
   print-info $"(ansi ($theme_colors.info_bold))→(ansi reset) ($cmd_pretty)"
   let result = (^bash -lc $cmd | complete)
   if $result.exit_code == 0 {
@@ -42,17 +42,25 @@ def post-build-tasks [fast, script_dir: string] {
   print ""
 }
 
-def main [host?: string, --fast] {
+def main [host?: string, --fast, --check] {
   print-header "SWITCH"
   let flake_path = (get-flake-path)
   let script_dir = $"($flake_path)/build"
   let target_host = (get-host $host)
   
   if not $fast {
-    pre-flight-checks $flake_path
+    check $flake_path
   } else {
     notify "Flake Switch" "Fast mode enabled - skipping pre/post checks" "info"
     print ""
+  }
+
+  # Allow running only the check and exit early
+  if $check {
+    notify "Flake Switch" "Check-only flag set; skipping rebuild" "info"
+    print ""
+    print-header "END"
+    return
   }
   
   notify "Flake Switch" $"Building and switching configuration for ($target_host)..." "pending"

@@ -2,7 +2,6 @@
 
 {
   imports = [
-    ./ghostty.nix
   ];
 
   # Terminal configuration is handled via Home Manager
