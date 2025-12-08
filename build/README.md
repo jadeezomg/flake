@@ -15,6 +15,7 @@ Nushell-based build and management scripts for the NixOS flake configuration.
 - **`switch.nu`** - Build and switch configuration
   - `switch.nu <host>` - Full rebuild with checks
   - `switch.nu <host> --fast` - Skip pre/post checks
+  - `switch.nu <host> --check` - Run flake check (all systems) and exit before rebuild
 
 - **`update.nu`** - Update flake inputs
   - `update.nu` - Update all inputs
