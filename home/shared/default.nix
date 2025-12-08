@@ -6,5 +6,6 @@
     ./shells
     ./compat.nix
     ./security
+    ./utils
   ];
 }
