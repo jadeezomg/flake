@@ -16,6 +16,7 @@ in
     with pkgs;
     [
       nixd # Nix language server
+      nixfmt-rfc-style # Official formatter for Nix
     ]
     ++ lib.optionals (inputs.nil.packages ? ${system}) [
       inputs.nil.packages.${system}.default # Nix language server (nil)

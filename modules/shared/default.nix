@@ -6,7 +6,7 @@
     ./utils
     ./development
     ./fonts
-    ./programs
     ./integration
+    ./virtualization
   ];
 }

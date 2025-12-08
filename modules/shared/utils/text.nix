@@ -1,10 +1,11 @@
 { pkgs, ... }:
-
 {
   environment.systemPackages = with pkgs; [
-    # Text utilities
-    bat # Better cat
-    ripgrep # Fast text search
+    fd # Better find
+    jq # JSON processor
+    ripgrep # Silver searcher plus grep
+    ripgrep-all # Ripgrep for extended file types
     sd # Better sed
+    yq # Command-line YAML, JSON, XML, and TOML processor
   ];
 }

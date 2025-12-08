@@ -27,8 +27,6 @@ let
     "toolkit.telemetry.reportingpolicy.firstRun" = false;
 
     # --- Ui/ux Preferences ---
-    "general.smoothScroll" = false;
-    "mousewheel.default.delta_multiplier_y" = 50;
     "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
     # --- Zen Specific ---
