@@ -1,19 +1,15 @@
-{
-  inputs,
-  pkgs,
-  config,
-  ...
-}:
+{ inputs, pkgs, ... }:
 
 let
   system = pkgs.stdenv.hostPlatform.system;
 in
 {
-  # NixOS-specific Home Manager configurations
-  # Shared configurations are in home/shared
+  imports = [
+    ./enviroment
+  ];
 
   # Add home-manager command to PATH
-  home.packages = with pkgs; [
+  home.packages = [
     inputs.home-manager.packages.${system}.home-manager
   ];
 }
