@@ -2,15 +2,12 @@
 
 {
   programs.nushell = {
-    # Environment variables
     environmentVariables = {
-      # Default applications
       EDITOR = "zeditor";
       VISUAL = "zeditor";
       BROWSER = "zen";
       PAGER = "bat";
 
-      # Application settings
       BAT_THEME = "TwoDark";
     };
 

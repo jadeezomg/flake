@@ -11,7 +11,7 @@
     grep = "rg";
 
     # Navigation shortcuts
-    cd = "z";
+    cd = "zoxide";
     ".." = "z ..";
     "..." = "z ../..";
     "...." = "z ../../..";

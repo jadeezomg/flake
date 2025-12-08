@@ -2,8 +2,6 @@
 
 {
   imports = [
-    ./browsers
     ./terminals
-    ./mail
   ];
 }

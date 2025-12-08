@@ -2,6 +2,6 @@
 
 {
   imports = [
-    ./core.nix
+    ./wezterm.nix
   ];
 }

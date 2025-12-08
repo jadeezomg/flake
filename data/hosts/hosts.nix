@@ -1,41 +1,27 @@
-rec {
+let
+  userData = import ../users/users.nix;
+
   # Shared user configuration for NixOS hosts
   # Individual hosts can override specific fields
-  sharedNixOSUser = {
-    username = "jadee";
-    fullName = "Jonas Hippauf";
-    email = "me@jadee.fyi";
-    description = "jadee";
-    extraGroups = [
-      "input"
-      "networkmanager"
-      "uinput"
-      "video"
-      "wheel"
-      # "docker" # Uncomment if docker service is enabled
-    ];
-    packages = [
-      # Add host-specific packages here if needed
-    ];
-  };
+  sharedNixOSUser = userData.users.jadee;
+
+  # Darwin host can override the base user via users.caya if present
+  darwinUser = userData.users.caya;
 
   # Shared host configuration for NixOS hosts
   # Individual hosts can override specific fields
-  sharedNixOSHost = rec {
+  sharedNixOSHost = {
     username = sharedNixOSUser.username;
     system = "x86_64-linux";
-    homeDirectory = "/home/${username}";
+    homeDirectory = "/home/${sharedNixOSUser.username}";
     stateVersion = "25.11";
   };
 
   hosts = {
-    framework = sharedNixOSHost // rec {
+    framework = sharedNixOSHost // {
       hostname = "framework-nixos";
       description = "Jadee Framework NixOS Host";
-      user = sharedNixOSUser // {
-        # Host-specific overrides can go here
-        # packages = sharedNixOSUser.packages ++ [ "somePackage" ];
-      };
+      user = sharedNixOSUser;
       mainMonitor = {
         monitorID = "eDP-1";
         monitorResolution = "2880x1920";
@@ -44,27 +30,25 @@ rec {
       };
     };
 
-    desktop = sharedNixOSHost // rec {
+    desktop = sharedNixOSHost // {
       hostname = "desktop-nixos";
       description = "Jadee Desktop NixOS Host";
-      user = sharedNixOSUser // {
-        # Host-specific overrides can go here
-        # packages = sharedNixOSUser.packages ++ [ "somePackage" ];
-      };
+      user = sharedNixOSUser;
     };
 
-    caya = rec {
+    caya = {
       hostname = "caya-darwin";
       description = "Jadee Caya Darwin Host";
-      username = "jadee"; # Change this to your actual macOS Apple account username
+      username = darwinUser.username;
       system = "aarch64-darwin";
-      homeDirectory = "/Users/${username}";
-      stateVersion = "25.11";
+      homeDirectory = darwinUser.homeDirectory or "/Users/${darwinUser.username}";
+      stateVersion = darwinUser.stateVersion or "25.11";
       # Darwin user config is simpler - just shell configuration
       # The user must already exist in macOS
-      user = {
-        # Darwin only needs shell config, user must exist in macOS
-      };
+      user = darwinUser.user or { };
     };
   };
+in
+{
+  inherit hosts;
 }
