@@ -9,6 +9,7 @@ def main [
   cmd?: string,
   --fast (-f),
   --dry-run,
+  --check,
   --all (-A),
   --all-except-nix (-e),
   --apps (-a),
@@ -23,7 +24,7 @@ def main [
   let flake_path = (get-flake-path)
   let cmds = [
     { key: "build",          script: "build.nu",          usage: "build [host] [build|boot|dry|dev]", desc: "Build NixOS config (no switch)" }
-    { key: "switch",         script: "switch.nu",         usage: "switch [host] [--fast]",                  desc: "Build & switch NixOS config" }
+    { key: "switch",         script: "switch.nu",         usage: "switch [host] [--fast] [--check]",        desc: "Build & switch NixOS config" }
     { key: "health",         script: "health.nu",         usage: "health",                                  desc: "System health check" }
     { key: "gc",             script: "gc.nu",             usage: "gc [keep|days|all] [value]",              desc: "Garbage collect generations (keep N, delete older than days, or deep clean)" }
     { key: "update",         script: "update.nu",         usage: "update [input]",                          desc: "Update flake inputs" }
@@ -76,6 +77,7 @@ def main [
     []
       | append (if $fast { "--fast" } else { null })
       | append (if $dry_run { "--dry-run" } else { null })
+      | append (if $check { "--check" } else { null })
       | append (if $all { "--all" } else { null })
       | append (if $all_except_nix { "--all-except-nix" } else { null })
       | append (if $apps { "--apps" } else { null })

@@ -1,6 +1,6 @@
 #!/usr/bin/env nu
 # Build and switch to NixOS configuration
-# Usage: switch.nu <host> [--fast]
+# Usage: switch.nu <host> [--fast] [--check]
 
 use common.nu *
 use theme.nu *
