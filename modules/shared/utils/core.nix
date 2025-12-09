@@ -41,6 +41,9 @@
     evtest # Live-test keyboards
     libinput # Handle inputs in Wayland
 
+    # display tools
+    autorandr # Automatically select a display configuration based on connected devices
+
     # --- Audio Tools ---
     alsa-utils # ALSA utilities
 

@@ -12,5 +12,6 @@
     ./services
     ./hardware
     ./maintenance
+    ./utils
   ];
 }
