@@ -73,5 +73,3 @@ def main [] {
   print-header "END"
   notify "Flake Git" "Git workflow complete" "success"
 }
-
-
