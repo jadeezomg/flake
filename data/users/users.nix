@@ -4,7 +4,7 @@
       username = "jadee";
       fullName = "Jadee";
       email = "me@jadee.fyi";
-      description = "Primary user";
+      description = "jadee";
       extraGroups = [
         "input"
         "networkmanager"

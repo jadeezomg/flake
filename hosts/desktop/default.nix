@@ -30,7 +30,6 @@ in
   };
 
   # Desktop host specific configuration
-  # TODO: Add desktop-specific hardware-configuration.nix if needed
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.beta;
   # System state version - host specific
   system.stateVersion = "25.11";
