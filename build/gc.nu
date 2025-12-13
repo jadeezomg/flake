@@ -15,8 +15,9 @@ def gc-keep [keep_count: int = 5] {
   notify "Flake GC" "Analyzing generations..." "pending"
   
   show-progress "Analyzing generations"
-  let generations = (sudo nix-env --list-generations -p /nix/var/nix/profiles/system | lines)
+  let generations = sudo nix-env --list-generations -p /nix/var/nix/profiles/system
   clear-progress
+  print $generations
   
   let gen_nums = (
     $generations

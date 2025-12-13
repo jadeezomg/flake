@@ -1,6 +1,6 @@
 #!/usr/bin/env nu
 # List and manage NixOS generations
-# Usage: generation.nu [list|switch <num>|delete <num>]
+# Usage: generation.nu [list|switch [num]|delete [num]]
 
 use common.nu *
 
@@ -8,17 +8,9 @@ def list-generations [] {
   print-header "NIXOS GENERATIONS"
   
   # Parse generations into structured data for better formatting
-  let generations = (sudo nix-env --list-generations -p /nix/var/nix/profiles/system | lines)
+  let generations = sudo nix-env --profile /nix/var/nix/profiles/system --list-generations
   
-  let gen_table = ($generations | parse "{gen} {date} {path}" | each { |row|
-    {
-      Generation: $row.gen
-      Date: $row.date
-      Path: ($row.path | str trim)
-    }
-  })
-  
-  $gen_table | table --expand
+  print $generations
 }
 
 def switch-generation [num: int] {
@@ -34,26 +26,59 @@ def delete-generation [num: int] {
 }
 
 def main [action: string = "list", num?: int] {
-  print-header "GENERATION"
   match $action {
     "list" => list-generations
     "switch" => {
-      if ($num | is-empty) {
-        print-error "Generation number required"
-        exit 1
+      # Show all generations first
+      list-generations
+      print ""
+      
+      # Prompt for generation number if not provided
+      let gen_num = if ($num | is-empty) {
+        let input = (input "Enter generation number to switch to (or 'abort' to cancel): " | str trim)
+        if ($input | is-empty) or (($input | str downcase) == "abort") {
+          print-info "Aborted."
+          return
+        }
+        try {
+          $input | into int
+        } catch {
+          print-info "Aborted."
+          return
+        }
+      } else {
+        $num
       }
-      switch-generation $num
+      
+      switch-generation $gen_num
     }
     "delete" => {
-      if ($num | is-empty) {
-        print-error "Generation number required"
-        exit 1
+      # Show all generations first
+      list-generations
+      print ""
+      
+      # Prompt for generation number if not provided
+      let gen_num = if ($num | is-empty) {
+        let input = (input "Enter generation number to delete (or 'abort' to cancel): " | str trim)
+        if ($input | is-empty) or (($input | str downcase) == "abort") {
+          print-info "Aborted."
+          return
+        }
+        try {
+          $input | into int
+        } catch {
+          print-info "Aborted."
+          return
+        }
+      } else {
+        $num
       }
-      delete-generation $num
+      
+      delete-generation $gen_num
     }
     _ => {
       print-error $"Unknown action: ($action)"
-      print "Actions: list, switch <num>, delete <num>"
+      print "Actions: list, switch [num], delete [num]"
       exit 1
     }
   }

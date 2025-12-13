@@ -8,5 +8,6 @@
     ./fonts
     ./integration
     ./virtualization
+    ./shell
   ];
 }
