@@ -6,8 +6,6 @@ use common.nu *
 def main [] {
   print-header "GIT UPDATE"
   let repo = (get-flake-path)
-
-  print-header "GIT STATUS"
   let status = (git -C $repo status --short)
   if ($status | is-empty) {
     print-info "Working tree clean. Nothing to commit."
@@ -45,7 +43,12 @@ def main [] {
   if ($commit_res.stdout | is-not-empty) {
     $commit_res.stdout | lines | each { |line| print-success $line }
   }
-  git -C $repo show --stat -1
+  let show_res = (^git -C $repo --no-pager show --stat -1 | complete)
+  if $show_res.exit_code == 0 {
+    if ($show_res.stdout | is-not-empty) {
+      $show_res.stdout | lines | each { |line| print-info $line }
+    }
+  }
 
   let push_res = (^git -C $repo push | complete)
   if $push_res.exit_code == 0 {
