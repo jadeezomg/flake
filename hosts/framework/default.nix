@@ -39,6 +39,10 @@ in
     fprintd # Fingerprint reader daemon
   ];
 
+  # Enable bluetooth (Framework laptop has bluetooth hardware)
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
+
   # Enable fingerprint reader service
   services.fprintd = {
     enable = true;

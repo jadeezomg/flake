@@ -1,7 +1,7 @@
 { ... }:
 
 {
-  # Enable bluetooth
-  hardware.bluetooth.enable = true;
-  services.blueman.enable = true;
+  # Bluetooth configuration moved to host-specific configurations
+  # Framework laptop: hosts/framework/default.nix
+  # Desktop: No bluetooth hardware
 }
