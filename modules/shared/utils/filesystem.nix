@@ -13,7 +13,6 @@
     lsof # Tool to list open files
     ncdu # NCurses disk usage analyzer
     p7zip # 7-Zip archiver
-    rar # RAR archives
     unzip # Extract ZIP archives
     zip # Create ZIP archives
     zstd # Compression algorithm (optional Emacs dep)

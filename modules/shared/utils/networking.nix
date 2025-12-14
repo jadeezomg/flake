@@ -7,7 +7,6 @@
     gping # Better ping
     ipfetch # Neofetch for IP addresses
     wget # Web file downloader
-    wirelesstools # Wireless network configuration tools
     xh # A better curl
   ];
 }

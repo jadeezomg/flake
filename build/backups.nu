@@ -8,7 +8,6 @@ def main [--clean, --dry-run] {
   print-header "BACKUPS"
   let config_dir = $"($env.HOME)/.config"
   
-  # Find backup files using reusable function
   let backups = (find-backup-files $config_dir)
   let backup_count = ($backups | length)
   
@@ -18,11 +17,9 @@ def main [--clean, --dry-run] {
     return
   }
   
-  # Always show the backup files table
   print ""
   notify "Flake Backups" "Scanning for backup files..." "pending"
   
-  # Use structured data for better table formatting
   let backup_table = ($backups | each { |file|
     let rel_path = ($file | str replace $config_dir "")
     

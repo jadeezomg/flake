@@ -5,7 +5,7 @@
   # PAM configuration, etc.
 
   # Password managers
-  environment.systemPackages = with pkgs; [
-    pkgs-unstable.proton-pass
+  environment.systemPackages = with pkgs-unstable; [
+    proton-pass
   ];
 }

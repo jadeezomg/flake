@@ -335,7 +335,7 @@ export def get-host-config-file [] {
 export def get-file-size [file_path: string] {
   let size_result = (^du -h $file_path | complete)
   if $size_result.exit_code == 0 {
-    ($size_result.stdout | str trim | split row " " | get 0)
+    ($size_result.stdout | str trim | split row "\t" | get 0)
   } else {
     "unknown"
   }

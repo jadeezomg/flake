@@ -13,18 +13,20 @@ def main [] {
 
     let package_categories = extract_packages_from_nix_files
 
-    # Display package categories summary
     print-pending "Package Categories:"
-    $package_categories.categories | each { |category|
+    let category_table = ($package_categories.categories | each { |category|
         let pkg_count = ($category.packages | length)
-        print $"  ($theme_icons.info) ($category.name): ($pkg_count) packages"
-    }
+        {
+            Category: $category.name
+            Packages: $pkg_count
+            Platforms: ($category.platforms | str join ', ')
+        }
+    })
+    print-table $category_table --no-index
     print ""
 
-    # Check availability based on category requirements
     let results = check_package_availability $package_categories
 
-    # Compile and display results
     compile_results $results $package_categories
 
     notify "Package Check" $"Package check complete! Found ($package_categories.total_unique) unique packages across ($package_categories.categories | length) categories" "success"
@@ -149,18 +151,83 @@ def check_package_availability [package_categories] {
                 }
 
                 let available = $results | where {|r| $r.available} | get package
-                let unavailable = $results | where {|r| not $r.available} | get package
+                let all_unavailable = $results | where {|r| not $r.available}
+
+                # Separate unfree packages (available with config) from truly unavailable
+                let unfree_packages = $all_unavailable | where {|r| $r.error | str contains "unfree license"}
+                let truly_unavailable = $all_unavailable | where {|r| not ($r.error | str contains "unfree license")}
 
                 let avail_count = ($available | length)
-                let unavail_count = ($unavailable | length)
+                let unfree_count = ($unfree_packages | length)
+                let unavail_count = ($truly_unavailable | length)
+                let total_count = ($available | length) + ($all_unavailable | length)
 
-                if $unavail_count == 0 {
-                    print-success $"  Available: ($avail_count), Unavailable: ($unavail_count)"
+                if $unavail_count == 0 and $unfree_count == 0 {
+                    print-success $"  (ansi $theme_colors.success)Available: ($avail_count), Unavailable: ($unavail_count)(ansi reset)"
                 } else {
-                    print-pending $"  Available: ($avail_count), Unavailable: ($unavail_count)"
+                    # Show counts with different colors for different types
+                    let status_parts = (
+                        if $unfree_count > 0 and $unavail_count > 0 {
+                            [ $"Available: ($avail_count)", $"Unfree: ($unfree_count)", $"Unavailable: ($unavail_count)" ]
+                        } else if $unfree_count > 0 {
+                            [ $"Available: ($avail_count)", $"Unfree: ($unfree_count)" ]
+                        } else if $unavail_count > 0 {
+                            [ $"Available: ($avail_count)", $"Unavailable: ($unavail_count)" ]
+                        } else {
+                            [ $"Available: ($avail_count)" ]
+                        }
+                    )
+                    let status_msg = ($status_parts | str join ", ")
+
+                    if $unavail_count == 0 {
+                        print-pending $"  (ansi $theme_colors.pending_bold)($status_msg)(ansi reset)"
+                    } else {
+                        print-pending $"  (ansi $theme_colors.pending)($status_msg)(ansi reset)"
+                    }
+
+                    # Show details for unfree packages
+                    if $unfree_count > 0 {
+                        print-info $"    (ansi $theme_colors.info_bold)Unfree packages - set allowUnfree=true:(ansi reset)"
+                        $unfree_packages | each { |pkg_result|
+                            let package_name = $pkg_result.package
+                            print-info $"    (ansi $theme_colors.pending)⚠ ($package_name)(ansi reset)"
+                        }
+                    }
+
+                    # Show details for truly unavailable packages
+                    if $unavail_count > 0 {
+                        print-info $"    (ansi $theme_colors.error_bold)Truly unavailable packages:(ansi reset)"
+                        if $unavail_count <= 5 {
+                            $truly_unavailable | each { |pkg_result|
+                                let package_name = $pkg_result.package
+                                let error_msg = ($pkg_result.error? | default "Package not available")
+
+                                # Extract meaningful error information
+                                let error_reason = if ($error_msg | str contains "does not provide attribute") {
+                                    "Package not found in nixpkgs"
+                                } else if ($error_msg | str contains "is not supported on") {
+                                    "Platform not supported by package"
+                                } else if ($error_msg | str contains "incompatible") {
+                                    "Architecture incompatibility"
+                                } else {
+                                    $error_msg | str substring 0..80 | $"($in)..."
+                                }
+
+                                print-info $"    (ansi $theme_colors.error)✗ ($package_name):(ansi reset) (ansi $theme_colors.error_bold)($error_reason)(ansi reset)"
+                            }
+                        } else {
+                            print-info $"    (ansi $theme_colors.pending_bold)Showing first 5 unavailable packages:(ansi reset)"
+                            $truly_unavailable | first 5 | each { |pkg_result|
+                                let package_name = $pkg_result.package
+                                print-info $"    (ansi $theme_colors.error)✗ ($package_name)(ansi reset)"
+                            }
+                            let remaining = ($unavail_count - 5)
+                            print-info $"    (ansi $theme_colors.pending)... and ($remaining) more(ansi reset)"
+                        }
+                    }
                 }
 
-                {platform: $platform, available: $available, unavailable: $unavailable}
+                {platform: $platform, available: $available, unfree: ($unfree_packages | get package), unavailable: ($truly_unavailable | get package)}
             }
         }
 
@@ -185,17 +252,23 @@ def compile_results [results: list, package_categories] {
         $category_result.platforms | each { |platform_result|
             let platform = $platform_result.platform
             let available_count = ($platform_result.available | length)
+            let unfree_count = ($platform_result.unfree | length)
             let unavailable_count = ($platform_result.unavailable | length)
-            let total_count = $available_count + $unavailable_count
+            let total_count = $available_count + $unfree_count + $unavailable_count
+            let effectively_available = $available_count + $unfree_count
 
             {
                 Category: $category_name
                 Platform: $platform
-                Status: $"($available_count)/($total_count) available"
+                Status: $"($effectively_available)/($total_count) available"
                 Issues: (if $unavailable_count == 0 {
-                    $"($theme_icons.success) OK"
+                    (if $unfree_count == 0 {
+                        $"($theme_icons.success) OK"
+                    } else {
+                        $"($theme_icons.pending) ($unfree_count) unfree"
+                    })
                 } else {
-                    $"($theme_icons.pending) ($unavailable_count) missing"
+                    $"($theme_icons.error) ($unavailable_count) missing"
                 })
             }
         }
@@ -206,70 +279,47 @@ def compile_results [results: list, package_categories] {
         print-table $comprehensive_data --no-index
     }
 
-    # Show detailed missing packages for categories with issues
+    # Show detailed package issues for categories with unfree or unavailable packages
     let categories_with_issues = ($results | where {|cat|
-        ($cat.platforms | any {|p| ($p.unavailable | length) > 0})
+        ($cat.platforms | any {|p| ($p.unavailable | length) > 0 or ($p.unfree | length) > 0})
     })
 
     if ($categories_with_issues | length) > 0 {
         print ""
-        print-info "Missing packages by category:"
+        print-info $"($theme_icons.pending) Package issues by category:"
         $categories_with_issues | each { |category_result|
-            let missing_by_platform = ($category_result.platforms | where {|p| ($p.unavailable | length) > 0})
-            if ($missing_by_platform | length) > 0 {
+            let issues_by_platform = ($category_result.platforms | where {|p| ($p.unavailable | length) > 0 or ($p.unfree | length) > 0})
+            if ($issues_by_platform | length) > 0 {
                 print $"  ($theme_icons.info) ($category_result.category):"
-                $missing_by_platform | each { |platform_result|
+                $issues_by_platform | each { |platform_result|
+                    let platform = $platform_result.platform
+
+                    # Show unfree packages
+                    if ($platform_result.unfree | length) > 0 {
+                        let unfree_list = ($platform_result.unfree | str join ', ')
+                        print $"    ($theme_icons.pending) ($platform) unfree: (ansi $theme_colors.pending_bold)($unfree_list)(ansi reset) - set allowUnfree=true"
+                    }
+
+                    # Show truly unavailable packages
                     if ($platform_result.unavailable | length) > 0 {
                         let missing_list = ($platform_result.unavailable | str join ', ')
-                        print $"    ($platform_result.platform): ($missing_list)"
+
+                        # Add platform-specific suggestions
+                        let has_chrome = ($platform_result.unavailable | any {|pkg| ($pkg | str contains "chrome") or ($pkg | str contains "chromium")})
+                        let suggestion = if ($platform | str contains "darwin") and $has_chrome {
+                            " (consider using a different browser like 'firefox' or 'vivaldi')"
+                        } else if ($platform | str contains "darwin") {
+                            " (consider platform-specific alternatives or check nixpkgs)"
+                        } else {
+                            ""
+                        }
+
+                        print $"    ($theme_icons.error) ($platform) missing: (ansi $theme_colors.error_bold)($missing_list)(ansi reset)($suggestion)"
                     }
                 }
             }
         }
     }
-
-    # Overall platform analysis
-    print ""
-    print-header "PLATFORM COMPATIBILITY SUMMARY"
-
-    # Collect all platform results
-    let all_platform_results = $results | get platforms | flatten
-
-    let linux_x86 = $all_platform_results | where {|r| $r.platform == "x86_64-linux"}
-    let darwin_aarch = $all_platform_results | where {|r| $r.platform == "aarch64-darwin"}
-
-    # Cross-platform availability summary
-    if ($linux_x86 | length) > 0 and ($darwin_aarch | length) > 0 {
-        let linux_available = $linux_x86 | get available | flatten | uniq
-        let darwin_available = $darwin_aarch | get available | flatten | uniq
-
-        let linux_only = $linux_available | where {|pkg| not ($pkg in $darwin_available)}
-        let darwin_only = $darwin_available | where {|pkg| not ($pkg in $linux_available)}
-        let common = $linux_available | where {|pkg| $pkg in $darwin_available}
-
-        # Create concise compatibility summary
-        let summary_data = [
-            {
-                Scope: "Cross-platform packages"
-                Count: ($common | length)
-                Status: $"($theme_icons.success) Available on both"
-            }
-            {
-                Scope: "Linux-only packages"
-                Count: ($linux_only | length)
-                Status: (if ($linux_only | length) > 0 { $"($theme_icons.pending) Linux x86_64 only" } else { $"($theme_icons.success) None" })
-            }
-            {
-                Scope: "Darwin-only packages"
-                Count: ($darwin_only | length)
-                Status: (if ($darwin_only | length) > 0 { $"($theme_icons.pending) Darwin aarch64 only" } else { $"($theme_icons.success) None" })
-            }
-        ]
-
-        print-table $summary_data --no-index
-    }
-
-    print-success $"Analysis complete! Found ($package_categories.total_unique) unique packages across ($package_categories.categories | length) categories."
 }
 
 def extract_packages_from_directory [dir: string, context: string] {

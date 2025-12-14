@@ -128,7 +128,7 @@ def main [] {
         $theme_colors.success
       }
 
-      print-info $"  (ansi $color)($file)(ansi reset) (ansi $size_color)[$size_display](ansi reset)"
+      print-info $"  (ansi $color)($file)(ansi reset) (ansi $size_color)[($size_display)](ansi reset)"
     }
   }
 
