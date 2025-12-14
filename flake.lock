@@ -406,7 +406,6 @@
       "original": {
         "owner": "0xc000022070",
         "repo": "zen-browser-flake",
-        "rev": "463d3f091ad2b0ba2a4982f4181d22e452b2659d",
         "type": "github"
       }
     }

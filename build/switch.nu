@@ -42,7 +42,7 @@ def post-build-tasks [fast, script_dir: string] {
   print ""
 }
 
-def main [host?: string, --fast, --check, --skip-git] {
+def main [host?: string, --fast, --check, --skip-git, --override-input: string] {
   print-header "SWITCH"
   let flake_path = (get-flake-path)
   let script_dir = $"($flake_path)/build"
@@ -71,7 +71,11 @@ def main [host?: string, --fast, --check, --skip-git] {
   }
   
   notify "Flake Switch" $"Building and switching configuration for ($target_host)..." "pending"
-  let switch_cmd = (build-nixos-rebuild-cmd $flake_path $target_host "switch")
+  let switch_cmd = if ($override_input | is-not-empty) {
+    $"sudo nixos-rebuild switch --flake '($flake_path)#($target_host)' --override-input ($override_input)"
+  } else {
+    (build-nixos-rebuild-cmd $flake_path $target_host "switch")
+  }
   print-info $"(ansi ($theme_colors.info_bold))→(ansi reset) ($switch_cmd)"
   ^bash -lc $switch_cmd
   print ""
