@@ -24,14 +24,14 @@ def post-build-tasks [fast, script_dir: string] {
     notify "Flake Switch" "Running post-build tasks..." "pending"
     
     # Update caches (except nix-index which is slow)
-    print-info $"→ nu ($script_dir)/update-caches.nu --all-except-nix"
+    print-info $"(ansi ($theme_colors.info_bold))→(ansi reset) nu ($script_dir)/update-caches.nu --all-except-nix"
     nu $"($script_dir)/update-caches.nu" --all-except-nix
     
     # Source user vars (if they exist)
     # Note: source requires a constant path, so we use a workaround
     let user_vars_path = $"/etc/profiles/per-user/($env.USER)/etc/profile.d/hm-session-vars.sh"
     if ($user_vars_path | path exists) {
-      print-info $"→ source ($user_vars_path)"
+      print-info $"(ansi ($theme_colors.info_bold))→(ansi reset) source ($user_vars_path)"
       ^bash -lc $"source '($user_vars_path)'"
     }
     
@@ -72,7 +72,7 @@ def main [host?: string, --fast, --check, --skip-git] {
   
   notify "Flake Switch" $"Building and switching configuration for ($target_host)..." "pending"
   let switch_cmd = (build-nixos-rebuild-cmd $flake_path $target_host "switch")
-  print-info $"→ ($switch_cmd)"
+  print-info $"(ansi ($theme_colors.info_bold))→(ansi reset) ($switch_cmd)"
   ^bash -lc $switch_cmd
   print ""
   

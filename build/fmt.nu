@@ -2,8 +2,9 @@
 # Format Nix files in the flake (parity with rh-fmt.sh)
 
 use common.nu *
+use theme.nu *
 
-def main [] {
+def main [--no-tree] {
   print-header "FMT"
   let flake_path = (get-flake-path)
 
@@ -181,7 +182,7 @@ def main [] {
     print ""
     print-error "Files that failed to format:"
     $failed | each { |r|
-      print-error $"  ✗ (get-relative-path $r.file)"
+      print-error $"  ($theme_icons.error) (get-relative-path $r.file)"
       if ($r.error != null) {
         let error_lines = ($r.error | lines)
         $error_lines | each { |line| print-error $"    ($line)" }
@@ -190,20 +191,22 @@ def main [] {
     print ""
   }
   
-  # Show summary grouped by directory
-  print ""
-  if $changed_count > 0 {
-    let file_word = (if $changed_count == 1 { "file" } else { "files" })
-    print-success $"Formatted ($changed_count) ($file_word):"
-    display-grouped-files $changed_files "✓"
+  # Show summary grouped by directory (unless --no-tree flag is set)
+  if not $no_tree {
     print ""
-  }
-  
-  if $unchanged_count > 0 {
-    let file_word = (if $unchanged_count == 1 { "file" } else { "files" })
-    print-info $"($unchanged_count) ($file_word) already formatted - excluded default.nix files:"
-    display-grouped-files $unchanged_files "•"
-    print ""
+    if $changed_count > 0 {
+      let file_word = (if $changed_count == 1 { "file" } else { "files" })
+      print-success $"Formatted ($changed_count) ($file_word):"
+      display-grouped-files $changed_files $theme_icons.success
+      print ""
+    }
+    
+    if $unchanged_count > 0 {
+      let file_word = (if $unchanged_count == 1 { "file" } else { "files" })
+      print-info $"($unchanged_count) ($file_word) already formatted - excluded default.nix files:"
+      display-grouped-files $unchanged_files $theme_icons.info
+      print ""
+    }
   }
   
   # Final notification

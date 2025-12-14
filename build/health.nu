@@ -24,12 +24,12 @@ def check-flake-status [flake_path: string] {
   let status = [
     {
       item: "Uncommitted changes",
-      value: (if $uncommitted_count == 0 { $"(ansi green)None(ansi reset)" } else { $"(ansi yellow)($uncommitted_count) files(ansi reset)" }),
+      value: (if $uncommitted_count == 0 { $"(ansi ($theme_colors.success))None(ansi reset)" } else { $"(ansi ($theme_colors.pending))($uncommitted_count) files(ansi reset)" }),
       status: (if $uncommitted_count == 0 { "success" } else { "pending" })
     },
     {
       item: "Untracked files",
-      value: (if $untracked_count == 0 { $"(ansi green)None(ansi reset)" } else { $"(ansi yellow)($untracked_count) files(ansi reset)" }),
+      value: (if $untracked_count == 0 { $"(ansi ($theme_colors.success))None(ansi reset)" } else { $"(ansi ($theme_colors.pending))($untracked_count) files(ansi reset)" }),
       status: (if $untracked_count == 0 { "success" } else { "pending" })
     }
   ]
@@ -111,12 +111,12 @@ def check-generations [] {
   let gen_info = [
     {
       item: "Current generation",
-      value: $"(ansi cyan_bold)($current)(ansi reset)",
+      value: $"(ansi ($theme_colors.info_bold))($current)(ansi reset)",
       status: "info"
     },
     {
       item: "Total generations",
-      value: $"(ansi cyan_bold)($total)(ansi reset)",
+      value: $"(ansi ($theme_colors.info_bold))($total)(ansi reset)",
       status: "info"
     }
   ]

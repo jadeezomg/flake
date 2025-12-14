@@ -4,6 +4,12 @@
 use common.nu *
 
 def main [] {
+  let flake_path = (get-flake-path)
+  let fmt_script = $"($flake_path)/build/fmt.nu"
+  if ($fmt_script | path exists) {
+    nu $fmt_script --no-tree | ignore
+  }
+  
   print-header "GIT UPDATE"
   let repo = (get-flake-path)
   

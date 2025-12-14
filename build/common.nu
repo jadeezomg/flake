@@ -149,13 +149,13 @@ export def show-progress [message: string, --frame: int = 0] {
   let spinner_char = ($frames | get $frame_index)
   
   # Show progress message (use print -n to avoid newline, \r to overwrite)
-  print -n $"\r(ansi yellow)($spinner_char) (ansi reset)($message)...     "
+  print -n $"\r(ansi ($theme_colors.pending))($spinner_char) (ansi reset)($message)...     "
 }
 
 # Show progress as done and clear the line
 export def show-progress-done [message: string] {
   # Clear the entire line with spaces, then show done message
-  print -n $"\r(ansi green)✓ (ansi reset)($message)                                                      "
+  print -n $"\r($theme_icons.success) ($message)                                                      "
   print ""  # Move to next line
 }
 
@@ -188,9 +188,9 @@ export def run-external-with-status [message: string, command: string] {
   let success = ($result.exit_code == 0) or (($result.stdout | default "" | str length) > 0)
 
   let status_text = (if $success {
-    $"(ansi ($theme_colors.success_bold))✓(ansi reset) ($message) took ($duration_display)"
+    $"($theme_icons.success) ($message) took ($duration_display)"
   } else {
-    $"(ansi ($theme_colors.error_bold))✗(ansi reset) ($message) failed after ($duration_display)"
+    $"($theme_icons.error) ($message) failed after ($duration_display)"
   })
 
   print $status_text
@@ -270,13 +270,14 @@ export def confirm [message: string] {
 
 # Prompt user for a number with optional abort (returns int or null if aborted)
 export def prompt-number [message: string] {
-  let input = (input $"($message) (or 'abort' to cancel): " | str trim)
-  if ($input | is-empty) or (($input | str downcase) == "abort") {
+  let prompt_text = $message + " (or 'abort' to cancel): "
+  let user_input = (input $prompt_text)
+  if ($user_input | str trim | is-empty) or (($user_input | str trim | str downcase) == "abort") {
     print-info "Aborted."
     null
   } else {
     try {
-      ($input | into int)
+      ($user_input | str trim | into int)
     } catch {
       print-info "Aborted."
       null
