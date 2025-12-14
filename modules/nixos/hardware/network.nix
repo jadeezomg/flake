@@ -9,7 +9,6 @@
     wireguard-tools # Wireguard tools
     wireguard-ui # Wireguard UI
     protonvpn-gui # ProtonVPN GUI
-    protonvpn-cli # ProtonVPN CLI
     openresolv # Openresolv for NetworkManager
   ];
 }
