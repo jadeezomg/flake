@@ -5,7 +5,7 @@ let
 in
 {
   imports = [
-    ./enviroment
+    ./environment
   ];
 
   # Add home-manager command to PATH
