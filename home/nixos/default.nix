@@ -2,7 +2,6 @@
 
 {
   imports = [
-    ./compat.nix
     ./apps
     ./boot
     ./desktop
