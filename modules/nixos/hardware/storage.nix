@@ -1,5 +1,7 @@
 { ... }:
 
 {
-  # Storage hardware configuration
+  services.udisks2 = {
+    enable = true;
+  };
 }
