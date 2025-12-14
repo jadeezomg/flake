@@ -298,8 +298,6 @@ def main [
         { key: "--skip-git", desc: "Skip git update step", args: "" }
       ]
     }
-
-    # System maintenance
     {
       key: "health"
       script: "health.nu"
@@ -354,6 +352,22 @@ def main [
       subcommands: null
     }
     {
+      key: "git"
+      script: "git-update.nu"
+      usage: "git"
+      desc: "Show git status/diff, commit (prompt), and push"
+      examples: ["flake git"]
+      subcommands: null
+    }
+    {
+      key: "check-packages"
+      script: "check-packages.nu"
+      usage: "check-packages"
+      desc: "Check package availability across platforms"
+      examples: ["flake check-packages"]
+      subcommands: null
+    }
+    {
       key: "caches"
       script: "update-caches.nu"
       usage: "caches [flags]"
@@ -375,8 +389,6 @@ def main [
         { key: "--wallpapers", desc: "Update wallpapers cache", args: "" }
       ]
     }
-
-    # Utilities
     {
       key: "backups"
       script: "backups.nu"
@@ -393,17 +405,7 @@ def main [
         { key: "--dry-run", desc: "Preview what would be removed", args: "" }
       ]
     }
-    {
-      key: "init"
-      script: "init.nu"
-      usage: "init [host]"
-      desc: "Set default host for build scripts"
-      examples: [
-        "flake init"
-        "flake init desktop"
-      ]
-      subcommands: null
-    }
+
     {
       key: "info"
       script: "flake-info.nu"
@@ -427,6 +429,17 @@ def main [
       ]
     }
     {
+      key: "init"
+      script: "init.nu"
+      usage: "init [host]"
+      desc: "Set default host for build scripts"
+      examples: [
+        "flake init"
+        "flake init desktop"
+      ]
+      subcommands: null
+    }
+    {
       key: "reload-services"
       script: "reload-services.nu"
       usage: "reload-services"
@@ -434,14 +447,7 @@ def main [
       examples: ["flake reload-services"]
       subcommands: null
     }
-    {
-      key: "git"
-      script: "git-update.nu"
-      usage: "git"
-      desc: "Show git status/diff, commit (prompt), and push"
-      examples: ["flake git"]
-      subcommands: null
-    }
+
   ]
 
   if ($cmd | is-empty) {
@@ -561,7 +567,9 @@ Example: flake ($selected_cmd.key) ($sub.key)($sub.args)
       
       # Execute the command
       print ""
-      ^nu $script_path ...$pass_args
+      let script_dir = ($script_path | path dirname)
+      cd $script_dir
+      ^nu ($script_path | path basename) ...$pass_args
       print ""
       let continue_loop = (input "Press Enter to continue or 'q' to quit: " | str trim | str downcase)
       if $continue_loop == "q" {
