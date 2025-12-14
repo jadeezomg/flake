@@ -39,7 +39,7 @@ let
 in
 {
   imports = [
-    inputs.zen-browser.homeModules.twilight-official
+    inputs.zen-browser.homeModules.twilight
   ];
 
   programs.zen-browser = {

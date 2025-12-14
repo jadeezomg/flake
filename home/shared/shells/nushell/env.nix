@@ -9,7 +9,7 @@
     environmentVariables = {
       EDITOR = "zeditor";
       VISUAL = "zeditor";
-      BROWSER = "zen-twilight-official";
+      BROWSER = "zen-twilight";
       PAGER = "bat";
 
       BAT_THEME = "TwoDark";
