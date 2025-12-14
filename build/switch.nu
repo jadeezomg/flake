@@ -72,7 +72,11 @@ def main [host?: string, --fast, --check, --skip-git, --override-input: string] 
   
   notify "Flake Switch" $"Building and switching configuration for ($target_host)..." "pending"
   let switch_cmd = if ($override_input | is-not-empty) {
-    $"sudo nixos-rebuild switch --flake '($flake_path)#($target_host)' --override-input ($override_input)"
+    # Parse override-input format: "input=value" -> ["input", "value"]
+    let override_parts = ($override_input | split row "=")
+    let input_name = ($override_parts | get 0)
+    let input_value = ($override_parts | get 1)
+    $"sudo nixos-rebuild switch --flake '($flake_path)#($target_host)' --override-input ($input_name) ($input_value)"
   } else {
     (build-nixos-rebuild-cmd $flake_path $target_host "switch")
   }
