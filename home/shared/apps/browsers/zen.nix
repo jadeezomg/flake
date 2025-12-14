@@ -1,6 +1,7 @@
 {
   inputs,
   config,
+  pkgs,
   ...
 }:
 let
@@ -44,6 +45,7 @@ in
 
   programs.zen-browser = {
     enable = true;
+    nativeMessagingHosts = [ pkgs.firefoxpwa ];
     profiles = {
       personal = {
         name = "Personal";
@@ -64,8 +66,17 @@ in
         );
       in
       {
+        DisableFeedbackCommands = true;
+        DisableFirefoxStudies = true;
         DisableAppUpdate = true;
         DisableTelemetry = true;
+        OfferToSaveLogins = false;
+        EnableTrackingProtection = {
+          Value = true;
+          Locked = true;
+          Cryptomining = true;
+          Fingerprinting = true;
+        };
 
         ExtensionSettings = mkExtensionSettings {
           "gdpr@cavi.au.dk" = "consent-o-matic";
