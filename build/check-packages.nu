@@ -261,14 +261,15 @@ def compile_results [results: list, package_categories] {
                 Category: $category_name
                 Platform: $platform
                 Status: $"($effectively_available)/($total_count) available"
-                Issues: (if $unavailable_count == 0 {
-                    (if $unfree_count == 0 {
-                        $"($theme_icons.success) OK"
-                    } else {
-                        $"($theme_icons.pending) ($unfree_count) unfree"
-                    })
+                Unfree: (if $unfree_count > 0 {
+                    $"($theme_icons.pending) ($unfree_count)"
                 } else {
-                    $"($theme_icons.error) ($unavailable_count) missing"
+                    ""
+                })
+                Issues: (if $unavailable_count > 0 {
+                    $"($theme_icons.error) ($unavailable_count)"
+                } else {
+                    $"($theme_icons.success) OK"
                 })
             }
         }
