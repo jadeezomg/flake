@@ -36,6 +36,7 @@ def highlight-preview-text [text: string] {
 def build-forwarded-flags [
   fast: bool,
   dry_run: bool,
+  dry: bool,
   check: bool,
   all: bool,
   all_except_nix: bool,
@@ -50,6 +51,7 @@ def build-forwarded-flags [
   [
     (if $fast { "--fast" } else { null }),
     (if $dry_run { "--dry-run" } else { null }),
+    (if $dry { "--dry" } else { null }),
     (if $check { "--check" } else { null }),
     (if $all { "--all" } else { null }),
     (if $all_except_nix { "--all-except-nix" } else { null }),
@@ -67,8 +69,8 @@ def build-forwarded-flags [
 def normalize-subcommands [subcommands: list, script_name: string] {
   let scripts_needing_strip = ["build.nu" "gc.nu" "generation.nu"]
 
-  # Special handling for switch.nu, fmt.nu, and backups.nu: "normal" means no arguments
-  if $script_name in ["switch.nu", "fmt.nu", "backups.nu"] {
+  # Special handling for switch.nu, fmt.nu, backups.nu, and gc-darwin.nu: "normal" means no arguments
+  if $script_name in ["switch.nu", "fmt.nu", "backups.nu", "gc-darwin.nu"] {
     let filtered = ($subcommands | where { |sub| $sub != "normal" })
     if ($scripts_needing_strip | any { |s| $s == $script_name }) {
       $filtered | each { |sub|
@@ -249,6 +251,7 @@ def main [
   cmd?: string,
   --fast (-f),
   --dry-run,
+  --dry,
   --check,
   --all (-A),
   --all-except-nix (-e),
@@ -392,17 +395,34 @@ def main [
     {
       key: "backups"
       script: "backups.nu"
-      usage: "backups [--clean] [--dry-run]"
+      usage: "backups [--clean] [--dry]"
       desc: "Check and optionally clean *.backup / *.bkp files from ~/.config"
       examples: [
         "flake backups"
         "flake backups --clean"
-        "flake backups --clean --dry-run"
+        "flake backups --clean --dry"
       ]
       subcommands: [
         { key: "normal", desc: "Check for backup files (no cleaning)", args: "" }
         { key: "--clean", desc: "Remove backup files", args: "" }
-        { key: "--dry-run", desc: "Preview what would be removed", args: "" }
+        { key: "--dry", desc: "Preview what would be removed", args: "" }
+      ]
+    }
+
+    {
+      key: "gc-darwin"
+      script: "gc-darwin.nu"
+      usage: "gc-darwin [--dry] [delete_older_than]"
+      desc: "Run garbage collection on Darwin (macOS) systems"
+      examples: [
+        "flake gc-darwin"
+        "flake gc-darwin --dry"
+        "flake gc-darwin 7d"
+        "flake gc-darwin --dry 7d"
+      ]
+      subcommands: [
+        { key: "normal", desc: "Run garbage collection with default settings (30d)", args: "" }
+        { key: "--dry", desc: "Preview what would be deleted", args: "" }
       ]
     }
 
@@ -544,7 +564,7 @@ Example: flake ($selected_cmd.key) ($sub.key)($sub.args)
       
       # Build command arguments
       let script_path = $"($flake_path)/build/($selected_cmd.script)"
-      let forwarded_flags = (build-forwarded-flags $fast $dry_run $check $all $all_except_nix $apps $launcher $wallpapers $bat $tldr $icons $nix)
+      let forwarded_flags = (build-forwarded-flags $fast $dry_run $dry $check $all $all_except_nix $apps $launcher $wallpapers $bat $tldr $icons $nix)
       
       # Add subcommand(s) if selected
       let normalized_subcommands = if ($subcommand | is-not-empty) {
@@ -588,7 +608,7 @@ Example: flake ($selected_cmd.key) ($sub.key)($sub.args)
   }
 
   let script_path = $"($flake_path)/build/($entry.script)"
-  let forwarded_flags = (build-forwarded-flags $fast $dry_run $check $all $all_except_nix $apps $launcher $wallpapers $bat $tldr $icons $nix)
+  let forwarded_flags = (build-forwarded-flags $fast $dry_run $dry $check $all $all_except_nix $apps $launcher $wallpapers $bat $tldr $icons $nix)
 
   # Normalize subcommands: strip -- prefix for scripts that don't expect it
   # This allows both --keep and keep to work for backward compatibility

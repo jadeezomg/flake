@@ -1,10 +1,10 @@
 #!/usr/bin/env nu
 # Check and clean backup files in config directory
-# Usage: backups.nu [--clean] [--dry-run]
+# Usage: backups.nu [--clean] [--dry]
 
 use common.nu *
 
-def main [--clean, --dry-run] {
+def main [--clean, --dry] {
   print-header "BACKUPS"
   let config_dir = $"($env.HOME)/.config"
   
@@ -37,14 +37,14 @@ def main [--clean, --dry-run] {
   
   # If --clean flag is set, remove the files
   if $clean {
-    if $dry_run {
+    if $dry {
       notify "Flake Backups" "Dry run: Would remove backup files..." "pending"
     } else {
       notify "Flake Backups" "Cleaning backup files..." "pending"
     }
     
     for file in $backups {
-      if $dry_run {
+      if $dry {
         print-info $"Would remove: ($file)"
       } else {
         rm $file
@@ -53,7 +53,7 @@ def main [--clean, --dry-run] {
     }
     
     print ""
-    if $dry_run {
+    if $dry {
       notify "Flake Backups" $"Would remove ($backup_count) backup files" "info"
     } else {
       notify "Flake Backups" $"Removed ($backup_count) backup files" "success"

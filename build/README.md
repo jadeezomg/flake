@@ -52,7 +52,10 @@ Nushell-based build and management scripts for the NixOS flake configuration.
 
 - **`check-backups.nu`** - Scan for backup files
 - **`clean-backups.nu`** - Remove backup files
-  - `--dry-run` - Preview what would be removed
+  - `--dry` - Preview what would be removed
+- **`gc-darwin.nu`** - Run garbage collection on Darwin (macOS) systems
+  - `--dry` - Preview what would be deleted
+  - `delete_older_than` - Time period for deletion (default: "30d")
 
 ## Initialization
 

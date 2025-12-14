@@ -3,5 +3,6 @@
 {
   imports = [
     ./compat.nix
+    ./maintenance
   ];
 }
