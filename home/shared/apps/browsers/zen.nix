@@ -217,7 +217,6 @@
 
       search = {
         force = true;
-        default = "brave-search";
         engines =
           let
             nixSnowflakeIcon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
