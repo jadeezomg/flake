@@ -54,9 +54,25 @@ in
       };
     };
 
-    policies = {
-      DisableAppUpdate = true;
-      DisableTelemetry = true;
-    };
+    policies =
+      let
+        mkExtensionSettings = builtins.mapAttrs (
+          _: pluginId: {
+            install_url = "https://addons.mozilla.org/firefox/downloads/latest/${pluginId}/latest.xpi";
+            installation_mode = "force_installed";
+          }
+        );
+      in
+      {
+        DisableAppUpdate = true;
+        DisableTelemetry = true;
+
+        ExtensionSettings = mkExtensionSettings {
+          "gdpr@cavi.au.dk" = "consent-o-matic";
+          "addon@darkreader.org" = "darkreader";
+          "78272b6fa58f4a1abaac99321d503a20@proton.me" = "proton-pass";
+          "{91aa3897-2634-4a8a-9092-279db23a7689}" = "zen-internet";
+        };
+      };
   };
 }
