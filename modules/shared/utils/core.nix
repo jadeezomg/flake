@@ -14,6 +14,7 @@
     coreutils-prefixed # Prefixed version of coreutils
     util-linux # Includes lscpu
     uutils-coreutils-noprefix # An improvement over coreutils
+    zoxide # Better cd
 
     # --- Build Essentials ---
     gnumake # Make files

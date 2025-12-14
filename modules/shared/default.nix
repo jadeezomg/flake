@@ -1,14 +1,7 @@
-{ ... }:
+{ config, pkgs, ... }:
 
 {
   imports = [
-    ./apps
-    ./utils
-    ./development
-    ./fonts
-    ./integration
-    ./virtualization
-    ./shell
-    ./environment
+    ./compat.nix
   ];
 }

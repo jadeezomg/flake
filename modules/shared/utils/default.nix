@@ -1,12 +1,12 @@
-{ ... }:
+{ config, pkgs, ... }:
 
 {
   imports = [
     ./core.nix
-    ./text.nix
-    ./nix.nix
     ./filesystem.nix
     ./monitoring.nix
     ./networking.nix
+    ./nix.nix
+    ./text.nix
   ];
 }

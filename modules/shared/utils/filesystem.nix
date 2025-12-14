@@ -16,5 +16,6 @@
     unzip # Extract ZIP archives
     zip # Create ZIP archives
     zstd # Compression algorithm (optional Emacs dep)
+    zoxide # Better cd
   ];
 }

@@ -1,0 +1,5 @@
+{ ... }:
+
+{
+  # TODO: Add aliases configuration
+}
