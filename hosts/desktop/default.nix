@@ -46,4 +46,10 @@ in
     schedule = "weekly";
     deleteOlderThan = "30d";
   };
+
+  # Monitor configuration for GDM
+  environment.etc."xdg/monitors.xml" = {
+    source = ../../data/hosts/desktop/monitors.xml;
+    mode = "0644";
+  };
 }
