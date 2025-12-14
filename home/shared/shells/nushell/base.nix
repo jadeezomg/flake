@@ -2,6 +2,7 @@
 
 {
   programs.nushell = {
+    enable = true;
     settings = {
       # General settings
       show_banner = false;

@@ -61,9 +61,13 @@
     alias searchd = fd --type d
 
     # Home Manager shortcuts (using nushell string interpolation)
-    alias hm = home-manager --flake $"($env.FLAKE)#${hostKey}"
-    alias hms = home-manager switch --flake $"($env.FLAKE)#${hostKey}"
-    alias hmn = home-manager news --flake $"($env.FLAKE)#${hostKey}"
+    # alias hm = home-manager --flake $"($env.FLAKE)#${hostKey}"
+    # alias hms = home-manager switch --flake $"($env.FLAKE)#${hostKey}"
+    # alias hmn = home-manager news --flake $"($env.FLAKE)#${hostKey}"
+    alias hm = nix run home-manager/master -- --flake $"($env.FLAKE)#${hostKey}"
+    alias hms = nix run home-manager/master -- switch --flake $"($env.FLAKE)#${hostKey}"
+    alias hmn = nix run home-manager/master -- news --flake $"($env.FLAKE)#${hostKey}"
+
 
     # Flake build scripts shortcuts
     alias flake = nu $"($env.FLAKE)/build/flake.nu"
