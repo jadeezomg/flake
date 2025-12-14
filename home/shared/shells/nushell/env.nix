@@ -6,23 +6,42 @@
 }:
 
 let
+  # Get nushell version to match plugin dependencies
+  nushell-version = pkgs.nushell.version;
+
   # Build nu_plugin_tree from source
-  nu-plugin-tree = pkgs.rustPlatform.buildRustPackage rec {
+  # The plugin uses path dependencies for local dev, so we need to patch Cargo.toml
+  nu-plugin-tree-src = pkgs.runCommand "nu-plugin-tree-src" { } ''
+    cp -r ${inputs.nu-plugin-tree} $out
+    chmod -R +w $out
+
+    # Patch Cargo.toml to use versioned dependencies instead of path dependencies
+    # Replace path dependencies with versioned ones matching nushell version
+    sed -i 's|nu-plugin = { path = ".*" }|nu-plugin = "${nushell-version}"|g' $out/Cargo.toml
+    sed -i 's|nu-protocol = { path = ".*" }|nu-protocol = { version = "${nushell-version}", features = ["plugin", "sqlite"] }|g' $out/Cargo.toml
+    sed -i 's|nu-plugin-test-support = { path = ".*" }|# nu-plugin-test-support removed for build|g' $out/Cargo.toml
+  '';
+
+  nu-plugin-tree = pkgs.rustPlatform.buildRustPackage {
     pname = "nu-plugin-tree";
     version = "0.1.0";
-    src = inputs.nu-plugin-tree;
+    src = nu-plugin-tree-src;
 
-    # Let Nix handle cargo dependencies
-    # This will work if Cargo.lock exists, otherwise you'll need to provide cargoSha256
-    cargoLock.lockFile = "${src}/Cargo.lock";
+    # Use cargoLock if it exists, otherwise cargoSha256 will be computed
+    cargoLock = {
+      lockFile = "${inputs.nu-plugin-tree}/Cargo.lock";
+    };
 
     nativeBuildInputs = with pkgs; [
       rustc
       cargo
+      pkg-config
     ];
 
-    # Standard build - buildRustPackage handles this automatically
-    # But we can override if needed
+    buildInputs = with pkgs; [
+      openssl
+    ];
+
     doCheck = false; # Skip tests for faster builds
   };
 in

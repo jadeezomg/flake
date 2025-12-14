@@ -42,17 +42,26 @@ def post-build-tasks [fast, script_dir: string] {
   print ""
 }
 
-def main [host?: string, --fast, --check] {
+def main [host?: string, --fast, --check, --skip-git] {
   print-header "SWITCH"
   let flake_path = (get-flake-path)
   let script_dir = $"($flake_path)/build"
   let target_host = (get-host $host)
   
+  # Run git update first (unless skipped or in fast mode)
+  if not $fast and not $skip_git {
+    print ""
+    print-header "GIT UPDATE"
+    let git_script = $"($script_dir)/git-update.nu"
+    nu $git_script
+    print ""
+  } else if $fast {
+    notify "Flake Switch" "Fast mode enabled - skipping git update and pre/post checks" "info"
+    print ""
+  }
+  
   if not $fast {
     check $flake_path
-  } else {
-    notify "Flake Switch" "Fast mode enabled - skipping pre/post checks" "info"
-    print ""
   }
 
   # Allow running only the check and exit early
