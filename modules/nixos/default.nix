@@ -8,6 +8,7 @@
     ./development
     ./environment
     ./fonts
+    ./hardware
     ./integration
     ./locale
     ./maintenance
