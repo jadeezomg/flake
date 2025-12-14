@@ -1,5 +1,31 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 
+let
+  # Build nu_plugin_tree from source
+  nu-plugin-tree = pkgs.rustPlatform.buildRustPackage rec {
+    pname = "nu-plugin-tree";
+    version = "0.1.0";
+    src = inputs.nu-plugin-tree;
+
+    # Let Nix handle cargo dependencies
+    # This will work if Cargo.lock exists, otherwise you'll need to provide cargoSha256
+    cargoLock.lockFile = "${src}/Cargo.lock";
+
+    nativeBuildInputs = with pkgs; [
+      rustc
+      cargo
+    ];
+
+    # Standard build - buildRustPackage handles this automatically
+    # But we can override if needed
+    doCheck = false; # Skip tests for faster builds
+  };
+in
 {
   programs.nushell = {
     environmentVariables = {
@@ -54,6 +80,7 @@
 
       # Set up PATH
       $env.PATH = ($env.PATH | split row (char esep) | prepend [
+        "${nu-plugin-tree}/bin"
         $"($env.HOME)/.local/bin"
         $"($env.HOME)/.cargo/bin"
         $"($env.HOME)/.nix-profile/bin"

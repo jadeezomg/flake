@@ -62,7 +62,8 @@ def main [] {
     print ""
     print-header "UNTRACKED FILES"
     let count = ($untracked | length)
-    print-info $"Found ($count) untracked file(s):"
+    let file_word = (if $count == 1 { "file" } else { "files" })
+    print-info $"Found ($count) untracked ($file_word):"
     $untracked | each { |file|
       let size_display = (get-file-size $"($repo)/($file)")
       print-info $"  ($file) [($size_display)]"

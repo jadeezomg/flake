@@ -9,5 +9,6 @@
     ./integration
     ./virtualization
     ./shell
+    ./enviroment
   ];
 }

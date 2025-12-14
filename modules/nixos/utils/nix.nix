@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 {
   # Automatically creates a loader in /lib/* to avoid patching stuff
   # To disable it temporarily use

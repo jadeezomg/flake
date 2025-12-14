@@ -330,6 +330,22 @@
         "type": "github"
       }
     },
+    "nu-plugin-tree": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1764689816,
+        "narHash": "sha256-0eRWo+HSJsbZi/9a1dQS8QlIUocljaYSSp4rEFKhEd4=",
+        "owner": "fdncred",
+        "repo": "nu_plugin_tree",
+        "rev": "b983f6624d946c74d34d8d8ae64b559f420edd98",
+        "type": "github"
+      },
+      "original": {
+        "owner": "fdncred",
+        "repo": "nu_plugin_tree",
+        "type": "github"
+      }
+    },
     "nu-scripts": {
       "flake": false,
       "locked": {
@@ -379,6 +395,7 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_3",
         "nixpkgs-unstable": "nixpkgs-unstable",
+        "nu-plugin-tree": "nu-plugin-tree",
         "nu-scripts": "nu-scripts",
         "nur": "nur",
         "sops-nix": "sops-nix",
