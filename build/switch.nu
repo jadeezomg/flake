@@ -50,8 +50,6 @@ def main [host?: string, --fast, --check, --skip-git] {
   
   # Run git update first (unless skipped or in fast mode)
   if not $fast and not $skip_git {
-    print ""
-    print-header "GIT UPDATE"
     let git_script = $"($script_dir)/git-update.nu"
     nu $git_script
     print ""

@@ -94,12 +94,22 @@ def main [] {
   
   # Helper to display files as a tree
   def display-grouped-files [files: table, status_icon: string] {
+    # Filter out default.nix files
+    let filtered_files = ($files | where { |r|
+      let filename = (get-filename (get-relative-path $r.file))
+      $filename != "default.nix"
+    })
+    
+    if ($filtered_files | is-empty) {
+      return
+    }
+    
     # Check if tree plugin is available
     let tree_plugin = (which tree)
     
     if ($tree_plugin | is-not-empty) {
       # Use tree plugin if available - convert to table format it expects
-      let file_table = ($files | each { |r|
+      let file_table = ($filtered_files | each { |r|
         {
           name: (get-filename (get-relative-path $r.file))
           path: (get-relative-path $r.file)
@@ -108,7 +118,7 @@ def main [] {
       $file_table | tree
     } else {
       # Fallback: simple tree display without mutation
-      let rel_paths = ($files | each { |r| get-relative-path $r.file } | sort)
+      let rel_paths = ($filtered_files | each { |r| get-relative-path $r.file } | sort)
       
       # Build set of all directories
       let all_dirs = (
@@ -191,7 +201,7 @@ def main [] {
   
   if $unchanged_count > 0 {
     let file_word = (if $unchanged_count == 1 { "file" } else { "files" })
-    print-info $"($unchanged_count) ($file_word) already formatted:"
+    print-info $"($unchanged_count) ($file_word) already formatted - excluded default.nix files:"
     display-grouped-files $unchanged_files "•"
     print ""
   }

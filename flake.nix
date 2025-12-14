@@ -73,11 +73,6 @@
       url = "github:nushell/nu_scripts";
       flake = false;
     };
-
-    nu-plugin-tree = {
-      url = "github:fdncred/nu_plugin_tree";
-      flake = false;
-    };
   };
 
   outputs =
@@ -99,7 +94,6 @@
       homebrew-core,
       homebrew-cask,
       nu-scripts,
-      nu-plugin-tree,
     }@inputs:
     let
       lib = nixpkgs.lib;
@@ -248,7 +242,7 @@
                 userExtras
                 userData
                 ;
-              inherit (inputs) nu-scripts nu-plugin-tree;
+              inherit (inputs) nu-scripts;
             };
           };
         };
