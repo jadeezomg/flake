@@ -3,7 +3,7 @@
 let
   # Default application identifiers (desktop entry names without extension)
   userEditor = "zeditor";
-  userBrowser = "zen";
+  userBrowser = "zen-twilight-official";
   audio = "mpv";
   image = "imv";
   pdf = "org.pwmt.zathura";
