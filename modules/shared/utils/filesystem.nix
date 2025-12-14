@@ -2,7 +2,7 @@
 
 {
   environment.systemPackages = with pkgs; [
-    eza # Better ls
+    eza # Better ls, not really needed because of nushell's ls
     dust # Better disk usage
     broot # Interactive tree view
     difftastic # Better diff
@@ -15,7 +15,5 @@
     p7zip # 7-Zip archiver
     unzip # Extract ZIP archives
     zip # Create ZIP archives
-    zstd # Compression algorithm (optional Emacs dep)
-    zoxide # Better cd
   ];
 }
