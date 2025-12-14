@@ -32,7 +32,7 @@ def post-build-tasks [fast, script_dir: string] {
     let user_vars_path = $"/etc/profiles/per-user/($env.USER)/etc/profile.d/hm-session-vars.sh"
     if ($user_vars_path | path exists) {
       print-info $"→ source ($user_vars_path)"
-      ^bash -lc $"source '$user_vars_path'"
+      ^bash -lc $"source '($user_vars_path)'"
     }
     
     notify "Flake Switch" "System rebuild complete" "success"
@@ -64,7 +64,7 @@ def main [host?: string, --fast, --check] {
   }
   
   notify "Flake Switch" $"Building and switching configuration for ($target_host)..." "pending"
-  let switch_cmd = $"sudo nixos-rebuild switch --flake '($flake_path)#($target_host)'"
+  let switch_cmd = (build-nixos-rebuild-cmd $flake_path $target_host "switch")
   print-info $"→ ($switch_cmd)"
   ^bash -lc $switch_cmd
   print ""

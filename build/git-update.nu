@@ -6,12 +6,68 @@ use common.nu *
 def main [] {
   print-header "GIT UPDATE"
   let repo = (get-flake-path)
-  let status = (git -C $repo status --short)
-  if ($status | is-empty) {
+  
+  # Check for tracked changes
+  let status_raw = (git -C $repo status --short)
+  let status_lines = ($status_raw | lines | where ($it | str trim | is-not-empty))
+  
+  # Check for untracked files
+  let untracked = (git -C $repo ls-files --others --exclude-standard | lines | where ($it | is-not-empty))
+  
+  # If nothing to commit, exit early
+  if ($status_lines | is-empty) and ($untracked | is-empty) {
     print-info "Working tree clean. Nothing to commit."
     return
   }
-  $status | each { |line| print-info $"  ($line)" }
+  
+  # Show tracked changes
+  if ($status_lines | is-not-empty) {
+    print-header "GIT STATUS"
+    use theme.nu *
+    
+    $status_lines | each { |line|
+      let trimmed = ($line | str trim)
+      
+      # Parse git status short format: XY filename
+      # X = staged status, Y = unstaged status
+      let status_code = ($trimmed | str substring 0..2 | str trim)
+      let file_path = ($trimmed | str substring 2.. | str trim)
+      
+      # Color code based on status
+      let has_m = ($status_code | str contains "M")
+      let has_r = ($status_code | str contains "R")
+      let color = (if ($status_code | str contains "D") {
+        $theme_colors.error_bold
+      } else if ($status_code | str contains "A") {
+        $theme_colors.success_bold
+      } else if ($has_m or $has_r) {
+        $theme_colors.pending_bold
+      } else {
+        $theme_colors.info_bold
+      })
+      
+      # Format status code (pad to 2 chars, replace spaces with middle dot)
+      let status_padded = (if ($status_code | str length) == 1 {
+        $"·($status_code)"
+      } else {
+        $status_code
+      })
+      
+      print-info $"(ansi $color)($status_padded)(ansi reset) ($file_path)"
+    }
+  }
+  
+  # Show untracked files
+  if ($untracked | is-not-empty) {
+    print ""
+    print-header "UNTRACKED FILES"
+    let count = ($untracked | length)
+    print-info $"Found ($count) untracked file(s):"
+    $untracked | each { |file|
+      let size_display = (get-file-size $"($repo)/($file)")
+      print-info $"  ($file) [($size_display)]"
+    }
+  }
 
   print ""
   print-header "DIFF STATS"

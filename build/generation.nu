@@ -35,17 +35,11 @@ def main [action: string = "list", num?: int] {
       
       # Prompt for generation number if not provided
       let gen_num = if ($num | is-empty) {
-        let input = (input "Enter generation number to switch to (or 'abort' to cancel): " | str trim)
-        if ($input | is-empty) or (($input | str downcase) == "abort") {
-          print-info "Aborted."
+        let result = (prompt-number "Enter generation number to switch to")
+        if ($result == null) {
           return
         }
-        try {
-          $input | into int
-        } catch {
-          print-info "Aborted."
-          return
-        }
+        $result
       } else {
         $num
       }
@@ -59,17 +53,11 @@ def main [action: string = "list", num?: int] {
       
       # Prompt for generation number if not provided
       let gen_num = if ($num | is-empty) {
-        let input = (input "Enter generation number to delete (or 'abort' to cancel): " | str trim)
-        if ($input | is-empty) or (($input | str downcase) == "abort") {
-          print-info "Aborted."
+        let result = (prompt-number "Enter generation number to delete")
+        if ($result == null) {
           return
         }
-        try {
-          $input | into int
-        } catch {
-          print-info "Aborted."
-          return
-        }
+        $result
       } else {
         $num
       }

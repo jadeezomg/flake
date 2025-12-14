@@ -113,12 +113,21 @@ export def print-header [
 }
 
 # Print a table with structured data using nushell's table command
-export def print-table [data: table, --compact] {
-  if $compact {
-    $data | table
+export def print-table [data: table, --compact, --no-index (-i)] {
+  let formatted = (if $compact {
+    if $no_index {
+      $data | table -i false | to text
+    } else {
+      $data | table | to text
+    }
   } else {
-    $data | table --expand
-  }
+    if $no_index {
+      $data | table --expand -i false | to text
+    } else {
+      $data | table --expand | to text
+    }
+  })
+  print $formatted
 }
 
 # Print a grid layout for key-value pairs
@@ -217,11 +226,62 @@ export def command-exists [cmd: string] {
 
 # Get current hostname (for determining which host we're on)
 export def get-current-host [] {
-  # Use stepwise access for compatibility across Nu versions
-  sys
-  | get host
-  | get hostname
-  | str downcase
+  # Use external hostname command (most reliable across systems and nushell versions)
+  try {
+    (^hostname | str trim | str downcase)
+  } catch {
+    # Fallback to environment variable
+    if ($env.HOSTNAME? | is-not-empty) {
+      ($env.HOSTNAME | str downcase)
+    } else {
+      "unknown"
+    }
+  }
+}
+
+# Detect host from hostname (returns null if not detected)
+export def detect-host-from-hostname [] {
+  let hostname = (get-current-host)
+  if ($hostname | str contains "framework") {
+    "framework"
+  } else if ($hostname | str contains "desktop") {
+    "desktop"
+  } else if ($hostname | str contains "caya") {
+    "caya"
+  } else {
+    null
+  }
+}
+
+# Get list of available hosts
+export def get-available-hosts [] {
+  [
+    { host: "framework" }
+    { host: "desktop" }
+    { host: "caya" }
+  ]
+}
+
+# Prompt user for confirmation (returns true if confirmed)
+export def confirm [message: string] {
+  let response = (input $"($message) (y/N): " | str trim | str downcase)
+  ($response == "y" or $response == "yes")
+}
+
+# Prompt user for a number with optional abort (returns int or null if aborted)
+export def prompt-number [message: string] {
+  let input = (input $"($message) (or 'abort' to cancel): " | str trim)
+  if ($input | is-empty) or (($input | str downcase) == "abort") {
+    print-info "Aborted."
+    null
+  } else {
+    try {
+      ($input | into int)
+    } catch {
+      print-info "Aborted."
+      null
+    }
+  }
 }
 
 # Get the configured host or detect it automatically
@@ -242,13 +302,7 @@ export def get-host [host?: string] {
   }
   
   # Auto-detect based on hostname
-  let hostname = (get-current-host)
-  let detected = (
-    if ($hostname | str contains "framework") { "framework" }
-    else if ($hostname | str contains "desktop") { "desktop" }
-    else if ($hostname | str contains "caya") { "caya" }
-    else { null }
-  )
+  let detected = (detect-host-from-hostname)
   
   if ($detected | is-not-empty) {
     return $detected
@@ -269,4 +323,62 @@ export def set-host [host: string] {
   $host | save -f $config_file
   print-success $"Default host set to: ($host)"
   print-info $"Config saved to: ($config_file)"
+}
+
+# Get the host config file path
+export def get-host-config-file [] {
+  $"($env.FLAKE? | default $"($env.HOME)/.dotfiles/flake")/.flake-host"
+}
+
+# Get file size in human-readable format
+export def get-file-size [file_path: string] {
+  let size_result = (^du -h $file_path | complete)
+  if $size_result.exit_code == 0 {
+    ($size_result.stdout | str trim | split row " " | get 0)
+  } else {
+    "unknown"
+  }
+}
+
+# Get file age in days
+export def get-file-age-days [file_path: string] {
+  let file_info = (($file_path | path expand) | get metadata)
+  let mtime = ($file_info.modified | into int)
+  let now = (date now | into int)
+  (($now - $mtime) / 86400000000000)
+}
+
+# Find backup files in a directory
+export def find-backup-files [dir: string] {
+  (glob $"($dir)/**/*.backup" | append (glob $"($dir)/**/*.bkp"))
+}
+
+# Parse generation number from nix-env output line
+export def parse-generation-number [line: string] {
+  let trimmed = ($line | str trim)
+  if ($trimmed | is-empty) {
+    null
+  } else {
+    try {
+      ($trimmed | parse "{gen} *" | get gen | into int)
+    } catch {
+      null
+    }
+  }
+}
+
+# Build nixos-rebuild command
+export def build-nixos-rebuild-cmd [
+  flake_path: string,
+  host: string,
+  action: string = "switch"
+] {
+  match $action {
+    "switch" => $"sudo nixos-rebuild switch --flake '($flake_path)#($host)'"
+    "build" => $"cd /tmp && sudo nixos-rebuild build --flake '($flake_path)#($host)'"
+    "boot" => $"cd /tmp && sudo nixos-rebuild boot --flake '($flake_path)#($host)'"
+    "dry-build" => $"cd /tmp && sudo nixos-rebuild dry-build --flake '($flake_path)#($host)'"
+    "dev" => $"cd /tmp && sudo nixos-rebuild switch --flake '($flake_path)#($host)' --show-trace -L"
+    _ => $"sudo nixos-rebuild ($action) --flake '($flake_path)#($host)'"
+  }
 }

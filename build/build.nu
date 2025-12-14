@@ -29,27 +29,27 @@ def main [host_or_mode?: string, mode?: string] {
   match $selected_mode {
     "build" => {
       notify "Flake Build" $"Building configuration for ($target_host)..." "pending"
-      let cmd = $"cd /tmp && sudo nixos-rebuild build --flake '($flake_path)#($target_host)'"
+      let cmd = (build-nixos-rebuild-cmd $flake_path $target_host "build")
       print-info $"→ ($cmd)"
       ^bash -c $cmd
       notify "Flake Build" "Build successful [not activated]" "success"
     }
     "boot" => {
       notify "Flake Build" $"Building boot configuration for ($target_host)..." "pending"
-      let cmd = $"cd /tmp && sudo nixos-rebuild boot --flake '($flake_path)#($target_host)'"
+      let cmd = (build-nixos-rebuild-cmd $flake_path $target_host "boot")
       print-info $"→ ($cmd)"
       ^bash -c $cmd
       notify "Flake Build" "Will boot into new generation on next reboot" "success"
     }
     "dry" => {
       notify "Flake Build" $"Dry run for ($target_host)..." "pending"
-      let cmd = $"cd /tmp && sudo nixos-rebuild dry-build --flake '($flake_path)#($target_host)'"
+      let cmd = (build-nixos-rebuild-cmd $flake_path $target_host "dry-build")
       print-info $"→ ($cmd)"
       ^bash -c $cmd
     }
     "dev" => {
       notify "Flake Build" $"Development build with trace output for ($target_host)" "pending"
-      let cmd = $"cd /tmp && sudo nixos-rebuild switch --flake '($flake_path)#($target_host)' --show-trace -L"
+      let cmd = (build-nixos-rebuild-cmd $flake_path $target_host "dev")
       print-info $"→ ($cmd)"
       ^bash -c $cmd
     }

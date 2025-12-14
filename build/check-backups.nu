@@ -11,8 +11,8 @@ def main [] {
   
   let config_dir = $"($env.HOME)/.config"
   
-  # Find backup files using nushell glob
-  let backups = (glob $"($config_dir)/**/*.backup" | append (glob $"($config_dir)/**/*.bkp"))
+  # Find backup files using reusable function
+  let backups = (find-backup-files $config_dir)
   let backup_count = ($backups | length)
   
   if $backup_count == 0 {
@@ -20,24 +20,12 @@ def main [] {
   } else {
     # Use structured data for better table formatting
     let backup_table = ($backups | each { |file|
-      let size_result = (^du -h $file | complete)
-      let size = if $size_result.exit_code == 0 {
-        ($size_result.stdout | str trim | split row " " | get 0)
-      } else {
-        "unknown"
-      }
-      
-      let file_info = (($file | path expand) | get metadata)
-      let mtime = ($file_info.modified | into int)
-      let now = (date now | into int)
-      let age_days = (($now - $mtime) / 86400000000000)
-      
       let rel_path = ($file | str replace $config_dir "")
       
       {
         File: $rel_path
-        Size: $size
-        Age: $"($age_days) days"
+        Size: (get-file-size $file)
+        Age: $"((get-file-age-days $file)) days"
       }
     })
     

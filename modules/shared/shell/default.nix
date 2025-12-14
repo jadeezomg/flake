@@ -11,13 +11,11 @@
     zsh.enable = true;
     bash.completion.enable = true; # Required for home setting
     fish.enable = true;
-    nushell.enable = true;
     command-not-found.enable = false; # Required for fish
   };
 
   programs.nix-index = {
     enable = true;
     enableFishIntegration = true;
-    enableNushellIntegration = true;
   };
 }

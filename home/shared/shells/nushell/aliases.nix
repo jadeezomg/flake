@@ -11,7 +11,7 @@
     grep = "rg";
 
     # Navigation shortcuts
-    cd = "zoxide";
+    cd = "z";
     ".." = "z ..";
     "..." = "z ../..";
     "...." = "z ../../..";
@@ -30,16 +30,30 @@
     gad = "git add .";
     gcm = "git commit -m";
     gpu = "git push -u origin main";
+
+    search = "rg --smart-case";
+    searchf = "fd --type f";
+    searchd = "fd --type d";
   };
 
   # Nushell-specific aliases that need nushell syntax
   programs.nushell.extraConfig = ''
-    # Quick directory navigation using zoxide
-    # Use 'z' for smart navigation, or these shortcuts for common directories
-    alias zz = z $env.HOME
-    alias zc = z $"($env.HOME)/.config"
-    alias zd = z $"($env.HOME)/Downloads"
-    alias zp = z $"($env.HOME)/.dotfiles"
+    # Quick directory navigation shortcuts
+    def --env zz [] { 
+      cd ''$env.HOME
+    }
+    def --env zc [] { 
+      cd $"(''$env.HOME)/.config"
+    }
+    def --env zd [] { 
+      cd $"(''$env.HOME)/Downloads"
+    }
+    def --env zp [] { 
+      cd $"(''$env.HOME)/.dotfiles"
+    }
+    def --env zf [] { 
+      cd $"(''$env.HOME)/.dotfiles/flake"
+    }
 
     # Search aliases
     alias search = rg --smart-case
@@ -67,6 +81,6 @@
     alias flake-clean-backups = nu $"($env.FLAKE)/build/clean-backups.nu"
     alias flake-fmt = nu $"($env.FLAKE)/build/fmt.nu"
     alias flake-reload-services = nu $"($env.FLAKE)/build/reload-services.nu"
-    alias flake-untracked = nu $"($env.FLAKE)/build/untracked.nu"
+    alias flake-untracked = nu $"($env.FLAKE)/build/git-update.nu"
   '';
 }

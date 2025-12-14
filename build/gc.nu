@@ -21,10 +21,9 @@ def gc-keep [keep_count: int = 5] {
   
   let gen_nums = (
     $generations
-    | where { |line| ($line | str trim) != "" }
-    | parse "{gen} *"
-    | get gen
-    | into int
+    | lines
+    | each { |line| parse-generation-number $line }
+    | where ($it != null)
   )
 
   if ($gen_nums | is-empty) {
@@ -45,7 +44,12 @@ def gc-keep [keep_count: int = 5] {
   let keep_from = ($current_gen - $keep_count)
   
   # Animate spinner while deleting generations
-  let gens_to_delete = ($generations | parse "{gen} {date} {path}" | get gen | into int | where { |gen| $gen < $keep_from and $gen != $current_gen })
+  let gens_to_delete = (
+    $generations
+    | lines
+    | each { |line| parse-generation-number $line }
+    | where { |gen| ($gen != null) and $gen < $keep_from and $gen != $current_gen }
+  )
   
   if ($gens_to_delete | length) > 0 {
     let gens_list = ($gens_to_delete | enumerate)

@@ -14,8 +14,8 @@ def main [--dry-run] {
     notify "Flake Clean Backups" "Cleaning backup files..." "pending"
   }
   
-  # Find backup files using nushell glob
-  let backups = (glob $"($config_dir)/**/*.backup" | append (glob $"($config_dir)/**/*.bkp"))
+  # Find backup files using reusable function
+  let backups = (find-backup-files $config_dir)
   let count = ($backups | length)
   
   if $count == 0 {
