@@ -1,5 +1,1 @@
-{ inputs, ... }:
-
-{
-  pear-desktop = import ./pear-desktop.nix;
-}
+import ./pear-desktop.nix
