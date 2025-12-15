@@ -1,11 +1,9 @@
 { pkgs, ... }:
 
 {
-
   imports = [
-    ./thunar.nix
+    ./niri
   ];
-
   # X server configuration (required for GDM and XWayland compatibility)
   # GNOME uses Wayland by default, but X server is needed for:
   # - GDM display manager
@@ -26,8 +24,8 @@
     desktopManager.gnome.enable = true;
   };
 
-  # Desktop notifications
   environment.systemPackages = with pkgs; [
-    libnotify
+    libnotify # Desktop notifications
+    nautilus # File manager
   ];
 }

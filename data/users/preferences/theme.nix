@@ -1,6 +1,6 @@
 {
-  theme = {
-    name = "chiaroscuro";
-    variant = "dark";
-  };
+  # theme = {
+  #   name = "chiaroscuro";
+  #   variant = "dark";
+  # };
 }
