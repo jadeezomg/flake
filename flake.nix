@@ -24,6 +24,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    determinate = {
+      url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
+    };
+
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
     };
@@ -43,14 +47,6 @@
         nixpkgs.follows = "nixpkgs";
         home-manager.follows = "home-manager";
       };
-    };
-
-    nil = {
-      url = "github:oxalica/nil";
-    };
-
-    cursor = {
-      url = "github:TudorAndrei/cursor-nixos-flake";
     };
 
     nix-homebrew = {
@@ -88,9 +84,8 @@
       flake-parts,
       sops-nix,
       nur,
+      determinate,
       zen-browser,
-      nil,
-      cursor,
       nix-darwin,
       nix-homebrew,
       homebrew-bundle,
@@ -106,7 +101,6 @@
       ];
       darwinSystems = [
         "aarch64-darwin"
-        "x86_64-darwin"
       ];
       # Helper to get pkgs for a system
       getPkgs =
@@ -311,6 +305,7 @@
               modules = [
                 ./hosts/${hostKey}
                 sops-nix.nixosModules.sops
+                determinate.nixosModules.default
                 home-manager.nixosModules.home-manager
                 (mkHomeManagerModule { inherit hostKey user; })
               ];
