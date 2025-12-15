@@ -131,7 +131,7 @@
     };
     ubuntu-mono = {
       enable = true;
-      package = pkgs.ubuntu_font_family;
+      package = pkgs.ubuntu-classic;
       name = "Ubuntu Mono";
       style = "Monospace";
     };
