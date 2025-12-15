@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     # Development tools
     gitui # Blazing fast terminal-ui for Git written in Rust

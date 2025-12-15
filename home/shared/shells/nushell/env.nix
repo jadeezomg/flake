@@ -2,9 +2,7 @@
   config,
   pkgs,
   ...
-}:
-
-{
+}: {
   programs.nushell = {
     environmentVariables = {
       EDITOR = "zeditor";
@@ -27,12 +25,12 @@
       let posh_theme = "tiwahu"
 
       # Set up Oh My Posh prompt
-      $env.PROMPT_COMMAND = {|| 
+      $env.PROMPT_COMMAND = {||
         let exit_code = (if ($env.LAST_EXIT_CODE) == null { 0 } else { $env.LAST_EXIT_CODE })
         ^$posh print primary --config $posh_theme --shell nushell --status $exit_code
       }
 
-      $env.PROMPT_COMMAND_RIGHT = {|| 
+      $env.PROMPT_COMMAND_RIGHT = {||
         ^$posh print right --config $posh_theme --shell nushell
       }
 

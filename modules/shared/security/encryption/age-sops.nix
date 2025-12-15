@@ -1,8 +1,11 @@
-{ config, lib, ... }:
-
 {
+  config,
+  lib,
+  ...
+}: {
   # SOPS-Nix configuration for secret management
-  sops = {
+  # Only apply in home-manager context, not NixOS system context
+  sops = lib.mkIf (builtins.hasAttr "home" config) {
     # Default secrets location
     defaultSopsFile = ./secrets/secrets.enc.yaml;
 

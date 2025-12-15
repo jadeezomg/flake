@@ -1,5 +1,3 @@
-{ ... }:
-
-{
+{...}: {
   # TODO: Add binaries configuration
 }

@@ -1,6 +1,8 @@
-{ config, pkgs, ... }:
-
 {
+  config,
+  pkgs,
+  ...
+}: {
   imports = [
     ./apps
     ./boot
@@ -16,7 +18,6 @@
     ./programs
     ./security
     ./services
-    ./shell
     ./shells
     ./utils
     ./virtualization

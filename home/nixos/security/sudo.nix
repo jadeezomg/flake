@@ -1,5 +1,3 @@
-{ ... }:
-
-{
+{...}: {
   # TODO: Add sudo configuration
 }

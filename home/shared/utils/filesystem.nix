@@ -1,6 +1,4 @@
-{ ... }:
-
-{
+{...}: {
   programs = {
     broot = {
       enable = true;

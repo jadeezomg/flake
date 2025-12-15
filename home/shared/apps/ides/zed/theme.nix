@@ -1,5 +1,4 @@
-{ ... }:
-{
+{...}: {
   programs.zed-editor = {
     userSettings = {
       theme = "SunsetForest";

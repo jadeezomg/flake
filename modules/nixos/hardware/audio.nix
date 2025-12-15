@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     pamixer # PulseAudio cli Mixer
     pavucontrol # PulseAudio Control Center
@@ -30,5 +28,4 @@
   security.rtkit = {
     enable = true;
   };
-
 }

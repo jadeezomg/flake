@@ -3,8 +3,7 @@ let
   behaviour = import ./behaviour.nix;
   theme = import ./theme.nix;
   metadata = import ./metadata.nix;
-in
-{
+in {
   inherit (apps) apps profiles;
   inherit (behaviour) behaviour;
   inherit (theme) theme;

@@ -1,7 +1,9 @@
-{ hostData, hostKey, ... }:
-
-let
-  host = hostData.hosts.${hostKey} or { };
+{
+  hostData,
+  hostKey,
+  ...
+}: let
+  host = hostData.hosts.${hostKey} or {};
   localeConfig =
     host.locale or {
       defaultLocale = "en_US.UTF-8";
@@ -18,8 +20,7 @@ let
         LC_TIME = "de_DE.UTF-8";
       };
     };
-in
-{
+in {
   # Locale and timezone configuration (from host data)
   time.timeZone = localeConfig.timeZone;
   i18n.defaultLocale = localeConfig.defaultLocale;

@@ -1,8 +1,4 @@
-{
-  pkgs-unstable,
-  ...
-}:
-{
+{pkgs-unstable, ...}: {
   home.packages = [
     # --- 1Password ---
     # pkgs._1password-gui

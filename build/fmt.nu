@@ -1,5 +1,5 @@
 #!/usr/bin/env nu
-# Format Nix files in the flake (parity with rh-fmt.sh)
+# Format Nix files in the flake using Alejandra (parity with rh-fmt.sh)
 
 use common.nu *
 use theme.nu *
@@ -8,8 +8,8 @@ def main [--no-tree] {
   print-header "FMT"
   let flake_path = (get-flake-path)
 
-  if not (command-exists "nixfmt") {
-    print-error "nixfmt not found. Install nixfmt to format Nix files."
+  if not (command-exists "alejandra") {
+    print-error "alejandra not found. Install alejandra to format Nix files."
     exit 1
   }
 
@@ -23,7 +23,7 @@ def main [--no-tree] {
     return
   }
 
-  # Run nixfmt per file to avoid argument length issues
+  # Run alejandra per file to avoid argument length issues
   # Track successes, failures, and which files were actually changed
   let results = ($files | each { |f|
     # Get modification time before formatting
@@ -34,7 +34,7 @@ def main [--no-tree] {
     })
     
     # Format the file
-    let result = (^nixfmt $f | complete)
+    let result = (^alejandra $f | complete)
     
     # Get modification time after formatting
     let mtime_after = (try {

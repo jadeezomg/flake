@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   home.packages = with pkgs; [
     filezilla # FTP client
     celeste # File sync client supporting ProtonDrive

@@ -6,13 +6,10 @@
   hostKey,
   user,
   ...
-}:
-
-let
-  host = hostData.hosts.${hostKey} or { };
-  userConfig = host.user or { };
-in
-{
+}: let
+  host = hostData.hosts.${hostKey} or {};
+  userConfig = host.user or {};
+in {
   imports = [
     ./hardware-configuration.nix
     # Shared modules (work on both NixOS and Darwin)
@@ -25,9 +22,9 @@ in
   users.users.${user} = {
     isNormalUser = true;
     description = userConfig.description or "user account";
-    extraGroups = userConfig.extraGroups or [ "wheel" ];
+    extraGroups = userConfig.extraGroups or ["wheel"];
     shell = pkgs.nushell;
-    packages = with pkgs; userConfig.packages or [ ];
+    packages = with pkgs; userConfig.packages or [];
   };
 
   # Framework 13 specific hardware configuration

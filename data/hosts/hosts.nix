@@ -18,23 +18,27 @@ let
   };
 
   hosts = {
-    framework = sharedNixOSHost // {
-      hostname = "framework-nixos";
-      description = "Jadee Framework NixOS Host";
-      user = sharedNixOSUser;
-      mainMonitor = {
-        monitorID = "eDP-1";
-        monitorResolution = "2880x1920";
-        monitorRefreshRate = "120";
-        monitorScalingFactor = "2.0";
+    framework =
+      sharedNixOSHost
+      // {
+        hostname = "framework-nixos";
+        description = "Jadee Framework NixOS Host";
+        user = sharedNixOSUser;
+        mainMonitor = {
+          monitorID = "eDP-1";
+          monitorResolution = "2880x1920";
+          monitorRefreshRate = "120";
+          monitorScalingFactor = "2.0";
+        };
       };
-    };
 
-    desktop = sharedNixOSHost // {
-      hostname = "desktop-nixos";
-      description = "Jadee Desktop NixOS Host";
-      user = sharedNixOSUser;
-    };
+    desktop =
+      sharedNixOSHost
+      // {
+        hostname = "desktop-nixos";
+        description = "Jadee Desktop NixOS Host";
+        user = sharedNixOSUser;
+      };
 
     caya = {
       hostname = "caya-darwin";
@@ -45,10 +49,9 @@ let
       stateVersion = darwinUser.stateVersion or "25.11";
       # Darwin user config is simpler - just shell configuration
       # The user must already exist in macOS
-      user = darwinUser.user or { };
+      user = darwinUser.user or {};
     };
   };
-in
-{
+in {
   inherit hosts;
 }

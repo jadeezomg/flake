@@ -3,7 +3,7 @@
   browsers = {
     zen = {
       binary = "zen";
-      args = [ ];
+      args = [];
       icon = "zen";
       description = "Zen Browser";
     };

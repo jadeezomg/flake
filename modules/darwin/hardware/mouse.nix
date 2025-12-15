@@ -1,5 +1,7 @@
-{ config, pkgs, ... }:
-
 {
+  config,
+  pkgs,
+  ...
+}: {
   # TODO: Add mouse configuration
 }

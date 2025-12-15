@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   monospace = {
     # Packaged Fonts
     maple-mono = {
@@ -398,7 +397,7 @@
     };
     ubuntu = {
       enable = true;
-      package = pkgs.ubuntu_font_family;
+      package = pkgs.ubuntu-classic;
       name = "Ubuntu";
       style = "Sans-serif";
     };

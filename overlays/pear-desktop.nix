@@ -18,8 +18,8 @@ final: prev: {
       description = "Native look & feel extension for YouTube Music desktop client";
       homepage = "https://github.com/pear-devs/pear-desktop";
       license = licenses.mit;
-      maintainers = [ ];
-      platforms = [ "x86_64-linux" ];
+      maintainers = [];
+      platforms = ["x86_64-linux"];
     };
   };
 }

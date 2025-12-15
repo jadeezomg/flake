@@ -1,5 +1,4 @@
-{ ... }:
-{
+{...}: {
   programs.helix.languages = {
     language-server.rust-analyzer = {
       command = "rust-analyzer";
@@ -32,27 +31,27 @@
     # };
     language-server."yaml-language-server" = {
       command = "yaml-language-server";
-      args = [ "--stdio" ];
+      args = ["--stdio"];
     };
     language-server."typescript-language-server" = {
       command = "typescript-language-server";
-      args = [ "--stdio" ];
+      args = ["--stdio"];
     };
     language-server."tailwindcss-language-server" = {
       command = "tailwindcss-language-server";
-      args = [ "--stdio" ];
+      args = ["--stdio"];
     };
     language-server."vscode-html-language-server" = {
       command = "vscode-html-language-server";
-      args = [ "--stdio" ];
+      args = ["--stdio"];
     };
     language-server."vscode-css-language-server" = {
       command = "vscode-css-language-server";
-      args = [ "--stdio" ];
+      args = ["--stdio"];
     };
     language-server.bash-language-server = {
       command = "bash-language-server";
-      args = [ "start" ];
+      args = ["start"];
     };
     language-server.clangd = {
       command = "clangd";

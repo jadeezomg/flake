@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     mesa-demos # Info for OpenGL & Mesa
     nmon # System monitoring tool

@@ -1,5 +1,4 @@
-{ ... }:
-{
+{...}: {
   programs.zed-editor = {
     userSettings = {
       # --- Appearance ---
@@ -58,7 +57,7 @@
       show_wrap_guides = true;
       use_autoclose = true;
       use_auto_surround = true;
-      wrap_guides = [ ];
+      wrap_guides = [];
 
       # --- Keymap ---
       base_keymap = "VSCode";
@@ -79,7 +78,7 @@
       minimap = {
         show = "auto";
       };
-      file_types = { };
+      file_types = {};
 
       # --- Gutter ---
       gutter = {
@@ -154,7 +153,6 @@
       #     python = "nixpython";
       #   };
       # };
-
     };
   };
 }

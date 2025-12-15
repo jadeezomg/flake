@@ -1,9 +1,4 @@
-{
-  hostKey ? "framework",
-  ...
-}:
-
-{
+{hostKey ? "framework", ...}: {
   programs.nushell.shellAliases = {
     # Replace default tools with better alternatives
     cat = "bat";
@@ -54,19 +49,19 @@
     # alias lf = yy
 
     # Quick directory navigation shortcuts
-    def --env zz [] { 
+    def --env zz [] {
       cd ''$env.HOME
     }
-    def --env zc [] { 
+    def --env zc [] {
       cd $"(''$env.HOME)/.config"
     }
-    def --env zd [] { 
+    def --env zd [] {
       cd $"(''$env.HOME)/Downloads"
     }
-    def --env zp [] { 
+    def --env zp [] {
       cd $"(''$env.HOME)/.dotfiles"
     }
-    def --env zf [] { 
+    def --env zf [] {
       cd $"(''$env.HOME)/.dotfiles/flake"
     }
 

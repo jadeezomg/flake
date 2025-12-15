@@ -1,8 +1,4 @@
-{
-  pkgs,
-  ...
-}:
-{
+{pkgs, ...}: {
   virtualisation.vmVariant = {
     # VM resources
     virtualisation = {
@@ -25,7 +21,7 @@
       shell = pkgs.bash;
     };
 
-    users.groups.vmtest = { };
+    users.groups.vmtest = {};
 
     # Auto-login for VM
     services.xserver.displayManager.autoLogin = {

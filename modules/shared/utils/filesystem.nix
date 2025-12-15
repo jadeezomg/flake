@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     eza # Better ls, not really needed because of nushell's ls
     dust # Better disk usage

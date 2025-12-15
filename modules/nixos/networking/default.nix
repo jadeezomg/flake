@@ -3,9 +3,7 @@
   pkgs,
   host,
   ...
-}:
-
-{
+}: {
   networking.hostName = host.hostname or "nixos";
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 

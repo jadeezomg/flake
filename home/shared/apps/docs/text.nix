@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   home.packages = with pkgs; [
     # * maybe try at some point
     # anytype
@@ -9,7 +8,6 @@
     # logseq
     # * open-source note-taking app
     obsidian
-
   ];
 
   programs.zathura = {

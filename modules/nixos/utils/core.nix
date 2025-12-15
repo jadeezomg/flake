@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     # --- Video Tools ---
     libva # Video acceleration API
@@ -17,6 +15,5 @@
     upower # D-Bus service for power management
     evtest # Live-test keyboards
     libinput # Handle inputs in Wayland
-
   ];
 }

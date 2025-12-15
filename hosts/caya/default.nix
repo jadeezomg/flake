@@ -6,12 +6,9 @@
   hostKey,
   user,
   ...
-}:
-
-let
-  host = hostData.hosts.${hostKey} or { };
-in
-{
+}: let
+  host = hostData.hosts.${hostKey} or {};
+in {
   imports = [
     # Shared modules (work on both NixOS and Darwin)
     ../../modules/shared

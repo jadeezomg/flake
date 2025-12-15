@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     brightnessctl # Read & control device brightness
     # ddcutil # Gamma & temperature set fallback for hardware control
