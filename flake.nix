@@ -201,11 +201,12 @@
       homeModules = isDarwin: [ inputs.sops-nix.homeManagerModules.sops ] ++ baseHomeModules isDarwin;
 
       # Helper to create home-manager configuration for any host
-      # Usage: mkHomeManagerModule { hostKey = "framework"; user = "jadee"; isDarwin = false; }
+      # Usage: mkHomeManagerModule { hostKey = "framework"; user = "jadee"; system = "..."; isDarwin = false; }
       mkHomeManagerModule =
         {
           hostKey,
           user,
+          system,
           isDarwin ? false,
         }:
         {
@@ -242,6 +243,7 @@
                 userData
                 ;
               inherit (inputs) nu-scripts;
+              pkgs-unstable = getPkgsUnstable system;
             };
           };
         };
@@ -309,7 +311,7 @@
                 sops-nix.nixosModules.sops
                 determinate.nixosModules.default
                 home-manager.nixosModules.home-manager
-                (mkHomeManagerModule { inherit hostKey user; })
+                (mkHomeManagerModule { inherit hostKey user system; })
               ];
             };
           };
@@ -325,7 +327,7 @@
                 sops-nix.darwinModules.sops
                 home-manager.darwinModules.home-manager
                 (mkHomeManagerModule {
-                  inherit hostKey user;
+                  inherit hostKey user system;
                   isDarwin = true;
                 })
                 nix-homebrew.darwinModules.nix-homebrew
