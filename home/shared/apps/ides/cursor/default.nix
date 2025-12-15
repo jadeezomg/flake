@@ -29,14 +29,15 @@
             version = "1.0.264";
             sha256 = "0n0yxvi6abqlh0x498z3xzinf2qs01crgv62hgg7xk3akskav1ri";
           }
-          # Extensions from VSCode marketplace - uncomment and fill in correct versions/hashes:
-          /*
           {
             name = "birds-of-paradise"; # Cozy brown Theme
             publisher = "Programming-Engineer";
             version = "0.1.2";
             sha256 = "05b8ahbwkjgmw2cq46dddd64lwg5mhffzff4b1knbl4yrw9jlbp2";
           }
+          # Extensions from VSCode marketplace - uncomment and fill in correct versions/hashes:
+          /*
+
           {
             name = "ty";
             publisher = "astral-sh";
@@ -67,10 +68,6 @@
 
         # Enable color decorators for Nix files (shows color picker for hex codes)
         "[nix].editor.colorDecorators" = true;
-
-        # Birds of Paradise color theme
-        "workbench.colorTheme" = "Default Dark+"; # Base theme
-        "workbench.colorCustomizations" = import ./themes/birds-of-paradise.nix;
       };
     };
   };
