@@ -338,7 +338,7 @@
     };
     noto-fonts-emoji = {
       enable = true;
-      package = pkgs.noto-fonts-emoji;
+      package = pkgs.noto-fonts-color-emoji;
       name = "Noto Emoji";
       style = "Sans-serif";
     };
