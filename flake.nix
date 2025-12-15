@@ -109,7 +109,7 @@
         "aarch64-darwin"
       ];
 
-      overlaysWithInputs = import ./overlays { inherit inputs; };
+      overlaysWithInputs = import ./overlays;
       # Helper to get pkgs for a system
       getPkgs =
         system:
@@ -120,7 +120,7 @@
           };
           overlays = [
             nur.overlays.default
-            overlaysWithInputs
+            overlaysWithInputs.default
           ];
         };
 
@@ -134,7 +134,7 @@
           };
           overlays = [
             nur.overlays.default
-            (import ./overlays)
+            overlaysWithInputs.default
           ];
         };
 
@@ -373,7 +373,7 @@
     in
     {
       # Packages
-      packages = lib.genAttrs linuxSystems (system: {
+      packages = lib.genAttrs [ "x86_64-linux" ] (system: {
         pear-desktop = (getPkgs system).pear-desktop;
       });
 

@@ -1,1 +1,3 @@
-import ./pear-desktop.nix
+{
+  default = import ./pear-desktop.nix;
+}
