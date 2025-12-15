@@ -32,13 +32,18 @@
       url = "github:hercules-ci/flake-parts";
     };
 
-    sops-nix = {
-      url = "github:Mic92/sops-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+    flake-utils = {
+      url = "github:numtide/flake-utils";
     };
 
     nur = {
       url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     zen-browser = {
@@ -82,6 +87,7 @@
       nixpkgs-unstable,
       home-manager,
       flake-parts,
+      flake-utils,
       sops-nix,
       nur,
       determinate,
@@ -102,6 +108,8 @@
       darwinSystems = [
         "aarch64-darwin"
       ];
+
+      overlaysWithInputs = import ./overlays { inherit inputs; };
       # Helper to get pkgs for a system
       getPkgs =
         system:
@@ -112,7 +120,7 @@
           };
           overlays = [
             nur.overlays.default
-            (import ./overlays)
+            overlaysWithInputs
           ];
         };
 
@@ -389,12 +397,6 @@
               pkgs.jq
               pkgs.curl
             ];
-
-            shellHook = ''
-              echo "🔧 Available commands:"
-              echo "  ./overlays/update-pear-desktop.sh - Update Pear Desktop to latest version"
-              echo ""
-            '';
           };
         }
       );
