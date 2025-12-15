@@ -7,4 +7,8 @@
     ./settings.nix
     ./theme.nix
   ];
+
+  programs.zed-editor = {
+    enable = true;
+  };
 }

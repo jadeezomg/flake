@@ -8,9 +8,9 @@
     ./desktop
     ./development
     ./environment
-    ./fonts
     ./hardware
     ./integration
+    ./modules
     ./locale
     ./maintenance
     ./networking

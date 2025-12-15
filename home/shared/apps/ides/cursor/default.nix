@@ -1,9 +1,13 @@
-{ ... }:
+{ pkgs, ... }:
+
 {
   imports = [
-    # ./settings.nix
-    # ./keybindings.nix
-    # ./extensions.nix
-    # ./profiles.nix
+    ./extensions.nix
+    ./settings.nix
   ];
+
+  programs.vscode = {
+    enable = true;
+    package = pkgs.code-cursor;
+  };
 }
