@@ -112,6 +112,7 @@
           };
           overlays = [
             nur.overlays.default
+            (import ./overlays)
           ];
         };
 
@@ -125,6 +126,7 @@
           };
           overlays = [
             nur.overlays.default
+            (import ./overlays)
           ];
         };
 
@@ -360,6 +362,11 @@
 
     in
     {
+      # Packages
+      packages = lib.genAttrs linuxSystems (system: {
+        pear-desktop = (getPkgs system).pear-desktop;
+      });
+
       # Formatters for all systems
       formatter = lib.genAttrs (linuxSystems ++ darwinSystems) (
         system: (getPkgs system).nixfmt-rfc-style
@@ -377,7 +384,15 @@
               pkgs.nixfmt-rfc-style
               pkgs.nil
               pkgs.nixd
+              pkgs.jq
+              pkgs.curl
             ];
+
+            shellHook = ''
+              echo "🔧 Available commands:"
+              echo "  ./overlays/update-pear-desktop.sh - Update Pear Desktop to latest version"
+              echo ""
+            '';
           };
         }
       );
