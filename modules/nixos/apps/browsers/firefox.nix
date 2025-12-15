@@ -1,5 +1,6 @@
-{ config, pkgs, ... }:
-
+{ ... }:
 {
-  # TODO: Add firefox configuration
+  programs.firefox = {
+    enable = true;
+  };
 }

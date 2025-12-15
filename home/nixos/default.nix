@@ -9,7 +9,6 @@
     ./environment
     ./fonts
     ./hardware
-    ./integration
     ./locale
     ./maintenance
     ./networking

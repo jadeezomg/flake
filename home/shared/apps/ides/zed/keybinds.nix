@@ -1,0 +1,8 @@
+{ ... }:
+{
+  programs.zed-editor = {
+    userKeymaps = [
+
+    ];
+  };
+}

@@ -99,6 +99,7 @@
         };
       };
 
+    # TODO: add caya profile with extensions and settings
     profiles.default = rec {
       settings = {
         "zen.workspaces.continue-where-left-off" = true;
@@ -154,6 +155,7 @@
         };
       };
 
+      # TODO: add spaces pins and essentials
       spacesForce = true;
       spaces = {
         "Games" = {

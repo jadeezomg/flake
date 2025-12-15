@@ -10,8 +10,19 @@
     find = "fd";
     grep = "rg";
 
+    # eza
+    l2 = "eza --icons -l -T -L=2";
+    l3 = "eza --icons -l -T -L=3";
+    llt = "eza -T";
+    lat = "eza -Ta";
+    tree = "eza -Ta";
+    lat1 = "eza -Ta -L=1";
+    lat2 = "eza -Ta -L=2";
+    lat3 = "eza -Ta -L=3";
+    lat4 = "eza -Ta -L=4";
+    lat5 = "eza -Ta -L=5";
+
     # Navigation shortcuts
-    cd = "z";
     ".." = "z ..";
     "..." = "z ../..";
     "...." = "z ../../..";
@@ -38,6 +49,10 @@
 
   # Nushell-specific aliases that need nushell syntax
   programs.nushell.extraConfig = ''
+    # Aliases that need nushell syntax
+    # alias cd = z
+    # alias lf = yy
+
     # Quick directory navigation shortcuts
     def --env zz [] { 
       cd ''$env.HOME
@@ -71,20 +86,5 @@
 
     # Flake build scripts shortcuts
     alias flake = nu $"($env.FLAKE)/build/flake.nu"
-    alias flake-init = nu $"($env.FLAKE)/build/init.nu"
-    alias flake-build = nu $"($env.FLAKE)/build/build.nu"
-    alias flake-switch = nu $"($env.FLAKE)/build/switch.nu"
-    alias flake-update = nu $"($env.FLAKE)/build/update.nu"
-    alias flake-gc = nu $"($env.FLAKE)/build/gc.nu"
-    alias flake-health = nu $"($env.FLAKE)/build/health.nu"
-    alias flake-rollback = nu $"($env.FLAKE)/build/rollback.nu"
-    alias flake-generation = nu $"($env.FLAKE)/build/generation.nu"
-    alias flake-caches = nu $"($env.FLAKE)/build/update-caches.nu"
-    alias flake-info = nu $"($env.FLAKE)/build/flake-info.nu"
-    alias flake-check-backups = nu $"($env.FLAKE)/build/check-backups.nu"
-    alias flake-clean-backups = nu $"($env.FLAKE)/build/clean-backups.nu"
-    alias flake-fmt = nu $"($env.FLAKE)/build/fmt.nu"
-    alias flake-reload-services = nu $"($env.FLAKE)/build/reload-services.nu"
-    alias flake-untracked = nu $"($env.FLAKE)/build/git-update.nu"
   '';
 }

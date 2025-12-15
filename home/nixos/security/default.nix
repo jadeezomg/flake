@@ -6,5 +6,6 @@
     ./keyrings.nix
     ./ssh.nix
     ./sudo.nix
+    ./password-managers.nix
   ];
 }

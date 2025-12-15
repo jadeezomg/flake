@@ -3,8 +3,9 @@
 {
   imports = [
     ./browsers
+    ./docs
     ./editors
     ./terminals
-    ./mail
+    ./ides
   ];
 }
