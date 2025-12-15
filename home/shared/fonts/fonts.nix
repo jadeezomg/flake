@@ -514,30 +514,6 @@
     };
   };
   display = {
-    amatic-sc = {
-      enable = false;
-      package = pkgs.amatic-sc;
-      name = "Amatic SC";
-      style = "Display";
-    };
-    anton = {
-      enable = false;
-      package = pkgs.anton;
-      name = "Anton";
-      style = "Display";
-    };
-    bangers = {
-      enable = false;
-      package = pkgs.bangers;
-      name = "Bangers";
-      style = "Display";
-    };
-    bebas-neue = {
-      enable = false;
-      package = pkgs.bebas-neue;
-      name = "Bebas Neue";
-      style = "Display";
-    };
     comfortaa = {
       enable = true;
       package = pkgs.comfortaa;
@@ -550,31 +526,12 @@
       name = "Dancing Script";
       style = "Display";
     };
-    fredoka-one = {
-      enable = false;
-      package = pkgs.fredoka-one;
-      name = "Fredoka One";
-      style = "Display";
-    };
     oswald = {
       enable = true;
       package = pkgs.oswald;
       name = "Oswald";
       style = "Display";
     };
-    pacifico = {
-      enable = false;
-      package = pkgs.pacifico;
-      name = "Pacifico";
-      style = "Display";
-    };
-    righteous = {
-      enable = false;
-      package = pkgs.righteous;
-      name = "Righteous";
-      style = "Display";
-    };
-
     unifont = {
       unifont = {
         enable = true;
