@@ -72,6 +72,15 @@
       $env.NU_PLUGIN_DIRS = [
         ($nu.default-config-dir | path join 'plugins')
       ]
+
+      # Override Birds of Paradise theme background to match Cursor theme (#372725 instead of #2a1f1d)
+      # This runs after the theme's export-env block, ensuring our override takes effect
+      if ($env.config.color_config? != null) {
+        $env.config.color_config = ($env.config.color_config | upsert background '#372725')
+        # Update terminal background color via OSC sequence
+        let osc_screen_background_color = '11;'
+        print -n $"(ansi -o $osc_screen_background_color)#372725(char bel)\r"
+      }
     '';
   };
 }
