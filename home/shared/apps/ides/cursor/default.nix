@@ -16,6 +16,7 @@
           rebornix.ruby # Ruby support
           aaron-bond.better-comments # Better comments highlighting
           kamadorueda.alejandra # Nix formatter
+          sumneko.lua # Lua Language Server with formatting support
         ]
         ++ (
           if false
@@ -70,6 +71,23 @@
 
         # Enable color decorators for Nix files (shows color picker for hex codes)
         "[nix].editor.colorDecorators" = true;
+
+        # Lua-specific settings for stylua formatter
+        "[lua].editor.defaultFormatter" = "sumneko.lua";
+        "[lua].editor.formatOnSave" = true;
+        "[lua].editor.formatOnPaste" = false;
+        "[lua].editor.formatOnType" = false;
+        # Configure Lua Language Server formatting
+        "Lua.format.enable" = true;
+        # Use stylua configuration via .stylua.toml (stylua is installed and will be used)
+        # The Lua Language Server will respect .stylua.toml if stylua is in PATH
+        "Lua.format.defaultConfig" = {
+          indent_style = "Tab";
+          indent_size = "2";
+          quote_style = "AutoPreferDouble";
+          call_parentheses = "Always";
+          column_width = "100";
+        };
       };
     };
   };

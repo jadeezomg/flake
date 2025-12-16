@@ -19,9 +19,21 @@
     rev = "main";
     sha256 = "sha256-bEQ5NGpFHox8fzFjoa6ETTmEzlOC/Ka6nSdVvOaDDb0=";
   };
+
+  # Fetch bash-env.nu module from tesujimath's repository
+  # https://github.com/tesujimath/bash-env-nushell
+  bashEnvNu = pkgs.fetchFromGitHub {
+    owner = "tesujimath";
+    repo = "bash-env-nushell";
+    rev = "main";
+    sha256 = "sha256-iNskiGPB4PANxlnCMzAxqkkwfsukWR5AFW5o86g/oP8=";
+  };
 in {
   # Import common aliases
   programs.nushell.shellAliases = sharedAliases.commonAliases;
+
+  # Add bash-env-json as a dependency (required by bash-env.nu)
+  home.packages = [pkgs.bash-env-json];
 
   # Nushell-specific function implementations
   programs.nushell.extraConfig = ''
@@ -30,6 +42,13 @@ in {
     # Import the main module and shortcut aliases (gs, gl, gb, gp, ga, gc, gd, gm, gr, etc.)
     use ${gitNu}/git/mod.nu *
     use ${gitNu}/git/shortcut.nu *
+
+    # Source bash-env.nu module from tesujimath/bash-env-nushell
+    # https://github.com/tesujimath/bash-env-nushell
+    # Allows loading bash environment files into Nushell
+    # Usage: bash-env ./path/to/file.env | load-env
+    #        ssh-agent | bash-env | load-env
+    use ${bashEnvNu}/bash-env.nu *
 
     # Quick directory navigation shortcuts
     # Using shared paths converted to Nushell syntax ($HOME -> $env.HOME)
