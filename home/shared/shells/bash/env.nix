@@ -17,7 +17,10 @@ in {
       export VISUAL=${sharedEnv.commonEnv.VISUAL}
       export BROWSER=${sharedEnv.commonEnv.BROWSER}
       export PAGER=${sharedEnv.commonEnv.PAGER}
-      export BAT_THEME=${sharedEnv.commonEnv.BAT_THEME}
+      # BAT_THEME is optional now (Stylix can own it). Only export if present.
+      ${pkgs.lib.optionalString (sharedEnv.commonEnv ? BAT_THEME) ''
+        export BAT_THEME=${sharedEnv.commonEnv.BAT_THEME}
+      ''}
 
       # Add to PATH - ensure /run/wrappers/bin stays first (contains setuid wrappers like sudo)
       # Then add our custom paths after the existing PATH

@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   # User settings are configured directly here for Cursor integration
 
   programs.vscode = {
@@ -38,7 +42,6 @@
           }
           # Extensions from VSCode marketplace - uncomment and fill in correct versions/hashes:
           /*
-
           {
             name = "ty";
             publisher = "astral-sh";
@@ -59,7 +62,7 @@
         "editor.formatOnSave" = true;
         "editor.formatOnSaveMode" = "file";
         "editor.cursorStyle" = "block";
-        "editor.fontFamily" = "'IosevkaTerm Nerd Font', 'Iosevka Nerd Font', monospace";
+        "editor.fontFamily" = lib.mkDefault "'IosevkaTerm Nerd Font', 'Iosevka Nerd Font', monospace";
         "telemetry.telemetryLevel" = "off";
 
         # Nix-specific settings for Alejandra formatter

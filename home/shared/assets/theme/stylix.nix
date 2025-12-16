@@ -5,6 +5,7 @@ in {
   stylix = {
     enable = true;
     autoEnable = true;
+    polarity = "dark";
 
     # Custom base16 scheme created from theme.nix colors
     # This converts the base24 Birds of Paradise theme to base16 format
@@ -45,14 +46,16 @@ in {
       # # Editors
       # helix.enable = true;
       # zed.enable = true;
+      vscode.enable = false;
 
       # # Browsers
-      # firefox.enable = true;
+      firefox.enable = false;
+      # firefox.profileNames = ["default"];
       # zen-browser.enable = true;
-      # zen-browser.profileNames = ["default"];
+      zen-browser.profileNames = ["default"];
 
       # # Desktop Environments
-      # gnome.enable = true;
+      gnome.enable = true;
 
       # # Media Players
 
@@ -94,9 +97,7 @@ in {
     # Fonts configuration - matching your existing terminal setup
     fonts = {
       monospace = {
-        package = pkgs.nerdfonts.override {
-          fonts = ["Iosevka"];
-        };
+        package = pkgs.nerd-fonts.iosevka;
         name = "Iosevka Nerd Font";
       };
       serif = {
@@ -106,6 +107,10 @@ in {
       sansSerif = {
         package = pkgs.dejavu_fonts;
         name = "DejaVu Sans";
+      };
+      emoji = {
+        package = pkgs.noto-fonts-color-emoji;
+        name = "Noto Color Emoji";
       };
     };
 
