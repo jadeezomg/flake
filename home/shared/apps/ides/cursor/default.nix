@@ -3,8 +3,6 @@
   lib,
   ...
 }: {
-  # User settings are configured directly here for Cursor integration
-
   programs.vscode = {
     enable = true;
     package = pkgs.code-cursor;
@@ -40,29 +38,13 @@
             version = "0.1.2";
             sha256 = "05b8ahbwkjgmw2cq46dddd64lwg5mhffzff4b1knbl4yrw9jlbp2";
           }
-          # Extensions from VSCode marketplace - uncomment and fill in correct versions/hashes:
-          /*
-          {
-            name = "ty";
-            publisher = "astral-sh";
-            version = "0.0.0"; # TODO: Get correct version from marketplace
-            sha256 = "sha256-0000000000000000000000000000000000000000000000000000"; # TODO: Get correct hash
-          }
-
-          {
-            name = "better-comments-next";
-            publisher = "EdwinHuiSH";
-            version = "0.0.0"; # TODO: Get correct version from marketplace
-            sha256 = "sha256-0000000000000000000000000000000000000000000000000000"; # TODO: Get correct hash
-          }
-          */
         ];
       userSettings = {
         "workbench.colorTheme" = "Birds of Paradise";
         "editor.formatOnSave" = true;
         "editor.formatOnSaveMode" = "file";
         "editor.cursorStyle" = "block";
-        "editor.fontFamily" = lib.mkDefault "'IosevkaTerm Nerd Font', 'Iosevka Nerd Font', monospace";
+        "editor.fontFamily" = "'IosevkaTerm Nerd Font', 'Iosevka Nerd Font', monospace";
         "telemetry.telemetryLevel" = "off";
 
         # Nix-specific settings for Alejandra formatter
@@ -94,4 +76,10 @@
       };
     };
   };
+
+  # Cursor can keep a stale `~/.cursor/extensions/extensions.json` and ignore newly linked
+  # extensions. Remove it on activation so Cursor regenerates it from the on-disk extensions.
+  home.activation.cursorRescanExtensions = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    rm -f "$HOME/.cursor/extensions/extensions.json"
+  '';
 }

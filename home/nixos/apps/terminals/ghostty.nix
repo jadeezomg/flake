@@ -5,9 +5,8 @@
 
   programs.ghostty = {
     package = pkgs.ghostty; # Linux package
-    settings = {
-      # Performance (Linux-specific)
-      linux-cgroup-memory-limit = 0;
-    };
+    # settings = {
+    #   linux-cgroup-memory-limit = 0;
+    # };
   };
 }

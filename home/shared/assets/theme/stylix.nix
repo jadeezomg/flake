@@ -122,6 +122,6 @@ in {
     };
 
     # Image/wallpaper (optional - can be set per host or left unset)
-    # image = ./path/to/wallpaper.jpg;
+    image = ./wallpaper.jpg;
   };
 }

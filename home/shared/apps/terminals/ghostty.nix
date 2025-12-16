@@ -3,8 +3,6 @@
   config,
   ...
 }: {
-  # Shared ghostty settings - platform-specific files import this and set the package
-  # Colors are automatically managed by stylix - no manual color configuration needed
   programs.ghostty = {
     enable = true;
     enableBashIntegration = true;
@@ -41,12 +39,15 @@
       clipboard-write = "allow";
 
       # UI
-      # window-padding-x = 20;
-      # window-padding-y = 10;
-      # window-padding-balance = true;
-      # background-opacity = 1.0; # This is controlled by the compositor instead
-      # background-blur = 0;
-      # mouse-hide-while-typing = true;
+      window-title-font-family = config.stylix.fonts.monospace.name;
+      window-height = 40;
+      window-width = 130;
+      window-padding-x = 20;
+      window-padding-y = 10;
+      window-padding-balance = true;
+      background-opacity = 0.8; # This is controlled by the compositor instead
+      background-blur = 20;
+      mouse-hide-while-typing = true;
 
       # Colors are automatically applied by stylix based on base24/base16 scheme
       # No manual color configuration needed - stylix handles:
