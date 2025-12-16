@@ -1,5 +1,12 @@
 {hostKey ? "framework", ...}: let
   sharedAliases = import ../shared/aliases.nix;
+  sharedPaths = import ../shared/paths.nix;
+  sharedConfig = import ../shared/config.nix;
+  finalHostKey = hostKey;
+  # Extract relative path parts from shared paths (remove $HOME/ prefix)
+  configPath = builtins.replaceStrings ["$HOME/"] [""] sharedPaths.commonPaths.config;
+  downloadsPath = builtins.replaceStrings ["$HOME/"] [""] sharedPaths.commonPaths.downloads;
+  dotfilesPath = builtins.replaceStrings ["$HOME/"] [""] sharedPaths.commonPaths.dotfiles;
 in {
   # Import common aliases
   programs.nushell.shellAliases = sharedAliases.commonAliases;
@@ -7,18 +14,19 @@ in {
   # Nushell-specific function implementations
   programs.nushell.extraConfig = ''
     # Quick directory navigation shortcuts
+    # Using shared paths converted to Nushell syntax ($HOME -> $env.HOME)
     def --env zz [] { cd ''$env.HOME }
-    def --env zc [] { cd $"(''$env.HOME)/.config" }
-    def --env zd [] { cd $"(''$env.HOME)/Downloads" }
-    def --env zp [] { cd $"(''$env.HOME)/.dotfiles" }
-    def --env zf [] { cd $"(''$env.HOME)/.dotfiles/flake" }
+    def --env zc [] { cd $"(''$env.HOME)/${configPath}" }
+    def --env zd [] { cd $"(''$env.HOME)/${downloadsPath}" }
+    def --env zp [] { cd $"(''$env.HOME)/${dotfilesPath}" }
+    def --env zf [] { cd ''$env.FLAKE }
 
     # Home Manager shortcuts
-    alias hm = nix run home-manager/master -- --flake $"(''$env.FLAKE)#${hostKey}"
-    alias hms = nix run home-manager/master -- switch --flake $"(''$env.FLAKE)#${hostKey}"
-    alias hmn = nix run home-manager/master -- news --flake $"(''$env.FLAKE)#${hostKey}"
+    alias hm = nix run ${sharedConfig.nixConfig.homeManagerFlake} -- --flake $"(''$env.FLAKE)#${finalHostKey}"
+    alias hms = nix run ${sharedConfig.nixConfig.homeManagerFlake} -- switch --flake $"(''$env.FLAKE)#${finalHostKey}"
+    alias hmn = nix run ${sharedConfig.nixConfig.homeManagerFlake} -- news --flake $"(''$env.FLAKE)#${finalHostKey}"
 
     # Flake build scripts shortcuts
-    alias flake = nu $"(''$env.FLAKE)/build/flake.nu"
+    alias flake = nu $"(''$env.FLAKE)/${sharedConfig.nixConfig.flakeBuildScript}"
   '';
 }

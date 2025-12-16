@@ -4,6 +4,10 @@
   ...
 }: let
   sharedEnv = import ../shared/env.nix;
+  sharedPaths = import ../shared/paths.nix;
+  sharedConfig = import ../shared/config.nix;
+  # Convert shared theme path from $HOME to Nushell's $env.HOME syntax
+  poshThemeRel = builtins.replaceStrings ["$HOME/"] [""] sharedConfig.ohMyPoshConfig.themePath;
 in {
   programs.nushell = {
     # Import common environment variables
@@ -11,13 +15,13 @@ in {
 
     # Additional environment setup
     extraEnv = ''
-      # Flake configuration path
+      # Flake configuration path - set using Nushell syntax so $env.HOME is properly expanded
       $env.FLAKE = $"($env.HOME)/.dotfiles/flake"
 
       let posh = "${pkgs.oh-my-posh}/bin/oh-my-posh"
 
       # Oh My Posh theme configuration - Custom Birds of Paradise theme (JSON format)
-      let posh_theme = $"($env.HOME)/.config/oh-my-posh/birds-of-paradise.json"
+      let posh_theme = $"($env.HOME)/${poshThemeRel}"
 
       # Set up Oh My Posh prompt
       $env.PROMPT_COMMAND = {||
@@ -49,14 +53,16 @@ in {
         }
       }
 
-      # Set up PATH
+      # Set up PATH - ensure /run/wrappers/bin stays first (contains setuid wrappers like sudo)
+      # Then add our custom paths after the existing PATH
       $env.PATH = ($env.PATH | split row (char esep) | prepend [
+        "${sharedPaths.nixPaths.wrappersBin}"
         $"($env.HOME)/.local/bin"
         $"($env.HOME)/.cargo/bin"
         $"($env.HOME)/.nix-profile/bin"
         "/etc/profiles/per-user/($env.USER)/bin"
-        "/run/current-system/sw/bin"
-        "/nix/var/nix/profiles/default/bin"
+        "${sharedPaths.nixPaths.systemSw}"
+        "${sharedPaths.nixPaths.defaultProfile}"
       ])
 
       # NU_LIB_DIRS for module loading

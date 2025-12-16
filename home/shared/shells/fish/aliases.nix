@@ -1,5 +1,8 @@
 {hostKey ? "framework", ...}: let
   sharedAliases = import ../shared/aliases.nix;
+  sharedPaths = import ../shared/paths.nix;
+  sharedConfig = import ../shared/config.nix;
+  finalHostKey = hostKey;
 in {
   # Import common aliases
   programs.fish.shellAliases = sharedAliases.commonAliases;
@@ -8,35 +11,35 @@ in {
   programs.fish.interactiveShellInit = ''
     # Quick directory navigation shortcuts
     function zz
-      cd $HOME
+      cd ${sharedPaths.commonPaths.home}
     end
     function zc
-      cd $HOME/.config
+      cd ${sharedPaths.commonPaths.config}
     end
     function zd
-      cd $HOME/Downloads
+      cd ${sharedPaths.commonPaths.downloads}
     end
     function zp
-      cd $HOME/.dotfiles
+      cd ${sharedPaths.commonPaths.dotfiles}
     end
     function zf
-      cd $HOME/.dotfiles/flake
+      cd ${sharedPaths.commonPaths.flake}
     end
 
     # Home Manager shortcuts
     function hm
-      nix run home-manager/master -- --flake "$HOME/.dotfiles/flake#${hostKey}"
+      nix run ${sharedConfig.nixConfig.homeManagerFlake} -- --flake "${sharedPaths.commonPaths.flake}#${finalHostKey}"
     end
     function hms
-      nix run home-manager/master -- switch --flake "$HOME/.dotfiles/flake#${hostKey}"
+      nix run ${sharedConfig.nixConfig.homeManagerFlake} -- switch --flake "${sharedPaths.commonPaths.flake}#${finalHostKey}"
     end
     function hmn
-      nix run home-manager/master -- news --flake "$HOME/.dotfiles/flake#${hostKey}"
+      nix run ${sharedConfig.nixConfig.homeManagerFlake} -- news --flake "${sharedPaths.commonPaths.flake}#${finalHostKey}"
     end
 
     # Flake build scripts shortcuts
     function flake
-      nu "$HOME/.dotfiles/flake/build/flake.nu"
+      nu "${sharedPaths.commonPaths.flake}/${sharedConfig.nixConfig.flakeBuildScript}"
     end
   '';
 }

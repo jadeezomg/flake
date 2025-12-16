@@ -4,12 +4,13 @@
   ...
 }: let
   sharedEnv = import ../shared/env.nix;
+  sharedPaths = import ../shared/paths.nix;
 in {
   programs.fish = {
     # Environment variables - set via interactiveShellInit for Fish
     interactiveShellInit = ''
       # Flake configuration path
-      set -gx FLAKE "$HOME/.dotfiles/flake"
+      set -gx FLAKE ${sharedPaths.commonPaths.flake}
 
       # Common environment variables
       set -gx EDITOR ${sharedEnv.commonEnv.EDITOR}
@@ -18,8 +19,9 @@ in {
       set -gx PAGER ${sharedEnv.commonEnv.PAGER}
       set -gx BAT_THEME ${sharedEnv.commonEnv.BAT_THEME}
 
-      # Add to PATH - include Nix system and user profile paths
-      set -gx PATH $HOME/.local/bin $HOME/.cargo/bin $HOME/.nix-profile/bin /etc/profiles/per-user/$USER/bin /run/current-system/sw/bin /nix/var/nix/profiles/default/bin $PATH
+      # Add to PATH - ensure /run/wrappers/bin stays first (contains setuid wrappers like sudo)
+      # Then add our custom paths after the existing PATH
+      set -gx PATH ${sharedPaths.nixPaths.wrappersBin} ${sharedPaths.commonPaths.localBin} ${sharedPaths.commonPaths.cargoBin} ${sharedPaths.nixPaths.nixProfile} ${sharedPaths.nixPaths.userProfile} ${sharedPaths.nixPaths.systemSw} ${sharedPaths.nixPaths.defaultProfile} $PATH
     '';
   };
 }

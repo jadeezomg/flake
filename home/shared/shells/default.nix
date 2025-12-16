@@ -1,7 +1,7 @@
 {...}: {
   imports = [
+    ./shared
     ./nushell
-    ./oh-my-posh.nix
     ./fish
     ./bash
   ];
