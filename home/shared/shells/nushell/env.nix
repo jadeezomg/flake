@@ -2,16 +2,12 @@
   config,
   pkgs,
   ...
-}: {
+}: let
+  sharedEnv = import ../shared/env.nix;
+in {
   programs.nushell = {
-    environmentVariables = {
-      EDITOR = "zeditor";
-      VISUAL = "zeditor";
-      BROWSER = "zen";
-      PAGER = "bat";
-
-      BAT_THEME = "TwoDark";
-    };
+    # Import common environment variables
+    environmentVariables = sharedEnv.commonEnv;
 
     # Additional environment setup
     extraEnv = ''
@@ -33,10 +29,10 @@
         ^$posh print right --config $posh_theme --shell nushell
       }
 
-      # Prompt indicators
-      $env.PROMPT_INDICATOR = {|| "> " }
-      $env.PROMPT_INDICATOR_VI_INSERT = {|| ": " }
-      $env.PROMPT_INDICATOR_VI_NORMAL = {|| "> " }
+      # Prompt indicators - set to empty since Oh My Posh handles the prompt
+      $env.PROMPT_INDICATOR = {|| "" }
+      $env.PROMPT_INDICATOR_VI_INSERT = {|| "" }
+      $env.PROMPT_INDICATOR_VI_NORMAL = {|| "" }
       $env.PROMPT_MULTILINE_INDICATOR = {|| "::: " }
 
       # Specifies how environment variables are:
@@ -59,6 +55,8 @@
         $"($env.HOME)/.cargo/bin"
         $"($env.HOME)/.nix-profile/bin"
         "/etc/profiles/per-user/($env.USER)/bin"
+        "/run/current-system/sw/bin"
+        "/nix/var/nix/profiles/default/bin"
       ])
 
       # NU_LIB_DIRS for module loading
@@ -72,8 +70,9 @@
         ($nu.default-config-dir | path join 'plugins')
       ]
 
-      # Override Birds of Paradise theme background to match Cursor theme (#372725 instead of #2a1f1d)
+      # Override Birds of Paradise theme background to match Cursor theme
       # This runs after the theme's export-env block, ensuring our override takes effect
+      # Note: The actual color value is set in theme.nix, but we keep this as a fallback
       if ($env.config.color_config? != null) {
         $env.config.color_config = ($env.config.color_config | upsert background '#372725')
         # Update terminal background color via OSC sequence

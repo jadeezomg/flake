@@ -1,5 +1,6 @@
 {pkgs, ...}: {
   environment.systemPackages = with pkgs; [
+    bat # Better cat with syntax highlighting
     fd # Better find
     fzf # Better find
     jq # JSON processor

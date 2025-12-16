@@ -14,8 +14,8 @@
 
     direnv = {
       enable = true;
-      enableFishIntegration = true;
-      enableNushellIntegration = true;
+      # enableFishIntegration and enableNushellIntegration are automatically enabled
+      # when programs.fish.enable or programs.nushell.enable are set
       nix-direnv.enable = true;
     };
 

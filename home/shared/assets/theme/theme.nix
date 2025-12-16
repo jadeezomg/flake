@@ -3,99 +3,49 @@
 # Original theme by Jeroen de Vries
 #
 # This file contains all color definitions from the Birds of Paradise theme.
-# Colors are organized by UI component with descriptive comments.
+# Colors are organized with a palette at the top for easy maintenance.
+# All programs should reference colors from this file instead of hardcoding them.
 {
-  # ===== BASE COLORS =====
-  # Fundamental colors used throughout the theme
+  # ===== COLOR PALETTE =====
+  # Centralized color definitions - modify colors here to update the entire theme
+  # Hex values in comments enable VS Code color picker: #372725
 
-  "focusBorder" = "#6b98bb"; # Blue border for focused elements
-  "foreground" = "#feffff"; # Primary text color (almost white)
-  "selection.background" = "#A40042"; # Background color for selected text
-  "icon.foreground" = "#6b98bb"; # Color for icons
+  # Primary background colors
+  bg-primary = "#372725"; # Main background (dark brown) #372725
+  bg-secondary = "#2e201f"; # Secondary background (darker brown) #2e201f
+  bg-tertiary = "#5B413D"; # Tertiary background (medium brown) #5B413D
 
-  # ===== BADGE =====
-  # Notification badges and similar UI elements
+  # Text colors
+  text-primary = "#E6E1C4"; # Primary text (cream) #E6E1C4
+  text-secondary = "#feffff"; # Secondary text (white) #feffff
+  text-tertiary = "#DDDDDD"; # Tertiary text (light gray) #DDDDDD
 
-  "badge.background" = "#6b98bb"; # Background color for badges
+  # Accent colors
+  accent-blue = "#6b98bb"; # Blue accent (used for borders, icons) #6b98bb
+  accent-yellow = "#EFCB43"; # Yellow accent (used for status bar, badges) #EFCB43
+  accent-red = "#A40042"; # Red accent (used for selections) #A40042
 
-  # ===== ACTIVITY BAR =====
-  # Left sidebar with activity icons
-
-  "activityBar.background" = "#372725"; # Background of activity bar
-  "activityBarBadge.background" = "#EFCB43"; # Background of activity bar badges
-  "activityBarBadge.foreground" = "#372725"; # Text color of activity bar badges
-
-  # ===== BUTTONS =====
-  # Button styling
-
-  "button.foreground" = "#E6E1C4"; # Text color on buttons
-  "button.background" = "#5B413D"; # Background color of buttons
-
-  # ===== EDITOR GROUPS & TABS =====
-  # Tab bar and editor group styling
-
-  "tab.activeBorder" = "#6b98bb"; # Border of active tab
-  "tab.activeBackground" = "#2e201f"; # Background of active tab
-  "tab.inactiveBackground" = "#5B413D"; # Background of inactive tabs
-  "editorGroupHeader.tabsBackground" = "#5B413D"; # Background of tab header
-
-  # ===== EDITOR =====
-  # Main code editor area
-
-  "editor.background" = "#372725"; # Editor background
-  "editorCursor.foreground" = "#DDDDDD"; # Cursor color
-  "editor.foreground" = "#E6E1C4"; # Default text color in editor
-  "editorWhitespace.foreground" = "#5B413D"; # Whitespace character color
-  "editor.lineHighlightBackground" = "#281C1C66"; # Current line highlight (semi-transparent)
-  "editor.selectionBackground" = "#A40042"; # Selected text background
-
-  # ===== SIDEBAR =====
-  # File explorer and side panels
-
-  "sideBar.foreground" = "#E6E1C4"; # Text color in sidebar
-  "sideBar.background" = "#372725"; # Sidebar background
-  "sideBar.border" = "#6a4d32"; # Sidebar border color
-
-  # ===== STATUS BAR =====
-  # Bottom status bar
-
-  "statusBar.foreground" = "#372725"; # Status bar text color
-  "statusBar.background" = "#EFCB43"; # Status bar background (golden yellow)
-
-  # ===== TITLE BAR =====
-  # Window title bar
-
-  "titleBar.activeBackground" = "#2e201f"; # Active window title bar background
-
-  # ===== TERMINAL =====
-  # Integrated terminal colors
-  # Based on iTerm2 Birds of Paradise color scheme
-
-  "terminal.background" = "#372725"; # Terminal background
-  "terminal.foreground" = "#e6e1c3"; # Terminal text color
-
-  # ANSI color palette for terminal
-  "terminal.ansiBlack" = "#6a4d32"; # Black
-  "terminal.ansiBlue" = "#6b98bb"; # Blue
-  "terminal.ansiCyan" = "#85b4bb"; # Cyan
-  "terminal.ansiGreen" = "#6ba18a"; # Green
-  "terminal.ansiMagenta" = "#bb94b4"; # Magenta
-  "terminal.ansiRed" = "#cb4131"; # Red
-  "terminal.ansiWhite" = "#e6e1c3"; # White
-  "terminal.ansiYellow" = "#eeac36"; # Yellow
+  # Terminal ANSI colors
+  ansi-black = "#6a4d32"; # Brown-black #6a4d32
+  ansi-blue = "#6b98bb"; # Blue #6b98bb
+  ansi-cyan = "#85b4bb"; # Cyan #85b4bb
+  ansi-green = "#6ba18a"; # Green #6ba18a
+  ansi-magenta = "#bb94b4"; # Magenta #bb94b4
+  ansi-red = "#cb4131"; # Red #cb4131
+  ansi-white = "#E6E1C4"; # White (same as text-primary) #E6E1C4
+  ansi-yellow = "#eeac36"; # Yellow #eeac36
 
   # Bright ANSI colors
-  "terminal.ansiBrightBlack" = "#ac7f5c"; # Bright black
-  "terminal.ansiBrightBlue" = "#c4dbf0"; # Bright blue
-  "terminal.ansiBrightCyan" = "#a2d7de"; # Bright cyan
-  "terminal.ansiBrightGreen" = "#a3ddc6"; # Bright green
-  "terminal.ansiBrightMagenta" = "#dab0d4"; # Bright magenta
-  "terminal.ansiBrightRed" = "#ee5d32"; # Bright red
-  "terminal.ansiBrightWhite" = "#feffff"; # Bright white
-  "terminal.ansiBrightYellow" = "#d8d762"; # Bright yellow
+  ansi-bright-black = "#ac7f5c"; # Bright brown-black #ac7f5c
+  ansi-bright-blue = "#c4dbf0"; # Bright blue #c4dbf0
+  ansi-bright-cyan = "#a2d7de"; # Bright cyan #a2d7de
+  ansi-bright-green = "#a3ddc6"; # Bright green #a3ddc6
+  ansi-bright-magenta = "#dab0d4"; # Bright magenta #dab0d4
+  ansi-bright-red = "#ee5d32"; # Bright red #ee5d32
+  ansi-bright-white = "#feffff"; # Bright white (same as text-secondary) #feffff
+  ansi-bright-yellow = "#d8d762"; # Bright yellow #d8d762
 
-  # ===== WINDOW =====
-  # Window frame and borders
-
-  "window.activeBorder" = "#372725"; # Active window border
+  # Special colors
+  line-highlight = "#281C1C66"; # Line highlight (semi-transparent) #281C1C66
+  sidebar-border = "#6a4d32"; # Sidebar border (same as ansi-black) #6a4d32
 }
