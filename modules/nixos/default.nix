@@ -21,5 +21,6 @@
     ./shells
     ./utils
     ./virtualization
+    ./user.nix
   ];
 }

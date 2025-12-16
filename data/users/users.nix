@@ -14,13 +14,5 @@
       ];
       packages = [];
     };
-
-    # Dedicated macOS user (override for Darwin hosts like caya)
-    caya = {
-      username = "jadee";
-      homeDirectory = "/Users/jadee";
-      stateVersion = "25.11";
-      user = {};
-    };
   };
 }
