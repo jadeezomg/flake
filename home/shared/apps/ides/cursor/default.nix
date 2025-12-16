@@ -57,6 +57,7 @@
         "editor.formatOnSave" = true;
         "editor.formatOnSaveMode" = "file";
         "editor.cursorStyle" = "block";
+        "editor.fontFamily" = "'IosevkaTerm Nerd Font', 'Iosevka Nerd Font', monospace";
         "telemetry.telemetryLevel" = "off";
 
         # Nix-specific settings for Alejandra formatter
