@@ -5,6 +5,10 @@
 }: let
   # To update to latest version, run: ./packages/pear-desktop/update.sh
   # This will automatically fetch the latest release and update version/hash
+  # hints: https://timothymiller.dev/posts/2024/installing-appimages-as-first-class-citizens-in-nixos/
+  # https://github.com/jakehamilton/config/blob/c8476566abf46450060131be23a15910cb530208/packages/ubports-installer/default.nix
+  #
+  # Pear Desktop - YouTube Music desktop app
   pname = "pear-desktop";
   version = "3.11.0";
   name = "${pname}-${version}";
