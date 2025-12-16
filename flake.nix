@@ -72,11 +72,6 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
-
-    nu-scripts = {
-      url = "github:nushell/nu_scripts";
-      flake = false;
-    };
   };
 
   outputs = {
@@ -96,7 +91,6 @@
     homebrew-bundle,
     homebrew-core,
     homebrew-cask,
-    nu-scripts,
   } @ inputs: let
     lib = nixpkgs.lib;
     linuxSystems = [
@@ -245,7 +239,6 @@
             userExtras
             userData
             ;
-          inherit (inputs) nu-scripts;
           pkgs-unstable = getPkgsUnstable system;
         };
       };
@@ -290,7 +283,7 @@
             userExtras
             userData
             ;
-          inherit (inputs) nu-scripts nu-plugin-tree;
+          inherit (inputs) nu-plugin-tree;
           pkgs-unstable = getPkgsUnstable system;
           host = host;
         };

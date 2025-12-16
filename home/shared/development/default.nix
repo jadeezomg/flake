@@ -1,6 +1,8 @@
 {...}: {
   imports = [
-    ./ides.nix
+    ./languages
+    ./cloud.nix
+    ./databases.nix
     ./tools.nix
   ];
 }
