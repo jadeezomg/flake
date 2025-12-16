@@ -446,22 +446,6 @@
         "type": "github"
       }
     },
-    "nu-scripts": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1765753453,
-        "narHash": "sha256-rY+c9Fiqs4/gUWBPWnzkxR7KJxSO9soKO4Fokar17Ug=",
-        "owner": "nushell",
-        "repo": "nu_scripts",
-        "rev": "a67d490237d30d2cce6c0a19f422b822aa40f77c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nushell",
-        "repo": "nu_scripts",
-        "type": "github"
-      }
-    },
     "nur": {
       "inputs": {
         "flake-parts": "flake-parts_3",
@@ -497,7 +481,6 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_3",
         "nixpkgs-unstable": "nixpkgs-unstable",
-        "nu-scripts": "nu-scripts",
         "nur": "nur",
         "sops-nix": "sops-nix",
         "zen-browser": "zen-browser"

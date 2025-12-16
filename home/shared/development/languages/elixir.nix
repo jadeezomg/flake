@@ -3,7 +3,7 @@
     # --- Elixir/erlang ---
     elixir # Binary (includes mix)
     elixir-ls
-    erlang-ls
+    erlang-language-platform
     erlfmt
   ];
 }
