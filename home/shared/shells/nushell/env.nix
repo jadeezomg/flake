@@ -20,9 +20,8 @@
 
       let posh = "${pkgs.oh-my-posh}/bin/oh-my-posh"
 
-      # Oh My Posh theme configuration
-      # Available themes: https://ohmyposh.dev/docs/themes
-      let posh_theme = "tiwahu"
+      # Oh My Posh theme configuration - Custom Birds of Paradise theme (JSON format)
+      let posh_theme = $"($env.HOME)/.config/oh-my-posh/birds-of-paradise.json"
 
       # Set up Oh My Posh prompt
       $env.PROMPT_COMMAND = {||
