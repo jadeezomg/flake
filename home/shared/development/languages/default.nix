@@ -2,35 +2,35 @@
   imports = [
     # --- Languages, Servers And Formatters ---
     ./bash.nix
-    ./clojure.nix
+    # ./clojure.nix
     ./cmake.nix
-    ./commonlisp.nix
+    # ./commonlisp.nix
     ./cpp.nix
-    ./crystal.nix
-    ./csharp.nix
+    # ./crystal.nix
+    # ./csharp.nix
     ./css.nix
     ./deno.nix
-    ./dhall.nix
+    # ./dhall.nix
     ./docker.nix
     ./elixir.nix
-    ./elm.nix
-    ./emmet.nix
-    ./faust.nix
-    ./fennel.nix
+    # ./elm.nix
+    # ./emmet.nix
+    # ./faust.nix
+    # ./fennel.nix
     ./fish.nix
-    ./fortran.nix
-    ./fsharp.nix
+    # ./fortran.nix
+    # ./fsharp.nix
     ./general.nix
-    ./glsl.nix
+    # ./glsl.nix
     ./go.nix
     ./graphql.nix
     ./haskell.nix
     ./java.nix
     ./javascript.nix
-    ./jinja.nix
+    # ./jinja.nix
     ./just.nix
-    ./julia.nix
-    ./kdl.nix
+    # ./julia.nix
+    # ./kdl.nix
     ./kotlin.nix
     ./latex.nix
     ./lua.nix
@@ -38,19 +38,19 @@
     ./nix.nix
     ./nushell.nix
     ./ocaml.nix
-    ./perl.nix
+    # ./perl.nix
     ./php.nix
     ./prisma.nix
-    ./protobuf.nix
+    # ./protobuf.nix
     ./python.nix
-    ./r.nix
+    # ./r.nix
     ./rust.nix
-    ./scala.nix
+    # ./scala.nix
     ./sql.nix
-    #./svelte.nix
+    ./svelte.nix
     # ./swift.nix  # Disabled due to build issues
     ./tailwind.nix
-    ./terraform.nix
+    # ./terraform.nix
     ./toml.nix
     ./typescript.nix
     ./typst.nix

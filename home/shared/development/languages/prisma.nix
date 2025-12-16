@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   home.packages = with pkgs; [
     # --- Prisma ---
-    # nodePackages.prisma # Prisma CLI  # Temporarily disabled due to Node.js conflicts
+    nodePackages.prisma # Prisma CLI
     prisma-engines
   ];
 }
