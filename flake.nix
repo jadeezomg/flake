@@ -80,6 +80,7 @@
     nur,
     determinate,
     nix-homebrew,
+    zen-browser,
     ...
   }:
     flake-parts.lib.mkFlake {inherit inputs;} {
@@ -118,11 +119,11 @@
           pear-desktop = pkgs.pear-desktop;
         };
 
-        formatter = pkgs.nixfmt-rfc-style;
+        formatter = pkgs.alejandra;
 
         devShells.default = pkgs.mkShell {
           packages = [
-            pkgs.nixfmt-rfc-style
+            pkgs.alejandra
             pkgs.nil
             pkgs.nixd
             pkgs.jq

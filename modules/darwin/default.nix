@@ -18,7 +18,6 @@
     ./programs
     ./security
     ./services
-    ./shell
     ./shells
     ./utils
     ./virtualization

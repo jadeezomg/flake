@@ -54,6 +54,7 @@
           */
         ];
       userSettings = {
+        "workbench.colorTheme" = "Birds of Paradise";
         "editor.formatOnSave" = true;
         "editor.formatOnSaveMode" = "file";
         "editor.cursorStyle" = "block";

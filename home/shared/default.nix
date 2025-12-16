@@ -15,7 +15,6 @@
     ./programs
     ./security/encryption
     ./services
-    ./shell
     ./shells
     ./utils
     ./virtualization
