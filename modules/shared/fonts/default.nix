@@ -1,5 +1,4 @@
 {pkgs, ...}: {
-  fonts.fontDir.enable = true;
   fonts.packages = with pkgs; [
     # Monospace
     fira-code
