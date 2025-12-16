@@ -1,4 +1,4 @@
-{...}: {
+{lib, ...}: {
   programs.zed-editor = {
     userSettings = {
       # --- Appearance ---
@@ -18,7 +18,7 @@
 
       current_line_highlight = "all";
       selection_highlight = true;
-      ui_font_family = ".SystemUIFont";
+      ui_font_family = lib.mkDefault ".SystemUIFont";
 
       ui_font_features = {
         calt = true;
@@ -34,7 +34,7 @@
 
       # --- Terminal ---
       terminal = {
-        font_family = "Iosevka Nerd Font";
+        font_family = lib.mkDefault "Iosevka Nerd Font";
         font_size = 14.0;
         font_features = {
           calt = true;

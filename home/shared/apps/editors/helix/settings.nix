@@ -1,6 +1,7 @@
-{...}: {
+{lib, ...}: {
   programs.helix.settings = {
-    theme = "chiaroscuro";
+    # Let Stylix pick the theme when enabled.
+    theme = lib.mkDefault "chiaroscuro";
 
     keys.normal = {
       D = [

@@ -1,6 +1,6 @@
 {pkgs, ...}: {
   imports = [
-    ../../shared/apps/terminals/ghostty.nix
+    ../../../shared/apps/terminals/ghostty.nix
   ];
 
   programs.ghostty = {

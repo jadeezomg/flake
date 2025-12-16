@@ -1,8 +1,10 @@
-{pkgs, ...}: let
-  # Import theme colors
-  themeColors = import ../../assets/theme/theme.nix;
-in {
+{
+  pkgs,
+  config,
+  ...
+}: {
   # Shared ghostty settings - platform-specific files import this and set the package
+  # Colors are automatically managed by stylix - no manual color configuration needed
   programs.ghostty = {
     enable = true;
     settings = {
@@ -14,8 +16,8 @@ in {
       link-url = true;
       scrollback-limit = 10000;
 
-      # Typography
-      font-family = "Iosevka Nerd Font";
+      # Typography - using stylix font configuration
+      font-family = config.stylix.fonts.monospace.name;
       font-size = 12;
 
       # Cursor
@@ -36,33 +38,12 @@ in {
       background-blur = 0;
       mouse-hide-while-typing = true;
 
-      # Colors - Birds of Paradise theme
-      foreground = "${themeColors.text-primary}";
-      background = "${themeColors.bg-primary}";
-      selection-foreground = "${themeColors.text-primary}";
-      selection-background = "${themeColors.bg-tertiary}";
-      cursor = "${themeColors.text-primary}";
-      cursor-text = "${themeColors.bg-primary}";
-
-      # ANSI colors
-      color0 = "${themeColors.ansi-black}";
-      color1 = "${themeColors.ansi-red}";
-      color2 = "${themeColors.ansi-green}";
-      color3 = "${themeColors.ansi-yellow}";
-      color4 = "${themeColors.ansi-blue}";
-      color5 = "${themeColors.ansi-magenta}";
-      color6 = "${themeColors.ansi-cyan}";
-      color7 = "${themeColors.ansi-white}";
-
-      # Bright ANSI colors
-      color8 = "${themeColors.ansi-bright-black}";
-      color9 = "${themeColors.ansi-bright-red}";
-      color10 = "${themeColors.ansi-bright-green}";
-      color11 = "${themeColors.ansi-bright-yellow}";
-      color12 = "${themeColors.ansi-bright-blue}";
-      color13 = "${themeColors.ansi-bright-magenta}";
-      color14 = "${themeColors.ansi-bright-cyan}";
-      color15 = "${themeColors.ansi-bright-white}";
+      # Colors are automatically applied by stylix based on base24/base16 scheme
+      # No manual color configuration needed - stylix handles:
+      # - foreground, background
+      # - selection colors
+      # - cursor colors
+      # - All ANSI colors (color0-color15)
     };
   };
 }

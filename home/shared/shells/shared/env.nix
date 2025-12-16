@@ -6,6 +6,5 @@
     VISUAL = "zeditor";
     BROWSER = "zen";
     PAGER = "bat";
-    BAT_THEME = "TwoDark";
   };
 }

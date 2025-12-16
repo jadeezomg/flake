@@ -31,7 +31,12 @@
       ../../home/shared
       ../../home/nixos
     ];
-  homeModules = isDarwin: [inputs.sops-nix.homeManagerModules.sops] ++ baseHomeModules isDarwin;
+  homeModules = isDarwin:
+    [
+      inputs.sops-nix.homeManagerModules.sops
+      inputs.stylix.homeModules.stylix
+    ]
+    ++ baseHomeModules isDarwin;
 in {
   inherit commonSpecialArgs darwinSystems homeModules;
 }

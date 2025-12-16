@@ -2,6 +2,7 @@
   imports = [
     ./compat.nix
     ./apps
+    ./assets/theme/stylix.nix
     ./boot
     ./desktop
     ./development
