@@ -111,12 +111,14 @@
           };
           overlays = [
             nur.overlays.default
-            (import ./overlays).default
           ];
         };
 
         packages = nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
-          pear-desktop = pkgs.pear-desktop;
+          pear-desktop = import ./packages/pear-desktop/default.nix {
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
         };
 
         formatter = pkgs.alejandra;

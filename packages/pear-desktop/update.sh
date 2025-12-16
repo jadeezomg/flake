@@ -4,6 +4,11 @@
 # Run this before building to ensure you have the latest version
 set -e
 
+# Get the flake root directory (parent of packages directory)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+FLAKE_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PACKAGE_FILE="$FLAKE_ROOT/packages/pear-desktop/default.nix"
+
 echo "🔍 Fetching latest Pear Desktop release info..."
 
 # Check if jq is available
@@ -50,16 +55,16 @@ fi
 echo "🔗 URL: $URL"
 
 # Backup original file
-cp overlays/pear-desktop.nix overlays/pear-desktop.nix.backup
+cp "$PACKAGE_FILE" "$PACKAGE_FILE.backup"
 
 # Update the nix file
-sed -i "s/version = \"[^\"]*\";/version = \"$VERSION\";/" overlays/pear-desktop.nix
-sed -i "s/sha512 = \"[^\"]*\";/sha512 = \"$SHA512\";/" overlays/pear-desktop.nix
+sed -i "s/version = \"[^\"]*\";/version = \"$VERSION\";/" "$PACKAGE_FILE"
+sed -i "s/sha512 = \"[^\"]*\";/sha512 = \"$SHA512\";/" "$PACKAGE_FILE"
 
-echo "✅ Updated overlays/pear-desktop.nix to version $VERSION"
+echo "✅ Updated $PACKAGE_FILE to version $VERSION"
 echo ""
 echo "🧪 Test the build with:"
 echo "   nix build .#packages.x86_64-linux.pear-desktop"
 echo ""
 echo "💾 To restore backup:"
-echo "   mv overlays/pear-desktop.nix.backup overlays/pear-desktop.nix"
+echo "   mv $PACKAGE_FILE.backup $PACKAGE_FILE"

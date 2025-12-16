@@ -11,7 +11,6 @@
       };
       overlays = [
         nur.overlays.default
-        (import ../../overlays).default
       ];
     };
 
@@ -25,7 +24,6 @@
       };
       overlays = [
         nur.overlays.default
-        (import ../../overlays).default
       ];
     };
 in {

@@ -16,7 +16,7 @@ def main [input?: string] {
     # Update custom packages
     notify "Package Update" "Updating Pear Desktop to latest version..." "pending"
     try {
-      run-external "./overlays/update-pear-desktop.sh"
+      run-external "./packages/pear-desktop/update.sh"
       notify "Package Update" "Pear Desktop updated successfully" "success"
     } catch { |err|
       notify "Package Update" $"Failed to update Pear Desktop: ($err.msg)" "error"

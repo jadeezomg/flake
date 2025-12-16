@@ -9,6 +9,9 @@ in {
   programs.fish = {
     # Environment variables - set via interactiveShellInit for Fish
     interactiveShellInit = ''
+      # Disable Fish greeting
+      set -U fish_greeting ""
+
       # Flake configuration path
       set -gx FLAKE ${sharedPaths.commonPaths.flake}
 
