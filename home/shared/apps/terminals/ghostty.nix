@@ -26,11 +26,11 @@
 
       # Typography - using stylix font configuration
       font-family = config.stylix.fonts.monospace.name;
-      font-size = 12;
+      font-size = 11;
 
       # Cursor
       cursor-style = "block";
-      cursor-style-blink = false;
+      cursor-style-blink = true;
       shell-integration-features = "no-cursor";
       adjust-cursor-thickness = "2";
 

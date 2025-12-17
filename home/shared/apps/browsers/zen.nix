@@ -111,7 +111,7 @@
       };
 
       bookmarks = {
-        force = true;
+        force = false;
         settings = [
           {
             name = "Nix sites";
@@ -134,7 +134,7 @@
         ];
       };
 
-      pinsForce = true;
+      pinsForce = false;
       pins = {
         "GitHub" = {
           id = "48e8a119-5a14-4826-9545-91c8e8dd3bf6";

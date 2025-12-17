@@ -31,68 +31,43 @@ in {
       base0F = themeColors.accent-red;
     };
 
+    # scheme: "Birds of Paradise (Base16)"
+    # author: "Jeroen de Vries (converted to base16)"
+    # base00: "372725"
+    # base01: "2e201f"
+    # base02: "5B413D"
+    # base03: "6a4d32"
+    # base04: "DDDDDD"
+    # base05: "E6E1C4"
+    # base06: "feffff"
+    # base07: "feffff"
+    # base08: "cb4131"
+    # base09: "eeac36"
+    # base0A: "EFCB43"
+    # base0B: "6ba18a"
+    # base0C: "85b4bb"
+    # base0D: "6b98bb"
+    # base0E: "bb94b4"
+    # base0F: "A40042"
+
     # Enable automatic theming for all supported applications
     targets = {
-      # # Terminals
-      # foot.enable = true;
-      # ghostty.enable = true;
-      # kitty.enable = true;
-      # wezterm.enable = true;
-
+      # Terminals
       # You already manage `~/.config/wezterm/wezterm.lua` via `home/shared/apps/terminals/wezterm.nix`,
       # so Stylix must NOT also manage WezTerm or we'll get a Home Manager target-file conflict.
       wezterm.enable = false;
 
-      # # Editors
-      # helix.enable = true;
-      # zed.enable = true;
+      # Editors
       vscode.enable = false;
 
-      # # Browsers
+      # Browsers
       firefox.enable = false;
       # firefox.profileNames = ["default"];
-      # zen-browser.enable = true;
       zen-browser.profileNames = ["default"];
 
-      # # Desktop Environments
+      # Desktop Environments
       gnome.enable = true;
-
-      # # Media Players
-
-      # # Other Applications
-      # bat.enable = true;
-      # btop.enable = true;
-      # dunst.enable = true;
-      # fzf.enable = true;
-      # gtk.enable = true;
-      # yazi.enable = true;
-      # # rofi.enable = true;
-      # # waybar.enable = true;
-      # zathura.enable = true;
     };
-
-    # Alternative: Create a custom base16 scheme from theme.nix
-    # Uncomment the following and comment out the above if you want exact color matching:
-    # base16Scheme = pkgs.writeText "birds-of-paradise-custom.yaml" ''
-    #   scheme: "Birds of Paradise (Custom)"
-    #   author: "Jeroen de Vries (customized)"
-    #   base00: "${themeColors.bg-primary}"  # Default Background
-    #   base01: "${themeColors.bg-secondary}"  # Lighter Background
-    #   base02: "${themeColors.bg-tertiary}"  # Selection Background
-    #   base03: "${themeColors.sidebar-border}"  # Comments, Invisibles
-    #   base04: "${themeColors.text-tertiary}"  # Dark Foreground
-    #   base05: "${themeColors.text-primary}"  # Default Foreground
-    #   base06: "${themeColors.text-secondary}"  # Light Foreground
-    #   base07: "${themeColors.text-secondary}"  # Lightest Foreground
-    #   base08: "${themeColors.ansi-red}"  # Variables, XML Tags, Markup Link Text
-    #   base09: "${themeColors.ansi-yellow}"  # Integers, Boolean, Constants, XML Attributes
-    #   base0A: "${themeColors.accent-yellow}"  # Classes, Markup Bold, Search Text Background
-    #   base0B: "${themeColors.ansi-green}"  # Strings, Inherited Class, Markup Code
-    #   base0C: "${themeColors.ansi-cyan}"  # Support, Regular Expressions, Escape Characters
-    #   base0D: "${themeColors.ansi-blue}"  # Functions, Methods, Attribute IDs
-    #   base0E: "${themeColors.ansi-magenta}"  # Keywords, Storage, Selector, Markup Italic
-    #   base0F: "${themeColors.accent-red}"  # Deprecated, Opening/Closing Embedded Language Tags
-    # '';
 
     # Fonts configuration - matching your existing terminal setup
     fonts = {
