@@ -279,7 +279,35 @@
           # [buildPlans.IosevkaEtoile.widths.Extended]
           # shape = 600
           # menu = 7
+          # css = "expanded"[buildPlans.IosevkaEtoile.widths.Extended]
+          # shape = 600
+          # menu = 7
           # css = "expanded"
+
+          # [buildPlans.IosevkaEtoile.widths.Condensed]
+          # shape = 416
+          # menu = 3
+          # css = "condensed"
+
+          # [buildPlans.IosevkaEtoile.widths.SemiCondensed]
+          # shape = 456
+          # menu = 4
+          # css = "semi-condensed"
+
+          # [buildPlans.IosevkaEtoile.widths.SemiExtended]
+          # shape = 548
+          # menu = 6
+          # css = "semi-expanded"
+
+          # [buildPlans.IosevkaEtoile.widths.ExtraExtended]
+          # shape = 658
+          # menu = 8
+          # css = "extra-expanded"
+
+          # [buildPlans.IosevkaEtoile.widths.UltraExtended]
+          # shape = 720
+          # menu = 9
+          # css = "ultra-expanded"
 
           # [buildPlans.IosevkaEtoile.widths.Condensed]
           # shape = 416
