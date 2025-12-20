@@ -17,7 +17,19 @@ in {
   ];
 
   # Desktop host specific configuration
-  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.beta;
+  hardware = {
+    graphics = {
+      enable = true;
+    };
+    nvidia = {
+      open = true;
+      nvidiaSettings = true;
+      modesetting.enable = true;
+    };
+  };
+
+  services.xserver.videoDrivers = ["nvidia"];
+
   # System state version - host specific
   system.stateVersion = "25.11";
 

@@ -7,7 +7,6 @@
     ./desktop
     ./development
     ./environment
-    ./hardware
     ./integration
     ./modules
     ./locale
