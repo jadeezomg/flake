@@ -1,6 +1,11 @@
 {pkgs, ...}: let
   # Import our custom theme colors
   themeColors = import ./theme.nix;
+
+  # Import font definitions to reuse Iosevka variants
+  fontDefinitions = import ../fonts/fonts.nix {inherit pkgs;};
+  iosevkaAile = fontDefinitions.monospace-pro.iosevka-aile.package;
+  iosevkaEtoile = fontDefinitions.monospace-pro.iosevka-etoile.package;
 in {
   stylix = {
     enable = true;
@@ -76,12 +81,12 @@ in {
         name = "Iosevka Nerd Font";
       };
       serif = {
-        package = pkgs.dejavu_fonts;
-        name = "DejaVu Serif";
+        package = iosevkaEtoile;
+        name = "Iosevka Etoile";
       };
       sansSerif = {
-        package = pkgs.dejavu_fonts;
-        name = "DejaVu Sans";
+        package = iosevkaAile;
+        name = "Iosevka Aile";
       };
       emoji = {
         package = pkgs.noto-fonts-color-emoji;

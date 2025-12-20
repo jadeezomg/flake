@@ -201,6 +201,116 @@
         nerd-fonts.zed-mono
       ];
     };
+    iosevka-aile = {
+      enable = true;
+      package = pkgs.iosevka.override {
+        set = "Aile";
+        privateBuildPlan = ''
+          [buildPlans.IosevkaAile]
+          family = "Iosevka Aile"
+          spacing = "quasi-proportional"
+          serifs = "sans"
+          noCvSs = true
+          exportGlyphNames = false
+
+            [buildPlans.IosevkaAile.ligations]
+            inherits = "dlig"
+
+          [buildPlans.IosevkaAile.widths.Normal]
+          shape = 500
+          menu = 5
+          css = "normal"
+
+          # [buildPlans.IosevkaAile.widths.Extended]
+          # shape = 600
+          # menu = 7
+          # css = "expanded"
+
+          # [buildPlans.IosevkaAile.widths.Condensed]
+          # shape = 416
+          # menu = 3
+          # css = "condensed"
+
+          # [buildPlans.IosevkaAile.widths.SemiCondensed]
+          # shape = 456
+          # menu = 4
+          # css = "semi-condensed"
+
+          # [buildPlans.IosevkaAile.widths.SemiExtended]
+          # shape = 548
+          # menu = 6
+          # css = "semi-expanded"
+
+          # [buildPlans.IosevkaAile.widths.ExtraExtended]
+          # shape = 658
+          # menu = 8
+          # css = "extra-expanded"
+
+          # [buildPlans.IosevkaAile.widths.UltraExtended]
+          # shape = 720
+          # menu = 9
+          # css = "ultra-expanded"
+        '';
+      };
+      name = "Iosevka Aile";
+      style = "Quasi-Proportional";
+      licenseInfo = "Free (SIL OFL)";
+    };
+    iosevka-etoile = {
+      enable = true;
+      package = pkgs.iosevka.override {
+        set = "Etoile";
+        privateBuildPlan = ''
+          [buildPlans.IosevkaEtoile]
+          family = "Iosevka Etoile"
+          spacing = "quasi-proportional"
+          serifs = "slab"
+          noCvSs = true
+          exportGlyphNames = false
+
+            [buildPlans.IosevkaEtoile.ligations]
+            inherits = "dlig"
+
+          [buildPlans.IosevkaEtoile.widths.Normal]
+          shape = 500
+          menu = 5
+          css = "normal"
+
+          # [buildPlans.IosevkaEtoile.widths.Extended]
+          # shape = 600
+          # menu = 7
+          # css = "expanded"
+
+          # [buildPlans.IosevkaEtoile.widths.Condensed]
+          # shape = 416
+          # menu = 3
+          # css = "condensed"
+
+          # [buildPlans.IosevkaEtoile.widths.SemiCondensed]
+          # shape = 456
+          # menu = 4
+          # css = "semi-condensed"
+
+          # [buildPlans.IosevkaEtoile.widths.SemiExtended]
+          # shape = 548
+          # menu = 6
+          # css = "semi-expanded"
+
+          # [buildPlans.IosevkaEtoile.widths.ExtraExtended]
+          # shape = 658
+          # menu = 8
+          # css = "extra-expanded"
+
+          # [buildPlans.IosevkaEtoile.widths.UltraExtended]
+          # shape = 720
+          # menu = 9
+          # css = "ultra-expanded"
+        '';
+      };
+      name = "Iosevka Etoile";
+      style = "Quasi-Proportional";
+      licenseInfo = "Free (SIL OFL)";
+    };
     monaspace = {
       enable = true;
       package = pkgs.monaspace;
@@ -240,7 +350,7 @@
       ];
     };
     server-mono = {
-      package = null; # TODO: Add our own package
+      package = null;
       name = "Server Mono";
       style = "Monospace Pro";
       licenseInfo = "Free (SIL OFL)";
