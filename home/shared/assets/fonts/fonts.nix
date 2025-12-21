@@ -221,10 +221,10 @@
           menu = 5
           css = "normal"
 
-          # [buildPlans.IosevkaAile.widths.Extended]
-          # shape = 600
-          # menu = 7
-          # css = "expanded"
+          [buildPlans.IosevkaAile.widths.Extended]
+          shape = 600
+          menu = 7
+          css = "expanded"
 
           # [buildPlans.IosevkaAile.widths.Condensed]
           # shape = 416
