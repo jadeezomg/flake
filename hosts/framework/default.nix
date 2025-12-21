@@ -31,7 +31,7 @@ in {
     power-profiles-daemon.enable = true;
     fwupd. enable = true;
     blueman.enable = true;
-    server.videoDrivers = ["amdgpu"];
+    xserver.videoDrivers = ["amdgpu"];
   };
 
   security.pam.services = {
