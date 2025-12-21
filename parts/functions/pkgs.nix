@@ -1,5 +1,5 @@
 {inputs, ...}: let
-  inherit (inputs) nixpkgs nixpkgs-unstable nur;
+  inherit (inputs) nixpkgs nixpkgs-unstable;
 
   # Helper to get unstable pkgs for a system (needed for config args)
   getPkgsUnstable = system:
@@ -9,9 +9,6 @@
         allowUnfree = true;
         input-fonts.acceptLicense = true;
       };
-      overlays = [
-        nur.overlays.default
-      ];
     };
 
   # Helper to get pkgs for a system (used in host logic)
@@ -22,9 +19,6 @@
         allowUnfree = true;
         input-fonts.acceptLicense = true;
       };
-      overlays = [
-        nur.overlays.default
-      ];
     };
 in {
   inherit getPkgs getPkgsUnstable;

@@ -32,11 +32,6 @@
       url = "github:hercules-ci/flake-parts";
     };
 
-    nur = {
-      url = "github:nix-community/NUR";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -82,7 +77,6 @@
     nix-darwin,
     home-manager,
     sops-nix,
-    nur,
     determinate,
     nix-homebrew,
     zen-browser,
@@ -107,16 +101,13 @@
         system,
         ...
       }: {
-        # Configure pkgs with overlays
+        # Configure pkgs
         _module.args.pkgs = import nixpkgs {
           inherit system;
           config = {
             allowUnfree = true;
             input-fonts.acceptLicense = true;
           };
-          overlays = [
-            nur.overlays.default
-          ];
         };
 
         packages = nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {

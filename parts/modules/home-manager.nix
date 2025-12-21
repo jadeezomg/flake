@@ -18,7 +18,6 @@
   }: {
     useGlobalPkgs = true;
     useUserPackages = true;
-    # Backup existing files (e.g., .zshrc) to .zshrc.backup before linking managed files
     backupFileExtension = "backup";
     extraSpecialArgs = {
       inherit

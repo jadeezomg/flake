@@ -20,6 +20,13 @@ in {
   hardware = {
     graphics.enable = true;
     bluetooth.enable = true;
+    fr-fanctrl = {
+      enable = true;
+      config = {
+        defaultStrategy = "laziest";
+        strategyOnDischarging = "laziest";
+      };
+    };
   };
 
   environment.systemPackages = with pkgs; [
@@ -29,7 +36,7 @@ in {
   services = {
     fprintd.enable = true;
     power-profiles-daemon.enable = true;
-    fwupd. enable = true;
+    fwupd.enable = true;
     blueman.enable = true;
     xserver.videoDrivers = ["amdgpu"];
   };
