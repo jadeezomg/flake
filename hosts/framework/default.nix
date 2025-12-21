@@ -20,7 +20,7 @@ in {
   hardware = {
     graphics.enable = true;
     bluetooth.enable = true;
-    fr-fanctrl = {
+    fw-fanctrl = {
       enable = true;
       config = {
         defaultStrategy = "laziest";
