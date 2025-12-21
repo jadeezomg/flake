@@ -79,30 +79,37 @@
     system = host.system or "x86_64-linux";
     isDarwin = lib.elem system darwinSystems;
     user = host.username or "jadee";
-  in {
-    nixosConfigurations = lib.optionalAttrs (!isDarwin) {
-      ${hostKey} = lib.nixosSystem {
-        inherit system;
-        pkgs = getPkgs system;
-        specialArgs =
-          commonSpecialArgs
-          // {
-            pkgs-unstable = getPkgsUnstable system;
-            host = host;
-            inherit hostKey user;
-          };
-        modules = [
-          (./. + "/../hosts/${hostKey}")
-          sops-nix.nixosModules.sops
-          determinate.nixosModules.default
-          home-manager.nixosModules.home-manager
-          (mkHomeManagerModule {inherit hostKey user system;})
-        ];
-      };
+    hostname = host.hostname or hostKey;
+    nixosConfig = lib.nixosSystem {
+      inherit system;
+      pkgs = getPkgs system;
+      specialArgs =
+        commonSpecialArgs
+        // {
+          pkgs-unstable = getPkgsUnstable system;
+          host = host;
+          inherit hostKey user;
+        };
+      modules = [
+        (./. + "/../hosts/${hostKey}")
+        sops-nix.nixosModules.sops
+        determinate.nixosModules.default
+        home-manager.nixosModules.home-manager
+        (mkHomeManagerModule {inherit hostKey user system;})
+      ];
     };
+  in {
+    nixosConfigurations = lib.optionalAttrs (!isDarwin) (
+      {
+        ${hostKey} = nixosConfig;
+      }
+      // lib.optionalAttrs (hostname != hostKey) {
+        ${hostname} = nixosConfig;
+      }
+    );
 
-    darwinConfigurations = lib.optionalAttrs isDarwin {
-      ${hostKey} = nix-darwin.lib.darwinSystem {
+    darwinConfigurations = lib.optionalAttrs isDarwin (let
+      darwinConfig = nix-darwin.lib.darwinSystem {
         inherit system;
         specialArgs =
           commonSpecialArgs
@@ -134,7 +141,13 @@
           (./. + "/../hosts/${hostKey}")
         ];
       };
-    };
+    in
+      {
+        ${hostKey} = darwinConfig;
+      }
+      // lib.optionalAttrs (hostname != hostKey) {
+        ${hostname} = darwinConfig;
+      });
 
     homeConfigurations = {
       ${hostKey} = mkHomeConfiguration {
