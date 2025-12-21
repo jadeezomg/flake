@@ -10,17 +10,12 @@
 in {
   imports = [
     ./hardware-configuration.nix
-    # Shared modules (work on both NixOS and Darwin)
     ../../modules/shared
-    # NixOS-specific modules
     ../../modules/nixos
   ];
 
-  # Desktop host specific configuration
   hardware = {
-    graphics = {
-      enable = true;
-    };
+    graphics.enable = true;
     nvidia = {
       open = true;
       nvidiaSettings = true;
@@ -30,23 +25,20 @@ in {
 
   services.xserver.videoDrivers = ["nvidia"];
 
-  # System state version - host specific
+  # System state version - host specific, don't change, it's used by home-manager to determine the initial version of the system.
   system.stateVersion = "25.11";
 
-  # Nix experimental features
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
   ];
 
-  # Automatic garbage collection
   maintenance.garbageCollection = {
     enable = true;
     schedule = "weekly";
     deleteOlderThan = "30d";
   };
 
-  # Monitor configuration for GDM
   environment.etc."xdg/monitors.xml" = {
     source = ../../data/hosts/desktop/monitors.xml;
     mode = "0644";
