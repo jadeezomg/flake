@@ -50,6 +50,12 @@
       };
     };
 
+    noctalia = {
+      url = "github:noctaliadev/noctalia";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
+
     nix-homebrew = {
       url = "github:zhaofengli-wip/nix-homebrew";
     };
@@ -80,8 +86,12 @@
     determinate,
     nix-homebrew,
     zen-browser,
+    noctalia,
     ...
-  }:
+  }: let
+    pkgsFuncs = import ./parts/functions/pkgs.nix {inherit inputs;};
+    inherit (pkgsFuncs) getPkgs;
+  in
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         ./parts/hosts.nix
@@ -101,14 +111,7 @@
         system,
         ...
       }: {
-        # Configure pkgs
-        _module.args.pkgs = import nixpkgs {
-          inherit system;
-          config = {
-            allowUnfree = true;
-            input-fonts.acceptLicense = true;
-          };
-        };
+        _module.args.pkgs = getPkgs system;
 
         packages = nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
           pear-desktop = import ./packages/pear-desktop/default.nix {

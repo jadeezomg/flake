@@ -1,7 +1,10 @@
 {pkgs, ...}: {
   imports = [
+    ./gnome
     ./niri
   ];
+
+  # Shared desktop configuration
   # X server configuration (required for GDM and XWayland compatibility)
   # GNOME uses Wayland by default, but X server is needed for:
   # - GDM display manager
@@ -18,12 +21,5 @@
         variant = "euro";
       };
     };
-    displayManager.gdm.enable = true;
-    desktopManager.gnome.enable = true;
   };
-
-  environment.systemPackages = with pkgs; [
-    libnotify # Desktop notifications
-    nautilus # File manager
-  ];
 }

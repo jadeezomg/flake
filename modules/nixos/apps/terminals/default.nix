@@ -3,7 +3,7 @@
   pkgs,
   ...
 }: {
-  imports = [
-    ./ghostty.nix
+  environment.systemPackages = with pkgs; [
+    ghostty
   ];
 }

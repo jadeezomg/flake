@@ -1,14 +1,5 @@
 {pkgs, ...}: {
-  imports = [
-    ./ghostty.nix
-    ./wezterm.nix
-  ];
-
   environment.systemPackages = with pkgs; [
-    kitty # NOTE: Kitty is always installed as main
+    kitty
   ];
-
-  programs.foot = {
-    enable = true; # NOTE: Foot is always installed as fallback
-  };
 }

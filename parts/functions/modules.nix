@@ -36,6 +36,12 @@
       inputs.sops-nix.homeManagerModules.sops
       inputs.stylix.homeModules.stylix
     ]
+    # Noctalia is only for NixOS (Wayland), not Darwin
+    ++ (
+      if isDarwin
+      then []
+      else [inputs.noctalia.homeModules.default]
+    )
     ++ baseHomeModules isDarwin;
 in {
   inherit commonSpecialArgs darwinSystems homeModules;

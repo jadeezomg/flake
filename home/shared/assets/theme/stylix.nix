@@ -11,6 +11,9 @@ in {
     enable = true;
     autoEnable = true;
     polarity = "dark";
+    # Disable nixpkgs overlays when using home-manager.useGlobalPkgs
+    # This prevents the deprecation warning about nixpkgs.overlays
+    overlays.enable = false;
 
     # Custom base16 scheme created from theme.nix colors
     # This converts the base24 Birds of Paradise theme to base16 format

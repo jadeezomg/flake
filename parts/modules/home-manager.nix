@@ -8,7 +8,6 @@
   getPkgsUnstable,
   ...
 }: let
-  # Home Manager Module Logic
   homeManagerConfig = {
     user,
     hostKey,

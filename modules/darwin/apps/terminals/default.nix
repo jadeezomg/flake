@@ -3,8 +3,7 @@
   pkgs,
   ...
 }: {
-  imports = [
-    ./ghostty.nix
-    ./wezterm.nix
+  environment.systemPackages = with pkgs; [
+    ghostty-bin
   ];
 }
