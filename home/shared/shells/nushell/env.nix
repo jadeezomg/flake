@@ -17,6 +17,8 @@ in {
     extraEnv = ''
       # Flake configuration path - set using Nushell syntax so $env.HOME is properly expanded
       $env.FLAKE = $"($env.HOME)/.dotfiles/flake"
+      # nh 4.2.0+ uses NH_FLAKE instead of FLAKE
+      $env.NH_FLAKE = $"($env.HOME)/.dotfiles/flake"
 
       let posh = "${pkgs.oh-my-posh}/bin/oh-my-posh"
 

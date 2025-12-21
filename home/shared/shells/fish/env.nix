@@ -14,6 +14,8 @@ in {
 
       # Flake configuration path
       set -gx FLAKE ${sharedPaths.commonPaths.flake}
+      # nh 4.2.0+ uses NH_FLAKE instead of FLAKE
+      set -gx NH_FLAKE ${sharedPaths.commonPaths.flake}
 
       # Common environment variables
       set -gx EDITOR ${sharedEnv.commonEnv.EDITOR}

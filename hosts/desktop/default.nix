@@ -28,6 +28,9 @@ in {
   # System state version - host specific, don't change, it's used by home-manager to determine the initial version of the system.
   system.stateVersion = "25.11";
 
+  # does this go here?
+  # nixpkgs.config.cudaSupport = true;
+
   nix.settings = {
     experimental-features = [
       "nix-command"
