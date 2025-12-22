@@ -3,7 +3,6 @@
   # Nix/Home Manager configuration
   nixConfig = {
     homeManagerFlake = "home-manager/master";
-    defaultHostKey = "framework";
     flakeBuildScript = "build/flake.nu";
   };
 
