@@ -17,6 +17,7 @@
           redhat.vscode-yaml # YAML support
           thenuprojectcontributors.vscode-nushell-lang # Nushell support
           rebornix.ruby # Ruby support
+          shopify.ruby-lsp # Ruby Language Server
           aaron-bond.better-comments # Better comments highlighting
           kamadorueda.alejandra # Nix formatter
           sumneko.lua # Lua Language Server with formatting support
@@ -38,6 +39,12 @@
             publisher = "Programming-Engineer";
             version = "0.1.2";
             sha256 = "05b8ahbwkjgmw2cq46dddd64lwg5mhffzff4b1knbl4yrw9jlbp2";
+          }
+          {
+            name = "vscode-rubocop"; # Ruby formatter
+            publisher = "rubocop";
+            version = "0.10.0";
+            sha256 = "0p25dzrxlvpv0a7qsn5lw65xnrjks43dzqq4g7j3r6dq6fn8ci1s";
           }
         ];
       userSettings = {
@@ -126,13 +133,18 @@
 
   # Cursor can keep a stale `~/.cursor/extensions/extensions.json` and ignore newly linked
   # extensions. Remove it on activation so Cursor regenerates it from the on-disk extensions.
-  # Only delete if Cursor is not running to avoid breaking extensions in a running instance.
-  home.activation.cursorRescanExtensions = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    # Check if Cursor is running - if so, skip deletion to avoid breaking extensions
-    if ! pgrep -f "cursor|code-cursor" > /dev/null 2>&1; then
-      rm -f "$HOME/.cursor/extensions/extensions.json"
-    else
-      echo "Cursor is running - skipping extensions.json deletion. Restart Cursor to rescan extensions."
-    fi
-  '';
+  # Only delete if Cursor is not running and the file/directory is writable.
+  # home.activation.cursorRescanExtensions = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  #   # Check if Cursor is running - if so, skip deletion to avoid breaking extensions
+  #   if pgrep -f "cursor|code-cursor" > /dev/null 2>&1; then
+  #     echo "Cursor is running - skipping extensions.json deletion. Restart Cursor to rescan extensions."
+  #   elif [ -f "$HOME/.cursor/extensions/extensions.json" ]; then
+  #     # Check if the directory is writable before attempting deletion
+  #     if [ -w "$HOME/.cursor/extensions" ] || [ -w "$HOME/.cursor/extensions/extensions.json" ]; then
+  #       rm -f "$HOME/.cursor/extensions/extensions.json" || true
+  #     else
+  #       echo "Warning: Cannot delete extensions.json (read-only filesystem). Restart Cursor to rescan extensions."
+  #     fi
+  #   fi
+  # '';
 }
