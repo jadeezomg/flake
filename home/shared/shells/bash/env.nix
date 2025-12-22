@@ -11,6 +11,8 @@ in {
     initExtra = ''
       # Flake configuration path
       export FLAKE=${sharedPaths.commonPaths.flake}
+      # NH_FLAKE for nh (Nix Helper) - nh 4.2.0+ uses NH_FLAKE instead of FLAKE
+      export NH_FLAKE=${sharedPaths.commonPaths.flake}
 
       # Common environment variables
       export EDITOR=${sharedEnv.commonEnv.EDITOR}

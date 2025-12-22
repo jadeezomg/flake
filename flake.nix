@@ -110,12 +110,23 @@
           };
         };
 
-        packages = nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
-          pear-desktop = import ./packages/pear-desktop/default.nix {
-            inherit pkgs;
-            lib = pkgs.lib;
+        packages =
+          {
+            iosevka-aile = import ./packages/iosevka-aile/default.nix {
+              inherit pkgs;
+              lib = pkgs.lib;
+            };
+            iosevka-etoile = import ./packages/iosevka-etoile/default.nix {
+              inherit pkgs;
+              lib = pkgs.lib;
+            };
+          }
+          // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
+            pear-desktop = import ./packages/pear-desktop/default.nix {
+              inherit pkgs;
+              lib = pkgs.lib;
+            };
           };
-        };
 
         formatter = pkgs.alejandra;
 

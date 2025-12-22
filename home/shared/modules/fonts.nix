@@ -25,7 +25,6 @@
   ];
 in {
   fonts.fontconfig.enable = true;
-  # home.packages = enabledFontPackages ++ [ pkgs.rhodium-fonts ];
   home.packages = enabledFontPackages;
 
   # NOTE: List all installed fonts for debugging

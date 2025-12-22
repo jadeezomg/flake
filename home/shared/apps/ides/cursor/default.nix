@@ -6,6 +6,7 @@
   programs.vscode = {
     enable = true;
     package = pkgs.code-cursor;
+    mutableExtensionsDir = false;
     profiles.default = {
       extensions = with pkgs.vscode-extensions;
         [
@@ -44,8 +45,6 @@
         "editor.formatOnSave" = true;
         "editor.formatOnSaveMode" = "file";
         "editor.cursorStyle" = "block";
-        "editor.fontFamily" = "'IosevkaTerm Nerd Font', 'Iosevka Nerd Font', monospace";
-        "editor.fontSize" = 13;
         "editor.accessibilitySupport" = "off";
         "telemetry.telemetryLevel" = "off";
         "window.commandCenter" = true;
@@ -104,8 +103,6 @@
         "[nix].editor.formatOnSave" = true;
         "[nix].editor.formatOnType" = false;
         "alejandra.program" = "alejandra";
-
-        # Enable color decorators for Nix files (shows color picker for hex codes)
         "[nix].editor.colorDecorators" = true;
 
         # Lua-specific settings for stylua formatter
@@ -113,10 +110,9 @@
         "[lua].editor.formatOnSave" = true;
         "[lua].editor.formatOnPaste" = false;
         "[lua].editor.formatOnType" = false;
+
         # Configure Lua Language Server formatting
         "Lua.format.enable" = true;
-        # Use stylua configuration via .stylua.toml (stylua is installed and will be used)
-        # The Lua Language Server will respect .stylua.toml if stylua is in PATH
         "Lua.format.defaultConfig" = {
           indent_style = "Tab";
           indent_size = "2";
@@ -130,7 +126,13 @@
 
   # Cursor can keep a stale `~/.cursor/extensions/extensions.json` and ignore newly linked
   # extensions. Remove it on activation so Cursor regenerates it from the on-disk extensions.
+  # Only delete if Cursor is not running to avoid breaking extensions in a running instance.
   home.activation.cursorRescanExtensions = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    rm -f "$HOME/.cursor/extensions/extensions.json"
+    # Check if Cursor is running - if so, skip deletion to avoid breaking extensions
+    if ! pgrep -f "cursor|code-cursor" > /dev/null 2>&1; then
+      rm -f "$HOME/.cursor/extensions/extensions.json"
+    else
+      echo "Cursor is running - skipping extensions.json deletion. Restart Cursor to rescan extensions."
+    fi
   '';
 }

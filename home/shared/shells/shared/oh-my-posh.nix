@@ -3,13 +3,10 @@
   pkgs,
   ...
 }: let
-  # Import theme colors
   themeColors = import ../../assets/theme/theme.nix;
   sharedConfig = import ./config.nix;
   sharedPaths = import ./paths.nix;
 
-  # Generate Oh My Posh JSON theme from Nix colors
-  # Note: We need to manually fix ANSI escape sequences as builtins.toJSON doesn't handle \u001b correctly
   poshThemeJsonRaw = builtins.toJSON {
     "$schema" = sharedConfig.ohMyPoshConfig.schemaUrl;
     blocks = [
@@ -125,6 +122,46 @@
             template = " \ue7a8 ";
             type = "rust";
           }
+          {
+            background = themeColors.ansi-green;
+            foreground = themeColors.bg-primary;
+            options = {
+              fetch_version = false;
+            };
+            style = "plain";
+            template = " \ue718 ";
+            type = "node";
+          }
+          {
+            background = themeColors.ansi-bright-blue;
+            foreground = themeColors.bg-primary;
+            options = {
+              fetch_version = false;
+            };
+            style = "plain";
+            template = " \ue628 ";
+            type = "typescript";
+          }
+          {
+            background = themeColors.accent-blue;
+            foreground = themeColors.bg-primary;
+            options = {
+              fetch_version = false;
+            };
+            style = "plain";
+            template = " \uf6a6 ";
+            type = "yarn";
+          }
+          {
+            background = themeColors.ansi-yellow;
+            foreground = themeColors.bg-primary;
+            options = {
+              fetch_version = false;
+            };
+            style = "plain";
+            template = " \ueb5c ";
+            type = "bun";
+          }
         ];
         type = "prompt";
       }
@@ -150,7 +187,6 @@
         segments = [
           {
             style = "plain";
-            # Shell-specific colors using RGB ANSI codes
             # Nushell: #6ba18a (ansi-green), Fish: #6b98bb (accent-blue), Bash: #eeac36 (ansi-yellow)
             template = "{{ if eq .Shell \"nushell\" }}\u001b[38;2;107;161;138m:)\u001b[0m{{ else if eq .Shell \"fish\" }}\u001b[38;2;107;152;187m~>\u001b[0m{{ else if eq .Shell \"bash\" }}\u001b[38;2;238;172;54m$\u001b[0m{{ else if eq .Shell \"zsh\" }}\u001b[38;2;107;152;187m%\u001b[0m{{ else if eq .Shell \"pwsh\" }}\u001b[38;2;107;152;187m\u276f\u001b[0m{{ else }}{{ .Name }}{{ end }} ";
             type = "shell";
@@ -172,7 +208,6 @@
     ]
     poshThemeJsonRaw;
 in {
-  # Generate and install custom Birds of Paradise Oh My Posh theme (shared across all shells)
   home.file."${sharedConfig.ohMyPoshConfig.configDir}/${sharedConfig.ohMyPoshConfig.themeName}" = {
     text = poshThemeJson;
   };
