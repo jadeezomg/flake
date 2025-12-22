@@ -17,8 +17,8 @@
       # Window configuration
       initial_window_width = 130;
       initial_window_height = 40;
-      window_padding_width = 0;
-      window_margin_width = 0;
+      window_padding_width = 10;
+      window_margin_width = 10;
 
       # Scrollback
       scrollback_lines = 10000;

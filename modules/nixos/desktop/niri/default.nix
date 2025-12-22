@@ -6,8 +6,6 @@
   # Enable Niri Wayland compositor
   programs.niri = {
     enable = true;
-    # Enable Xwayland for X11 application compatibility
-    xwayland = true;
   };
 
   # Create wayland session files for GDM to detect Niri
