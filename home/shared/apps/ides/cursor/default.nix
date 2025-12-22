@@ -45,7 +45,58 @@
         "editor.formatOnSaveMode" = "file";
         "editor.cursorStyle" = "block";
         "editor.fontFamily" = "'IosevkaTerm Nerd Font', 'Iosevka Nerd Font', monospace";
+        "editor.fontSize" = 13;
+        "editor.accessibilitySupport" = "off";
         "telemetry.telemetryLevel" = "off";
+        "window.commandCenter" = true;
+
+        # Git settings
+        "git.confirmSync" = false;
+        "git.autofetch" = true;
+        "git.enableSmartCommit" = true;
+
+        # Explorer settings
+        "explorer.confirmDelete" = false;
+        "explorer.confirmDragAndDrop" = false;
+
+        # GitHub Pull Requests settings
+        "githubPullRequests.pullBranch" = "never";
+        "githubPullRequests.createOnPublishBranch" = "never";
+
+        # Ruby settings
+        "ruby.lint" = {
+          "rubocop" = {
+            "useBundler" = true;
+          };
+        };
+        "rubyLsp.addonSettings" = {};
+        "rubyLsp.formatter" = "rubocop_internal";
+
+        # TypeScript settings
+        "typescript.format.enable" = false;
+
+        # Ruff settings
+        "ruff.configurationPreference" = "filesystemFirst";
+        "ruff.format.backend" = "uv";
+
+        # CursorPyright settings
+        "cursorpyright.disableLanguageServices" = true;
+
+        # JSON-specific settings
+        "[json]" = {
+          "editor.defaultFormatter" = "esbenp.prettier-vscode";
+          "editor.formatOnSave" = true;
+          "editor.tabSize" = 2;
+          "editor.insertSpaces" = true;
+        };
+
+        # JSONC-specific settings
+        "[jsonc]" = {
+          "editor.defaultFormatter" = "esbenp.prettier-vscode";
+          "editor.formatOnSave" = true;
+          "editor.tabSize" = 2;
+          "editor.insertSpaces" = true;
+        };
 
         # Nix-specific settings for Alejandra formatter
         "[nix].editor.defaultFormatter" = "kamadorueda.alejandra";
