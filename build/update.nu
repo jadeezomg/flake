@@ -4,16 +4,21 @@
 
 use common.nu *
 
-def main [input?: string] {
+def main [input?: string, --pear] {
   print-header "UPDATE"
   let flake_path = (get-flake-path)
 
   if ($input | is-empty) {
     notify "Flake Update" "Updating all flake inputs..." "pending"
-    nix flake update --flake $flake_path
+    nh os switch --update --dry
     notify "Flake Update" "Flake inputs updated. See terminal for details." "success"
+  } else {
+    notify "Flake Update" $"Updating input: ($input)..." "pending"
+    nh os switch --update-input $input --dry
+    notify "Flake Update" $"Updated input: ($input)" "success"
+  }
 
-    # Update custom packages
+  if $pear {
     notify "Package Update" "Updating Pear Desktop to latest version..." "pending"
     try {
       run-external "./packages/pear-desktop/update.sh"
@@ -21,11 +26,8 @@ def main [input?: string] {
     } catch { |err|
       notify "Package Update" $"Failed to update Pear Desktop: ($err.msg)" "error"
     }
-  } else {
-    notify "Flake Update" $"Updating input: ($input)..." "pending"
-    nix flake update --update-input $input --flake $flake_path
-    notify "Flake Update" $"Updated input: ($input)" "success"
   }
+
   print-header "END"
 }
 
