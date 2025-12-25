@@ -5,17 +5,42 @@
 use common.nu *
 
 def list-generations [] {
-  print-header "NIXOS GENERATIONS"
+  let is_darwin = (is-darwin)
+  let header = (if $is_darwin { "DARWIN GENERATIONS" } else { "NIXOS GENERATIONS" })
+  print-header $header
   
-  let generations = nh os info
-  
-  print $generations
+  if $is_darwin {
+    # Darwin doesn't have nh darwin info, use darwin-rebuild instead
+    print-info "Darwin generation listing not yet supported via nh. Use 'darwin-rebuild --list-generations' directly."
+    print ""
+    let generations = (^darwin-rebuild --list-generations | complete)
+    if $generations.exit_code == 0 {
+      print $generations.stdout
+    } else {
+      print-error "Failed to list generations"
+    }
+  } else {
+    let generations = nh os info
+    print $generations
+  }
 }
 
 def switch-generation [num: int] {
+  let is_darwin = (is-darwin)
   notify "Flake Generation" $"Switching to generation ($num)..." "pending"
-  nh os rollback --to $num
-  notify "Flake Generation" "Generation switch complete" "success"
+  
+  if $is_darwin {
+    # Darwin doesn't have nh darwin rollback, use darwin-rebuild instead
+    let result = (^darwin-rebuild switch --rollback-to $num | complete)
+    if $result.exit_code == 0 {
+      notify "Flake Generation" "Generation switch complete" "success"
+    } else {
+      notify "Flake Generation" $"Failed to switch generation: ($result.stderr)" "error"
+    }
+  } else {
+    nh os rollback --to $num
+    notify "Flake Generation" "Generation switch complete" "success"
+  }
 }
 
 def delete-generation [num: int] {

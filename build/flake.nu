@@ -69,8 +69,7 @@ def build-forwarded-flags [
 def normalize-subcommands [subcommands: list, script_name: string] {
   let scripts_needing_strip = ["build.nu" "gc.nu" "generation.nu"]
 
-  # Special handling for switch.nu, fmt.nu, backups.nu, and gc-darwin.nu: "normal" means no arguments
-  if $script_name in ["switch.nu", "fmt.nu", "backups.nu", "gc-darwin.nu"] {
+  if $script_name in ["switch.nu", "fmt.nu", "backups.nu"] {
     let filtered = ($subcommands | where { |sub| $sub != "normal" })
     if ($scripts_needing_strip | any { |s| $s == $script_name }) {
       $filtered | each { |sub|
@@ -409,22 +408,6 @@ def main [
       ]
     }
 
-    {
-      key: "gc-darwin"
-      script: "gc-darwin.nu"
-      usage: "gc-darwin [--dry] [delete_older_than]"
-      desc: "Run garbage collection on Darwin (macOS) systems"
-      examples: [
-        "flake gc-darwin"
-        "flake gc-darwin --dry"
-        "flake gc-darwin 7d"
-        "flake gc-darwin --dry 7d"
-      ]
-      subcommands: [
-        { key: "normal", desc: "Run garbage collection with default settings (30d)", args: "" }
-        { key: "--dry", desc: "Preview what would be deleted", args: "" }
-      ]
-    }
 
     {
       key: "info"

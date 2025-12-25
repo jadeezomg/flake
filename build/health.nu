@@ -29,7 +29,6 @@ def check-flake-status [flake_path: string] {
 def check-disk-usage [] {
   print-pending "Disk Usage"
   
-  # Check root partition usage (fast)
   let df_output = (^df -h / | lines | skip 1)
   let root_info = (if ($df_output | is-not-empty) {
     let df_line = ($df_output | get 0)
@@ -48,10 +47,8 @@ def check-disk-usage [] {
     null
   })
   
-  # Nix store size (can be slow)
   let nix_store_raw = (run-external-with-status "Calculating Nix store size" "du -sh /nix/store")
   
-  # Show result
   let nix_info = (if ($nix_store_raw | str trim | str length) > 0 {
     let size = ($nix_store_raw | str trim | split row " " | get 0)
     {
@@ -77,6 +74,12 @@ def check-disk-usage [] {
 
 def check-generations [] {
   print-pending "Generations"
+  
+  let is_darwin = (is-darwin)
+  if $is_darwin {
+    print-info "  Generation listing not available via nh on Darwin. Use 'darwin-rebuild --list-generations' directly."
+    return
+  }
   
   let info_output = (nh os info | lines)
   
@@ -146,7 +149,6 @@ def check-generations [] {
 def check-services [] {
   print-pending "User Services"
   
-  # Check common user services
   let services = ["dunst" "swaybg" "waybar"]
   let service_status = ($services | each { |service|
     let status = (^systemctl --user is-active $"($service).service" | complete)

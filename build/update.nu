@@ -7,14 +7,16 @@ use common.nu *
 def main [input?: string, --pear] {
   print-header "UPDATE"
   let flake_path = (get-flake-path)
+  let is_darwin = (is-darwin)
+  let cmd_prefix = (if $is_darwin { "nh darwin" } else { "nh os" })
 
   if ($input | is-empty) {
     notify "Flake Update" "Updating all flake inputs..." "pending"
-    nh os switch --update --dry
+    ^bash -c $"($cmd_prefix) switch --update --dry"
     notify "Flake Update" "Flake inputs updated. See terminal for details." "success"
   } else {
     notify "Flake Update" $"Updating input: ($input)..." "pending"
-    nh os switch --update-input $input --dry
+    ^bash -c $"($cmd_prefix) switch --update-input $input --dry"
     notify "Flake Update" $"Updated input: ($input)" "success"
   }
 

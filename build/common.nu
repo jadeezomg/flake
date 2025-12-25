@@ -268,17 +268,39 @@ export def confirm [message: string] {
   ($response == "y" or $response == "yes")
 }
 
-# Prompt user for a number with optional abort (returns int or null if aborted)
 export def prompt-number [message: string] {
-  let prompt_text = $message + " (or 'abort' to cancel): "
+  let default_match = ($message | parse -r 'default:\s*(\d+)' | get 0? | get capture0? | default "")
+  let default_value = (if ($default_match | is-not-empty) {
+    ($default_match | into int)
+  } else {
+    null
+  })
+  
+  let default_text = (if ($default_value != null) {
+    " (default: " + ($default_value | into string) + ", 'abort' to cancel)"
+  } else {
+    " ('abort' to cancel)"
+  })
+  let prompt_text = $message + $default_text + ": "
+  
   let user_input = (input $prompt_text)
-  if ($user_input | str trim | is-empty) or (($user_input | str trim | str downcase) == "abort") {
+  let trimmed = ($user_input | str trim)
+  
+  if ($trimmed | is-empty) {
+    if ($default_value != null) {
+      $default_value
+    } else {
+      print-info "No default value available. Aborted."
+      null
+    }
+  } else if (($trimmed | str downcase) == "abort") {
     print-info "Aborted."
     null
   } else {
     try {
-      ($user_input | str trim | into int)
+      ($trimmed | into int)
     } catch {
+      print-error $"Invalid number: ($trimmed)"
       print-info "Aborted."
       null
     }
@@ -366,13 +388,32 @@ export def parse-generation-number [line: string] {
   }
 }
 
+# Detect if we're on Darwin system
+export def is-darwin [] {
+  let current_system = (get-current-host)
+  ($current_system | str contains "darwin") or ($current_system | str contains "caya")
+}
+
 export def build-nh-os-cmd [action: string = "switch"] {
+  let is_darwin = (is-darwin)
+  let cmd_prefix = (if $is_darwin { "nh darwin" } else { "nh os" })
+  
   match $action {
-    "switch" => $"nh os switch"
-    "build" => $"nh os build"
-    "boot" => $"nh os boot"
-    "dry" => $"nh os test"
-    "dev" => $"nh os switch --show-trace"
-    _ => $"nh os ($action)"
+    "switch" => $"($cmd_prefix) switch"
+    "build" => $"($cmd_prefix) build"
+    "boot" => (if $is_darwin {
+      # Darwin doesn't have boot, use build instead
+      $"($cmd_prefix) build"
+    } else {
+      $"($cmd_prefix) boot"
+    })
+    "dry" => (if $is_darwin {
+      # Darwin doesn't have test, use build --dry-run instead
+      $"($cmd_prefix) build --dry-run"
+    } else {
+      $"($cmd_prefix) test"
+    })
+    "dev" => $"($cmd_prefix) switch --show-trace"
+    _ => $"($cmd_prefix) ($action)"
   }
 }

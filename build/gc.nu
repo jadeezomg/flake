@@ -1,33 +1,49 @@
 #!/usr/bin/env nu
-# Garbage collection for NixOS
-# Usage: gc.nu <mode> [value]
+# Garbage collection for NixOS and Darwin
+# Usage: gc.nu <mode>
 # Modes:
-#   keep [N]   – keep last N generations + current (default N=5)
-#     e.g. flake gc keep 5
-#   days [N]   – delete generations older than N days (default N=7)
-#     e.g. flake gc days 14
-#   all        – full GC (system profiles, nix store GC, plus trash cleanup)
+#   keep   – keep last N generations (will prompt for N)
+#     e.g. flake gc keep
+#   days   – delete generations older than N days (will prompt for N)
+#     e.g. flake gc days
+#   all    – full GC (system profiles, nix store GC, plus trash cleanup)
 #     e.g. flake gc all
 
 use common.nu *
 
-def gc-keep [keep_count: int = 5] {
-  notify "Flake GC" $"Collecting garbage, keeping last ($keep_count) generations..." "pending"
+def gc-keep [] {
+  let keep_count_result = (prompt-number "How many generations to keep? (default: 5)")
+  if ($keep_count_result == null) {
+    print-info "Aborted."
+    return
+  }
+  let keep_count = $keep_count_result
   
+  notify "Flake GC" $"Collecting garbage, keeping last ($keep_count) generations..." "pending"
   show-progress "Running garbage collection"
   nh clean all --keep $keep_count
-  nh clean user --keep $keep_count
   clear-progress
   
-  let new_total = (nh os info | lines | length)
-  notify "Flake GC" $"Garbage collection complete\nRemaining generations: ($new_total)" "success"
+  let current_system = get-current-host
+  if ($current_system | str contains "nixos") {
+    let new_total = (nh os info | lines | length)
+    notify "Flake GC" $"Garbage collection complete\nRemaining generations: ($new_total)" "success"
+  } else {
+    notify "Flake GC" "Garbage collection complete" "success"
+  }
 }
 
-def gc-days [days: int = 7] {
+def gc-days [] {
+  let days_result = (prompt-number "Delete generations older than how many days? (default: 7)")
+  if ($days_result == null) {
+    print-info "Aborted."
+    return
+  }
+  let days = $days_result
+  
   notify "Flake GC" $"Collecting generations older than ($days) days..." "pending"
   show-progress $"Collecting garbage older than ($days) days"
   nh clean all --keep-since $"($days)d"
-  nh clean user --keep-since $"($days)d"
   clear-progress
   notify "Flake GC" "Garbage collection complete" "success"
 }
@@ -36,7 +52,6 @@ def gc-all [] {
   notify "Flake GC" "Cleaning Nix garbage..." "pending"
   show-progress "Running deep garbage collection"
   nh clean all
-  nh clean user
   clear-progress
   
   notify "Flake GC" "Cleaning Trash..." "pending"
@@ -57,21 +72,15 @@ def gc-all [] {
   notify "Flake GC" "Garbage collection complete" "success"
 }
 
-def main [mode: string, value?: string] {
+def main [mode: string] {
   print-header "GC"
   match $mode {
-    "keep" => {
-      let count = ($value | default "5" | into int)
-      gc-keep $count
-    }
-    "days" => {
-      let days = ($value | default "7" | into int)
-      gc-days $days
-    }
+    "keep" => gc-keep
+    "days" => gc-days
     "all" => gc-all
     _ => {
       print-error $"Unknown mode: ($mode)"
-      print "Modes: keep [N], days [N], all"
+      print "Modes: keep, days, all"
       exit 1
     }
   }

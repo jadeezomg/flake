@@ -66,11 +66,13 @@ def main [host?: string, --fast, --check, --skip-git, --override-input: string] 
   }
   
   notify "Flake Switch" $"Building and switching configuration for ($target_host)..." "pending"
+  let is_darwin = (is-darwin)
+  let cmd_prefix = (if $is_darwin { "nh darwin" } else { "nh os" })
   let switch_cmd = if ($override_input | is-not-empty) {
     let override_parts = ($override_input | split row "=")
     let input_name = ($override_parts | get 0)
     let input_value = ($override_parts | get 1)
-    $"nh os switch --flake '($flake_path)#($target_host)' --override-input ($input_name) ($input_value)"
+    $"($cmd_prefix) switch --flake '($flake_path)#($target_host)' --override-input ($input_name) ($input_value)"
   } else {
     (build-nh-os-cmd "switch")
   }
