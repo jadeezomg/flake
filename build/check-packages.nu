@@ -38,10 +38,8 @@ def extract_packages_from_nix_files [] {
     print "Scanning Nix files for packages..."
 
 
-    # Get the flake root directory (parent of build directory)
     let flake_root = ($env.FILE_PWD? | default (pwd)) | path dirname
 
-    # Define directories to search (relative to flake root)
     let home_dirs = [
         ($flake_root | path join "home/shared")
         ($flake_root | path join "home/nixos")
@@ -54,7 +52,6 @@ def extract_packages_from_nix_files [] {
         ($flake_root | path join "modules/darwin")
     ]
 
-    # Extract packages from home configurations
     mut home_packages = []
     for dir in $home_dirs {
         let packages = (extract_packages_from_directory $dir "home")
@@ -62,7 +59,6 @@ def extract_packages_from_nix_files [] {
     }
     let home_packages = ($home_packages | flatten)
 
-    # Extract packages from system modules
     mut system_packages = []
     for dir in $module_dirs {
         let packages = (extract_packages_from_directory $dir "system")
@@ -70,7 +66,6 @@ def extract_packages_from_nix_files [] {
     }
     let system_packages = ($system_packages | flatten)
 
-    # Combine and categorize
     let all_categories = [
         {
             name: "Home Packages (Shared)"
@@ -120,7 +115,6 @@ def check_package_availability [package_categories] {
             let check_cmd_pretty = $"(ansi ($theme_colors.info_bold))nix eval --system ($platform)(ansi reset) (ansi white)--json github:NixOS/nixpkgs#legacyPackages.($platform).hello(ansi reset)"
             print-info $"(ansi ($theme_colors.info_bold))→(ansi reset) Checking ($category.packages | length) packages on ($platform)"
 
-            # Check if nixpkgs is available for this platform
             let nixpkgs_available = try {
                 run-external "nix" "flake" "metadata" $"github:NixOS/nixpkgs" $"--system" $platform
                     | complete
@@ -134,26 +128,28 @@ def check_package_availability [package_categories] {
                 notify "Package Check" $"Error: nixpkgs not available for ($platform)" "error"
                 {platform: $platform, available: [], unavailable: $category.packages}
             } else {
-                # For each package, try to evaluate it
                 let results = $category.packages | par-each { |pkg|
-                    let eval_result = try {
-                        run-external "nix" "eval" $"--system" $platform "--json" $"github:NixOS/nixpkgs#($pkg)"
-                            | complete
-                    } catch { |err|
-                        {package: $pkg, available: false, error: $err.msg}
-                    }
-
-                    if $eval_result.exit_code == 0 {
-                        {package: $pkg, available: true}
+                    if ($pkg | str contains ".withPackages") or ($pkg == "ps") {
+                        {package: $pkg, available: true, skipped: true}
                     } else {
-                        {package: $pkg, available: false, error: $eval_result.stderr}
+                        let eval_result = try {
+                            run-external "nix" "eval" $"--system" $platform "--json" $"github:NixOS/nixpkgs#($pkg)"
+                                | complete
+                        } catch { |err|
+                            {package: $pkg, available: false, error: $err.msg}
+                        }
+
+                        if $eval_result.exit_code == 0 {
+                            {package: $pkg, available: true}
+                        } else {
+                            {package: $pkg, available: false, error: $eval_result.stderr}
+                        }
                     }
                 }
 
                 let available = $results | where {|r| $r.available} | get package
                 let all_unavailable = $results | where {|r| not $r.available}
 
-                # Separate unfree packages (available with config) from truly unavailable
                 let unfree_packages = $all_unavailable | where {|r| $r.error | str contains "unfree license"}
                 let truly_unavailable = $all_unavailable | where {|r| not ($r.error | str contains "unfree license")}
 
@@ -165,7 +161,6 @@ def check_package_availability [package_categories] {
                 if $unavail_count == 0 and $unfree_count == 0 {
                     print-success $"  (ansi $theme_colors.success)Available: ($avail_count), Unavailable: ($unavail_count)(ansi reset)"
                 } else {
-                    # Show counts with different colors for different types
                     let status_parts = (
                         if $unfree_count > 0 and $unavail_count > 0 {
                             [ $"Available: ($avail_count)", $"Unfree: ($unfree_count)", $"Unavailable: ($unavail_count)" ]
@@ -185,7 +180,6 @@ def check_package_availability [package_categories] {
                         print-pending $"  (ansi $theme_colors.pending)($status_msg)(ansi reset)"
                     }
 
-                    # Show details for unfree packages
                     if $unfree_count > 0 {
                         print-info $"    (ansi $theme_colors.info_bold)Unfree packages - set allowUnfree=true:(ansi reset)"
                         $unfree_packages | each { |pkg_result|
@@ -194,7 +188,6 @@ def check_package_availability [package_categories] {
                         }
                     }
 
-                    # Show details for truly unavailable packages
                     if $unavail_count > 0 {
                         print-info $"    (ansi $theme_colors.error_bold)Truly unavailable packages:(ansi reset)"
                         if $unavail_count <= 5 {
@@ -202,7 +195,6 @@ def check_package_availability [package_categories] {
                                 let package_name = $pkg_result.package
                                 let error_msg = ($pkg_result.error? | default "Package not available")
 
-                                # Extract meaningful error information
                                 let error_reason = if ($error_msg | str contains "does not provide attribute") {
                                     "Package not found in nixpkgs"
                                 } else if ($error_msg | str contains "is not supported on") {
@@ -244,11 +236,9 @@ def check_package_availability [package_categories] {
 def compile_results [results: list, package_categories] {
     print-header "PACKAGE COMPATIBILITY RESULTS"
 
-    # Create comprehensive table data combining all categories
     let comprehensive_data = ($results | each { |category_result|
         let category_name = $category_result.category
 
-        # Create entries for each platform in this category
         $category_result.platforms | each { |platform_result|
             let platform = $platform_result.platform
             let available_count = ($platform_result.available | length)
@@ -275,12 +265,10 @@ def compile_results [results: list, package_categories] {
         }
     } | flatten)
 
-    # Print the comprehensive table
     if ($comprehensive_data | length) > 0 {
         print-table $comprehensive_data --no-index
     }
 
-    # Show detailed package issues for categories with unfree or unavailable packages
     let categories_with_issues = ($results | where {|cat|
         ($cat.platforms | any {|p| ($p.unavailable | length) > 0 or ($p.unfree | length) > 0})
     })
@@ -295,17 +283,14 @@ def compile_results [results: list, package_categories] {
                 $issues_by_platform | each { |platform_result|
                     let platform = $platform_result.platform
 
-                    # Show unfree packages
                     if ($platform_result.unfree | length) > 0 {
                         let unfree_list = ($platform_result.unfree | str join ', ')
                         print $"    ($theme_icons.pending) ($platform) unfree: (ansi $theme_colors.pending_bold)($unfree_list)(ansi reset) - set allowUnfree=true"
                     }
 
-                    # Show truly unavailable packages
                     if ($platform_result.unavailable | length) > 0 {
                         let missing_list = ($platform_result.unavailable | str join ', ')
 
-                        # Add platform-specific suggestions
                         let has_chrome = ($platform_result.unavailable | any {|pkg| ($pkg | str contains "chrome") or ($pkg | str contains "chromium")})
                         let suggestion = if ($platform | str contains "darwin") and $has_chrome {
                             " (consider using a different browser like 'firefox' or 'vivaldi')"
@@ -324,7 +309,6 @@ def compile_results [results: list, package_categories] {
 }
 
 def extract_packages_from_directory [dir: string, context: string] {
-    # Use find command to locate .nix files recursively
     let find_output = try {
         (^find $dir -name "*.nix" -type f | lines)
     } catch { |err|
@@ -340,10 +324,8 @@ def extract_packages_from_directory [dir: string, context: string] {
             ""
         }
 
-        # Extract package names from the file content
         let packages = extract_packages_from_content $content
 
-        # Determine category based on file path
         let category = if ($file | str contains "shared") {
             "shared"
         } else if ($file | str contains "nixos") {
@@ -351,7 +333,7 @@ def extract_packages_from_directory [dir: string, context: string] {
         } else if ($file | str contains "darwin") {
             "darwin"
         } else {
-            "shared"  # default
+            "shared"
         }
 
         {
@@ -366,12 +348,10 @@ def extract_packages_from_directory [dir: string, context: string] {
 def extract_packages_from_content [content: string] {
     mut all_packages = []
 
-    # Look for package list patterns by finding the start markers
     let home_pkg_start = ($content | str index-of "home.packages = with pkgs; [")
     let env_pkg_start = ($content | str index-of "environment.systemPackages = with pkgs; [")
     let fonts_pkg_start = ($content | str index-of "fonts.packages = with pkgs; [")
 
-    # Process home.packages
     if $home_pkg_start != -1 {
         let start_pos = $home_pkg_start + ("home.packages = with pkgs; [" | str length)
         let remaining = ($content | str substring $start_pos..)
@@ -383,7 +363,6 @@ def extract_packages_from_content [content: string] {
         }
     }
 
-    # Process environment.systemPackages
     if $env_pkg_start != -1 {
         let start_pos = $env_pkg_start + ("environment.systemPackages = with pkgs; [" | str length)
         let remaining = ($content | str substring $start_pos..)
@@ -395,7 +374,6 @@ def extract_packages_from_content [content: string] {
         }
     }
 
-    # Process fonts.packages
     if $fonts_pkg_start != -1 {
         let start_pos = $fonts_pkg_start + ("fonts.packages = with pkgs; [" | str length)
         let remaining = ($content | str substring $start_pos..)
@@ -411,8 +389,6 @@ def extract_packages_from_content [content: string] {
 }
 
 def extract_package_names_from_list [text: string] {
-    # Extract just the content between [ and ] for package lists
-    # This handles cases like: home.packages = with pkgs; [ pkg1 pkg2 pkg3 ]
     let list_content = if ($text | str contains "[") and ($text | str contains "]") {
         let start = ($text | str index-of "[")
         let end = ($text | str index-of "]")
@@ -429,27 +405,23 @@ def extract_package_names_from_list [text: string] {
         return []
     }
 
-    # Split by newlines first to handle multi-line lists
     let lines = ($list_content | split row "\n")
 
     let nix_keywords = [
         "with" "pkgs" "lib" "config" "true" "false" "null" "let" "in" "rec"
         "inherit" "import" "if" "then" "else" "assert" "or" "and" "not"
         "home" "environment" "systemPackages" "packages" "fonts"
-        "enable" "settings" "programs" "services"
+        "enable" "settings" "programs" "services" "ps"
     ]
 
     mut valid_packages = []
     for line in $lines {
-        # Remove comments (everything after #)
         let clean_line = ($line | str trim | split row "#" | get 0 | str trim)
 
-        # Skip empty lines
         if ($clean_line | str length) == 0 {
             continue
         }
 
-        # Split by whitespace to get individual packages
         let potential_packages = ($clean_line | split row " " | where { |s| ($s | str length) > 0 })
 
         for pkg in $potential_packages {
@@ -469,11 +441,8 @@ def extract_package_names_from_list [text: string] {
 }
 
 def extract_package_names [text: string] {
-    # Extract package names from Nix syntax
-    # Look for word characters, dots, and hyphens that look like package names
     let pkg_matches = ($text | find -r '[\w\.-]+')
 
-    # Filter out Nix keywords and common non-package words
     let nix_keywords = [
         "with" "pkgs" "lib" "config" "true" "false" "null" "let" "in" "rec"
         "inherit" "import" "if" "then" "else" "assert" "or" "and" "not"

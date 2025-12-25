@@ -1,6 +1,6 @@
 {pkgs, ...}: {
   home.packages = with pkgs; [
-    # --- Just ---
+    # --- Julia ---
     julia
   ];
 }

@@ -9,15 +9,10 @@ in {
   programs.fish = {
     # Environment variables - set via interactiveShellInit for Fish
     interactiveShellInit = ''
-      # Disable Fish greeting
       set -U fish_greeting ""
 
-      # Flake configuration path
       set -gx FLAKE ${sharedPaths.commonPaths.flake}
-      # nh 4.2.0+ uses NH_FLAKE instead of FLAKE
       set -gx NH_FLAKE ${sharedPaths.commonPaths.flake}
-
-      # Common environment variables
       set -gx EDITOR ${sharedEnv.commonEnv.EDITOR}
       set -gx VISUAL ${sharedEnv.commonEnv.VISUAL}
       set -gx BROWSER ${sharedEnv.commonEnv.BROWSER}

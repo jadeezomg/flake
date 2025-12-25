@@ -8,35 +8,21 @@ use theme.nu *
 def check-flake-status [flake_path: string] {
   print-pending "Flake Status"
   
-  let git_status = (git -C $flake_path status --porcelain | lines)
-  let uncommitted = ($git_status | where { |line|
-    let starts_m = ($line | str starts-with " M")
-    let starts_mm = ($line | str starts-with "MM")
-    let starts_a = ($line | str starts-with "A ")
-    let starts_d = ($line | str starts-with "D ")
-    $starts_m or $starts_mm or $starts_a or $starts_d
-  })
-  let untracked = ($git_status | where { |line| $line | str starts-with "??" })
+  let status_raw = (git -C $flake_path status --short | lines | where ($it | str trim | is-not-empty))
+  let untracked = (git -C $flake_path ls-files --others --exclude-standard | lines | where ($it | is-not-empty))
   
-  let uncommitted_count = ($uncommitted | length)
+  let tracked_count = ($status_raw | length)
   let untracked_count = ($untracked | length)
   
-  let status = [
-    {
-      item: "Uncommitted changes",
-      value: (if $uncommitted_count == 0 { $"(ansi ($theme_colors.success))None(ansi reset)" } else { $"(ansi ($theme_colors.pending))($uncommitted_count) files(ansi reset)" }),
-      status: (if $uncommitted_count == 0 { "success" } else { "pending" })
-    },
-    {
-      item: "Untracked files",
-      value: (if $untracked_count == 0 { $"(ansi ($theme_colors.success))None(ansi reset)" } else { $"(ansi ($theme_colors.pending))($untracked_count) files(ansi reset)" }),
-      status: (if $untracked_count == 0 { "success" } else { "pending" })
+  if ($tracked_count == 0) and ($untracked_count == 0) {
+    print $"  ($theme_icons.success) (ansi ($theme_colors.success))Working tree clean(ansi reset)"
+  } else {
+    if $tracked_count > 0 {
+      print $"  ($theme_icons.pending) (ansi ($theme_colors.pending))($tracked_count) tracked changes(ansi reset)"
     }
-  ]
-  
-  $status | each { |row|
-    let icon = (if $row.status == "success" { $theme_icons.success } else { $theme_icons.pending })
-    print $"  ($icon) (ansi ($theme_colors.success_bold))($row.item):(ansi reset) ($row.value)"
+    if $untracked_count > 0 {
+      print $"  ($theme_icons.pending) (ansi ($theme_colors.pending))($untracked_count) untracked files(ansi reset)"
+    }
   }
 }
 
@@ -92,37 +78,68 @@ def check-disk-usage [] {
 def check-generations [] {
   print-pending "Generations"
   
-  let generations_output = (sudo nix-env --list-generations -p /nix/var/nix/profiles/system | lines)
-  let total = ($generations_output | length)
+  let info_output = (nh os info | lines)
   
-  # Parse current generation from the last line
-  let current_line = ($generations_output | last)
-  let current = (if ($current_line | str length) > 0 {
-    let parts = ($current_line | split row " " | where ($it | str length) > 0)
-    if ($parts | length) > 0 {
-      $parts | get 0
+  let table_start = ($info_output | enumerate | where { |row| 
+    ($row.item | str contains "Generation No") or ($row.item | str contains "Generation")
+  } | get 0? | get index? | default 0)
+  
+  let data_rows = ($info_output | skip ($table_start + 1) | where ($it | str trim | is-not-empty))
+  
+  let generations = ($data_rows | each { |line|
+    let trimmed = ($line | str trim)
+    let is_current = ($trimmed | str contains "(current)")
+    let gen_match = ($trimmed | parse -r '(?P<gen>\d+)' | get 0? | get gen? | default "")
+    let gen_num = (if ($gen_match | is-not-empty) { 
+      try {
+        ($gen_match | into int)
+      } catch {
+        null
+      }
+    } else { 
+      null 
+    })
+    
+    let date_match = ($trimmed | parse -r '(?P<date>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})' | get 0? | get date? | default "")
+    let version_match = ($trimmed | parse -r '(?P<version>\d+\.\d+[^\s]*)' | get 0? | get version? | default "")
+    
+    if ($gen_num != null) {
+      {
+        gen: $gen_num
+        current: $is_current
+        date: $date_match
+        version: $version_match
+        raw: $trimmed
+      }
     } else {
-      "unknown"
+      null
     }
+  } | where ($it != null))
+  
+  if ($generations | is-not-empty) {
+    $generations | each { |gen|
+      if $gen.current {
+        let date_display = (if ($gen.date | is-not-empty) {
+          ($gen.date | split row " " | get 0)
+        } else {
+          "unknown"
+        })
+        print $"  ($theme_icons.success) (ansi ($theme_colors.success_bold))Generation ($gen.gen)(ansi reset) (ansi ($theme_colors.success))\(current\)(ansi reset) - ($date_display)"
+      } else {
+        let date_display = (if ($gen.date | is-not-empty) {
+          ($gen.date | split row " " | get 0)
+        } else {
+          "unknown"
+        })
+        print $"  ($theme_icons.info) (ansi ($theme_colors.info))Generation ($gen.gen)(ansi reset) - ($date_display)"
+      }
+    }
+    
+    let total = ($generations | length)
+    let current_gen = ($generations | where { |g| $g.current } | get 0? | get gen? | default "?")
+    print $"  ($theme_icons.info) (ansi ($theme_colors.info_bold))Total: ($total) generations(ansi reset) (ansi ($theme_colors.info))\(current: ($current_gen)\)(ansi reset)"
   } else {
-    "unknown"
-  })
-  
-  let gen_info = [
-    {
-      item: "Current generation",
-      value: $"(ansi ($theme_colors.info_bold))($current)(ansi reset)",
-      status: "info"
-    },
-    {
-      item: "Total generations",
-      value: $"(ansi ($theme_colors.info_bold))($total)(ansi reset)",
-      status: "info"
-    }
-  ]
-  
-  $gen_info | each { |row|
-    print $"  ($theme_icons.info) (ansi ($theme_colors.info_bold))($row.item):(ansi reset) ($row.value)"
+    print $"  ($theme_icons.info) (ansi ($theme_colors.info))Unable to parse generations(ansi reset)"
   }
 }
 

@@ -7,15 +7,14 @@ use common.nu *
 def list-generations [] {
   print-header "NIXOS GENERATIONS"
   
-  # Parse generations into structured data for better formatting
-  let generations = sudo nix-env --profile /nix/var/nix/profiles/system --list-generations
+  let generations = nh os info
   
   print $generations
 }
 
 def switch-generation [num: int] {
   notify "Flake Generation" $"Switching to generation ($num)..." "pending"
-  sudo nix-env --switch-generation $num -p /nix/var/nix/profiles/system
+  nh os rollback --to $num
   notify "Flake Generation" "Generation switch complete" "success"
 }
 
@@ -29,11 +28,9 @@ def main [action: string = "list", num?: int] {
   match $action {
     "list" => list-generations
     "switch" => {
-      # Show all generations first
       list-generations
       print ""
       
-      # Prompt for generation number if not provided
       let gen_num = if ($num | is-empty) {
         let result = (prompt-number "Enter generation number to switch to")
         if ($result == null) {
@@ -47,11 +44,9 @@ def main [action: string = "list", num?: int] {
       switch-generation $gen_num
     }
     "delete" => {
-      # Show all generations first
       list-generations
       print ""
       
-      # Prompt for generation number if not provided
       let gen_num = if ($num | is-empty) {
         let result = (prompt-number "Enter generation number to delete")
         if ($result == null) {

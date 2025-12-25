@@ -349,12 +349,10 @@ export def get-file-age-days [file_path: string] {
   (($now - $mtime) / 86400000000000)
 }
 
-# Find backup files in a directory
 export def find-backup-files [dir: string] {
   (glob $"($dir)/**/*.backup" | append (glob $"($dir)/**/*.bkp"))
 }
 
-# Parse generation number from nix-env output line
 export def parse-generation-number [line: string] {
   let trimmed = ($line | str trim)
   if ($trimmed | is-empty) {
@@ -368,18 +366,13 @@ export def parse-generation-number [line: string] {
   }
 }
 
-# Build nixos-rebuild command
-export def build-nixos-rebuild-cmd [
-  flake_path: string,
-  host: string,
-  action: string = "switch"
-] {
+export def build-nh-os-cmd [action: string = "switch"] {
   match $action {
-    "switch" => $"sudo nixos-rebuild switch --flake '($flake_path)#($host)'"
-    "build" => $"cd /tmp && sudo nixos-rebuild build --flake '($flake_path)#($host)'"
-    "boot" => $"cd /tmp && sudo nixos-rebuild boot --flake '($flake_path)#($host)'"
-    "dry-build" => $"cd /tmp && sudo nixos-rebuild dry-build --flake '($flake_path)#($host)'"
-    "dev" => $"cd /tmp && sudo nixos-rebuild switch --flake '($flake_path)#($host)' --show-trace -L"
-    _ => $"sudo nixos-rebuild ($action) --flake '($flake_path)#($host)'"
+    "switch" => $"nh os switch"
+    "build" => $"nh os build"
+    "boot" => $"nh os boot"
+    "dry" => $"nh os test"
+    "dev" => $"nh os switch --show-trace"
+    _ => $"nh os ($action)"
   }
 }

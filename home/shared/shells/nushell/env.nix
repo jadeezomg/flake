@@ -7,7 +7,6 @@
   sharedEnv = import ../shared/env.nix;
   sharedPaths = import ../shared/paths.nix;
   sharedConfig = import ../shared/config.nix;
-  # Convert shared theme path from $HOME to Nushell's $env.HOME syntax
   poshThemeRel = builtins.replaceStrings ["$HOME/"] [""] sharedConfig.ohMyPoshConfig.themePath;
 in {
   programs.nushell = {

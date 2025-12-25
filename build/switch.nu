@@ -23,12 +23,9 @@ def post-build-tasks [fast, script_dir: string] {
   if not $fast {
     notify "Flake Switch" "Running post-build tasks..." "pending"
     
-    # Update caches (except nix-index which is slow)
     print-info $"(ansi ($theme_colors.info_bold))→(ansi reset) nu ($script_dir)/update-caches.nu --all-except-nix"
     nu $"($script_dir)/update-caches.nu" --all-except-nix
     
-    # Source user vars (if they exist)
-    # Note: source requires a constant path, so we use a workaround
     let user_vars_path = $"/etc/profiles/per-user/($env.USER)/etc/profile.d/hm-session-vars.sh"
     if ($user_vars_path | path exists) {
       print-info $"(ansi ($theme_colors.info_bold))→(ansi reset) source ($user_vars_path)"
@@ -48,7 +45,6 @@ def main [host?: string, --fast, --check, --skip-git, --override-input: string] 
   let script_dir = $"($flake_path)/build"
   let target_host = (get-host $host)
   
-  # Run git update first (unless skipped or in fast mode)
   if not $fast and not $skip_git {
     let git_script = $"($script_dir)/git-update.nu"
     nu $git_script
@@ -62,7 +58,6 @@ def main [host?: string, --fast, --check, --skip-git, --override-input: string] 
     check $flake_path
   }
 
-  # Allow running only the check and exit early
   if $check {
     notify "Flake Switch" "Check-only flag set; skipping rebuild" "info"
     print ""
@@ -72,13 +67,12 @@ def main [host?: string, --fast, --check, --skip-git, --override-input: string] 
   
   notify "Flake Switch" $"Building and switching configuration for ($target_host)..." "pending"
   let switch_cmd = if ($override_input | is-not-empty) {
-    # Parse override-input format: "input=value" -> ["input", "value"]
     let override_parts = ($override_input | split row "=")
     let input_name = ($override_parts | get 0)
     let input_value = ($override_parts | get 1)
-    $"sudo nixos-rebuild switch --flake '($flake_path)#($target_host)' --override-input ($input_name) ($input_value)"
+    $"nh os switch --flake '($flake_path)#($target_host)' --override-input ($input_name) ($input_value)"
   } else {
-    (build-nixos-rebuild-cmd $flake_path $target_host "switch")
+    (build-nh-os-cmd "switch")
   }
   print-info $"(ansi ($theme_colors.info_bold))→(ansi reset) ($switch_cmd)"
   ^bash -lc $switch_cmd

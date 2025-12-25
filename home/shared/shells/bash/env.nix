@@ -7,14 +7,9 @@
   sharedPaths = import ../shared/paths.nix;
 in {
   programs.bash = {
-    # Environment variables
     initExtra = ''
-      # Flake configuration path
       export FLAKE=${sharedPaths.commonPaths.flake}
-      # nh 4.2.0+ uses NH_FLAKE instead of FLAKE
       export NH_FLAKE=${sharedPaths.commonPaths.flake}
-
-      # Common environment variables
       export EDITOR=${sharedEnv.commonEnv.EDITOR}
       export VISUAL=${sharedEnv.commonEnv.VISUAL}
       export BROWSER=${sharedEnv.commonEnv.BROWSER}

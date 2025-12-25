@@ -28,14 +28,11 @@
       cursor_blink_interval = 0.25;
 
       # Cursor trail effect
-      # Enable trail after cursor has been stationary for 200ms
       cursor_trail = 200;
       # Decay times: fastest (0.1s) and slowest (0.4s) for trail fade
       cursor_trail_decay = "0.1 0.4";
       # Minimum cursor movement (in cells) to trigger the trail
       cursor_trail_start_threshold = 2;
-
-      # Colors are managed by Stylix (kitty target) to avoid conflicts.
 
       # Performance
       repaint_delay = 10;

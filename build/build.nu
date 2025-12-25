@@ -30,27 +30,27 @@ def main [host_or_mode?: string, mode?: string] {
   match $selected_mode {
     "build" => {
       notify "Flake Build" $"Building configuration for ($target_host)..." "pending"
-      let cmd = (build-nixos-rebuild-cmd $flake_path $target_host "build")
+      let cmd = (build-nh-os-cmd "build")
       print-info $"(ansi ($theme_colors.info_bold))→(ansi reset) ($cmd)"
       ^bash -c $cmd
       notify "Flake Build" "Build successful [not activated]" "success"
     }
     "boot" => {
       notify "Flake Build" $"Building boot configuration for ($target_host)..." "pending"
-      let cmd = (build-nixos-rebuild-cmd $flake_path $target_host "boot")
+      let cmd = (build-nh-os-cmd "boot")
       print-info $"(ansi ($theme_colors.info_bold))→(ansi reset) ($cmd)"
       ^bash -c $cmd
       notify "Flake Build" "Will boot into new generation on next reboot" "success"
     }
     "dry" => {
       notify "Flake Build" $"Dry run for ($target_host)..." "pending"
-      let cmd = (build-nixos-rebuild-cmd $flake_path $target_host "dry-build")
+      let cmd = (build-nh-os-cmd "dry")
       print-info $"(ansi ($theme_colors.info_bold))→(ansi reset) ($cmd)"
       ^bash -c $cmd
     }
     "dev" => {
       notify "Flake Build" $"Development build with trace output for ($target_host)" "pending"
-      let cmd = (build-nixos-rebuild-cmd $flake_path $target_host "dev")
+      let cmd = (build-nh-os-cmd "dev")
       print-info $"(ansi ($theme_colors.info_bold))→(ansi reset) ($cmd)"
       ^bash -c $cmd
     }
