@@ -110,56 +110,56 @@
         "zen.urlbar.behavior" = "float";
       };
 
-      pinsForce = false;
-      pins = {
-        "GitHub" = {
-          id = "48e8a119-5a14-4826-9545-91c8e8dd3bf6";
-          workspace = spaces."Development".id;
-          url = "https://github.com";
-          position = 101;
-          isEssential = false;
-        };
-      };
+      # pinsForce = false;
+      # pins = {
+      #   "GitHub" = {
+      #     id = "48e8a119-5a14-4826-9545-91c8e8dd3bf6";
+      #     workspace = spaces."Development".id;
+      #     url = "https://github.com";
+      #     position = 101;
+      #     isEssential = false;
+      #   };
+      # };
 
-      containersForce = true;
-      containers = {
-        Shopping = {
-          color = "yellow";
-          icon = "dollar";
-          id = 2;
-        };
-      };
+      # containersForce = true;
+      # containers = {
+      #   Shopping = {
+      #     color = "yellow";
+      #     icon = "dollar";
+      #     id = 2;
+      #   };
+      # };
 
-      # TODO: add spaces pins and essentials
-      spacesForce = true;
-      spaces = {
-        "Games" = {
-          id = "572910e1-4468-4832-a869-0b3a93e2f165";
-          icon = "🎭";
-          position = 1000;
-        };
-        "Development" = {
-          id = "ec287d7f-d910-4860-b400-513f269dee77";
-          icon = "💌";
-          position = 1001;
-        };
-        "Shopping" = {
-          id = "2441acc9-79b1-4afb-b582-ee88ce554ec0";
-          icon = "💸";
-          container = containers."Shopping".id;
-          position = 1002;
-        };
-        "Themes" = {
-          id = "8ed24375-68d4-4d37-ab7e-b2e121f994c1";
-          icon = "😫";
-          position = 1003;
-        };
-        "Downloads" = {
-          id = "8ed24375-68d4-4d37-ab7e-b2e121f994c1";
-          icon = "😫";
-          position = 1004;
-        };
-      };
+      # # TODO: add spaces pins and essentials
+      # spacesForce = true;
+      # spaces = {
+      #   "Games" = {
+      #     id = "572910e1-4468-4832-a869-0b3a93e2f165";
+      #     icon = "🎭";
+      #     position = 1000;
+      #   };
+      #   "Development" = {
+      #     id = "ec287d7f-d910-4860-b400-513f269dee77";
+      #     icon = "💌";
+      #     position = 1001;
+      #   };
+      #   "Shopping" = {
+      #     id = "2441acc9-79b1-4afb-b582-ee88ce554ec0";
+      #     icon = "💸";
+      #     container = containers."Shopping".id;
+      #     position = 1002;
+      #   };
+      #   "Themes" = {
+      #     id = "8ed24375-68d4-4d37-ab7e-b2e121f994c1";
+      #     icon = "😫";
+      #     position = 1003;
+      #   };
+      #   "Downloads" = {
+      #     id = "8ed24375-68d4-4d37-ab7e-b2e121f994c1";
+      #     icon = "😫";
+      #     position = 1004;
+      #   };
+      # };
     };
   };
 }
