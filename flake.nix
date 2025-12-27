@@ -88,6 +88,7 @@
     home-manager,
     sops-nix,
     determinate,
+    lanzaboote,
     nix-homebrew,
     zen-browser,
     noctalia,
