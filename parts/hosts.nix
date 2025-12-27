@@ -94,6 +94,7 @@
         (./. + "/../hosts/${hostKey}")
         sops-nix.nixosModules.sops
         determinate.nixosModules.default
+        lanzaboote.nixosModules.lanzaboote
         home-manager.nixosModules.home-manager
         (mkHomeManagerModule {inherit hostKey user system;})
       ];
