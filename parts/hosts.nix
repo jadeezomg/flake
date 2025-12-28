@@ -1,6 +1,6 @@
 {inputs, ...}: let
   lib = inputs.nixpkgs.lib;
-  inherit (inputs) nixpkgs nix-darwin home-manager sops-nix determinate nix-homebrew;
+  inherit (inputs) nixpkgs nix-darwin home-manager sops-nix determinate nix-homebrew lanzaboote;
 
   # Load functions
   pkgsFuncs = import ./functions/pkgs.nix {inherit inputs;};
