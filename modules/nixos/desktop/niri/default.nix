@@ -26,6 +26,7 @@
     mako # Notification daemon for Wayland
     grim # Screenshot utility
     slurp # Screen selection for screenshots
+    fuzzel # Fuzzy finder for Wayland
     # Note: Noctalia shell should be configured via home-manager
     # See home-manager configuration for noctalia-shell setup
   ];

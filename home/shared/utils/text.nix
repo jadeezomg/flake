@@ -19,4 +19,8 @@
       ];
     };
   };
+  # https://discourse.nixos.org/t/slow-build-at-building-man-cache/52365/7
+  # https://github.com/NixOS/nixpkgs/issues/384499
+  # disabled for now because of slow build time & warnings
+  programs.man.generateCaches = false;
 }

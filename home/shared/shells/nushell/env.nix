@@ -15,6 +15,7 @@ in {
       // {
         FLAKE = lib.hm.nushell.mkNushellInline ''$"($env.HOME)/.dotfiles/flake"'';
         NH_FLAKE = lib.hm.nushell.mkNushellInline ''$"($env.HOME)/.dotfiles/flake"'';
+        ZED_ALLOW_ROOT = "true";
       };
 
     # Additional environment setup
