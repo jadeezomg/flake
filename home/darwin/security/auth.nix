@@ -1,3 +1,0 @@
-{...}: {
-  # TODO: Add auth configuration
-}

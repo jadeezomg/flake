@@ -56,6 +56,36 @@
         "telemetry.telemetryLevel" = "off";
         "window.commandCenter" = true;
 
+        # Font settings
+        "editor.fontFamily" = "'Iosevka Nerd Font', 'Iosevka', Menlo, Monaco, 'Courier New', monospace";
+        "editor.fontSize" = 13;
+        "editor.fontLigatures" = true;
+        "terminal.integrated.fontFamily" = "'Iosevka Nerd Font', 'Iosevka', monospace";
+        "terminal.integrated.fontSize" = 13;
+        "debug.console.fontFamily" = "'Iosevka Nerd Font', 'Iosevka', monospace";
+
+        # Terminal settings - use nushell as default
+        "terminal.integrated.defaultProfile.osx" = "nu";
+        "terminal.integrated.profiles.osx" = {
+          "nu" = {
+            "path" = "/run/current-system/sw/bin/nu";
+            "args" = ["-l"];
+            "icon" = "terminal";
+          };
+          "zsh" = {
+            "path" = "/bin/zsh";
+            "args" = ["-l"];
+          };
+          "bash" = {
+            "path" = "/bin/bash";
+            "args" = ["-l"];
+          };
+          "fish" = {
+            "path" = "/run/current-system/sw/bin/fish";
+            "args" = ["-l"];
+          };
+        };
+
         # Git settings
         "git.confirmSync" = false;
         "git.autofetch" = true;

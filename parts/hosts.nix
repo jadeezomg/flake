@@ -68,6 +68,7 @@
           userPreferences
           userExtras
           userData
+          isDarwin
           ;
         pkgs-unstable = getPkgsUnstable system;
         host = host;

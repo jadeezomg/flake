@@ -1,10 +1,10 @@
 {pkgs, ...}: {
   # Homebrew configuration for Darwin
   # Packages that don't have good Nix equivalents or are Mac-specific
-  
+
   homebrew = {
     enable = true;
-    
+
     onActivation = {
       autoUpdate = false; # Don't auto-update Homebrew
       cleanup = "zap"; # Uninstall packages not declared here
@@ -24,29 +24,29 @@
     # NOTE: Removed duplicates - already in Nix: ghostty, notion-app, zed, cursor, firefox (NixOS)
     casks = [
       # --- Productivity ---
-      "1password"           # Password manager (Mac-specific GUI)
-      "1password-cli"       # 1Password CLI
-      "raycast"             # Spotlight replacement (Mac-specific)
-      "notion"              # Notes and collaboration
-      "slack"               # Team communication (simpler via Homebrew)
-      
-      
+      "1password" # Password manager (Mac-specific GUI)
+      "1password-cli" # 1Password CLI
+      "raycast" # Spotlight replacement (Mac-specific)
+      "notion" # Notes and collaboration
+      "slack" # Team communication (simpler via Homebrew)
+
       # --- Browsers ---
-      "google-chrome"       # Chrome browser
-      
+      "google-chrome" # Chrome browser
+      "zen"
+
       # --- Utilities ---
-      "alt-tab"             # Window switcher (Mac-specific)
-      "middleclick"         # Three-finger click utility (Mac-specific)
-      "notunes"             # Disable iTunes/Music auto-launch (Mac-specific)
-      "scroll-reverser"     # Reverse scroll direction (Mac-specific)
-      
+      "alt-tab" # Window switcher (Mac-specific)
+      "middleclick" # Three-finger click utility (Mac-specific)
+      "notunes" # Disable iTunes/Music auto-launch (Mac-specific)
+      "scroll-reverser" # Reverse scroll direction (Mac-specific)
+
       # --- Fonts ---
       # Apple San Francisco fonts (not available in Nix)
       "font-sf-mono"
       "font-sf-pro"
-      
+
       # --- Design Resources ---
-      "sf-symbols"          # Apple SF Symbols
+      "sf-symbols" # Apple SF Symbols
     ];
 
     # Mac App Store apps
@@ -59,9 +59,9 @@
 
     # Taps (third-party repositories)
     taps = [
-      "homebrew/cask-fonts"  # For font casks
+      # homebrew/cask-fonts is deprecated - fonts are now in main casks
     ];
-    
+
     # NOTE: Removed duplicates already in Nix: ghostty, zed, cursor, zen-browser (via flake)
     # NOTE: The following fonts from Homebrew are available in Nix and should NOT be added here:
     # - font-hack-nerd-font (nerd-fonts.hack in Nix)
@@ -73,4 +73,3 @@
     # These are currently disabled for Darwin due to font directory issues but will be re-enabled.
   };
 }
-

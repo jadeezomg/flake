@@ -1,9 +1,7 @@
 {...}: {
   imports = [
     ./browsers
-    ./editors
-    ./docs
-    ./mail
+    ./brew-casks
     ./terminals
   ];
 }

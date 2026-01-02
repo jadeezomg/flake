@@ -212,7 +212,7 @@ in {
   home.packages = with pkgs; [
     oh-my-posh
   ];
-  
+
   # Create theme configuration file
   home.file."${sharedConfig.ohMyPoshConfig.configDir}/${sharedConfig.ohMyPoshConfig.themeName}" = {
     text = poshThemeJson;
