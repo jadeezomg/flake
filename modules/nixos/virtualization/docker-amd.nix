@@ -1,7 +1,6 @@
-{
-  config,
-  pkgs,
-  ...
-}: {
-  # TODO: Add docker-amd configuration
+{...}: {
+  virtualisation.docker = {
+    enable = true;
+    enableOnBoot = false;
+  };
 }

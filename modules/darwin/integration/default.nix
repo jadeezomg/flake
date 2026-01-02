@@ -4,8 +4,7 @@
   ...
 }: {
   imports = [
-    ./appimage.nix
     ./binaries.nix
-    ./flatpak.nix
+    ./homebrew.nix
   ];
 }

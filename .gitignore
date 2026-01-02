@@ -1,3 +1,4 @@
 # Local flake configuration
 .flake-host
 
+.DS_Store

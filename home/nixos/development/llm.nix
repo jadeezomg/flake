@@ -1,6 +1,7 @@
 {pkgs-unstable, ...}: {
   home.packages = with pkgs-unstable; [
     # --- LLM Gui / Server ---
-    # lmstudio
+    lmstudio # Currently marked as broken, but keeping in NixOS-only config
   ];
 }
+

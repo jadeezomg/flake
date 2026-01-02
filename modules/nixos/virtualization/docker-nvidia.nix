@@ -1,7 +1,6 @@
-{
-  config,
-  pkgs,
-  ...
-}: {
-  # TODO: Add docker-nvidia configuration
+{...}: {
+  virtualisation.docker = {
+    enable = true;
+    enableOnBoot = false;
+  };
 }

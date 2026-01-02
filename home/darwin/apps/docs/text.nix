@@ -1,5 +1,5 @@
 {pkgs, ...}: {
   home.packages = with pkgs; [
-    notion-app
+    # notion-app - Using Homebrew version instead
   ];
 }

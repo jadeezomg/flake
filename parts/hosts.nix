@@ -88,7 +88,7 @@
         // {
           pkgs-unstable = getPkgsUnstable system;
           host = host;
-          inherit hostKey user;
+          inherit hostKey user isDarwin;
         };
       modules = [
         (./. + "/../hosts/${hostKey}")
@@ -112,11 +112,13 @@
     darwinConfigurations = lib.optionalAttrs isDarwin (let
       darwinConfig = nix-darwin.lib.darwinSystem {
         inherit system;
+        pkgs = getPkgs system;
         specialArgs =
           commonSpecialArgs
           // {
+            pkgs-unstable = getPkgsUnstable system;
             host = host;
-            inherit hostKey user;
+            inherit hostKey user isDarwin;
           };
         modules = [
           sops-nix.darwinModules.sops

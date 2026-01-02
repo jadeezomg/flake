@@ -3,5 +3,6 @@
   pkgs,
   ...
 }: {
-  # TODO: Add nix configuration
+  # Disable nix-darwin's Nix management since Determinate manages it
+  nix.enable = false;
 }

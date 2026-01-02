@@ -5,7 +5,6 @@
 }: {
   imports = [
     ./apps
-    ./boot
     ./desktop
     ./development
     ./environment

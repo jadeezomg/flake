@@ -44,6 +44,7 @@
     # ./protobuf.nix
     ./python.nix
     # ./r.nix
+    ./ruby.nix
     ./rust.nix
     # ./scala.nix
     ./sql.nix
