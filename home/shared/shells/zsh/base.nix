@@ -8,7 +8,7 @@
 
     # General settings
     enableCompletion = true;
-    autosuggestion.enable = true;
+    autosuggestion.enable = false; # Disabled - causes remnant characters with oh-my-posh
     syntaxHighlighting.enable = true;
 
     # History settings
@@ -22,12 +22,8 @@
       share = true;
     };
 
-    # Options
-    defaultKeymap = "emacs";
-    autocd = true;
-
     # Completion configuration
-    initExtra = ''
+    initContent = ''
       # Key bindings
       bindkey '^p' history-search-backward
       bindkey '^n' history-search-forward
