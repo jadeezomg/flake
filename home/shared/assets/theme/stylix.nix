@@ -99,8 +99,8 @@ in {
 
     # Cursor theme (optional, can be customized)
     cursor = {
-      package = pkgs.everforest-cursors;
-      name = "everforest-cursors";
+      package = pkgs.phinger-cursors;
+      name = "phinger-cursors-dark";
       size = 24;
     };
 
