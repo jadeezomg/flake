@@ -7,4 +7,3 @@
     ./firefox.nix
   ];
 }
-

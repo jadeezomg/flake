@@ -4,4 +4,3 @@
     lmstudio # Currently marked as broken, but keeping in NixOS-only config
   ];
 }
-

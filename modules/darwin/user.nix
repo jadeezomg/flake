@@ -10,7 +10,7 @@
 in {
   # Set primary user for Homebrew and other macOS services
   system.primaryUser = user;
-  
+
   # Configure settings for existing macOS user account
   # The user must already exist in macOS (created via System Preferences)
   users.users.${user} = {
