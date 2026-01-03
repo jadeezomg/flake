@@ -4,5 +4,6 @@
     ./nushell
     ./fish
     ./bash
+    ./zsh
   ];
 }

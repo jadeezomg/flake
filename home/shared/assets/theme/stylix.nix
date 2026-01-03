@@ -73,8 +73,8 @@ in {
       # firefox.profileNames = ["default"];
       zen-browser.profileNames = ["default"];
 
-      # Desktop Environments
-      gnome.enable = true;
+      # Desktop Environments (Linux-only)
+      gnome.enable = pkgs.stdenv.isLinux;
     };
 
     # Fonts configuration - matching your existing terminal setup

@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   home.packages = with pkgs; [
     # --- Sql ---
-    sqlfluff # Linter
+    # sqlfluff # TEMPORARILY DISABLED - dependency conflict with click version
     sqlite # SQLite database
     sqls # SQL language server
   ];

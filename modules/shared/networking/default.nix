@@ -3,7 +3,5 @@
   pkgs,
   ...
 }: {
-  imports = [
-    ./tailscale-client.nix
-  ];
+  imports = [];
 }

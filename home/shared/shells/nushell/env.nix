@@ -21,19 +21,19 @@ in {
     # Additional environment setup
     extraEnv = ''
 
-      let posh = "${pkgs.oh-my-posh}/bin/oh-my-posh"
-
-      # Oh My Posh theme configuration - Custom Birds of Paradise theme (JSON format)
-      let posh_theme = $"($env.HOME)/${poshThemeRel}"
+      # OLD: Variables defined outside the closure aren't accessible inside
+      # let posh = "${pkgs.oh-my-posh}/bin/oh-my-posh"
+      # let posh_theme = $"($env.HOME)/${poshThemeRel}"
 
       # Set up Oh My Posh prompt
+      # NOTE: Using full paths directly in closures since variables aren't captured
       $env.PROMPT_COMMAND = {||
         let exit_code = (if ($env.LAST_EXIT_CODE) == null { 0 } else { $env.LAST_EXIT_CODE })
-        ^$posh print primary --config $posh_theme --shell nushell --status $exit_code
+        ^"${pkgs.oh-my-posh}/bin/oh-my-posh" print primary --config $"($env.HOME)/${poshThemeRel}" --shell nushell --status $exit_code
       }
 
       $env.PROMPT_COMMAND_RIGHT = {||
-        ^$posh print right --config $posh_theme --shell nushell
+        ^"${pkgs.oh-my-posh}/bin/oh-my-posh" print right --config $"($env.HOME)/${poshThemeRel}" --shell nushell
       }
 
       # Prompt indicators - set to empty since Oh My Posh handles the prompt

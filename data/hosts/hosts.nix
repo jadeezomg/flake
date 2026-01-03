@@ -5,8 +5,8 @@ let
   # Individual hosts can override specific fields
   sharedNixOSUser = userData.users.jadee;
 
-  # Darwin host can override the base user via users.caya if present
-  darwinUser = userData.users.jadee;
+  # Darwin host uses caya-jonas user
+  darwinUser = userData.users.caya-jonas;
 
   # Shared host configuration for NixOS hosts
   # Individual hosts can override specific fields

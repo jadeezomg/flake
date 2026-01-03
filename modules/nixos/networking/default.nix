@@ -4,6 +4,10 @@
   host,
   ...
 }: {
+  imports = [
+    ./tailscale-client.nix
+  ];
+
   networking.hostName = host.hostname or "nixos";
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 

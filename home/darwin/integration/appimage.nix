@@ -1,3 +1,0 @@
-{...}: {
-  # TODO: Add appimage configuration
-}

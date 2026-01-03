@@ -1,7 +1,6 @@
-{
-  config,
-  pkgs,
-  ...
-}: {
-  # TODO: Add flatpak configuration
+{...}: {
+  # Flatpak support
+  services.flatpak = {
+    enable = true;
+  };
 }

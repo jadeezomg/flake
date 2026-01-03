@@ -27,6 +27,7 @@
         userPreferences
         userExtras
         userData
+        isDarwin
         ;
       pkgs-unstable = getPkgsUnstable (
         if isDarwin
