@@ -20,7 +20,7 @@
 
 keys:
   # Framework NixOS host
-  - &framework age1
+  - &framework age1pmtv9wwwfmsjp5pud8afv7c6cvjyc54t2attmr5wukvvtnu0kdvqsrxmj2
 
   # Desktop NixOS host
   - &desktop age1s6yrgxcpwm8qy3cpjc2fz6pyq76afd33e2kfg7q58q69ehxwzd2s6qjrxu
