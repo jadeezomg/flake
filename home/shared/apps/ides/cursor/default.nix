@@ -126,7 +126,7 @@
 
         # JSON-specific settings
         "[json]" = {
-          "editor.defaultFormatter" = "esbenp.prettier-vscode";
+          "editor.defaultFormatter" = "prettier.prettier-vscode";
           "editor.formatOnSave" = true;
           "editor.tabSize" = 2;
           "editor.insertSpaces" = true;
@@ -134,7 +134,7 @@
 
         # JSONC-specific settings
         "[jsonc]" = {
-          "editor.defaultFormatter" = "esbenp.prettier-vscode";
+          "editor.defaultFormatter" = "prettier.prettier-vscode";
           "editor.formatOnSave" = true;
           "editor.tabSize" = 2;
           "editor.insertSpaces" = true;
