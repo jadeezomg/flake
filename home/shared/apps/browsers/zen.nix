@@ -59,18 +59,34 @@
         Cache = true;
       };
 
-      ExtensionSettings = mkExtensionSettings {
-        "78272b6fa58f4a1abaac99321d503a20@proton.me" = mkExtensionEntry {
-          id = "proton-pass";
-          pinned = true;
-        };
-        "uBlock0@raymondhill.net" = "ublock-origin";
-        "gdpr@cavi.au.dk" = "consent-o-matic";
-        "addon@darkreader.org" = "darkreader";
-        "{91aa3897-2634-4a8a-9092-279db23a7689}" = "zen-internet";
-        "{74145f27-f039-47ce-a470-a662b129930a}" = "clearurls";
-        "{BraveSearchExtension@io.Uvera}" = "brave-search";
-      };
+      ExtensionSettings = mkExtensionSettings (
+        {
+          "uBlock0@raymondhill.net" = "ublock-origin";
+          "gdpr@cavi.au.dk" = "consent-o-matic";
+          "addon@darkreader.org" = "darkreader";
+          "{91aa3897-2634-4a8a-9092-279db23a7689}" = "zen-internet";
+          "{74145f27-f039-47ce-a470-a662b129930a}" = "clearurls";
+          "{BraveSearchExtension@io.Uvera}" = "brave-search";
+        }
+        // (
+          # Password manager: Platform-specific
+          if pkgs.stdenv.isLinux
+          then {
+            # Proton Pass on NixOS
+            "78272b6fa58f4a1abaac99321d503a20@proton.me" = mkExtensionEntry {
+              id = "proton-pass";
+              pinned = true;
+            };
+          }
+          else {
+            # 1Password on Darwin
+            "{d634138d-c276-4fc8-924b-40a0ea21d284}" = mkExtensionEntry {
+              id = "1password-x-password-manager";
+              pinned = true;
+            };
+          }
+        )
+      );
       Preferences = mkLockedAttrs {
         "browser.aboutConfig.showWarning" = false;
         "browser.tabs.warnOnClose" = false;

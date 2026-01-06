@@ -46,6 +46,12 @@
             version = "0.10.0";
             sha256 = "0p25dzrxlvpv0a7qsn5lw65xnrjks43dzqq4g7j3r6dq6fn8ci1s";
           }
+          {
+            name = "prettier-vscode"; # Prettier formatter
+            publisher = "prettier";
+            version = "12.0.7";
+            sha256 = "sha256-YWPqx5+q6ll/jrxjE1cfXTPOJTdphroELdEcKb4vtps=";
+          }
         ];
       userSettings = {
         "workbench.colorTheme" = "Birds of Paradise";

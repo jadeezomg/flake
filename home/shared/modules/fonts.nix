@@ -26,7 +26,10 @@
   ];
 in {
   fonts.fontconfig.enable = !isDarwin; # Disable fontconfig on Darwin to avoid woff directory issues
-  home.packages = if isDarwin then [] else enabledFontPackages; # Temporarily disable fonts on Darwin
+  home.packages =
+    if isDarwin
+    then []
+    else enabledFontPackages; # Temporarily disable fonts on Darwin
 
   # NOTE: List all installed fonts for debugging
   home.file.".local/share/fonts-installed.txt".text = let

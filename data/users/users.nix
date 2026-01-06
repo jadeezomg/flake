@@ -14,7 +14,7 @@
       ];
       packages = [];
     };
-    
+
     caya-jonas = {
       username = "caya-jonas";
       fullName = "Caya Jonas";
