@@ -138,7 +138,7 @@
                 "homebrew/homebrew-cask" = inputs.homebrew-cask;
                 "homebrew/homebrew-bundle" = inputs.homebrew-bundle;
               };
-              mutableTaps = false;
+              mutableTaps = true;
               autoMigrate = true;
             };
           }

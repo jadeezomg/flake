@@ -21,6 +21,8 @@
           aaron-bond.better-comments # Better comments highlighting
           kamadorueda.alejandra # Nix formatter
           sumneko.lua # Lua Language Server with formatting support
+          mechatroner.rainbow-csv # CSV support
+          ms-python.python # Python support
         ]
         ++ (
           if false
