@@ -54,6 +54,12 @@
             version = "12.0.7";
             sha256 = "sha256-YWPqx5+q6ll/jrxjE1cfXTPOJTdphroELdEcKb4vtps=";
           }
+          {
+            name = "kdl"; # Prettier formatter
+            publisher = "kdl-org";
+            version = "2.1.3";
+            sha256 = "sha256-Jssmb5owrgNWlmLFSKCgqMJKp3sPpOrlEUBwzZSSpbM=";
+          }
         ];
       userSettings = {
         "workbench.colorTheme" = "Birds of Paradise";

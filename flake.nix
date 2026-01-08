@@ -55,9 +55,9 @@
       };
     };
 
-    noctalia = {
-      url = "github:noctalia-dev/noctalia-shell";
-      inputs.nixpkgs.follows = "nixpkgs";
+    dankMaterialShell = {
+      url = "github:AvengeMedia/DankMaterialShell";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     nix-homebrew = {
@@ -91,7 +91,7 @@
     lanzaboote,
     nix-homebrew,
     zen-browser,
-    noctalia,
+    dankMaterialShell,
     ...
   }: let
     pkgsFuncs = import ./parts/functions/pkgs.nix {inherit inputs;};

@@ -21,13 +21,10 @@
 
   environment.systemPackages = with pkgs; [
     # Niri utilities
-    niri # Wayland compositor
-    wl-clipboard # Clipboard utilities for Wayland
-    mako # Notification daemon for Wayland
-    grim # Screenshot utility
-    slurp # Screen selection for screenshots
-    fuzzel # Fuzzy finder for Wayland
-    # Note: Noctalia shell should be configured via home-manager
-    # See home-manager configuration for noctalia-shell setup
+    niri # Wayland compositor (required)
+    # wl-clipboard - Automatically installed by DMS when enableClipboard = true
+    # mako - Replaced by DMS built-in notification system
+    # grim - Optional: Niri has built-in screenshots, but grim useful for advanced workflows
+    # slurp - Optional: Used with grim for region selection, or other tools
   ];
 }

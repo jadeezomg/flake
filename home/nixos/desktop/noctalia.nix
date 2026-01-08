@@ -5,23 +5,22 @@
 }: {
   # Enable Noctalia shell for Niri
   # This provides a desktop shell experience on top of Niri compositor
+  # See: https://docs.noctalia.dev/getting-started/compositor-settings/niri/
   programs.noctalia-shell = {
     enable = true;
   };
 
-  # Configure Niri to start Noctalia shell automatically
-  # This creates/updates ~/.config/niri/config.kdl
-  xdg.configFile."niri/config.kdl".text = ''
-    # Niri configuration with Noctalia shell
-    # This file is managed by home-manager
+  # Install quickshell (qs CLI tool) which is required for noctalia-shell IPC commands
+  # The qs command is used for controlling noctalia-shell features like:
+  # - qs -c noctalia-shell ipc call launcher toggle
+  # - qs -c noctalia-shell ipc call controlCenter toggle
+  # etc.
+  home.packages = with pkgs; [
+    quickshell
+  ];
 
-    # Start Noctalia shell at startup
-    spawn-at-startup {
-      command = "qs"
-      args = ["-c" "noctalia-shell"]
-    }
-
-    # You can add additional Niri configuration here
-    # See: https://github.com/YaLTeR/niri/wiki/Configuration
-  '';
+  # Manage Niri configuration files
+  # These files are managed declaratively through home-manager
+  xdg.configFile."niri/config.kdl".source = ./niri/config.kdl;
+  xdg.configFile."niri/noctalia.kdl".source = ./niri/noctalia.kdl;
 }
