@@ -97,8 +97,6 @@
         determinate.nixosModules.default
         lanzaboote.nixosModules.lanzaboote
         home-manager.nixosModules.home-manager
-        # DMS flake NixOS module (provides programs.dms-shell option)
-        inputs.dankMaterialShell.nixosModules.dankMaterialShell
         (mkHomeManagerModule {inherit hostKey user system;})
       ];
     };

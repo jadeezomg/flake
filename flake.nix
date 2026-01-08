@@ -60,6 +60,11 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    dgop = {
+      url = "github:AvengeMedia/dgop";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     nix-homebrew = {
       url = "github:zhaofengli-wip/nix-homebrew";
     };
@@ -92,6 +97,7 @@
     nix-homebrew,
     zen-browser,
     dankMaterialShell,
+    dgop,
     ...
   }: let
     pkgsFuncs = import ./parts/functions/pkgs.nix {inherit inputs;};

@@ -168,15 +168,15 @@ layout {
         // - CSS-like notation: "rgb(255, 127, 0)", rgba(), hsl() and a few others.
 
         // Color of the ring on the active monitor.
-        // Colors are managed by noctalia-shell via stylix
-        // active-color "#7fc8ff"
+        // Using accent-blue from Birds of Paradise theme
+        active-color "#6b98bb"
 
         // Color of the ring on inactive monitors.
         //
         // The focus ring only draws around the active window, so the only place
         // where you can see its inactive-color is on other monitors.
-        // Colors are managed by noctalia-shell via stylix
-        // inactive-color "#505050"
+        // Using bg-tertiary from Birds of Paradise theme
+        inactive-color "#5B413D"
 
         // You can also use gradients. They take precedence over solid colors.
         // Gradients are rendered the same as CSS linear-gradient(angle, from, to).
@@ -219,8 +219,8 @@ layout {
 
     // You can enable drop shadows for windows.
     shadow {
-        // Uncomment the next line to enable shadows.
-        // on
+        // Enable shadows for depth and visual separation
+        on
 
         // By default, the shadow draws only around its window, and not behind it.
         // Uncomment this setting to make the shadow draw behind its window.
@@ -251,8 +251,8 @@ layout {
         offset x=0 y=5
 
         // You can also change the shadow color and opacity.
-        // Color is managed by noctalia-shell via stylix
-        // color "#0007"
+        // Using semi-transparent black for subtle shadow
+        color "#00000080"
     }
 
     // Struts shrink the area occupied by windows, similarly to layer-shell panels.
@@ -290,7 +290,7 @@ hotkey-overlay {
 // Additionally, clients will be informed that they are tiled, removing some client-side rounded corners.
 // This option will also fix border/focus ring drawing behind some semitransparent windows.
 // After enabling or disabling this, you need to restart the apps for this to take effect.
-// prefer-no-csd
+prefer-no-csd
 
 // You can change the path where screenshots are saved.
 // A ~ at the front will be expanded to the home directory.
@@ -346,9 +346,8 @@ window-rule {
     // block-out-from "screencast"
 }
 
-// Example: enable rounded corners for all windows.
-// (This example rule is commented out with a "/-" in front.)
-/-window-rule {
+// Enable rounded corners for all windows to match theme aesthetics
+window-rule {
     geometry-corner-radius 12
     clip-to-geometry true
 }
