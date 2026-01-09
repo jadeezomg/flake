@@ -1,14 +1,5 @@
 {inputs, ...}: let
-  inherit (inputs) nixpkgs nixpkgs-unstable;
-
-  getPkgsUnstable = system:
-    import nixpkgs-unstable {
-      inherit system;
-      config = {
-        allowUnfree = true;
-        input-fonts.acceptLicense = true;
-      };
-    };
+  inherit (inputs) nixpkgs nixpkgs-stable;
 
   getPkgs = system:
     import nixpkgs {
@@ -18,6 +9,15 @@
         input-fonts.acceptLicense = true;
       };
     };
+
+  getPkgsStable = system:
+    import nixpkgs-stable {
+      inherit system;
+      config = {
+        allowUnfree = true;
+        input-fonts.acceptLicense = true;
+      };
+    };
 in {
-  inherit getPkgs getPkgsUnstable;
+  inherit getPkgs getPkgsStable;
 }

@@ -5,7 +5,7 @@
   userExtras,
   userData,
   homeModules,
-  getPkgsUnstable,
+  getPkgs,
   ...
 }: let
   homeManagerConfig = {
@@ -29,7 +29,7 @@
         userData
         isDarwin
         ;
-      pkgs-unstable = getPkgsUnstable (
+      pkgs = getPkgs (
         if isDarwin
         then "aarch64-darwin"
         else "x86_64-linux"

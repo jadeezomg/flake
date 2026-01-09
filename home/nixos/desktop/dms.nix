@@ -1,6 +1,6 @@
 {
   config,
-  pkgs-unstable,
+  pkgs,
   inputs,
   ...
 }: {
@@ -9,15 +9,22 @@
   # Modules are imported in parts/functions/modules.nix
   # The module uses the flake package automatically (built with nixpkgs-unstable)
   # Note: enableClipboard, enableSystemMonitoring, etc. are now built-in and don't need to be set
-  programs.dank-material-shell = {
+  programs.dms-shell = {
     enable = true;
-    # Use quickshell from nixpkgs-unstable
-    quickshell.package = pkgs-unstable.quickshell;
-    # Use dgop from flake (required by DMS)
-    dgop.package = inputs.dgop.packages.${pkgs-unstable.stdenv.hostPlatform.system}.default;
+    quickshell.package = pkgs.quickshell;
     systemd = {
       enable = true;
       restartIfChanged = true;
+    };
+  };
+
+  programs.dsearch = {
+    enable = true;
+
+    # Systemd service configuration
+    systemd = {
+      enable = true; # Enable systemd user service
+      target = "default.target"; # Start with user session
     };
   };
 

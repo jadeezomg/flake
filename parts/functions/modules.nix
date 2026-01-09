@@ -40,9 +40,7 @@
     ++ (
       if isDarwin
       then []
-      else [
-        inputs.dankMaterialShell.homeModules.dank-material-shell
-      ]
+      else []
     )
     ++ baseHomeModules isDarwin;
 in {

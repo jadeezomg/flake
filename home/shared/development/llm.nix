@@ -1,5 +1,5 @@
-{pkgs-unstable, ...}: {
-  home.packages = with pkgs-unstable; [
+{pkgs, ...}: {
+  home.packages = with pkgs; [
     # LLM Gui / Server
     # lmstudio
     # LLM Agent
@@ -8,6 +8,6 @@
 
   programs.opencode = {
     enable = true;
-    package = pkgs-unstable.opencode;
+    package = pkgs.opencode;
   };
 }

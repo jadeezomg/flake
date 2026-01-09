@@ -88,7 +88,7 @@ output "eDP-1" {
     mode "2880x1920@120.000"
 
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
-    scale 1.5
+    scale 1.33
 
     // Transform allows to rotate the output counter-clockwise, valid values are:
     // normal, 90, 180, 270, flipped, flipped-90, flipped-180 and flipped-270.
@@ -318,20 +318,32 @@ animations {
 // Work around WezTerm's initial configure bug
 // by setting an empty default-column-width.
 window-rule {
-    // This regular expression is intentionally made as specific as possible,
-    // since this is the default config, and we want no false positives.
-    // You can get away with just app-id="wezterm" if you want.
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
     default-column-width {}
 }
 
-// Open the Firefox picture-in-picture player as floating by default.
+// Open the zen browser picture-in-picture player as floating by default.
 window-rule {
-    // This app-id regular expression will work for both:
-    // - host Firefox (app-id is "firefox")
-    // - Flatpak Firefox (app-id is "org.mozilla.firefox")
-    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    match app-id=r#"^zen-twilight$"# title="^Picture-in-Picture$"
     open-floating true
+}
+
+// Set zen browser to full width (excluding picture-in-picture windows)
+window-rule {
+    match app-id=r#"^zen-twilight$"#
+    default-column-width { proportion 1.0; }
+}
+
+// Set Cursor IDE to full width
+window-rule {
+    match app-id=r#"^Cursor$"#
+    default-column-width { proportion 1.0; }
+}
+
+// Set Zed IDE to full width
+window-rule {
+    match app-id=r#"^dev\.zed\.Zed$"#
+    default-column-width { proportion 1.0; }
 }
 
 // Example: block out two password managers from screen capture.

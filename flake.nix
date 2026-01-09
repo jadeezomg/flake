@@ -2,7 +2,7 @@
   description = "jadee | NixOS & Darwin Flake";
 
   inputs = {
-    nixpkgs = {
+    nixpkgs-stable = {
       url = "github:NixOS/nixpkgs/nixos-25.11";
     };
 
@@ -15,12 +15,12 @@
       url = "github:NixOS/nixos-hardware/master";
     };
 
-    nixpkgs-unstable = {
+    nixpkgs = {
       url = "github:NixOS/nixpkgs/nixos-unstable";
     };
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.11";
+      url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -39,7 +39,7 @@
 
     lanzaboote = {
       url = "github:nix-community/lanzaboote/v1.0.0";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     stylix = {
@@ -53,16 +53,6 @@
         nixpkgs.follows = "nixpkgs";
         home-manager.follows = "home-manager";
       };
-    };
-
-    dankMaterialShell = {
-      url = "github:AvengeMedia/DankMaterialShell";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    dgop = {
-      url = "github:AvengeMedia/dgop";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     nix-homebrew = {
@@ -88,7 +78,7 @@
   outputs = inputs @ {
     flake-parts,
     nixpkgs,
-    nixpkgs-unstable,
+    nixpkgs-stable,
     nix-darwin,
     home-manager,
     sops-nix,
@@ -96,8 +86,6 @@
     lanzaboote,
     nix-homebrew,
     zen-browser,
-    dankMaterialShell,
-    dgop,
     ...
   }: let
     pkgsFuncs = import ./parts/functions/pkgs.nix {inherit inputs;};

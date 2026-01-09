@@ -1,5 +1,5 @@
-{pkgs-unstable, ...}: {
-  environment.systemPackages = with pkgs-unstable; [
+{pkgs, ...}: {
+  environment.systemPackages = with pkgs; [
     # IDEs
     zed-editor
     code-cursor

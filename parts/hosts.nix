@@ -4,7 +4,7 @@
 
   # Load functions
   pkgsFuncs = import ./functions/pkgs.nix {inherit inputs;};
-  inherit (pkgsFuncs) getPkgs getPkgsUnstable;
+  inherit (pkgsFuncs) getPkgs getPkgsStable;
 
   dataFuncs = import ./functions/data.nix {dataPath = ../data;};
   inherit (dataFuncs) hostData userData userPreferences userExtras;
@@ -70,7 +70,7 @@
           userData
           isDarwin
           ;
-        pkgs-unstable = getPkgsUnstable system;
+        pkgs = getPkgs system;
         host = host;
       };
     };
@@ -87,7 +87,7 @@
       specialArgs =
         commonSpecialArgs
         // {
-          pkgs-unstable = getPkgsUnstable system;
+          pkgs = getPkgs system;
           host = host;
           inherit hostKey user isDarwin;
         };
@@ -117,7 +117,7 @@
         specialArgs =
           commonSpecialArgs
           // {
-            pkgs-unstable = getPkgsUnstable system;
+            pkgs = getPkgs system;
             host = host;
             inherit hostKey user isDarwin;
           };

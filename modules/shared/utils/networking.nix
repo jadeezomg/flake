@@ -6,5 +6,6 @@
     ipfetch # Neofetch for IP addresses
     wget # Web file downloader
     xh # A better curl
+    resterm # Terminal-based REST client
   ];
 }

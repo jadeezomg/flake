@@ -1,6 +1,6 @@
-{pkgs-unstable, ...}: {
+{pkgs, ...}: {
   home.packages = [
     # --- Protonpass ---
-    pkgs-unstable.proton-pass
+    pkgs.proton-pass
   ];
 }

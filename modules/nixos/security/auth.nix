@@ -1,13 +1,13 @@
 {
   pkgs,
-  pkgs-unstable,
+  pkgs,
   ...
 }: {
   # Authentication configuration
   # PAM configuration, etc.
 
   # Password managers
-  environment.systemPackages = with pkgs-unstable; [
+  environment.systemPackages = with pkgs; [
     proton-pass
   ];
 }
