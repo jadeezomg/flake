@@ -33,6 +33,7 @@ Nushell-based build and management scripts for the NixOS flake configuration.
 
 - **`generation.nu`** - Manage generations
   - `generation.nu list` - List all generations
+  - `generation.nu bootloader` - List all bootloader entries
   - `generation.nu switch <num>` - Switch to generation
   - `generation.nu delete <num>` - Delete generation
 

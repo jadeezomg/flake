@@ -26,6 +26,11 @@ in {
       # Set up PATH - ensure /run/wrappers/bin stays first (contains setuid wrappers like sudo)
       # Then add our custom paths after the existing PATH
       export PATH="${sharedPaths.nixPaths.wrappersBin}:${sharedPaths.commonPaths.localBin}:${sharedPaths.commonPaths.cargoBin}:${sharedPaths.nixPaths.nixProfile}:${sharedPaths.nixPaths.userProfile}:${sharedPaths.nixPaths.systemSw}:${sharedPaths.nixPaths.defaultProfile}:$PATH"
+
+      # Initialize rbenv for Ruby version management (installed via Homebrew)
+      if command -v rbenv >/dev/null 2>&1; then
+        eval "$(rbenv init - zsh)"
+      fi
     '';
 
     # Profile settings for login shells

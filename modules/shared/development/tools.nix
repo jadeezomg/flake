@@ -17,7 +17,7 @@
     uv # Python package manager
 
     # --- Nix Tools ---
-    nixfmt-rfc-style # Nix formatter
+    nixfmt # Nix formatter
     nil # Nix language server
     nixd # Alternative Nix language server
   ];

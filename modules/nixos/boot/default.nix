@@ -1,6 +1,6 @@
 {
   pkgs,
-  pkgs,
+  pkgsStable,
   lib,
   ...
 }: {
@@ -12,7 +12,7 @@
 
       efi = {
         canTouchEfiVariables = true;
-        efiSysMountPoint = "/boot/efi";
+        efiSysMountPoint = "/boot";
       };
       # uncomment if you want to use another bootloader
       # external = {

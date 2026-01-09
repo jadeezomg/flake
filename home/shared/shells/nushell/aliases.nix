@@ -17,7 +17,7 @@
     owner = "fj0r";
     repo = "git.nu";
     rev = "main";
-    sha256 = "sha256-OUXw7qfVcArI1r1ij0pB9YXAdQqsjKvolK0qQnEgqfg="; # Updated hash
+    sha256 = "sha256-7twPTScOXW8RqgDAKx0mzwYVeQrmj3cP9dFO9PBRclA="; # Updated hash
   };
 
   # Fetch bash-env.nu module from tesujimath's repository

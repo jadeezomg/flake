@@ -43,7 +43,7 @@
     };
 
     stylix = {
-      url = "github:danth/stylix/release-25.11";
+      url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -73,6 +73,11 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
+
+    quickshell = {
+      url = "git+https://git.outfoxxed.me/quickshell/quickshell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {
@@ -86,6 +91,7 @@
     lanzaboote,
     nix-homebrew,
     zen-browser,
+    quickshell,
     ...
   }: let
     pkgsFuncs = import ./parts/functions/pkgs.nix {inherit inputs;};

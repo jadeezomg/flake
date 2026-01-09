@@ -1,6 +1,6 @@
 #!/usr/bin/env nu
 # List and manage NixOS generations
-# Usage: generation.nu [list|switch [num]|delete [num]]
+d# Usage: generation.nu [list|bootloader|switch [num]|delete [num]]
 
 use common.nu *
 
@@ -22,6 +22,63 @@ def list-generations [] {
   } else {
     let generations = nh os info
     print $generations
+  }
+}
+
+def list-bootloader-entries [] {
+  let is_darwin = (is-darwin)
+  if $is_darwin {
+    print-error "Bootloader entries are not applicable on Darwin"
+    return
+  }
+  
+  print-header "BOOTLOADER ENTRIES"
+  
+  # Try bootctl list first (works for systemd-boot and some EFI setups)
+  let bootctl_result = (^bootctl list 2>/dev/null | complete)
+  if $bootctl_result.exit_code == 0 and ($bootctl_result.stdout | str trim | is-not-empty) {
+    print $bootctl_result.stdout
+    print ""
+  }
+  
+  # Check EFI directory for Lanzaboote entries
+  let efi_path = "/boot/efi/EFI/Linux"
+  if ($efi_path | path exists) {
+    print-info "Lanzaboote entries in /boot/efi/EFI/Linux:"
+    try {
+      let entries = (ls $efi_path | to text)
+      print $entries
+    } catch {
+      print-info "No entries found or cannot access EFI directory"
+    }
+  } else {
+    # Try alternative EFI paths
+    let alt_paths = ["/boot/EFI/Linux", "/efi/EFI/Linux"]
+    mut found = false
+    for path in $alt_paths {
+      if ($path | path exists) {
+        print-info $"Lanzaboote entries in ($path):"
+        try {
+          let entries = (ls $path | to text)
+          print $entries
+          $found = true
+          break
+        } catch {
+          # Continue to next path
+        }
+      }
+    }
+    if not $found {
+      print-info "No EFI/Linux directory found. Bootloader entries may be managed differently."
+    }
+  }
+  
+  # Also show EFI boot entries using efibootmgr if available
+  let efibootmgr_result = (^efibootmgr -v 2>/dev/null | complete)
+  if $efibootmgr_result.exit_code == 0 and ($efibootmgr_result.stdout | str trim | is-not-empty) {
+    print ""
+    print-info "EFI Boot Manager entries:"
+    print $efibootmgr_result.stdout
   }
 }
 
@@ -52,6 +109,7 @@ def delete-generation [num: int] {
 def main [action: string = "list", num?: int] {
   match $action {
     "list" => list-generations
+    "bootloader" => list-bootloader-entries
     "switch" => {
       list-generations
       print ""
@@ -86,7 +144,7 @@ def main [action: string = "list", num?: int] {
     }
     _ => {
       print-error $"Unknown action: ($action)"
-      print "Actions: list, switch [num], delete [num]"
+      print "Actions: list, bootloader, switch [num], delete [num]"
       exit 1
     }
   }

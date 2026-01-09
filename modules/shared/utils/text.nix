@@ -8,5 +8,7 @@
     ripgrep-all # Ripgrep for extended file types
     sd # Better sed
     yq # Command-line YAML, JSON, XML, and TOML processor
+    exiftool # Read and write EXIF metadata
+    qpdf # PDF manipulation
   ];
 }

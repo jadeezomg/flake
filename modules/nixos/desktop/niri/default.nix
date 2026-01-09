@@ -1,4 +1,8 @@
 {pkgs, ...}: {
+  imports = [
+    ./dms.nix
+  ];
+
   # Niri Wayland Compositor Configuration
   # GDM will automatically detect Niri session at login screen
   # You can choose between GNOME and Niri at the login screen

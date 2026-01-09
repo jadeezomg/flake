@@ -15,7 +15,7 @@
   inherit (modulesFuncs) commonSpecialArgs darwinSystems homeModules;
 
   hmModule = import ./modules/home-manager.nix {
-    inherit inputs hostData userPreferences userExtras userData homeModules getPkgsUnstable;
+    inherit inputs hostData userPreferences userExtras userData homeModules getPkgs;
   };
   inherit (hmModule) homeManagerConfig;
 
