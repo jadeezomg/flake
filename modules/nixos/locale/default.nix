@@ -23,6 +23,8 @@
 in {
   # Locale and timezone configuration (from host data)
   time.timeZone = localeConfig.timeZone;
+  services.timesyncd.enable = true;
+
   i18n.defaultLocale = localeConfig.defaultLocale;
   i18n.extraLocaleSettings = localeConfig.extraLocaleSettings;
 }
