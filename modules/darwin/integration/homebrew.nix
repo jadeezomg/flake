@@ -20,6 +20,8 @@
     brews = [
       # Dependencies that are better managed by Homebrew on macOS
       # These are often required by casks or system integrations
+      "rbenv" # Ruby version manager
+      "ruby-build" # Ruby version installer for rbenv
     ];
 
     # GUI applications (casks)

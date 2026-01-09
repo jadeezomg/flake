@@ -10,25 +10,28 @@
     profiles.default = {
       extensions = with pkgs.vscode-extensions;
         [
-          dbaeumer.vscode-eslint # JavaScript/TypeScript linting
-          charliermarsh.ruff # Python linting/formatting
-          tamasfe.even-better-toml # TOML support
-          jnoortheen.nix-ide # Nix language support
-          redhat.vscode-yaml # YAML support
-          thenuprojectcontributors.vscode-nushell-lang # Nushell support
+          # --- Languages ---
+          # Ruby
+          wingrunr21.vscode-ruby # Ruby support
           rebornix.ruby # Ruby support
           shopify.ruby-lsp # Ruby Language Server
-          aaron-bond.better-comments # Better comments highlighting
+          # --- JavaScript/TypeScript ---
+          dbaeumer.vscode-eslint # JavaScript/TypeScript linting
+          # Nix
           kamadorueda.alejandra # Nix formatter
+          jnoortheen.nix-ide # Nix language support
+          # Lua
           sumneko.lua # Lua Language Server with formatting support
-          mechatroner.rainbow-csv # CSV support
+          # Python
+          charliermarsh.ruff # Python linting/formatting
           ms-python.python # Python support
+          # Nushell
+          thenuprojectcontributors.vscode-nushell-lang # Nushell support
+          # Data Formats
+          mechatroner.rainbow-csv # CSV support
+          tamasfe.even-better-toml # TOML support
+          redhat.vscode-yaml # YAML support
         ]
-        ++ (
-          if false
-          then []
-          else []
-        )
         ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
           {
             name = "schemastore"; # JSON Schema support
