@@ -36,11 +36,13 @@
       inputs.sops-nix.homeManagerModules.sops
       inputs.stylix.homeModules.stylix
     ]
-    # Noctalia is only for NixOS (Wayland), not Darwin
+    # DMS is only for NixOS (Wayland), not Darwin
     ++ (
       if isDarwin
       then []
-      else [inputs.noctalia.homeModules.default]
+      else [
+        inputs.dankMaterialShell.homeModules.dank-material-shell
+      ]
     )
     ++ baseHomeModules isDarwin;
 in {

@@ -8,11 +8,11 @@
   # Host-specific services should be in hosts/<hostname>/default.nix
 
   # Enable upower for battery/power management
-  # Required for Noctalia shell battery and power features
+  # Required for DankMaterialShell (DMS) battery and power features
   services.upower.enable = true;
 
   # Enable power-profiles-daemon for power management
-  # Required for Noctalia shell power-profile feature
+  # Required for DankMaterialShell (DMS) power-profile feature
   # Framework already has this enabled, but enabling here for all hosts
   services.power-profiles-daemon.enable = true;
 

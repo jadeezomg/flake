@@ -21,13 +21,15 @@
 
   environment.systemPackages = with pkgs; [
     # Niri utilities
-    niri # Wayland compositor
-    wl-clipboard # Clipboard utilities for Wayland
-    mako # Notification daemon for Wayland
-    grim # Screenshot utility
-    slurp # Screen selection for screenshots
-    fuzzel # Fuzzy finder for Wayland
-    # Note: Noctalia shell should be configured via home-manager
-    # See home-manager configuration for noctalia-shell setup
+    niri # Wayland compositor (required)
+    # XWayland support - Niri 25.08+ automatically integrates with xwayland-satellite
+    # Just install it and ensure it's in PATH (which systemPackages does)
+    # Niri will spawn it on-demand when X11 clients connect
+    # See: https://github.com/YaLTeR/niri/wiki/Xwayland
+    xwayland-satellite
+    # wl-clipboard - Automatically installed by DMS when enableClipboard = true
+    # mako - Replaced by DMS built-in notification system
+    # grim - Optional: Niri has built-in screenshots, but grim useful for advanced workflows
+    # slurp - Optional: Used with grim for region selection, or other tools
   ];
 }
