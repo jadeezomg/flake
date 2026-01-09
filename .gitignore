@@ -1,4 +1,4 @@
 # Local flake configuration
 .flake-host
-
+/result
 .DS_Store

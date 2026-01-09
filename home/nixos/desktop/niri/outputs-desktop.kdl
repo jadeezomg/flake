@@ -1,0 +1,25 @@
+// Desktop-specific output configuration
+// This file is automatically included in the main config.kdl for the desktop host
+
+// Dell 4K monitor (HDMI-A-1) - rotated 90 degrees, 1.5x scaling
+// When rotated 90 degrees: physical 3840x2160 becomes 2160x3840
+// With 1.5x scale: logical size is 1440x2560
+output "HDMI-A-1" {
+    mode "3840x2160@60.000"
+    scale 1.5
+    transform "90"
+    position x=0 y=0
+}
+
+// AOC monitor (DP-1) - main monitor, normal orientation, 1x scaling
+// Positioned to the right of the rotated 4K monitor
+// Logical size: 2560x1440 (with 1x scale)
+output "DP-1" {
+    mode "2560x1440@170.002"
+    scale 1
+    transform "normal"
+    variable-refresh-rate
+    focus-at-startup
+    position x=1440 y=0
+}
+

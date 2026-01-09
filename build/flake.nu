@@ -327,15 +327,17 @@ def main [
     {
       key: "generation"
       script: "generation.nu"
-      usage: "generation [--list|--switch|--delete] <num>"
-      desc: "List/switch/delete NixOS generations"
+      usage: "generation [--list|--bootloader|--switch|--delete] <num>"
+      desc: "List/switch/delete NixOS generations and bootloader entries"
       examples: [
         "flake generation --list"
+        "flake generation --bootloader"
         "flake generation --switch 5"
         "flake generation --delete 3"
       ]
       subcommands: [
         { key: "--list", desc: "List all generations", args: "" }
+        { key: "--bootloader", desc: "List all bootloader entries", args: "" }
         { key: "--switch", desc: "Switch to generation (will prompt for number)", args: "" }
         { key: "--delete", desc: "Delete generation (will prompt for number)", args: "" }
       ]
