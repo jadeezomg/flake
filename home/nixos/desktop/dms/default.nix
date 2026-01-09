@@ -6,6 +6,8 @@
   hostKey,
   ...
 }: let
+  # Get the flake root path (known location)
+  flakeRoot = "${config.home.homeDirectory}/.dotfiles/flake";
   # Host-specific output configs
   outputConfigs = {
     framework = ../niri/outputs-framework.kdl;
@@ -16,13 +18,16 @@
   hostOutputConfig = outputConfigs.${hostKey} or null;
 
   # Function to auto-create symlinks for all files in a directory
-  configSymlinks = configsPath: configsAbsolutePath: let
+  configSymlinks = configsPath: let
     inherit (config.lib.file) mkOutOfStoreSymlink;
+
+    # Get the absolute path to the config directory in the flake
+    configDir = "${flakeRoot}/home/nixos/desktop/dms/config";
 
     mkSymlink = name: {
       name = name;
       value = {
-        source = mkOutOfStoreSymlink "${configsAbsolutePath}/${name}";
+        source = mkOutOfStoreSymlink "${configDir}/${name}";
         force = true; # Force overwrite existing files to create symlinks
       };
     };
@@ -45,7 +50,10 @@ in {
     dmsSymlinks = lib.mapAttrs' (name: value: {
       name = "DankMaterialShell/${name}";
       inherit value;
-    }) (configSymlinks ./config "${toString (./. + "/config")}");
+    }) (configSymlinks ./config);
+
+    # Get absolute path for niri config directory in the flake
+    niriDir = "${flakeRoot}/home/nixos/desktop/niri";
 
     # Auto-symlink all files from ../niri/ to ~/.config/niri/
     # Exclude config.kdl (symlinked separately) and outputs-*.kdl files (symlinked as host.kdl)
@@ -59,7 +67,7 @@ in {
     niriSymlinks = lib.listToAttrs (map (name: {
         name = "niri/${name}";
         value = {
-          source = config.lib.file.mkOutOfStoreSymlink "${toString (../niri)}/${name}";
+          source = config.lib.file.mkOutOfStoreSymlink "${niriDir}/${name}";
           force = true; # Force overwrite existing files to create symlinks
         };
       })
@@ -68,7 +76,7 @@ in {
     {
       # Symlink the base config.kdl (includes host.kdl via include statement)
       "niri/config.kdl" = {
-        source = config.lib.file.mkOutOfStoreSymlink "${toString (../niri)}/config.kdl";
+        source = config.lib.file.mkOutOfStoreSymlink "${niriDir}/config.kdl";
         force = true;
       };
 
@@ -76,8 +84,14 @@ in {
       # This allows the base config.kdl to include host-specific outputs
       "niri/host.kdl" =
         if hostOutputConfig != null
-        then {
-          source = config.lib.file.mkOutOfStoreSymlink "${toString hostOutputConfig}";
+        then let
+          # Determine the host-specific outputs file name
+          outputsFileName =
+            if hostKey == "framework"
+            then "outputs-framework.kdl"
+            else "outputs-desktop.kdl";
+        in {
+          source = config.lib.file.mkOutOfStoreSymlink "${niriDir}/${outputsFileName}";
           force = true;
         }
         else {
