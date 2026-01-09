@@ -70,7 +70,8 @@ input {
 }
 
 // Output configurations are host-specific and included from separate files.
-// See outputs-<host>.kdl files for host-specific screen compositions.
+// The host.kdl file is symlinked to the appropriate outputs-<host>.kdl file.
+include "host.kdl"
 
 // Settings that influence how windows are positioned and sized.
 // Find more information on the wiki:
@@ -612,6 +613,12 @@ binds {
     // moving the mouse or pressing any other key.
     Mod+Shift+P { power-off-monitors; }
 }
-// DMS manages its own config includes automatically via the niri module
-// No manual includes needed - DMS handles keybinds, colors, layout, etc. automatically
+
+// DankMaterialShell (DMS) integration
+// DMS will automatically apply key binds, gaps, window radius, and colors
+// You can customize gaps, border radius, and window radius in Settings → Compositor
+include "dms/colors.kdl"
+include "dms/layout.kdl"
+include "dms/alttab.kdl"
+include "dms/binds.kdl"
 
