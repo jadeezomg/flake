@@ -16,6 +16,12 @@ in {
     enable = true;
     autoEnable = true;
     polarity = "dark";
+    opacity = {
+      terminal = 0.9;
+      popups = 0.9;
+      desktop = 0.9;
+      applications = 0.9;
+    };
     base16Scheme = {
       scheme = "Birds of Paradise (Base16)";
       author = "Jeroen de Vries (converted to base16)";
@@ -40,7 +46,7 @@ in {
     # Use the same wallpaper as Home Manager configuration
     # This will be applied to GDM login screen
     # Use cleanSource on the directory containing the wallpaper
-    image = "${lib.cleanSource ../../../home/shared/assets/theme}/wallpaper.jpg";
+    image = "${lib.cleanSource ../../../home/shared/assets/wallpapers}/wallpaper.jpg";
 
     # Fonts configuration - matching Home Manager setup
     fonts = {

@@ -1,0 +1,84 @@
+// Window rules for Niri
+// These rules apply to all windows matching the specified criteria
+
+// Work around WezTerm's initial configure bug
+// by setting an empty default-column-width.
+window-rule {
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    default-column-width {}
+}
+
+// Open the zen browser picture-in-picture player as floating by default.
+window-rule {
+    match app-id=r#"^zen-twilight$"# title="^Picture-in-Picture$"
+    open-floating true
+}
+
+// Set zen browser to full width (excluding picture-in-picture windows)
+window-rule {
+    match app-id=r#"^zen-twilight$"#
+    default-column-width { proportion 1.0; }
+}
+
+// Set Cursor IDE to full width
+window-rule {
+    match app-id=r#"^Cursor$"#
+    default-column-width { proportion 1.0; }
+}
+
+// Set Zed IDE to full width
+window-rule {
+    match app-id=r#"^dev\.zed\.Zed$"#
+    default-column-width { proportion 1.0; }
+}
+
+// Example: block out two password managers from screen capture.
+// (This example rule is commented out with a "/-" in front.)
+/-window-rule {
+    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+    match app-id=r#"^org\.gnome\.World\.Secrets$"#
+
+    block-out-from "screen-capture"
+
+    // Use this instead if you want them visible on third-party screenshot tools.
+    // block-out-from "screencast"
+}
+
+// Recommended window rules for DMS integration
+// GNOME applications
+window-rule {
+    match app-id=r#"^org\.gnome\."#
+    draw-border-with-background false
+    geometry-corner-radius 12
+    clip-to-geometry true
+}
+
+// Terminal applications
+window-rule {
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    match app-id="Alacritty"
+    match app-id="zen"
+    match app-id="com.mitchellh.ghostty"
+    match app-id="kitty"
+    draw-border-with-background false
+}
+
+// Inactive window opacity
+window-rule {
+    match is-active=false
+    opacity 0.95
+}
+
+// Global rounded corners for all windows
+window-rule {
+    geometry-corner-radius 12
+    draw-border-with-background false
+    clip-to-geometry true
+}
+
+// Open DMS windows (quickshell) as floating by default
+window-rule {
+    match app-id=r#"org.quickshell$"#
+    open-floating true
+}
+

@@ -1,0 +1,47 @@
+{
+  "dark": {
+    "name": "Birds of Paradise Dark",
+    "primary": "#6b98bb",
+    "primaryText": "#feffff",
+    "primaryContainer": "#85b4bb",
+    "secondary": "#EFCB43",
+    "surface": "#5B413D",
+    "surfaceText": "#E6E1C4",
+    "surfaceVariant": "#372725",
+    "surfaceVariantText": "#DDDDDD",
+    "surfaceTint": "#6b98bb",
+    "background": "#372725",
+    "backgroundText": "#E6E1C4",
+    "outline": "#6a4d32",
+    "surfaceContainer": "#2e201f",
+    "surfaceContainerHigh": "#5B413D",
+    "surfaceContainerHighest": "#6a4d32",
+    "error": "#cb4131",
+    "warning": "#eeac36",
+    "info": "#6b98bb",
+    "matugen_type": "scheme-tonal-spot"
+  },
+  "light": {
+    "name": "Birds of Paradise Light",
+    "primary": "#6b98bb",
+    "primaryText": "#feffff",
+    "primaryContainer": "#c4dbf0",
+    "secondary": "#EFCB43",
+    "surface": "#E6E1C4",
+    "surfaceText": "#372725",
+    "surfaceVariant": "#feffff",
+    "surfaceVariantText": "#2e201f",
+    "surfaceTint": "#6b98bb",
+    "background": "#feffff",
+    "backgroundText": "#372725",
+    "outline": "#ac7f5c",
+    "surfaceContainer": "#DDDDDD",
+    "surfaceContainerHigh": "#E6E1C4",
+    "surfaceContainerHighest": "#feffff",
+    "error": "#ee5d32",
+    "warning": "#d8d762",
+    "info": "#6b98bb",
+    "matugen_type": "scheme-tonal-spot"
+  }
+}
+

@@ -41,5 +41,16 @@ in {
     function flake
       nu "${sharedPaths.commonPaths.flake}/${sharedConfig.nixConfig.flakeBuildScript}"
     end
+
+    # pay-respects integration
+    function f -d "Suggest fixes to the previous command"
+      eval $(_PR_LAST_COMMAND="$(history | head -n 1)" _PR_ALIAS="$(alias)" _PR_SHELL="fish" "pay-respects")
+    end
+
+    if status is-interactive
+      function fish_command_not_found --on-event fish_command_not_found
+        eval $(_PR_LAST_COMMAND="$argv" _PR_ALIAS="$(alias)" _PR_SHELL="fish" _PR_MODE="cnf" "pay-respects")
+      end
+    end
   '';
 }

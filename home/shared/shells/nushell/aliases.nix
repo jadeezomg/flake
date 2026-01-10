@@ -67,7 +67,7 @@ in {
     alias flake = nu $"(''$env.FLAKE)/${sharedConfig.nixConfig.flakeBuildScript}"
 
     def --env f [] {
-      let dir = (with-env { _PR_LAST_COMMAND: (history | last).command, _PR_ALIAS: (help aliases | select name expansion | each ({ |row| $row.name + "=" + $row.expansion }) | str join (char nl)), _PR_SHELL: nu } { /home/jadee/.nix-profile/bin/pay-respects })
+      let dir = (with-env { _PR_LAST_COMMAND: (history | last).command, _PR_ALIAS: (help aliases | select name expansion | each ({ |row| $row.name + "=" + $row.expansion }) | str join (char nl)), _PR_SHELL: nu } { pay-respects })
       cd $dir
     }
   '';

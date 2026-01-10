@@ -1,0 +1,17 @@
+// Keybinds that are overridden by DMS
+// Include this file when NOT using DMS to restore the default behavior
+// When using DMS, these keybinds are replaced by keybinds-dms.kdl
+
+binds {
+    // Audio volume keys (default wpctl implementation)
+    // These are overridden by DMS audio controls in keybinds-dms.kdl
+    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-"; }
+    XF86AudioMute        allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
+
+    // Brightness keys (default brightnessctl implementation)
+    // These are overridden by DMS brightness controls in keybinds-dms.kdl
+    XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "+10%"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "10%-"; }
+}
+

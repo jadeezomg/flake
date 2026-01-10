@@ -17,6 +17,5 @@
     ./services
     ./shells
     ./utils
-    ./virtualization
   ];
 }
