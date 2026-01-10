@@ -1,9 +1,13 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   # Import the same theme colors used in Home Manager
-  themeColors = import ../../../../home/shared/assets/theme/theme.nix;
+  themeColors = import ../../../home/shared/assets/theme/theme.nix;
 
   # Import font definitions to reuse Iosevka variants
-  fontDefinitions = import ../../../../home/shared/assets/fonts/fonts.nix {inherit pkgs;};
+  fontDefinitions = import ../../../home/shared/assets/fonts/fonts.nix {inherit pkgs;};
   iosevkaAile = fontDefinitions.monospace-pro.iosevka-aile.package;
   iosevkaEtoile = fontDefinitions.monospace-pro.iosevka-etoile.package;
 in {
@@ -35,7 +39,8 @@ in {
 
     # Use the same wallpaper as Home Manager configuration
     # This will be applied to GDM login screen
-    image = ../../../../home/shared/assets/theme/wallpaper.jpg;
+    # Use cleanSource on the directory containing the wallpaper
+    image = "${lib.cleanSource ../../../home/shared/assets/theme}/wallpaper.jpg";
 
     # Fonts configuration - matching Home Manager setup
     fonts = {
@@ -62,6 +67,11 @@ in {
       package = pkgs.phinger-cursors;
       name = "phinger-cursors-dark";
       size = 24;
+    };
+
+    # Configure Qt theming to avoid warnings
+    targets.qt = {
+      enable = false;
     };
   };
 }
