@@ -7,5 +7,6 @@
     ./dconf.nix
     ./mime.nix
     ./nix.nix
+    ./stylix.nix
   ];
 }

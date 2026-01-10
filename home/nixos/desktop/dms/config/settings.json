@@ -128,8 +128,8 @@
   "runningAppsCurrentWorkspace": false,
   "runningAppsGroupByApp": false,
   "centeringMode": "index",
-  "clockDateFormat": "ddd d",
-  "lockDateFormat": "ddd d",
+  "clockDateFormat": "",
+  "lockDateFormat": "",
   "mediaSize": 1,
   "appLauncherViewMode": "list",
   "spotlightModalViewMode": "list",
@@ -151,9 +151,9 @@
   "launcherLogoBrightness": 0.5,
   "launcherLogoContrast": 1,
   "launcherLogoSizeOffset": 2,
-  "fontFamily": "Iosevka NFM",
-  "monoFontFamily": "IosevkaTerm Nerd Font Mono",
-  "fontWeight": 500,
+  "fontFamily": "Iosevka NF",
+  "monoFontFamily": "Iosevka Nerd Font Mono",
+  "fontWeight": 400,
   "fontScale": 1.05,
   "notepadUseMonospace": true,
   "notepadFontFamily": "",
@@ -194,7 +194,7 @@
   "dockAutoHide": true,
   "dockGroupByApp": true,
   "dockOpenOnOverview": true,
-  "dockPosition": 1,
+  "dockPosition": 2,
   "dockSpacing": 10,
   "dockBottomGap": 17,
   "dockMargin": 0,
@@ -248,8 +248,14 @@
   "updaterCustomCommand": "",
   "updaterTerminalAdditionalParams": "",
   "displayNameMode": "system",
-  "screenPreferences": {},
-  "showOnLastDisplay": {},
+  "screenPreferences": {
+    "osd": [
+      "all"
+    ]
+  },
+  "showOnLastDisplay": {
+    "osd": false
+  },
   "barConfigs": [
     {
       "id": "default",
@@ -307,7 +313,8 @@
         },
         {
           "id": "clock",
-          "enabled": true
+          "enabled": true,
+          "clockCompactMode": false
         },
         {
           "id": "controlCenterButton",
