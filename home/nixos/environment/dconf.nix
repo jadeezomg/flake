@@ -9,5 +9,9 @@
     "org/gnome/desktop/wm/preferences" = {
       titlebar-font = "Iosevka Nerd Font 10";
     };
+    # Set Kanagawa Dragon GTK theme
+    "org/gnome/desktop/interface" = {
+      gtk-theme = "Kanagawa-Dragon";
+    };
   };
 }
