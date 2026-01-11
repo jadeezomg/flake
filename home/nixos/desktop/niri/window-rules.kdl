@@ -69,6 +69,12 @@ window-rule {
     opacity 0.95
 }
 
+// Active window opacity
+window-rule {
+    match is-active=true
+    opacity 0.95
+}
+
 // Global rounded corners for all windows
 window-rule {
     geometry-corner-radius 12

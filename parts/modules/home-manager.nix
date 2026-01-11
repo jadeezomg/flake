@@ -6,6 +6,7 @@
   userData,
   homeModules,
   getPkgs,
+  getPkgsStable,
   ...
 }: let
   homeManagerConfig = {
@@ -14,7 +15,12 @@
     isDarwin,
     inputs,
     ...
-  }: {
+  }: let
+    system =
+      if isDarwin
+      then "aarch64-darwin"
+      else "x86_64-linux";
+  in {
     useGlobalPkgs = true;
     useUserPackages = true;
     backupFileExtension = "backup";
@@ -29,11 +35,9 @@
         userData
         isDarwin
         ;
-      pkgs = getPkgs (
-        if isDarwin
-        then "aarch64-darwin"
-        else "x86_64-linux"
-      );
+      pkgs = getPkgs system;
+      pkgs-stable = getPkgsStable system;
+      inherit inputs;
     };
     users.${user} = {
       imports = homeModules isDarwin;

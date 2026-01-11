@@ -266,7 +266,10 @@
       "enabled": true,
       "position": 0,
       "screenPreferences": [
-        "all"
+        {
+          "name": "DP-1",
+          "model": "AG274QS3R1B+"
+        }
       ],
       "showOnLastDisplay": false,
       "leftWidgets": [
@@ -287,7 +290,7 @@
         {
           "id": "music",
           "enabled": true,
-          "mediaSize": 3
+          "mediaSize": 2
         }
       ],
       "rightWidgets": [

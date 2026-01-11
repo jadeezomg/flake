@@ -177,21 +177,4 @@
       };
     };
   };
-
-  # Cursor can keep a stale `~/.cursor/extensions/extensions.json` and ignore newly linked
-  # extensions. Remove it on activation so Cursor regenerates it from the on-disk extensions.
-  # Only delete if Cursor is not running and the file/directory is writable.
-  # home.activation.cursorRescanExtensions = lib.hm.dag.entryAfter ["writeBoundary"] ''
-  #   # Check if Cursor is running - if so, skip deletion to avoid breaking extensions
-  #   if pgrep -f "cursor|code-cursor" > /dev/null 2>&1; then
-  #     echo "Cursor is running - skipping extensions.json deletion. Restart Cursor to rescan extensions."
-  #   elif [ -f "$HOME/.cursor/extensions/extensions.json" ]; then
-  #     # Check if the directory is writable before attempting deletion
-  #     if [ -w "$HOME/.cursor/extensions" ] || [ -w "$HOME/.cursor/extensions/extensions.json" ]; then
-  #       rm -f "$HOME/.cursor/extensions/extensions.json" || true
-  #     else
-  #       echo "Warning: Cannot delete extensions.json (read-only filesystem). Restart Cursor to rescan extensions."
-  #     fi
-  #   fi
-  # '';
 }

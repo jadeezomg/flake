@@ -1,7 +1,11 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  pkgs-stable,
+  ...
+}: {
   environment.systemPackages = with pkgs; [
     # IDEs
-    zed-editor
+    pkgs-stable.zed-editor
     code-cursor
   ];
 }

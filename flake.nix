@@ -78,6 +78,11 @@
       url = "git+https://git.outfoxxed.me/quickshell/quickshell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    zed = {
+      url = "github:zed-industries/zed";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {
@@ -92,6 +97,7 @@
     nix-homebrew,
     zen-browser,
     quickshell,
+    zed,
     ...
   }: let
     pkgsFuncs = import ./parts/functions/pkgs.nix {inherit inputs;};

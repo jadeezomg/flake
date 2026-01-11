@@ -20,12 +20,26 @@ output "DP-1" {
     transform "normal"
     variable-refresh-rate
     focus-at-startup
-    position x=1440 y=0
+    position x=1665 y=600
 }
+
+spawn-at-startup "pear-desktop"
+spawn-at-startup "zen-twilight"
 
 
 window-rule {
-    match app-id=r#"^zen-twilight$"#
+    match app-id=r#"^pear-desktop$"#
+    open-on-output "HDMI-A-1"
+    default-window-height { proportion 0.25; }
     default-column-width { proportion 1.0; }
 }
+
+window-rule {
+    match app-id=r#"^zen-twilight$"#
+    open-on-output "HDMI-A-1"
+    default-window-height { proportion 0.75; }
+    default-column-width { proportion 1.0; }
+}
+
+
 
