@@ -31,7 +31,7 @@ binds {
     // Open/close the Overview: a zoomed-out view of workspaces and windows.
     // You can also move the mouse into the top-left hot corner,
     // or do a four-finger swipe up on a touchpad.
-    Mod+O repeat=false { toggle-overview; }
+    Mod+Space repeat=false { toggle-overview; }
 
     Mod+Q repeat=false { close-window; }
 
@@ -188,7 +188,7 @@ binds {
     Mod+R { switch-preset-column-width; }
     // Cycling through the presets in reverse order is also possible.
     // Mod+R { switch-preset-column-width-back; }
-    Mod+Shift+R { switch-preset-window-height; }
+    Mod+E { switch-preset-window-height; }
     Mod+Ctrl+R { reset-window-height; }
     Mod+A { maximize-column; }
     Mod+Shift+F { fullscreen-window; }

@@ -4,9 +4,9 @@
 
 binds {
     // DMS Application Launchers
-    Mod+Space hotkey-overlay-title="Application Launcher" {
-        spawn "dms" "ipc" "call" "spotlight" "toggle";
-    }
+    // Mod+Space hotkey-overlay-title="Application Launcher" {
+    //     spawn "dms" "ipc" "call" "spotlight" "toggle";
+    // }
     Mod+V hotkey-overlay-title="Clipboard Manager" {
         spawn "dms" "ipc" "call" "clipboard" "toggle";
     }
