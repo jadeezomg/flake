@@ -90,7 +90,7 @@
           pkgs = getPkgs system;
           pkgs-stable = getPkgsStable system;
           host = host;
-          inherit hostKey user isDarwin;
+          inherit hostKey user isDarwin inputs;
         };
       modules = [
         (./. + "/../hosts/${hostKey}")
@@ -122,7 +122,7 @@
             pkgs = getPkgs system;
             pkgs-stable = getPkgsStable system;
             host = host;
-            inherit hostKey user isDarwin;
+            inherit hostKey user isDarwin inputs;
           };
         modules = [
           sops-nix.darwinModules.sops

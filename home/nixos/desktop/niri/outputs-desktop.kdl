@@ -28,18 +28,27 @@ spawn-at-startup "zen-twilight"
 
 
 window-rule {
-    match app-id=r#"^pear-desktop$"#
+    match app-id=r#"^com.github.th_ch.youtube_music$"#
     open-on-output "HDMI-A-1"
-    default-window-height { proportion 0.25; }
+    default-window-height { proportion 0.315; }
     default-column-width { proportion 1.0; }
 }
 
 window-rule {
     match app-id=r#"^zen-twilight$"#
     open-on-output "HDMI-A-1"
-    default-window-height { proportion 0.75; }
+    default-window-height { proportion 0.685; }
     default-column-width { proportion 1.0; }
 }
 
-
+// Open the zen browser picture-in-picture player as floating by default.
+window-rule {
+    match app-id=r#"^zen-twilight$"# title="^Picture-in-Picture$"
+    default-window-height { proportion 0.315; }
+    default-column-width { proportion 1.0; }
+    open-floating true
+    default-floating-position x=0 y=0 relative-to="top-left"
+    open-on-output "HDMI-A-1"
+    opacity 1.0
+}
 

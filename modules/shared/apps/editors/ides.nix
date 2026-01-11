@@ -4,8 +4,7 @@
   ...
 }: {
   environment.systemPackages = with pkgs; [
-    # IDEs
-    pkgs-stable.zed-editor
+    zed-editor
     code-cursor
   ];
 }

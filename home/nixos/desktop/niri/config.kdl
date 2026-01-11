@@ -69,9 +69,7 @@ input {
     focus-follows-mouse max-scroll-amount="0%"
 }
 
-// Output configurations are host-specific and included from separate files.
-// The host.kdl file is symlinked to the appropriate outputs-<host>.kdl file.
-include "host.kdl"
+
 
 // Settings that influence how windows are positioned and sized.
 // Find more information on the wiki:
@@ -106,9 +104,9 @@ layout {
 
     // You can also customize the heights that "switch-preset-window-height" (Mod+Shift+R) toggles between.
     preset-window-heights { 
-        proportion 0.25
+        proportion 0.315
         proportion 0.5
-        proportion 0.75
+        proportion 0.685
     }
 
     // You can change the default width of the new windows.
@@ -336,3 +334,6 @@ include "dms/layout.kdl"
 include "dms/alttab.kdl"
 include "dms/binds.kdl"
 
+// Output configurations are host-specific and included from separate files.
+// The host.kdl file is symlinked to the appropriate outputs-<host>.kdl file.
+include "host.kdl"

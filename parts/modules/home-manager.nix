@@ -37,7 +37,6 @@
         ;
       pkgs = getPkgs system;
       pkgs-stable = getPkgsStable system;
-      inherit inputs;
     };
     users.${user} = {
       imports = homeModules isDarwin;

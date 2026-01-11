@@ -20,5 +20,5 @@ in {
   # TODO: Add caya-specific configuration
 
   # System configuration
-  system.stateVersion = 4; # Darwin state version
+  system.stateVersion = "25.11";
 }
