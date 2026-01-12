@@ -66,12 +66,12 @@ in {
 
     # Enable automatic theming for all supported applications
     targets = {
-      # You already manage `~/.config/wezterm/wezterm.lua` via `home/shared/apps/terminals/wezterm.nix`,
-      # so Stylix must NOT also manage WezTerm or we'll get a Home Manager target-file conflict.
       wezterm.enable = false;
       vscode.enable = false;
       firefox.enable = false;
-      zen-browser.profileNames = ["default"];
+      "zen-browser" = {
+        profileNames = ["default"];
+      };
       # gnome.enable = false;
       # qt.enable = false;
       gtk = {

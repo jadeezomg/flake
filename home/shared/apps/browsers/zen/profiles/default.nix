@@ -5,8 +5,6 @@
 }: let
   sharedSettings = import ../settings.nix;
 in rec {
-  id = 0;
-  isDefault = pkgs.stdenv.isLinux;
   settings =
     sharedSettings
     // {

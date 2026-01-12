@@ -7,11 +7,11 @@
   extensions = import ./extensions.nix {inherit pkgs lib;};
   defaultProfile = import ./profiles/default.nix {inherit pkgs extensions;};
   cayaProfile = import ./profiles/caya.nix {inherit pkgs extensions;};
-  # Use extensions from whichever profile is marked as default
-  activeProfileExtensions =
-    if defaultProfile.isDefault
-    then defaultProfile.profileExtensions
-    else cayaProfile.profileExtensions;
+  defaultProfileData =
+    if pkgs.stdenv.isLinux
+    then defaultProfile
+    else cayaProfile;
+  activeProfileExtensions = defaultProfileData.profileExtensions;
   policies = import ./policies.nix {
     inherit pkgs lib extensions;
     profileExtensions = activeProfileExtensions;
@@ -28,8 +28,23 @@ in {
     inherit policies;
 
     profiles = {
-      default = removeAttrs defaultProfile ["profileExtensions"];
-      caya = removeAttrs cayaProfile ["profileExtensions"];
+      default =
+        (removeAttrs defaultProfileData ["profileExtensions"])
+        // {
+          id = 0;
+          isDefault = true;
+        };
     };
   };
 }
+# Or as separate steps:
+# Check if Zen is running:
+#    pgrep -f 'Zen.app' && echo "Zen is running" || echo "Zen is not running"
+#    pgrep -f 'Zen.app' && echo "Zen is running" || echo "Zen is not running"
+# Close Zen:
+#    pkill -f 'Zen.app'
+# Verify it's closed (wait 2 seconds):
+#    sleep 2 && pgrep -f 'Zen.app' && echo "Still running!" || echo "Zen is closed ✓"
+# Then rebuild:
+#    nh darwin switch --hostname caya
+

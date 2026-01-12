@@ -5,8 +5,6 @@
 }: let
   sharedSettings = import ../settings.nix;
 in rec {
-  id = 1;
-  isDefault = !pkgs.stdenv.isLinux;
   settings =
     sharedSettings
     // {
@@ -42,7 +40,7 @@ in rec {
     };
     "Metabase" = {
       id = "f4a5b6c7-d8e9-4012-f345-a6b7c8d9e012";
-      url = "https://metabase.example.com";
+      url = "https://metabase.caya.com/dashboard/122-pam-dashboard";
       position = 104;
       isEssential = true;
     };
@@ -54,19 +52,19 @@ in rec {
     };
     "Workato" = {
       id = "b6c7d8e9-f0a1-4234-b567-c8d9e0f1a234";
-      url = "https://app.workato.com";
+      url = "https://app.eu.workato.com";
       position = 106;
       isEssential = true;
     };
     "Zoho Sprints" = {
       id = "c7d8e9f0-a1b2-4345-c678-d9e0f1a2b345";
-      url = "https://sprints.zoho.com";
+      url = "https://sprints.zoho.eu/workspace/cayagmbh#P2/board";
       position = 107;
       isEssential = true;
     };
     "GitHub" = {
       id = "d8e9f0a1-b2c3-4456-d789-e0f1a2b3c456";
-      url = "https://github.com";
+      url = "https://github.com/AMN-DATA";
       position = 108;
       isEssential = true;
     };

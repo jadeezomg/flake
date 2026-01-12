@@ -33,7 +33,8 @@
     ];
   homeModules = isDarwin:
     [
-      inputs.sops-nix.homeManagerModules.sops
+      inputs.sops-nix.homeModules.sops
+      inputs.stylix.homeModules.stylix
     ]
     # DMS is only for NixOS (Wayland), not Darwin
     ++ (
