@@ -9,4 +9,3 @@
   "zen.urlbar.behavior" = "float";
   "zen.workspaces.separate-essentials" = false;
 }
-
