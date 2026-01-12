@@ -9,13 +9,22 @@ output "HDMI-A-1" {
     scale 1.3
     transform "90"
     position x=0 y=0
+
+    layout {
+        preset-window-heights { 
+            proportion 0.315
+            proportion 0.5
+            proportion 0.685
+        }
+        default-column-width { proportion 1.0; }
+    }
 }
 
 // AOC monitor (DP-1) - main monitor, normal orientation, 1x scaling
 // Positioned to the right of the rotated 4K monitor
 // Logical size: 2560x1440 (with 1x scale)
 output "DP-1" {
-    mode "2560x1440@170.002"
+    mode "2560x1440@165.000"
     scale 1
     transform "normal"
     variable-refresh-rate
@@ -30,6 +39,7 @@ spawn-at-startup "zen-twilight"
 window-rule {
     match app-id=r#"^com.github.th_ch.youtube_music$"#
     open-on-output "HDMI-A-1"
+    open-on-workspace "1"
     default-window-height { proportion 0.315; }
     default-column-width { proportion 1.0; }
 }
@@ -37,8 +47,16 @@ window-rule {
 window-rule {
     match app-id=r#"^zen-twilight$"#
     open-on-output "HDMI-A-1"
+    open-on-workspace "1"
     default-window-height { proportion 0.685; }
     default-column-width { proportion 1.0; }
+}
+
+window-rule {
+    match app-id=r#"^War Thundert$"#
+    open-on-output "DP-1"
+    open-maximized-to-edges true
+    opacity 1.0
 }
 
 // Open the zen browser picture-in-picture player as floating by default.

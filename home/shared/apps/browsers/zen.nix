@@ -126,6 +126,8 @@
     };
 
     profiles.default = rec {
+      id = 0;
+      isDefault = pkgs.stdenv.isLinux; # Default on NixOS (Linux)
       settings = {
         "zen.workspaces.continue-where-left-off" = true;
         "zen.workspaces.natural-scroll" = false;
@@ -137,8 +139,9 @@
         "zen.workspaces.separate-essentials" = false;
       };
 
-      pinsForce = false;
+      pinsForce = true;
       pins = {
+        # Top row (101-103)
         "Proton Mail" = {
           id = "a1b2c3d4-e5f6-4789-a012-b3c4d5e6f789";
           url = "https://mail.proton.me";
@@ -151,21 +154,22 @@
           position = 102;
           isEssential = true;
         };
-        "GitHub" = {
-          id = "c3d4e5f6-a7b8-4901-c234-d5e6f7a8b901";
-          url = "https://github.com";
+        "Discord" = {
+          id = "c3d4e5f6-a7b8-4901-c234-d5e6f7a8b902";
+          url = "https://discord.com";
           position = 103;
           isEssential = true;
         };
-        "Le Chat" = {
-          id = "d4e5f6a7-b8c9-4012-d345-e6f7a8b9c012";
-          url = "https://chat.mistral.ai";
-          position = 104;
-          isEssential = true;
-        };
+        # Middle row (104-106)
         "Reddit" = {
           id = "e5f6a7b8-c9d0-4123-e456-f7a8b9c0d123";
           url = "https://www.reddit.com";
+          position = 104;
+          isEssential = true;
+        };
+        "Bluesky" = {
+          id = "b7c8d9e0-f1a2-4456-b789-c0d1e2f3a456";
+          url = "https://bsky.app";
           position = 105;
           isEssential = true;
         };
@@ -175,10 +179,23 @@
           position = 106;
           isEssential = true;
         };
+        # Bottom row (107-109)
+        "GitHub" = {
+          id = "c3d4e5f6-a7b8-4901-c234-d5e6f7a8b901";
+          url = "https://github.com";
+          position = 107;
+          isEssential = true;
+        };
+        "Le Chat" = {
+          id = "d4e5f6a7-b8c9-4012-d345-e6f7a8b9c012";
+          url = "https://chat.mistral.ai";
+          position = 108;
+          isEssential = true;
+        };
         "Claude" = {
           id = "a7b8c9d0-e1f2-4345-a678-b9c0d1e2f345";
           url = "https://claude.ai";
-          position = 107;
+          position = 109;
           isEssential = true;
         };
       };
@@ -192,43 +209,45 @@
         };
       };
 
-      # spacesForce = true;
-      # spaces = {
-      #   "Home" = {
-      #     id = "572910e1-4468-4832-a869-0b3a93e2f165";
-      #     icon = "🏠";
-      #     position = 1000;
-      #   };
-      #   "Development" = {
-      #     id = "ec287d7f-d910-4860-b400-513f269dee77";
-      #     icon = "💻";
-      #     position = 1001;
-      #   };
-      #   "Shopping" = {
-      #     id = "2441acc9-79b1-4afb-b582-ee88ce554ec0";
-      #     icon = "🛒";
-      #     container = containers."Shopping".id;
-      #     position = 1002;
-      #   };
-      #   "Themes" = {
-      #     id = "8ed24375-68d4-4d37-ab7e-b2e121f994c1";
-      #     icon = "🎨";
-      #     position = 1003;
-      #   };
-      #   "Games" = {
-      #     id = "93162c7e-c086-4393-98d3-3c440215919c";
-      #     icon = "🎮";
-      #     position = 1004;
-      #   };
-      #   "Downloads" = {
-      #     id = "9e5ef3a0-f09e-4a1f-ac60-8591aa289e3e";
-      #     icon = "💾";
-      #     position = 1004;
-      #   };
-      # };
+      spacesForce = true;
+      spaces = {
+        "Home" = {
+          id = "572910e1-4468-4832-a869-0b3a93e2f165";
+          icon = "🏠";
+          position = 1000;
+        };
+        "Development" = {
+          id = "ec287d7f-d910-4860-b400-513f269dee77";
+          icon = "💻";
+          position = 1001;
+        };
+        "Shopping" = {
+          id = "2441acc9-79b1-4afb-b582-ee88ce554ec0";
+          icon = "🛒";
+          container = containers."Shopping".id;
+          position = 1002;
+        };
+        "Themes" = {
+          id = "8ed24375-68d4-4d37-ab7e-b2e121f994c1";
+          icon = "🎨";
+          position = 1003;
+        };
+        "Games" = {
+          id = "93162c7e-c086-4393-98d3-3c440215919c";
+          icon = "🎮";
+          position = 1004;
+        };
+        "Downloads" = {
+          id = "9e5ef3a0-f09e-4a1f-ac60-8591aa289e3e";
+          icon = "💾";
+          position = 1004;
+        };
+      };
     };
 
     profiles.caya = rec {
+      id = 1;
+      isDefault = !pkgs.stdenv.isLinux; # Default on Darwin (macOS)
       settings = {
         "zen.workspaces.continue-where-left-off" = true;
         "zen.workspaces.natural-scroll" = true;
@@ -296,44 +315,44 @@
       containers = {
         "Automations" = {
           color = "blue";
-          icon = "🤖";
-          position = 1;
+          icon = "briefcase";
+          id = 1;
         };
         "Forwarding" = {
           color = "yellow";
-          icon = "📡";
-          position = 2;
+          icon = "cart";
+          id = 2;
         };
       };
 
-      # spacesForce = true;
-      # spaces = {
-      #   "Random" = {
-      #     id = "060b1a27-d488-4c97-a51d-333fdac0eb7c";
-      #     icon = "🏠";
-      #     position = 1000;
-      #   };
-      #   "Solutions" = {
-      #     id = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
-      #     icon = "💡";
-      #     position = 1001;
-      #   };
-      #   "Operations" = {
-      #     id = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
-      #     icon = "�";
-      #     position = 1002;
-      #   };
-      #   "Development" = {
-      #     id = "8bbf6155-b7cc-4487-9379-35c02d1139ce";
-      #     icon = "💻";
-      #     position = 1003;
-      #   };
-      #   "Research" = {
-      #     id = "278ec41c-2c9d-41b3-aa79-1affeb706629";
-      #     icon = "🔍";
-      #     position = 1004;
-      #   };
-      # };
+      spacesForce = true;
+      spaces = {
+        "Random" = {
+          id = "060b1a27-d488-4c97-a51d-333fdac0eb7c";
+          icon = "🏠";
+          position = 1000;
+        };
+        "Solutions" = {
+          id = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
+          icon = "💡";
+          position = 1001;
+        };
+        "Operations" = {
+          id = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+          icon = "�";
+          position = 1002;
+        };
+        "Development" = {
+          id = "8bbf6155-b7cc-4487-9379-35c02d1139ce";
+          icon = "💻";
+          position = 1003;
+        };
+        "Research" = {
+          id = "278ec41c-2c9d-41b3-aa79-1affeb706629";
+          icon = "🔍";
+          position = 1004;
+        };
+      };
     };
   };
 }

@@ -1,4 +1,4 @@
-{...}: {
+{lib, ...}: {
   dconf.enable = true;
   dconf.settings = {
     "org/gnome/mutter".experimental-features = [
@@ -9,9 +9,9 @@
     "org/gnome/desktop/wm/preferences" = {
       titlebar-font = "Iosevka Nerd Font 10";
     };
-    # Set Kanagawa Dragon GTK theme
+    # Set Kanagawa Dragon GTK theme (override Stylix's default)
     "org/gnome/desktop/interface" = {
-      gtk-theme = "Kanagawa-Dragon";
+      gtk-theme = lib.mkForce "Kanagawa-Dragon";
     };
   };
 }
