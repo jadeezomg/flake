@@ -8,7 +8,6 @@
     ./boot
     ./desktop
     ./development
-    ./environment
     ./fonts
     ./hardware
     ./integration
