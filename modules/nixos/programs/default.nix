@@ -16,8 +16,11 @@
     };
   };
   environment.systemPackages = with pkgs; [
+    steamcmd
     mangohud
     protonup-ng
+    protonup-rs
+    gamescope-wsi
   ];
 
   environment.sessionVariables = {

@@ -11,6 +11,7 @@ in {
     enable = true;
     autoEnable = true;
     overlays.enable = false;
+    polarity = "dark";
 
     # Custom base16 scheme created from theme.nix colors
     base16Scheme = {

@@ -4,12 +4,16 @@
   ...
 }: let
   sharedSettings = import ../settings.nix;
+  sharedSearch = import ../search.nix {inherit pkgs;};
 in rec {
   settings =
     sharedSettings
     // {
       "zen.workspaces.natural-scroll" = false;
+      "zen.widget.linux.transparency" = true;
     };
+
+  search = sharedSearch;
 
   profileExtensions = {
     "78272b6fa58f4a1abaac99321d503a20@proton.me" = extensions.mkExtensionEntry {
@@ -26,58 +30,58 @@ in rec {
   pins = {
     # Top row (101-103)
     "Proton Mail" = {
-      id = "a1b2c3d4-e5f6-4789-a012-b3c4d5e6f789";
+      id = "5855f1ce-a12a-4065-8965-dd1a71f76a5c";
       url = "https://mail.proton.me";
       position = 101;
       isEssential = true;
     };
     "YouTube" = {
-      id = "b2c3d4e5-f6a7-4890-b123-c4d5e6f7a890";
+      id = "5ad224b2-5596-4268-b492-d7a781ea7c8e";
       url = "https://www.youtube.com";
       position = 102;
       isEssential = true;
     };
     "Discord" = {
-      id = "c3d4e5f6-a7b8-4901-c234-d5e6f7a8b902";
+      id = "87e179f9-4f46-4aeb-bc0f-fca09b5fff23";
       url = "https://discord.com";
       position = 103;
       isEssential = true;
     };
     # Middle row (104-106)
     "Reddit" = {
-      id = "e5f6a7b8-c9d0-4123-e456-f7a8b9c0d123";
+      id = "eaf54047-7d5f-423e-b695-c794b3df0e82";
       url = "https://www.reddit.com";
       position = 104;
       isEssential = true;
     };
     "Bluesky" = {
-      id = "b7c8d9e0-f1a2-4456-b789-c0d1e2f3a456";
+      id = "f78b129b-b4c8-4de1-9c6b-fd8254efde8a";
       url = "https://bsky.app";
       position = 105;
       isEssential = true;
     };
-    "jadee-server" = {
-      id = "f6a7b8c9-d0e1-4234-f567-a8b9c0d1e234";
-      url = "http://jadee-server";
+    "WhatsApp Web" = {
+      id = "5117b79f-7b69-4763-a804-683b413c9611";
+      url = "https://web.whatsapp.com/";
       position = 106;
       isEssential = true;
     };
     # Bottom row (107-109)
     "GitHub" = {
-      id = "c3d4e5f6-a7b8-4901-c234-d5e6f7a8b901";
+      id = "27762ade-30f6-4895-b348-b0410e9d858b";
       url = "https://github.com";
       position = 107;
       isEssential = true;
     };
     "Le Chat" = {
-      id = "d4e5f6a7-b8c9-4012-d345-e6f7a8b9c012";
+      id = "9760b4d1-ab39-43d7-8fba-3b8232b04ad1";
       url = "https://chat.mistral.ai";
       position = 108;
       isEssential = true;
     };
-    "Claude" = {
-      id = "a7b8c9d0-e1f2-4345-a678-b9c0d1e2f345";
-      url = "https://claude.ai";
+    "jadee-server" = {
+      id = "6a7a0766-9e1d-48a3-a14b-42a79ba85bc0";
+      url = "http://jadee-server";
       position = 109;
       isEssential = true;
     };
@@ -95,35 +99,34 @@ in rec {
   spacesForce = true;
   spaces = {
     "Home" = {
-      id = "572910e1-4468-4832-a869-0b3a93e2f165";
+      id = "062169cd-2322-44e2-aea5-467df4671303";
       icon = "🏠";
       position = 1000;
     };
     "Development" = {
-      id = "ec287d7f-d910-4860-b400-513f269dee77";
+      id = "5303cb0f-97f9-4bb1-b859-108214314758";
       icon = "💻";
       position = 1001;
     };
     "Shopping" = {
-      id = "2441acc9-79b1-4afb-b582-ee88ce554ec0";
+      id = "90801cc0-78d5-469b-a53a-cdb26aa2ae8d";
       icon = "🛒";
-      container = containers."Shopping".id;
       position = 1002;
     };
     "Themes" = {
-      id = "8ed24375-68d4-4d37-ab7e-b2e121f994c1";
+      id = "b878e1a6-6347-4070-bd19-00b74db05d12";
       icon = "🎨";
       position = 1003;
     };
     "Games" = {
-      id = "93162c7e-c086-4393-98d3-3c440215919c";
+      id = "9f311082-5623-47b5-960d-2a7b115b238e";
       icon = "🎮";
       position = 1004;
     };
     "Downloads" = {
-      id = "9e5ef3a0-f09e-4a1f-ac60-8591aa289e3e";
+      id = "fdcbe00e-21e9-46aa-93f5-52676ecb2301";
       icon = "💾";
-      position = 1004;
+      position = 1005;
     };
   };
 }

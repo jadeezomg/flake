@@ -35,6 +35,7 @@ in {
     "addon@darkreader.org" = "darkreader";
     "{91aa3897-2634-4a8a-9092-279db23a7689}" = "zen-internet";
     "{74145f27-f039-47ce-a470-a662b129930a}" = "clearurls";
-    "{BraveSearchExtension@io.Uvera}" = "brave-search";
+    "brave-search-extension@brave.com" = "bravesearch";
+    "{135c3428-66bc-4b5b-9503-282dc00802e7}" = "toxcancel";
   };
 }

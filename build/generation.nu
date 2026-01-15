@@ -1,6 +1,6 @@
 #!/usr/bin/env nu
 # List and manage NixOS generations
-d# Usage: generation.nu [list|bootloader|switch [num]|delete [num]]
+# Usage: generation.nu [list|bootloader|switch [num]|delete [num]]
 
 use common.nu *
 

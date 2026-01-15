@@ -24,16 +24,16 @@ in {
   programs.zen-browser = {
     enable = true;
     nativeMessagingHosts = lib.optionals pkgs.stdenv.isLinux [pkgs.firefoxpwa];
+    # Required for macOS - see https://github.com/0xc000022070/zen-browser-flake#preferences
+    # Verify the bundle identifier matches your Zen installation if policies don't work on macOS
+    darwinDefaultsId = lib.mkIf (!pkgs.stdenv.isLinux) "com.zen.browser";
 
     inherit policies;
 
-    profiles = {
-      default =
-        (removeAttrs defaultProfileData ["profileExtensions"])
-        // {
-          id = 0;
-          isDefault = true;
-        };
+    profiles.default = {
+      inherit defaultProfileData;
+      id = 0;
+      isDefault = true;
     };
   };
 }

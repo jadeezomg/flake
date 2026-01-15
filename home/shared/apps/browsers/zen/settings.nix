@@ -8,4 +8,8 @@
   "zen.welcome-screen.seen" = true;
   "zen.urlbar.behavior" = "float";
   "zen.workspaces.separate-essentials" = false;
+  "zen.pinned-tab-manager.restore-pinned-tabs-to-pinned-url" = true;
+
+  # Transparency
+  "browser.tabs.allow_transparent_browser" = true;
 }

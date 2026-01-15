@@ -12,44 +12,49 @@
     }
   );
 in {
+  # Autofill
   AutofillAddressEnabled = true;
   AutofillCreditCardEnabled = false;
+  OfferToSaveLogins = false;
+
+  # Updates & Telemetry
+  DisableAppUpdate = true;
   DisableFeedbackCommands = true;
   DisableFirefoxStudies = true;
-  DisableAppUpdate = true;
   DisableTelemetry = true;
-  OfferToSaveLogins = false;
+
+  # Tracking Protection
   EnableTrackingProtection = {
     Value = true;
     Locked = true;
     Cryptomining = true;
     Fingerprinting = true;
   };
+
+  # Cleanup
   SanitizeOnShutdown = {
     FormData = true;
     Cache = true;
   };
 
+  # Extensions
   ExtensionSettings = extensions.mkExtensionSettings (
     extensions.commonExtensions
     // profileExtensions
   );
 
+  # Locked Preferences
   Preferences = mkLockedAttrs {
     # General
     "browser.aboutConfig.showWarning" = false;
     "browser.tabs.warnOnClose" = false;
-    "media.videocontrols.picture-in-picture.video-toggle.enabled" = true;
-    # Disable swipe gestures (Browser:BackOrBackDuplicate, Browser:ForwardOrForwardDuplicate)
-    #"browser.gesture.swipe.left" = "";
-    #"browser.gesture.swipe.right" = "";
     "browser.tabs.hoverPreview.enabled" = true;
     "browser.newtabpage.activity-stream.feeds.topsites" = false;
     "browser.topsites.contile.enabled" = false;
+    "browser.translations.neverTranslateLanguages" = "de,en";
 
-    # Transparency
-    "browser.tabs.allow_transparent_browser" = true;
-    "zen.widget.linux.transparency" = true;
+    # Media
+    "media.videocontrols.picture-in-picture.video-toggle.enabled" = true;
 
     # Privacy
     "privacy.resistFingerprinting" = true;

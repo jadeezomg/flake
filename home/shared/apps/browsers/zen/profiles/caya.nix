@@ -4,12 +4,15 @@
   ...
 }: let
   sharedSettings = import ../settings.nix;
+  sharedSearch = import ../search.nix {inherit pkgs;};
 in rec {
   settings =
     sharedSettings
     // {
       "zen.workspaces.natural-scroll" = true;
     };
+
+  search = sharedSearch;
 
   profileExtensions = {
     "{d634138d-c276-4fc8-924b-40a0ea21d284}" = extensions.mkExtensionEntry {

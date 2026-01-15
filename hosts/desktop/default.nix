@@ -33,7 +33,7 @@ in {
       "nix-command"
       "flakes"
     ];
-    # CUDA cache is desktop-specific (for NVIDIA builds)
+    # # CUDA cache is desktop-specific (for NVIDIA builds)
     extra-substituters = [
       "https://cache.nixos-cuda.org"
     ];
