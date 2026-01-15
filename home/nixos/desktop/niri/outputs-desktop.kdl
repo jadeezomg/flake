@@ -33,7 +33,7 @@ output "DP-1" {
 }
 
 spawn-at-startup "pear-desktop"
-spawn-at-startup "zen-twilight"
+spawn-sh-at-startup "zen-beta || zen-twilight"
 
 
 window-rule {
@@ -46,6 +46,8 @@ window-rule {
 
 window-rule {
     match app-id=r#"^zen-twilight$"#
+    match app-id=r#"^zen-beta$"#
+    match app-id=r#"^zen$"#
     open-on-output "HDMI-A-1"
     open-on-workspace "1"
     default-window-height { proportion 0.685; }
@@ -62,6 +64,8 @@ window-rule {
 // Open the zen browser picture-in-picture player as floating by default.
 window-rule {
     match app-id=r#"^zen-twilight$"# title="^Picture-in-Picture$"
+    match app-id=r#"^zen-beta$"# title="^Picture-in-Picture$"
+    match app-id=r#"^zen$"# title="^Picture-in-Picture$"
     default-window-height { proportion 0.315; }
     default-column-width { proportion 1.0; }
     open-floating true

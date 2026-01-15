@@ -18,7 +18,7 @@
   };
 in {
   imports = [
-    inputs.zen-browser.homeModules.twilight
+    inputs.zen-browser.homeModules.beta
   ];
 
   programs.zen-browser = {
@@ -30,11 +30,12 @@ in {
 
     inherit policies;
 
-    profiles.default = {
-      inherit defaultProfileData;
-      id = 0;
-      isDefault = true;
-    };
+    profiles.default =
+      builtins.removeAttrs defaultProfileData ["profileExtensions"]
+      // {
+        id = 0;
+        isDefault = true;
+      };
   };
 }
 # Or as separate steps:

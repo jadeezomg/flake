@@ -34,6 +34,8 @@ window-rule {
 
 // Open the zen browser picture-in-picture player as floating by default.
 window-rule {
+    match app-id=r#"^zen$"# title="^Picture-in-Picture$"
+    match app-id=r#"^zen-beta$"# title="^Picture-in-Picture$"
     match app-id=r#"^zen-twilight$"# title="^Picture-in-Picture$"
     default-window-height { proportion 0.315; }
     default-column-width { proportion 1.0; }
@@ -43,7 +45,10 @@ window-rule {
 
 // Set zen browser to full width (excluding picture-in-picture windows)
 window-rule {
+    match app-id=r#"^zen$"#
+    match app-id=r#"^zen-beta$"#
     match app-id=r#"^zen-twilight$"#
+    default-window-height { proportion 0.685; }
     default-column-width { proportion 1.0; }
 }
 
@@ -94,6 +99,8 @@ window-rule {
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
     match app-id="Alacritty"
     match app-id="zen"
+    match app-id="zen-beta"
+    match app-id="zen-twilight"
     match app-id="com.mitchellh.ghostty"
     match app-id="kitty"
     draw-border-with-background false

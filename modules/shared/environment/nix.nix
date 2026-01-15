@@ -41,6 +41,10 @@ in {
       "flakes"
       "pipe-operators"
     ];
+
+    trusted-users = [
+      "jadee"
+    ];
   };
 
   environment.variables = {
