@@ -24,6 +24,7 @@ output "HDMI-A-1" {
        
 }
 
+
 // AOC monitor (DP-1) - main monitor, normal orientation, 1x scaling
 // Positioned to the right of the rotated 4K monitor
 // Logical size: 2560x1440 (with 1x scale)
@@ -36,18 +37,9 @@ output "DP-1" {
     position x=1665 y=600
 }
 
-spawn-at-startup "pear-desktop"
+
+// Browser
 spawn-sh-at-startup "zen-beta || zen-twilight"
-
-
-window-rule {
-    match app-id=r#"^youtube_music"#
-    open-on-output "HDMI-A-1"
-    open-on-workspace "1"
-    // default-window-height { proportion 0.315; }
-    default-column-width { proportion 1.0; }
-}
-
 window-rule {
     match app-id=r#"^zen-twilight$"#
     match app-id=r#"^zen-beta$"#
@@ -57,6 +49,17 @@ window-rule {
     default-window-height { proportion 0.685; }
     default-column-width { proportion 1.0; }
 }
+// Youtube Music 
+spawn-at-startup "pear-desktop"
+window-rule {
+    match app-id=r#"^youtube_music"#
+    open-on-output "HDMI-A-1"
+    open-on-workspace "1"
+    // default-window-height { proportion 0.315; }
+    default-column-width { proportion 1.0; }
+}
+
+
 
 window-rule {
     match app-id=r#"^War Thundert$"#

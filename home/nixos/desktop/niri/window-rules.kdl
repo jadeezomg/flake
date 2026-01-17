@@ -19,14 +19,6 @@ window-rule {
     opacity 1.0
 }
 
-// Set zen browser to full width (excluding picture-in-picture windows)
-window-rule {
-    match app-id=r#"^zen-beta$"#
-    match app-id=r#"^zen-twilight$"#
-    exclude title=r#"^Picture-in-Picture$"#
-    default-window-height { proportion 0.685; }
-    default-column-width { proportion 1.0; }
-}
 
 // Set Cursor and Zed IDE to full width
 window-rule {
