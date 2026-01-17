@@ -2,13 +2,13 @@
 // These rules apply to all windows matching the specified criteria
 
 // Inactive window opacity
-window-rule {
+/-window-rule {
     match is-active=false
     opacity 0.95
 }
 
 // Active window opacity
-window-rule {
+/-window-rule {
     match is-active=true
     opacity 0.95
 }
@@ -34,7 +34,6 @@ window-rule {
 
 // Open the zen browser picture-in-picture player as floating by default.
 window-rule {
-    match app-id=r#"^zen$"# title="^Picture-in-Picture$"
     match app-id=r#"^zen-beta$"# title="^Picture-in-Picture$"
     match app-id=r#"^zen-twilight$"# title="^Picture-in-Picture$"
     default-window-height { proportion 0.315; }
