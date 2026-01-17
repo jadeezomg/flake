@@ -110,9 +110,9 @@ layout {
     }
 
     // You can change the default width of the new windows.
-    default-column-width { proportion 0.5; }
+    //default-column-width { proportion 0.5; }
     // If you leave the brackets empty, the windows themselves will decide their initial width.
-    // default-column-width {}
+    default-column-width {}
 
     // By default focus ring and border are rendered as a solid background rectangle
     // behind windows. That is, they will show up through semitransparent windows.
@@ -171,10 +171,10 @@ layout {
         // If you enable the border, you probably want to disable the focus ring.
         off
 
-        // width 1
+        //width 15
         // Colors are managed by noctalia-shell via stylix
-        // active-color "#ffc87f"
-        // inactive-color "#505050"
+        //active-color "#ffc87f"
+        //inactive-color "#111111"
 
         // Color of the border around windows that request your attention.
         // Colors are managed by noctalia-shell via stylix
@@ -291,9 +291,7 @@ animations {
     // slowdown 3.0
 }
 
-// Window rules
-// All window rules are defined in window-rules.kdl
-include "window-rules.kdl"
+
 
 // Layer rules for DMS integration
 // Place quickshell (DMS) on the backdrop
@@ -314,26 +312,29 @@ layer-rule {
     place-within-backdrop true
 }
 
+recent-windows {
+    previews {
+        max-scale 0.6
+    }
+    binds {
+        Mod+Tab { next-window; }
+
+    }
+}
+// Window rules
+include "window-rules.kdl"
+
 // Keybind configuration
-// Include default keybinds first (non-conflicting ones that work with DMS)
 include "keybinds-default.kdl"
 
 // Include DMS-specific keybinds (overrides conflicting keybinds)
-// When NOT using DMS, comment out this line and uncomment keybinds-overrides.kdl below
 include "keybinds-dms.kdl"
 
-// Alternative: Use default overrides when NOT using DMS
-// Uncomment the line below and comment out keybinds-dms.kdl above when not using DMS
-// include "keybinds-overrides.kdl"
-
 // DankMaterialShell (DMS) integration
-// DMS will automatically apply key binds, gaps, window radius, and colors
-// You can customize gaps, border radius, and window radius in Settings → Compositor
 include "dms/colors.kdl"
 include "dms/layout.kdl"
 include "dms/alttab.kdl"
 include "dms/binds.kdl"
 
 // Output configurations are host-specific and included from separate files.
-// The host.kdl file is symlinked to the appropriate outputs-<host>.kdl file.
 include "host.kdl"

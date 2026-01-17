@@ -2,22 +2,15 @@
 // These rules apply to all windows matching the specified criteria
 
 // Inactive window opacity
-window-rule {
+/-window-rule {
     match is-active=false
     opacity 0.95
 }
 
 // Active window opacity
-window-rule {
+/-window-rule {
     match is-active=true
     opacity 0.95
-}
-
-// Work around WezTerm's initial configure bug
-// by setting an empty default-column-width.
-window-rule {
-    match app-id=r#"^org\.wezfurlong\.wezterm$"#
-    default-column-width {}
 }
 
 // Video player opaque
@@ -26,43 +19,23 @@ window-rule {
     opacity 1.0
 }
 
-window-rule {
-    match app-id=r#"^org.gnome.Nautilus$"#
-    match app-id=r#"^com.mitchellh.ghostty$"#
-    default-column-width { proportion 0.33333; }
-}
-
-// Open the zen browser picture-in-picture player as floating by default.
-window-rule {
-    match app-id=r#"^zen$"# title="^Picture-in-Picture$"
-    match app-id=r#"^zen-beta$"# title="^Picture-in-Picture$"
-    match app-id=r#"^zen-twilight$"# title="^Picture-in-Picture$"
-    default-window-height { proportion 0.315; }
-    default-column-width { proportion 1.0; }
-    open-floating true
-    opacity 1.0
-}
-
 // Set zen browser to full width (excluding picture-in-picture windows)
 window-rule {
-    match app-id=r#"^zen$"#
     match app-id=r#"^zen-beta$"#
     match app-id=r#"^zen-twilight$"#
+    exclude title=r#"^Picture-in-Picture$"#
     default-window-height { proportion 0.685; }
     default-column-width { proportion 1.0; }
 }
 
-// Set Cursor IDE to full width
+// Set Cursor and Zed IDE to full width
 window-rule {
     match app-id=r#"^Cursor$"#
+    match app-id=r#"^dev\.zed\.Zed$"#
+
     default-column-width { proportion 1.0; }
 }
 
-// Set Zed IDE to full width
-window-rule {
-    match app-id=r#"^dev\.zed\.Zed$"#
-    default-column-width { proportion 1.0; }
-}
 
 window-rule {
     match app-id=r#"^Proton Pass$"#
@@ -78,9 +51,7 @@ window-rule {
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
     match app-id=r#"^org\.gnome\.World\.Secrets$"#
     match app-id=r#"^Proton Pass$"#
-
     block-out-from "screen-capture"
-
     // Use this instead if you want them visible on third-party screenshot tools.
     // block-out-from "screencast"
 }
@@ -95,10 +66,9 @@ window-rule {
 }
 
 // Terminal applications
-window-rule {
+/-window-rule {
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
     match app-id="Alacritty"
-    match app-id="zen"
     match app-id="zen-beta"
     match app-id="zen-twilight"
     match app-id="com.mitchellh.ghostty"
@@ -107,7 +77,7 @@ window-rule {
 }
 
 // Global rounded corners for all windows
-window-rule {
+/-window-rule {
     geometry-corner-radius 12
     draw-border-with-background false
     clip-to-geometry true

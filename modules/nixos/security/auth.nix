@@ -9,5 +9,6 @@
   # Password managers
   environment.systemPackages = with pkgs; [
     proton-pass
+    proton-pass-cli
   ];
 }

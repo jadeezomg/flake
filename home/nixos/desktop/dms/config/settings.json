@@ -185,7 +185,9 @@
   "wifiNetworkPins": {},
   "bluetoothDevicePins": {},
   "audioInputDevicePins": {},
-  "audioOutputDevicePins": {},
+  "audioOutputDevicePins": {
+    "preferredOutput": "alsa_output.usb-Creative_Technology_Ltd_SB_Katana_V2_2EBE98C4D50695FC-03.analog-surround-51"
+  },
   "gtkThemingEnabled": false,
   "qtThemingEnabled": false,
   "syncModeWithPortal": true,

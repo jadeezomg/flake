@@ -10,14 +10,18 @@ output "HDMI-A-1" {
     transform "90"
     position x=0 y=0
 
-    layout {
+    layout {      
         preset-window-heights { 
             proportion 0.315
             proportion 0.5
             proportion 0.685
         }
         default-column-width { proportion 1.0; }
+        preset-column-widths {
+            proportion 0.5
+        }
     }
+       
 }
 
 // AOC monitor (DP-1) - main monitor, normal orientation, 1x scaling
@@ -37,17 +41,17 @@ spawn-sh-at-startup "zen-beta || zen-twilight"
 
 
 window-rule {
-    match app-id=r#"^com.github.th_ch.youtube_music$"#
+    match app-id=r#"^youtube_music"#
     open-on-output "HDMI-A-1"
     open-on-workspace "1"
-    default-window-height { proportion 0.315; }
+    // default-window-height { proportion 0.315; }
     default-column-width { proportion 1.0; }
 }
 
 window-rule {
     match app-id=r#"^zen-twilight$"#
     match app-id=r#"^zen-beta$"#
-    match app-id=r#"^zen$"#
+    exclude title=r#"^Picture-in-Picture$"#
     open-on-output "HDMI-A-1"
     open-on-workspace "1"
     default-window-height { proportion 0.685; }

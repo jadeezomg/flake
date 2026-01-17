@@ -7,6 +7,7 @@
     enable = true;
     enableBashIntegration = true;
     enableFishIntegration = true;
+    systemd.enable = true;
     settings = {
       # Shell configuration
       # Ghostty config uses `command` (not `shell`). See: https://ghostty.org/docs/config/reference#command
@@ -14,10 +15,6 @@
       # Docs: https://ghostty.org/docs/config/reference#command
       # command = "\"${pkgs.fish}/bin/fish -l\"";
       command = "${pkgs.nushell}/bin/nu";
-
-      # Match shell integration to the shell we're launching.
-      # (Optional, but helps avoid weird behavior when auto-detection disagrees.)
-      # shell-integration = "fish";
 
       # General
       resize-overlay = "never";
@@ -49,12 +46,13 @@
       background-blur = 20;
       mouse-hide-while-typing = true;
 
-      # Colors are automatically applied by stylix based on base24/base16 scheme
-      # No manual color configuration needed - stylix handles:
-      # - foreground, background
-      # - selection colors
-      # - cursor colors
-      # - All ANSI colors (color0-color15)
+      # Keybindings
+      # Format: keybind = [ "scope:modifier+key=action" ]
+      keybind = [
+        # Toggle quick terminal with Super+` (grave accent)
+        "global:super+grave_accent=toggle_quick_terminal"
+        "ctrl+t=toggle_command_palette"
+      ];
     };
   };
 }
