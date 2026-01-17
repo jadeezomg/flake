@@ -335,6 +335,7 @@ include "dms/colors.kdl"
 include "dms/layout.kdl"
 include "dms/alttab.kdl"
 include "dms/binds.kdl"
+include "dms/cursor.kdl"
 
 // Output configurations are host-specific and included from separate files.
 include "host.kdl"
