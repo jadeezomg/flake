@@ -1,9 +1,5 @@
-{
-  config,
-  pkgs,
-  ...
-}: {
-  imports = [
-    ./firefox.nix
-  ];
+{...}: {
+  programs.firefox = {
+    enable = true;
+  };
 }
