@@ -4,8 +4,17 @@
   ...
 }: {
   imports = [
-    ./audio
     ./browsers
-    ./terminals
+  ];
+  environment.systemPackages = with pkgs; [
+    # Productivity
+    pinta
+
+    # Audio
+    pear-desktop
+
+    # Terminals
+    alacritty
+    ghostty
   ];
 }
