@@ -98,7 +98,6 @@ window-rule {
 window-rule {
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
     match app-id="Alacritty"
-    match app-id="zen"
     match app-id="zen-beta"
     match app-id="zen-twilight"
     match app-id="com.mitchellh.ghostty"
