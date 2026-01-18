@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   force = true;
-  default = "google";
-  privateDefault = "ddg";
+  default = "brave";
+  privateDefault = "brave";
   engines = let
     nixSnowflakeIcon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
   in {
@@ -26,7 +26,7 @@
         }
       ];
       icon = nixSnowflakeIcon;
-      definedAliases = ["pkgs"];
+      definedAliases = ["pkgs" "nix"];
     };
     "Nix Options" = {
       urls = [
@@ -58,13 +58,13 @@
             }
             {
               name = "release";
-              value = "master"; # unstable
+              value = "master";
             }
           ];
         }
       ];
       icon = nixSnowflakeIcon;
-      definedAliases = ["hmop"];
+      definedAliases = ["hmop" "hm"];
     };
 
     "Google Maps" = {
@@ -82,7 +82,7 @@
       definedAliases = ["maps" "gmaps" "map"];
     };
 
-    "ddg" = {
+    "Duck Duck Go" = {
       urls = [
         {
           template = "https://duckduckgo.com";
@@ -90,10 +90,6 @@
             {
               name = "q";
               value = "{searchTerms}";
-            }
-            {
-              name = "origin";
-              value = "your_ass";
             }
           ];
         }

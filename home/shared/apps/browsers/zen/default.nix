@@ -38,14 +38,8 @@ in {
       };
   };
 }
-# Or as separate steps:
 # Check if Zen is running:
-#    pgrep -f 'Zen.app' && echo "Zen is running" || echo "Zen is not running"
 #    pgrep -f 'Zen.app' && echo "Zen is running" || echo "Zen is not running"
 # Close Zen:
 #    pkill -f 'Zen.app'
-# Verify it's closed (wait 2 seconds):
-#    sleep 2 && pgrep -f 'Zen.app' && echo "Still running!" || echo "Zen is closed ✓"
-# Then rebuild:
-#    nh darwin switch --hostname caya
 
