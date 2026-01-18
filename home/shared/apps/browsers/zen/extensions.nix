@@ -9,9 +9,14 @@
   mkExtensionEntry = {
     id,
     pinned ? false,
+    url ? null,
   }: let
+    install_url =
+      if url != null
+      then url
+      else mkPluginUrl id;
     base = {
-      install_url = mkPluginUrl id;
+      inherit install_url;
       installation_mode = "force_installed";
     };
   in

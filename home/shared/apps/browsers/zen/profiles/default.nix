@@ -24,6 +24,11 @@ in rec {
       id = "keepa";
       pinned = false;
     };
+    "jid1-OY8Xu5BsKZQa6A@jetpack" = extensions.mkExtensionEntry {
+      id = "jdownloader";
+      url = "https://extensions.jdownloader.org/firefox.xpi";
+      pinned = false;
+    };
   };
 
   pinsForce = true;

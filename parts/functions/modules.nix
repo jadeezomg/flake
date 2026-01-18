@@ -36,12 +36,12 @@
       inputs.sops-nix.homeModules.sops
       inputs.stylix.homeModules.stylix
     ]
-    # DMS is only for NixOS (Wayland), not Darwin
-    ++ (
-      if isDarwin
-      then []
-      else []
-    )
+    # # DMS is only for NixOS (Wayland), not Darwin
+    # ++ (
+    #   if isDarwin
+    #   then []
+    #   else []
+    # )
     ++ baseHomeModules isDarwin;
 in {
   inherit commonSpecialArgs darwinSystems homeModules;
