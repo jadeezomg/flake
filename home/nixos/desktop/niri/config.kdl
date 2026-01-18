@@ -104,9 +104,8 @@ layout {
 
     // You can also customize the heights that "switch-preset-window-height" (Mod+Shift+R) toggles between.
     preset-window-heights { 
-        proportion 0.315
         proportion 0.5
-        proportion 0.685
+        proportion 1.0
     }
 
     // You can change the default width of the new windows.

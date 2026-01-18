@@ -12,12 +12,21 @@ output "HDMI-A-1" {
             proportion 0.315
             proportion 0.5
             proportion 0.685
+            proportion 1.0
         }
         default-column-width { proportion 1.0; }
         preset-column-widths {
             proportion 0.5
+            proportion 1.0
+        }
+        struts {
+            left 0
+            right 0
+            top 15
+            bottom 15
         }
     }
+
        
 }
 
@@ -39,16 +48,21 @@ window-rule {
     exclude title=r#"^Picture-in-Picture$"#
     open-on-output "HDMI-A-1"
     open-on-workspace "1"
+    // max-height 1000
+    tiled-state false
     default-window-height { proportion 0.685; }
-    default-column-width { proportion 1.0; }
+    // default-window-height { fixed 2014 ; }
+    // default-column-width { proportion 1.0; }
 }
 // Youtube Music 
 spawn-at-startup "pear-desktop"
 window-rule {
-    match app-id=r#"^youtube_music"#
+    match app-id=r#"^com\.github\.th_ch\.youtube_music$"#
     open-on-output "HDMI-A-1"
     open-on-workspace "1"
+    // open-maximized false
     // default-window-height { proportion 0.315; }
+    // default-window-height { fixed 924 ; }
     default-column-width { proportion 1.0; }
 }
 
