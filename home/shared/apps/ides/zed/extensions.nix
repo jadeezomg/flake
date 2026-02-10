@@ -23,6 +23,8 @@
       "rainbow-csv"
       "env"
       "mcp-server-github"
+      "opencode"
+      "github-actions"
     ];
   };
 }
