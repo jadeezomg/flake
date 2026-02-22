@@ -12,8 +12,10 @@
 # Display the host public key:
 # sudo age-keygen -y /var/lib/private/sops/age/keys.txt
 
-# Add secrets
-# sops secrets/secrets.yaml
+# Encrypt a new file (first time):
+#   sops --encrypt --in-place secrets/secrets.yaml
+# Edit encrypted secrets:
+#   sops secrets/secrets.yaml
 
 # Rekey secrets.yaml after editing recipients in .sops.yaml:
 # sops updatekeys secrets/secrets.yaml
@@ -25,13 +27,13 @@ keys:
   # Desktop NixOS host
   - &desktop age1s6yrgxcpwm8qy3cpjc2fz6pyq76afd33e2kfg7q58q69ehxwzd2s6qjrxu
 
-  # Caya Darwin host
-  - &caya age1
+  # Caya Darwin host (replace with full key from: age-keygen -y ~/.config/sops/age/keys.txt)
+  # - &caya age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
-  - key_groups:
+    key_groups:
       - age:
           - *framework
           - *desktop
-          - *caya
+          # - *caya  # uncomment when Caya key is added above

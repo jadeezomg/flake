@@ -6,8 +6,7 @@
   # SOPS-Nix configuration for secret management
   # Only apply in home-manager context, not NixOS system context
   sops = lib.mkIf (builtins.hasAttr "home" config) {
-    # Default secrets location
-    defaultSopsFile = ./secrets/secrets.enc.yaml;
+    defaultSopsFile = ../../../../secrets/secrets.yaml;
 
     # Age key configuration
     # The age key will be automatically imported from ~/.config/sops/age/keys.txt
@@ -30,6 +29,12 @@
 
     # Secrets to decrypt and make available
     secrets = {
+      # GitHub token for Nix (avoids API rate limits). Place at ~/.config/nix/github-token.
+      "github-token" = {
+        key = "github_token";
+        path = ".config/nix/github-token";
+      };
+
       # Example: decrypt a secret and make it available as /run/secrets/my-secret
       # my-secret = { };
 

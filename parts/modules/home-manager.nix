@@ -35,7 +35,7 @@
         userData
         isDarwin
         ;
-      pkgs = getPkgs system;
+      pkgs = getPkgs system [];
       pkgs-stable = getPkgsStable system;
     };
     users.${user} = {

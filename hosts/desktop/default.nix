@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   hostData,
   hostKey,
@@ -28,16 +29,10 @@ in {
   # System state version - host specific, don't change, it's used by home-manager to determine the initial version of the system.
   system.stateVersion = "25.11";
 
+  # CUDA cache (NVIDIA builds); appends to shared caches (incl. CachyOS kernel)
   nix.settings = {
-    experimental-features = [
-      "nix-command"
-      "flakes"
-    ];
-    # # CUDA cache is desktop-specific (for NVIDIA builds)
-    extra-substituters = [
-      "https://cache.nixos-cuda.org"
-    ];
-    extra-trusted-public-keys = [
+    extra-substituters = lib.mkAfter ["https://cache.nixos-cuda.org"];
+    extra-trusted-public-keys = lib.mkAfter [
       "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
     ];
   };

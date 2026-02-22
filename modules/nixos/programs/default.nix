@@ -18,6 +18,8 @@
   environment.systemPackages = with pkgs; [
     steamcmd
     mangohud
+    heroic
+    faugus-launcher
     protonup-ng
     protonup-rs
     gamescope-wsi

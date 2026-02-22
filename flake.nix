@@ -78,6 +78,11 @@
       url = "git+https://git.outfoxxed.me/quickshell/quickshell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nix-cachyos-kernel = {
+      url = "github:xddxdd/nix-cachyos-kernel/release";
+      # Do not override nixpkgs so CachyOS kernel version stays in sync with their builds
+    };
   };
 
   outputs = inputs @ {
@@ -116,7 +121,7 @@
         system,
         ...
       }: {
-        _module.args.pkgs = getPkgs system;
+        _module.args.pkgs = getPkgs system [];
 
         packages = {
           iosevka-aile = import ./packages/iosevka-aile/default.nix {

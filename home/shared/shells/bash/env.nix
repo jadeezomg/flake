@@ -8,6 +8,11 @@
 in {
   programs.bash = {
     initExtra = ''
+      # GitHub token for Nix (from sops secret at ~/.config/nix/github-token)
+      if [ -f "$HOME/.config/nix/github-token" ]; then
+        export NIX_CONFIG="access-tokens = github.com=$(cat "$HOME/.config/nix/github-token") ${NIX_CONFIG:-}"
+      fi
+
       export FLAKE=${sharedPaths.commonPaths.flake}
       export NH_FLAKE=${sharedPaths.commonPaths.flake}
       export EDITOR=${sharedEnv.commonEnv.EDITOR}

@@ -23,6 +23,11 @@ in {
 
     # Additional environment setup
     initContent = ''
+      # GitHub token for Nix (from sops secret at ~/.config/nix/github-token)
+      if [ -f "$HOME/.config/nix/github-token" ]; then
+        export NIX_CONFIG="access-tokens = github.com=$(cat "$HOME/.config/nix/github-token") ${NIX_CONFIG:-}"
+      fi
+
       # Set up PATH - ensure /run/wrappers/bin stays first (contains setuid wrappers like sudo)
       # Then add our custom paths after the existing PATH
       export PATH="${sharedPaths.nixPaths.wrappersBin}:${sharedPaths.commonPaths.localBin}:${sharedPaths.commonPaths.cargoBin}:${sharedPaths.nixPaths.nixProfile}:${sharedPaths.nixPaths.userProfile}:${sharedPaths.nixPaths.systemSw}:${sharedPaths.nixPaths.defaultProfile}:$PATH"

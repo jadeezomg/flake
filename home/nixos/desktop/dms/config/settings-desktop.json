@@ -61,6 +61,7 @@
   "controlCenterShowMicPercent": false,
   "controlCenterShowBatteryIcon": true,
   "controlCenterShowPrinterIcon": false,
+  "controlCenterShowScreenSharingIcon": true,
   "showPrivacyButton": true,
   "privacyShowMicIcon": false,
   "privacyShowCameraIcon": false,
@@ -232,8 +233,8 @@
   "soundNewNotification": true,
   "soundVolumeChanged": true,
   "soundPluggedIn": true,
-  "acMonitorTimeout": 300,
-  "acLockTimeout": 180,
+  "acMonitorTimeout": 900,
+  "acLockTimeout": 600,
   "acSuspendTimeout": 0,
   "acSuspendBehavior": 0,
   "acProfileName": "",
@@ -516,15 +517,15 @@
       ],
       "rightWidgets": [
         {
+          "id": "gpuTemp",
+          "enabled": true
+        },
+        {
           "id": "memUsage",
           "enabled": true
         },
         {
           "id": "cpuUsage",
-          "enabled": true
-        },
-        {
-          "id": "gpuTemp",
           "enabled": true
         },
         {
@@ -645,7 +646,33 @@
   "systemMonitorVariants": [],
   "desktopWidgetPositions": {},
   "desktopWidgetGridSettings": {},
-  "desktopWidgetInstances": [],
+  "desktopWidgetInstances": [
+    {
+      "id": "dw_1770593541135_lv7c25jb6",
+      "widgetType": "mediaPlayer",
+      "name": "Media Player",
+      "enabled": true,
+      "config": {
+        "displayPreferences": [
+          "all"
+        ]
+      },
+      "positions": {
+        "HDMI-A-1": {
+          "width": 527.7421875,
+          "height": 427.00390625,
+          "x": 18.609375,
+          "y": 2508.84765625
+        },
+        "DP-1": {
+          "width": 416.3125,
+          "height": 213.77734375,
+          "x": 2134,
+          "y": 52.390625
+        }
+      }
+    }
+  ],
   "desktopWidgetGroups": [],
   "builtInPluginSettings": {
     "dms_settings_search": {
