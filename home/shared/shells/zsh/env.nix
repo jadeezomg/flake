@@ -25,7 +25,7 @@ in {
     initContent = ''
       # GitHub token for Nix (from sops secret at ~/.config/nix/github-token)
       if [ -f "$HOME/.config/nix/github-token" ]; then
-        export NIX_CONFIG="access-tokens = github.com=$(cat "$HOME/.config/nix/github-token") ${NIX_CONFIG:-}"
+        export NIX_CONFIG="access-tokens = github.com=$(cat "$HOME/.config/nix/github-token") ''${NIX_CONFIG:-}"
       fi
 
       # Set up PATH - ensure /run/wrappers/bin stays first (contains setuid wrappers like sudo)

@@ -89,7 +89,6 @@
       specialArgs =
         commonSpecialArgs
         // {
-          pkgs = pkgs;
           pkgs-stable = getPkgsStable system;
           host = host;
           inherit hostKey user isDarwin inputs system;

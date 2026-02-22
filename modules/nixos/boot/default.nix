@@ -6,11 +6,6 @@
   lib,
   ...
 }: {
-  # CachyOS kernel overlay (x86_64-linux only; same as nix-cachyos-kernel README).
-  nixpkgs.overlays =
-    lib.mkIf (config.nixpkgs.hostPlatform.system == "x86_64-linux") [
-      inputs.nix-cachyos-kernel.overlays.pinned
-    ];
 
   boot = {
     loader = {

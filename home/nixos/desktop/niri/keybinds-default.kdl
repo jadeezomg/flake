@@ -11,6 +11,9 @@ binds {
     Mod+Z hotkey-overlay-title="Launch Zen Browser" { spawn-sh "zen-beta || zen-twilight"; }
     Mod+P hotkey-overlay-title="Proton Pass" { spawn "proton-pass"; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
+    Mod+D { spawn "dms" "ipc" "call" "plugins" "toggle" "aiAssistant"; }
+
+
 
     // Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
     // Note: the entire command goes as a single argument. It's passed verbatim to `sh -c`.
@@ -239,12 +242,9 @@ binds {
     Mod+Shift+P { power-off-monitors; }
 
     // These keybinds are available but not currently assigned:
-        //
     // Mod+B - Available
     // Mod+D - Available
     // Mod+E - Available (Mod+Shift+E is used for quit)
     // Mod+G - Available
     // Mod+P - Available (Mod+Shift+P is used for power-off-monitors)
-    // Mod+Z - Available
-    //
 }
