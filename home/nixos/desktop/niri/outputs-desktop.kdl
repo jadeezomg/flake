@@ -69,7 +69,7 @@ window-rule {
 
 
 window-rule {
-    match app-id=r#"^War Thundert$"#
+    match app-id=r#"^War Thunder$"#
     open-on-output "DP-1"
     open-maximized-to-edges true
     opacity 1.0

@@ -11,6 +11,7 @@
   # - XWayland (for running X11 applications)
 
   services = {
+    displayManager.gdm.enable = true;
     gvfs.enable = true; # Mount, trash, etc
     tumbler.enable = true; # Thumbnail support for images
     xserver = {
@@ -22,4 +23,9 @@
       };
     };
   };
+
+  environment.systemPackages = with pkgs; [
+    libnotify # Desktop notifications
+    nautilus # File manager
+  ];
 }

@@ -1,6 +1,6 @@
 {...}: {
   imports = [
-    # ./assets.nix
+    ./assets.nix
     # ./desktop.nix
     # ./env.nix
     ./fonts.nix
