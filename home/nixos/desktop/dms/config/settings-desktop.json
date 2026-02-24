@@ -8,11 +8,13 @@
   },
   "matugenScheme": "scheme-tonal-spot",
   "runUserMatugenTemplates": true,
-  "matugenTargetMonitor": "eDP-1",
+  "matugenTargetMonitor": "eDP-2",
   "popupTransparency": 0.95,
   "dockTransparency": 0.7,
   "widgetBackgroundColor": "sch",
   "widgetColorMode": "default",
+  "controlCenterTileColorMode": "primary",
+  "buttonColorMode": "primary",
   "cornerRadius": 5,
   "niriLayoutGapsOverride": -1,
   "niriLayoutRadiusOverride": -1,
@@ -25,13 +27,21 @@
   "mangoLayoutBorderSize": -1,
   "use24HourClock": true,
   "showSeconds": false,
+  "padHours12Hour": false,
   "useFahrenheit": false,
+  "windSpeedUnit": "kmh",
   "nightModeEnabled": false,
   "animationSpeed": 1,
   "customAnimationDuration": 160,
+  "syncComponentAnimationSpeeds": true,
+  "popoutAnimationSpeed": 1,
+  "popoutCustomAnimationDuration": 150,
+  "modalAnimationSpeed": 1,
+  "modalCustomAnimationDuration": 150,
+  "enableRippleEffects": true,
   "wallpaperFillMode": "Fill",
   "blurredWallpaperLayer": false,
-  "blurWallpaperOnOverview": true,
+  "blurWallpaperOnOverview": false,
   "showLauncherButton": true,
   "showWorkspaceSwitcher": true,
   "showFocusedWindow": true,
@@ -150,13 +160,16 @@
   "showWorkspacePadding": false,
   "workspaceScrolling": false,
   "showWorkspaceApps": true,
+  "workspaceDragReorder": true,
   "maxWorkspaceIcons": 5,
+  "workspaceAppIconSizeOffset": 0,
   "groupWorkspaceApps": true,
   "workspaceFollowFocus": false,
   "showOccupiedWorkspacesOnly": true,
   "reverseScrolling": false,
   "dwlShowAllTags": false,
   "workspaceColorMode": "default",
+  "workspaceOccupiedColorMode": "none",
   "workspaceUnfocusedColorMode": "s",
   "workspaceUrgentColorMode": "default",
   "workspaceFocusedBorderEnabled": false,
@@ -167,12 +180,23 @@
   "scrollTitleEnabled": true,
   "audioVisualizerEnabled": true,
   "audioScrollMode": "volume",
+  "audioWheelScrollAmount": 5,
   "clockCompactMode": false,
   "focusedWindowCompactMode": false,
   "runningAppsCompactMode": true,
+  "barMaxVisibleApps": 0,
+  "barMaxVisibleRunningApps": 0,
+  "barShowOverflowBadge": true,
+  "appsDockHideIndicators": false,
+  "appsDockColorizeActive": false,
+  "appsDockActiveColorMode": "primary",
+  "appsDockEnlargeOnHover": false,
+  "appsDockEnlargePercentage": 125,
+  "appsDockIconSizePercentage": 100,
   "keyboardLayoutNameCompactMode": false,
   "runningAppsCurrentWorkspace": false,
   "runningAppsGroupByApp": false,
+  "runningAppsCurrentMonitor": false,
   "appIdSubstitutions": [
     {
       "pattern": "^steam_app_(\\d+)$",
@@ -186,14 +210,25 @@
   "mediaSize": 1,
   "appLauncherViewMode": "list",
   "spotlightModalViewMode": "list",
+  "browserPickerViewMode": "grid",
+  "browserUsageHistory": {},
+  "appPickerViewMode": "grid",
+  "filePickerUsageHistory": {},
   "sortAppsAlphabetically": false,
   "appLauncherGridColumns": 3,
   "spotlightCloseNiriOverview": true,
+  "spotlightSectionViewModes": {},
+  "appDrawerSectionViewModes": {},
   "niriOverviewOverlayEnabled": true,
+  "dankLauncherV2Size": "compact",
+  "dankLauncherV2BorderEnabled": false,
+  "dankLauncherV2BorderThickness": 2,
+  "dankLauncherV2BorderColor": "primary",
+  "dankLauncherV2ShowFooter": true,
+  "dankLauncherV2UnloadOnClose": false,
   "useAutoLocation": true,
   "weatherEnabled": true,
   "networkPreference": "auto",
-  "vpnLastConnected": "",
   "iconTheme": "System Default",
   "cursorSettings": {
     "theme": "phinger-cursors-dark",
@@ -220,7 +255,7 @@
   "launcherLogoSizeOffset": 2,
   "fontFamily": "Iosevka NF",
   "monoFontFamily": "Iosevka Nerd Font Mono",
-  "fontWeight": 400,
+  "fontWeight": 500,
   "fontScale": 1,
   "notepadUseMonospace": true,
   "notepadFontFamily": "",
@@ -285,8 +320,10 @@
   "matugenTemplateDgop": true,
   "matugenTemplateKcolorscheme": false,
   "matugenTemplateVscode": false,
+  "matugenTemplateEmacs": true,
   "showDock": false,
   "dockAutoHide": true,
+  "dockSmartAutoHide": false,
   "dockGroupByApp": true,
   "dockOpenOnOverview": true,
   "dockPosition": 2,
@@ -300,7 +337,19 @@
   "dockBorderOpacity": 1,
   "dockBorderThickness": 1,
   "dockIsolateDisplays": false,
+  "dockLauncherEnabled": false,
+  "dockLauncherLogoMode": "apps",
+  "dockLauncherLogoCustomPath": "",
+  "dockLauncherLogoColorOverride": "",
+  "dockLauncherLogoSizeOffset": 0,
+  "dockLauncherLogoBrightness": 0.5,
+  "dockLauncherLogoContrast": 1,
+  "dockMaxVisibleApps": 0,
+  "dockMaxVisibleRunningApps": 0,
+  "dockShowOverflowBadge": true,
   "notificationOverlayEnabled": false,
+  "notificationPopupShadowEnabled": true,
+  "notificationPopupPrivacyMode": false,
   "modalDarkenBackground": true,
   "lockScreenShowPowerActions": true,
   "lockScreenShowSystemIcons": true,
@@ -308,6 +357,9 @@
   "lockScreenShowDate": true,
   "lockScreenShowProfileImage": true,
   "lockScreenShowPasswordField": true,
+  "lockScreenShowMediaPlayer": true,
+  "lockScreenPowerOffMonitorsOnLock": false,
+  "lockAtStartup": false,
   "enableFprint": true,
   "maxFprintTries": 15,
   "lockScreenActiveMonitor": "all",
@@ -319,16 +371,20 @@
   "notificationTimeoutCritical": 10000,
   "notificationCompactMode": false,
   "notificationPopupPosition": 0,
+  "notificationAnimationSpeed": 1,
+  "notificationCustomAnimationDuration": 400,
   "notificationHistoryEnabled": true,
   "notificationHistoryMaxCount": 50,
   "notificationHistoryMaxAgeDays": 7,
   "notificationHistorySaveLow": true,
   "notificationHistorySaveNormal": true,
   "notificationHistorySaveCritical": true,
+  "notificationRules": [],
   "osdAlwaysShowValue": false,
   "osdPosition": 5,
   "osdVolumeEnabled": true,
   "osdMediaVolumeEnabled": true,
+  "osdMediaPlaybackEnabled": true,
   "osdBrightnessEnabled": true,
   "osdIdleInhibitorEnabled": true,
   "osdMicMuteEnabled": true,
@@ -359,18 +415,19 @@
   "updaterTerminalAdditionalParams": "",
   "displayNameMode": "system",
   "screenPreferences": {
-    "osd": [
-      "all"
-    ],
-    "wallpaper": [
-      "all"
-    ]
+    "osd": ["all"],
+    "wallpaper": ["all"]
   },
   "showOnLastDisplay": {
     "osd": false
   },
   "niriOutputSettings": {},
   "hyprlandOutputSettings": {},
+  "displayProfiles": {},
+  "activeDisplayProfile": {},
+  "displayProfileAutoSelect": false,
+  "displayShowDisconnected": false,
+  "displaySnapToEdge": true,
   "barConfigs": [
     {
       "id": "default",
@@ -379,12 +436,16 @@
       "position": 0,
       "screenPreferences": [
         {
-          "name": "DP-1",
+          "name": "DP-2",
           "model": "AG274QS3R1B+"
         },
         {
-          "name": "eDP-1",
+          "name": "eDP-2",
           "model": "NE135A1M-NY1"
+        },
+        {
+          "name": "DP-2",
+          "model": "AG274QS3R1B+"
         }
       ],
       "showOnLastDisplay": true,
@@ -488,7 +549,11 @@
       "position": 0,
       "screenPreferences": [
         {
-          "name": "HDMI-A-1",
+          "name": "HDMI-A-2",
+          "model": "DELL S2722QC"
+        },
+        {
+          "name": "HDMI-A-2",
           "model": "DELL S2722QC"
         }
       ],
@@ -517,12 +582,17 @@
       ],
       "rightWidgets": [
         {
+          "id": "powerUsagePlugin",
+          "enabled": true
+        },
+        {
           "id": "gpuTemp",
           "enabled": true
         },
         {
           "id": "memUsage",
-          "enabled": true
+          "enabled": true,
+          "showSwap": false
         },
         {
           "id": "cpuUsage",
@@ -534,11 +604,13 @@
         },
         {
           "id": "keyboard_layout_name",
-          "enabled": true
+          "enabled": true,
+          "keyboardLayoutNameCompactMode": true
         },
         {
           "id": "clock",
-          "enabled": true
+          "enabled": true,
+          "clockCompactMode": false
         }
       ],
       "spacing": 5,
@@ -601,9 +673,7 @@
   "desktopClockY": -1,
   "desktopClockWidth": 280,
   "desktopClockHeight": 180,
-  "desktopClockDisplayPreferences": [
-    "all"
-  ],
+  "desktopClockDisplayPreferences": ["all"],
   "systemMonitorEnabled": false,
   "systemMonitorShowHeader": true,
   "systemMonitorTransparency": 0.8,
@@ -640,9 +710,7 @@
   "systemMonitorY": -1,
   "systemMonitorWidth": 320,
   "systemMonitorHeight": 480,
-  "systemMonitorDisplayPreferences": [
-    "all"
-  ],
+  "systemMonitorDisplayPreferences": ["all"],
   "systemMonitorVariants": [],
   "desktopWidgetPositions": {},
   "desktopWidgetGridSettings": {},
@@ -653,22 +721,32 @@
       "name": "Media Player",
       "enabled": true,
       "config": {
-        "displayPreferences": [
-          "all"
-        ]
+        "displayPreferences": ["all"]
       },
       "positions": {
-        "HDMI-A-1": {
+        "HDMI-A-2": {
           "width": 527.7421875,
           "height": 427.00390625,
           "x": 18.609375,
           "y": 2508.84765625
         },
-        "DP-1": {
+        "DP-2": {
           "width": 416.3125,
           "height": 213.77734375,
           "x": 2134,
           "y": 52.390625
+        },
+        "HDMI-A-2": {
+          "width": 320,
+          "height": 200,
+          "x": 1120,
+          "y": 620
+        },
+        "DP-2": {
+          "width": 320,
+          "height": 200,
+          "x": 1120,
+          "y": 620
         }
       }
     }
@@ -679,5 +757,8 @@
       "trigger": "?"
     }
   },
+  "clipboardEnterToPaste": false,
+  "launcherPluginVisibility": {},
+  "launcherPluginOrder": [],
   "configVersion": 5
 }

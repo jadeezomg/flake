@@ -8,7 +8,7 @@
       <primary>yes</primary>
       <monitor>
         <monitorspec>
-          <connector>DP-1</connector>
+          <connector>DP-2</connector>
           <vendor>AOC</vendor>
           <product>AG274QS3R1B+</product>
           <serial>RIMN4JA000078</serial>
@@ -30,7 +30,7 @@
       </transform>
       <monitor>
         <monitorspec>
-          <connector>HDMI-1</connector>
+          <connector>HDMI-A-2</connector>
           <vendor>DEL</vendor>
           <product>DELL S2722QC</product>
           <serial>88THMD3</serial>
@@ -52,7 +52,7 @@
       <primary>yes</primary>
       <monitor>
         <monitorspec>
-          <connector>DP-1</connector>
+          <connector>DP-2</connector>
           <vendor>AOC</vendor>
           <product>AG274QS3R1B+</product>
           <serial>RIMN4JA000078</serial>
@@ -75,7 +75,7 @@
       </transform>
       <monitor>
         <monitorspec>
-          <connector>HDMI-1</connector>
+          <connector>HDMI-A-2</connector>
           <vendor>DEL</vendor>
           <product>DELL S2722QC</product>
           <serial>88THMD3</serial>

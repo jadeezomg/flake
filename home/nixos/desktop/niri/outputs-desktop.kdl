@@ -1,7 +1,7 @@
 // Desktop-specific output configuration
 // This file is automatically included in the main config.kdl for the desktop host
 
-output "HDMI-A-1" {
+output "HDMI-A-2" {
     mode "3840x2160@60.000"
     scale 1.3
     transform "90"
@@ -30,7 +30,7 @@ output "HDMI-A-1" {
        
 }
 
-output "DP-1" {
+output "DP-2" {
     mode "2560x1440@170.002"
     scale 1
     transform "normal"
@@ -46,7 +46,7 @@ window-rule {
     match app-id=r#"^zen-twilight$"#
     match app-id=r#"^zen-beta$"#
     exclude title=r#"^Picture-in-Picture$"#
-    open-on-output "HDMI-A-1"
+    open-on-output "HDMI-A-2"
     open-on-workspace "1"
     // max-height 1000
     tiled-state false
@@ -58,7 +58,7 @@ window-rule {
 spawn-at-startup "pear-desktop"
 window-rule {
     match app-id=r#"^com\.github\.th_ch\.youtube_music$"#
-    open-on-output "HDMI-A-1"
+    open-on-output "HDMI-A-2"
     open-on-workspace "1"
     // open-maximized false
     // default-window-height { proportion 0.315; }
@@ -70,7 +70,7 @@ window-rule {
 
 window-rule {
     match app-id=r#"^War Thunder$"#
-    open-on-output "DP-1"
+    open-on-output "DP-2"
     open-maximized-to-edges true
     opacity 1.0
 }
@@ -84,7 +84,7 @@ window-rule {
     default-column-width { proportion 1.0; }
     open-floating true
     default-floating-position x=0 y=0 relative-to="top-left"
-    open-on-output "HDMI-A-1"
+    open-on-output "HDMI-A-2"
     opacity 1.0
 }
 
