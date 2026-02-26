@@ -31,8 +31,15 @@
           mechatroner.rainbow-csv # CSV support
           tamasfe.even-better-toml # TOML support
           redhat.vscode-yaml # YAML support
+          anthropic.claude-code # Claude Code for VS Code / Cursor
         ]
         ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
+          # {
+          #   name = "claude-code"; # Claude Code for VS Code / Cursor
+          #   publisher = "anthropic";
+          #   version = "2.1.9";
+          #   sha256 = "sha256-Njb0h5z7J8HTG2HATLug1wF+wqE2ab/ojJtPub5Sv1Q=";
+          # }
           {
             name = "schemastore"; # JSON Schema support
             publisher = "remcohaszing";
