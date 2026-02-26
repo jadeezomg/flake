@@ -4,5 +4,6 @@
     ./terminals
     ./files
     ./mail
+    ./gaming
   ];
 }
