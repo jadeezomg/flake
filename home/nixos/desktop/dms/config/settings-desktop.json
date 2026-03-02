@@ -9,9 +9,9 @@
   "matugenScheme": "scheme-tonal-spot",
   "runUserMatugenTemplates": true,
   "matugenTargetMonitor": "eDP-2",
-  "popupTransparency": 0.95,
+  "popupTransparency": 0.8,
   "dockTransparency": 0.7,
-  "widgetBackgroundColor": "sch",
+  "widgetBackgroundColor": "sc",
   "widgetColorMode": "default",
   "controlCenterTileColorMode": "primary",
   "buttonColorMode": "primary",
@@ -415,8 +415,12 @@
   "updaterTerminalAdditionalParams": "",
   "displayNameMode": "system",
   "screenPreferences": {
-    "osd": ["all"],
-    "wallpaper": ["all"]
+    "osd": [
+      "all"
+    ],
+    "wallpaper": [
+      "all"
+    ]
   },
   "showOnLastDisplay": {
     "osd": false
@@ -673,7 +677,9 @@
   "desktopClockY": -1,
   "desktopClockWidth": 280,
   "desktopClockHeight": 180,
-  "desktopClockDisplayPreferences": ["all"],
+  "desktopClockDisplayPreferences": [
+    "all"
+  ],
   "systemMonitorEnabled": false,
   "systemMonitorShowHeader": true,
   "systemMonitorTransparency": 0.8,
@@ -710,7 +716,9 @@
   "systemMonitorY": -1,
   "systemMonitorWidth": 320,
   "systemMonitorHeight": 480,
-  "systemMonitorDisplayPreferences": ["all"],
+  "systemMonitorDisplayPreferences": [
+    "all"
+  ],
   "systemMonitorVariants": [],
   "desktopWidgetPositions": {},
   "desktopWidgetGridSettings": {},
@@ -721,21 +729,11 @@
       "name": "Media Player",
       "enabled": true,
       "config": {
-        "displayPreferences": ["all"]
+        "displayPreferences": [
+          "all"
+        ]
       },
       "positions": {
-        "HDMI-A-2": {
-          "width": 527.7421875,
-          "height": 427.00390625,
-          "x": 18.609375,
-          "y": 2508.84765625
-        },
-        "DP-2": {
-          "width": 416.3125,
-          "height": 213.77734375,
-          "x": 2134,
-          "y": 52.390625
-        },
         "HDMI-A-2": {
           "width": 320,
           "height": 200,
@@ -743,6 +741,12 @@
           "y": 620
         },
         "DP-2": {
+          "width": 605.8125,
+          "height": 239.64453125,
+          "x": 1938.65234375,
+          "y": 1185.625
+        },
+        "HDMI-2": {
           "width": 320,
           "height": 200,
           "x": 1120,
