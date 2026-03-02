@@ -5,6 +5,5 @@
     ./editors
     ./terminals
     ./ides
-    ./gaming
   ];
 }

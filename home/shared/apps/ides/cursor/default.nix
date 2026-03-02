@@ -31,8 +31,15 @@
           mechatroner.rainbow-csv # CSV support
           tamasfe.even-better-toml # TOML support
           redhat.vscode-yaml # YAML support
+          anthropic.claude-code # Claude Code for VS Code / Cursor
         ]
         ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
+          # {
+          #   name = "claude-code"; # Claude Code for VS Code / Cursor
+          #   publisher = "anthropic";
+          #   version = "2.1.9";
+          #   sha256 = "sha256-Njb0h5z7J8HTG2HATLug1wF+wqE2ab/ojJtPub5Sv1Q=";
+          # }
           {
             name = "schemastore"; # JSON Schema support
             publisher = "remcohaszing";
@@ -58,10 +65,16 @@
             sha256 = "sha256-YWPqx5+q6ll/jrxjE1cfXTPOJTdphroELdEcKb4vtps=";
           }
           {
-            name = "kdl"; # Prettier formatter
+            name = "kdl"; # KDL support
             publisher = "kdl-org";
             version = "2.1.3";
             sha256 = "sha256-Jssmb5owrgNWlmLFSKCgqMJKp3sPpOrlEUBwzZSSpbM=";
+          }
+          {
+            name = "d2"; # D2 diagram language (requires d2 CLI)
+            publisher = "terrastruct";
+            version = "0.8.8";
+            sha256 = "sha256-nnljLG2VL7r8bu+xFOTBx5J2UBsdjOwtAzDDXKtK0os=";
           }
         ];
       userSettings = {

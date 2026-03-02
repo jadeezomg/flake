@@ -7,7 +7,6 @@
     enable = true;
     enableBashIntegration = true;
     enableFishIntegration = true;
-    systemd.enable = true;
     settings = {
       # Shell configuration
       # Ghostty config uses `command` (not `shell`). See: https://ghostty.org/docs/config/reference#command
