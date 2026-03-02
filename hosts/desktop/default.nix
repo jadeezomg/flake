@@ -47,4 +47,12 @@ in {
     source = ../../data/hosts/desktop/monitors.xml;
     mode = "0644";
   };
+
+  # GDM only reads /var/lib/gdm/.config/monitors.xml; sync our layout there so the
+  # login screen uses the same orientation/placement (e.g. HDMI portrait).
+  system.activationScripts.gdmMonitors = ''
+    mkdir -p /var/lib/gdm/.config
+    cp -f ${../../data/hosts/desktop/monitors.xml} /var/lib/gdm/.config/monitors.xml
+    chown gdm:gdm /var/lib/gdm/.config/monitors.xml
+  '';
 }

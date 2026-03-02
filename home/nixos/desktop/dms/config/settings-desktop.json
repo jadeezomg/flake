@@ -232,7 +232,7 @@
   "iconTheme": "System Default",
   "cursorSettings": {
     "theme": "phinger-cursors-dark",
-    "size": 24,
+    "size": 25,
     "niri": {
       "hideWhenTyping": false,
       "hideAfterInactiveMs": 0
@@ -253,9 +253,9 @@
   "launcherLogoBrightness": 0.5,
   "launcherLogoContrast": 1,
   "launcherLogoSizeOffset": 2,
-  "fontFamily": "Iosevka NF",
+  "fontFamily": "Inter Display",
   "monoFontFamily": "Iosevka Nerd Font Mono",
-  "fontWeight": 500,
+  "fontWeight": 400,
   "fontScale": 1,
   "notepadUseMonospace": true,
   "notepadFontFamily": "",
@@ -459,10 +459,6 @@
           "enabled": true
         },
         {
-          "id": "keyboard_layout_name",
-          "enabled": true
-        },
-        {
           "id": "colorPicker",
           "enabled": true
         },
@@ -516,16 +512,16 @@
           "enabled": true
         }
       ],
-      "spacing": 5,
-      "innerPadding": 10,
-      "bottomGap": 0,
-      "transparency": 0,
-      "widgetTransparency": 0.65,
-      "squareCorners": false,
+      "spacing": 0,
+      "innerPadding": 0,
+      "bottomGap": 2,
+      "transparency": 0.2,
+      "widgetTransparency": 0,
+      "squareCorners": true,
       "noBackground": false,
-      "gothCornersEnabled": false,
+      "gothCornersEnabled": true,
       "gothCornerRadiusOverride": true,
-      "gothCornerRadiusValue": 26,
+      "gothCornerRadiusValue": 10,
       "borderEnabled": false,
       "borderColor": "primary",
       "borderOpacity": 1,
@@ -534,17 +530,24 @@
       "widgetOutlineColor": "primary",
       "widgetOutlineOpacity": 1,
       "widgetOutlineThickness": 1,
-      "fontScale": 1.25,
+      "fontScale": 1.2,
       "autoHide": false,
       "autoHideDelay": 250,
       "openOnOverview": true,
       "visible": true,
       "popupGapsAuto": true,
-      "popupGapsManual": 9,
+      "popupGapsManual": 5,
       "maximizeDetection": true,
-      "shadowIntensity": 50,
-      "shadowOpacity": 50,
-      "shadowColorMode": "surface"
+      "shadowIntensity": 20,
+      "shadowOpacity": 10,
+      "shadowColorMode": "custom",
+      "widgetPadding": 9,
+      "iconScale": 1,
+      "scrollYBehavior": "workspace",
+      "clickThrough": false,
+      "maximizeWidgetIcons": false,
+      "maximizeWidgetText": false,
+      "removeWidgetPadding": false
     },
     {
       "id": "bar1768776172380",
@@ -617,11 +620,11 @@
           "clockCompactMode": false
         }
       ],
-      "spacing": 5,
-      "innerPadding": 10,
+      "spacing": 10,
+      "innerPadding": 15,
       "bottomGap": 0,
       "transparency": 0,
-      "widgetTransparency": 0.65,
+      "widgetTransparency": 0.7,
       "squareCorners": false,
       "noBackground": false,
       "gothCornersEnabled": false,
@@ -631,10 +634,10 @@
       "borderColor": "primary",
       "borderOpacity": 1,
       "borderThickness": 1,
-      "widgetOutlineEnabled": false,
+      "widgetOutlineEnabled": true,
       "widgetOutlineColor": "primary",
-      "widgetOutlineOpacity": 1,
-      "widgetOutlineThickness": 1,
+      "widgetOutlineOpacity": 0.25,
+      "widgetOutlineThickness": 2,
       "fontScale": 1.25,
       "autoHide": false,
       "autoHideDelay": 250,
@@ -647,10 +650,14 @@
       "scrollEnabled": true,
       "scrollXBehavior": "column",
       "scrollYBehavior": "workspace",
-      "shadowIntensity": 50,
+      "shadowIntensity": 0,
       "shadowOpacity": 50,
       "shadowColorMode": "surface",
-      "shadowCustomColor": "#000000"
+      "shadowCustomColor": "#000000",
+      "iconScale": 1,
+      "maximizeWidgetIcons": false,
+      "maximizeWidgetText": false,
+      "removeWidgetPadding": false
     }
   ],
   "desktopClockEnabled": false,
