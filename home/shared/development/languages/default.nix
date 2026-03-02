@@ -9,10 +9,11 @@
     # ./crystal.nix
     # ./csharp.nix
     ./css.nix
-    ./deno.nix
+    #./deno.nix
     # ./dhall.nix
+    ./d2.nix
     ./docker.nix
-    ./elixir.nix
+    #./elixir.nix
     # ./elm.nix
     # ./emmet.nix
     # ./faust.nix
@@ -22,24 +23,24 @@
     # ./fsharp.nix
     ./general.nix
     # ./glsl.nix
-    ./go.nix
+    #./go.nix
     ./graphql.nix
-    ./haskell.nix
+    #./haskell.nix
     ./java.nix
     ./javascript.nix
     # ./jinja.nix
     ./just.nix
     # ./julia.nix
     # ./kdl.nix
-    ./kotlin.nix
+    #./kotlin.nix
     ./latex.nix
     ./lua.nix
     ./markdown.nix
     ./nix.nix
     ./nushell.nix
-    ./ocaml.nix
+    #./ocaml.nix
     # ./perl.nix
-    ./php.nix
+    #./php.nix
     ./prisma.nix
     # ./protobuf.nix
     ./python.nix
@@ -48,15 +49,15 @@
     ./rust.nix
     # ./scala.nix
     ./sql.nix
-    ./svelte.nix
-    ./tailwind.nix
+   # ./svelte.nix
+   # ./tailwind.nix
     # ./terraform.nix
     ./toml.nix
     ./typescript.nix
     ./typst.nix
-    ./vue.nix
+   # ./vue.nix
     ./xml.nix
     ./yaml.nix
-    ./zig.nix
+   # ./zig.nix
   ];
 }

@@ -65,10 +65,16 @@
             sha256 = "sha256-YWPqx5+q6ll/jrxjE1cfXTPOJTdphroELdEcKb4vtps=";
           }
           {
-            name = "kdl"; # Prettier formatter
+            name = "kdl"; # KDL support
             publisher = "kdl-org";
             version = "2.1.3";
             sha256 = "sha256-Jssmb5owrgNWlmLFSKCgqMJKp3sPpOrlEUBwzZSSpbM=";
+          }
+          {
+            name = "d2"; # D2 diagram language (requires d2 CLI)
+            publisher = "terrastruct";
+            version = "0.8.8";
+            sha256 = "sha256-nnljLG2VL7r8bu+xFOTBx5J2UBsdjOwtAzDDXKtK0os=";
           }
         ];
       userSettings = {
