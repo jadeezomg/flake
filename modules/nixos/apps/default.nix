@@ -6,6 +6,7 @@
   imports = [
     ./browsers
   ];
+
   environment.systemPackages = with pkgs; [
     # Productivity
     pinta
@@ -14,7 +15,6 @@
     pear-desktop
 
     # Terminals
-    alacritty
     ghostty
   ];
 }

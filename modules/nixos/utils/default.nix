@@ -9,6 +9,5 @@
     ./filesystem.nix
     ./monitoring.nix
     ./networking.nix
-    ./text.nix
   ];
 }

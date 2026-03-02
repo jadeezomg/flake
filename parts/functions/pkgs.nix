@@ -1,14 +1,10 @@
 {inputs, ...}: let
   inherit (inputs) nixpkgs nixpkgs-stable;
 
-  # CachyOS kernel overlay applied automatically for x86_64-linux.
   getPkgs = system: extraOverlays:
     let
-      cachyosOverlay =
-        if system == "x86_64-linux"
-        then [inputs.nix-cachyos-kernel.overlays.pinned]
-        else [];
-      overlays = extraOverlays ++ cachyosOverlay;
+      baseOverlays = import ../overlays/default.nix {inherit inputs system;};
+      overlays = extraOverlays ++ baseOverlays;
     in
     import nixpkgs {
       inherit system;
@@ -16,6 +12,8 @@
       config = {
         allowUnfree = true;
         input-fonts.acceptLicense = true;
+        # Required by gvfs with Google Drive (see parts/overlays/gvfs-google-drive.nix)
+        permittedInsecurePackages = ["libsoup-2.74.3"];
       };
     };
 

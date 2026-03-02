@@ -18,6 +18,7 @@ in {
 
       set -gx FLAKE ${sharedPaths.commonPaths.flake}
       set -gx NH_FLAKE ${sharedPaths.commonPaths.flake}
+      set -gx ZED_ALLOW_ROOT true
       set -gx EDITOR ${sharedEnv.commonEnv.EDITOR}
       set -gx VISUAL ${sharedEnv.commonEnv.VISUAL}
       set -gx BROWSER ${sharedEnv.commonEnv.BROWSER}

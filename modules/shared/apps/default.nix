@@ -1,7 +1,8 @@
 {...}: {
   imports = [
-    ./browsers
     ./editors
     ./terminals
   ];
+
+  programs.man.enable = true;
 }

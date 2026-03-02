@@ -14,7 +14,7 @@
     ./locale
     ./maintenance
     ./networking
-    ./programs
+    ./gaming
     ./security
     ./services
     ./shells

@@ -9,7 +9,6 @@
     gawk # GNU's awk
     libarchive # Compression library
     lsof # Tool to list open files
-    ncdu # NCurses disk usage analyzer
     p7zip # 7-Zip archiver
     unzip # Extract ZIP archives
     zip # Create ZIP archives
