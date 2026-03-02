@@ -48,11 +48,19 @@ in {
     mode = "0644";
   };
 
-  # GDM only reads /var/lib/gdm/.config/monitors.xml; sync our layout there so the
-  # login screen uses the same orientation/placement (e.g. HDMI portrait).
-  system.activationScripts.gdmMonitors = ''
-    mkdir -p /var/lib/gdm/.config
-    cp -f ${../../data/hosts/desktop/monitors.xml} /var/lib/gdm/.config/monitors.xml
-    chown gdm:gdm /var/lib/gdm/.config/monitors.xml
-  '';
+  # Apply user monitor settings to login screen by copying the user's monitors.xml
+  # to GDM's config directory (GDM 49+ uses /var/lib/gdm/seat0/config).
+  # https://discourse.nixos.org/t/multi-monitor-gdm-help/60348/6
+  systemd.services.applyUserMonitorSettings = let
+    username = user;
+    gdmConfigDir = "/var/lib/gdm/seat0/config";
+  in {
+    description = "Apply user monitor settings to GDM login screen";
+    after = ["network.target" "systemd-user-sessions.service" "display-manager.service"];
+    wantedBy = ["multi-user.target"];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.bash}/bin/bash -c 'echo \"Applying user monitor settings to GDM login screen\" && mkdir -p ${gdmConfigDir} && echo \"Created ${gdmConfigDir} directory\" && [ \"/home/${username}/.config/monitors.xml\" -ef \"${gdmConfigDir}/monitors.xml\" ] || cp /home/${username}/.config/monitors.xml ${gdmConfigDir}/monitors.xml && echo \"Copied monitors.xml to ${gdmConfigDir}/monitors.xml\" && chown gdm:gdm ${gdmConfigDir}/monitors.xml && echo \"Changed ownership of monitors.xml to gdm\"'";
+    };
+  };
 }

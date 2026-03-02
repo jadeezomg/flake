@@ -4,6 +4,7 @@
 
   # Add Flathub remote and install Cine
   system.activationScripts.flatpakSetup = ''
+    export PATH="${config.system.path}/bin:''${PATH}"
     # Add Flathub remote if it doesn't exist
     if ! flatpak remote-list | grep -q "flathub"; then
       echo "Adding Flathub remote..."

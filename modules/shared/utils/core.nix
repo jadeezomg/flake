@@ -1,7 +1,6 @@
 {pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     # --- Core System Utilities ---
-    coreutils # Basic GNU tools
     zoxide # Better cd
 
     # --- Build Essentials ---
