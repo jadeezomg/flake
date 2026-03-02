@@ -3,7 +3,9 @@
     ./audio
     ./terminals
     ./files
-    ./mail
-    ./gaming
+  ];
+
+  home.packages = with pkgs; [
+    protonmail-desktop
   ];
 }

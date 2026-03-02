@@ -4,5 +4,5 @@
     ./terminals
   ];
 
-  programs.man.enable = true;
+  documentation.man.enable = true;
 }

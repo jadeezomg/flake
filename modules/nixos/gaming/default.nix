@@ -7,6 +7,7 @@
   # Shared programs (like git) are in modules/shared/programs
   programs = {
     gamemode.enable = true;
+    mangohud.enable = true;
     steam = {
       enable = true;
       remotePlay.openFirewall = true; # Open ports used by Steam Remote Play

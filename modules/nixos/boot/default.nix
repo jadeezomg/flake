@@ -6,7 +6,6 @@
   lib,
   ...
 }: {
-
   boot = {
     loader = {
       systemd-boot = {

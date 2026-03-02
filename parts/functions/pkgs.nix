@@ -1,11 +1,10 @@
 {inputs, ...}: let
   inherit (inputs) nixpkgs nixpkgs-stable;
 
-  getPkgs = system: extraOverlays:
-    let
-      baseOverlays = import ../overlays/default.nix {inherit inputs system;};
-      overlays = extraOverlays ++ baseOverlays;
-    in
+  getPkgs = system: extraOverlays: let
+    baseOverlays = import ../overlays/default.nix {inherit inputs system;};
+    overlays = extraOverlays ++ baseOverlays;
+  in
     import nixpkgs {
       inherit system;
       overlays = overlays;

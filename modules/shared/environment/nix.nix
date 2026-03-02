@@ -5,7 +5,7 @@
   ...
 }: let
   numCores = builtins.floor (config.nixpkgs.hostPlatform.numCores or 8);
-  coresPerBuild = lib.clamp 1 3 (builtins.floor (numCores / 4));
+  coresPerBuild = lib.min 3 (lib.max 1 (builtins.floor (numCores / 4)));
   maxJobs = lib.max 1 (builtins.floor (numCores / coresPerBuild));
 in {
   nix.settings = {

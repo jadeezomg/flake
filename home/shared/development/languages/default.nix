@@ -49,15 +49,15 @@
     ./rust.nix
     # ./scala.nix
     ./sql.nix
-   # ./svelte.nix
-   # ./tailwind.nix
+    # ./svelte.nix
+    # ./tailwind.nix
     # ./terraform.nix
     ./toml.nix
     ./typescript.nix
     ./typst.nix
-   # ./vue.nix
+    # ./vue.nix
     ./xml.nix
     ./yaml.nix
-   # ./zig.nix
+    # ./zig.nix
   ];
 }
