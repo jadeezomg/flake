@@ -81,8 +81,7 @@ in {
       firefox.enable = false;
       zen-browser = {
         profileNames = ["default"];
-        # CSS is extended with opacity in home/shared/apps/browsers/zen/default.nix
-        enableCss = false;
+        enableCss = false; # maybe?
       };
       # gnome.enable = false;
       # qt.enable = false;
