@@ -10,6 +10,12 @@ in {
   stylix = {
     enable = true;
     autoEnable = true;
+    opacity = {
+      applications = 0.8;
+      desktop = 0.8;
+      popups = 0.8;
+      terminal = 0.8;
+    };
     overlays.enable = false;
     polarity = "dark";
 
@@ -46,9 +52,12 @@ in {
         name = "Iosevka Etoile";
       };
       sansSerif = {
-        package = iosevkaAile;
-        name = "Iosevka Aile";
+        name = "Inter Variable";
       };
+      # sansSerif = {
+      #   package = iosevkaAile;
+      #   name = "Iosevka Aile";
+      # };
       emoji = {
         package = pkgs.noto-fonts-color-emoji;
         name = "Noto Color Emoji";
@@ -70,8 +79,10 @@ in {
       wezterm.enable = false;
       vscode.enable = false;
       firefox.enable = false;
-      "zen-browser" = {
+      zen-browser = {
         profileNames = ["default"];
+        # CSS is extended with opacity in home/shared/apps/browsers/zen/default.nix
+        enableCss = false;
       };
       # gnome.enable = false;
       # qt.enable = false;

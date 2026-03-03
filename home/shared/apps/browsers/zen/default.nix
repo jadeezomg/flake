@@ -2,6 +2,7 @@
   inputs,
   lib,
   pkgs,
+  config,
   ...
 }: let
   extensions = import ./extensions.nix {inherit pkgs lib;};
@@ -16,6 +17,15 @@
     inherit pkgs lib extensions;
     profileExtensions = activeProfileExtensions;
   };
+  # Stylix-generated Zen CSS (same as stylix.targets.zen-browser) with our opacity appended
+  stylixZenUserChrome = import (inputs.stylix + "/modules/zen-browser/userChrome.nix") {
+    colors = config.lib.stylix.colors;
+  };
+  stylixZenUserContent = import (inputs.stylix + "/modules/zen-browser/userContent.nix") {
+    colors = config.lib.stylix.colors;
+  };
+  extraUserChrome = builtins.readFile ./chrome/userChrome.css;
+  extraUserContent = builtins.readFile ./chrome/userContent.css;
 in {
   imports = [
     inputs.zen-browser.homeModules.beta
@@ -36,6 +46,11 @@ in {
       // {
         id = 0;
         isDefault = true;
+        settings =
+          defaultProfileData.settings
+          // {"toolkit.legacyUserProfileCustomizations.stylesheets" = true;};
+        userChrome = stylixZenUserChrome + "\n\n" + extraUserChrome;
+        userContent = stylixZenUserContent + "\n\n" + extraUserContent;
       };
   };
 }

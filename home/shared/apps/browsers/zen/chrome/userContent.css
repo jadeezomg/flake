@@ -1,0 +1,6 @@
+/* Opacity override for about: pages (newtab, preferences, etc.) */
+/* Tweak --zen-opacity (0.0–1.0) in :root as desired */
+:root {
+  --zen-opacity: 0.95 !important;
+  opacity: var(--zen-opacity) !important;
+}

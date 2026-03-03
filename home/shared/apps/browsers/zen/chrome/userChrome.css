@@ -1,0 +1,13 @@
+/* Opacity override for browser chrome (toolbar, tab bar, etc.) */
+/* Tweak --zen-opacity (0.0–1.0) in :root as desired */
+:root {
+  --zen-opacity: 0.95 !important;
+}
+
+#navigator-toolbox {
+  opacity: var(--zen-opacity) !important;
+}
+
+#zen-appcontent-navbar-container {
+  opacity: var(--zen-opacity) !important;
+}
