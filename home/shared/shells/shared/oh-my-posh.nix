@@ -1,11 +1,47 @@
 {
   config,
   pkgs,
+  lib,
+  isDarwin ? false,
   ...
 }: let
   themeColors = import ../../assets/theme/theme.nix;
   sharedConfig = import ./config.nix;
   sharedPaths = import ./paths.nix;
+
+  # All \uXXXX / \ueXXX sequences used in the theme (without leading backslash).
+  # When adding new \u or \ue icons below, add the corresponding "uXXXX"/"ueXXX" here.
+  # builtins.toJSON can output these as literal "uXXXX" or as UTF-8; we fix both.
+  themeUnicodeEscapes = [
+    "u001b"
+    "u2026"
+    "u276f"
+    "ue235"
+    "ue626"
+    "ue628"
+    "ue718"
+    "ue727"
+    "ue728"
+    "ue725"
+    "ue29b"
+    "ue77f"
+    "ue7a8"
+    "ueba9"
+    "ueb5c"
+    "uebcc"
+    "uf0e7"
+    "uf417"
+    "uf0c3"
+    "uf0e2"
+    "uf412"
+    "uf6a6"
+  ];
+
+  # Placeholder for each escape (must not contain the escape as substring)
+  escapePlaceholder = e: "P" + builtins.substring 1 999 e;
+  protectedForms = map (e: "\\" + e) themeUnicodeEscapes;
+  placeholders = map escapePlaceholder themeUnicodeEscapes;
+  jsonEscaped = map (e: "\\" + e) themeUnicodeEscapes;
 
   poshThemeJsonRaw = builtins.toJSON {
     "$schema" = sharedConfig.ohMyPoshConfig.schemaUrl;
@@ -198,15 +234,28 @@
     version = 4;
   };
 
-  # Fix ANSI escape sequences: builtins.toJSON converts \u001b to literal "u001b" in JSON
-  # We need to replace "u001b" with "\\u001b" so JSON parsers interpret it as an escape sequence
+  # Fix Unicode in generated JSON. On Darwin, toJSON often breaks \uXXXX (shows "u2026" etc. in prompt),
+  # so we run the full 4-step fix. On NixOS the old setup worked; only fix the ANSI ESC u001b.
+  charFromEscape = e: builtins.fromJSON ("\"\\" + e + "\"");
+  themeUnicodeChars = map charFromEscape themeUnicodeEscapes;
+
   poshThemeJson =
-    builtins.replaceStrings [
-      "u001b"
-    ] [
-      "\\u001b"
-    ]
-    poshThemeJsonRaw;
+    if isDarwin
+    then
+      let
+        # 1) Protect already-correct \uXXXX (if present) with placeholders
+        protected = builtins.replaceStrings protectedForms placeholders poshThemeJsonRaw;
+        # 2) Fix literal "uXXXX" (no backslash) -> proper JSON escape
+        fixed = builtins.replaceStrings themeUnicodeEscapes jsonEscaped protected;
+        # 3) Replace UTF-8 chars (if toJSON wrote them) with JSON escape
+        withEscapes = builtins.replaceStrings themeUnicodeChars jsonEscaped fixed;
+        # 4) Restore placeholders
+        restored = builtins.replaceStrings placeholders jsonEscaped withEscapes;
+      in
+        restored
+    else
+      # NixOS: only fix ANSI escape so shell prompt colors work
+      builtins.replaceStrings ["u001b"] ["\\u001b"] poshThemeJsonRaw;
 in {
   # Install oh-my-posh package
   home.packages = with pkgs; [
