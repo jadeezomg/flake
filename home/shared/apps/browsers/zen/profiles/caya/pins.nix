@@ -1,7 +1,7 @@
 # Pins and folders (skifli format). Updated by sync_caya_from_session.py.
 { ... }:
 let
-  spaces = import ./spaces.nix {};
+  spaces = (import ./spaces.nix {}).spaces;
 in
 {
   pinsForce = true;
