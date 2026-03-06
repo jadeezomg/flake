@@ -123,18 +123,18 @@ def _write_pins(windows, folders, spaces_list):
             pin_id = p.get("tabId") or str(uuid.uuid4()).lower()
             if not re.match(r"^[a-f0-9\-]{36}$", str(pin_id)):
                 pin_id = str(uuid.uuid4()).lower()
-            entries.append(
-                (
-                    key,
-                    '      id = "'
-                    + pin_id
-                    + '";\n      url = "'
-                    + nix_escape(url)
-                    + '";\n      isEssential = true;\n      position = '
-                    + str(pos_essential)
-                    + ";",
-                )
+            frag = (
+                '      id = "'
+                + pin_id
+                + '";\n      url = "'
+                + nix_escape(url)
+                + '";\n      isEssential = true;\n      position = '
+                + str(pos_essential)
+                + ";"
             )
+            if p.get("containerId") is not None:
+                frag += "\n      container = " + str(int(p["containerId"])) + ";"
+            entries.append((key, frag))
             pos_essential += 1
 
     for f in folders:
@@ -198,6 +198,8 @@ def _write_pins(windows, folders, spaces_list):
             )
             if folder_id:
                 frag += '\n      folderParentId = "' + folder_id + '";'
+            if p.get("containerId") is not None:
+                frag += "\n      container = " + str(int(p["containerId"])) + ";"
             pos_pin += 1
             entries.append((key, frag))
 
@@ -206,7 +208,7 @@ def _write_pins(windows, folders, spaces_list):
     body = "\n".join('    "' + k + '" = {\n' + v + "\n    };" for k, v in entries)
     with open(path, "w", encoding="utf-8") as f:
         f.write(
-            "# Pins and folders (skifli format). Updated by sync_caya_from_session.py.\n{ ... }:\nlet\n  spaces = import ./spaces.nix {};\nin\n{\n  pinsForce = true;\n  pins = {\n"
+            "# Pins and folders (skifli format). Updated by sync_caya_from_session.py.\n{ ... }: let\n  spaces = (import ./spaces.nix {}).spaces;\nin {\n  pinsForce = true;\n  pins = {\n"
             + body
             + "\n  };\n}\n"
         )

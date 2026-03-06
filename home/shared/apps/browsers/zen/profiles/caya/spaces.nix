@@ -12,7 +12,7 @@
       icon = "💡";
       position = 2000;
     };
-    "Work" = {
+    "Operations" = {
       id = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
       icon = "📯";
       position = 3000;

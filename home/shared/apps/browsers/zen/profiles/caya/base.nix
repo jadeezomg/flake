@@ -5,7 +5,8 @@
   extensions,
   ...
 }: {
-  settings = (import ../../settings.nix)
+  settings =
+    (import ../../settings.nix)
     // {
       "zen.workspaces.natural-scroll" = false;
     };
@@ -30,6 +31,16 @@
       color = "yellow";
       icon = "cart";
       id = 2;
+    };
+    "Errors" = {
+      color = "red";
+      icon = "fence";
+      id = 3;
+    };
+    "Dev" = {
+      color = "green";
+      icon = "tree";
+      id = 4;
     };
   };
 }

@@ -2,9 +2,9 @@
 """
 Extract pinned tabs per workspace from Zen's session store.
 
-Data sources (no fallbacks):
+Data sources:
 - zen-sessions.jsonlz4  → spaces (name, icon, position). Root .spaces is the sidebar list.
-- recovery.jsonlz4 or sessionstore.jsonlz4  → windows, tabs, folders. First file that exists and has windows.
+- Windows/tabs: recovery.jsonlz4, then sessionstore.jsonlz4, then zen-sessions.jsonlz4 (first that exists and has .windows). When Zen is closed, only zen-sessions may be present.
 
   uv run extract_pinned_tabs.py [--nix]
 
@@ -38,12 +38,12 @@ def _default_zen_profile_root():
 ZEN_PROFILE_ROOT = os.environ.get("ZEN_PROFILE_ROOT", _default_zen_profile_root())
 # Spaces: zen-sessions.jsonlz4 root = sidebar { spaces: [{ uuid, name, icon, position }] }
 ZEN_SESSIONS_FILE = os.path.join(ZEN_PROFILE_ROOT, "zen-sessions.jsonlz4")
-# Windows/tabs: Firefox-style session; we use recovery first, then sessionstore
+# Windows/tabs: recovery first, then sessionstore, then zen-sessions (present when Zen is closed)
 SESSIONSTORE_RECOVERY = os.path.join(
     ZEN_PROFILE_ROOT, "sessionstore-backups", "recovery.jsonlz4"
 )
 SESSIONSTORE_MAIN = os.path.join(ZEN_PROFILE_ROOT, "sessionstore.jsonlz4")
-WINDOW_SESSION_PATHS = [SESSIONSTORE_RECOVERY, SESSIONSTORE_MAIN]
+WINDOW_SESSION_PATHS = [SESSIONSTORE_RECOVERY, SESSIONSTORE_MAIN, ZEN_SESSIONS_FILE]
 # All session-related paths (for dump_session / check_spaces that iterate and report)
 SESSION_PATHS = [ZEN_SESSIONS_FILE] + WINDOW_SESSION_PATHS
 # Optional override: JSON mapping space ID -> name or { name, icon?, position? }
@@ -51,7 +51,7 @@ ZEN_SPACE_NAMES_FILE = os.environ.get(
     "ZEN_SPACE_NAMES_FILE",
     os.path.join(ZEN_PROFILE_ROOT, "space_names.json"),
 )
-SKIP_URL_PREFIXES = ("about:blank", "about:", "https://accounts.google.com/")
+SKIP_URL_PREFIXES = ("about:blank", "about:")
 
 _UUID_RE = re.compile(r"^[0-9a-f\-]{36}$", re.I)
 
@@ -88,7 +88,9 @@ def _load_window_session():
         if windows:
             return data
     print(
-        "No session with windows found. Tried:\n  " + "\n  ".join(WINDOW_SESSION_PATHS),
+        "No session with windows found. Tried:\n  "
+        + "\n  ".join(WINDOW_SESSION_PATHS)
+        + "\n(When Zen is closed, zen-sessions.jsonlz4 may still have window/tab data.)",
         file=sys.stderr,
     )
     sys.exit(2)
@@ -360,7 +362,15 @@ def _tab_pins_from_tabs(tabs, essential_ids, window_workspace, window_folder_map
             if parent_id in folder_map and pin_folder is None:
                 pin_folder = folder_map[parent_id]
         space_id = _normalize_zen_workspace(t.get("zenWorkspace") or window_workspace)
-        yield {
+        container_id = t.get("userContextId") or ent.get("userContextId")
+        if container_id is not None:
+            try:
+                container_id = int(container_id)
+            except (TypeError, ValueError):
+                container_id = None
+        if container_id == 0:
+            container_id = None
+        pin = {
             "title": title,
             "url": url,
             "isEssential": _tab_is_essential(t, essential_ids),
@@ -369,6 +379,9 @@ def _tab_pins_from_tabs(tabs, essential_ids, window_workspace, window_folder_map
             "tabId": _tab_id(t),
             "spaceId": space_id,
         }
+        if container_id is not None:
+            pin["containerId"] = container_id
+        yield pin
 
 
 def nix_escape(s):
@@ -545,8 +558,16 @@ def main(args=None):
                 pin_id = p.get("tabId") or str(uuid.uuid4()).lower()
                 if not _UUID_RE.match(str(pin_id)):
                     pin_id = str(uuid.uuid4()).lower()
+                parts = [
+                    f'id = "{pin_id}"',
+                    f'url = "{nix_escape(url)}"',
+                    f"position = {pos}",
+                    f"isEssential = {'true' if p.get('isEssential') else 'false'}",
+                ]
+                if p.get("containerId"):
+                    parts.append(f"containerId = {int(p['containerId'])}")
                 lines.append(
-                    f'    "{nix_escape(title or key)}" = {{ id = "{pin_id}"; url = "{nix_escape(url)}"; position = {pos}; isEssential = {"true" if p.get("isEssential") else "false"}; }};'
+                    f'    "{nix_escape(title or key)}" = {{ {"; ".join(parts)}; }};'
                 )
                 pos += 1
             lines.append("")
