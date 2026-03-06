@@ -2,3 +2,8 @@
 .flake-host
 /result
 .DS_Store
+uv.lock
+session_dump.json
+# Dated backups from sync_caya_from_session.py
+*.nix.*.bak
+__pycache__/
