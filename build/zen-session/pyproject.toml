@@ -1,0 +1,9 @@
+[project]
+name = "zen-session"
+version = "0.1.0"
+description = "Zen browser session tools (extract pins, sync to Nix, dump, check-spaces)"
+requires-python = ">=3.10"
+dependencies = ["lz4"]
+
+[dependency-groups]
+dev = ["ruff", "ty"]

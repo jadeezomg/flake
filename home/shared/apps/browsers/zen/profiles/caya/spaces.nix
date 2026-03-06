@@ -1,4 +1,4 @@
-# Spaces (workspaces). Can be overwritten by the session sync script; backups are dated.
+# Zen workspaces. Updated by sync_caya_from_session.py.
 {...}: {
   spacesForce = true;
   spaces = {
@@ -10,22 +10,22 @@
     "Solutions" = {
       id = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
       icon = "💡";
-      position = 1001;
+      position = 2000;
     };
-    "Operations" = {
+    "Work" = {
       id = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
-      icon = "";
-      position = 1002;
+      icon = "📯";
+      position = 3000;
     };
     "Development" = {
       id = "8bbf6155-b7cc-4487-9379-35c02d1139ce";
       icon = "💻";
-      position = 1003;
+      position = 4000;
     };
     "Research" = {
       id = "278ec41c-2c9d-41b3-aa79-1affeb706629";
       icon = "🔍";
-      position = 1004;
+      position = 5000;
     };
   };
 }

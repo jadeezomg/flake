@@ -1,6 +1,0 @@
-[project]
-name = "zen-extract-pinned-tabs"
-version = "0.1.0"
-description = "Extract Zen browser pinned tabs per workspace from session store"
-requires-python = ">=3.10"
-dependencies = ["lz4"]
