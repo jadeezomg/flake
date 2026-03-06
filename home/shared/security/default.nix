@@ -1,5 +1,0 @@
-{...}: {
-  imports = [
-    ./age-sops.nix
-  ];
-}

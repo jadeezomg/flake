@@ -1,0 +1,36 @@
+# Zen workspaces (NixOS default profile). Updated by sync_caya_from_session.py on NixOS.
+{...}: {
+  spacesForce = true;
+  spaces = {
+    "Home" = {
+      id = "062169cd-2322-44e2-aea5-467df4671303";
+      icon = "🏠";
+      position = 1000;
+    };
+    "Development" = {
+      id = "5303cb0f-97f9-4bb1-b859-108214314758";
+      icon = "💻";
+      position = 1001;
+    };
+    "Shopping" = {
+      id = "90801cc0-78d5-469b-a53a-cdb26aa2ae8d";
+      icon = "🛒";
+      position = 1002;
+    };
+    "Themes" = {
+      id = "b878e1a6-6347-4070-bd19-00b74db05d12";
+      icon = "🎨";
+      position = 1003;
+    };
+    "Games" = {
+      id = "9f311082-5623-47b5-960d-2a7b115b238e";
+      icon = "🎮";
+      position = 1004;
+    };
+    "Downloads" = {
+      id = "fdcbe00e-21e9-46aa-93f5-52676ecb2301";
+      icon = "💾";
+      position = 1005;
+    };
+  };
+}

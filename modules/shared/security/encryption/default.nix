@@ -5,5 +5,6 @@
 }: {
   imports = [
     ./age-sops.nix
+    ./tools.nix
   ];
 }

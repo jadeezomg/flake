@@ -27,8 +27,8 @@ keys:
   # Desktop NixOS host
   - &desktop age1s6yrgxcpwm8qy3cpjc2fz6pyq76afd33e2kfg7q58q69ehxwzd2s6qjrxu
 
-  # Caya Darwin host (replace with full key from: age-keygen -y ~/.config/sops/age/keys.txt)
-  # - &caya age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  # Caya Darwin host
+  - &caya age1yrt6l02984f5gemerpzlf5v4ymakdmf45qhu3ecy2qtjwuzn43tqh755nz
 
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
@@ -36,4 +36,4 @@ creation_rules:
       - age:
           - *framework
           - *desktop
-          # - *caya  # uncomment when Caya key is added above
+          - *caya
