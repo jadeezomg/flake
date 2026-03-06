@@ -14,7 +14,13 @@
     # Audio
     pear-desktop
 
+    # Editors
+    code-cursor
+    zed-editor
+
     # Terminals
+    alacritty
     ghostty
+    kitty
   ];
 }
