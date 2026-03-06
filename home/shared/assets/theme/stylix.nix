@@ -74,14 +74,17 @@ in {
     # Image/wallpaper
     image = ../wallpapers/wallpaper.jpg;
 
-    # Enable automatic theming for all supported applications
     targets = {
       wezterm.enable = false;
       vscode.enable = false;
       firefox.enable = false;
+      kitty = {
+        enable = true;
+        fonts.enable = false;
+      };
       zen-browser = {
         profileNames = ["default"];
-        enableCss = false; # maybe?
+        enableCss = true; # maybe?
       };
       # gnome.enable = false;
       # qt.enable = false;

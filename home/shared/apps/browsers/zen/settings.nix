@@ -11,6 +11,7 @@
   "zen.workspaces.separate-essentials" = false;
   "zen.workspaces.hide-default-container-indicator" = false;
   "zen.pinned-tab-manager.restore-pinned-tabs-to-pinned-url" = true;
+  "zen.glance.activation-method" = "ctrl";
 
   # Startup & new tab
   "browser.startup.homepage" = "chrome://browser/content/blanktab.html";

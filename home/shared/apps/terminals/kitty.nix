@@ -1,18 +1,28 @@
 {
   pkgs,
   config,
+  lib,
   ...
 }: {
   programs.kitty = {
     enable = true;
+
+    font = {
+      package = lib.mkForce pkgs.nerd-fonts.iosevka;
+      name = "Iosevka Nerd Font Mono";
+      size = 12;
+    };
+
     settings = {
       # Shell configuration
       shell = "${pkgs.nushell}/bin/nu";
       shell_integration = "enabled";
 
-      # Font configuration (Stylix owns fonts)
-      font_family = config.stylix.fonts.monospace.name;
-      font_size = 12;
+      # Font (explicit; not using Stylix)
+      font_family = "family='Iosevka Nerd Font Mono' style=Regular";
+      bold_font = "family='Iosevka Nerd Font Mono' style=Bold";
+      italic_font = "family='Iosevka Nerd Font Mono' style=Italic";
+      bold_italic_font = "family='Iosevka Nerd Font Mono' style='Bold Italic'";
 
       # Window configuration
       initial_window_width = 130;
@@ -20,8 +30,17 @@
       window_padding_width = 10;
       window_margin_width = 10;
 
+      # Tab bar configuration
+      tab_bar_margin_width = 10;
+      tab_bar_margin_height = "5 5";
+      tab_bar_edge = "top";
+      tab_bar_style = "fade";
+
       # Scrollback
       scrollback_lines = 10000;
+
+      # Background blur (requires opacity < 1; supported on macOS and KDE)
+      background_blur = 30;
 
       # Cursor
       cursor_shape = "block";
