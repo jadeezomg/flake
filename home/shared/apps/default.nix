@@ -5,5 +5,6 @@
     ./editors
     ./terminals
     ./ides
+    ./tools
   ];
 }

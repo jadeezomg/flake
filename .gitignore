@@ -1,9 +1,12 @@
 # Local flake configuration
 .flake-host
 /result
+__pycache__/
+.venv/
+.ruff_cache/
 .DS_Store
 uv.lock
 session_dump.json
+
 # Dated backups from sync_caya_from_session.py
 *.nix.*.bak
-__pycache__/

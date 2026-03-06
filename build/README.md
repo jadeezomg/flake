@@ -55,6 +55,12 @@ Nushell-based build and management scripts for the NixOS flake configuration.
 - **`clean-backups.nu`** - Remove backup files
   - `--dry` - Preview what would be removed
 
+### Secrets (SOPS)
+
+- **`setup-age-darwin.nu`** - One-time setup of age key for nix-sops on Darwin (Caya)
+  - Creates `~/.config/sops/age/keys.txt` and prints your public key
+  - `age` and `sops` are installed on the system (shared security/encryption); run the script after a darwin-rebuild, then add the printed key to `.sops.yaml` and run `sops updatekeys secrets/secrets.yaml`
+
 ## Initialization
 
 First, initialize the flake to set your default host:
@@ -92,14 +98,15 @@ Or add them to your PATH and use as commands.
 Scripts use the `$FLAKE` environment variable (defaults to `~/.dotfiles/flake`).
 
 Set in your nushell config:
+
 ```nu
 $env.FLAKE = "~/.dotfiles/flake"
 ```
 
 The default host is stored in `.flake-host` in your flake directory. You can change it anytime:
+
 ```nu
 ./build/init.nu <new-host>
 ```
 
 Or manually edit `.flake-host` file.
-

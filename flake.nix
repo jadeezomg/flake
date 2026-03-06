@@ -143,6 +143,8 @@
             pkgs.nixd
             pkgs.jq
             pkgs.curl
+            pkgs.age
+            pkgs.sops
           ];
         };
       };

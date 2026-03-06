@@ -7,12 +7,15 @@
     uv # rustic package manager
     ty # rustic type checker
     ruff # Fast Python formatter/linter
+    pipx # Python package manager
     # poetry
 
     # --- Python with Packages ---
     (python3.withPackages (
       ps:
         with ps; [
+          pip
+          lz4
           # --- Jupyter Core ---
           # ipykernel # Python kernel for Jupyter
           # jupyter # Jupyter notebook server
