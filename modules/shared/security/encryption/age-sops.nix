@@ -3,8 +3,7 @@
   lib,
   ...
 }: {
-  # SOPS-Nix configuration for secret management
-  # Only apply in home-manager context, not NixOS system context
+  # SOPS-Nix secret management (home-manager only). age/sops are on the system via encryption/tools.nix.
   sops = lib.mkIf (builtins.hasAttr "home" config) {
     defaultSopsFile = ../../../../secrets/secrets.yaml;
 
