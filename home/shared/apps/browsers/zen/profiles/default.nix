@@ -9,7 +9,7 @@ in rec {
   settings =
     sharedSettings
     // {
-      "zen.workspaces.natural-scroll" = false;
+      "zen.workspaces.natural-scroll" = true;
       "zen.widget.linux.transparency" = true;
     };
 
