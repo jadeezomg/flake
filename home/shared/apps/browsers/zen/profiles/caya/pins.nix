@@ -1,327 +1,303 @@
-# Per-workspace pins only. Updated by sync_caya_from_session.py. spaceId = which workspace.
-{ ... }: {
+# Pins and folders (skifli format). Updated by sync_caya_from_session.py.
+{ ... }:
+let
+  spaces = import ./spaces.nix {};
+in
+{
+  pinsForce = true;
   pins = {
-    # Work
-    "Mailroom" = {
-      id = "4f1eefa9-0210-4ccb-8219-4d96c8a666bd";
-      url = "https://mailroom.usecaya.com/app/sources";
-      position = 201;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+    "Inbox - jonas.hippauf@getcaya.com - Caya GmbH Mail" = {
+      id = "d89cebc5-b4a0-458d-8d2c-e1322aadf272";
+      url = "https://mail.google.com/mail/u/0/#inbox";
+      isEssential = true;
+      position = 101;
     };
-    # Work
+    "Caya GmbH - Calendar - Week of March 2, 2026" = {
+      id = "488839fb-daf4-442a-a4c8-9fff0c5faa7d";
+      url = "https://calendar.google.com/calendar/u/0/r";
+      isEssential = true;
+      position = 102;
+    };
+    "Google Meet" = {
+      id = "4654eae0-035c-4f30-b29d-1ee3016df709";
+      url = "https://meet.google.com/landing";
+      isEssential = true;
+      position = 103;
+    };
+    "0/2 loaded · Dashboard · Metabase" = {
+      id = "8c137d7f-115f-4207-aa37-32a6bcbcf6f1";
+      url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer&e-mail&id&tab=7-customer";
+      isEssential = true;
+      position = 104;
+    };
+    "Google Gemini" = {
+      id = "3003c9ce-2fb4-4652-ae92-b02b7534022d";
+      url = "https://gemini.google.com/app";
+      isEssential = true;
+      position = 105;
+    };
+    "Sprints" = {
+      id = "ebc08249-4bda-4a7a-bea3-0c7c1d045ccf";
+      url = "https://one.zoho.eu/zohoone/cayagmbh/home/cxapp/sprints/workspace/cayagmbh?frameorigin=https%3A%2F%2Fone.zoho.eu#projects";
+      isEssential = true;
+      position = 106;
+    };
+    "Projects | Caya Document Automation" = {
+      id = "d9119166-ea13-4ce1-b5e2-85bb16f3e7b9";
+      url = "https://app.eu.workato.com/?fid=projects";
+      isEssential = true;
+      position = 107;
+    };
     "Caya" = {
-      id = "ca23d9d2-5cf5-4c12-99e5-76b1a0fba9d9";
-      url = "https://metabase.caya.com/dashboard/107-onboard";
-      position = 202;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+      id = "d27c0619-92b5-4216-9f09-1c9ae376dc1e";
+      url = "https://github.com/AMN-DATA";
+      isEssential = true;
+      position = 108;
     };
-    # Work
-    "Kundentabelle - Google Sheets" = {
-      id = "61c62cd2-c3db-482b-8075-caefbc45666f";
-      url = "https://docs.google.com/spreadsheets/d/1RJ7n5ZZaLlrpHbgfVd2mODOPh2F4nJhe2VGlYuIKCE4/edit?gid=266221096#gid=266221096";
-      position = 203;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+    "Dev Env" = {
+      id = "1772811911012-80";
+      workspace = spaces."Development".id;
+      isGroup = true;
+      isFolderCollapsed = true;
+      editedTitle = true;
+      position = 1000;
     };
-    # Work
-    "NSA_Bot2 - Google Sheets" = {
-      id = "773d98ee-90bd-463f-9e87-e8a37322ef04";
-      url = "https://docs.google.com/spreadsheets/d/1jh-u5OD82IapcAgNbksDH_YL1CEJY-zhEe3Gcz0Oa0U/edit?pli=1&gid=1153942125#gid=1153942125";
-      position = 204;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+    "Magic" = {
+      id = "1772811910792-66";
+      workspace = spaces."Solutions".id;
+      isGroup = true;
+      isFolderCollapsed = true;
+      editedTitle = true;
+      position = 1001;
     };
-    # Work
-    "Einzurichtende NSA - Google Sheets" = {
-      id = "3b3a070f-f66b-4d6d-9ceb-489cf1d499f1";
-      url = "https://docs.google.com/spreadsheets/d/16sfo_z2uQ0XdUElxgmCJmTqQCCpmENbA3vDLQoOYbwk/edit?gid=2127352351#gid=2127352351";
-      position = 205;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+    "Automat" = {
+      id = "1772811910849-71";
+      workspace = spaces."Solutions".id;
+      isGroup = true;
+      isFolderCollapsed = true;
+      editedTitle = true;
+      position = 1002;
     };
-    # Work
-    "FRAUDSTER CHECK - Google Sheets" = {
-      id = "7ca3a3bc-e17d-40fc-907b-dc4b4685c47a";
-      url = "https://docs.google.com/spreadsheets/d/152PTHmmLH2-uW8U5gREt8QFSwo7F0O6WU02JLE4Q1Wg/edit?gid=1305043741#gid=1305043741";
-      position = 206;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+    "Reports" = {
+      id = "1772811910929-76";
+      workspace = spaces."Solutions".id;
+      isGroup = true;
+      isFolderCollapsed = true;
+      editedTitle = true;
+      position = 1003;
     };
-    # Work
-    "SQL_customerdata - Google Sheets" = {
-      id = "ee93a104-32be-4598-9fc8-414aa1169d2d";
-      url = "https://docs.google.com/spreadsheets/d/1uFogl7zNtveVFyaVDMos4k1KWdztp_YbdSv4bPDJM2Q/edit?gid=0#gid=0";
-      position = 207;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+    "Sheets" = {
+      id = "1772811910969-69";
+      workspace = spaces."Solutions".id;
+      isGroup = true;
+      isFolderCollapsed = true;
+      editedTitle = true;
+      position = 1004;
     };
-    # Work
-    "Deutschepost" = {
-      id = "1b524fba-adbe-4a89-a272-d5d6270c435e";
-      url = "https://shop.deutschepost.de/";
-      position = 208;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+    "Sheets_1" = {
+      id = "1772811910818-8";
+      workspace = spaces."Work".id;
+      isGroup = true;
+      isFolderCollapsed = true;
+      editedTitle = true;
+      position = 1005;
     };
-    # Work
-    "Google" = {
-      id = "cd9cc0ac-2bc7-4cfa-8fe8-9a4d67e1c68a";
-      url = "https://mail.google.com/mail/u/0/#inbox";
-      position = 209;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+    "Forwards" = {
+      id = "1772811910906-87";
+      workspace = spaces."Work".id;
+      isGroup = true;
+      isFolderCollapsed = true;
+      editedTitle = true;
+      position = 1006;
     };
-    # Work
-    "Mailroom_1" = {
-      id = "957c8e74-1326-48fd-baed-4185ec6c9ed8";
+    "Mailroom" = {
+      id = "fdcb3387-d62f-43aa-9348-b99e97d55d01";
       url = "https://mailroom.usecaya.com/app/sources";
-      position = 210;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+      workspace = spaces."Work".id;
+      isEssential = false;
+      position = 201;
     };
-    # Work
     "Caya_1" = {
-      id = "e7145ce1-7a06-47b8-8182-a3ae5590435b";
+      id = "c9847f7c-538f-480e-ba7c-ab8d48e2e5c8";
       url = "https://metabase.caya.com/dashboard/107-onboard";
-      position = 211;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+      workspace = spaces."Work".id;
+      isEssential = false;
+      position = 202;
     };
-    # Work
-    "Kundentabelle - Google Sheets_1" = {
-      id = "0e1a8aff-ee79-42ab-8b47-7fdf66a5494d";
+    "Kundentabelle - Google Sheets" = {
+      id = "3c78f037-77e1-475f-8b45-4b577c1b90df";
       url = "https://docs.google.com/spreadsheets/d/1RJ7n5ZZaLlrpHbgfVd2mODOPh2F4nJhe2VGlYuIKCE4/edit?gid=266221096#gid=266221096";
-      position = 212;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+      workspace = spaces."Work".id;
+      isEssential = false;
+      position = 203;
+      folderParentId = "1772811910818-8";
     };
-    # Work
-    "NSA_Bot2 - Google Sheets_1" = {
-      id = "b635fa65-0405-4666-bbe4-a9d59f24defb";
+    "NSA_Bot2 - Google Sheets" = {
+      id = "3254b515-9bfe-4d34-b7e5-6266fc019f56";
       url = "https://docs.google.com/spreadsheets/d/1jh-u5OD82IapcAgNbksDH_YL1CEJY-zhEe3Gcz0Oa0U/edit?pli=1&gid=1153942125#gid=1153942125";
-      position = 213;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+      workspace = spaces."Work".id;
+      isEssential = false;
+      position = 204;
+      folderParentId = "1772811910818-8";
     };
-    # Work
-    "Einzurichtende NSA - Google Sheets_1" = {
-      id = "d3bd204f-de3c-4577-8617-f082fdccbd8e";
+    "Einzurichtende NSA - Google Sheets" = {
+      id = "bf316e5e-717d-460a-b0cc-6032ddfa229a";
       url = "https://docs.google.com/spreadsheets/d/16sfo_z2uQ0XdUElxgmCJmTqQCCpmENbA3vDLQoOYbwk/edit?gid=2127352351#gid=2127352351";
-      position = 214;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+      workspace = spaces."Work".id;
+      isEssential = false;
+      position = 205;
+      folderParentId = "1772811910818-8";
     };
-    # Work
-    "FRAUDSTER CHECK - Google Sheets_1" = {
-      id = "4e696f86-7fce-4c5f-bbbb-9a9d9eb7c0b4";
+    "FRAUDSTER CHECK - Google Sheets" = {
+      id = "4bbf1bfa-6795-4bf0-a90c-ce9633b49673";
       url = "https://docs.google.com/spreadsheets/d/152PTHmmLH2-uW8U5gREt8QFSwo7F0O6WU02JLE4Q1Wg/edit?gid=1305043741#gid=1305043741";
-      position = 215;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+      workspace = spaces."Work".id;
+      isEssential = false;
+      position = 206;
+      folderParentId = "1772811910818-8";
     };
-    # Work
-    "SQL_customerdata - Google Sheets_1" = {
-      id = "1742ae42-f78a-4156-9966-fbf5b58b838d";
+    "SQL_customerdata - Google Sheets" = {
+      id = "ac511937-1fd6-4fa6-a1de-d6844b984754";
       url = "https://docs.google.com/spreadsheets/d/1uFogl7zNtveVFyaVDMos4k1KWdztp_YbdSv4bPDJM2Q/edit?gid=0#gid=0";
-      position = 216;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+      workspace = spaces."Work".id;
+      isEssential = false;
+      position = 207;
+      folderParentId = "1772811910818-8";
     };
-    # Work
-    "Deutschepost_1" = {
-      id = "bb9dccba-ca91-4056-b95f-0f8ec132bff2";
+    "Deutschepost" = {
+      id = "7431f4e4-4c1d-4140-b80b-359a0234b950";
       url = "https://shop.deutschepost.de/";
-      position = 217;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+      workspace = spaces."Work".id;
+      isEssential = false;
+      position = 208;
+      folderParentId = "1772811910906-87";
     };
-    # Work
-    "Google_1" = {
-      id = "36aab98f-5dd9-4fd3-b877-4dac9b207101";
+    "Google" = {
+      id = "3163def9-2d30-4dcc-95e7-4782ea3a11f1";
       url = "https://mail.google.com/mail/u/0/#inbox";
-      position = 218;
-      spaceId = "4a003f39-c69b-4424-90ae-b2ae49d6e632";
+      workspace = spaces."Work".id;
+      isEssential = false;
+      position = 209;
+      folderParentId = "1772811910906-87";
     };
-    # Default
     "Caya Document Cockpit" = {
-      id = "42cbbf25-1626-410b-a9e1-161f89641476";
+      id = "00d857d2-3927-4998-814f-d63eb9c900e2";
       url = "https://app.caya.com/login";
-      position = 219;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
+      workspace = spaces."Solutions".id;
+      isEssential = false;
+      position = 210;
     };
-    # Default
     "Caya Document Cockpit_1" = {
-      id = "5ee4afe5-9d4f-45a4-85d1-9e679157754b";
+      id = "15d4fdb5-2e18-47f0-9dd2-fe40af89a3cd";
       url = "https://app.caya.com/login/magic";
-      position = 220;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
+      workspace = spaces."Solutions".id;
+      isEssential = false;
+      position = 211;
+      folderParentId = "1772811910792-66";
     };
-    # Default
     "Caya Document Cockpit_2" = {
-      id = "4a5312cb-dea4-42fc-8a04-299680c1c840";
+      id = "95b8296f-77cf-4c42-8ca8-7b4ed673010f";
       url = "https://app.caya.com/login/magic";
-      position = 221;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
+      workspace = spaces."Solutions".id;
+      isEssential = false;
+      position = 212;
+      folderParentId = "1772811910792-66";
     };
-    # Default
+    "Google_1" = {
+      id = "a1c67024-ca00-4c30-9890-6b024ab946d0";
+      url = "https://mail.google.com/mail/u/0/#inbox";
+      workspace = spaces."Solutions".id;
+      isEssential = false;
+      position = 213;
+      folderParentId = "1772811910849-71";
+    };
     "Google Drive" = {
-      id = "7d340979-b813-4013-b3f9-4830f2be0f2d";
+      id = "82710431-c98b-4d1b-bd02-df51e60bbc93";
       url = "https://drive.google.com/drive/?pli=1";
-      position = 222;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
+      workspace = spaces."Solutions".id;
+      isEssential = false;
+      position = 214;
+      folderParentId = "1772811910849-71";
     };
-    # Default
     "AutomagicTemplate - Project Editor - App" = {
-      id = "218ea797-be0a-49eb-bd04-dbd63b3e464b";
+      id = "0a0d71cb-9ba9-4e09-9751-984c5d954cc0";
       url = "https://script.google.com/home/projects/1vIY1x68Obg2kPtB5tX4u8DMp0g7X0sGoG5LGnr1HjfxmrKTtbJdqaDYr/edit";
-      position = 223;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
+      workspace = spaces."Solutions".id;
+      isEssential = false;
+      position = 215;
+      folderParentId = "1772811910849-71";
     };
-    # Default
     "AutomagicTemplateJSON - Project Editor -" = {
-      id = "5c08208a-3db6-4a93-9a63-149457b97813";
+      id = "54819ac9-fea4-46a3-a9d0-f0224892f24d";
       url = "https://script.google.com/home/projects/1n8d38mlfk14p3NF1gCMP9Q97j9IP44NMV5jkEhrL78V7uaC_LLbmOob3/edit";
-      position = 224;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
+      workspace = spaces."Solutions".id;
+      isEssential = false;
+      position = 216;
+      folderParentId = "1772811910849-71";
     };
-    # Default
     "Caya_2" = {
-      id = "fa84add0-b31f-4e95-ab1a-1440c3d973f9";
+      id = "2c78f3de-7f8c-43d5-adce-021952cbd300";
       url = "https://metabase.caya.com/question/3316-daily-workato-recipe-failures-that-requires-follow-ups?days=1";
-      position = 225;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
+      workspace = spaces."Solutions".id;
+      isEssential = false;
+      position = 217;
+      folderParentId = "1772811910929-76";
     };
-    # Default
     "Caya_3" = {
-      id = "ff3d3d21-bbaf-4d1f-98eb-b84ce8e07972";
+      id = "3ed90475-64b9-4d33-8139-ef60b7bed1de";
       url = "https://metabase.caya.com/question/2844-active-documents-with-missing-automation-to-be-retriggered-inc-stacked-distribution?days=31";
-      position = 226;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
+      workspace = spaces."Solutions".id;
+      isEssential = false;
+      position = 218;
+      folderParentId = "1772811910929-76";
     };
-    # Default
     "Google_2" = {
-      id = "7ae56c04-ed4e-45ff-a106-db72744a5471";
+      id = "156333d7-e0cf-4ba3-b1e5-938ca45a32d1";
       url = "https://docs.google.com/document/d/13qGBQ_yMl0y4H6BYgsIbm6jOL1EvFAp0_YTHmu3D00o/edit?tab=t.lsx0mf7ch6wy#heading=h.6ewrr9jlp0yl";
-      position = 227;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
+      workspace = spaces."Solutions".id;
+      isEssential = false;
+      position = 219;
+      folderParentId = "1772811910969-69";
     };
-    # Default
     "AUTOMATION TEAM OVERVIEW - Google Sheets" = {
-      id = "420deaaf-0b37-43d4-a810-f81ba0869b04";
+      id = "08a70a22-ffa6-4b4c-9e7d-325cd608e856";
       url = "https://docs.google.com/spreadsheets/d/1ZStYBJHhUrm5MfmGGc3ry5BFHgKquKGV1fuSjFdscWs/edit?gid=0#gid=0";
-      position = 228;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
+      workspace = spaces."Solutions".id;
+      isEssential = false;
+      position = 220;
+      folderParentId = "1772811910969-69";
     };
-    # Default
     "Google_3" = {
-      id = "e988c519-c95d-4111-a3a3-67d4d747f4a0";
+      id = "f314da80-1a80-4470-a0bb-afa00e0a4043";
       url = "https://docs.google.com/spreadsheets/d/1vkz3je8w2a-xEd9-CZuT5CSszUTiJKt3Zbx1RgLGVAk/edit?gid=189094951#gid=189094951";
-      position = 229;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
+      workspace = spaces."Solutions".id;
+      isEssential = false;
+      position = 221;
+      folderParentId = "1772811910969-69";
     };
-    # Default
     "Untitled document - Google Docs" = {
-      id = "f9de30bb-d31e-4085-b287-906b12044f7e";
+      id = "4562ea4e-0443-4ecf-9c1d-823f54d4497c";
       url = "https://docs.google.com/document/d/1CpUDcK4leVxk7H4-7cnVYyogIA3aJoc1X8Ook8LvYAQ/edit?tab=t.0#heading=h.xp3kdom7uoef";
-      position = 230;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
+      workspace = spaces."Solutions".id;
+      isEssential = false;
+      position = 222;
+      folderParentId = "1772811910969-69";
     };
-    # Default
     "Caya Document Cockpit_3" = {
-      id = "cf46ed87-a9e7-4709-89c1-0c1029f47013";
-      url = "https://app.caya.com/login";
-      position = 231;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
-    };
-    # Default
-    "Caya Document Cockpit_4" = {
-      id = "14f6e74f-9565-42a3-88e8-bd6772452ac3";
-      url = "https://app.caya.com/login/magic";
-      position = 232;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
-    };
-    # Default
-    "Caya Document Cockpit_5" = {
-      id = "8e7b2ced-2974-4d9a-a87e-b02803c207e6";
-      url = "https://app.caya.com/login/magic";
-      position = 233;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
-    };
-    # Default
-    "Home - Google Drive" = {
-      id = "4460013b-26f4-44db-957a-2a478f0c7d37";
-      url = "https://drive.google.com/drive/home";
-      position = 234;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
-    };
-    # Default
-    "AutomagicTemplate - Project Editor - App_1" = {
-      id = "db3948cf-9380-42da-8906-4efa8a520380";
-      url = "https://script.google.com/home/projects/1vIY1x68Obg2kPtB5tX4u8DMp0g7X0sGoG5LGnr1HjfxmrKTtbJdqaDYr/edit";
-      position = 235;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
-    };
-    # Default
-    "AutomagicTemplateJSON - Project Editor -_1" = {
-      id = "e3e794ed-22f3-4b6e-b3ee-9bf20a4fd670";
-      url = "https://script.google.com/home/projects/1n8d38mlfk14p3NF1gCMP9Q97j9IP44NMV5jkEhrL78V7uaC_LLbmOob3/edit";
-      position = 236;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
-    };
-    # Default
-    "Daily Workato Recipe failures that requi" = {
-      id = "4dcc121f-5935-4578-9faa-d90be1950e72";
-      url = "https://metabase.caya.com/question/3316-daily-workato-recipe-failures-that-requires-follow-ups?days=3";
-      position = 237;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
-    };
-    # Default
-    "Caya_4" = {
-      id = "b538a2d1-0332-432a-a399-a14fe5f648bc";
-      url = "https://metabase.caya.com/question/2844-active-documents-with-missing-automation-to-be-retriggered-inc-stacked-distribution?days=31";
-      position = 238;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
-    };
-    # Default
-    "Google_4" = {
-      id = "bb4db7e9-fb93-4fee-bcd9-6fe11ddb5a92";
-      url = "https://docs.google.com/document/d/13qGBQ_yMl0y4H6BYgsIbm6jOL1EvFAp0_YTHmu3D00o/edit?tab=t.lsx0mf7ch6wy#heading=h.6ewrr9jlp0yl";
-      position = 239;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
-    };
-    # Default
-    "AUTOMATION TEAM OVERVIEW - Google Sheets_1" = {
-      id = "a37d9113-727d-4d46-80d8-0a8ca88b1e51";
-      url = "https://docs.google.com/spreadsheets/d/1ZStYBJHhUrm5MfmGGc3ry5BFHgKquKGV1fuSjFdscWs/edit?gid=0#gid=0";
-      position = 240;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
-    };
-    # Default
-    "Google_5" = {
-      id = "7e50654c-689a-4905-b550-5f435b61fa8c";
-      url = "https://docs.google.com/spreadsheets/d/1vkz3je8w2a-xEd9-CZuT5CSszUTiJKt3Zbx1RgLGVAk/edit?gid=189094951#gid=189094951";
-      position = 241;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
-    };
-    # Default
-    "Untitled document - Google Docs_1" = {
-      id = "6c7242ce-c350-4e16-a685-56adb1b29224";
-      url = "https://docs.google.com/document/d/1CpUDcK4leVxk7H4-7cnVYyogIA3aJoc1X8Ook8LvYAQ/edit?tab=t.0#heading=h.xp3kdom7uoef";
-      position = 242;
-      spaceId = "8a4ea01f-fdf1-4f09-9d76-789cbc8e8fc7";
-    };
-    # Default
-    "Caya Document Cockpit_6" = {
-      id = "cf27e596-048b-4201-8e07-6f56d7a73420";
+      id = "091cf855-15ea-42fd-b3d4-6620aff846ab";
       url = "https://develop--appcayacom.netlify.app/login";
-      position = 243;
-      spaceId = "8bbf6155-b7cc-4487-9379-35c02d1139ce";
+      workspace = spaces."Development".id;
+      isEssential = false;
+      position = 223;
+      folderParentId = "1772811911012-80";
     };
-    # Default
     "Login to build your integrations, automa" = {
-      id = "4ca75076-c96a-4a78-baed-7030acb56099";
+      id = "1269ac56-a771-4844-b85a-fafebbcf95d1";
       url = "https://app.eu.workato.com/users/sign_in";
-      position = 244;
-      spaceId = "8bbf6155-b7cc-4487-9379-35c02d1139ce";
-    };
-    # Default
-    "Caya Document Cockpit_7" = {
-      id = "b5ae7ea9-9fcf-4928-990d-74c44f17e57e";
-      url = "https://develop--appcayacom.netlify.app/login";
-      position = 245;
-      spaceId = "8bbf6155-b7cc-4487-9379-35c02d1139ce";
-    };
-    # Default
-    "Login to build your integrations, automa_1" = {
-      id = "8b2eddd4-e3f3-4657-becc-2766ecbf14d4";
-      url = "https://app.eu.workato.com/users/sign_in";
-      position = 246;
-      spaceId = "8bbf6155-b7cc-4487-9379-35c02d1139ce";
+      workspace = spaces."Development".id;
+      isEssential = false;
+      position = 224;
+      folderParentId = "1772811911012-80";
     };
   };
 }

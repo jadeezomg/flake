@@ -6,7 +6,7 @@
   ...
 }: let
   extensions = import ./extensions.nix {inherit pkgs lib;};
-  defaultProfile = import ./profiles/default.nix {inherit pkgs extensions;};
+  defaultProfile = import ./profiles/default {inherit pkgs extensions;};
   cayaProfile = import ./profiles/caya {inherit pkgs extensions lib;};
   defaultProfileData =
     if pkgs.stdenv.isLinux
