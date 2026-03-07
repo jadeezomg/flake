@@ -729,39 +729,7 @@
   "systemMonitorVariants": [],
   "desktopWidgetPositions": {},
   "desktopWidgetGridSettings": {},
-  "desktopWidgetInstances": [
-    {
-      "id": "dw_1770593541135_lv7c25jb6",
-      "widgetType": "mediaPlayer",
-      "name": "Media Player",
-      "enabled": true,
-      "config": {
-        "displayPreferences": [
-          "all"
-        ]
-      },
-      "positions": {
-        "HDMI-A-2": {
-          "width": 320,
-          "height": 200,
-          "x": 1120,
-          "y": 620
-        },
-        "DP-2": {
-          "width": 605.8125,
-          "height": 239.64453125,
-          "x": 1938.65234375,
-          "y": 1185.625
-        },
-        "HDMI-2": {
-          "width": 320,
-          "height": 200,
-          "x": 1120,
-          "y": 620
-        }
-      }
-    }
-  ],
+  "desktopWidgetInstances": [],
   "desktopWidgetGroups": [],
   "builtInPluginSettings": {
     "dms_settings_search": {

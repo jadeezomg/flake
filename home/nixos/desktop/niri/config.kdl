@@ -82,6 +82,16 @@ layout {
     // Transparent background for DMS wallpaper integration on overview
     background-color "transparent"
 
+    tab-indicator {
+        width 10
+        gap -20
+        gaps-between-tabs 15
+        corner-radius 3
+        length total-proportion=0.10
+        position "top"
+        hide-when-single-tab
+    }
+
     // When to center a column when changing focus, options are:
     // - "never", default behavior, focusing an off-screen column will keep at the left
     //   or right edge of the screen.

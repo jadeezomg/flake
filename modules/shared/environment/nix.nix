@@ -4,14 +4,13 @@
   lib,
   ...
 }: let
-  numCores = builtins.floor (config.nixpkgs.hostPlatform.numCores or 8);
-  coresPerBuild = lib.min 3 (lib.max 1 (builtins.floor (numCores / 4)));
-  maxJobs = lib.max 1 (builtins.floor (numCores / coresPerBuild));
+  numCores = builtins.floor ((config.nixpkgs.hostPlatform.numCores or 8) / 2);
 in {
   nix.settings = {
+    auto-optimise-store = true;
     download-buffer-size = 524288000; # 500 MiB
-    max-jobs = maxJobs;
-    cores = coresPerBuild;
+    max-jobs = 1;
+    cores = numCores;
 
     # if build failes because of public keys
     # cd /home/jadee/.dotfiles/flake && sudo NIX_CONFIG='substituters = https://cache.nixos.org/ trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=' nix build '.#nixosConfigurations.desktop.config.system.build.toplevel'
@@ -44,7 +43,7 @@ in {
   };
 
   environment.variables = {
-    CARGO_BUILD_JOBS = "2";
+    CARGO_BUILD_JOBS = "12";
     CARGO_NET_GIT_FETCH_WITH_CLI = "true";
   };
 }
