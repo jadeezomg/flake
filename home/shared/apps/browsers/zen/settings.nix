@@ -42,13 +42,16 @@
 
   # DevTools
   "devtools.toolbox.host" = "right";
+  "devtools.debugger.remote-enabled" = true;
+  "devtools.chrome.enabled" = true;
+  "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
   # Transparency
   "browser.tabs.allow_transparent_browser" = true;
 
   # Zen mod (sameerasw) – sidebar/theme
   "mod.sameerasw.zen_bg_blur" = "3px";
-  "mod.sameerasw.zen_bg_color_enabled" = false;
+  "mod.sameerasw.zen_bg_color_enabled" = true;
   "mod.sameerasw.zen_bg_img_enabled" = false;
   "mod.sameerasw.zen_bg_img_not_fullscreen" = false;
   "mod.sameerasw.zen_bg_opacity" = 0.8;
