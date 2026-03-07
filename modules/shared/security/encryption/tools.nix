@@ -1,9 +1,6 @@
-{
-  config,
-  pkgs,
-  ...
-}: {
+{pkgs, ...}: {
   environment.systemPackages = with pkgs; [
-    ghostty-bin
+    age
+    sops
   ];
 }

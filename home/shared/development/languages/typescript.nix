@@ -4,5 +4,6 @@
     nodePackages.typescript # TypeScript compiler
     yarn-berry # Modern Yarn package manager (Berry)
     nodePackages.typescript-language-server # TypeScript language server
+    biome # TypeScript linter and formatter
   ];
 }

@@ -1,6 +1,10 @@
-/* Opacity override for about: pages (newtab, preferences, etc.) */
-/* Tweak --zen-opacity (0.0–1.0) in :root as desired */
+/* Opacity for about: pages (newtab, preferences, etc.) and override Stylix solid backgrounds */
 :root {
   --zen-opacity: 0.95 !important;
+  --newtab-background-color: transparent !important;
   opacity: var(--zen-opacity) !important;
 }
+
+/* body {
+  background-color: transparent !important;
+} */

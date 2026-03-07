@@ -5,7 +5,6 @@
     ./assets/theme/stylix.nix
     ./development
     ./modules
-    ./security
     ./shells
     ./utils
   ];

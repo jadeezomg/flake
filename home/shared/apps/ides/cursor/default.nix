@@ -10,6 +10,10 @@
     profiles.default = {
       extensions = with pkgs.vscode-extensions;
         [
+          # --- General ---
+          github.vscode-pull-request-github # GitHub Pull Requests
+          # --- AI Agents ---
+          anthropic.claude-code # Claude Code for VS Code / Cursor
           # --- Languages ---
           # Ruby
           wingrunr21.vscode-ruby # Ruby support
@@ -17,6 +21,8 @@
           shopify.ruby-lsp # Ruby Language Server
           # --- JavaScript/TypeScript ---
           dbaeumer.vscode-eslint # JavaScript/TypeScript linting
+          prettier.prettier-vscode # Prettier formatter
+          biomejs.biome # TypeScript linter and formatter
           # Nix
           kamadorueda.alejandra # Nix formatter
           jnoortheen.nix-ide # Nix language support
@@ -31,7 +37,6 @@
           mechatroner.rainbow-csv # CSV support
           tamasfe.even-better-toml # TOML support
           redhat.vscode-yaml # YAML support
-          anthropic.claude-code # Claude Code for VS Code / Cursor
         ]
         ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
           # {
@@ -59,12 +64,6 @@
             sha256 = "0p25dzrxlvpv0a7qsn5lw65xnrjks43dzqq4g7j3r6dq6fn8ci1s";
           }
           {
-            name = "prettier-vscode"; # Prettier formatter
-            publisher = "prettier";
-            version = "12.0.7";
-            sha256 = "sha256-YWPqx5+q6ll/jrxjE1cfXTPOJTdphroELdEcKb4vtps=";
-          }
-          {
             name = "kdl"; # KDL support
             publisher = "kdl-org";
             version = "2.1.3";
@@ -75,6 +74,13 @@
             publisher = "terrastruct";
             version = "0.8.8";
             sha256 = "sha256-nnljLG2VL7r8bu+xFOTBx5J2UBsdjOwtAzDDXKtK0os=";
+          }
+          # OpenCode — https://github.com/anomalyco/opencode/tree/dev/sdks/vscode
+          {
+            name = "opencode";
+            publisher = "sst-dev";
+            version = "0.0.13";
+            sha256 = "sha256-6adXUaoh/OP5yYItH3GAQ7GpupfmTGaxkKP6hYUMYNQ=";
           }
         ];
       userSettings = {
