@@ -1,13 +1,61 @@
-/* Opacity override for browser chrome (toolbar, tab bar, etc.) */
-/* Tweak --zen-opacity (0.0–1.0) in :root as desired */
-:root {
-  --zen-opacity: 0.95 !important;
+/* Override Stylix solid backgrounds so transparency (Transparent Zen mod) can show through.
+   Stylix sets background-color and --zen-* on many elements; we load after Stylix so these win. */
+
+/* Root window and main browser area – must be transparent for native vibrancy/blur to show */
+#main-window,
+#zen-browser-background,
+#browser {
+  background-color: transparent !important;
+  background: transparent !important;
 }
 
-#navigator-toolbox {
+:root {
+  --zen-opacity: 0.95 !important;
+  /* Replace Stylix’s solid backgrounds with transparent so the window can be see-through */
+  --zen-main-browser-background: transparent !important;
+  --zen-themed-toolbar-bg: transparent !important;
+  --newtab-background-color: transparent !important;
+  --arrowpanel-background: rgba(0, 0, 0, 0.85) !important;
+  --lwt-sidebar-background-color: transparent !important;
+  --toolbar-bgcolor: transparent !important;
+  --zen-main-browser-background-toolbar: transparent !important;
+}
+
+/* #navigator-toolbox {
   opacity: var(--zen-opacity) !important;
+  background-color: transparent !important;
+  --zen-main-browser-background-toolbar: transparent !important;
 }
 
 #zen-appcontent-navbar-container {
   opacity: var(--zen-opacity) !important;
+  background-color: transparent !important;
 }
+
+#TabsToolbar {
+  background-color: transparent !important;
+}
+
+.sidebar-placesTree {
+  background-color: transparent !important;
+}
+
+#zen-workspaces-button {
+  background-color: transparent !important;
+}
+
+.content-shortcuts {
+  background-color: transparent !important;
+}
+
+.urlbar-background {
+  background-color: rgba(0, 0, 0, 0.25) !important;
+}
+
+#zen-media-controls-toolbar #zen-media-progress-bar::-moz-range-track {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+#zenEditBookmarkPanelFaviconContainer {
+  background: transparent !important;
+} */
