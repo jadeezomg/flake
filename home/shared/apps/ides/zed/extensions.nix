@@ -25,6 +25,9 @@
       "mcp-server-github"
       "opencode"
       "github-actions"
+      "d2"
+      "kdl"
+      "biome"
     ];
   };
 }

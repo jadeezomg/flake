@@ -9,7 +9,7 @@ in rec {
   settings =
     sharedSettings
     // {
-      "zen.workspaces.natural-scroll" = true;
+      "zen.workspaces.natural-scroll" = false;
     };
 
   search = sharedSearch;

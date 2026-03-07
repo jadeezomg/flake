@@ -4,7 +4,6 @@
   ...
 }: {
   imports = [
-    ./apps
     ./environment
     ./integration
     ./security
