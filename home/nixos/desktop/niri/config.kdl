@@ -305,10 +305,10 @@ animations {
 
 // Layer rules for DMS integration
 // Place quickshell (DMS) on the backdrop
-layer-rule {
-    match namespace="^quickshell$"
-    place-within-backdrop true
-}
+// layer-rule {
+//     match namespace="^quickshell$"
+//     place-within-backdrop true
+// }
 
 // Place blurred wallpaper on the backdrop (if "Blur Layer" is enabled in DMS)
 layer-rule {
