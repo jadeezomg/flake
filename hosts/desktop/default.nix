@@ -26,6 +26,36 @@ in {
 
   services.xserver.videoDrivers = ["nvidia"];
 
+  # Niri + NVIDIA: limit VRAM usage (driver heap quirk)
+  # https://github.com/niri-wm/niri/wiki/Nvidia
+  environment.etc."nvidia/nvidia-application-profiles-rc.d/50-limit-free-buffer-pool-in-wayland-compositors.json" = {
+    text = ''
+      {
+        "rules": [
+          {
+            "pattern": {
+              "feature": "procname",
+              "matches": "niri"
+            },
+            "profile": "Limit Free Buffer Pool On Wayland Compositors"
+          }
+        ],
+        "profiles": [
+          {
+            "name": "Limit Free Buffer Pool On Wayland Compositors",
+            "settings": [
+              {
+                "key": "GLVidHeapReuseRatio",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      }
+    '';
+    mode = "0644";
+  };
+
   # System state version - host specific, don't change, it's used by home-manager to determine the initial version of the system.
   system.stateVersion = "25.11";
 
@@ -43,10 +73,10 @@ in {
     deleteOlderThan = "30d";
   };
 
-  environment.etc."xdg/monitors.xml" = {
-    source = ../../data/hosts/desktop/monitors.xml;
-    mode = "0644";
-  };
+  # environment.etc."xdg/monitors.xml" = {
+  #   source = ../../data/hosts/desktop/monitors.xml;
+  #   mode = "0644";
+  # };
 
   # Apply user monitor settings to login screen by copying the user's monitors.xml
   # to GDM's config directory (GDM 49+ uses /var/lib/gdm/seat0/config).
