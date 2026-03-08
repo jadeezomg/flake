@@ -16,6 +16,7 @@ in
       // {
         "zen.workspaces.natural-scroll" = true;
         "zen.widget.linux.transparency" = true;
+        "widget.dmabuf.force-enabled" = true;
       };
 
     search = sharedSearch;
