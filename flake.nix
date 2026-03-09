@@ -83,6 +83,12 @@
       url = "github:xddxdd/nix-cachyos-kernel/release";
       # Do not override nixpkgs so CachyOS kernel version stays in sync with their builds
     };
+
+    niri = {
+      url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.niri-unstable.url = "github:YaLTeR/niri/wip/branch";
+    };
   };
 
   outputs = inputs @ {

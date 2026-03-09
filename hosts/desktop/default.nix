@@ -85,11 +85,13 @@ in {
     mode = "0644";
   };
 
-  # Apply monitor layout to GDM login screen from the flake-managed monitors.xml
-  # (GDM 49+ uses /var/lib/gdm/seat0/config). Single source of truth: data/hosts/desktop/monitors.xml
+  # Apply monitor layout to GDM login screen from the flake-managed monitors.xml.
+  # Copy to both locations: GDM 49+ uses seat0/config; some versions also read ~gdm/.config.
+  # Primary monitor is first in monitors.xml so GDM shows the login on that display.
   # https://discourse.nixos.org/t/multi-monitor-gdm-help/60348/6
   systemd.services.applyUserMonitorSettings = let
-    gdmConfigDir = "/var/lib/gdm/seat0/config";
+    gdmSeatConfig = "/var/lib/gdm/seat0/config";
+    gdmUserConfig = "/var/lib/gdm/.config";
     monitorsXml = pkgs.writeText "monitors.xml" (builtins.readFile ../../data/hosts/desktop/monitors.xml);
   in {
     description = "Apply monitor settings to GDM login screen";
@@ -97,7 +99,12 @@ in {
     wantedBy = ["multi-user.target"];
     serviceConfig = {
       Type = "oneshot";
-      ExecStart = "${pkgs.bash}/bin/bash -c 'mkdir -p ${gdmConfigDir} && cp ${monitorsXml} ${gdmConfigDir}/monitors.xml && chown gdm:gdm ${gdmConfigDir}/monitors.xml'";
+      ExecStart = "${pkgs.bash}/bin/bash -c ''
+        mkdir -p ${gdmSeatConfig} ${gdmUserConfig}
+        cp -f ${monitorsXml} ${gdmSeatConfig}/monitors.xml
+        cp -f ${monitorsXml} ${gdmUserConfig}/monitors.xml
+        chown -R gdm:gdm ${gdmSeatConfig} ${gdmUserConfig}
+      ''";
     };
   };
 }

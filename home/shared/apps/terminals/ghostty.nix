@@ -41,8 +41,8 @@
       window-padding-x = 20;
       window-padding-y = 10;
       window-padding-balance = true;
-      background-opacity = 0.8; # This is controlled by the compositor instead
-      background-blur = 20;
+      background-opacity = 0.8;
+      background-blur = true;
       mouse-hide-while-typing = true;
 
       # Keybindings

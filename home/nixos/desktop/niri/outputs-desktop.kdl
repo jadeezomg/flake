@@ -12,9 +12,10 @@ output "HDMI-A-2" {
             proportion 0.315
             proportion 0.5
             proportion 0.685
-            proportion 1.0
         }
-        default-column-width { proportion 1.0; }
+        default-column-width { 
+            proportion 1.0 
+        }
         preset-column-widths {
             proportion 0.5
             proportion 1.0
@@ -23,20 +24,26 @@ output "HDMI-A-2" {
             left 0
             right 0
             top 15
-            bottom 15
-        }
+            bottom 25
+        } 
     }
-
-       
+    hot-corners {
+        top-right 
+        top-left
+    }    
 }
 
 output "DP-2" {
     mode "2560x1440@170.002"
     scale 1
     transform "normal"
-    variable-refresh-rate on-demand=true
+    variable-refresh-rate
     focus-at-startup
-    position x=1665 y=600
+    position x=1665 y=700
+
+    hot-corners {
+        top-right
+    }
 }
 
 
@@ -48,11 +55,8 @@ window-rule {
     exclude title=r#"^Picture-in-Picture$"#
     open-on-output "HDMI-A-2"
     open-on-workspace "1"
-    // max-height 1000
     tiled-state false
     default-window-height { proportion 0.685; }
-    // default-window-height { fixed 2014 ; }
-    // default-column-width { proportion 1.0; }
 }
 // Youtube Music 
 spawn-at-startup "pear-desktop"
@@ -60,9 +64,6 @@ window-rule {
     match app-id=r#"^com\.github\.th_ch\.youtube_music$"#
     open-on-output "HDMI-A-2"
     open-on-workspace "1"
-    // open-maximized false
-    // default-window-height { proportion 0.315; }
-    // default-window-height { fixed 924 ; }
     default-column-width { proportion 1.0; }
 }
 

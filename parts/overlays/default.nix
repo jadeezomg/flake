@@ -4,19 +4,16 @@
   inputs,
   system,
 }: let
-  isLinux = system == "x86_64-linux" || system == "aarch64-linux";
   isX86_64Linux = system == "x86_64-linux";
 in
   []
-  # Linux-only: gvfs Google Drive in Nautilus
-  ++ (
-    if isLinux
-    then [(import ./gvfs-google-drive.nix)]
-    else []
-  )
-  # x86_64-linux: CachyOS kernel
+  # x86_64-linux: gvfs Google Drive (Nautilus), niri-flake, CachyOS kernel
   ++ (
     if isX86_64Linux
-    then [inputs.nix-cachyos-kernel.overlays.pinned]
+    then [
+      (import ./gvfs-google-drive.nix)
+      inputs.niri.overlays.niri
+      inputs.nix-cachyos-kernel.overlays.pinned
+    ]
     else []
   )
