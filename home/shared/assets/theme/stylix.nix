@@ -11,10 +11,10 @@ in {
     enable = true;
     autoEnable = true;
     opacity = {
-      applications = 0.8;
-      desktop = 0.8;
-      popups = 0.8;
-      terminal = 0.8;
+      applications = 0.9;
+      desktop = 0.9;
+      popups = 0.9;
+      terminal = 0.9;
     };
     overlays.enable = false;
     polarity = "dark";
@@ -90,7 +90,17 @@ in {
       # qt.enable = false;
       gtk = {
         extraCss = ''
-          /* Reduce overall text size across GTK applications */
+          /* Keep GTK backgrounds slightly translucent (95% opacity). */
+          window,
+          dialog,
+          popover,
+          menu,
+          headerbar,
+          .background {
+            background-color: alpha(@theme_bg_color, 0.95);
+          }
+
+          }
           * {
             font-size: 10pt;
           }
