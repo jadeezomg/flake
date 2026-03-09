@@ -42,7 +42,6 @@ in {
 
   programs.zen-browser = {
     enable = true;
-    suppressXdgMigrationWarning = true;
     nativeMessagingHosts = lib.optionals pkgs.stdenv.isLinux [pkgs.firefoxpwa];
     # Required for macOS - see https://github.com/0xc000022070/zen-browser-flake#preferences
     # Verify the bundle identifier matches your Zen installation if policies don't work on macOS

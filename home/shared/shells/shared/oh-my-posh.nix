@@ -234,28 +234,22 @@
     version = 4;
   };
 
-  # Fix Unicode in generated JSON. On Darwin, toJSON often breaks \uXXXX (shows "u2026" etc. in prompt),
-  # so we run the full 4-step fix. On NixOS the old setup worked; only fix the ANSI ESC u001b.
+  # Fix Unicode in generated JSON: toJSON can break \uXXXX (e.g. "u2026" in prompt) and ANSI ESC.
+  # Run the full 4-step fix on both NixOS and Darwin so the theme renders correctly.
   charFromEscape = e: builtins.fromJSON ("\"\\" + e + "\"");
   themeUnicodeChars = map charFromEscape themeUnicodeEscapes;
 
-  poshThemeJson =
-    if isDarwin
-    then
-      let
-        # 1) Protect already-correct \uXXXX (if present) with placeholders
-        protected = builtins.replaceStrings protectedForms placeholders poshThemeJsonRaw;
-        # 2) Fix literal "uXXXX" (no backslash) -> proper JSON escape
-        fixed = builtins.replaceStrings themeUnicodeEscapes jsonEscaped protected;
-        # 3) Replace UTF-8 chars (if toJSON wrote them) with JSON escape
-        withEscapes = builtins.replaceStrings themeUnicodeChars jsonEscaped fixed;
-        # 4) Restore placeholders
-        restored = builtins.replaceStrings placeholders jsonEscaped withEscapes;
-      in
-        restored
-    else
-      # NixOS: only fix ANSI escape so shell prompt colors work
-      builtins.replaceStrings ["u001b"] ["\\u001b"] poshThemeJsonRaw;
+  poshThemeJson = let
+    # 1) Protect already-correct \uXXXX (if present) with placeholders
+    protected = builtins.replaceStrings protectedForms placeholders poshThemeJsonRaw;
+    # 2) Fix literal "uXXXX" (no backslash) -> proper JSON escape
+    fixed = builtins.replaceStrings themeUnicodeEscapes jsonEscaped protected;
+    # 3) Replace UTF-8 chars (if toJSON wrote them) with JSON escape
+    withEscapes = builtins.replaceStrings themeUnicodeChars jsonEscaped fixed;
+    # 4) Restore placeholders
+    restored = builtins.replaceStrings placeholders jsonEscaped withEscapes;
+  in
+    restored;
 in {
   # Install oh-my-posh package
   home.packages = with pkgs; [
