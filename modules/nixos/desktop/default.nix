@@ -10,6 +10,21 @@
   # - GDM display manager
   # - XWayland (for running X11 applications)
 
+  # Apply Mutter experimental-features (e.g. fractional scaling) system-wide so GDM
+  # uses the same settings as the user session. Otherwise monitors.xml can become
+  # incompatible and break the login screen layout. See GDM bug 1028.
+  # https://gitlab.gnome.org/GNOME/gdm/-/issues/1028
+  programs.dconf.enable = true;
+  # programs.dconf.profiles.user.databases = [
+  #   {
+  #     settings = {
+  #       "org/gnome/mutter" = {
+  #         experimental-features = ["scale-monitor-framebuffer"];
+  #       };
+  #     };
+  #   }
+  # ];
+
   services = {
     displayManager.gdm.enable = true;
     gvfs.enable = true; # Mount, trash, etc

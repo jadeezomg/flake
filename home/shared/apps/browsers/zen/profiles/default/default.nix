@@ -5,8 +5,8 @@
   extensions,
   ...
 }: let
-  sharedSettings = import ../settings.nix;
-  sharedSearch = import ../search.nix {inherit pkgs;};
+  sharedSettings = import ../../settings.nix;
+  sharedSearch = import ../../search.nix {inherit pkgs;};
   spaces = import ./spaces.nix {};
   pinsModule = import ./pins.nix {};
 in
