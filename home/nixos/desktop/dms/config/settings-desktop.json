@@ -31,7 +31,7 @@
   "useFahrenheit": false,
   "windSpeedUnit": "kmh",
   "nightModeEnabled": false,
-  "animationSpeed": 1,
+  "animationSpeed": 0,
   "customAnimationDuration": 160,
   "syncComponentAnimationSpeeds": true,
   "popoutAnimationSpeed": 1,
@@ -590,14 +590,6 @@
       ],
       "rightWidgets": [
         {
-          "id": "powerUsagePlugin",
-          "enabled": true
-        },
-        {
-          "id": "gpuTemp",
-          "enabled": true
-        },
-        {
           "id": "memUsage",
           "enabled": true,
           "showSwap": false
@@ -609,6 +601,11 @@
         {
           "id": "cpuTemp",
           "enabled": true
+        },
+        {
+          "id": "gpuTemp",
+          "enabled": true,
+          "minimumWidth": true
         },
         {
           "id": "keyboard_layout_name",

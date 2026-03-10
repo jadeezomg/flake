@@ -13,6 +13,10 @@
       size = 12;
     };
 
+    keybindings = {
+      "ctrl+t" = "new_tab";
+    };
+
     settings = {
       # Shell configuration
       shell = "${pkgs.nushell}/bin/nu";

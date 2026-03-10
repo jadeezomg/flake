@@ -19,6 +19,7 @@ in {
     graphics.enable = true;
     nvidia = {
       open = true;
+      package = config.boot.kernelPackages.nvidiaPackages.beta;
       nvidiaSettings = true;
       modesetting.enable = true;
     };

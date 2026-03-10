@@ -56,14 +56,23 @@ window-rule {
     default-column-width { proportion 0.4; }
 }
 
-layer-rule {
-    match namespace="dms:bar"
-    // opacity 0.95
+// layer-rule {
+//     match namespace="^dms:"
+//     match namespace="^dms:bar$"
+//     match namespace="^dms:app-launcher$"
+//     match namespace="^dms:control-center$"
 
-    // background-effect {
-    //     blur true  
-    //     // xray false
-    // }
+//     opacity 0.9
+
+//     background-effect {
+//         blur true
+//         xray false
+//     }
+// }
+
+window-rule {
+    match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
+    default-floating-position x=10 y=10 relative-to="top-right"
 }
 
 window-rule {
