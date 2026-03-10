@@ -3,10 +3,28 @@
   pkgs,
   ...
 }: {
-  # NixOS-specific programs configuration
-  # Shared programs (like git) are in modules/shared/programs
   programs = {
-    gamemode.enable = true;
+    # GameMode: config via Nix, deployed to /etc/gamemode.ini by the module
+    # https://github.com/NixOS/nixpkgs/blob/nixos-unstable/nixos/modules/programs/gamemode.nix
+    gamemode = {
+      enable = true;
+      settings = {
+        general = {
+          reaper_freq = "5";
+          desiredgov = "performance";
+          desiredprof = "performance";
+          softrealtime = "off";
+          renice = "0";
+          ioprio = "0";
+          inhibit_screensaver = "1";
+          disable_splitlock = "1";
+        };
+        cpu = {
+          amd_x3d_mode_desired = "frequency";
+          amd_x3d_mode_default = "cache";
+        };
+      };
+    };
     steam = {
       enable = true;
       remotePlay.openFirewall = true; # Open ports used by Steam Remote Play
@@ -17,6 +35,8 @@
   environment.systemPackages = with pkgs; [
     steamcmd
     mangohud
+    goverlay
+    mangojuice
     heroic
     faugus-launcher
     protonup-ng
