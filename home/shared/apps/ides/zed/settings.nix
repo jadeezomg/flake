@@ -58,6 +58,18 @@
       use_autoclose = true;
       use_auto_surround = true;
       wrap_guides = [];
+      sticky_scroll = {
+        enabled = true;
+      };
+
+      inlay_hints = {
+        enabled = true;
+        show_type_hints = true;
+        show_parameter_hints = true;
+        show_other_hints = true;
+        # Let the theme color them more softly than normal code.
+        show_background = false;
+      };
 
       # --- Keymap ---
       base_keymap = "VSCode";
@@ -115,6 +127,19 @@
       # --- Journal ---
       journal = {
         hour_format = "hour24";
+      };
+
+      # --- Agent ---
+      agent = {
+        expand_edit_card = true;
+        notify_when_agent_waiting = "all_screens";
+        single_file_review = true;
+        default_model = {
+          provider = "lmstudio";
+          model = "zai-org/glm-4.6v-flash";
+        };
+        model_parameters = [];
+        tool_permissions = import ./tool-permissions.nix;
       };
 
       # --- Scrollbar ---
