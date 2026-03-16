@@ -1,7 +1,3 @@
 {...}: {
-  imports = [
-    ./browsers
-    ./editors
-    ./terminals
-  ];
+  documentation.man.enable = true;
 }

@@ -17,4 +17,20 @@
 
   # Enable networking
   networking.networkmanager.enable = true;
+
+  environment.systemPackages = with pkgs; [
+    # Network management
+    networkmanager # Network manager
+    networkmanagerapplet # Network manager applet
+    openresolv # Openresolv for NetworkManager
+
+    # Firewall management
+    firewalld # Firewall management
+    firewalld-gui # Firewall GUI
+
+    # VPN management
+    wireguard-tools # Wireguard tools
+    wireguard-ui # Wireguard UI
+    protonvpn-gui # ProtonVPN GUI
+  ];
 }

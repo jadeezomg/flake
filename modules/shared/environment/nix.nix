@@ -2,22 +2,20 @@
   config,
   pkgs,
   lib,
+  hostKey ? null,
   ...
 }: let
-  numCores = config.nixpkgs.hostPlatform.numCores or 8;
-  numCoresInt =
-    if builtins.isInt numCores
-    then numCores
-    else builtins.floor numCores;
-  coresPerBuild = lib.min 3 (lib.max 1 (builtins.floor (numCoresInt / 4)));
-  maxTotalCores = builtins.floor (numCoresInt * 0.5);
-  maxJobs = lib.max 1 (builtins.floor (maxTotalCores / coresPerBuild));
-  buildCores = coresPerBuild;
-  buildJobs = maxJobs;
+  hostBuildCores = {
+    desktop = 24;
+    framework = 6;
+    darwin = 6;
+  };
+  buildCores = hostBuildCores.${hostKey} or 6;
 in {
   nix.settings = {
+    auto-optimise-store = true;
     download-buffer-size = 524288000; # 500 MiB
-    max-jobs = buildJobs;
+    max-jobs = 1;
     cores = buildCores;
 
     # if build failes because of public keys
@@ -29,12 +27,17 @@ in {
       "https://hyprland.cachix.org"
       "https://nix-community.cachix.org"
       "https://yazi.cachix.org"
+      "https://niri.cachix.org"
+      # CachyOS kernel (nix-cachyos-kernel)
+      "https://attic.xuyh0120.win/lantian"
     ];
     extra-trusted-public-keys = [
       "zed.cachix.org-1:/pHQ6dpMsAZk2DiP4WCL0p9YDNKWj2Q5FL20bNmw1cU="
       "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       "yazi.cachix.org-1:Dcdz63NZKfvUCbDGngQDAZq6kOroIrFoyO064uvLh8k="
+      "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
+      "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
     ];
     experimental-features = [
       "nix-command"
@@ -48,7 +51,7 @@ in {
   };
 
   environment.variables = {
-    CARGO_BUILD_JOBS = "2";
+    CARGO_BUILD_JOBS = toString (buildCores / 2);
     CARGO_NET_GIT_FETCH_WITH_CLI = "true";
   };
 }

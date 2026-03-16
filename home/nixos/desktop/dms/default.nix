@@ -6,23 +6,26 @@
   hostKey,
   ...
 }: let
-  # Get the flake root path (known location)
   flakeRoot = "${config.home.homeDirectory}/.dotfiles/flake";
-  # Host-specific output configs
   outputConfigs = {
     framework = ../niri/outputs-framework.kdl;
     desktop = ../niri/outputs-desktop.kdl;
   };
 
-  # Get the host-specific output config file to symlink as host.kdl
   hostOutputConfig = outputConfigs.${hostKey} or null;
 
-  # Function to auto-create symlinks for all files in a directory
-  # Excludes settings.json (handled separately) and host-specific settings files
+  # Host-specific DMS settings files
+  # Each host can have its own settings.json configuration
+  settingsFiles = {
+    framework = "settings-framework.json";
+    desktop = "settings-desktop.json";
+  };
+
+  hostSettingsFile = settingsFiles.${hostKey} or "settings-desktop.json";
+
   configSymlinks = configsPath: let
     inherit (config.lib.file) mkOutOfStoreSymlink;
 
-    # Get the absolute path to the config directory in the flake
     configDir = "${flakeRoot}/home/nixos/desktop/dms/config";
 
     # Filter out settings.json and host-specific settings files
@@ -41,53 +44,26 @@
       name = name;
       value = {
         source = mkOutOfStoreSymlink "${configDir}/${name}";
-        force = true; # Force overwrite existing files to create symlinks
+        force = true;
       };
     };
+
+    allFiles = builtins.attrNames (builtins.readDir configsPath);
+    filteredFiles = builtins.filter (name: ! (builtins.match "settings-.*\\.json" name != null)) allFiles;
   in
     builtins.listToAttrs (map mkSymlink filteredFiles);
 in {
   # Auto-symlink configuration files
   # This automatically creates symlinks for all files/directories in config folders
   # without needing to manually specify each file
-  #
-  # Benefits:
-  # - Files are symlinked from git repo to ~/.config/
-  # - Changes are instantly reflected (no rebuild needed)
-  # - Just add new files to config folders and they're automatically symlinked
-  # - All config files are version-controlled in your flake
-  #
   # Based on: https://gist.github.com/mawkler/195def384fd3f73aeb9a965c82781483
   xdg.configFile = let
-    # Get the absolute path to the config directory in the flake
-    configDir = "${flakeRoot}/home/nixos/desktop/dms/config";
-
-    # Determine which host-specific settings file to use
-    settingsFileName =
-      if hostKey == "framework"
-      then "settings-framework.json"
-      else "settings-desktop.json";
-
-    # Auto-symlink all files from ./config/ to ~/.config/DankMaterialShell/
-    # (excluding settings.json and host-specific settings files)
     dmsSymlinks = lib.mapAttrs' (name: value: {
       name = "DankMaterialShell/${name}";
       inherit value;
     }) (configSymlinks ./config);
 
-    # Symlink settings.json to the appropriate host-specific file
-    dmsSettingsSymlink = {
-      "DankMaterialShell/settings.json" = {
-        source = config.lib.file.mkOutOfStoreSymlink "${configDir}/${settingsFileName}";
-        force = true;
-      };
-    };
-
-    # Get absolute path for niri config directory in the flake
     niriDir = "${flakeRoot}/home/nixos/desktop/niri";
-
-    # Auto-symlink all files from ../niri/ to ~/.config/niri/
-    # Exclude config.kdl (symlinked separately) and outputs-*.kdl files (symlinked as host.kdl)
     niriFiles = builtins.readDir ../niri;
     niriFileNames = builtins.filter (
       name:
@@ -99,24 +75,20 @@ in {
         name = "niri/${name}";
         value = {
           source = config.lib.file.mkOutOfStoreSymlink "${niriDir}/${name}";
-          force = true; # Force overwrite existing files to create symlinks
+          force = true;
         };
       })
       niriFileNames);
   in
     {
-      # Symlink the base config.kdl (includes host.kdl via include statement)
       "niri/config.kdl" = {
         source = config.lib.file.mkOutOfStoreSymlink "${niriDir}/config.kdl";
         force = true;
       };
 
-      # Symlink host.kdl to the appropriate outputs-<host>.kdl file
-      # This allows the base config.kdl to include host-specific outputs
       "niri/host.kdl" =
         if hostOutputConfig != null
         then let
-          # Determine the host-specific outputs file name
           outputsFileName =
             if hostKey == "framework"
             then "outputs-framework.kdl"
@@ -126,10 +98,14 @@ in {
           force = true;
         }
         else {
-          # Fallback: create empty file if no host config found
           text = "// No host-specific output configuration\n";
           force = true;
         };
+
+      "DankMaterialShell/settings.json" = {
+        source = config.lib.file.mkOutOfStoreSymlink "${flakeRoot}/home/nixos/desktop/dms/config/${hostSettingsFile}";
+        force = true;
+      };
     }
     // dmsSymlinks
     // dmsSettingsSymlink

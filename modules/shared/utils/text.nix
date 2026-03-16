@@ -10,5 +10,6 @@
     yq # Command-line YAML, JSON, XML, and TOML processor
     exiftool # Read and write EXIF metadata
     qpdf # PDF manipulation
+    pdftk # PDF manipulation
   ];
 }

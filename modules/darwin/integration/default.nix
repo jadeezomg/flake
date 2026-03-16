@@ -4,7 +4,6 @@
   ...
 }: {
   imports = [
-    ./binaries.nix
     ./homebrew.nix
   ];
 }

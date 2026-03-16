@@ -1,40 +1,18 @@
 // Window rules for Niri
 // These rules apply to all windows matching the specified criteria
 
-// Inactive window opacity
-/-window-rule {
-    match is-active=false
-    opacity 0.95
-}
-
-// Active window opacity
-/-window-rule {
-    match is-active=true
-    opacity 0.95
-}
-
 // Video player opaque
 window-rule {
     match app-id=r#"^org.gnome.Showtime$"#
     opacity 1.0
 }
 
-
 // Set Cursor and Zed IDE to full width
 window-rule {
-    match app-id=r#"^Cursor$"#
+    match app-id=r#"^cursor$"#
     match app-id=r#"^dev\.zed\.Zed$"#
 
     default-column-width { proportion 1.0; }
-}
-
-
-window-rule {
-    match app-id=r#"^Proton Pass$"#
-    open-floating true
-    default-window-height { proportion 0.75; }
-    default-column-width { proportion 0.3; }
-    default-floating-position x=100 y=100 relative-to="top-right"
 }
 
 // Example: block out two password managers from screen capture.
@@ -43,9 +21,18 @@ window-rule {
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
     match app-id=r#"^org\.gnome\.World\.Secrets$"#
     match app-id=r#"^Proton Pass$"#
+
     block-out-from "screen-capture"
-    // Use this instead if you want them visible on third-party screenshot tools.
-    // block-out-from "screencast"
+
+    open-floating true
+    default-window-height { proportion 0.75; }
+    default-column-width { proportion 0.3; }
+    default-floating-position x=100 y=100 relative-to="top-right"
+
+    opacity 0.90
+    background-effect {
+        blur true
+    }
 }
 
 // Recommended window rules for DMS integration
@@ -58,22 +45,55 @@ window-rule {
 }
 
 // Terminal applications
-/-window-rule {
+window-rule {
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
     match app-id="Alacritty"
     match app-id="zen-beta"
     match app-id="zen-twilight"
     match app-id="com.mitchellh.ghostty"
     match app-id="kitty"
-    draw-border-with-background false
+    
+    default-column-width { proportion 0.4; }
 }
 
-// Global rounded corners for all windows
-/-window-rule {
-    geometry-corner-radius 12
-    draw-border-with-background false
-    clip-to-geometry true
+// layer-rule {
+//     match namespace="^dms:"
+//     match namespace="^dms:bar$"
+//     match namespace="^dms:app-launcher$"
+//     match namespace="^dms:control-center$"
+
+//     opacity 0.9
+
+//     background-effect {
+//         blur true
+//         xray false
+//     }
+// }
+
+window-rule {
+    match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
+    default-floating-position x=10 y=10 relative-to="top-right"
 }
+
+window-rule {
+    match app-id="zen-beta"
+    match app-id="cursor"
+    opacity 0.95
+
+    background-effect {
+        blur true
+    }
+}
+
+window-rule {
+    match app-id="com.github.th_ch.youtube_music"
+    opacity 0.80
+
+    background-effect {
+        blur true
+    }
+}
+    
 
 // Open DMS windows (quickshell) as floating by default
 window-rule {

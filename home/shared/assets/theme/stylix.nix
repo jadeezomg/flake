@@ -10,6 +10,12 @@ in {
   stylix = {
     enable = true;
     autoEnable = true;
+    opacity = {
+      applications = 0.9;
+      desktop = 0.9;
+      popups = 0.9;
+      terminal = 0.9;
+    };
     overlays.enable = false;
     polarity = "dark";
 
@@ -46,9 +52,12 @@ in {
         name = "Iosevka Etoile";
       };
       sansSerif = {
-        package = iosevkaAile;
-        name = "Iosevka Aile";
+        name = "Inter Variable";
       };
+      # sansSerif = {
+      #   package = iosevkaAile;
+      #   name = "Iosevka Aile";
+      # };
       emoji = {
         package = pkgs.noto-fonts-color-emoji;
         name = "Noto Color Emoji";
@@ -65,19 +74,33 @@ in {
     # Image/wallpaper
     image = ../wallpapers/wallpaper.jpg;
 
-    # Enable automatic theming for all supported applications
     targets = {
       wezterm.enable = false;
       vscode.enable = false;
       firefox.enable = false;
-      "zen-browser" = {
+      kitty = {
+        enable = true;
+        fonts.enable = false;
+      };
+      zen-browser = {
         profileNames = ["default"];
+        enableCss = false; # maybe?
       };
       # gnome.enable = false;
       # qt.enable = false;
       gtk = {
         extraCss = ''
-          /* Reduce overall text size across GTK applications */
+          /* Keep GTK backgrounds slightly translucent (95% opacity). */
+          window,
+          dialog,
+          popover,
+          menu,
+          headerbar,
+          .background {
+            background-color: alpha(@theme_bg_color, 0.95);
+          }
+
+          }
           * {
             font-size: 10pt;
           }

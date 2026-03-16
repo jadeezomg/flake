@@ -24,6 +24,7 @@
     useGlobalPkgs = true;
     useUserPackages = true;
     backupFileExtension = "backup";
+    overwriteBackup = true;
     extraSpecialArgs = {
       inherit
         inputs
@@ -35,7 +36,7 @@
         userData
         isDarwin
         ;
-      pkgs = getPkgs system;
+      pkgs = getPkgs system [];
       pkgs-stable = getPkgsStable system;
     };
     users.${user} = {

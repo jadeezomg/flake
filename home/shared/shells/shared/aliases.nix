@@ -8,16 +8,17 @@
     grep = "rg";
 
     # eza
+    ls = "eza --icons -l --git";
     l2 = "eza --icons -l -T -L=2";
     l3 = "eza --icons -l -T -L=3";
-    llt = "eza -T";
-    lat = "eza -Ta";
-    tree = "eza -Ta";
-    lat1 = "eza -Ta -L=1";
-    lat2 = "eza -Ta -L=2";
-    lat3 = "eza -Ta -L=3";
-    lat4 = "eza -Ta -L=4";
-    lat5 = "eza -Ta -L=5";
+    llt = "eza --icons -T";
+    lat = "eza --icons -Ta";
+    tree = "eza --icons -Ta";
+    lat1 = "eza --icons -Ta -L=1";
+    lat2 = "eza --icons -Ta -L=2";
+    lat3 = "eza --icons -Ta -L=3";
+    lat4 = "eza --icons -Ta -L=4";
+    lat5 = "eza --icons -Ta -L=5";
 
     # Navigation shortcuts
     ".." = "z ..";

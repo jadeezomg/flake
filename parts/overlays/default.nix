@@ -1,0 +1,19 @@
+# Central overlay list. Add new overlays here and in their own file under ./.
+# Each overlay is included per-system; use condition to restrict by system when needed.
+{
+  inputs,
+  system,
+}: let
+  isX86_64Linux = system == "x86_64-linux";
+in
+  []
+  # x86_64-linux: gvfs Google Drive (Nautilus), niri-flake, CachyOS kernel
+  ++ (
+    if isX86_64Linux
+    then [
+      (import ./gvfs-google-drive.nix)
+      inputs.niri.overlays.niri
+      inputs.nix-cachyos-kernel.overlays.pinned
+    ]
+    else []
+  )

@@ -1,8 +1,11 @@
-{...}: {
+{pkgs, ...}: {
   imports = [
     ./audio
     ./terminals
     ./files
-    ./mail
+  ];
+
+  home.packages = with pkgs; [
+    protonmail-desktop
   ];
 }

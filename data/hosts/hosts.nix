@@ -25,7 +25,7 @@ let
         description = "Jadee Framework NixOS Host";
         user = sharedNixOSUser;
         mainMonitor = {
-          monitorID = "eDP-1";
+          monitorID = "eDP-2";
           monitorResolution = "2880x1920";
           monitorRefreshRate = "120";
           monitorScalingFactor = "2.0";
