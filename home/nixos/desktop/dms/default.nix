@@ -18,11 +18,24 @@
   hostOutputConfig = outputConfigs.${hostKey} or null;
 
   # Function to auto-create symlinks for all files in a directory
+  # Excludes settings.json (handled separately) and host-specific settings files
   configSymlinks = configsPath: let
     inherit (config.lib.file) mkOutOfStoreSymlink;
 
     # Get the absolute path to the config directory in the flake
     configDir = "${flakeRoot}/home/nixos/desktop/dms/config";
+
+    # Filter out settings.json and host-specific settings files
+    allFiles = builtins.attrNames (builtins.readDir configsPath);
+    filteredFiles =
+      builtins.filter (
+        name:
+          name
+          != "settings.json"
+          && name != "settings-framework.json"
+          && name != "settings-desktop.json"
+      )
+      allFiles;
 
     mkSymlink = name: {
       name = name;
@@ -32,7 +45,7 @@
       };
     };
   in
-    builtins.listToAttrs (map mkSymlink (builtins.attrNames (builtins.readDir configsPath)));
+    builtins.listToAttrs (map mkSymlink filteredFiles);
 in {
   # Auto-symlink configuration files
   # This automatically creates symlinks for all files/directories in config folders
@@ -46,11 +59,29 @@ in {
   #
   # Based on: https://gist.github.com/mawkler/195def384fd3f73aeb9a965c82781483
   xdg.configFile = let
+    # Get the absolute path to the config directory in the flake
+    configDir = "${flakeRoot}/home/nixos/desktop/dms/config";
+
+    # Determine which host-specific settings file to use
+    settingsFileName =
+      if hostKey == "framework"
+      then "settings-framework.json"
+      else "settings-desktop.json";
+
     # Auto-symlink all files from ./config/ to ~/.config/DankMaterialShell/
+    # (excluding settings.json and host-specific settings files)
     dmsSymlinks = lib.mapAttrs' (name: value: {
       name = "DankMaterialShell/${name}";
       inherit value;
     }) (configSymlinks ./config);
+
+    # Symlink settings.json to the appropriate host-specific file
+    dmsSettingsSymlink = {
+      "DankMaterialShell/settings.json" = {
+        source = config.lib.file.mkOutOfStoreSymlink "${configDir}/${settingsFileName}";
+        force = true;
+      };
+    };
 
     # Get absolute path for niri config directory in the flake
     niriDir = "${flakeRoot}/home/nixos/desktop/niri";
@@ -101,5 +132,6 @@ in {
         };
     }
     // dmsSymlinks
+    // dmsSettingsSymlink
     // niriSymlinks;
 }
