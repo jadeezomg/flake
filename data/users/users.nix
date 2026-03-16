@@ -6,6 +6,7 @@
       email = "me@jadee.fyi";
       description = "jadee";
       extraGroups = [
+        "gamemode"
         "input"
         "networkmanager"
         "uinput"

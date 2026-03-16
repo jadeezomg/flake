@@ -1,4 +1,6 @@
 {
+  config,
+  inputs,
   pkgs,
   pkgsStable,
   lib,
@@ -15,7 +17,11 @@
         efiSysMountPoint = "/boot";
       };
     };
-    kernelPackages = pkgs.linuxPackages_latest;
+    # CachyOS latest Zen4 when overlay is present (x86_64-linux); otherwise latest (e.g. aarch64)
+    kernelPackages =
+      if pkgs ? cachyosKernels
+      then pkgs.cachyosKernels.linuxPackages-cachyos-latest-zen4
+      else pkgs.linuxPackages_latest;
     lanzaboote = {
       enable = true;
       pkiBundle = "/var/lib/sbctl";

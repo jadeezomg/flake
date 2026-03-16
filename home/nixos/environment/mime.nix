@@ -1,26 +1,25 @@
 {...}: let
   # Default application identifiers (desktop entry names without extension)
-  userEditor = "zeditor";
+  userEditor = "dev.zed.Zed";
   userBrowser = "zen-beta";
-  audio = "mpv";
-  image = "imv";
+  audio = "org.gnome.Music";
+  image = "org.gnome.Loupe";
   pdf = "org.pwmt.zathura";
-  video = "mpv";
+  # Flatpak app ID (desktop file: io.github.diegopvlk.Cine.desktop)
+  video = "io.github.diegopvlk.Cine";
+  fileManager = "org.gnome.Nautilus";
 in {
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
       # General
+      "inode/directory" = ["${fileManager}.desktop"];
       "text/x-nushell" = ["${userEditor}.desktop"];
       "application/x-nushell" = ["${userEditor}.desktop"];
       "application/pdf" = ["${pdf}.desktop"];
-      "application/x-extension-htm" = ["${userBrowser}.desktop"];
-      "application/x-extension-html" = ["${userBrowser}.desktop"];
-      "application/x-extension-shtml" = ["${userBrowser}.desktop"];
-      "application/x-extension-xht" = ["${userBrowser}.desktop"];
-      "application/x-extension-xhtml" = ["${userBrowser}.desktop"];
       "application/x-zerosize" = ["${userEditor}.desktop"];
-      "application/xhtml+xml" = ["${userBrowser}.desktop"];
+
+      # Audio
       "audio/flac" = ["${audio}.desktop"];
       "audio/mp3" = ["${audio}.desktop"];
       "audio/mp4" = ["${audio}.desktop"];
@@ -28,6 +27,8 @@ in {
       "audio/ogg" = ["${audio}.desktop"];
       "audio/x-m4a" = ["${audio}.desktop"];
       "audio/x-wav" = ["${audio}.desktop"];
+
+      # Image
       "image/bmp" = ["${image}.desktop"];
       "image/gif" = ["${image}.desktop"];
       "image/jpeg" = ["${image}.desktop"];
@@ -35,19 +36,32 @@ in {
       "image/svg+xml" = ["${image}.desktop"];
       "image/tiff" = ["${image}.desktop"];
       "image/webp" = ["${image}.desktop"];
-      "text/html" = ["${userBrowser}.desktop"];
-      "text/plain" = ["${userEditor}.desktop"];
+      "image/heic" = ["${image}.desktop"];
+      "image/avif" = ["${image}.desktop"];
+
+      # Video
       "video/avi" = ["${video}.desktop"];
       "video/mp4" = ["${video}.desktop"];
       "video/ogg" = ["${video}.desktop"];
       "video/webm" = ["${video}.desktop"];
       "video/x-matroska" = ["${video}.desktop"];
       "video/x-msvideo" = ["${video}.desktop"];
+
+      # Web
+      "text/html" = ["${userBrowser}.desktop"];
+      "x-scheme-handler/mailto" = ["${userBrowser}.desktop"];
+      "application/x-extension-htm" = ["${userBrowser}.desktop"];
+      "application/x-extension-html" = ["${userBrowser}.desktop"];
+      "application/x-extension-shtml" = ["${userBrowser}.desktop"];
+      "application/x-extension-xht" = ["${userBrowser}.desktop"];
+      "application/x-extension-xhtml" = ["${userBrowser}.desktop"];
+      "application/xhtml+xml" = ["${userBrowser}.desktop"];
       "x-scheme-handler/chrome" = ["${userBrowser}.desktop"];
       "x-scheme-handler/http" = ["${userBrowser}.desktop"];
       "x-scheme-handler/https" = ["${userBrowser}.desktop"];
 
       # Programming Languages - All use editor
+      "text/plain" = ["${userEditor}.desktop"];
       "text/x-shellscript" = ["${userEditor}.desktop"];
       "text/x-script.python" = ["${userEditor}.desktop"];
       "text/x-script.bash" = ["${userEditor}.desktop"];
@@ -198,7 +212,7 @@ in {
 
       # Any other text-based format
       "text/x-generic" = ["${userEditor}.desktop"];
-      "application/octet-stream" = ["${userEditor}.desktop"];
+      # application/octet-stream intentionally unset (generic binary; opening in editor is rarely desired)
     };
   };
 }

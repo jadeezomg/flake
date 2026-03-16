@@ -44,7 +44,7 @@
         then "aarch64-darwin"
         else "x86_64-linux"
       );
-    pkgs = getPkgs system;
+    pkgs = getPkgs system [];
   in
     home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
@@ -70,7 +70,7 @@
           userData
           isDarwin
           ;
-        pkgs = getPkgs system;
+        pkgs = getPkgs system [];
         host = host;
       };
     };
@@ -81,18 +81,20 @@
     isDarwin = lib.elem system darwinSystems;
     user = host.username or "jadee";
     hostname = host.hostname or hostKey;
+    pkgs = getPkgs system [];
     nixosConfig = lib.nixosSystem {
-      inherit system;
-      pkgs = getPkgs system;
+      # Pass null so eval-config.nix does not set removed nixpkgs.system; we set nixpkgs.hostPlatform below.
+      system = null;
+      pkgs = pkgs;
       specialArgs =
         commonSpecialArgs
         // {
-          pkgs = getPkgs system;
           pkgs-stable = getPkgsStable system;
           host = host;
-          inherit hostKey user isDarwin inputs;
+          inherit hostKey user isDarwin inputs system;
         };
       modules = [
+        inputs.nixpkgs.nixosModules.readOnlyPkgs
         (./. + "/../hosts/${hostKey}")
         sops-nix.nixosModules.sops
         determinate.nixosModules.default
@@ -114,11 +116,11 @@
     darwinConfigurations = lib.optionalAttrs isDarwin (let
       darwinConfig = nix-darwin.lib.darwinSystem {
         inherit system;
-        pkgs = getPkgs system;
+        pkgs = getPkgs system [];
         specialArgs =
           commonSpecialArgs
           // {
-            pkgs = getPkgs system;
+            pkgs = getPkgs system [];
             pkgs-stable = getPkgsStable system;
             host = host;
             inherit hostKey user isDarwin inputs;

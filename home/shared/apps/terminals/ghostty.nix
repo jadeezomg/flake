@@ -7,7 +7,6 @@
     enable = true;
     enableBashIntegration = true;
     enableFishIntegration = true;
-    systemd.enable = true;
     settings = {
       # Shell configuration
       # Ghostty config uses `command` (not `shell`). See: https://ghostty.org/docs/config/reference#command
@@ -42,8 +41,8 @@
       window-padding-x = 20;
       window-padding-y = 10;
       window-padding-balance = true;
-      background-opacity = 0.8; # This is controlled by the compositor instead
-      background-blur = 20;
+      background-opacity = 0.8;
+      background-blur = true;
       mouse-hide-while-typing = true;
 
       # Keybindings

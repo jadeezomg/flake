@@ -46,6 +46,7 @@
 
       # --- Development ---
       "docker-desktop" # Docker Desktop for Mac (renamed from docker)
+      "lm-studio" # Local LLM GUI
 
       # --- Fonts ---
       # Apple San Francisco fonts (not available in Nix)

@@ -6,7 +6,7 @@
   ];
 
   programs = {
-    bash.completion.enable = true; # Required for home setting
+    bash.completion.enable = true;
     fish.enable = true;
   };
 }

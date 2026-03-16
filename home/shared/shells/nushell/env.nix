@@ -21,6 +21,12 @@ in {
     # Additional environment setup
     extraEnv = ''
 
+      # GitHub token for Nix (from sops secret at ~/.config/nix/github-token)
+      let token_file = $env.HOME + "/.config/nix/github-token"
+      if ($token_file | path exists) {
+        $env.NIX_CONFIG = "access-tokens = github.com=" + ($token_file | open | str trim) + " " + ($env.NIX_CONFIG? | default "")
+      }
+
       # OLD: Variables defined outside the closure aren't accessible inside
       # let posh = "${pkgs.oh-my-posh}/bin/oh-my-posh"
       # let posh_theme = $"($env.HOME)/${poshThemeRel}"

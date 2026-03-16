@@ -365,14 +365,17 @@ export def get-file-size [file_path: string] {
 
 # Get file age in days
 export def get-file-age-days [file_path: string] {
-  let file_info = (($file_path | path expand) | get metadata)
-  let mtime = ($file_info.modified | into int)
+  let expanded = ($file_path | path expand)
+  let row = (ls $expanded | first)
+  let mtime = ($row.modified | into int)
   let now = (date now | into int)
   (($now - $mtime) / 86400000000000)
 }
 
 export def find-backup-files [dir: string] {
-  (glob $"($dir)/**/*.backup" | append (glob $"($dir)/**/*.bkp"))
+  do {
+    (glob $"($dir)/**/*.backup" | append (glob $"($dir)/**/*.bkp"))
+  } < null
 }
 
 export def parse-generation-number [line: string] {

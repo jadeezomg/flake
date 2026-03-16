@@ -174,32 +174,12 @@
   "runningAppsGroupByApp": false,
   "appIdSubstitutions": [
     {
-      "pattern": "Spotify",
-      "replacement": "spotify",
-      "type": "exact"
-    },
-    {
-      "pattern": "beepertexts",
-      "replacement": "beeper",
-      "type": "exact"
-    },
-    {
-      "pattern": "home assistant desktop",
-      "replacement": "homeassistant-desktop",
-      "type": "exact"
-    },
-    {
-      "pattern": "com.transmissionbt.transmission",
-      "replacement": "transmission-gtk",
-      "type": "contains"
-    },
-    {
       "pattern": "^steam_app_(\\d+)$",
       "replacement": "steam_icon_$1",
       "type": "regex"
     }
   ],
-  "centeringMode": "index",
+  "centeringMode": "geometric",
   "clockDateFormat": "",
   "lockDateFormat": "",
   "mediaSize": 1,
@@ -209,9 +189,9 @@
   "appLauncherGridColumns": 3,
   "spotlightCloseNiriOverview": true,
   "niriOverviewOverlayEnabled": true,
-  "useAutoLocation": false,
+  "useAutoLocation": true,
   "weatherEnabled": true,
-  "networkPreference": "wifi",
+  "networkPreference": "auto",
   "vpnLastConnected": "",
   "iconTheme": "System Default",
   "cursorSettings": {
@@ -274,7 +254,9 @@
   "wifiNetworkPins": {},
   "bluetoothDevicePins": {},
   "audioInputDevicePins": {},
-  "audioOutputDevicePins": {},
+  "audioOutputDevicePins": {
+    "preferredOutput": "alsa_output.usb-Creative_Technology_Ltd_SB_Katana_V2_2EBE98C4D50695FC-03.analog-surround-51"
+  },
   "gtkThemingEnabled": false,
   "qtThemingEnabled": false,
   "syncModeWithPortal": true,
@@ -327,7 +309,7 @@
   "maxFprintTries": 15,
   "lockScreenActiveMonitor": "all",
   "lockScreenInactiveColor": "#000000",
-  "lockScreenNotificationMode": 0,
+  "lockScreenNotificationMode": 3,
   "hideBrightnessSlider": false,
   "notificationTimeoutLow": 3000,
   "notificationTimeoutNormal": 5000,
@@ -409,24 +391,40 @@
           "enabled": true
         },
         {
-          "id": "workspaceSwitcher",
+          "id": "keyboard_layout_name",
           "enabled": true
         },
         {
-          "id": "focusedWindow",
+          "id": "colorPicker",
+          "enabled": true
+        },
+        {
+          "id": "notepadButton",
           "enabled": true
         }
       ],
       "centerWidgets": [
         {
-          "id": "music",
+          "id": "privacyIndicator",
+          "enabled": true
+        },
+        {
+          "id": "capsLockIndicator",
+          "enabled": true
+        },
+        {
+          "id": "workspaceSwitcher",
+          "enabled": true
+        },
+        {
+          "id": "focusedWindow",
           "enabled": true,
-          "mediaSize": 3
+          "focusedWindowCompactMode": true
         }
       ],
       "rightWidgets": [
         {
-          "id": "weather",
+          "id": "tailscale",
           "enabled": true
         },
         {
@@ -439,6 +437,10 @@
         },
         {
           "id": "notificationButton",
+          "enabled": true
+        },
+        {
+          "id": "weather",
           "enabled": true
         },
         {
@@ -475,6 +477,101 @@
       "shadowIntensity": 50,
       "shadowOpacity": 50,
       "shadowColorMode": "surface"
+    },
+    {
+      "id": "bar1768776172380",
+      "name": "Bar 2",
+      "enabled": true,
+      "position": 0,
+      "screenPreferences": [
+        {
+          "name": "HDMI-A-1",
+          "model": "DELL S2722QC"
+        }
+      ],
+      "showOnLastDisplay": false,
+      "leftWidgets": [
+        {
+          "id": "launcherButton",
+          "enabled": true
+        },
+        {
+          "id": "workspaceSwitcher",
+          "enabled": true
+        },
+        {
+          "id": "focusedWindow",
+          "enabled": true,
+          "focusedWindowCompactMode": true
+        }
+      ],
+      "centerWidgets": [
+        {
+          "id": "music",
+          "enabled": true,
+          "mediaSize": 3
+        }
+      ],
+      "rightWidgets": [
+        {
+          "id": "memUsage",
+          "enabled": true
+        },
+        {
+          "id": "cpuUsage",
+          "enabled": true
+        },
+        {
+          "id": "gpuTemp",
+          "enabled": true
+        },
+        {
+          "id": "cpuTemp",
+          "enabled": true
+        },
+        {
+          "id": "keyboard_layout_name",
+          "enabled": true
+        },
+        {
+          "id": "clock",
+          "enabled": true
+        }
+      ],
+      "spacing": 5,
+      "innerPadding": 10,
+      "bottomGap": 0,
+      "transparency": 0,
+      "widgetTransparency": 0.65,
+      "squareCorners": false,
+      "noBackground": false,
+      "gothCornersEnabled": false,
+      "gothCornerRadiusOverride": true,
+      "gothCornerRadiusValue": 26,
+      "borderEnabled": false,
+      "borderColor": "primary",
+      "borderOpacity": 1,
+      "borderThickness": 1,
+      "widgetOutlineEnabled": false,
+      "widgetOutlineColor": "primary",
+      "widgetOutlineOpacity": 1,
+      "widgetOutlineThickness": 1,
+      "fontScale": 1.25,
+      "autoHide": false,
+      "autoHideDelay": 250,
+      "showOnWindowsOpen": false,
+      "openOnOverview": true,
+      "visible": true,
+      "popupGapsAuto": true,
+      "popupGapsManual": 9,
+      "maximizeDetection": true,
+      "scrollEnabled": true,
+      "scrollXBehavior": "column",
+      "scrollYBehavior": "workspace",
+      "shadowIntensity": 50,
+      "shadowOpacity": 50,
+      "shadowColorMode": "surface",
+      "shadowCustomColor": "#000000"
     }
   ],
   "desktopClockEnabled": false,

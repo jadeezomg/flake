@@ -5,8 +5,6 @@
 }: {
   imports = [
     ./nix.nix
-    ./dconf.nix
-    ./mime.nix
   ];
 
   # Generate a list of installed system packages for easy inspection
