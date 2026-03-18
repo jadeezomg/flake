@@ -47,9 +47,6 @@
         force = true;
       };
     };
-
-    allFiles = builtins.attrNames (builtins.readDir configsPath);
-    filteredFiles = builtins.filter (name: ! (builtins.match "settings-.*\\.json" name != null)) allFiles;
   in
     builtins.listToAttrs (map mkSymlink filteredFiles);
 in {
@@ -108,6 +105,5 @@ in {
       };
     }
     // dmsSymlinks
-    // dmsSettingsSymlink
     // niriSymlinks;
 }

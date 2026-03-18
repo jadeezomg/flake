@@ -5,5 +5,6 @@
 }: {
   imports = [
     ./sudo.nix
+    ./encryption
   ];
 }
