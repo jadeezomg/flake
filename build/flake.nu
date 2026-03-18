@@ -372,28 +372,6 @@ def main [
       subcommands: null
     }
     {
-      key: "caches"
-      script: "update-caches.nu"
-      usage: "caches [flags]"
-      desc: "Update caches (bat, tldr, icons, nix)"
-      examples: [
-        "flake caches --all"
-        "flake caches --bat"
-        "flake caches --all-except-nix"
-      ]
-      subcommands: [
-        { key: "--all", desc: "Update all caches", args: "" }
-        { key: "--all-except-nix", desc: "Update all caches except nix index", args: "" }
-        { key: "--bat", desc: "Update bat syntax cache", args: "" }
-        { key: "--tldr", desc: "Update tldr pages cache", args: "" }
-        { key: "--icons", desc: "Update icons cache", args: "" }
-        { key: "--nix", desc: "Update nix index database", args: "" }
-        { key: "--apps", desc: "Update apps cache", args: "" }
-        { key: "--launcher", desc: "Update launcher cache", args: "" }
-        { key: "--wallpapers", desc: "Update wallpapers cache", args: "" }
-      ]
-    }
-    {
       key: "backups"
       script: "backups.nu"
       usage: "backups [--clean] [--dry]"
