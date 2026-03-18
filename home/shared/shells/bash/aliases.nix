@@ -21,7 +21,21 @@ in {
     hms() { nix run ${sharedConfig.nixConfig.homeManagerFlake} -- switch --flake "${sharedPaths.commonPaths.flake}#${finalHostKey}"; }
     hmn() { nix run ${sharedConfig.nixConfig.homeManagerFlake} -- news --flake "${sharedPaths.commonPaths.flake}#${finalHostKey}"; }
 
-    # Flake build scripts shortcuts
-    flake() { nu "${sharedPaths.commonPaths.flake}/${sharedConfig.nixConfig.flakeBuildScript}"; }
+    flake() {
+      local j="${sharedPaths.commonPaths.flake}/Justfile" c
+      case "$1" in
+        build|switch|generation|gc|fmt|backups)
+          [[ $# -le 1 ]] || { c="$1"; shift; just --justfile "$j" "_$c" "$@"; return; }
+          ;;
+        init)
+          [[ $# -le 1 ]] || { shift; just --justfile "$j" _init "$@"; return; }
+          ;;
+        read-defaults)
+          [[ $# -le 1 ]] || { shift; just --justfile "$j" _read-defaults "$@"; return; }
+          ;;
+      esac
+      just --justfile "$j" "$@"
+    }
+    nuflake() { nu "${sharedPaths.commonPaths.flake}/build/flake.nu" "$@"; }
   '';
 }

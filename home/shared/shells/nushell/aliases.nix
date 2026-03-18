@@ -63,8 +63,12 @@ in {
     alias hms = nix run ${sharedConfig.nixConfig.homeManagerFlake} -- switch --flake $"(''$env.FLAKE)#${finalHostKey}"
     alias hmn = nix run ${sharedConfig.nixConfig.homeManagerFlake} -- news --flake $"(''$env.FLAKE)#${finalHostKey}"
 
-    # Flake build scripts shortcuts
-    alias flake = nu $"(''$env.FLAKE)/${sharedConfig.nixConfig.flakeBuildScript}"
+    def --wrapped flake [...rest] {
+      ^just --justfile $"(''$env.FLAKE)/Justfile" ...$rest
+    }
+    def --wrapped nuflake [...rest] {
+      nu $"(''$env.FLAKE)/build/flake.nu" ...$rest
+    }
 
     def --env f [] {
       let dir = (with-env { _PR_LAST_COMMAND: (history | last).command, _PR_ALIAS: (help aliases | select name expansion | each ({ |row| $row.name + "=" + $row.expansion }) | str join (char nl)), _PR_SHELL: nu } { pay-respects })

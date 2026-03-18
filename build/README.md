@@ -1,112 +1,22 @@
-# Flake Build Scripts
+# Flake tooling
 
-Nushell-based build and management scripts for the NixOS flake configuration.
+- **`Justfile`** (repo root) — [`[doc('…')]`](https://just.systems/man/en/documentation-comments.html) + [`[group('…')]`](https://just.systems/man/en/groups.html).
+- **Chooser** — Stock [`just --choose`](https://just.systems/man/en/selecting-recipes-to-run-with-an-interactive-chooser.html) only receives recipe names on stdin, so it can’t show groups/docs. **`default`** runs **`build/just-choose.bash`**: parses **`just --list`**, then **fzf** shows `[group]  recipe  —  doc`. To use the same chooser for plain **`just --choose`**, set **`JUST_CHOOSER`** to that script (absolute path).
+- **`build/flake-recipes.bash`** — `build`, `switch`, `generation`, `gc`, `fmt`, `backups`, `init`, `rollback`, `health`, `git`, `setup-age-darwin`, `check-zen`.
+- **`build/common.sh`** / **`theme.sh`** — sourced by bash recipes and `flake-recipes.bash`.
 
-## Scripts
+## Python ([uv + just `[script]`](https://just.systems/man/en/python-recipes-with-uv.html))
 
-### Core Operations
+The Justfile sets `script-interpreter := ['uv', 'run', '--script']` for **`check-packages`** and private **`_read-defaults`**. **`read-defaults`** (chooser) prompts for a domain; full CLI: `flake read-defaults <domain> --only-changed …`.
 
-- **`build.nu`** - Build configuration without switching
-  - `build.nu <host> build` - Test build
-  - `build.nu <host> boot` - Build for next boot
-  - `build.nu <host> dry` - Dry run
-  - `build.nu <host> dev` - Development build with trace
-
-- **`switch.nu`** - Build and switch configuration
-  - `switch.nu <host>` - Full rebuild with checks
-  - `switch.nu <host> --fast` - Skip pre/post checks
-  - `switch.nu <host> --check` - Run flake check (all systems) and exit before rebuild
-
-- **`update.nu`** - Update flake inputs
-  - `update.nu` - Update all inputs
-  - `update.nu <input>` - Update specific input
-
-### Maintenance
-
-- **`gc.nu`** - Garbage collection
-  - `gc.nu keep [N]` - Keep N generations (default: 5)
-  - `gc.nu days [N]` - Remove older than N days (default: 7)
-  - `gc.nu all` - Aggressive cleanup
-
-- **`health.nu`** - System health check
-  - Shows flake status, disk usage, generations, services
-
-- **`generation.nu`** - Manage generations
-  - `generation.nu list` - List all generations
-  - `generation.nu bootloader` - List all bootloader entries
-  - `generation.nu switch <num>` - Switch to generation
-  - `generation.nu delete <num>` - Delete generation
-
-- **`rollback.nu`** - Rollback to previous generation
-
-### Cache Management
-
-- **`update-caches.nu`** - Update various caches
-  - `--all` - Update all caches
-  - `--all-except-nix` - Update all except nix-index
-  - `--bat` - Update bat syntax cache
-  - `--tldr` - Update tldr pages
-  - `--nix` - Update nix-index
-  - Placeholders: `--apps`, `--launcher`, `--wallpapers`, `--icons`
-
-### Cleanup
-
-- **`check-backups.nu`** - Scan for backup files
-- **`clean-backups.nu`** - Remove backup files
-  - `--dry` - Preview what would be removed
-
-### Secrets (SOPS)
-
-- **`setup-age-darwin.nu`** - One-time setup of age key for nix-sops on Darwin (Caya)
-  - Creates `~/.config/sops/age/keys.txt` and prints your public key
-  - `age` and `sops` are installed on the system (shared security/encryption); run the script after a darwin-rebuild, then add the printed key to `.sops.yaml` and run `sops updatekeys secrets/secrets.yaml`
-
-## Initialization
-
-First, initialize the flake to set your default host:
-
-```nu
-./build/init.nu framework
-# Or let it auto-detect:
-./build/init.nu
-```
-
-This creates a `.flake-host` file in your flake directory with your default host.
+Install **`uv`** on your PATH.
 
 ## Usage
 
-After initialization, scripts can be run without specifying the host:
+- **`flake`** / **`just`** — no args → `just --choose` (fzf).
+- **Chooser**: discrete recipes (`build-dry`, `gc-all`, `generation-list`, …). **`init`** / **`read-defaults`** prompt when run alone.
+- **CLI with flags** (same as before): `flake build --dry`, `flake switch --fast`, `flake generation switch 3`, `flake read-defaults com.apple.dock --filter-system` — the **`flake`** shell function forwards extra args to private **`_*`** recipes.
 
-```nu
-./build/switch.nu          # Uses default host
-./build/build.nu build      # Uses default host
-./build/health.nu
-./build/update.nu
-```
+## Legacy
 
-You can still override the host if needed:
-
-```nu
-./build/switch.nu desktop   # Override to use desktop host
-./build/build.nu desktop boot
-```
-
-Or add them to your PATH and use as commands.
-
-## Configuration
-
-Scripts use the `$FLAKE` environment variable (defaults to `~/.dotfiles/flake`).
-
-Set in your nushell config:
-
-```nu
-$env.FLAKE = "~/.dotfiles/flake"
-```
-
-The default host is stored in `.flake-host` in your flake directory. You can change it anytime:
-
-```nu
-./build/init.nu <new-host>
-```
-
-Or manually edit `.flake-host` file.
+**`nuflake`** → `build/flake.nu`. **`build/*.nu`** unchanged.

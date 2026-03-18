@@ -40,6 +40,23 @@
       command_not_found_handler() {
         eval $(_PR_LAST_COMMAND="$@" _PR_SHELL="zsh" _PR_ALIAS="`alias`" _PR_MODE="cnf" "pay-respects")
       }
+
+      flake() {
+        local j="''${FLAKE:?}/Justfile" c
+        case "$1" in
+          build|switch|generation|gc|fmt|backups)
+            [[ $# -le 1 ]] || { c="$1"; shift; command just --justfile "$j" "_$c" "$@"; return }
+            ;;
+          init)
+            [[ $# -le 1 ]] || { shift; command just --justfile "$j" _init "$@"; return }
+            ;;
+          read-defaults)
+            [[ $# -le 1 ]] || { shift; command just --justfile "$j" _read-defaults "$@"; return }
+            ;;
+        esac
+        command just --justfile "$j" "$@"
+      }
+      nuflake() { command nu "''${FLAKE:?}/build/flake.nu" "$@"; }
     '';
   };
 }
