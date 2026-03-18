@@ -27,7 +27,7 @@
   "accessibility.typeaheadfind.flashBar" = 0;
 
   # Scrolling
-  "general.autoScroll" = false;
+  "general.autoScroll" = true;
 
   # Privacy: disable prefetch/speculative connections
   "network.dns.disablePrefetch" = true;
