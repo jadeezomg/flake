@@ -9,10 +9,11 @@
 
   environment.systemPackages = with pkgs; [
     # Productivity
-    pinta
+    gradia # screeshot editor
+    pinta # image editor
 
     # Audio
-    pear-desktop
+    pear-desktop # ytm player
 
     # Editors
     code-cursor
