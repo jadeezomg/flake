@@ -82,6 +82,13 @@
             version = "0.0.13";
             sha256 = "sha256-6adXUaoh/OP5yYItH3GAQ7GpupfmTGaxkKP6hYUMYNQ=";
           }
+          # Just — https://github.com/nefrob/vscode-just
+          {
+            name = "vscode-just-syntax";
+            publisher = "nefrob";
+            version = "0.9.1";
+            sha256 = "117kac7hqqkwh6ddbsp8wq1g8hdbs5hv59vdc09015ns46s96wfy";
+          }
         ];
       userSettings = {
         "workbench.colorTheme" = "Birds of Paradise";

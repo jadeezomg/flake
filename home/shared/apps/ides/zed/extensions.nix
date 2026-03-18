@@ -11,6 +11,7 @@
       "sql"
       "latex"
       "make"
+      "just"
       "gem"
       "ruby"
       "graphql"
