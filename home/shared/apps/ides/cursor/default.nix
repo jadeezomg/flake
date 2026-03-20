@@ -87,7 +87,7 @@
             name = "vscode-just-syntax";
             publisher = "nefrob";
             version = "0.9.1";
-            sha256 = "117kac7hqqkwh6ddbsp8wq1g8hdbs5hv59vdc09015ns46s96wfy";
+            sha256 = "sha256-yl9v4sL1yWzKwE0MIk7BeAd4/FkLmxQaW5ENb8UVNIU=";
           }
         ];
       userSettings = {

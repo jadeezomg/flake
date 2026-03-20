@@ -21,12 +21,22 @@ def main():
         "--profile",
         "-p",
         metavar="DIR",
-        help="Zen profile dir (default: ZEN_PROFILE_ROOT; darwin: ~/Library/Application Support/zen/Profiles/default, Linux: ~/.config/zen)",
+        help="Zen profile dir (default: ZEN_PROFILE_ROOT; darwin: ~/Library/Application Support/zen/Profiles/default, Linux: ~/.config/zen/default on NixOS)",
     )
     sub = ap.add_subparsers(dest="command", required=True)
 
     p = sub.add_parser("extract", help="Extract pinned tabs per workspace")
     p.add_argument("--nix", action="store_true", help="Print Nix snippet")
+    p.add_argument(
+        "--zen-sessions-file",
+        metavar="PATH",
+        help="Use a specific zen-sessions*.jsonlz4 file (e.g. from zen-sessions-backup/).",
+    )
+    p.add_argument(
+        "--window-session-file",
+        metavar="PATH",
+        help="Use a specific sessionstore-backups/recovery*.jsonlz4 file for windows/tabs.",
+    )
     p.add_argument(
         "--dump-tab-sample", action="store_true", help="Print tab structure to stderr"
     )
@@ -55,6 +65,12 @@ def main():
 
         run(
             (["--nix"] if args.nix else [])
+            + (["--zen-sessions-file", args.zen_sessions_file] if args.zen_sessions_file else [])
+            + (
+                ["--window-session-file", args.window_session_file]
+                if args.window_session_file
+                else []
+            )
             + (["--dump-tab-sample"] if args.dump_tab_sample else [])
         )
     elif args.command == "sync":
