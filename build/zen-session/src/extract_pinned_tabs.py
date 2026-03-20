@@ -29,9 +29,8 @@ except ImportError:
 def _default_zen_profile_root():
     if sys.platform == "darwin":
         return os.path.expanduser("~/Library/Application Support/zen/Profiles/default")
-    # Linux/NixOS: $XDG_CONFIG_HOME/zen (default ~/.config/zen); Flatpak: use ZEN_PROFILE_ROOT
     config_home = os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
-    return os.path.join(os.path.expanduser(config_home), "zen")
+    return os.path.join(os.path.expanduser(config_home), "zen", "default")
 
 
 # Profile path: macOS default, Linux ~/.config/zen (override with ZEN_PROFILE_ROOT or --profile)
@@ -64,21 +63,33 @@ def _read_mozlz4(path):
     return json.loads(lz4.block.decompress(data[8:]).decode("utf-8"))
 
 
-def _load_zen_sessions():
-    """Load zen-sessions.jsonlz4 (sidebar with .spaces). Required for space names/icons."""
-    if not os.path.isfile(ZEN_SESSIONS_FILE):
-        print(f"Missing: {ZEN_SESSIONS_FILE}", file=sys.stderr)
+def _load_zen_sessions(zen_sessions_file=None):
+    """Load a Zen `zen-sessions*.jsonlz4` file.
+
+    This is used both for the sidebar `.spaces` list and (when closed) can also
+    include windows/tabs data.
+    """
+    if zen_sessions_file is None:
+        zen_sessions_file = ZEN_SESSIONS_FILE
+    if not os.path.isfile(zen_sessions_file):
+        print(f"Missing: {zen_sessions_file}", file=sys.stderr)
         sys.exit(2)
-    data = _read_mozlz4(ZEN_SESSIONS_FILE)
+    data = _read_mozlz4(zen_sessions_file)
     if data is None:
-        print(f"Invalid or empty: {ZEN_SESSIONS_FILE}", file=sys.stderr)
+        print(f"Invalid or empty: {zen_sessions_file}", file=sys.stderr)
         sys.exit(2)
     return data
 
 
-def _load_window_session():
-    """Load session that has windows/tabs (recovery.jsonlz4 or sessionstore.jsonlz4)."""
-    for path in WINDOW_SESSION_PATHS:
+def _load_window_session(window_session_paths=None, return_used_path=False):
+    """Load session that has windows/tabs.
+
+    If return_used_path is true, returns (data, used_path).
+    """
+    if window_session_paths is None:
+        window_session_paths = WINDOW_SESSION_PATHS
+
+    for path in window_session_paths:
         if not os.path.isfile(path):
             continue
         data = _read_mozlz4(path)
@@ -86,11 +97,11 @@ def _load_window_session():
             continue
         windows = data.get("windows") or []
         if windows:
-            return data
+            return (data, path) if return_used_path else data
     print(
         "No session with windows found. Tried:\n  "
-        + "\n  ".join(WINDOW_SESSION_PATHS)
-        + "\n(When Zen is closed, zen-sessions.jsonlz4 may still have window/tab data.)",
+        + "\n  ".join(window_session_paths)
+        + "\n(When Zen is closed, a `zen-sessions*.jsonlz4` backup may still have window/tab data.)",
         file=sys.stderr,
     )
     sys.exit(2)
@@ -493,12 +504,53 @@ def main(args=None):
     ap = argparse.ArgumentParser(description="Extract Zen pinned tabs per workspace")
     ap.add_argument("--nix", action="store_true", help="Print Nix pins snippet")
     ap.add_argument(
+        "--zen-sessions-file",
+        metavar="PATH",
+        help="Use a specific zen-sessions*.jsonlz4 file (e.g. from zen-sessions-backup/).",
+    )
+    ap.add_argument(
+        "--window-session-file",
+        metavar="PATH",
+        help="Use a specific session*.jsonlz4 file for windows/tabs (e.g. sessionstore-backups/recovery*.jsonlz4).",
+    )
+    ap.add_argument(
         "--dump-tab-sample", action="store_true", help="Print tab structure to stderr"
     )
     args = ap.parse_args(args)
 
-    zen_sessions = _load_zen_sessions()
-    window_session = _load_window_session()
+    zen_sessions_file = (
+        os.path.expanduser(args.zen_sessions_file)
+        if getattr(args, "zen_sessions_file", None)
+        else ZEN_SESSIONS_FILE
+    )
+
+    zen_sessions = _load_zen_sessions(zen_sessions_file=zen_sessions_file)
+
+    zen_sessions_window_count = len(zen_sessions.get("windows") or [])
+    zen_sessions_has_windows = zen_sessions_window_count > 0
+
+    if getattr(args, "window_session_file", None):
+        window_session_paths = [os.path.expanduser(args.window_session_file)]
+    else:
+        # zen-sessions backups typically include spaces only; windows/tabs are
+        # usually in sessionstore-backups/*.jsonlz4.
+        window_session_paths = (
+            [zen_sessions_file, SESSIONSTORE_RECOVERY, SESSIONSTORE_MAIN]
+            if zen_sessions_has_windows
+            else [SESSIONSTORE_RECOVERY, SESSIONSTORE_MAIN, zen_sessions_file]
+        )
+
+    window_session, used_window_session_path = _load_window_session(
+        window_session_paths=window_session_paths, return_used_path=True
+    )
+
+    if getattr(args, "zen_sessions_file", None) and not zen_sessions_has_windows:
+        # Explain why the output may look like the "current session".
+        if used_window_session_path != zen_sessions_file:
+            print(
+                f"Warning: {zen_sessions_file} has windows=[]; using windows/tabs from {used_window_session_path}.",
+                file=sys.stderr,
+            )
     if args.dump_tab_sample:
         for i, w in enumerate((window_session.get("windows") or [])[:2]):
             tabs = w.get("tabs") or []

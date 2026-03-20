@@ -44,6 +44,11 @@ in
         icon = "dollar";
         id = 1;
       };
+      Private = {
+        color = "purple";
+        icon = "fence";
+        id = 2;
+      };
     };
   }
   // spaces
