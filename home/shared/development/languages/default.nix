@@ -3,9 +3,9 @@
     # --- Languages, Servers And Formatters ---
     ./bash.nix
     # ./clojure.nix
-    ./cmake.nix
+    #./cmake.nix
     # ./commonlisp.nix
-    ./cpp.nix
+    #./cpp.nix
     # ./crystal.nix
     # ./csharp.nix
     ./css.nix
@@ -26,22 +26,22 @@
     #./go.nix
     ./graphql.nix
     #./haskell.nix
-    ./java.nix
+    #./java.nix
     ./javascript.nix
     # ./jinja.nix
     ./just.nix
     # ./julia.nix
     # ./kdl.nix
     #./kotlin.nix
-    ./latex.nix
-    ./lua.nix
+    #./latex.nix
+    #./lua.nix
     ./markdown.nix
     ./nix.nix
     ./nushell.nix
     #./ocaml.nix
     # ./perl.nix
     #./php.nix
-    ./prisma.nix
+    #./prisma.nix
     # ./protobuf.nix
     ./python.nix
     # ./r.nix
