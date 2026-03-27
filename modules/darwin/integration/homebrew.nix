@@ -33,6 +33,7 @@
       "raycast" # Spotlight replacement (Mac-specific)
       "notion" # Notes and collaboration
       "slack" # Team communication (simpler via Homebrew)
+      "claude" # Claude Desktop
 
       # --- Browsers ---
       "google-chrome" # Chrome browser
@@ -46,6 +47,8 @@
 
       # --- Development ---
       "docker-desktop" # Docker Desktop for Mac (renamed from docker)
+      "handy" # Offline speech-to-text desktop app
+      "superset" # agent orchestration platform
       "lm-studio" # Local LLM GUI
 
       # --- Fonts ---

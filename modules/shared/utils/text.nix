@@ -9,7 +9,9 @@
     sd # Better sed
     yq # Command-line YAML, JSON, XML, and TOML processor
     exiftool # Read and write EXIF metadata
+    poppler-utils # PDF manipulation
     qpdf # PDF manipulation
     pdftk # PDF manipulation
+    # xpdf # PDF viewer disabled because of CVE-2023-26930
   ];
 }
