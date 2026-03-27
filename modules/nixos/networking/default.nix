@@ -31,6 +31,6 @@
     # VPN management
     wireguard-tools # Wireguard tools
     wireguard-ui # Wireguard UI
-    protonvpn-gui # ProtonVPN GUI
+    proton-vpn # ProtonVPN GUI
   ];
 }

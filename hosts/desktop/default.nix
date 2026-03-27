@@ -19,10 +19,11 @@ in {
     graphics.enable = true;
     nvidia = {
       open = true;
-      package = config.boot.kernelPackages.nvidiaPackages.stable;
+      package = config.boot.kernelPackages.nvidiaPackages.beta;
       nvidiaSettings = true;
       modesetting.enable = true;
     };
+    nvidia-container-toolkit.enable = true;
   };
 
   services.xserver.videoDrivers = ["nvidia"];

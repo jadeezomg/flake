@@ -509,7 +509,8 @@
         },
         {
           "id": "clock",
-          "enabled": true
+          "enabled": true,
+          "clockCompactMode": true
         }
       ],
       "spacing": 0,
