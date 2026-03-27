@@ -33,6 +33,7 @@
       "raycast" # Spotlight replacement (Mac-specific)
       "notion" # Notes and collaboration
       "slack" # Team communication (simpler via Homebrew)
+      "claude" # Claude Desktop
 
       # --- Browsers ---
       "google-chrome" # Chrome browser
