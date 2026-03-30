@@ -5,5 +5,41 @@ description = "Zen browser session tools (extract pins, sync to Nix, dump, check
 requires-python = ">=3.10"
 dependencies = ["lz4"]
 
+[project.scripts]
+zen-session = "zen_session:main"
+
 [dependency-groups]
 dev = ["ruff", "ty"]
+
+# Usage (from repo root)
+#   uv run --project build/zen-session -- python build/zen-session/zen_session.py --help
+#   uv run --project build/zen-session -- python build/zen-session/zen_session.py --profile <DIR> <command> [command options]
+#   Example:
+#   uv run --project build/zen-session -- python build/zen-session/zen_session.py extract --dump-tab-sample
+#
+# Global options
+#   --profile, -p DIR
+#       Override the Zen profile directory. If omitted, the script uses:
+#       - $ZEN_PROFILE_ROOT if set
+#       - default platform paths (darwin/Linux) from the script internals
+#
+# Commands and options
+#   extract
+#     --nix
+#         Print extracted pinned tabs as a Nix snippet.
+#     --dump-tab-sample
+#         Print a sample tab object structure to stderr for debugging.
+#
+#   sync
+#     (no command-specific options)
+#     Updates spaces.nix and pins.nix for the target profile mapping.
+#
+#   dump
+#     --full
+#         Write full session JSON to session_dump.json.
+#     --tabs N
+#         Print N tabs (script default: 3 when omitted).
+#
+#   check-spaces
+#     (no command-specific options)
+#     Shows where workspace/space names appear in session files.
