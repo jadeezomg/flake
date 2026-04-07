@@ -25,6 +25,7 @@ uv run zen_session.py sync
 
 - **extract** — Pinned tabs per workspace (JSON or `--nix` snippet). Options: `--nix`, `--dump-tab-sample`.
 - **sync** — Update `home/.../zen/profiles/<caya|default>/spaces.nix` and `pins.nix` from live session (darwin → caya, NixOS → default). Dated backups kept.
+- **compare** — Compare current `spaces.nix`/`pins.nix` against what would be generated from the current live session. Exit code `0` when they match, `1` when they differ.
 - **dump** — Dump window session JSON. Options: `--full`, `--tabs N`.
 - **check-spaces** — Show spaces in zen-sessions and window session.
 
