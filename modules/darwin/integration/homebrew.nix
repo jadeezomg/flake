@@ -46,7 +46,6 @@
       "scroll-reverser" # Reverse scroll direction (Mac-specific)
 
       # --- Development ---
-      "docker-desktop" # Docker Desktop for Mac (renamed from docker)
       "handy" # Offline speech-to-text desktop app
       "superset" # agent orchestration platform
       "lm-studio" # Local LLM GUI
