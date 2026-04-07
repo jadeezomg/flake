@@ -69,6 +69,60 @@ Use the exact attribute name from `nix search` (e.g. `pkgs.ripgrep`, not `pkgs.r
 
 ---
 
+## Hydra API (nixpkgs Build Status)
+
+Use the Hydra API to check whether a package is built and cached before adding it. No authentication required for read-only queries. Always pass `Accept: application/json`.
+
+**Base URL**: `https://hydra.nixos.org`
+
+**Check if a package built successfully** (most common use case):
+```bash
+# Latest successful build for a package on a specific system
+curl -sL -H "Accept: application/json" \
+  "https://hydra.nixos.org/job/nixpkgs/unstable/<attr>.<system>/latest-finished" | jq '{success, finished, nixname}'
+
+# Examples
+curl -sL -H "Accept: application/json" \
+  "https://hydra.nixos.org/job/nixpkgs/unstable/ripgrep.x86_64-linux/latest-finished" | jq '{success, nixname}'
+
+curl -sL -H "Accept: application/json" \
+  "https://hydra.nixos.org/job/nixpkgs/unstable/ripgrep.aarch64-darwin/latest-finished" | jq '{success, nixname}'
+```
+
+**Check multiple systems at once:**
+```bash
+for system in x86_64-linux aarch64-darwin; do
+  echo "$system: $(curl -sL -H "Accept: application/json" \
+    "https://hydra.nixos.org/job/nixpkgs/unstable/<attr>.$system/latest-finished" | jq -r '.success')"
+done
+```
+
+**Get the store path of a built package** (to verify it's in cache.nixos.org):
+```bash
+curl -sL -H "Accept: application/json" \
+  "https://hydra.nixos.org/job/nixpkgs/unstable/<attr>.x86_64-linux/latest-finished" \
+  | jq -r '.buildoutputs.out.path'
+```
+
+**Key response fields:**
+- `success` — `true` if the build passed
+- `finished` — `1` if complete (not queued)
+- `buildstatus` — `0` = success, non-zero = failure
+- `nixname` — the derivation name (e.g. `ripgrep-14.1.1`)
+- `buildoutputs.out.path` — the `/nix/store/...` path
+
+**Jobsets**: `nixpkgs/unstable` (nixos-unstable channel), `nixpkgs/trunk` (master)
+
+**Systems**: `x86_64-linux`, `aarch64-linux`, `x86_64-darwin`, `aarch64-darwin`
+
+**Alternative — `hydra-check` CLI** (available in nixpkgs):
+```bash
+nix run nixpkgs#hydra-check -- ripgrep --arch x86_64-linux --channel unstable
+nix run nixpkgs#hydra-check -- ripgrep --json
+```
+
+---
+
 ## Where to Put Things
 
 | Goal | Location |
