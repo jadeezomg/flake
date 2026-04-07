@@ -1,6 +1,4 @@
-{config, ...}: {
-  gtk.gtk4.theme = config.gtk.theme;
-
+{...}: {
   dconf.enable = true;
   dconf.settings = {
     # Reduce GTK decoration font size
