@@ -15,7 +15,7 @@ def main():
 
     ap = argparse.ArgumentParser(
         prog="zen_session.py",
-        description="Zen session tools (extract, sync, dump, check-spaces)",
+        description="Zen session tools (extract, sync, compare, dump, check-spaces)",
     )
     ap.add_argument(
         "--profile",
@@ -34,6 +34,10 @@ def main():
     sub.add_parser(
         "sync",
         help="Update home/.../zen/profiles/<caya|default>/spaces.nix and pins.nix (darwin->caya, NixOS->default)",
+    )
+    sub.add_parser(
+        "compare",
+        help="Compare current flake spaces.nix/pins.nix with live session-derived state",
     )
 
     p = sub.add_parser("dump", help="Dump window session JSON")
@@ -61,6 +65,10 @@ def main():
         from sync_caya_from_session import main as run
 
         run()
+    elif args.command == "compare":
+        from sync_caya_from_session import compare_current_state
+
+        raise SystemExit(compare_current_state())
     elif args.command == "dump":
         from dump_session import main as run
 
