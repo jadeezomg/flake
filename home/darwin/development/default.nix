@@ -1,5 +1,6 @@
 {...}: {
   imports = [
     ./languages
+    ./llm.nix
   ];
 }
