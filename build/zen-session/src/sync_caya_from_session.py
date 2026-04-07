@@ -6,6 +6,7 @@ import os
 import re
 import sys
 import uuid
+from difflib import unified_diff
 from datetime import datetime
 
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +32,7 @@ _OUTPUT_PROFILE_DIR = os.path.join(
     _output_profile_name(),
 )
 sys.path.insert(0, _SCRIPT_DIR)
-from extract_pinned_tabs import load_pinned_per_space, nix_escape, slug
+from extract_pinned_tabs import load_pinned_per_space, nix_escape, slug  # noqa: E402
 
 
 def _backup(path):
@@ -46,9 +47,7 @@ def _backup(path):
     print(f"Backed up to {os.path.basename(backup_path)}", file=sys.stderr)
 
 
-def _write_spaces(spaces_list):
-    path = os.path.join(_OUTPUT_PROFILE_DIR, "spaces.nix")
-    _backup(path)
+def _render_spaces(spaces_list):
     used = set()
     lines = []
     for i, s in enumerate(spaces_list):
@@ -74,12 +73,19 @@ def _write_spaces(spaces_list):
             + "; };"
         )
     body = "\n".join(lines)
+    return (
+        "# Zen workspaces. Updated by sync_caya_from_session.py.\n{ ... }: {\n  spacesForce = true;\n  spaces = {\n"
+        + body
+        + "\n  };\n}\n"
+    )
+
+
+def _write_spaces(spaces_list):
+    path = os.path.join(_OUTPUT_PROFILE_DIR, "spaces.nix")
+    _backup(path)
+    content = _render_spaces(spaces_list)
     with open(path, "w", encoding="utf-8") as f:
-        f.write(
-            "# Zen workspaces. Updated by sync_caya_from_session.py.\n{ ... }: {\n  spacesForce = true;\n  spaces = {\n"
-            + body
-            + "\n  };\n}\n"
-        )
+        f.write(content)
     print(f"Wrote {path}", file=sys.stderr)
 
 
@@ -97,7 +103,7 @@ def _space_id_to_nix_key(spaces_list):
     return out
 
 
-def _write_pins(windows, folders, spaces_list):
+def _render_pins(windows, folders, spaces_list):
     space_to_key = _space_id_to_nix_key(spaces_list)
     seen_urls_essential = set()
     seen_keys_all = set()
@@ -203,15 +209,20 @@ def _write_pins(windows, folders, spaces_list):
             pos_pin += 1
             entries.append((key, frag))
 
+    body = "\n".join('    "' + k + '" = {\n' + v + "\n    };" for k, v in entries)
+    return (
+        "# Pins and folders (skifli format). Updated by sync_caya_from_session.py.\n{ ... }: let\n  spaces = (import ./spaces.nix {}).spaces;\nin {\n  pinsForce = true;\n  pins = {\n"
+        + body
+        + "\n  };\n}\n"
+    )
+
+
+def _write_pins(windows, folders, spaces_list):
     path = os.path.join(_OUTPUT_PROFILE_DIR, "pins.nix")
     _backup(path)
-    body = "\n".join('    "' + k + '" = {\n' + v + "\n    };" for k, v in entries)
+    content = _render_pins(windows, folders, spaces_list)
     with open(path, "w", encoding="utf-8") as f:
-        f.write(
-            "# Pins and folders (skifli format). Updated by sync_caya_from_session.py.\n{ ... }: let\n  spaces = (import ./spaces.nix {}).spaces;\nin {\n  pinsForce = true;\n  pins = {\n"
-            + body
-            + "\n  };\n}\n"
-        )
+        f.write(content)
     print(f"Wrote {path}", file=sys.stderr)
 
 
@@ -230,6 +241,73 @@ def main():
     _write_spaces(spaces_list)
     _write_pins(windows, folders, spaces_list)
     print("Done.", file=sys.stderr)
+
+
+def compare_current_state():
+    if not os.path.isdir(_OUTPUT_PROFILE_DIR):
+        print(f"Error: profile dir not found: {_OUTPUT_PROFILE_DIR}", file=sys.stderr)
+        return 2
+    out = load_pinned_per_space()
+    spaces_list = out["spaces"]
+    windows = out["windows"]
+    folders = out.get("folders") or []
+    expected_spaces = _render_spaces(spaces_list)
+    expected_pins = _render_pins(windows, folders, spaces_list)
+
+    spaces_path = os.path.join(_OUTPUT_PROFILE_DIR, "spaces.nix")
+    pins_path = os.path.join(_OUTPUT_PROFILE_DIR, "pins.nix")
+    actual_spaces = ""
+    actual_pins = ""
+    if os.path.isfile(spaces_path):
+        with open(spaces_path, "r", encoding="utf-8") as f:
+            actual_spaces = f.read()
+    if os.path.isfile(pins_path):
+        with open(pins_path, "r", encoding="utf-8") as f:
+            actual_pins = f.read()
+
+    def _print_diff(name, actual, expected, context=3, max_lines=200):
+        diff_lines = list(
+            unified_diff(
+                actual.splitlines(),
+                expected.splitlines(),
+                fromfile=f"{name} (flake)",
+                tofile=f"{name} (session)",
+                lineterm="",
+                n=context,
+            )
+        )
+        if not diff_lines:
+            return
+        print(f"\n--- Diff: {name} ---", file=sys.stderr)
+        if len(diff_lines) > max_lines:
+            shown = diff_lines[:max_lines]
+            print(
+                "\n".join(shown)
+                + f"\n... (truncated, showing first {max_lines} lines)",
+                file=sys.stderr,
+            )
+            return
+        print("\n".join(diff_lines), file=sys.stderr)
+
+    matches = True
+    if actual_spaces != expected_spaces:
+        matches = False
+        print("spaces.nix differs from current Zen session state.", file=sys.stderr)
+        _print_diff("spaces.nix", actual_spaces, expected_spaces)
+    else:
+        print("spaces.nix matches current Zen session state.", file=sys.stderr)
+    if actual_pins != expected_pins:
+        matches = False
+        print("pins.nix differs from current Zen session state.", file=sys.stderr)
+        _print_diff("pins.nix", actual_pins, expected_pins)
+    else:
+        print("pins.nix matches current Zen session state.", file=sys.stderr)
+
+    if matches:
+        print("Flake state matches current browser session.", file=sys.stderr)
+        return 0
+    print("Flake state does not match current browser session.", file=sys.stderr)
+    return 1
 
 
 if __name__ == "__main__":

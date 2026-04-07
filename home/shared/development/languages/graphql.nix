@@ -1,6 +1,6 @@
 {pkgs, ...}: {
   home.packages = with pkgs; [
-    # --- Graphql ---
+    # --- Graphql (as Nodepackage) ---
     graphql-language-service-cli
   ];
 }
