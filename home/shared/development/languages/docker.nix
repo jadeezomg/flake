@@ -1,7 +1,8 @@
 {pkgs, ...}: {
   home.packages = with pkgs; [
-    # --- Docker ---
-    dockfmt # Docker formatter
-    dockerfile-language-server # Updated package name
+    # --- OCI / Podman (same Dockerfiles and image registries) ---
+    dockfmt
+    dockerfile-language-server
+    podman-compose
   ];
 }
