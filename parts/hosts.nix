@@ -2,24 +2,64 @@
   lib = inputs.nixpkgs.lib;
   inherit (inputs) nixpkgs nix-darwin home-manager sops-nix determinate nix-homebrew lanzaboote;
 
-  # Load functions
   pkgsFuncs = import ../lib/pkgs.nix {inherit inputs;};
   inherit (pkgsFuncs) getPkgs getPkgsStable;
 
-  dataFuncs = import ../lib/data.nix {dataPath = ../data;};
-  inherit (dataFuncs) hostData userData userPreferences userExtras;
+  # Data
+  hostData =
+    if builtins.pathExists ../data/hosts/hosts.nix
+    then import ../data/hosts/hosts.nix
+    else {hosts = {};};
 
-  modulesFuncs = import ../lib/modules.nix {
-    inherit inputs hostData userData userPreferences userExtras;
+  # Home-manager modules per platform
+  darwinSystems = ["aarch64-darwin"];
+  homeModules = isDarwin:
+    [
+      inputs.sops-nix.homeModules.sops
+      inputs.stylix.homeModules.stylix
+    ]
+    ++ (
+      if isDarwin
+      then [../home/shared ../home/darwin]
+      else [../home/shared ../home/nixos]
+    );
+
+  # Special args passed to all system modules
+  commonSpecialArgs = inputs // {inherit hostData inputs;};
+
+  # Home-manager embedded module configuration
+  homeManagerConfig = {
+    user,
+    hostKey,
+    isDarwin,
+    inputs,
+    ...
+  }: let
+    system =
+      if isDarwin
+      then "aarch64-darwin"
+      else "x86_64-linux";
+  in {
+    useGlobalPkgs = true;
+    useUserPackages = true;
+    backupFileExtension = "backup";
+    overwriteBackup = true;
+    extraSpecialArgs = {
+      inherit inputs hostData user hostKey isDarwin;
+      pkgs = getPkgs system [];
+      pkgs-stable = getPkgsStable system;
+    };
+    users.${user} = {
+      imports = homeModules isDarwin;
+      home = {
+        username = user;
+        homeDirectory = hostData.hosts.${hostKey}.homeDirectory;
+        stateVersion = hostData.hosts.${hostKey}.stateVersion;
+      };
+    };
   };
-  inherit (modulesFuncs) commonSpecialArgs darwinSystems homeModules;
 
-  hmModule = import ./modules/home-manager.nix {
-    inherit inputs hostData userPreferences userExtras userData homeModules getPkgs getPkgsStable;
-  };
-  inherit (hmModule) homeManagerConfig;
-
-  # Helper to create home-manager configuration for any host
+  # Wrap homeManagerConfig as a system module
   mkHomeManagerModule = {
     hostKey,
     user,
@@ -31,7 +71,7 @@
     };
   };
 
-  # Helper to create standalone home-manager configuration
+  # Standalone home-manager configuration (for homeConfigurations output)
   mkHomeConfiguration = {
     hostKey,
     user,
@@ -60,16 +100,7 @@
           }
         ];
       extraSpecialArgs = {
-        inherit
-          inputs
-          hostData
-          user
-          hostKey
-          userPreferences
-          userExtras
-          userData
-          isDarwin
-          ;
+        inherit inputs hostData user hostKey isDarwin;
         pkgs = getPkgs system [];
         host = host;
       };
@@ -105,12 +136,8 @@
     };
   in {
     nixosConfigurations = lib.optionalAttrs (!isDarwin) (
-      {
-        ${hostKey} = nixosConfig;
-      }
-      // lib.optionalAttrs (hostname != hostKey) {
-        ${hostname} = nixosConfig;
-      }
+      {${hostKey} = nixosConfig;}
+      // lib.optionalAttrs (hostname != hostKey) {${hostname} = nixosConfig;}
     );
 
     darwinConfigurations = lib.optionalAttrs isDarwin (let
@@ -150,12 +177,8 @@
         ];
       };
     in
-      {
-        ${hostKey} = darwinConfig;
-      }
-      // lib.optionalAttrs (hostname != hostKey) {
-        ${hostname} = darwinConfig;
-      });
+      {${hostKey} = darwinConfig;}
+      // lib.optionalAttrs (hostname != hostKey) {${hostname} = darwinConfig;});
 
     homeConfigurations = {
       ${hostKey} = mkHomeConfiguration {
