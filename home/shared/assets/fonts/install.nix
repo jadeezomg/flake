@@ -4,7 +4,7 @@
   isDarwin ? false,
   ...
 }: let
-  fontDefinitions = import ../assets/fonts/fonts.nix {inherit pkgs;};
+  fontDefinitions = import ./fonts.nix {inherit pkgs;};
   isFontEnabled = fontDef: fontDef ? enable && fontDef.enable == true;
 
   getFontPackages = fontDef: let
