@@ -1,4 +1,4 @@
-{dataPath ? ../../data, ...}: let
+{dataPath ? ../data, ...}: let
   dataPathUsers = dataPath + "/users";
   dataPathUserExtras = dataPathUsers + "/extras";
   dataPathUserPreferences = dataPathUsers + "/preferences";
