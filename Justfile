@@ -23,109 +23,109 @@ export ICON_PENDING := THEME_YELLOW + "❖" + THEME_RESET
 export ICON_ERROR := THEME_RED + "▼" + THEME_RESET
 export ICON_INFO := THEME_CYAN + "▪" + THEME_RESET
 
-[doc('Interactive picker: fzf with group + doc (see build/just-choose.bash)')]
+[doc('Interactive picker: fzf with group + doc (see scripts/just-choose.bash)')]
 default:
-    @bash "$FLAKE/build/just-choose.bash"
+    @bash "$FLAKE/scripts/just-choose.bash"
 
 [group('build')]
 [doc('Build / home-manager build for .flake-host')]
 build:
-    @bash "$FLAKE/build/flake-recipes.bash" build --build
+    @bash "$FLAKE/scripts/flake-recipes.bash" build --build
 
 [group('build')]
 [doc('Stage generation for next boot (nh boot)')]
 build-boot:
-    @bash "$FLAKE/build/flake-recipes.bash" build --boot
+    @bash "$FLAKE/scripts/flake-recipes.bash" build --boot
 
 [group('build')]
 [doc('Dry-run eval/build (no switch)')]
 build-dry:
-    @bash "$FLAKE/build/flake-recipes.bash" build --dry
+    @bash "$FLAKE/scripts/flake-recipes.bash" build --dry
 
 [group('build')]
 [doc('Build with extra trace (dev / debug)')]
 build-dev:
-    @bash "$FLAKE/build/flake-recipes.bash" build --dev
+    @bash "$FLAKE/scripts/flake-recipes.bash" build --dev
 
 [group('switch')]
 [doc('flake check + nh switch (full path)')]
 switch:
-    @bash "$FLAKE/build/flake-recipes.bash" switch
+    @bash "$FLAKE/scripts/flake-recipes.bash" switch
 
 [group('switch')]
 [doc('nh switch only; skip flake check and pre-commit git step')]
 switch-fast:
-    @bash "$FLAKE/build/flake-recipes.bash" switch --fast
+    @bash "$FLAKE/scripts/flake-recipes.bash" switch --fast
 
 [group('switch')]
 [doc('nix flake check only (no switch)')]
 switch-check:
-    @bash "$FLAKE/build/flake-recipes.bash" switch --check
+    @bash "$FLAKE/scripts/flake-recipes.bash" switch --check
 
 [group('generations')]
 [doc('List system generations (nh os info / darwin-rebuild)')]
 generation-list:
-    @bash "$FLAKE/build/flake-recipes.bash" generation list
+    @bash "$FLAKE/scripts/flake-recipes.bash" generation list
 
 [group('generations')]
 [doc('Bootloader / EFI entries (NixOS)')]
 generation-bootloader:
-    @bash "$FLAKE/build/flake-recipes.bash" generation bootloader
+    @bash "$FLAKE/scripts/flake-recipes.bash" generation bootloader
 
 [group('generations')]
 [doc('Switch to a numbered generation (prompts if omitted)')]
 generation-switch:
-    @bash "$FLAKE/build/flake-recipes.bash" generation switch
+    @bash "$FLAKE/scripts/flake-recipes.bash" generation switch
 
 [group('generations')]
 [doc('Delete a numbered generation (prompts if omitted)')]
 generation-delete:
-    @bash "$FLAKE/build/flake-recipes.bash" generation delete
+    @bash "$FLAKE/scripts/flake-recipes.bash" generation delete
 
 [group('gc')]
 [doc('nh clean keeping last N generations (prompts N, default 5)')]
 gc-keep:
-    @bash "$FLAKE/build/flake-recipes.bash" gc keep
+    @bash "$FLAKE/scripts/flake-recipes.bash" gc keep
 
 [group('gc')]
 [doc('nh clean keeping store paths newer than N days (prompts N, default 7)')]
 gc-days:
-    @bash "$FLAKE/build/flake-recipes.bash" gc days
+    @bash "$FLAKE/scripts/flake-recipes.bash" gc days
 
 [group('gc')]
 [doc('Aggressive nh clean + empty user Trash')]
 gc-all:
-    @bash "$FLAKE/build/flake-recipes.bash" gc all
+    @bash "$FLAKE/scripts/flake-recipes.bash" gc all
 
 [group('format')]
 [doc('Alejandra all *.nix under flake (summary line)')]
 fmt:
-    @bash "$FLAKE/build/flake-recipes.bash" fmt
+    @bash "$FLAKE/scripts/flake-recipes.bash" fmt
 
 [group('format')]
 [doc('Alejandra without changed/unchanged summary (e.g. for git hook)')]
 fmt-notree:
-    @bash "$FLAKE/build/flake-recipes.bash" fmt --no-tree
+    @bash "$FLAKE/scripts/flake-recipes.bash" fmt --no-tree
 
 [group('backups')]
 [doc('List *.backup / *.bkp under ~/.config with sizes')]
 backups:
-    @bash "$FLAKE/build/flake-recipes.bash" backups
+    @bash "$FLAKE/scripts/flake-recipes.bash" backups
 
 [group('backups')]
 [doc('Delete those backup files')]
 backups-clean:
-    @bash "$FLAKE/build/flake-recipes.bash" backups --clean
+    @bash "$FLAKE/scripts/flake-recipes.bash" backups --clean
 
 [group('backups')]
 [doc('Show what backups-clean would remove')]
 backups-clean-dry:
-    @bash "$FLAKE/build/flake-recipes.bash" backups --clean --dry
+    @bash "$FLAKE/scripts/flake-recipes.bash" backups --clean --dry
 
 [group('config')]
 [doc('Write .flake-host (prompts; use flake init <host> from shell for no prompt)')]
 init:
-    @bash "$FLAKE/build/flake-recipes.bash" init
+    @bash "$FLAKE/scripts/flake-recipes.bash" init
 
 [group('config')]
 [doc('macOS defaults → Nix-style output (prompts domain; empty = list domains)')]
@@ -134,29 +134,29 @@ read-defaults:
     set -euo pipefail
     cd "$FLAKE"
     read -r -p "Domain (empty = list domains): " d || true
-    if [[ -z "${d:-}" ]]; then uv run build/read-defaults.py; else uv run build/read-defaults.py "$d"; fi
+    if [[ -z "${d:-}" ]]; then uv run scripts/read-defaults.py; else uv run scripts/read-defaults.py "$d"; fi
 
 [group('config')]
 [doc('Create sops age key under ~/.config/sops/age (Darwin)')]
 setup-age-darwin:
-    @bash "$FLAKE/build/flake-recipes.bash" setup-age-darwin
+    @bash "$FLAKE/scripts/flake-recipes.bash" setup-age-darwin
 
 [group('system')]
 [doc('Rollback to previous generation (nh rollback / darwin-rebuild --rollback)')]
 rollback:
-    @bash "$FLAKE/build/flake-recipes.bash" rollback
+    @bash "$FLAKE/scripts/flake-recipes.bash" rollback
 
 [group('system')]
 [doc('Quick snapshot: git status, disk, nh os info')]
 health:
-    @bash "$FLAKE/build/flake-recipes.bash" health
+    @bash "$FLAKE/scripts/flake-recipes.bash" health
 
 [group('system')]
 [doc('Preview flake inputs update (nh switch --update --dry)')]
 update:
     #!/usr/bin/env bash
     set -euo pipefail
-    source "$FLAKE/build/common.sh"
+    source "$FLAKE/scripts/common.sh"
     print_header "UPDATE"
     is_darwin && p="nh darwin" || p="nh os"
     bash -c "$p switch --update --dry"
@@ -174,7 +174,7 @@ reload-services:
 [group('repo')]
 [doc('Quiet fmt, git status/log, then commit+push (prompts message)')]
 git:
-    @bash "$FLAKE/build/flake-recipes.bash" git
+    @bash "$FLAKE/scripts/flake-recipes.bash" git
 
 [group('check')]
 [doc('Scan flake for broken or missing package references')]
@@ -190,12 +190,12 @@ check-packages:
 
     os.chdir(os.environ["FLAKE"])
     sys.argv = ["check-packages-impl"]
-    runpy.run_path("build/check-packages-impl.py", run_name="__main__")
+    runpy.run_path("scripts/check-packages-impl.py", run_name="__main__")
 
 [group('check')]
 [doc('Verify Zen profile places.sqlite exists')]
 check-zen-essentials:
-    @bash "$FLAKE/build/flake-recipes.bash" check-zen
+    @bash "$FLAKE/scripts/flake-recipes.bash" check-zen
 
 [group('meta')]
 [doc('List all recipes (file order within groups)')]
@@ -206,44 +206,44 @@ list:
 [doc('nix flake metadata for this repo')]
 info:
     #!/usr/bin/env bash
-    source "$FLAKE/build/common.sh"
+    source "$FLAKE/scripts/common.sh"
     print_header "FLAKE INFO"
     nix flake metadata "$FLAKE"
 
 [private]
 [doc]
 _build *ARGS:
-    @bash "$FLAKE/build/flake-recipes.bash" build {{ARGS}}
+    @bash "$FLAKE/scripts/flake-recipes.bash" build {{ARGS}}
 
 [private]
 [doc]
 _switch *ARGS:
-    @bash "$FLAKE/build/flake-recipes.bash" switch {{ARGS}}
+    @bash "$FLAKE/scripts/flake-recipes.bash" switch {{ARGS}}
 
 [private]
 [doc]
 _generation *ARGS:
-    @bash "$FLAKE/build/flake-recipes.bash" generation {{ARGS}}
+    @bash "$FLAKE/scripts/flake-recipes.bash" generation {{ARGS}}
 
 [private]
 [doc]
 _gc *ARGS:
-    @bash "$FLAKE/build/flake-recipes.bash" gc {{ARGS}}
+    @bash "$FLAKE/scripts/flake-recipes.bash" gc {{ARGS}}
 
 [private]
 [doc]
 _fmt *ARGS:
-    @bash "$FLAKE/build/flake-recipes.bash" fmt {{ARGS}}
+    @bash "$FLAKE/scripts/flake-recipes.bash" fmt {{ARGS}}
 
 [private]
 [doc]
 _backups *ARGS:
-    @bash "$FLAKE/build/flake-recipes.bash" backups {{ARGS}}
+    @bash "$FLAKE/scripts/flake-recipes.bash" backups {{ARGS}}
 
 [private]
 [doc]
 _init *HOST:
-    @bash "$FLAKE/build/flake-recipes.bash" init {{HOST}}
+    @bash "$FLAKE/scripts/flake-recipes.bash" init {{HOST}}
 
 [private]
 [doc]
@@ -261,4 +261,4 @@ _read-defaults *ARGS:
     _raw = """{{ARGS}}"""
     _extra = shlex.split(_raw.strip()) if _raw.strip() else []
     sys.argv = ["read-defaults", *_extra]
-    runpy.run_path("build/read-defaults.py", run_name="__main__")
+    runpy.run_path("scripts/read-defaults.py", run_name="__main__")

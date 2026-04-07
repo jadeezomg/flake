@@ -110,7 +110,7 @@
     quickshell,
     ...
   }: let
-    pkgsFuncs = import ./parts/functions/pkgs.nix {inherit inputs;};
+    pkgsFuncs = import ./lib/pkgs.nix {inherit inputs;};
     inherit (pkgsFuncs) getPkgs;
   in
     flake-parts.lib.mkFlake {inherit inputs;} {

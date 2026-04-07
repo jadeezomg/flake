@@ -3,13 +3,13 @@
   inherit (inputs) nixpkgs nix-darwin home-manager sops-nix determinate nix-homebrew lanzaboote;
 
   # Load functions
-  pkgsFuncs = import ./functions/pkgs.nix {inherit inputs;};
+  pkgsFuncs = import ../lib/pkgs.nix {inherit inputs;};
   inherit (pkgsFuncs) getPkgs getPkgsStable;
 
-  dataFuncs = import ./functions/data.nix {dataPath = ../data;};
+  dataFuncs = import ../lib/data.nix {dataPath = ../data;};
   inherit (dataFuncs) hostData userData userPreferences userExtras;
 
-  modulesFuncs = import ./functions/modules.nix {
+  modulesFuncs = import ../lib/modules.nix {
     inherit inputs hostData userData userPreferences userExtras;
   };
   inherit (modulesFuncs) commonSpecialArgs darwinSystems homeModules;
