@@ -20,28 +20,21 @@
 
   darwinSystems = ["aarch64-darwin"];
 
-  # Shared home module sets
   baseHomeModules = isDarwin:
     if isDarwin
     then [
-      ../../home/shared
-      ../../home/darwin
+      ../home/shared
+      ../home/darwin
     ]
     else [
-      ../../home/shared
-      ../../home/nixos
+      ../home/shared
+      ../home/nixos
     ];
   homeModules = isDarwin:
     [
       inputs.sops-nix.homeModules.sops
       inputs.stylix.homeModules.stylix
     ]
-    # # DMS is only for NixOS (Wayland), not Darwin
-    # ++ (
-    #   if isDarwin
-    #   then []
-    #   else []
-    # )
     ++ baseHomeModules isDarwin;
 in {
   inherit commonSpecialArgs darwinSystems homeModules;
