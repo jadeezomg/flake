@@ -89,6 +89,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.niri-unstable.url = "github:YaLTeR/niri/wip/branch";
     };
+
+    netwatch = {
+      url = "github:matthart1983/netwatch";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {
@@ -138,6 +143,7 @@
             inherit pkgs;
             lib = pkgs.lib;
           };
+          netwatch = inputs.netwatch.packages.${system}.default;
         };
 
         formatter = pkgs.alejandra;

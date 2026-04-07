@@ -1,9 +1,9 @@
 {pkgs, ...}: {
   home.packages = with pkgs; [
     # --- TypeScript ---
-    nodePackages.typescript # TypeScript compiler
+    typescript # TypeScript compiler
     yarn-berry # Modern Yarn package manager (Berry)
-    nodePackages.typescript-language-server # TypeScript language server
+    typescript-language-server # TypeScript language server
     biome # TypeScript linter and formatter
   ];
 }
