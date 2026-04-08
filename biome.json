@@ -1,0 +1,31 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
+	"files": {
+		"includes": ["**", "!!**/scripts/zen-session/.venv"]
+	},
+	"overrides": [
+		{
+			"includes": [
+				"home/shared/apps/browsers/zen/chrome/userChrome.css",
+				"home/shared/apps/browsers/zen/chrome/userContent.css"
+			],
+			"linter": {
+				"rules": {
+					"complexity": {
+						"noImportantStyles": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["data/files/pear-desktop.css"],
+			"linter": {
+				"rules": {
+					"complexity": {
+						"noImportantStyles": "off"
+					}
+				}
+			}
+		}
+	]
+}
