@@ -8,7 +8,7 @@ Data sources:
 
   uv run extract_pinned_tabs.py [--nix]
 
-Profile path: macOS ~/Library/Application Support/zen/Profiles/default, Linux ~/.config/zen (set ZEN_PROFILE_ROOT to override)
+Browser profile path: macOS default profile dir, Linux $XDG_CONFIG_HOME/zen/default (set ZEN_PROFILE_ROOT or --profile to override).
 """
 
 import argparse
@@ -26,14 +26,50 @@ except ImportError:
     sys.exit(1)
 
 
+def host_is_nixos():
+    """True when this machine is NixOS Linux (/etc/NIXOS or ID=nixos in /etc/os-release)."""
+    if sys.platform != "linux":
+        return False
+    if os.path.isfile("/etc/NIXOS"):
+        return True
+    try:
+        with open("/etc/os-release", encoding="utf-8") as f:
+            for line in f:
+                if line.strip() == "ID=nixos":
+                    return True
+    except OSError:
+        pass
+    return False
+
+
+def _zen_profile_has_sessions(profile_dir):
+    return os.path.isfile(os.path.join(profile_dir, "zen-sessions.jsonlz4"))
+
+
 def _default_zen_profile_root():
     if sys.platform == "darwin":
         return os.path.expanduser("~/Library/Application Support/zen/Profiles/default")
-    config_home = os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
-    return os.path.join(os.path.expanduser(config_home), "zen", "default")
+    config_home = os.path.expanduser(
+        os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
+    )
+    primary = os.path.join(config_home, "zen", "default")
+    if _zen_profile_has_sessions(primary):
+        return primary
+    if host_is_nixos():
+        zen_root = os.path.join(config_home, "zen")
+        if os.path.isdir(zen_root):
+            try:
+                names = sorted(os.listdir(zen_root))
+            except OSError:
+                names = []
+            for name in names:
+                cand = os.path.join(zen_root, name)
+                if os.path.isdir(cand) and _zen_profile_has_sessions(cand):
+                    return cand
+    return primary
 
 
-# Profile path: macOS default, Linux ~/.config/zen (override with ZEN_PROFILE_ROOT or --profile)
+# Browser profile root: env ZEN_PROFILE_ROOT, else platform default (see _default_zen_profile_root)
 ZEN_PROFILE_ROOT = os.environ.get("ZEN_PROFILE_ROOT", _default_zen_profile_root())
 # Spaces: zen-sessions.jsonlz4 root = sidebar { spaces: [{ uuid, name, icon, position }] }
 ZEN_SESSIONS_FILE = os.path.join(ZEN_PROFILE_ROOT, "zen-sessions.jsonlz4")

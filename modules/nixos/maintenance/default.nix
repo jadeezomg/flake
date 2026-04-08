@@ -24,17 +24,18 @@ in {
     };
   };
 
-  config = {
-    maintenance.garbageCollection = {
-      enable = mkDefault true;
-      deleteOlderThan = mkDefault "30d";
+  config =
+    {
+      maintenance.garbageCollection = {
+        enable = mkDefault true;
+        deleteOlderThan = mkDefault "30d";
+      };
+    }
+    // mkIf cfg.enable {
+      nix.gc = {
+        automatic = true;
+        dates = cfg.schedule;
+        options = "--delete-older-than ${cfg.deleteOlderThan}";
+      };
     };
-  }
-  // mkIf cfg.enable {
-    nix.gc = {
-      automatic = true;
-      dates = cfg.schedule;
-      options = "--delete-older-than ${cfg.deleteOlderThan}";
-    };
-  };
 }

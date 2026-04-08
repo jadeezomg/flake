@@ -12,16 +12,16 @@ zen-session = "zen_session:main"
 dev = ["ruff", "ty"]
 
 # Usage (from repo root)
-#   uv run --project build/zen-session -- python build/zen-session/zen_session.py --help
-#   uv run --project build/zen-session -- python build/zen-session/zen_session.py --profile <DIR> <command> [command options]
+#   uv run --project scripts/zen-session scripts/zen-session/zen_session.py --help
+#   uv run --project scripts/zen-session scripts/zen-session/zen_session.py --profile <DIR> <command> [command options]
 #   Example:
-#   uv run --project build/zen-session -- python build/zen-session/zen_session.py extract --dump-tab-sample
+#   uv run --project scripts/zen-session scripts/zen-session/zen_session.py extract --dump-tab-sample
 #
 # Global options
 #   --profile, -p DIR
-#       Override the Zen profile directory. If omitted, the script uses:
+#       Override the Zen browser profile directory. If omitted:
 #       - $ZEN_PROFILE_ROOT if set
-#       - default platform paths (darwin/Linux) from the script internals
+#       - else platform defaults from extract_pinned_tabs (see README)
 #
 # Commands and options
 #   extract
@@ -32,7 +32,7 @@ dev = ["ruff", "ty"]
 #
 #   sync
 #     (no command-specific options)
-#     Updates spaces.nix and pins.nix for the target profile mapping.
+#     Writes spaces.nix and pins.nix via sync_flake_profiles (target dir from host / ZEN_OUTPUT_PROFILE).
 #
 #   dump
 #     --full

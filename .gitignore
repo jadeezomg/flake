@@ -8,5 +8,5 @@ __pycache__/
 uv.lock
 session_dump.json
 
-# Dated backups from sync_caya_from_session.py
+# Dated backups from scripts/zen-session sync (sync_flake_profiles.py)
 *.nix.*.bak

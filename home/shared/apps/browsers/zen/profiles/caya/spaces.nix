@@ -1,4 +1,4 @@
-# Zen workspaces. Updated by sync_caya_from_session.py.
+# Zen workspaces. Regenerate: zen_session.py sync (scripts/zen-session).
 {...}: {
   spacesForce = true;
   spaces = {
