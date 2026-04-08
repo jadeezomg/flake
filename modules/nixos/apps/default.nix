@@ -5,6 +5,7 @@
 }: {
   imports = [
     ./browsers
+    ./media
   ];
 
   environment.systemPackages = with pkgs; [
