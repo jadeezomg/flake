@@ -76,9 +76,17 @@ window-rule {
 }
 
 window-rule {
-    match app-id="zen-beta"
+    // match app-id="zen-beta"
     match app-id="cursor"
-    opacity 0.95
+    opacity 0.90
+
+    background-effect {
+        blur true
+    }
+}
+
+window-rule {
+    match app-id="zen-beta"
 
     background-effect {
         blur true

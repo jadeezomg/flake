@@ -1,17 +1,22 @@
 {
   # Shared Zen Browser settings across all profiles
   # Profile-specific settings can override these
+  "zen.welcome-screen.seen" = true;
+  "zen.urlbar.behavior" = "float";
+  "zen.pinned-tab-manager.restore-pinned-tabs-to-pinned-url" = true;
+  "zen.glance.activation-method" = "ctrl";
+
+  # workspaces settings
   "zen.workspaces.continue-where-left-off" = true;
+  "zen.workspaces.separate-essentials" = false;
+  "zen.workspaces.hide-default-container-indicator" = false;
+
+  # view settings
   "zen.view.compact.hide-tabbar" = true;
   "zen.view.compact.hide-toolbar" = true;
   "zen.view.compact.animate-sidebar" = false;
   "zen.view.compact.enable-at-startup" = false;
-  "zen.welcome-screen.seen" = true;
-  "zen.urlbar.behavior" = "float";
-  "zen.workspaces.separate-essentials" = false;
-  "zen.workspaces.hide-default-container-indicator" = false;
-  "zen.pinned-tab-manager.restore-pinned-tabs-to-pinned-url" = true;
-  "zen.glance.activation-method" = "ctrl";
+  "zen.view.grey-out-inactive-windows" = false;
 
   # Startup & new tab
   "browser.startup.homepage" = "chrome://browser/content/blanktab.html";

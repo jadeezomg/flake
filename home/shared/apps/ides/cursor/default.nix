@@ -13,7 +13,7 @@
           # --- General ---
           github.vscode-pull-request-github # GitHub Pull Requests
           # --- AI Agents ---
-          # anthropic.claude-code pinned below (nixpkgs hash lags marketplace republish)
+          # anthropic.claude-code # pinned below (nixpkgs hash lags marketplace republish)
           # --- Languages ---
           # Ruby
           wingrunr21.vscode-ruby # Ruby support
@@ -41,12 +41,12 @@
           redhat.vscode-yaml # YAML support
         ]
         ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
-          {
-            name = "claude-code";
-            publisher = "anthropic";
-            version = "2.1.92";
-            sha256 = "sha256-f+6xXZVb5sYrmrH7eoon6/QoQaTnBuTnb+YnvszqyKA=";
-          }
+          # {
+          #   name = "claude-code";
+          #   publisher = "anthropic";
+          #   version = "2.1.96";
+          #   sha256 = "sha256-f+6xXZVb5sYrmrH7eoon6/QoQaTnBuTnb+YnvszqyKA=";
+          # }
           {
             name = "schemastore"; # JSON Schema support
             publisher = "remcohaszing";
