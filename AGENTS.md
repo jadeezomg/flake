@@ -14,23 +14,37 @@ This is jadee's NixOS flake. Three rules apply to every task:
 
 ```
 flake/
-├── flake.nix              # flake-parts orchestration, inputs
+├── flake.nix              # flake-parts entrypoint, inputs, perSystem outputs
 ├── Justfile               # all build/switch/gc/format recipes
+├── scripts/               # bash/nu/python helpers invoked by Justfile recipes
+├── lib/
+│   └── pkgs.nix           # getPkgs / getPkgsStable (used by flake.nix + parts/)
+├── parts/
+│   ├── hosts.nix          # builds nixosConfigurations + darwinConfigurations
+│   └── overlays/          # per-system nixpkgs overlays
 ├── data/
 │   ├── hosts/hosts.nix    # host definitions (desktop, framework, caya)
 │   └── users/users.nix    # user definitions (jadee, caya-jonas)
 ├── hosts/
 │   ├── desktop/           # x86_64-linux desktop (NVIDIA)
 │   ├── framework/         # x86_64-linux laptop (AMD, Framework 13 7040)
-│   └── caya/              # aarch64-darwin
+│   └── caya/              # aarch64-darwin (also holds nix-homebrew tap config)
 ├── modules/
 │   ├── shared/            # cross-platform system modules
 │   ├── nixos/             # Linux-only system modules
 │   └── darwin/            # macOS-only system modules
 ├── home/
 │   ├── shared/            # cross-platform home-manager config
+│   │   ├── apps/          # browsers, editors, IDEs, terminals, tools
+│   │   ├── assets/        # fonts, icons, theme (stylix), wallpapers, file symlinks
+│   │   ├── development/
+│   │   │   ├── languages/ # per-language configs (57 files)
+│   │   │   └── tooling/   # cloud, databases, llm, tools
+│   │   ├── shells/        # bash, fish, nushell, zsh
+│   │   └── utils/         # core, filesystem, monitoring, text
 │   ├── nixos/             # Linux-only home-manager config
 │   └── darwin/            # macOS-only home-manager config
+├── packages/              # custom flake packages (iosevka-aile, iosevka-etoile)
 └── secrets/secrets.yaml   # sops-nix age-encrypted secrets
 ```
 
@@ -134,7 +148,9 @@ nix run nixpkgs#hydra-check -- ripgrep --json
 | NixOS service/daemon | `modules/nixos/services/` |
 | Development tool | `modules/shared/development/` or `home/shared/development/` |
 | Desktop/Wayland config | `modules/nixos/desktop/` or `home/nixos/desktop/` |
-| Language dev config | `home/shared/development/<lang>.nix` |
+| Language dev config | `home/shared/development/languages/<lang>.nix` |
+| Dev tooling (cloud, db, llm) | `home/shared/development/tooling/` |
+| Theme, fonts, file symlinks | `home/shared/assets/` |
 
 Prefer editing existing files. If creating a new `.nix` file, add an import for it in that directory's `default.nix`.
 
@@ -155,11 +171,14 @@ Available `specialArgs` parameters:
 | `pkgs` | nixpkgs package set |
 | `lib` | nixpkgs lib |
 | `config` | current module config |
-| `inputs` | flake inputs |
-| `hostData` | all host definitions |
+| `inputs` | flake inputs (access individual inputs via `inputs.sops-nix` etc.) |
+| `hostData` | all host definitions from `data/hosts/hosts.nix` |
 | `hostKey` | current host name (`"desktop"`, `"framework"`, `"caya"`) |
+| `host` | current host attrset from hostData |
 | `user` | current username |
 | `isDarwin` | true on macOS |
+| `system` | system string, NixOS only (`"x86_64-linux"`) |
+| `pkgs-stable` | nixpkgs-stable package set |
 
 ```nix
 # Conditional on host

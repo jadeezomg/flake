@@ -1,65 +1,15 @@
-{
-  config,
-  pkgs,
-  lib,
-  hostData,
-  hostKey,
-  user,
-  inputs,
-  ...
-}: let
-  host = hostData.hosts.${hostKey} or {};
-in {
+{inputs, ...}: {
   imports = [
     ./hardware-configuration.nix
     inputs.nixos-hardware.nixosModules.framework-13-7040-amd
+    inputs.framework-control.nixosModules.default
     ../../modules/shared
     ../../modules/nixos
+    ./gpu.nix
+    ./input.nix
+    ./power.nix
   ];
 
-  hardware = {
-    graphics.enable = true;
-    bluetooth.enable = true;
-    fw-fanctrl = {
-      enable = true;
-      config = {
-        defaultStrategy = "laziest";
-        strategyOnDischarging = "laziest";
-      };
-    };
-  };
-
-  environment.systemPackages = with pkgs; [
-    fprintd
-    nvtopPackages.amd
-  ];
-
-  services = {
-    fprintd.enable = true;
-    power-profiles-daemon.enable = true;
-    fwupd.enable = true;
-    blueman.enable = true;
-    xserver.videoDrivers = ["amdgpu"];
-  };
-
-  security.pam.services = {
-    login.fprintAuth = lib.mkForce true;
-    sudo.fprintAuth = true;
-    gdm-password.fprintAuth = lib.mkForce true;
-    gdm-fingerprint.fprintAuth = lib.mkForce true;
-  };
-
-  # System state version - host specific, don't change, it's used by home-manager to determine the initial version of the system.
+  # System state version — host specific, do not change.
   system.stateVersion = "25.11";
-
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
-
-  maintenance.garbageCollection = {
-    enable = true;
-    schedule = "weekly";
-    deleteOlderThan = "30d";
-  };
 }
