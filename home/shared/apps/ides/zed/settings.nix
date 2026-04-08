@@ -79,6 +79,13 @@
         copilot = false;
       };
 
+      # --- External Agents ---
+      agent_servers = {
+        claude-acp = {
+          type = "registry";
+        };
+      };
+
       telemetry = {
         diagnostics = false;
         metrics = false;
@@ -134,10 +141,6 @@
         expand_edit_card = true;
         notify_when_agent_waiting = "all_screens";
         single_file_review = true;
-        default_model = {
-          provider = "lmstudio";
-          model = "zai-org/glm-4.6v-flash";
-        };
         model_parameters = [];
         tool_permissions = import ./tool-permissions.nix;
       };

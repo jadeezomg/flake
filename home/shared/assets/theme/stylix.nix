@@ -21,8 +21,8 @@ in {
 
     # Custom base16 scheme created from theme.nix colors
     base16Scheme = {
-      scheme = "Birds of Paradise (Base16)";
-      author = "Jeroen de Vries (converted to base16)";
+      scheme = "Birds of Paradise";
+      author = "Jeroen de Vries";
       base00 = themeColors.bg-primary;
       base01 = themeColors.bg-secondary;
       base02 = themeColors.bg-tertiary;
