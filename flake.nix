@@ -94,6 +94,11 @@
       url = "github:matthart1983/netwatch";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # https://github.com/ozturkkl/framework-control — uses bundled nixpkgs fork for the package until upstream nixpkgs ships it
+    framework-control = {
+      url = "github:ozturkkl/framework-control";
+    };
   };
 
   outputs = inputs @ {

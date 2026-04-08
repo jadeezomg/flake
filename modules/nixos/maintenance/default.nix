@@ -24,7 +24,13 @@ in {
     };
   };
 
-  config = mkIf cfg.enable {
+  config = {
+    maintenance.garbageCollection = {
+      enable = mkDefault true;
+      deleteOlderThan = mkDefault "30d";
+    };
+  }
+  // mkIf cfg.enable {
     nix.gc = {
       automatic = true;
       dates = cfg.schedule;

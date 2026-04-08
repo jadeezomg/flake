@@ -349,6 +349,24 @@
         "type": "github"
       }
     },
+    "framework-control": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_3"
+      },
+      "locked": {
+        "lastModified": 1773562979,
+        "narHash": "sha256-ic2/ymO+d3ii03dVPwL/VqtpCulSCH8e2UqSSjTRwfI=",
+        "owner": "ozturkkl",
+        "repo": "framework-control",
+        "rev": "6a1651ced2f0b30a46a45a6b072098510c29d0d7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ozturkkl",
+        "repo": "framework-control",
+        "type": "github"
+      }
+    },
     "fromYaml": {
       "flake": false,
       "locked": {
@@ -630,7 +648,7 @@
         "cachyos-kernel-patches": "cachyos-kernel-patches",
         "flake-compat": "flake-compat_3",
         "flake-parts": "flake-parts_3",
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": "nixpkgs_4"
       },
       "locked": {
         "lastModified": 1775239578,
@@ -826,6 +844,22 @@
     },
     "nixpkgs_3": {
       "locked": {
+        "lastModified": 1773559795,
+        "narHash": "sha256-dGS+wvZhnjalhAgAvh1OK48y9vziKb0i4MyED9tku6o=",
+        "owner": "ozturkkl",
+        "repo": "nixpkgs",
+        "rev": "e3f8313bf2fd06767249b68cb6a81c2318ab1d02",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ozturkkl",
+        "ref": "framework-control",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_4": {
+      "locked": {
         "lastModified": 1775231746,
         "narHash": "sha256-EFaDQ0rnuSjKfC/DUKHS4toV4rEBuWhSgyX2Yy0kp00=",
         "owner": "NixOS",
@@ -840,7 +874,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_4": {
+    "nixpkgs_5": {
       "locked": {
         "lastModified": 1775423009,
         "narHash": "sha256-vPKLpjhIVWdDrfiUM8atW6YkIggCEKdSAlJPzzhkQlw=",
@@ -928,6 +962,7 @@
       "inputs": {
         "determinate": "determinate",
         "flake-parts": "flake-parts_2",
+        "framework-control": "framework-control",
         "home-manager": "home-manager",
         "homebrew-bundle": "homebrew-bundle",
         "homebrew-cask": "homebrew-cask",
@@ -939,7 +974,7 @@
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
         "nixos-hardware": "nixos-hardware",
-        "nixpkgs": "nixpkgs_4",
+        "nixpkgs": "nixpkgs_5",
         "nixpkgs-stable": "nixpkgs-stable_2",
         "quickshell": "quickshell",
         "sops-nix": "sops-nix",
