@@ -1,7 +1,13 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
 	"files": {
-		"includes": ["**", "!!**/scripts/zen-session/.venv"]
+		"includes": [
+			"**",
+			"!!**/.git",
+			"!!**/.direnv",
+			"!!**/node_modules",
+			"!!**/scripts/zen-session/.venv"
+		]
 	},
 	"overrides": [
 		{
