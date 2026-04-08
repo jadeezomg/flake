@@ -1,5 +1,5 @@
 # Caya profile: composed from base, spaces, and pins (essentials + folders + per-workspace pins in skifli format).
-# Run sync_caya_from_session.py to update spaces and pins from the live Zen session.
+# Regenerate spaces.nix / pins.nix from the live session: zen_session.py sync (scripts/zen-session).
 {
   pkgs,
   extensions,

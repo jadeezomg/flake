@@ -21,7 +21,7 @@ def main():
         "--profile",
         "-p",
         metavar="DIR",
-        help="Zen profile dir (default: ZEN_PROFILE_ROOT; darwin: ~/Library/Application Support/zen/Profiles/default, Linux: ~/.config/zen/default on NixOS)",
+        help="Zen browser profile dir (default: ZEN_PROFILE_ROOT; macOS: ~/Library/Application Support/zen/Profiles/default; else $XDG_CONFIG_HOME/zen/default; on NixOS, scans ~/.config/zen/* if default has no zen-sessions.jsonlz4)",
     )
     sub = ap.add_subparsers(dest="command", required=True)
 
@@ -43,7 +43,7 @@ def main():
 
     sub.add_parser(
         "sync",
-        help="Update home/.../zen/profiles/<caya|default>/spaces.nix and pins.nix (darwin->caya, NixOS->default)",
+        help="Write spaces.nix and pins.nix under home/.../zen/profiles/<name>/ (target from host or ZEN_OUTPUT_PROFILE; see scripts/zen-session README)",
     )
     sub.add_parser(
         "compare",
@@ -78,13 +78,13 @@ def main():
             + (["--dump-tab-sample"] if args.dump_tab_sample else [])
         )
     elif args.command == "sync":
-        from sync_caya_from_session import main as run
+        from sync_flake_profiles import main as run
 
         run()
     elif args.command == "compare":
-        from sync_caya_from_session import compare_current_state
+        from sync_flake_profiles import compare_flake_to_session
 
-        raise SystemExit(compare_current_state())
+        raise SystemExit(compare_flake_to_session())
     elif args.command == "dump":
         from dump_session import main as run
 

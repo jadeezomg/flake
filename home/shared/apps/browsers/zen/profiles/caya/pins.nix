@@ -1,4 +1,4 @@
-# Pins and folders (skifli format). Updated by sync_caya_from_session.py.
+# Pins and folders (skifli format). Regenerate: zen_session.py sync (scripts/zen-session).
 {...}: let
   spaces = (import ./spaces.nix {}).spaces;
 in {

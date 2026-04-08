@@ -197,6 +197,36 @@ check-packages:
 check-zen-essentials:
     @bash "$FLAKE/scripts/flake-recipes.bash" check-zen
 
+[positional-arguments]
+[group('zen')]
+[doc('Zen session CLI; after sync, runs nix fmt on the flake')]
+zen-session *ARGS:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "${FLAKE:?}"
+    uv run --project scripts/zen-session scripts/zen-session/zen_session.py "$@"
+    for a in "$@"; do
+      if [[ "$a" == sync ]]; then
+        nix fmt .
+        break
+      fi
+    done
+
+[group('zen')]
+[doc('Write spaces.nix + pins.nix from live Zen; then nix fmt (see scripts/zen-session/README)')]
+zen-sync:
+    @cd "$FLAKE" && uv run --project scripts/zen-session scripts/zen-session/zen_session.py sync && nix fmt .
+
+[group('zen')]
+[doc('Diff flake spaces/pins vs live Zen session (exit 0 = match)')]
+zen-compare:
+    @cd "$FLAKE" && uv run --project scripts/zen-session scripts/zen-session/zen_session.py compare
+
+[group('zen')]
+[doc('Pinned tabs per workspace (JSON); add --nix for snippet')]
+zen-extract *ARGS:
+    @cd "$FLAKE" && uv run --project scripts/zen-session scripts/zen-session/zen_session.py extract {{ARGS}}
+
 [group('meta')]
 [doc('List all recipes (file order within groups)')]
 list:
