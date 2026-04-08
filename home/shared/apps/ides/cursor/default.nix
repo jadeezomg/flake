@@ -33,6 +33,8 @@
           ms-python.python # Python support
           # Nushell
           thenuprojectcontributors.vscode-nushell-lang # Nushell support
+          # GraphQL
+          apollographql.vscode-apollo # Apollo GraphQL support
           # Data Formats
           mechatroner.rainbow-csv # CSV support
           tamasfe.even-better-toml # TOML support
