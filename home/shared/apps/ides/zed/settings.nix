@@ -1,4 +1,8 @@
-{lib, ...}: {
+{
+  lib,
+  claude-agent-acp-fork,
+  ...
+}: {
   programs.zed-editor = {
     userSettings = {
       # --- Appearance ---
@@ -84,6 +88,11 @@
         claude-acp = {
           type = "registry";
         };
+        claude-agent-acp-fork = {
+          type = "custom";
+          command = "${claude-agent-acp-fork}/bin/claude-agent-acp";
+          args = [];
+        };
       };
 
       telemetry = {
@@ -139,10 +148,11 @@
       # --- Agent ---
       agent = {
         expand_edit_card = true;
-        notify_when_agent_waiting = "all_screens";
+        notify_when_agent_waiting = "never";
         single_file_review = true;
         model_parameters = [];
         tool_permissions = import ./tool-permissions.nix;
+        show_turn_stats = true;
       };
 
       # --- Scrollbar ---

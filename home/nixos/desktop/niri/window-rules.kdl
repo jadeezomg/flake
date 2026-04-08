@@ -15,6 +15,25 @@ window-rule {
     default-column-width { proportion 1.0; }
 }
 
+// Zed popup/helper windows can report no title and get tiled fullscreen.
+window-rule {
+    match title="Zed — Settings"
+    open-floating true
+    default-window-height { proportion 0.80; }
+    default-column-width { proportion 0.50; }
+}
+
+// Zed popup/helper windows can report no title and get tiled fullscreen.
+window-rule {
+    match title="(unset)"
+    // match app-id="dev.zed.Zed"
+    open-floating true
+    open-on-output "DP-2"
+    default-window-height { proportion 0.05; }
+    default-column-width { proportion 0.15; }
+    default-floating-position x=10 y=10 relative-to="top-right"
+}
+
 // Example: block out two password managers from screen capture.
 // (This example rule is commented out with a "/-" in front.)
 window-rule {
@@ -87,6 +106,8 @@ window-rule {
 
 window-rule {
     match app-id="zen-beta"
+    match app-id="org.gnome.Nautilus"
+    match app-id="zed"
 
     background-effect {
         blur true
