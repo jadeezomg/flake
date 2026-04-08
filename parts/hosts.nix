@@ -99,10 +99,7 @@
       ];
     };
   in {
-    nixosConfigurations = lib.optionalAttrs (!isDarwin) (
-      {${hostKey} = nixosConfig;}
-      // lib.optionalAttrs (hostname != hostKey) {${hostname} = nixosConfig;}
-    );
+    nixosConfigurations = lib.optionalAttrs (!isDarwin) {${hostKey} = nixosConfig;};
 
     darwinConfigurations = lib.optionalAttrs isDarwin (let
       darwinConfig = nix-darwin.lib.darwinSystem {
@@ -124,9 +121,7 @@
           (./. + "/../hosts/${hostKey}")
         ];
       };
-    in
-      {${hostKey} = darwinConfig;}
-      // lib.optionalAttrs (hostname != hostKey) {${hostname} = darwinConfig;});
+    in {${hostKey} = darwinConfig;});
   };
 
   # Aggregate all per-host outputs
