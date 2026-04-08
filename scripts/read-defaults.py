@@ -20,7 +20,6 @@ import sys
 import json
 import re
 import os
-import tempfile
 from typing import Any, Optional
 
 def run_command(cmd: list[str]) -> str:
@@ -28,7 +27,7 @@ def run_command(cmd: list[str]) -> str:
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         return result.stdout.strip()
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         return ""
 
 
@@ -45,9 +44,6 @@ def parse_defaults_output(output: str) -> dict[str, Any]:
     # This is a basic parser - may need improvements
     result = {}
     lines = output.split("\n")
-    current_key = None
-    current_value = None
-    
     for line in lines:
         line = line.strip()
         if not line or line.startswith("{"):

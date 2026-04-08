@@ -101,6 +101,8 @@ gc-all:
 [doc('Alejandra all *.nix under flake (summary line)')]
 fmt:
     @bash "$FLAKE/scripts/flake-recipes.bash" fmt
+    @cd "$FLAKE" && ruff check scripts
+    @cd "$FLAKE" && biome check .
 
 [group('format')]
 [doc('Alejandra without changed/unchanged summary (e.g. for git hook)')]
