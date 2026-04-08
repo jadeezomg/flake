@@ -33,9 +33,6 @@
         };
 
         # --- Biome (per-language; avoid global so unsupported languages aren't affected) ---
-        Astro = {
-          formatter = {language_server = {name = "biome";};};
-        };
         CSS = {
           formatter = {language_server = {name = "biome";};};
         };
@@ -51,22 +48,12 @@
         JSONC = {
           formatter = {language_server = {name = "biome";};};
         };
-        JSX = {
-          formatter = {language_server = {name = "biome";};};
-          code_actions_on_format = {
-            "source.fixAll.biome" = true;
-            "source.organizeImports.biome" = true;
-          };
-        };
         JavaScript = {
           formatter = {language_server = {name = "biome";};};
           code_actions_on_format = {
             "source.fixAll.biome" = true;
             "source.organizeImports.biome" = true;
           };
-        };
-        Svelte = {
-          formatter = {language_server = {name = "biome";};};
         };
         TSX = {
           formatter = {language_server = {name = "biome";};};
@@ -81,9 +68,6 @@
             "source.fixAll.biome" = true;
             "source.organizeImports.biome" = true;
           };
-        };
-        "Vue.js" = {
-          formatter = {language_server = {name = "biome";};};
         };
       };
 

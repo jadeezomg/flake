@@ -92,9 +92,6 @@ in {
       # receive clean JSON output without OSC escape sequences.
       if ($nu.is-interactive and $env.config.color_config? != null) {
         $env.config.color_config = ($env.config.color_config | upsert background '#372725')
-        # Update terminal background color via OSC sequence.
-        let osc_screen_background_color = '11;'
-        print -n $"(ansi -o $osc_screen_background_color)#372725(char bel)\r"
       }
     '';
   };
