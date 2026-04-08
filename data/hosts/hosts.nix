@@ -38,6 +38,12 @@ let
         hostname = "desktop-nixos";
         description = "Jadee Desktop NixOS Host";
         user = sharedNixOSUser;
+        mainMonitor = {
+          monitorID = "DP-2";
+          monitorResolution = "2560x1440";
+          monitorRefreshRate = "170";
+          monitorScalingFactor = "1.0";
+        };
       };
 
     caya = {
