@@ -10,7 +10,7 @@ do_build() {
   MODES=(build boot dry dev)
   is_mode() { local m="${1#--}"; for x in "${MODES[@]}"; do [[ "$x" == "$m" ]] && return 0; done; return 1; }
   print_header "BUILD"
-  selected_mode="build" host_arg=""
+  selected_mode="build" host_arg="" sc=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --build|--boot|--dry|--dev) selected_mode="${1#--}"; shift ;;
@@ -20,12 +20,26 @@ do_build() {
   done
   target_host="$(get_host "$host_arg")"
   is_mode "$selected_mode" || exit 1
-  c="$(build_nh_cmd "$selected_mode")"
+  if is_darwin; then
+    case "$selected_mode" in
+      build) sc="nh darwin build --flake '${FLAKE}#${target_host}'" ;;
+      boot) sc="nh darwin build --flake '${FLAKE}#${target_host}'" ;;
+      dry) sc="nh darwin build --dry-run --flake '${FLAKE}#${target_host}'" ;;
+      dev) sc="nh darwin switch --show-trace --flake '${FLAKE}#${target_host}'" ;;
+    esac
+  else
+    case "$selected_mode" in
+      build) sc="nh os build --flake '${FLAKE}#${target_host}'" ;;
+      boot) sc="nh os boot --flake '${FLAKE}#${target_host}'" ;;
+      dry) sc="nh os test --flake '${FLAKE}#${target_host}'" ;;
+      dev) sc="nh os switch --show-trace --flake '${FLAKE}#${target_host}'" ;;
+    esac
+  fi
   case "$selected_mode" in
-    build) notify "Flake Build" "Building $target_host..." "pending"; print_info "→ $c"; bash -c "$c"; notify "Flake Build" "OK" "success" ;;
-    boot) notify "Flake Build" "Boot $target_host..." "pending"; bash -c "$c"; notify "Flake Build" "Next reboot" "success" ;;
-    dry) notify "Flake Build" "Dry $target_host..." "pending"; bash -c "$c" ;;
-    dev) notify "Flake Build" "Trace $target_host..." "pending"; bash -c "$c" ;;
+    build) notify "Flake Build" "Building $target_host..." "pending"; print_info "→ $sc"; bash -c "$sc"; notify "Flake Build" "OK" "success" ;;
+    boot) notify "Flake Build" "Boot $target_host..." "pending"; print_info "→ $sc"; bash -c "$sc"; notify "Flake Build" "Next reboot" "success" ;;
+    dry) notify "Flake Build" "Dry $target_host..." "pending"; print_info "→ $sc"; bash -c "$sc" ;;
+    dev) notify "Flake Build" "Trace $target_host..." "pending"; print_info "→ $sc"; bash -c "$sc" ;;
   esac
   print_header "END"
 }
@@ -63,7 +77,10 @@ do_switch() {
     IFS='=' read -r in_n in_v <<<"$override_input"
     if is_darwin; then sc="nh darwin switch --flake '${FLAKE_PATH}#${target_host}' --override-input $in_n $in_v"
     else sc="nh os switch --flake '${FLAKE_PATH}#${target_host}' --override-input $in_n $in_v"; fi
-  else sc="$(build_nh_cmd switch)"; fi
+  else
+    if is_darwin; then sc="nh darwin switch --flake '${FLAKE_PATH}#${target_host}'"
+    else sc="nh os switch --flake '${FLAKE_PATH}#${target_host}'"; fi
+  fi
   print_info "→ $sc"; bash -lc "$sc"; echo ""
   if [[ "$fast" -eq 0 ]]; then
     hm_vars="/etc/profiles/per-user/${USER}/etc/profile.d/hm-session-vars.sh"

@@ -80,9 +80,9 @@ print_info() { echo -e "${ICON_INFO} $*"; }
 detect_host_from_hostname() {
   local h
   h="$(get_hostname_lc)"
-  if [[ "$h" == *framework* ]]; then echo framework
-  elif [[ "$h" == *desktop* ]]; then echo desktop
-  elif [[ "$h" == *caya* ]]; then echo caya
+  if [[ "$h" == *framework* ]]; then echo framework-nixos
+  elif [[ "$h" == *desktop* ]]; then echo desktop-nixos
+  elif [[ "$h" == *caya* ]]; then echo caya-darwin
   else echo ""; fi
 }
 
@@ -108,7 +108,7 @@ get_host() {
     echo "$detected"
     return
   fi
-  read -r -p "Host not detected. Enter host (e.g. framework/desktop/caya): " prompted || true
+  read -r -p "Host not detected. Enter host (e.g. framework-nixos/desktop-nixos/caya-darwin): " prompted || true
   prompted="${prompted//[[:space:]]/}"
   if [[ -z "$prompted" ]]; then
     print_error "Host is required; run 'flake init <host>'."

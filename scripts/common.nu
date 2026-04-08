@@ -243,11 +243,11 @@ export def get-current-host [] {
 export def detect-host-from-hostname [] {
   let hostname = (get-current-host)
   if ($hostname | str contains "framework") {
-    "framework"
+    "framework-nixos"
   } else if ($hostname | str contains "desktop") {
-    "desktop"
+    "desktop-nixos"
   } else if ($hostname | str contains "caya") {
-    "caya"
+    "caya-darwin"
   } else {
     null
   }
@@ -256,9 +256,9 @@ export def detect-host-from-hostname [] {
 # Get list of available hosts
 export def get-available-hosts [] {
   [
-    { host: "framework" }
-    { host: "desktop" }
-    { host: "caya" }
+    { host: "framework-nixos" }
+    { host: "desktop-nixos" }
+    { host: "caya-darwin" }
   ]
 }
 
@@ -332,7 +332,7 @@ export def get-host [host?: string] {
   }
 
   # If we cannot detect, prompt the user for a host
-  let prompted = (input "Host not detected. Enter host (e.g. framework/desktop/...): " | str trim)
+  let prompted = (input "Host not detected. Enter host (e.g. framework-nixos/desktop-nixos/...): " | str trim)
   if ($prompted | is-empty) {
     print-error "Host is required; please provide one or run 'flake init <host>'."
     exit 1

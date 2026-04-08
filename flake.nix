@@ -148,7 +148,7 @@
             inherit pkgs;
             lib = pkgs.lib;
           };
-          netwatch = inputs.netwatch.packages.${system}.default;
+          netwatch = inputs'.netwatch.packages.default;
         };
 
         formatter = pkgs.alejandra;
