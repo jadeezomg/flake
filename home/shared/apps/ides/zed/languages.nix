@@ -26,8 +26,8 @@
         Nix = {
           language_servers = ["nil"];
           formatter.external = {
-            command = "nixpkgs-fmt";
-            arguments = [];
+            command = "alejandra";
+            arguments = ["-"];
           };
           format_on_save = "on";
         };
@@ -99,7 +99,11 @@
         };
 
         # Only enable Biome when project has biome.json (avoids affecting non-Biome projects)
+        # Use system biome binary — the extension-downloaded binary is dynamically linked
+        # and won't run on NixOS (stub-ld error).
         biome = {
+          binary.path = "biome";
+          binary.arguments = ["lsp-proxy"];
           settings = {
             require_config_file = true;
           };
