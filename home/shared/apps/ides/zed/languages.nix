@@ -92,10 +92,6 @@
           enabled = true;
           settings = {};
         };
-        "mcp-server-github" = {
-          enabled = true;
-          settings = {};
-        };
       };
 
       lsp = {
