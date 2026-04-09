@@ -4,7 +4,7 @@
 
   # Import font definitions to reuse Iosevka variants
   fontDefinitions = import ../fonts/fonts.nix {inherit pkgs;};
-  iosevkaAile = fontDefinitions.monospace-pro.iosevka-aile.package;
+  # iosevkaAile = fontDefinitions.monospace-pro.iosevka-aile.package;
   iosevkaEtoile = fontDefinitions.monospace-pro.iosevka-etoile.package;
 in {
   stylix = {

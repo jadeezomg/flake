@@ -1,6 +1,4 @@
-{
-  ...
-}: {
+{...}: {
   imports = [];
 
   # Linux-specific shell configuration
