@@ -18,6 +18,7 @@ import re
 import sys
 import uuid
 from collections import Counter
+from typing import Any, cast
 
 from flake_scripts.lib.common import bad, dim, dim_lines, warn, xdg_config_home
 
@@ -28,45 +29,18 @@ except ImportError:
     sys.exit(1)
 
 
-def host_is_nixos():
-    """True when this machine is NixOS Linux (/etc/NIXOS or ID=nixos in /etc/os-release)."""
-    if sys.platform != "linux":
-        return False
-    if os.path.isfile("/etc/NIXOS"):
-        return True
-    try:
-        with open("/etc/os-release", encoding="utf-8") as f:
-            for line in f:
-                if line.strip() == "ID=nixos":
-                    return True
-    except OSError:
-        pass
-    return False
-
-
-def _zen_profile_has_sessions(profile_dir):
-    return os.path.isfile(os.path.join(profile_dir, "zen-sessions.jsonlz4"))
-
-
 def _default_zen_profile_root():
     if sys.platform == "darwin":
         return os.path.expanduser("~/Library/Application Support/zen/Profiles/default")
-    ch = xdg_config_home()
-    primary = str(ch / "zen" / "default")
-    if _zen_profile_has_sessions(primary):
-        return primary
-    if host_is_nixos():
-        zen_root = ch / "zen"
-        if zen_root.is_dir():
-            try:
-                names = sorted(os.listdir(zen_root))
-            except OSError:
-                names = []
-            for name in names:
-                cand = str(zen_root / name)
-                if os.path.isdir(cand) and _zen_profile_has_sessions(cand):
-                    return cand
-    return primary
+    zen_root = xdg_config_home() / "zen"
+    primary = zen_root / "default"
+    if (primary / "zen-sessions.jsonlz4").is_file():
+        return str(primary)
+    if zen_root.is_dir():
+        for cand in sorted(zen_root.iterdir()):
+            if cand.is_dir() and (cand / "zen-sessions.jsonlz4").is_file():
+                return str(cand)
+    return str(primary)
 
 
 # Browser profile root: env ZEN_PROFILE_ROOT, else platform default (see _default_zen_profile_root)
@@ -157,12 +131,10 @@ def _spaces_from_zen_sessions(zen_sessions):
     for s in zen_sessions.get("spaces") or []:
         if not isinstance(s, dict):
             continue
-        sid = _normalize_zen_workspace(
-            s.get("uuid") or s.get("id") or s.get("spaceId") or ""
-        )
+        sid = _normalize_zen_workspace(s.get("uuid") or "")
         if not sid or not _UUID_RE.match(sid):
             continue
-        name = (s.get("name") or s.get("spaceName") or s.get("title") or "").strip()
+        name = (s.get("name") or "").strip()
         icon = (s.get("icon") or "").strip()
         pos = s.get("position")
         out[sid] = {"name": name or "Default", "icon": icon, "position": pos}
@@ -209,205 +181,75 @@ def _should_skip_url(url):
 
 
 def _tab_id(t):
-    tid = t.get("id") or t.get("tabId") or t.get("linkedPanelId")
-    return str(tid) if tid is not None else None
+    """tab.zenSyncId is the canonical tab identifier (UUID with braces, e.g. {abc-…})."""
+    tid = t.get("zenSyncId")
+    return _normalize_zen_workspace(str(tid)) if tid is not None else None
 
 
-def _collect_essential_tab_ids(session):
-    """Tab IDs marked as essential in the window session (top-level and per-window)."""
-    out = set()
-    for key in ("essentialTabIds", "essentialTabs", "pinnedEssentialIds"):
-        val = session.get(key)
-        if isinstance(val, list):
-            out.update(str(x) for x in val)
-    for w in session.get("windows", []):
-        for key in ("essentialTabIds", "essentialTabs", "pinnedEssentialIds"):
-            val = w.get(key)
-            if isinstance(val, list):
-                out.update(str(x) for x in val)
-    return out
-
-
-def _tab_is_essential(tab, essential_ids):
-    """Zen: tab.zenEssential is authoritative; else tab id in session essential list."""
-    zen_val = tab.get("zenEssential")
-    if zen_val is not None:
-        if isinstance(zen_val, str) and zen_val.strip().lower() == "true":
-            return True
-        if zen_val is True:
-            return True
-        return False
-    tid = _tab_id(tab)
-    return tid in essential_ids if (tid and essential_ids) else False
-
-
-def _folder_map_from_window(w):
-    """window.folders (dict or list) -> folder_id -> name."""
+def _folders_from_window(w: dict[str, Any], spaces_map: dict):
+    """window.folders -> (folder_id -> name map, list of full folder records)."""
     folder_map = {}
-    folders = w.get("folders") or {}
-    if isinstance(folders, dict):
-        for fid, attrs in folders.items():
-            name = (
-                (
-                    attrs.get("name")
-                    or attrs.get("title")
-                    or attrs.get("label")
-                    or "Folder"
-                ).strip()
-                if isinstance(attrs, dict)
-                else "Folder"
-            )
-            if fid:
-                folder_map[str(fid)] = name
-    elif isinstance(folders, list):
-        for f in folders:
-            if not isinstance(f, dict):
-                continue
-            fid = (
-                f.get("id")
-                or f.get("folderId")
-                or f.get("linkedPanelId")
-                or f.get("tabId")
-            )
-            if not fid:
-                continue
-            name = (
-                f.get("name") or f.get("title") or f.get("label") or "Folder"
-            ).strip()
-            folder_map[str(fid)] = name
-    return folder_map
+    records = []
+    folders = w.get("folders")
+    if not folders:
+        return folder_map, records
 
-
-def _folders_from_window(w, window_workspace, spaces_map):
-    """window.folders -> list of { id, name, parentId, position, spaceId, spaceName }."""
-    out = []
-    folders = w.get("folders") or {}
-    space_id = _normalize_zen_workspace(window_workspace) or ""
-    space_name = (spaces_map.get(space_id) or {}).get("name") or "Default"
-
-    def one(fid, attrs_or_dict, idx):
-        name = "Folder"
-        parent_id = None
-        pos = 1000 + idx
-        if isinstance(attrs_or_dict, dict):
-            name = (
-                attrs_or_dict.get("name")
-                or attrs_or_dict.get("title")
-                or attrs_or_dict.get("label")
-                or "Folder"
-            ).strip()
-            parent_id = attrs_or_dict.get("parentId") or attrs_or_dict.get(
-                "parentFolderId"
-            )
-            parent_id = str(parent_id) if parent_id is not None else None
-            pos = attrs_or_dict.get("position")
-            if pos is None and isinstance(attrs_or_dict.get("prevSiblingInfo"), dict):
-                pos = attrs_or_dict["prevSiblingInfo"].get("position")
-            if pos is None:
-                pos = 1000 + idx
+    def one(fid, attrs, idx):
+        name = (attrs.get("name") or "Folder").strip() if isinstance(attrs, dict) else "Folder"
+        parent_id = attrs.get("parentId") if isinstance(attrs, dict) else None
+        pos = attrs.get("position") if isinstance(attrs, dict) else None
+        if pos is None and isinstance(attrs, dict) and isinstance(attrs.get("prevSiblingInfo"), dict):
+            pos = attrs["prevSiblingInfo"].get("position")
         return {
             "id": str(fid),
             "name": name or "Folder",
-            "parentId": parent_id,
-            "position": int(pos),
-            "spaceId": space_id,
-            "spaceName": space_name,
+            "parentId": str(parent_id) if parent_id is not None else None,
+            "position": int(pos) if pos is not None else 1000 + idx,
+            "spaceId": "",
+            "spaceName": "Default",
         }
 
     if isinstance(folders, dict):
         for idx, (fid, attrs) in enumerate(folders.items()):
             if fid:
-                out.append(one(fid, attrs if isinstance(attrs, dict) else {}, idx))
+                rec = one(fid, attrs if isinstance(attrs, dict) else {}, idx)
+                folder_map[rec["id"]] = rec["name"]
+                records.append(rec)
     elif isinstance(folders, list):
         for idx, f in enumerate(folders):
-            if isinstance(f, dict) and (
-                f.get("id")
-                or f.get("folderId")
-                or f.get("linkedPanelId")
-                or f.get("tabId")
-            ):
-                fid = (
-                    f.get("id")
-                    or f.get("folderId")
-                    or f.get("linkedPanelId")
-                    or f.get("tabId")
-                )
-                out.append(one(fid, f, idx))
-    return out
-
-
-def _is_folder_tab(t):
-    if t.get("isFolder") or t.get("isFolderGroup"):
-        return True
-    if t.get("type") == "folder" or t.get("tabType") == "folder":
-        return True
-    if t.get("childTabIds") or (
-        t.get("childTabs") and not (t.get("entries") or [{}])[0].get("url")
-    ):
-        return True
-    return False
-
-
-def _build_folder_map_and_tabs(tabs, folder_title=None):
-    """Walk tab tree; return (folder_id -> title, list of (tab, url, entry, folder_title))."""
-    folder_map = {}
-    pinned_flat = []
-
-    def walk(items, parent_folder_title=None, parent_folder_id=None):
-        for t in items or []:
-            tid = _tab_id(t)
-            if _is_folder_tab(t):
-                title = (
-                    t.get("folderTitle")
-                    or t.get("title")
-                    or t.get("label")
-                    or t.get("name")
-                    or "Folder"
-                ).strip()
-                if tid:
-                    folder_map[tid] = title or "Folder"
-                walk(
-                    t.get("children") or t.get("childTabs") or t.get("tabs") or [],
-                    title,
-                    tid,
-                )
+            if not isinstance(f, dict):
                 continue
-            if t.get("pinned"):
-                entries = t.get("entries") or [{}]
-                ent = entries[0] if entries else {}
-                url = _normalize_url(ent.get("url"))
-                if url and not _should_skip_url(url):
-                    pin_folder = (
-                        parent_folder_title or t.get("folderTitle") or t.get("folder")
-                    )
-                    pinned_flat.append((t, url, ent, pin_folder))
-            sub = t.get("children") or t.get("childTabs") or t.get("tabs") or []
-            if sub:
-                walk(sub, parent_folder_title, parent_folder_id)
+            fd = cast(dict[str, Any], f)
+            if fd.get("id"):
+                rec = one(fd["id"], fd, idx)
+                folder_map[rec["id"]] = rec["name"]
+                records.append(rec)
 
-    walk(tabs, folder_title)
-    return folder_map, pinned_flat
+    return folder_map, records
 
 
-def _tab_pins_from_tabs(tabs, essential_ids, window_workspace, window_folder_map):
-    """Yield pin dicts from window.tabs. Tab.zenWorkspace or window workspace; groupId -> folderId."""
-    folder_map_in, pinned_flat = _build_folder_map_and_tabs(tabs)
-    folder_map = {**folder_map_in, **(window_folder_map or {})}
-    for t, url, ent, pin_folder in pinned_flat:
+def _collect_pinned_tabs(tabs):
+    """Walk tab list (recursing into .children); yield (tab, url, entry) for pinned tabs."""
+    for t in tabs or []:
+        if t.get("pinned"):
+            entries = t.get("entries") or [{}]
+            ent = entries[0] if entries else {}
+            url = _normalize_url(ent.get("url"))
+            if url and not _should_skip_url(url):
+                yield t, url, ent
+        yield from _collect_pinned_tabs(t.get("children") or [])
+
+
+def _tab_pins_from_tabs(tabs, folder_map):
+    """Yield pin dicts from window.tabs. tab.zenWorkspace for space; groupId/zenLiveFolderItemId for folder."""
+    for t, url, ent in _collect_pinned_tabs(tabs):
         title = (ent.get("title") or "").strip() or None
-        parent_id = (
-            t.get("groupId")
-            or t.get("zenFolderId")
-            or t.get("folderId")
-            or t.get("parentTabId")
-            or t.get("parent")
-            or t.get("openingTabId")
-        )
+        parent_id = t.get("groupId") or t.get("zenLiveFolderItemId")
+        pin_folder = None
         if parent_id is not None:
             parent_id = str(parent_id)
-            if parent_id in folder_map and pin_folder is None:
-                pin_folder = folder_map[parent_id]
-        space_id = _normalize_zen_workspace(t.get("zenWorkspace") or window_workspace)
+            pin_folder = folder_map.get(parent_id)
+        space_id = _normalize_zen_workspace(t.get("zenWorkspace") or "")
         container_id = t.get("userContextId") or ent.get("userContextId")
         if container_id is not None:
             try:
@@ -419,7 +261,7 @@ def _tab_pins_from_tabs(tabs, essential_ids, window_workspace, window_folder_map
         pin = {
             "title": title,
             "url": url,
-            "isEssential": _tab_is_essential(t, essential_ids),
+            "isEssential": bool(t.get("zenEssential")),
             "folder": pin_folder,
             "folderId": parent_id,
             "tabId": _tab_id(t),
@@ -504,44 +346,26 @@ def load_pinned_per_space(zen_sessions=None, window_session=None):
     spaces_map = _spaces_from_zen_sessions(zen_sessions)
     _apply_space_names_override(spaces_map)
 
-    essential_ids = _collect_essential_tab_ids(window_session)
-    windows = window_session.get("windows") or []
-
     all_folders = {}
     space_pins = {}
-    for w in windows:
-        window_workspace = _normalize_zen_workspace(
-            w.get("workspaceID") or w.get("spaceId") or w.get("spaceID") or ""
-        )
-        if re.match(r"^\d+$", str(window_workspace)):
-            window_workspace = ""
-        window_folder_map = _folder_map_from_window(w)
-        for rec in _folders_from_window(w, window_workspace, spaces_map):
-            if rec["id"] and rec["id"] not in all_folders:
+    for w in (window_session.get("windows") or []):
+        folder_map, folder_recs = _folders_from_window(w, spaces_map)
+        for rec in folder_recs:
+            if rec["id"] not in all_folders:
                 all_folders[rec["id"]] = rec
-        win_essential = set(essential_ids)
-        for key in ("essentialTabIds", "essentialTabs", "pinnedEssentialIds"):
-            for x in w.get(key) or []:
-                if isinstance(w.get(key), list):
-                    win_essential.add(str(x))
-        for pin in _tab_pins_from_tabs(
-            w.get("tabs") or [], win_essential, window_workspace, window_folder_map
-        ):
-            sid = pin.get("spaceId") or window_workspace or "default"
-            if sid not in space_pins:
-                space_pins[sid] = []
-            space_pins[sid].append(pin)
+        for pin in _tab_pins_from_tabs(w.get("tabs") or [], folder_map):
+            sid = pin.get("spaceId") or "default"
+            space_pins.setdefault(sid, []).append(pin)
 
     for space_id in space_pins:
         if space_id and space_id not in spaces_map:
             spaces_map[space_id] = {"name": "Default", "icon": "", "position": None}
 
     for fid, rec in all_folders.items():
-        pin_spaces = []
-        for _sid, pins in space_pins.items():
-            for p in pins:
-                if (p.get("folderId") or "") == fid:
-                    pin_spaces.append(_sid)
+        pin_spaces = [
+            sid for sid, pins in space_pins.items()
+            for p in pins if (p.get("folderId") or "") == fid
+        ]
         if pin_spaces:
             best = Counter(pin_spaces).most_common(1)[0][0]
             rec["spaceId"] = best
@@ -564,7 +388,7 @@ def load_pinned_per_space(zen_sessions=None, window_session=None):
             "spaceName": (spaces_map.get(sid) or {}).get("name") or "Default",
             "pins": pins,
         }
-        for sid, pins in sorted(space_pins.items(), key=lambda x: (x[0],))
+        for sid, pins in sorted(space_pins.items())
     ]
     return {
         "spaces": spaces_list,
@@ -593,16 +417,14 @@ def main(args=None):
 
     zen_sessions_file = (
         os.path.expanduser(args.zen_sessions_file)
-        if getattr(args, "zen_sessions_file", None)
+        if args.zen_sessions_file
         else ZEN_SESSIONS_FILE
     )
 
     zen_sessions = _load_zen_sessions(zen_sessions_file=zen_sessions_file)
+    zen_sessions_has_windows = bool(zen_sessions.get("windows"))
 
-    zen_sessions_window_count = len(zen_sessions.get("windows") or [])
-    zen_sessions_has_windows = zen_sessions_window_count > 0
-
-    if getattr(args, "window_session_file", None):
+    if args.window_session_file:
         window_session_paths = [os.path.expanduser(args.window_session_file)]
     else:
         # zen-sessions backups typically include spaces only; windows/tabs are
@@ -617,13 +439,14 @@ def main(args=None):
         window_session_paths=window_session_paths, return_used_path=True
     )
 
-    if getattr(args, "zen_sessions_file", None) and not zen_sessions_has_windows:
+    if args.zen_sessions_file and not zen_sessions_has_windows:
         # Explain why the output may look like the "current session".
         if used_window_session_path != zen_sessions_file:
             warn(
                 f"{zen_sessions_file} has windows=[]; using tabs from {used_window_session_path}.",
                 stderr=True,
             )
+
     if args.dump_tab_sample:
         for i, w in enumerate((window_session.get("windows") or [])[:2]):
             tabs = w.get("tabs") or []

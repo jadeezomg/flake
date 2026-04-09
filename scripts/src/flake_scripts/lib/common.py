@@ -39,6 +39,20 @@ def resolve_flake_root(explicit: Path | None = None, *, anchor: Path | None = No
     return (Path.home() / ".dotfiles" / "flake").resolve()
 
 
+def host_is_nixos() -> bool:
+    """True when this machine is NixOS Linux (/etc/NIXOS or ID=nixos in /etc/os-release)."""
+    import sys
+    if sys.platform != "linux":
+        return False
+    if os.path.isfile("/etc/NIXOS"):
+        return True
+    try:
+        with open("/etc/os-release", encoding="utf-8") as f:
+            return any(line.strip() == "ID=nixos" for line in f)
+    except OSError:
+        return False
+
+
 def xdg_config_home() -> Path:
     xdg = os.environ.get("XDG_CONFIG_HOME")
     if xdg:
