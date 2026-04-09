@@ -17,6 +17,8 @@
         calt = true;
       };
 
+      icon_theme = "Catppuccin Latte";
+
       # --- Agent Font ---
       agent_buffer_font_size = 14;
 
