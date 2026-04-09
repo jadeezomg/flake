@@ -1,8 +1,4 @@
-{
-  config,
-  pkgs,
-  ...
-}: let
+{pkgs, ...}: let
   sharedEnv = import ../shared/env.nix;
   sharedPaths = import ../shared/paths.nix;
 in {
@@ -17,6 +13,7 @@ in {
       export NH_FLAKE=${sharedPaths.commonPaths.flake}
       export EDITOR=${sharedEnv.commonEnv.EDITOR}
       export VISUAL=${sharedEnv.commonEnv.VISUAL}
+      export SOPS_EDITOR=${sharedEnv.commonEnv.SOPS_EDITOR}
       export BROWSER=${sharedEnv.commonEnv.BROWSER}
       export PAGER=${sharedEnv.commonEnv.PAGER}
       # BAT_THEME is optional now (Stylix can own it). Only export if present.

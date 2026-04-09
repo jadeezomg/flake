@@ -1,5 +1,5 @@
 # NixOS default profile: composed from shared settings/search/extensions and spaces/pins.
-# Run sync_caya_from_session.py on NixOS to update spaces.nix and pins.nix from the live Zen session.
+# Regenerate spaces.nix / pins.nix from the live session: zen_session.py sync (scripts/zen-session).
 {
   pkgs,
   extensions,
@@ -43,6 +43,11 @@ in
         color = "yellow";
         icon = "dollar";
         id = 1;
+      };
+      Private = {
+        color = "purple";
+        icon = "fence";
+        id = 2;
       };
     };
   }

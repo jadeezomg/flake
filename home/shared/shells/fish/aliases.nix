@@ -37,9 +37,28 @@ in {
       nix run ${sharedConfig.nixConfig.homeManagerFlake} -- news --flake "${sharedPaths.commonPaths.flake}#${finalHostKey}"
     end
 
-    # Flake build scripts shortcuts
     function flake
-      nu "${sharedPaths.commonPaths.flake}/${sharedConfig.nixConfig.flakeBuildScript}"
+      set -l j "${sharedPaths.commonPaths.flake}/Justfile"
+      if test (count $argv) -gt 1
+        set -l sub $argv[1]
+        if contains $sub build switch generation gc fmt backups
+          set -e argv[1]
+          just --justfile $j _$sub $argv
+          return
+        else if test "$sub" = init
+          set -e argv[1]
+          just --justfile $j _init $argv
+          return
+        else if test "$sub" = read-defaults
+          set -e argv[1]
+          just --justfile $j _read-defaults $argv
+          return
+        end
+      end
+      just --justfile $j $argv
+    end
+    function nuflake
+      nu "${sharedPaths.commonPaths.flake}/build/flake.nu" $argv
     end
 
     # pay-respects integration

@@ -3,6 +3,7 @@
   # Nix/Home Manager configuration
   nixConfig = {
     homeManagerFlake = "home-manager/master";
+    # Legacy Nushell entrypoint (use `nuflake`); primary CLI is root Justfile + `flake`
     flakeBuildScript = "build/flake.nu";
   };
 

@@ -1,0 +1,7 @@
+{
+	"type": "npm",
+	"package": "ctx7",
+	"hash_field": "hash",
+	"npm_deps_hash_field": "npmDepsHash",
+	"lock_file": "package-lock.json"
+}

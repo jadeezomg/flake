@@ -1,8 +1,4 @@
-{
-  config,
-  pkgs,
-  ...
-}: {
+{config, ...}: {
   # Homebrew configuration for Darwin
   # Packages that don't have good Nix equivalents or are Mac-specific
 
@@ -44,9 +40,9 @@
       "middleclick" # Three-finger click utility (Mac-specific)
       "notunes" # Disable iTunes/Music auto-launch (Mac-specific)
       "scroll-reverser" # Reverse scroll direction (Mac-specific)
+      "finetune" # Control the volume of every app independently
 
       # --- Development ---
-      "docker-desktop" # Docker Desktop for Mac (renamed from docker)
       "handy" # Offline speech-to-text desktop app
       "superset" # agent orchestration platform
       "lm-studio" # Local LLM GUI

@@ -1,3 +1,0 @@
-{...}: {
-  # TODO: Add wezterm configuration
-}

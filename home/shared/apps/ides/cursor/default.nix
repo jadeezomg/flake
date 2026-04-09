@@ -1,8 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-}: {
+{pkgs, ...}: {
   programs.vscode = {
     enable = true;
     package = pkgs.code-cursor;
@@ -13,7 +9,7 @@
           # --- General ---
           github.vscode-pull-request-github # GitHub Pull Requests
           # --- AI Agents ---
-          anthropic.claude-code # Claude Code for VS Code / Cursor
+          # anthropic.claude-code # pinned below (nixpkgs hash lags marketplace republish)
           # --- Languages ---
           # Ruby
           wingrunr21.vscode-ruby # Ruby support
@@ -42,10 +38,10 @@
         ]
         ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
           # {
-          #   name = "claude-code"; # Claude Code for VS Code / Cursor
+          #   name = "claude-code";
           #   publisher = "anthropic";
-          #   version = "2.1.9";
-          #   sha256 = "sha256-Njb0h5z7J8HTG2HATLug1wF+wqE2ab/ojJtPub5Sv1Q=";
+          #   version = "2.1.96";
+          #   sha256 = "sha256-f+6xXZVb5sYrmrH7eoon6/QoQaTnBuTnb+YnvszqyKA=";
           # }
           {
             name = "schemastore"; # JSON Schema support
@@ -83,6 +79,13 @@
             publisher = "sst-dev";
             version = "0.0.13";
             sha256 = "sha256-6adXUaoh/OP5yYItH3GAQ7GpupfmTGaxkKP6hYUMYNQ=";
+          }
+          # Just — https://github.com/nefrob/vscode-just
+          {
+            name = "vscode-just-syntax";
+            publisher = "nefrob";
+            version = "0.9.1";
+            sha256 = "sha256-yl9v4sL1yWzKwE0MIk7BeAd4/FkLmxQaW5ENb8UVNIU=";
           }
         ];
       userSettings = {

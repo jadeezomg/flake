@@ -330,5 +330,6 @@ include "dms/cursor.kdl"
 
 // Output configurations are host-specific and included from separate files.
 include "host.kdl"
+include "dither-glitch.kdl"
 
 

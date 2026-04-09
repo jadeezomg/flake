@@ -9,6 +9,7 @@
         "gamemode"
         "input"
         "networkmanager"
+        "podman"
         "uinput"
         "video"
         "wheel"

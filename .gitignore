@@ -7,6 +7,7 @@ __pycache__/
 .DS_Store
 uv.lock
 session_dump.json
+package/
 
-# Dated backups from sync_caya_from_session.py
+# Dated backups from zen-session sync (flake_scripts.zen.sync_flake_profiles)
 *.nix.*.bak

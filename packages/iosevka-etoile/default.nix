@@ -6,11 +6,11 @@
   # Iosevka Etoile - Pre-built from GitHub releases
   # To update: change version and run: nix-prefetch-url --unpack <url>
   pname = "iosevka-etoile";
-  version = "33.3.6";
+  version = "34.3.0";
 
   src = pkgs.fetchzip {
     url = "https://github.com/be5invis/Iosevka/releases/download/v${version}/PkgTTC-IosevkaEtoile-${version}.zip";
-    sha256 = "sha256-2Cm7K1TgPvB0zUIbprtNdGpKlGKl+IiNgls0855J6fg=";
+    sha256 = "sha256-d9gRA1BRSwfnWQSSjmmSgKbZgeuafYuJwTPQ2a9qfJw=";
     stripRoot = false;
   };
 in

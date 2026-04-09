@@ -1,8 +1,4 @@
-{
-  config,
-  pkgs,
-  ...
-}: {
+{...}: {
   # Enable Touch ID for sudo authentication
   # This allows using fingerprint instead of password for sudo commands
   security.pam.services.sudo_local.touchIdAuth = true;

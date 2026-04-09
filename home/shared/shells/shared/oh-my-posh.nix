@@ -1,13 +1,6 @@
-{
-  config,
-  pkgs,
-  lib,
-  isDarwin ? false,
-  ...
-}: let
+{pkgs, ...}: let
   themeColors = import ../../assets/theme/theme.nix;
   sharedConfig = import ./config.nix;
-  sharedPaths = import ./paths.nix;
 
   # All \uXXXX / \ueXXX sequences used in the theme (without leading backslash).
   # When adding new \u or \ue icons below, add the corresponding "uXXXX"/"ueXXX" here.

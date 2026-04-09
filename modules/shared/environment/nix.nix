@@ -1,10 +1,4 @@
-{
-  config,
-  pkgs,
-  lib,
-  hostKey ? null,
-  ...
-}: let
+{hostKey ? null, ...}: let
   hostBuildCores = {
     desktop = 24;
     framework = 6;

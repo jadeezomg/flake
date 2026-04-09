@@ -1,8 +1,4 @@
-{
-  config,
-  pkgs,
-  ...
-}: {
+{...}: {
   # General system services can be configured here
   # Hardware-related services (audio, printing) are in modules/hardware/
   # Host-specific services should be in hosts/<hostname>/default.nix

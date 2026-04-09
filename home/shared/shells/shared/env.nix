@@ -4,6 +4,7 @@
   commonEnv = {
     EDITOR = "zeditor";
     VISUAL = "zeditor";
+    SOPS_EDITOR = "hx";
     BROWSER = "zen";
     PAGER = "bat";
   };

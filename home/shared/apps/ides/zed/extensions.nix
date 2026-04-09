@@ -10,6 +10,7 @@
       "sql"
       "latex"
       "make"
+      "just"
       "gem"
       "ruby"
       "graphql"
@@ -26,6 +27,7 @@
       "d2"
       "kdl"
       "biome"
+      "xml"
     ];
   };
 }
