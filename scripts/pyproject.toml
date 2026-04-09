@@ -20,3 +20,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/flake_scripts"]
+
+[tool.ty.environment]
+python = ".venv"

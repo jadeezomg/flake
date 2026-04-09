@@ -101,10 +101,7 @@
     };
   };
 
-  outputs = inputs @ {
-    flake-parts,
-    ...
-  }: let
+  outputs = inputs @ {flake-parts, ...}: let
     pkgsFuncs = import ./lib/pkgs.nix {inherit inputs;};
     inherit (pkgsFuncs) getPkgs;
   in

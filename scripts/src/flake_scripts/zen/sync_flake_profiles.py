@@ -13,9 +13,8 @@ from difflib import unified_diff
 from datetime import datetime
 from pathlib import Path
 
-from flake_scripts.lib.common import bad, console_err, info, resolve_flake_root, warn
+from flake_scripts.lib.common import bad, console_err, host_is_nixos, info, resolve_flake_root, warn
 from flake_scripts.zen.extract_pinned_tabs import (
-    host_is_nixos,
     iter_space_nix_rows,
     load_pinned_per_space,
     nix_escape,
