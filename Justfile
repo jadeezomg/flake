@@ -402,6 +402,11 @@ git:
 check-packages:
     @uv run --project "$FLAKE/scripts" check-packages
 
+[doc('Update custom flake packages (context7, iosevka) to latest versions')]
+[group('check')]
+update-packages *ARGS:
+    @uv run --project "$FLAKE/scripts" update-packages {{ ARGS }}
+
 [doc('Verify Zen profile places.sqlite exists')]
 [group('check')]
 check-zen-essentials:

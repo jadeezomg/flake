@@ -3,13 +3,14 @@ name = "flake-scripts"
 version = "0.1.0"
 description = "Flake maintenance scripts: symlink-check, check-packages, read-defaults, zen-session"
 requires-python = ">=3.10"
-dependencies = ["lz4", "rich"]
+dependencies = ["lz4", "rich", "certifi"]
 
 [project.scripts]
 symlink-check = "flake_scripts.symlinks:main"
 zen-session   = "flake_scripts.zen.zen_session:main"
-check-packages = "flake_scripts.check_packages:main"
-read-defaults  = "flake_scripts.read_defaults:main"
+check-packages  = "flake_scripts.check_packages:main"
+read-defaults   = "flake_scripts.read_defaults:main"
+update-packages = "flake_scripts.update_packages:main"
 
 [dependency-groups]
 dev = ["ruff", "ty"]

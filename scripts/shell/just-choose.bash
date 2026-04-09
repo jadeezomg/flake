@@ -24,15 +24,15 @@ while IFS= read -r line; do
     group="${BASH_REMATCH[1]}"
     continue
   fi
-  if [[ "$line" =~ ^[[:space:]]+([a-zA-Z0-9][a-zA-Z0-9_-]*)[[:space:]]+#(.*)$ ]]; then
+  if [[ "$line" =~ ^[[:space:]]+([a-zA-Z0-9][a-zA-Z0-9_-]*)([[:space:]][^#]*)#(.*)$ ]]; then
     r="${BASH_REMATCH[1]}"
-    d="${BASH_REMATCH[2]}"
+    d="${BASH_REMATCH[3]}"
     d="${d#"${d%%[![:space:]]*}"}"
     d="${d%"${d##*[![:space:]]}"}"
     order+=("$r")
     grp["$r"]="${group:-ungrouped}"
     doc["$r"]="$d"
-  elif [[ "$line" =~ ^[[:space:]]+([a-zA-Z0-9][a-zA-Z0-9_-]*)[[:space:]]*$ ]]; then
+  elif [[ "$line" =~ ^[[:space:]]+([a-zA-Z0-9][a-zA-Z0-9_-]*) ]]; then
     r="${BASH_REMATCH[1]}"
     order+=("$r")
     grp["$r"]="${group:-ungrouped}"
