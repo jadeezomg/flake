@@ -1,7 +1,4 @@
-{
-  config,
-  ...
-}: {
+{config, ...}: {
   # Homebrew configuration for Darwin
   # Packages that don't have good Nix equivalents or are Mac-specific
 

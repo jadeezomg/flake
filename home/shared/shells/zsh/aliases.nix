@@ -1,6 +1,4 @@
-{
-  ...
-}: let
+{...}: let
   sharedAliases = import ../shared/aliases.nix;
 in {
   # Import common aliases from shared configuration

@@ -1,7 +1,4 @@
-{
-  config,
-  ...
-}: let
+{config, ...}: let
   flakeRoot = "${config.home.homeDirectory}/.dotfiles/flake";
   assetsDir = "${flakeRoot}/home/shared/assets";
 in {
