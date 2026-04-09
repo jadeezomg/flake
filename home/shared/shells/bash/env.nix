@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}: let
+{pkgs, ...}: let
   sharedEnv = import ../shared/env.nix;
   sharedPaths = import ../shared/paths.nix;
 in {

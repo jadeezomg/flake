@@ -2,7 +2,6 @@
   config,
   hostKey,
   user,
-  hostData,
   ...
 }: let
   flakePath = "$HOME/.dotfiles/flake";

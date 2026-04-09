@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}: let
+{pkgs, ...}: let
   sharedConfig = import ../shared/config.nix;
 in {
   # Configure Oh My Posh for Zsh

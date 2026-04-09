@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}: let
+{pkgs, ...}: let
   themeColors = import ../../assets/theme/theme.nix;
   sharedConfig = import ./config.nix;
 
