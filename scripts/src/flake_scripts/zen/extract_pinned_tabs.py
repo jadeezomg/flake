@@ -19,10 +19,12 @@ import sys
 import uuid
 from collections import Counter
 
+from flake_scripts.lib.common import bad, dim, dim_lines, warn, xdg_config_home
+
 try:
     import lz4.block
 except ImportError:
-    print("Install lz4: pip install lz4", file=sys.stderr)
+    bad("Missing lz4 — run [bold]uv sync[/] in scripts/", stderr=True)
     sys.exit(1)
 
 
@@ -49,21 +51,19 @@ def _zen_profile_has_sessions(profile_dir):
 def _default_zen_profile_root():
     if sys.platform == "darwin":
         return os.path.expanduser("~/Library/Application Support/zen/Profiles/default")
-    config_home = os.path.expanduser(
-        os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
-    )
-    primary = os.path.join(config_home, "zen", "default")
+    ch = xdg_config_home()
+    primary = str(ch / "zen" / "default")
     if _zen_profile_has_sessions(primary):
         return primary
     if host_is_nixos():
-        zen_root = os.path.join(config_home, "zen")
-        if os.path.isdir(zen_root):
+        zen_root = ch / "zen"
+        if zen_root.is_dir():
             try:
                 names = sorted(os.listdir(zen_root))
             except OSError:
                 names = []
             for name in names:
-                cand = os.path.join(zen_root, name)
+                cand = str(zen_root / name)
                 if os.path.isdir(cand) and _zen_profile_has_sessions(cand):
                     return cand
     return primary
@@ -79,7 +79,7 @@ SESSIONSTORE_RECOVERY = os.path.join(
 )
 SESSIONSTORE_MAIN = os.path.join(ZEN_PROFILE_ROOT, "sessionstore.jsonlz4")
 WINDOW_SESSION_PATHS = [SESSIONSTORE_RECOVERY, SESSIONSTORE_MAIN, ZEN_SESSIONS_FILE]
-# All session-related paths (for dump_session / check_spaces that iterate and report)
+# All session-related paths (session inspection / tooling)
 SESSION_PATHS = [ZEN_SESSIONS_FILE] + WINDOW_SESSION_PATHS
 # Optional override: JSON mapping space ID -> name or { name, icon?, position? }
 ZEN_SPACE_NAMES_FILE = os.environ.get(
@@ -108,11 +108,11 @@ def _load_zen_sessions(zen_sessions_file=None):
     if zen_sessions_file is None:
         zen_sessions_file = ZEN_SESSIONS_FILE
     if not os.path.isfile(zen_sessions_file):
-        print(f"Missing: {zen_sessions_file}", file=sys.stderr)
+        bad(f"Missing: {zen_sessions_file}", stderr=True)
         sys.exit(2)
     data = _read_mozlz4(zen_sessions_file)
     if data is None:
-        print(f"Invalid or empty: {zen_sessions_file}", file=sys.stderr)
+        bad(f"Invalid or empty: {zen_sessions_file}", stderr=True)
         sys.exit(2)
     return data
 
@@ -134,11 +134,10 @@ def _load_window_session(window_session_paths=None, return_used_path=False):
         windows = data.get("windows") or []
         if windows:
             return (data, path) if return_used_path else data
-    print(
-        "No session with windows found. Tried:\n  "
-        + "\n  ".join(window_session_paths)
-        + "\n(When Zen is closed, a `zen-sessions*.jsonlz4` backup may still have window/tab data.)",
-        file=sys.stderr,
+    bad("No session with windows found.", stderr=True)
+    dim_lines(*[f"  {p}" for p in window_session_paths])
+    dim_lines(
+        "(When Zen is closed, a zen-sessions*.jsonlz4 backup may still have window/tab data.)",
     )
     sys.exit(2)
 
@@ -453,6 +452,44 @@ def slug(title, url):
     return "Tab"
 
 
+def iter_space_nix_rows(spaces_list: list[dict]) -> list[tuple[str, str, str, int]]:
+    """Nix `spaces` attrs: (nix_key, id, icon_escaped, position) per Zen space."""
+    used: set[str] = set()
+    rows: list[tuple[str, str, str, int]] = []
+    for i, s in enumerate(spaces_list):
+        raw = s.get("name")
+        name = (raw or "").strip() if isinstance(raw, str) else ""
+        if not name:
+            name = "Default"
+        sid = str(s.get("id") or "")
+        key = nix_escape(name)
+        if key in used:
+            key = nix_escape(f"{name} ({sid[:8]})")
+        used.add(key)
+        pos = s.get("position")
+        if pos is None or pos == 0 or (isinstance(pos, (int, float)) and pos == 0):
+            pos = 1000 + i
+        icon_val = nix_escape(str(s.get("icon") or "").strip())
+        rows.append((key, sid, icon_val, int(pos)))
+    return rows
+
+
+def space_id_to_nix_keys(spaces_list: list[dict]) -> dict[str, str]:
+    """Map Zen space id → Nix spaces attr key (same rules as iter_space_nix_rows)."""
+    return {sid: key for key, sid, _, _ in iter_space_nix_rows(spaces_list)}
+
+
+def normalize_zen_tab_id(tab_id) -> str:
+    """Lowercase UUID for Nix pin `id`; replace invalid values with a new uuid4."""
+    if tab_id is None or tab_id == "":
+        candidate = str(uuid.uuid4()).lower()
+    else:
+        candidate = str(tab_id).lower()
+    if not _UUID_RE.match(candidate):
+        return str(uuid.uuid4()).lower()
+    return candidate
+
+
 def load_pinned_per_space(zen_sessions=None, window_session=None):
     """
     Extract spaces, pins per space, and folders. Uses exactly:
@@ -583,18 +620,19 @@ def main(args=None):
     if getattr(args, "zen_sessions_file", None) and not zen_sessions_has_windows:
         # Explain why the output may look like the "current session".
         if used_window_session_path != zen_sessions_file:
-            print(
-                f"Warning: {zen_sessions_file} has windows=[]; using windows/tabs from {used_window_session_path}.",
-                file=sys.stderr,
+            warn(
+                f"{zen_sessions_file} has windows=[]; using tabs from {used_window_session_path}.",
+                stderr=True,
             )
     if args.dump_tab_sample:
         for i, w in enumerate((window_session.get("windows") or [])[:2]):
             tabs = w.get("tabs") or []
-            print(f"Window {i}: {len(tabs)} tabs", file=sys.stderr)
+            dim(f"Window {i}: {len(tabs)} tabs", stderr=True)
             for j, t in enumerate(tabs[:6]):
-                print(
-                    f"  Tab {j}: pinned={t.get('pinned')} zenWorkspace={t.get('zenWorkspace')} groupId={t.get('groupId')} zenEssential={t.get('zenEssential')}",
-                    file=sys.stderr,
+                dim(
+                    f"  Tab {j}: pinned={t.get('pinned')} zenWorkspace={t.get('zenWorkspace')} "
+                    f"groupId={t.get('groupId')} zenEssential={t.get('zenEssential')}",
+                    stderr=True,
                 )
         if not args.nix:
             return
@@ -608,20 +646,9 @@ def main(args=None):
         lines = []
         if spaces_list:
             lines.append("  spaces = {")
-            used = set()
-            for i, s in enumerate(spaces_list):
-                name = s.get("name") or "Default"
-                sid = s.get("id") or ""
-                key = nix_escape(name)
-                if key in used:
-                    key = nix_escape(f"{name} ({sid[:8]})")
-                used.add(key)
-                pos = s.get("position")
-                if pos is None or pos == 0:
-                    pos = 1000 + i
-                icon_val = nix_escape(s.get("icon") or "")
+            for key, sid, icon_val, pos in iter_space_nix_rows(spaces_list):
                 lines.append(
-                    f'    "{key}" = {{ id = "{sid}"; icon = "{icon_val}"; position = {int(pos)}; }};'
+                    f'    "{key}" = {{ id = "{sid}"; icon = "{icon_val}"; position = {pos}; }};'
                 )
             lines.append("  };")
             lines.append("")
@@ -643,9 +670,7 @@ def main(args=None):
                     c += 1
                     key = f"{base_key}_{c}"
                 used_keys.add(key)
-                pin_id = p.get("tabId") or str(uuid.uuid4()).lower()
-                if not _UUID_RE.match(str(pin_id)):
-                    pin_id = str(uuid.uuid4()).lower()
+                pin_id = normalize_zen_tab_id(p.get("tabId"))
                 parts = [
                     f'id = "{pin_id}"',
                     f'url = "{nix_escape(url)}"',

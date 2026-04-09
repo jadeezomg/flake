@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Theme: from env when invoked via `just` (Justfile export), else build/theme.sh
+# Theme: from env when invoked via `just` (Justfile exports), else inline fallback.
 if [[ -z "${THEME_RESET:-}" ]]; then
-  # shellcheck source=theme.sh
-  source "${SCRIPT_DIR}/theme.sh"
+  export THEME_GREEN='\033[32m'        THEME_GREEN_BOLD='\033[1;32m'
+  export THEME_YELLOW='\033[33m'       THEME_YELLOW_BOLD='\033[1;33m'
+  export THEME_RED='\033[31m'          THEME_RED_BOLD='\033[1;31m'
+  export THEME_CYAN='\033[36m'         THEME_CYAN_BOLD='\033[1;36m'
+  export THEME_RESET='\033[0m'
+  export ICON_SUCCESS="${THEME_GREEN}▲${THEME_RESET}"
+  export ICON_PENDING="${THEME_YELLOW}❖${THEME_RESET}"
+  export ICON_ERROR="${THEME_RED}▼${THEME_RESET}"
+  export ICON_INFO="${THEME_CYAN}▪${THEME_RESET}"
 fi
 
 flake_root() {
@@ -59,7 +65,7 @@ build_nh_cmd() {
 }
 
 notify() {
-  local title="$1" msg="$2" status="${3:-info}"
+  local title="$1" msg="$2"
   if command -v notify-send >/dev/null 2>&1; then
     notify-send --app-name="flake-build" "$title" "$msg"
   else

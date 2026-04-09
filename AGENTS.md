@@ -16,7 +16,7 @@ This is jadee's NixOS flake. Three rules apply to every task:
 flake/
 ├── flake.nix              # flake-parts entrypoint, inputs, perSystem outputs
 ├── Justfile               # all build/switch/gc/format recipes
-├── scripts/               # bash/nu/python helpers invoked by Justfile recipes
+├── scripts/               # shell/ (bash for Justfile) + pyproject + src/flake_scripts (uv)
 ├── lib/
 │   └── pkgs.nix           # getPkgs / getPkgsStable (used by flake.nix + parts/)
 ├── parts/

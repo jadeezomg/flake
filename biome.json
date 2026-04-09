@@ -4,8 +4,10 @@
 		"includes": [
 			"**",
 			"!!**/.git",
+			"!!**/.claude",
 			"!!**/.direnv",
 			"!!**/node_modules",
+			"!!**/scripts/.venv",
 			"!!**/scripts/zen-session/.venv"
 		]
 	},
