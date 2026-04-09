@@ -44,6 +44,7 @@
       "middleclick" # Three-finger click utility (Mac-specific)
       "notunes" # Disable iTunes/Music auto-launch (Mac-specific)
       "scroll-reverser" # Reverse scroll direction (Mac-specific)
+      "finetune" # Control the volume of every app independently
 
       # --- Development ---
       "handy" # Offline speech-to-text desktop app
