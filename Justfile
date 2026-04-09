@@ -38,7 +38,7 @@ build:
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     print_header "BUILD"; h="$(get_host "")"
-    is_darwin && sc="nh darwin build --flake '${FLAKE}#${h}'" || sc="nh os build --flake '${FLAKE}#${h}'"
+    is_darwin && sc="nh darwin build '${FLAKE}#${h}'" || sc="nh os build '${FLAKE}#${h}'"
     notify "Flake Build" "Building $h..." "pending"
     print_info "→ $sc"; bash -c "$sc"
     notify "Flake Build" "OK" "success"; print_header "END"
@@ -50,7 +50,7 @@ build-boot:
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     print_header "BUILD"; h="$(get_host "")"
-    is_darwin && sc="nh darwin build --flake '${FLAKE}#${h}'" || sc="nh os boot --flake '${FLAKE}#${h}'"
+    is_darwin && sc="nh darwin build '${FLAKE}#${h}'" || sc="nh os boot '${FLAKE}#${h}'"
     notify "Flake Build" "Boot $h..." "pending"
     print_info "→ $sc"; bash -c "$sc"
     notify "Flake Build" "Next reboot" "success"; print_header "END"
@@ -62,7 +62,7 @@ build-dry:
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     print_header "BUILD"; h="$(get_host "")"
-    is_darwin && sc="nh darwin build --dry-run --flake '${FLAKE}#${h}'" || sc="nh os test --flake '${FLAKE}#${h}'"
+    is_darwin && sc="nh darwin build --dry '${FLAKE}#${h}'" || sc="nh os test '${FLAKE}#${h}'"
     notify "Flake Build" "Dry $h..." "pending"
     print_info "→ $sc"; bash -c "$sc"; print_header "END"
 
@@ -73,7 +73,7 @@ build-dev:
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     print_header "BUILD"; h="$(get_host "")"
-    is_darwin && sc="nh darwin switch --show-trace --flake '${FLAKE}#${h}'" || sc="nh os switch --show-trace --flake '${FLAKE}#${h}'"
+    is_darwin && sc="nh darwin switch --show-trace '${FLAKE}#${h}'" || sc="nh os switch --show-trace '${FLAKE}#${h}'"
     notify "Flake Build" "Trace $h..." "pending"
     print_info "→ $sc"; bash -c "$sc"; print_header "END"
 
@@ -93,7 +93,7 @@ switch:
       || notify "Flake Switch" "Check failed [continue]" "pending"
     echo ""
     h="$(get_host "")"
-    is_darwin && sc="nh darwin switch --flake '${FLAKE}#${h}'" || sc="nh os switch --flake '${FLAKE}#${h}'"
+    is_darwin && sc="nh darwin switch '${FLAKE}#${h}'" || sc="nh os switch '${FLAKE}#${h}'"
     notify "Flake Switch" "Switching $h..." "pending"
     print_info "→ $sc"; bash -lc "$sc"; echo ""
     hm_vars="/etc/profiles/per-user/${USER}/etc/profile.d/hm-session-vars.sh"
@@ -109,7 +109,7 @@ switch-fast:
     print_header "SWITCH"
     notify "Flake Switch" "Fast" "info"; echo ""
     h="$(get_host "")"
-    is_darwin && sc="nh darwin switch --flake '${FLAKE}#${h}'" || sc="nh os switch --flake '${FLAKE}#${h}'"
+    is_darwin && sc="nh darwin switch '${FLAKE}#${h}'" || sc="nh os switch '${FLAKE}#${h}'"
     notify "Flake Switch" "Switching $h..." "pending"
     print_info "→ $sc"; bash -lc "$sc"; print_header "END"
 
