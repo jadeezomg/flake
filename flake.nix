@@ -90,11 +90,6 @@
       inputs.niri-unstable.url = "github:YaLTeR/niri/wip/branch";
     };
 
-    netwatch = {
-      url = "github:matthart1983/netwatch";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # https://github.com/ozturkkl/framework-control — uses bundled nixpkgs fork for the package until upstream nixpkgs ships it
     framework-control = {
       url = "github:ozturkkl/framework-control";
@@ -117,7 +112,6 @@
       ];
 
       perSystem = {
-        inputs',
         pkgs,
         system,
         ...
@@ -133,7 +127,10 @@
             inherit pkgs;
             lib = pkgs.lib;
           };
-          netwatch = inputs'.netwatch.packages.default;
+          context7 = import ./packages/context7/default.nix {
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
         };
 
         formatter = pkgs.alejandra;
