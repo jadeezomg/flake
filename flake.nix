@@ -89,23 +89,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.niri-unstable.url = "github:YaLTeR/niri/wip/branch";
     };
+
+    # https://github.com/ozturkkl/framework-control — uses bundled nixpkgs fork for the package until upstream nixpkgs ships it
+    framework-control = {
+      url = "github:ozturkkl/framework-control";
+    };
   };
 
-  outputs = inputs @ {
-    flake-parts,
-    nixpkgs,
-    nixpkgs-stable,
-    nix-darwin,
-    home-manager,
-    sops-nix,
-    determinate,
-    lanzaboote,
-    nix-homebrew,
-    zen-browser,
-    quickshell,
-    ...
-  }: let
-    pkgsFuncs = import ./parts/functions/pkgs.nix {inherit inputs;};
+  outputs = inputs @ {flake-parts, ...}: let
+    pkgsFuncs = import ./lib/pkgs.nix {inherit inputs;};
     inherit (pkgsFuncs) getPkgs;
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
@@ -120,9 +112,6 @@
       ];
 
       perSystem = {
-        config,
-        self',
-        inputs',
         pkgs,
         system,
         ...
@@ -135,6 +124,10 @@
             lib = pkgs.lib;
           };
           iosevka-etoile = import ./packages/iosevka-etoile/default.nix {
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
+          context7 = import ./packages/context7/default.nix {
             inherit pkgs;
             lib = pkgs.lib;
           };

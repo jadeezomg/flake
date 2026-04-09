@@ -33,8 +33,6 @@
   stylixZenUserContent = import (inputs.stylix + "/modules/zen-browser/userContent.nix") {
     colors = stylixColorsWithAlpha;
   };
-  extraUserChrome = builtins.readFile ./chrome/userChrome.css;
-  extraUserContent = builtins.readFile ./chrome/userContent.css;
 in {
   imports = [
     inputs.zen-browser.homeModules.beta

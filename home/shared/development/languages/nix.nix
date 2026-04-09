@@ -6,5 +6,7 @@
     # nixpkgs-fmt # Formatter
     # nixfmt-rfc-style # Official formatter
     alejandra # Opinionated formatter
+    deadnix # Find unused variables/bindings
+    statix # Lint for antipatterns
   ];
 }

@@ -1,11 +1,6 @@
-{
-  config,
-  pkgs,
-  ...
-}: {
+{...}: {
   imports = [
-    ./docker-amd.nix
-    ./docker-nvidia.nix
+    ./podman.nix
     ./vm-variants.nix
   ];
 }

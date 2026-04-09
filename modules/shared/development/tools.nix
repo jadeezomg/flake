@@ -9,6 +9,7 @@
     gh # GitHub CLI
     delta # Better git diff viewer
     lazygit # Terminal UI for git
+    gitui # Terminal UI for git
 
     # --- Code Metrics & Analysis ---
     tokei # Code metrics

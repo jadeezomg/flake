@@ -1,4 +1,8 @@
-{lib, ...}: {
+{
+  lib,
+  claude-agent-acp-fork,
+  ...
+}: {
   programs.zed-editor = {
     userSettings = {
       # --- Appearance ---
@@ -12,6 +16,8 @@
       buffer_font_features = {
         calt = true;
       };
+
+      icon_theme = "Catppuccin Latte";
 
       # --- Agent Font ---
       agent_buffer_font_size = 14;
@@ -79,6 +85,18 @@
         copilot = false;
       };
 
+      # --- External Agents ---
+      agent_servers = {
+        claude-acp = {
+          type = "registry";
+        };
+        claude-agent-acp-fork = {
+          type = "custom";
+          command = "${claude-agent-acp-fork}/bin/claude-agent-acp";
+          args = [];
+        };
+      };
+
       telemetry = {
         diagnostics = false;
         metrics = false;
@@ -132,14 +150,11 @@
       # --- Agent ---
       agent = {
         expand_edit_card = true;
-        notify_when_agent_waiting = "all_screens";
+        notify_when_agent_waiting = "never";
         single_file_review = true;
-        default_model = {
-          provider = "lmstudio";
-          model = "zai-org/glm-4.6v-flash";
-        };
         model_parameters = [];
         tool_permissions = import ./tool-permissions.nix;
+        show_turn_stats = true;
       };
 
       # --- Scrollbar ---

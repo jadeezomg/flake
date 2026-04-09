@@ -13,7 +13,7 @@ binds {
     Mod+P hotkey-overlay-title="Proton Pass" { spawn "proton-pass"; }
     Mod+L hotkey-overlay-title="Lock the Screen: dms" { spawn "dms" "ipc" "call" "lock" "lock"; }
     Mod+D { spawn "dms" "ipc" "call" "plugins" "toggle" "aiAssistant"; }
-
+    Super+X hotkey-overlay-title="App Launcher: Toggle" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
 
 
     // Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.

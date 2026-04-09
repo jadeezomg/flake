@@ -1,4 +1,4 @@
-{lib, ...}: {
+{...}: {
   dconf.enable = true;
   dconf.settings = {
     # Reduce GTK decoration font size

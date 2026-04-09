@@ -87,11 +87,14 @@ This document lists all aliases and commands available across different shells i
 | `hms` | Apply home-manager configuration (switch) |
 | `hmn` | Show home-manager news |
 
-## Flake Management (Bash, Fish, Nushell)
+## Flake Management (Bash, Fish, Nushell, Zsh)
 
 | Function | Description |
 |----------|-------------|
-| `flake` | Run flake build script |
+| `flake` | `just --justfile $FLAKE/Justfile` — no args → **`just --choose`**. With extra args on `build`/`switch`/`generation`/`gc`/`fmt`/`backups`/`init`/`read-defaults`, forwards to private `_…` recipes, e.g. `flake build --dry`, `flake init myhost`. |
+| `nuflake` | Legacy Nushell dispatcher: `nu $FLAKE/build/flake.nu` |
+
+Requires **`just`** on PATH (declared in home packages). Set **`FLAKE`** to your flake directory (default `~/.dotfiles/flake`).
 
 ---
 
@@ -164,6 +167,7 @@ These commands are provided by [git.nu](https://github.com/fj0r/git.nu) and are 
   - Bash: `home/shared/shells/bash/aliases.nix`
   - Fish: `home/shared/shells/fish/aliases.nix`
   - Nushell: `home/shared/shells/nushell/aliases.nix`
+  - Zsh: `home/shared/shells/zsh/base.nix` (`flake`, `nuflake`)
 - **git.nu commands** are sourced from the [fj0r/git.nu](https://github.com/fj0r/git.nu) repository and are only available in Nushell
 - Some git.nu commands may have different behavior than standard git commands - refer to the [git.nu documentation](https://github.com/fj0r/git.nu) for details
 
@@ -187,7 +191,7 @@ These commands are provided by [git.nu](https://github.com/fj0r/git.nu) and are 
 
 **System:**
 - `hms` - Apply Home Manager config
-- `flake` - Run flake scripts
+- `flake` / `nuflake` - Flake (`just --choose` when no args) vs legacy Nu
 - `cl` - Clear terminal
 
 **File Operations:**

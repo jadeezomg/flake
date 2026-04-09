@@ -1,8 +1,4 @@
-{
-  pkgs,
-  pkgsStable,
-  ...
-}: {
+{pkgs, ...}: {
   # Authentication configuration
   # PAM configuration, etc.
 

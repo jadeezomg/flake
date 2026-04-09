@@ -1,79 +1,74 @@
 {inputs, ...}: let
   lib = inputs.nixpkgs.lib;
-  inherit (inputs) nixpkgs nix-darwin home-manager sops-nix determinate nix-homebrew lanzaboote;
+  inherit (inputs) nix-darwin home-manager sops-nix determinate nix-homebrew lanzaboote;
 
-  # Load functions
-  pkgsFuncs = import ./functions/pkgs.nix {inherit inputs;};
+  pkgsFuncs = import ../lib/pkgs.nix {inherit inputs;};
   inherit (pkgsFuncs) getPkgs getPkgsStable;
 
-  dataFuncs = import ./functions/data.nix {dataPath = ../data;};
-  inherit (dataFuncs) hostData userData userPreferences userExtras;
+  # Data
+  hostData =
+    if builtins.pathExists ../data/hosts/hosts.nix
+    then import ../data/hosts/hosts.nix
+    else {hosts = {};};
 
-  modulesFuncs = import ./functions/modules.nix {
-    inherit inputs hostData userData userPreferences userExtras;
+  # Home-manager modules per platform
+  darwinSystems = ["aarch64-darwin"];
+  homeModules = isDarwin:
+    [
+      inputs.sops-nix.homeModules.sops
+      inputs.stylix.homeModules.stylix
+    ]
+    ++ (
+      if isDarwin
+      then [../home/shared ../home/darwin]
+      else [../home/shared ../home/nixos]
+    );
+
+  # Special args passed to all system modules
+  commonSpecialArgs = {inherit inputs hostData;};
+
+  # Home-manager embedded module configuration
+  homeManagerConfig = {
+    user,
+    hostKey,
+    isDarwin,
+    inputs,
+    ...
+  }: let
+    system =
+      if isDarwin
+      then "aarch64-darwin"
+      else "x86_64-linux";
+  in {
+    useGlobalPkgs = true;
+    useUserPackages = true;
+    backupFileExtension = "backup";
+    overwriteBackup = true;
+    extraSpecialArgs = {
+      inherit inputs hostData user hostKey isDarwin;
+      pkgs = getPkgs system [];
+      pkgs-stable = getPkgsStable system;
+    };
+    users.${user} = {
+      imports = homeModules isDarwin;
+      home = {
+        username = user;
+        homeDirectory = hostData.hosts.${hostKey}.homeDirectory;
+        stateVersion = hostData.hosts.${hostKey}.stateVersion;
+      };
+    };
   };
-  inherit (modulesFuncs) commonSpecialArgs darwinSystems homeModules;
 
-  hmModule = import ./modules/home-manager.nix {
-    inherit inputs hostData userPreferences userExtras userData homeModules getPkgs getPkgsStable;
-  };
-  inherit (hmModule) homeManagerConfig;
-
-  # Helper to create home-manager configuration for any host
+  # Wrap homeManagerConfig as a system module
   mkHomeManagerModule = {
     hostKey,
     user,
-    system,
     isDarwin ? false,
   }: {
     home-manager = homeManagerConfig {
       inherit user hostKey isDarwin inputs;
     };
   };
-
-  # Helper to create standalone home-manager configuration
-  mkHomeConfiguration = {
-    hostKey,
-    user,
-    isDarwin ? false,
-  }: let
-    host = hostData.hosts.${hostKey} or {};
-    system =
-      host.system or (
-        if isDarwin
-        then "aarch64-darwin"
-        else "x86_64-linux"
-      );
-    pkgs = getPkgs system [];
-  in
-    home-manager.lib.homeManagerConfiguration {
-      inherit pkgs;
-      modules =
-        homeModules isDarwin
-        ++ [
-          {
-            home = {
-              username = user;
-              homeDirectory = hostData.hosts.${hostKey}.homeDirectory;
-              stateVersion = hostData.hosts.${hostKey}.stateVersion;
-            };
-          }
-        ];
-      extraSpecialArgs = {
-        inherit
-          inputs
-          hostData
-          user
-          hostKey
-          userPreferences
-          userExtras
-          userData
-          isDarwin
-          ;
-        pkgs = getPkgs system [];
-        host = host;
-      };
-    };
 
   # Build outputs per host
   mkHostOutputs = hostKey: host: let
@@ -83,7 +78,6 @@
     hostname = host.hostname or hostKey;
     pkgs = getPkgs system [];
     nixosConfig = lib.nixosSystem {
-      # Pass null so eval-config.nix does not set removed nixpkgs.system; we set nixpkgs.hostPlatform below.
       system = null;
       pkgs = pkgs;
       specialArgs =
@@ -100,69 +94,33 @@
         determinate.nixosModules.default
         lanzaboote.nixosModules.lanzaboote
         home-manager.nixosModules.home-manager
-        (mkHomeManagerModule {inherit hostKey user system;})
+        (mkHomeManagerModule {inherit hostKey user;})
       ];
     };
   in {
-    nixosConfigurations = lib.optionalAttrs (!isDarwin) (
-      {
-        ${hostKey} = nixosConfig;
-      }
-      // lib.optionalAttrs (hostname != hostKey) {
-        ${hostname} = nixosConfig;
-      }
-    );
+    nixosConfigurations = lib.optionalAttrs (!isDarwin) {${hostname} = nixosConfig;};
 
     darwinConfigurations = lib.optionalAttrs isDarwin (let
       darwinConfig = nix-darwin.lib.darwinSystem {
-        inherit system;
-        pkgs = getPkgs system [];
+        inherit system pkgs;
         specialArgs =
           commonSpecialArgs
           // {
-            pkgs = getPkgs system [];
+            inherit pkgs host hostKey user isDarwin inputs;
             pkgs-stable = getPkgsStable system;
-            host = host;
-            inherit hostKey user isDarwin inputs;
           };
         modules = [
           sops-nix.darwinModules.sops
           home-manager.darwinModules.home-manager
           (mkHomeManagerModule {
-            inherit hostKey user system;
+            inherit hostKey user;
             isDarwin = true;
           })
           nix-homebrew.darwinModules.nix-homebrew
-          {
-            nix-homebrew = {
-              inherit user;
-              enable = true;
-              taps = {
-                "homebrew/homebrew-core" = inputs.homebrew-core;
-                "homebrew/homebrew-cask" = inputs.homebrew-cask;
-                "homebrew/homebrew-bundle" = inputs.homebrew-bundle;
-              };
-              mutableTaps = true;
-              autoMigrate = true;
-            };
-          }
           (./. + "/../hosts/${hostKey}")
         ];
       };
-    in
-      {
-        ${hostKey} = darwinConfig;
-      }
-      // lib.optionalAttrs (hostname != hostKey) {
-        ${hostname} = darwinConfig;
-      });
-
-    homeConfigurations = {
-      ${hostKey} = mkHomeConfiguration {
-        inherit hostKey user;
-        isDarwin = isDarwin;
-      };
-    };
+    in {${hostname} = darwinConfig;});
   };
 
   # Aggregate all per-host outputs

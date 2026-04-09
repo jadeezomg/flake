@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   lib,
   ...
@@ -85,14 +84,13 @@ in {
         ($nu.default-config-dir | path join 'plugins')
       ]
 
-      # Override Birds of Paradise theme background to match Cursor theme
-      # This runs after the theme's export-env block, ensuring our override takes effect
-      # Note: The actual color value is set in theme.nix, but we keep this as a fallback
-      if ($env.config.color_config? != null) {
+      # Override Birds of Paradise theme background to match Cursor theme.
+      # This runs after the theme's export-env block, ensuring our override takes effect.
+      # Note: The actual color value is set in theme.nix, but we keep this as a fallback.
+      # Keep this interactive-only so non-interactive consumers (for example Zed env capture)
+      # receive clean JSON output without OSC escape sequences.
+      if ($nu.is-interactive and $env.config.color_config? != null) {
         $env.config.color_config = ($env.config.color_config | upsert background '#372725')
-        # Update terminal background color via OSC sequence
-        let osc_screen_background_color = '11;'
-        print -n $"(ansi -o $osc_screen_background_color)#372725(char bel)\r"
       }
     '';
   };

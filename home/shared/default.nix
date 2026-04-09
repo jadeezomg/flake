@@ -2,9 +2,8 @@
   imports = [
     ./compat.nix
     ./apps
-    ./assets/theme/stylix.nix
+    ./assets
     ./development
-    ./modules
     ./shells
     ./utils
   ];

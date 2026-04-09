@@ -1,0 +1,7 @@
+{
+	"type": "github_release",
+	"repo": "be5invis/Iosevka",
+	"asset": "PkgTTC-IosevkaEtoile-{version}.zip",
+	"hash_field": "sha256",
+	"unpack": true
+}
