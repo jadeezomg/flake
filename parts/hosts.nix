@@ -94,7 +94,7 @@
         determinate.nixosModules.default
         lanzaboote.nixosModules.lanzaboote
         home-manager.nixosModules.home-manager
-        (mkHomeManagerModule {inherit hostKey user system;})
+        (mkHomeManagerModule {inherit hostKey user;})
       ];
     };
   in {
@@ -113,7 +113,7 @@
           sops-nix.darwinModules.sops
           home-manager.darwinModules.home-manager
           (mkHomeManagerModule {
-            inherit hostKey user system;
+            inherit hostKey user;
             isDarwin = true;
           })
           nix-homebrew.darwinModules.nix-homebrew

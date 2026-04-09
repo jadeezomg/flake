@@ -17,6 +17,7 @@ in {
       set -gx ZED_ALLOW_ROOT true
       set -gx EDITOR ${sharedEnv.commonEnv.EDITOR}
       set -gx VISUAL ${sharedEnv.commonEnv.VISUAL}
+      set -gx SOPS_EDITOR ${sharedEnv.commonEnv.SOPS_EDITOR}
       set -gx BROWSER ${sharedEnv.commonEnv.BROWSER}
       set -gx PAGER ${sharedEnv.commonEnv.PAGER}
       # BAT_THEME is optional now (Stylix can own it). Only export if present.

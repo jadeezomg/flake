@@ -1,11 +1,15 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  inputs',
+  ...
+}: {
   home.packages = with pkgs; [
     # LLM Agent
     opencode
     claude-code
 
-    # docs mcp
-    context7-mcp
+    # docs CLI
+    inputs'.self.packages.context7
   ];
 
   programs.opencode = {
