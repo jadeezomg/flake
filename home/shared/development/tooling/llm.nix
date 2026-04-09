@@ -3,6 +3,9 @@
     # LLM Agent
     opencode
     claude-code
+
+    # docs mcp
+    context7-mcp
   ];
 
   programs.opencode = {
