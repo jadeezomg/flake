@@ -1,7 +1,4 @@
 {
-  config,
-  pkgs,
-  lib,
   ...
 }: let
   sharedEnv = import ../shared/env.nix;

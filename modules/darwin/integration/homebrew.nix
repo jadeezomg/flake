@@ -1,6 +1,5 @@
 {
   config,
-  pkgs,
   ...
 }: {
   # Homebrew configuration for Darwin

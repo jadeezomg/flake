@@ -1,6 +1,6 @@
 {inputs, ...}: let
   lib = inputs.nixpkgs.lib;
-  inherit (inputs) nixpkgs nix-darwin home-manager sops-nix determinate nix-homebrew lanzaboote;
+  inherit (inputs) nix-darwin home-manager sops-nix determinate nix-homebrew lanzaboote;
 
   pkgsFuncs = import ../lib/pkgs.nix {inherit inputs;};
   inherit (pkgsFuncs) getPkgs getPkgsStable;
@@ -63,7 +63,6 @@
   mkHomeManagerModule = {
     hostKey,
     user,
-    system,
     isDarwin ? false,
   }: {
     home-manager = homeManagerConfig {

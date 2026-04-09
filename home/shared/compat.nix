@@ -1,12 +1,10 @@
 {
   config,
-  lib,
   hostKey,
   user,
   hostData,
   ...
 }: let
-  host = hostData.hosts.${hostKey} or {};
   flakePath = "$HOME/.dotfiles/flake";
 in {
   # Generate compatibility home.nix for legacy home-manager commands

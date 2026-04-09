@@ -103,16 +103,6 @@
 
   outputs = inputs @ {
     flake-parts,
-    nixpkgs,
-    nixpkgs-stable,
-    nix-darwin,
-    home-manager,
-    sops-nix,
-    determinate,
-    lanzaboote,
-    nix-homebrew,
-    zen-browser,
-    quickshell,
     ...
   }: let
     pkgsFuncs = import ./lib/pkgs.nix {inherit inputs;};
@@ -130,8 +120,6 @@
       ];
 
       perSystem = {
-        config,
-        self',
         inputs',
         pkgs,
         system,

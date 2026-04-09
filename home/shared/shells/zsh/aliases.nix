@@ -1,6 +1,4 @@
 {
-  config,
-  pkgs,
   ...
 }: let
   sharedAliases = import ../shared/aliases.nix;

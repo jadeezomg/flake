@@ -1,6 +1,4 @@
 {
-  config,
-  pkgs,
   ...
 }: {
   # General system services can be configured here
