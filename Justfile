@@ -236,7 +236,19 @@ fmt:
     done < <(find "$FLAKE" -name "*.nix" -type f -print0 2>/dev/null)
     [[ "$failed" -gt 0 ]] && exit 1
     echo "changed:$changed unchanged:$unchanged"
-    cd "$FLAKE" && ruff check scripts && biome check .
+    deadnix --edit "$FLAKE"
+    cd "$FLAKE" && ruff check scripts && uv run --project "$FLAKE/scripts" ty check scripts/src && biome check .
+    print_header "END"
+
+[doc('Lint .nix files for unused bindings (deadnix) and antipatterns (statix)')]
+[group('format')]
+lint:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    source "$FLAKE/scripts/shell/common.sh"
+    print_header "LINT"
+    deadnix "$FLAKE"
+    statix check "$FLAKE"
     print_header "END"
 
 [doc('Alejandra without changed/unchanged summary (e.g. for git hook)')]

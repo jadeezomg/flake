@@ -1,6 +1,4 @@
 {
-  config,
-  pkgs,
   ...
 }: {
   # Enable Touch ID for sudo authentication

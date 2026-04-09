@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{ ...}: {
   imports = [
     # --- Languages, Servers And Formatters ---
     ./bash.nix

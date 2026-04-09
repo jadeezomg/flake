@@ -1,6 +1,5 @@
 {
   pkgs,
-  pkgsStable,
   ...
 }: {
   # Authentication configuration

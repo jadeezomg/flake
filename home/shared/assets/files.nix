@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   ...
 }: let
   flakeRoot = "${config.home.homeDirectory}/.dotfiles/flake";

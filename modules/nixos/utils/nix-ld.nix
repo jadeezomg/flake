@@ -1,7 +1,5 @@
 {
-  config,
   pkgs,
-  lib,
   ...
 }: {
   # Automatically creates a loader in /lib/* to avoid patching stuff

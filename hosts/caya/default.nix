@@ -1,14 +1,10 @@
 {
-  config,
-  pkgs,
   inputs,
   hostData,
   hostKey,
   user,
   ...
-}: let
-  host = hostData.hosts.${hostKey} or {};
-in {
+}: {
   imports = [
     ../../modules/shared
     ../../modules/darwin

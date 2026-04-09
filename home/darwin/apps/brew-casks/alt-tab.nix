@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{ ...}: {
   # AltTab - Windows-style alt-tab for macOS
   # https://alt-tab-macos.netlify.app/
 
