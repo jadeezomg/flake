@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
-# /// script
-# requires-python = ">=3.10"
-# dependencies = []
-# ///
 """Extract packages from flake Nix files and check nixpkgs availability per platform."""
-import os
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(os.environ.get("FLAKE", os.environ.get("FLAKE_ROOT", Path.home() / ".dotfiles/flake"))).resolve()
+from flake_scripts.lib.common import resolve_flake_root
+
+ROOT = resolve_flake_root(anchor=Path(__file__))
 
 KEYWORDS = {
     "with", "pkgs", "lib", "config", "true", "false", "null", "let", "in", "rec",

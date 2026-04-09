@@ -5,6 +5,7 @@
 # This file contains all color definitions from the Birds of Paradise theme.
 # Colors are organized with a palette at the top for easy maintenance.
 # All programs should reference colors from this file instead of hardcoding them.
+# Python (Rich): scripts/src/flake_scripts/lib/palette.py mirrors this palette — update both together.
 {
   # ===== COLOR PALETTE =====
   # Centralized color definitions - modify colors here to update the entire theme
