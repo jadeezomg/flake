@@ -39,24 +39,27 @@
       if isDarwin
       then "aarch64-darwin"
       else "x86_64-linux";
+    host = hostData.hosts.${hostKey};
+    hmImports = homeModules isDarwin;
+    guestHmUsers =
+      builtins.filter (u: (u.manageHome or true)) (host.extraUsers or []);
+    mkUserCfg = {
+      imports = hmImports;
+      home.stateVersion = host.stateVersion or "25.11";
+    };
   in {
     useGlobalPkgs = true;
     useUserPackages = true;
     backupFileExtension = "backup";
     overwriteBackup = true;
     extraSpecialArgs = {
-      inherit inputs hostData user hostKey isDarwin;
+      inherit inputs hostData hostKey isDarwin;
       pkgs = getPkgs system [];
       pkgs-stable = getPkgsStable system;
     };
-    users.${user} = {
-      imports = homeModules isDarwin;
-      home = {
-        username = user;
-        homeDirectory = hostData.hosts.${hostKey}.homeDirectory;
-        stateVersion = hostData.hosts.${hostKey}.stateVersion;
-      };
-    };
+    users =
+      {${user} = mkUserCfg;}
+      // lib.listToAttrs (map (g: lib.nameValuePair g.username mkUserCfg) guestHmUsers);
   };
 
   # Wrap homeManagerConfig as a system module

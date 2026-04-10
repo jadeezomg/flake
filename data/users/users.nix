@@ -27,5 +27,18 @@
       extraGroups = [];
       packages = [];
     };
+
+    # NixOS guest: no wheel/sudo; video/audio/network for desktop login (GDM + Niri/GNOME)
+    angelie = {
+      username = "angelie";
+      fullName = "Angelie";
+      description = "Guest account (limited)";
+      extraGroups = [
+        "audio"
+        "networkmanager"
+        "video"
+      ];
+      packages = [];
+    };
   };
 }
