@@ -15,15 +15,8 @@
       # Convert to age key: ssh-to-age < ~/.ssh/id_ed25519.pub
       # Or generate age key directly: age-keygen
 
-      # For home-manager, sops-nix will look for ~/.config/sops/age/keys.txt
-      # For NixOS/Darwin systems, it will look for /var/lib/sops-nix/key.txt
-
-      # You can specify key files explicitly:
-      # keyFile = "/home/user/.config/sops/age/keys.txt"; # for home-manager
-      # keyFile = "/var/lib/sops-nix/key.txt"; # for NixOS/Darwin systems
-
-      # Generate keys for each host and add public keys to .sops.yaml
-      generateKey = false; # Set to true if you want sops-nix to generate keys
+      keyFile = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
+      generateKey = false;
     };
 
     # Secrets to decrypt and make available
