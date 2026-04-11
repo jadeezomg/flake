@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Extract packages from flake Nix files and check nixpkgs availability per platform."""
+
 import re
 import subprocess
 import sys
@@ -10,10 +11,35 @@ from flake_scripts.lib.common import resolve_flake_root
 ROOT = resolve_flake_root(anchor=Path(__file__))
 
 KEYWORDS = {
-    "with", "pkgs", "lib", "config", "true", "false", "null", "let", "in", "rec",
-    "inherit", "import", "if", "then", "else", "assert", "or", "and", "not",
-    "home", "environment", "systemPackages", "packages", "fonts",
-    "enable", "settings", "programs", "services", "ps",
+    "with",
+    "pkgs",
+    "lib",
+    "config",
+    "true",
+    "false",
+    "null",
+    "let",
+    "in",
+    "rec",
+    "inherit",
+    "import",
+    "if",
+    "then",
+    "else",
+    "assert",
+    "or",
+    "and",
+    "not",
+    "home",
+    "environment",
+    "systemPackages",
+    "packages",
+    "fonts",
+    "enable",
+    "settings",
+    "programs",
+    "services",
+    "ps",
 }
 
 MARKERS = [
@@ -104,7 +130,11 @@ def main() -> int:
         ("Home Packages (Shared)", home["shared"], ["x86_64-linux", "aarch64-darwin"]),
         ("Home Packages (NixOS)", home["nixos"], ["x86_64-linux"]),
         ("Home Packages (Darwin)", home["darwin"], ["aarch64-darwin"]),
-        ("System Packages (Shared)", sys_["shared"], ["x86_64-linux", "aarch64-darwin"]),
+        (
+            "System Packages (Shared)",
+            sys_["shared"],
+            ["x86_64-linux", "aarch64-darwin"],
+        ),
         ("System Packages (NixOS)", sys_["nixos"], ["x86_64-linux"]),
         ("System Packages (Darwin)", sys_["darwin"], ["aarch64-darwin"]),
     ]
@@ -168,7 +198,9 @@ def main() -> int:
             na, nf, nu = len(available), len(unfree), len(unavailable)
             print(f"  Available: {na}, Unfree: {nf}, Unavailable: {nu}")
             if unfree:
-                print(f"    Unfree (allowUnfree): {', '.join(unfree[:10])}{'...' if len(unfree) > 10 else ''}")
+                print(
+                    f"    Unfree (allowUnfree): {', '.join(unfree[:10])}{'...' if len(unfree) > 10 else ''}"
+                )
             if unavailable:
                 show = unavailable[:5]
                 print(f"    Missing: {', '.join(show)}")

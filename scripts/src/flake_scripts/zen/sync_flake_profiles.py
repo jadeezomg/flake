@@ -13,7 +13,14 @@ from difflib import unified_diff
 from datetime import datetime
 from pathlib import Path
 
-from flake_scripts.lib.common import bad, console_err, host_is_nixos, info, resolve_flake_root, warn
+from flake_scripts.lib.common import (
+    bad,
+    console_err,
+    host_is_nixos,
+    info,
+    resolve_flake_root,
+    warn,
+)
 from flake_scripts.zen.extract_pinned_tabs import (
     iter_space_nix_rows,
     load_pinned_per_space,
@@ -252,7 +259,9 @@ def compare_flake_to_session():
 
     spaces_path = _TARGET_PROFILE_DIR / "spaces.nix"
     pins_path = _TARGET_PROFILE_DIR / "pins.nix"
-    actual_spaces = spaces_path.read_text(encoding="utf-8") if spaces_path.is_file() else ""
+    actual_spaces = (
+        spaces_path.read_text(encoding="utf-8") if spaces_path.is_file() else ""
+    )
     actual_pins = pins_path.read_text(encoding="utf-8") if pins_path.is_file() else ""
 
     def _print_diff(name, actual, expected, context=3, max_lines=200):
@@ -271,7 +280,9 @@ def compare_flake_to_session():
         console_err.print(f"\n--- Diff: {name} ---", markup=False, highlight=False)
         if len(diff_lines) > max_lines:
             shown = diff_lines[:max_lines]
-            text = "\n".join(shown) + f"\n... (truncated, showing first {max_lines} lines)"
+            text = (
+                "\n".join(shown) + f"\n... (truncated, showing first {max_lines} lines)"
+            )
             console_err.print(text, markup=False, highlight=False)
             return
         console_err.print("\n".join(diff_lines), markup=False, highlight=False)
