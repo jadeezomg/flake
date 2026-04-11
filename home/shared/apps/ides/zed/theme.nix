@@ -53,7 +53,7 @@
           end
         )
       ' "${"$"}theme_file" > "${"$"}tmp_file"
-      mv "${"$"}tmp_file" "${"$"}theme_file"
+      mv -f "${"$"}tmp_file" "${"$"}theme_file"
     fi
   '';
 }
