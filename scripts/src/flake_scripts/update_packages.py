@@ -79,8 +79,8 @@ def _sub(path: Path, pattern: str, replacement: str) -> None:
     path.write_text(re.sub(pattern, replacement, text, count=1))
 
 
-def _current_version(nix_file: Path) -> str:
-    m = re.search(r'version\s*=\s*"([^"]+)"', nix_file.read_text())
+def _current_version(text: str) -> str:
+    m = re.search(r'version\s*=\s*"([^"]+)"', text)
     return m.group(1) if m else "unknown"
 
 
@@ -314,24 +314,39 @@ _HANDLERS = {
 # ---------------------------------------------------------------------------
 
 
-def update_package(pkg_dir: Path, status: StatusCb = _noop) -> tuple[str, str, bool]:
-    """Update a single package. Returns (old_version, new_version, changed)."""
+def update_package(
+    pkg_dir: Path, status: StatusCb = _noop
+) -> tuple[str, str, bool, bool]:
+    """Update a single package.
+
+    Returns (old_version, new_version, version_changed, fields_changed).
+    fields_changed is True when hashes drifted even without a version bump.
+    """
     meta = json.loads((pkg_dir / "update.json").read_text())
     nix_file = pkg_dir / "default.nix"
+    nix_text = nix_file.read_text()
 
-    old_version = _current_version(nix_file)
+    old_version = _current_version(nix_text)
     handler = _HANDLERS[meta["type"]]
     new_version, _url, field_updates = handler(meta, pkg_dir, status, old_version)
 
-    if old_version == new_version:
-        return old_version, new_version, False
+    version_changed = new_version != old_version
+    # Detect hash drift: field present in nix file but value differs from computed
+    fields_changed = any(
+        not re.search(rf'{re.escape(field)}\s*=\s*"{re.escape(value)}"', nix_text)
+        for field, value in field_updates.items()
+    )
+
+    if not version_changed and not fields_changed:
+        return old_version, new_version, False, False
 
     status("writing updated default.nix")
-    _sub(nix_file, r'version\s*=\s*"[^"]+"', f'version = "{new_version}"')
+    if version_changed:
+        _sub(nix_file, r'version\s*=\s*"[^"]+"', f'version = "{new_version}"')
     for field, value in field_updates.items():
         _sub(nix_file, rf'{re.escape(field)}\s*=\s*"[^"]+"', f'{field} = "{value}"')
 
-    return old_version, new_version, True
+    return old_version, new_version, version_changed, fields_changed
 
 
 def discover_packages(flake_root: Path) -> list[Path]:
@@ -402,13 +417,22 @@ def main(args: list[str] | None = None) -> None:
                 pkg_dir = futures[future]
                 tid = pkg_tasks[pkg_dir]
                 try:
-                    old, new, did_change = future.result()
-                    if did_change:
+                    old, new, version_changed, fields_changed = future.result()
+                    if version_changed:
                         progress.update(
                             tid,
                             icon="[green]✓[/]",
                             description=f"[bold]{pkg_dir.name}[/]",
                             step=f"{old} → [green]{new}[/]",
+                            completed=1,
+                        )
+                        changed.append(pkg_dir.name)
+                    elif fields_changed:
+                        progress.update(
+                            tid,
+                            icon="[yellow]✓[/]",
+                            description=f"[bold]{pkg_dir.name}[/]",
+                            step=f"[yellow]hashes updated[/] ({new})",
                             completed=1,
                         )
                         changed.append(pkg_dir.name)

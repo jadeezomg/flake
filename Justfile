@@ -382,6 +382,10 @@ update:
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     print_header "UPDATE"
+    print_pending "update-packages  updating custom flake packages…"
+    uv run --project "$FLAKE/scripts" update-packages
+    print_success "update-packages  done"
+    print_pending "nh               previewing flake input updates…"
     is_darwin && p="nh darwin" || p="nh os"
     bash -c "$p switch --update --dry"
     print_header "END"
