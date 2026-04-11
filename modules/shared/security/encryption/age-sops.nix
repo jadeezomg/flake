@@ -34,6 +34,22 @@
         path = ".config/nix/github-token";
       };
 
+      # Context7 CLI (ctx7); shells export CONTEXT7_API_KEY from this path
+      "context7-api-key" = {
+        key = "context7_api_key";
+        path = ".config/context7/api-key";
+      };
+
+      "inception-api-key" = {
+        key = "inception_api_key";
+        path = ".config/nix/inception-api-key";
+      };
+
+      "kagi-api-key" = {
+        key = "kagi_api_key";
+        path = ".config/nix/kagi-api-key";
+      };
+
       # Example: decrypt a secret and make it available as /run/secrets/my-secret
       # my-secret = { };
 

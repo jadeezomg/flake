@@ -7,11 +7,6 @@ in {
     interactiveShellInit = ''
       set -U fish_greeting ""
 
-      # GitHub token for Nix (from sops secret at ~/.config/nix/github-token)
-      if test -f $HOME/.config/nix/github-token
-        set -gx NIX_CONFIG "access-tokens = github.com="(cat $HOME/.config/nix/github-token | string trim)" $NIX_CONFIG"
-      end
-
       set -gx FLAKE ${sharedPaths.commonPaths.flake}
       set -gx NH_FLAKE ${sharedPaths.commonPaths.flake}
       set -gx ZED_ALLOW_ROOT true
