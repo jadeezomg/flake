@@ -1,10 +1,38 @@
 {pkgs, ...}: {
   force = true;
-  default = "brave";
-  privateDefault = "brave";
+  default = "Kagi";
+  privateDefault = "Kagi";
   engines = let
     nixSnowflakeIcon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
   in {
+    # https://help.kagi.com/kagi/getting-started/setting-default.html — extension handles default + private
+    # login; we still declare the engine + suggestions here. Optional manual “private session” URL:
+    # template https://kagi.com/search with params token + q (token from Kagi account).
+    # For suggestions in private windows, enable the checkbox under Search Suggestions in about:preferences#search.
+    "Kagi" = {
+      urls = [
+        {
+          template = "https://kagi.com/search";
+          params = [
+            {
+              name = "q";
+              value = "{searchTerms}";
+            }
+          ];
+        }
+        {
+          type = "application/x-suggestions+json";
+          template = "https://kagisuggest.com/api/autosuggest";
+          params = [
+            {
+              name = "q";
+              value = "{searchTerms}";
+            }
+          ];
+        }
+      ];
+      definedAliases = ["kagi" "kg"];
+    };
     "Nix Packages" = {
       urls = [
         {

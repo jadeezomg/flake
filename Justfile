@@ -333,6 +333,13 @@ setup-age-darwin:
     [[ ! -f "$kf" ]] && nix develop "$FLAKE" --command age-keygen -o "$kf"
     nix develop "$FLAKE" --command age-keygen -y "$kf"
 
+[doc('Post-switch: Context7 CLI skills (Claude, Cursor, OpenCode); needs ctx7 login or CONTEXT7_API_KEY')]
+[group('config')]
+post-install:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    bash "$FLAKE/scripts/shell/post-install.bash"
+
 # ── system ────────────────────────────────────────────────────────────────────
 
 [doc('Rollback to previous generation (nh rollback / darwin-rebuild --rollback)')]
