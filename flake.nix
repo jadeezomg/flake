@@ -131,6 +131,14 @@
             inherit pkgs;
             lib = pkgs.lib;
           };
+          kagi-ken-cli = import ./packages/kagi-ken-cli/default.nix {
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
+          kagi-ken = import ./packages/kagi-ken/default.nix {
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
         };
 
         formatter = pkgs.alejandra;
