@@ -20,7 +20,9 @@ console = Console(theme=_THEME)
 console_err = Console(theme=_THEME, stderr=True)
 
 
-def resolve_flake_root(explicit: Path | None = None, *, anchor: Path | None = None) -> Path:
+def resolve_flake_root(
+    explicit: Path | None = None, *, anchor: Path | None = None
+) -> Path:
     """Resolve flake root: explicit arg, $FLAKE, cwd walk-up, optional anchor file walk-up, then ~/.dotfiles/flake."""
     if explicit is not None:
         return explicit.expanduser().resolve()
@@ -42,6 +44,7 @@ def resolve_flake_root(explicit: Path | None = None, *, anchor: Path | None = No
 def host_is_nixos() -> bool:
     """True when this machine is NixOS Linux (/etc/NIXOS or ID=nixos in /etc/os-release)."""
     import sys
+
     if sys.platform != "linux":
         return False
     if os.path.isfile("/etc/NIXOS"):
@@ -71,7 +74,9 @@ def is_path_under(path: Path, parent: Path) -> bool:
 def format_mtime(path: Path) -> str:
     try:
         st = path.stat()
-        return datetime.fromtimestamp(st.st_mtime).isoformat(sep=" ", timespec="seconds")
+        return datetime.fromtimestamp(st.st_mtime).isoformat(
+            sep=" ", timespec="seconds"
+        )
     except OSError:
         return "(unknown)"
 
@@ -127,7 +132,9 @@ def print_dir_symlink_audit(config_dir: Path) -> None:
             if target.is_file():
                 table.add_row(name, "[ok]symlink[/]", str(target))
             else:
-                table.add_row(name, "[bad]symlink[/]", f"{target} [bad](missing target)[/]")
+                table.add_row(
+                    name, "[bad]symlink[/]", f"{target} [bad](missing target)[/]"
+                )
         elif path.is_file():
             table.add_row(name, "[bad]regular file[/]", "expected symlink")
         else:
