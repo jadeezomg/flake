@@ -3,6 +3,8 @@
 Handler `type` values:
   - npm: registry.npmjs.org package (see packages/context7/update.json).
   - github_release: release asset URL + nix-prefetch-url (see iosevka packages).
+  - github_tag: latest GitHub release tag (or newest tag if no releases), `nix-prefetch-github`
+    for fetchFromGitHub `hash` (see packages/workato-platform-cli/update.json).
   - github_npm: latest GitHub release tag (or newest tag if no releases), `nix-prefetch-github`
     for fetchFromGitHub `hash`, vendored `lock_file` from the tag archive, `prefetch-npm-deps`
     for `npmDepsHash`, and `rev_field` set to the tag name. Optional `patch_git_ssh_lock`
@@ -302,9 +304,30 @@ def _handle_github_npm(
     )
 
 
+def _handle_github_tag(
+    meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
+) -> tuple[str, str, dict]:
+    """GitHub tag + fetchFromGitHub: bump `version` and refresh `hash_field` via nix-prefetch-github."""
+    owner, repo_name = meta["repo"].split("/", 1)
+
+    status("fetching latest GitHub tag")
+    tag, new_version = _github_latest_tag(owner, repo_name)
+
+    quoted_tag = urllib.parse.quote(tag, safe="")
+    archive_url = (
+        f"https://github.com/{owner}/{repo_name}/archive/refs/tags/{quoted_tag}.tar.gz"
+    )
+
+    status("prefetching GitHub source hash")
+    src_hash = _nix_prefetch_github_hash(owner, repo_name, tag)
+
+    return new_version, archive_url, {meta["hash_field"]: src_hash}
+
+
 _HANDLERS = {
     "npm": _handle_npm,
     "github_release": _handle_github_release,
+    "github_tag": _handle_github_tag,
     "github_npm": _handle_github_npm,
 }
 

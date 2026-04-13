@@ -94,6 +94,12 @@
     framework-control = {
       url = "github:ozturkkl/framework-control";
     };
+
+    # https://github.com/googleworkspace/cli — Google Workspace CLI (gws)
+    google-workspace-cli = {
+      url = "github:googleworkspace/cli";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {flake-parts, ...}: let
@@ -136,6 +142,11 @@
             lib = pkgs.lib;
           };
           kagi-ken = import ./packages/kagi-ken/default.nix {
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
+          gws = inputs.google-workspace-cli.packages.${system}.default;
+          workato-platform-cli = import ./packages/workato-platform-cli/default.nix {
             inherit pkgs;
             lib = pkgs.lib;
           };
