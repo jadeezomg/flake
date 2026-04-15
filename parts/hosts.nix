@@ -89,6 +89,7 @@
         };
       modules = [
         inputs.stylix.nixosModules.stylix
+        inputs.dms.nixosModules.greeter
         (./. + "/../hosts/${hostKey}")
         sops-nix.nixosModules.sops
         determinate.nixosModules.default

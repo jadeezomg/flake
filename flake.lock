@@ -189,6 +189,28 @@
         "url": "https://install.determinate.systems/determinate-nixd/tag/v3.17.3/x86_64-linux"
       }
     },
+    "dms": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "quickshell": "quickshell"
+      },
+      "locked": {
+        "lastModified": 1775588644,
+        "narHash": "sha256-iYBdSBvcW7bJtc84G6k5TFJEbPHQrif9KzZyE9Lbq8M=",
+        "owner": "AvengeMedia",
+        "repo": "DankMaterialShell",
+        "rev": "9798d78300d402178896f6ee1c370baed490158a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AvengeMedia",
+        "ref": "stable",
+        "repo": "DankMaterialShell",
+        "type": "github"
+      }
+    },
     "firefox-gnome-theme": {
       "flake": false,
       "locked": {
@@ -941,6 +963,28 @@
     "quickshell": {
       "inputs": {
         "nixpkgs": [
+          "dms",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1766725085,
+        "narHash": "sha256-O2aMFdDUYJazFrlwL7aSIHbUSEm3ADVZjmf41uBJfHs=",
+        "ref": "refs/heads/master",
+        "rev": "41828c4180fb921df7992a5405f5ff05d2ac2fff",
+        "revCount": 715,
+        "type": "git",
+        "url": "https://git.outfoxxed.me/quickshell/quickshell"
+      },
+      "original": {
+        "rev": "41828c4180fb921df7992a5405f5ff05d2ac2fff",
+        "type": "git",
+        "url": "https://git.outfoxxed.me/quickshell/quickshell"
+      }
+    },
+    "quickshell_2": {
+      "inputs": {
+        "nixpkgs": [
           "nixpkgs"
         ]
       },
@@ -961,6 +1005,7 @@
     "root": {
       "inputs": {
         "determinate": "determinate",
+        "dms": "dms",
         "flake-parts": "flake-parts_2",
         "framework-control": "framework-control",
         "google-workspace-cli": "google-workspace-cli",
@@ -976,7 +1021,7 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_5",
         "nixpkgs-stable": "nixpkgs-stable_2",
-        "quickshell": "quickshell",
+        "quickshell": "quickshell_2",
         "sops-nix": "sops-nix",
         "stylix": "stylix",
         "zen-browser": "zen-browser"

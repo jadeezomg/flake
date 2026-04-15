@@ -90,6 +90,11 @@
       inputs.niri-unstable.url = "github:YaLTeR/niri/main";
     };
 
+    dms = {
+      url = "github:AvengeMedia/DankMaterialShell/stable";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # https://github.com/ozturkkl/framework-control — uses bundled nixpkgs fork for the package until upstream nixpkgs ships it
     framework-control = {
       url = "github:ozturkkl/framework-control";
