@@ -17,8 +17,8 @@
     monitorsXml = pkgs.writeText "monitors.xml" (builtins.readFile ../../data/hosts/desktop/monitors.xml);
   in {
     description = "Apply monitor settings to GDM login screen";
-    after = ["display-manager.service"];
-    wantedBy = ["multi-user.target"];
+    before = ["display-manager.service"];
+    wantedBy = ["graphical.target"];
     serviceConfig = {
       Type = "oneshot";
       ExecStart = "${pkgs.bash}/bin/bash -c ''
