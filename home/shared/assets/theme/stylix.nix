@@ -78,6 +78,7 @@ in {
       wezterm.enable = false;
       vscode.enable = false;
       firefox.enable = false;
+      niri.enable = false;
       kitty = {
         enable = true;
         fonts.enable = false;

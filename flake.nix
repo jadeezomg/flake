@@ -87,7 +87,7 @@
     niri = {
       url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.niri-unstable.url = "github:YaLTeR/niri/wip/branch";
+      inputs.niri-unstable.url = "github:YaLTeR/niri/main";
     };
 
     # https://github.com/ozturkkl/framework-control — uses bundled nixpkgs fork for the package until upstream nixpkgs ships it
@@ -95,7 +95,6 @@
       url = "github:ozturkkl/framework-control";
     };
 
-    # https://github.com/googleworkspace/cli — Google Workspace CLI (gws)
     google-workspace-cli = {
       url = "github:googleworkspace/cli";
       inputs.nixpkgs.follows = "nixpkgs";
