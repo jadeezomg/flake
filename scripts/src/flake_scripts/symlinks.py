@@ -42,7 +42,9 @@ def cmd_all(flake: Path) -> int:
     C.dim(f"Expected: {dms}/* → {flake}/home/nixos/desktop/dms/config/*")
     C.dim(f"Expected: {niri}/* → {flake}/home/nixos/desktop/niri/*")
     C.dim(f"Expected: {qs} → {flake}/home/nixos/desktop/dms/config/config.kdl")
-    C.info(f"Edit under {flake}/home/nixos/desktop/dms/config/ and confirm ~/.config/DankMaterialShell/ sees it.")
+    C.info(
+        f"Edit under {flake}/home/nixos/desktop/dms/config/ and confirm ~/.config/DankMaterialShell/ sees it."
+    )
     return 0
 
 
@@ -114,7 +116,9 @@ def main(args: list[str] | None = None) -> int:
     )
     sub = ap.add_subparsers(dest="command", metavar="COMMAND")
     sub.add_parser("all", help="DMS, niri, quickshell report (non-fatal)")
-    sub.add_parser("dms-settings", help="Strict DMS settings.json → flake (exit 1 on failure)")
+    sub.add_parser(
+        "dms-settings", help="Strict DMS settings.json → flake (exit 1 on failure)"
+    )
     ns = ap.parse_args(args)
     flake = C.resolve_flake_root(ns.flake)
     cmd = ns.command or "all"
