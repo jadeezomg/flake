@@ -87,12 +87,22 @@
     niri = {
       url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.niri-unstable.url = "github:YaLTeR/niri/wip/branch";
+      inputs.niri-unstable.url = "github:YaLTeR/niri/main";
+    };
+
+    dms = {
+      url = "github:AvengeMedia/DankMaterialShell/stable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # https://github.com/ozturkkl/framework-control — uses bundled nixpkgs fork for the package until upstream nixpkgs ships it
     framework-control = {
       url = "github:ozturkkl/framework-control";
+    };
+
+    google-workspace-cli = {
+      url = "github:googleworkspace/cli";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
@@ -128,6 +138,19 @@
             lib = pkgs.lib;
           };
           context7 = import ./packages/context7/default.nix {
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
+          kagi-ken-cli = import ./packages/kagi-ken-cli/default.nix {
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
+          kagi-ken = import ./packages/kagi-ken/default.nix {
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
+          gws = inputs.google-workspace-cli.packages.${system}.default;
+          workato-platform-cli = import ./packages/workato-platform-cli/default.nix {
             inherit pkgs;
             lib = pkgs.lib;
           };

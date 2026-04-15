@@ -53,7 +53,11 @@ def main():
 
         run(
             (["--nix"] if args.nix else [])
-            + (["--zen-sessions-file", args.zen_sessions_file] if args.zen_sessions_file else [])
+            + (
+                ["--zen-sessions-file", args.zen_sessions_file]
+                if args.zen_sessions_file
+                else []
+            )
             + (
                 ["--window-session-file", args.window_session_file]
                 if args.window_session_file

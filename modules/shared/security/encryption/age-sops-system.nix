@@ -11,13 +11,6 @@
   userGroupOpt =
     config.users.users.${user}.group or null;
 in {
-  # Decrypt secrets using SOPS + age (sops-nix).
-  #
-  # This provisions the GitHub API token at:
-  #   ~/.config/nix/github-token
-  #
-  # so `nix flake update` / `nix flake lock` can authenticate against GitHub
-  # and avoid unauthenticated API rate limits.
   sops = {
     defaultSopsFile = ../../../../secrets/secrets.yaml;
 
@@ -30,6 +23,39 @@ in {
       {
         key = "github_token";
         path = "${userHome}/.config/nix/github-token";
+        owner = user;
+        mode = "0400";
+      }
+      // lib.optionalAttrs (userGroupOpt != null) {
+        group = userGroupOpt;
+      };
+
+    secrets.context7-api-key =
+      {
+        key = "context7_api_key";
+        path = "${userHome}/.config/nix/context7-api-key";
+        owner = user;
+        mode = "0400";
+      }
+      // lib.optionalAttrs (userGroupOpt != null) {
+        group = userGroupOpt;
+      };
+
+    secrets.inception-api-key =
+      {
+        key = "inception_api_key";
+        path = "${userHome}/.config/nix/inception-api-key";
+        owner = user;
+        mode = "0400";
+      }
+      // lib.optionalAttrs (userGroupOpt != null) {
+        group = userGroupOpt;
+      };
+
+    secrets.kagi-api-key =
+      {
+        key = "kagi_api_key";
+        path = "${userHome}/.config/nix/kagi-api-key";
         owner = user;
         mode = "0400";
       }

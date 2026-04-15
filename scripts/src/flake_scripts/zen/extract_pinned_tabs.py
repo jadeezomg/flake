@@ -195,10 +195,18 @@ def _folders_from_window(w: dict[str, Any], spaces_map: dict):
         return folder_map, records
 
     def one(fid, attrs, idx):
-        name = (attrs.get("name") or "Folder").strip() if isinstance(attrs, dict) else "Folder"
+        name = (
+            (attrs.get("name") or "Folder").strip()
+            if isinstance(attrs, dict)
+            else "Folder"
+        )
         parent_id = attrs.get("parentId") if isinstance(attrs, dict) else None
         pos = attrs.get("position") if isinstance(attrs, dict) else None
-        if pos is None and isinstance(attrs, dict) and isinstance(attrs.get("prevSiblingInfo"), dict):
+        if (
+            pos is None
+            and isinstance(attrs, dict)
+            and isinstance(attrs.get("prevSiblingInfo"), dict)
+        ):
             pos = attrs["prevSiblingInfo"].get("position")
         return {
             "id": str(fid),
@@ -348,7 +356,7 @@ def load_pinned_per_space(zen_sessions=None, window_session=None):
 
     all_folders = {}
     space_pins = {}
-    for w in (window_session.get("windows") or []):
+    for w in window_session.get("windows") or []:
         folder_map, folder_recs = _folders_from_window(w, spaces_map)
         for rec in folder_recs:
             if rec["id"] not in all_folders:
@@ -363,8 +371,10 @@ def load_pinned_per_space(zen_sessions=None, window_session=None):
 
     for fid, rec in all_folders.items():
         pin_spaces = [
-            sid for sid, pins in space_pins.items()
-            for p in pins if (p.get("folderId") or "") == fid
+            sid
+            for sid, pins in space_pins.items()
+            for p in pins
+            if (p.get("folderId") or "") == fid
         ]
         if pin_spaces:
             best = Counter(pin_spaces).most_common(1)[0][0]

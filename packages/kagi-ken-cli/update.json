@@ -1,0 +1,9 @@
+{
+	"type": "github_npm",
+	"repo": "czottmann/kagi-ken-cli",
+	"rev_field": "rev",
+	"hash_field": "hash",
+	"npm_deps_hash_field": "npmDepsHash",
+	"lock_file": "package-lock.json",
+	"patch_git_ssh_lock": true
+}

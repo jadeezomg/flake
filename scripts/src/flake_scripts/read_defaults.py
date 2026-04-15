@@ -117,17 +117,26 @@ def is_system_key(key: str) -> bool:
     system_patterns = [
         r"^SU",
         r"^NSStatusItem",
-        r"LastCheck", r"LastUpdate", r"LastSync",
-        r"Cache", r"CacheDate",
-        r"InstallId", r"SessionId", r"UserId",
-        r"Migrated", r"Migration",
-        r"Version", r"PreferencesVersion",
-        r"HasLaunched", r"HasRunBefore",
+        r"LastCheck",
+        r"LastUpdate",
+        r"LastSync",
+        r"Cache",
+        r"CacheDate",
+        r"InstallId",
+        r"SessionId",
+        r"UserId",
+        r"Migrated",
+        r"Migration",
+        r"Version",
+        r"PreferencesVersion",
+        r"HasLaunched",
+        r"HasRunBefore",
         r"TerminatedWith",
         r"MSAppCenter",
         r"DataSeparated",
         r"ViewSettings$",
-        r"WindowLocation", r"ProgressWindow",
+        r"WindowLocation",
+        r"ProgressWindow",
     ]
     for pattern in system_patterns:
         if re.search(pattern, key):
@@ -227,7 +236,9 @@ def main():
         print("\nUsage: read-defaults <domain> [--filter-system] [--only-changed]")
         print("\nOptions:")
         print("  --filter-system  Filter out system-managed keys")
-        print("  --only-changed   Only show values that differ from known defaults (experimental)")
+        print(
+            "  --only-changed   Only show values that differ from known defaults (experimental)"
+        )
 
 
 if __name__ == "__main__":

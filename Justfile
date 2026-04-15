@@ -226,6 +226,7 @@ fmt:
     source "$FLAKE/scripts/shell/common.sh"
     print_header "FMT"
     changed=0 unchanged=0 failed=0
+    print_pending "alejandra  formatting .nix files…"
     while IFS= read -r -d '' f; do
       [[ "$(basename "$f")" == default.nix ]] && continue
       mb=$(stat -c %Y "$f" 2>/dev/null || stat -f %m "$f" 2>/dev/null || echo 0)
@@ -234,10 +235,20 @@ fmt:
         [[ "$ma" != "$mb" ]] && changed=$((changed+1)) || unchanged=$((unchanged+1))
       else failed=$((failed+1)); fi
     done < <(find "$FLAKE" -name "*.nix" -type f -print0 2>/dev/null)
-    [[ "$failed" -gt 0 ]] && exit 1
-    echo "changed:$changed unchanged:$unchanged"
+    [[ "$failed" -gt 0 ]] && { print_error "alejandra  $failed file(s) failed"; exit 1; }
+    print_success "alejandra  changed:${changed} unchanged:${unchanged}"
+    print_pending "deadnix    removing unused bindings…"
     deadnix --edit "$FLAKE"
-    cd "$FLAKE" && ruff check scripts && uv run --project "$FLAKE/scripts" ty check scripts/src && biome check .
+    print_success "deadnix    done"
+    print_pending "ruff       formatting scripts…"
+    ruff format "$FLAKE/scripts"
+    print_success "ruff       done"
+    print_pending "ty         type-checking scripts…"
+    uv run --project "$FLAKE/scripts" ty check "$FLAKE/scripts/src"
+    print_success "ty         done"
+    print_pending "biome      formatting js/ts/json…"
+    cd "$FLAKE" && biome format .
+    print_success "biome      done"
     print_header "END"
 
 [doc('Lint .nix files for unused bindings (deadnix) and antipatterns (statix)')]
@@ -333,6 +344,13 @@ setup-age-darwin:
     [[ ! -f "$kf" ]] && nix develop "$FLAKE" --command age-keygen -o "$kf"
     nix develop "$FLAKE" --command age-keygen -y "$kf"
 
+[doc('Post-switch: Context7 CLI skills (Claude, Cursor, OpenCode); needs ctx7 login or CONTEXT7_API_KEY')]
+[group('config')]
+post-install:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    bash "$FLAKE/scripts/shell/post-install.bash"
+
 # ── system ────────────────────────────────────────────────────────────────────
 
 [doc('Rollback to previous generation (nh rollback / darwin-rebuild --rollback)')]
@@ -364,6 +382,10 @@ update:
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     print_header "UPDATE"
+    print_pending "update-packages  updating custom flake packages…"
+    uv run --project "$FLAKE/scripts" update-packages
+    print_success "update-packages  done"
+    print_pending "nh               previewing flake input updates…"
     is_darwin && p="nh darwin" || p="nh os"
     bash -c "$p switch --update --dry"
     print_header "END"
