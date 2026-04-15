@@ -16,7 +16,7 @@ in {
       isEssential = true;
       position = 102;
     };
-    "Reddit - The heart of the internet" = {
+    "I think Tu-95 has enough space inside for way more than 4x FAB-500s or 6x 250s : r/Warthunder" = {
       id = "78d70083-a115-4ea1-a25a-be9bc67ca1df";
       url = "https://www.reddit.com/";
       isEssential = true;
@@ -53,12 +53,28 @@ in {
       position = 108;
     };
     "Nix" = {
-      id = "1775769307141-35";
+      id = "{{1775769307141-35}}";
       workspace = spaces."Development".id;
       isGroup = true;
       isFolderCollapsed = true;
       editedTitle = true;
       position = 1000;
+    };
+    "War Thunder" = {
+      id = "{1776271316796-17}";
+      workspace = spaces."Games".id;
+      isGroup = true;
+      isFolderCollapsed = true;
+      editedTitle = true;
+      position = 1001;
+    };
+    "Diablo 2" = {
+      id = "{1776271297993-96}";
+      workspace = spaces."Games".id;
+      isGroup = true;
+      isFolderCollapsed = true;
+      editedTitle = true;
+      position = 1002;
     };
     "Home - Mastodon" = {
       id = "9f74dc7f-0ec6-4984-ba38-e9a1b39e092a";
@@ -80,7 +96,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 203;
-      folderParentId = "1775769307141-35";
+      folderParentId = "{{1775769307141-35}}";
     };
     "Home Manager - Option Search" = {
       id = "ecae3cd0-f530-479f-9308-62c33b0b13a8";
@@ -88,7 +104,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 204;
-      folderParentId = "1775769307141-35";
+      folderParentId = "{{1775769307141-35}}";
     };
     "NixOS Wiki" = {
       id = "14113b39-2a39-406b-b987-531863321d28";
@@ -96,7 +112,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 205;
-      folderParentId = "1775769307141-35";
+      folderParentId = "{{1775769307141-35}}";
     };
     "nixoffical wiki - Google Search" = {
       id = "7ea2c191-5af8-45e6-9470-f08d25c48b2d";
@@ -104,7 +120,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 206;
-      folderParentId = "1775769307141-35";
+      folderParentId = "{{1775769307141-35}}";
     };
     "Mydealz" = {
       id = "d37bad11-fbf6-43db-a280-2aaf4c506609";
@@ -120,19 +136,91 @@ in {
       isEssential = false;
       position = 208;
     };
+    "War thunder - Kagi Search" = {
+      id = "c8e9cdc9-e283-4f77-a734-bb7cb5e97336";
+      url = "https://kagi.com/search?q=War%20thunder";
+      workspace = spaces."Games".id;
+      isEssential = false;
+      position = 209;
+      folderParentId = "{1776271316796-17}";
+    };
+    "Gaijin" = {
+      id = "d7c98010-35ea-470d-9b7c-3b2650a879ad";
+      url = "https://store.gaijin.net/catalog.php?category=WarThunder&partner=News&partner_val=8jrteghy";
+      workspace = spaces."Games".id;
+      isEssential = false;
+      position = 210;
+      folderParentId = "{1776271316796-17}";
+    };
+    "Gaijin Market" = {
+      id = "217f5056-565c-4131-9209-2efbe19aaffb";
+      url = "https://trade.gaijin.net/";
+      workspace = spaces."Games".id;
+      isEssential = false;
+      position = 211;
+      folderParentId = "{1776271316796-17}";
+    };
+    "Warthunder" = {
+      id = "b9323a7a-f3e7-439f-ac7d-0a56ab56b4e1";
+      url = "https://live.warthunder.com/feed/camouflages/?q=%23vrcc";
+      workspace = spaces."Games".id;
+      isEssential = false;
+      position = 212;
+      folderParentId = "{1776271316796-17}";
+    };
+    "war thunder content creators - Google Se" = {
+      id = "8fd1f913-7b29-46b1-b942-21120de24e26";
+      url = "https://www.google.com/search?client=firefox-b-d&channel=entpr&q=war%20thunder%20content%20creators";
+      workspace = spaces."Games".id;
+      isEssential = false;
+      position = 213;
+      folderParentId = "{1776271316796-17}";
+    };
+    "Google" = {
+      id = "9fc59755-81f5-4826-8fac-fb8f81256197";
+      url = "https://docs.google.com/spreadsheets/d/1oNwp_MXszU5J2dcaz5IoCtSAQ-infPdOWhwtJXqtrwU/edit?pli=1&gid=325556979#gid=325556979";
+      workspace = spaces."Games".id;
+      isEssential = false;
+      position = 214;
+      folderParentId = "{1776271316796-17}";
+    };
+    "Diablo 2 Runeword Calculator - PureDiabl" = {
+      id = "6743c503-2f65-4f56-9946-ee3c1347b2fa";
+      url = "https://www.purediablo.com/diablo-2/runeword-calculator";
+      workspace = spaces."Games".id;
+      isEssential = false;
+      position = 215;
+      folderParentId = "{1776271297993-96}";
+    };
+    "Diablo 2 Resurrected and Diablo 2 Classi" = {
+      id = "b5b20d50-ad58-4152-a399-1a0b1a959284";
+      url = "https://www.purediablo.com/diablo-2";
+      workspace = spaces."Games".id;
+      isEssential = false;
+      position = 216;
+      folderParentId = "{1776271297993-96}";
+    };
+    "All Diablo 2 Resurrected Cube Recipes •" = {
+      id = "be8c0181-ace3-424f-b187-1f80cfd8991f";
+      url = "https://diablo2.io/recipes/";
+      workspace = spaces."Games".id;
+      isEssential = false;
+      position = 217;
+      folderParentId = "{1776271297993-96}";
+    };
     "JDownloader 2" = {
       id = "0502f069-bb8a-42ba-90b5-80e18e1a3d5b";
       url = "http://192.168.178.62:7807/";
       workspace = spaces."Downloads".id;
       isEssential = false;
-      position = 209;
+      position = 218;
     };
     "LinkSnappy - Get your files as a premium" = {
       id = "b19c8441-18b9-4cfb-ad0d-c6151f2cd526";
       url = "https://linksnappy.com/home";
       workspace = spaces."Downloads".id;
       isEssential = false;
-      position = 210;
+      position = 219;
     };
   };
 }
