@@ -7,14 +7,14 @@ output "HDMI-A-2" {
     transform "90"
     position x=0 y=0
 
-    layout {      
-        preset-window-heights { 
+    layout {
+        preset-window-heights {
             proportion 0.315
             proportion 0.5
             proportion 0.685
         }
-        default-column-width { 
-            proportion 1.0 
+        default-column-width {
+            proportion 1.0
         }
         preset-column-widths {
             proportion 0.5
@@ -25,12 +25,12 @@ output "HDMI-A-2" {
             right 0
             top 15
             bottom 25
-        } 
+        }
     }
     hot-corners {
-        top-right 
+        top-right
         top-left
-    }    
+    }
 }
 
 output "DP-2" {
@@ -57,8 +57,9 @@ window-rule {
     open-on-workspace "1"
     tiled-state false
     default-window-height { proportion 0.685; }
+    default-column-width { proportion 1.0; }
 }
-// Youtube Music 
+// Youtube Music
 spawn-at-startup "pear-desktop"
 window-rule {
     match app-id=r#"^com\.github\.th_ch\.youtube_music$"#
@@ -88,4 +89,3 @@ window-rule {
     open-on-output "HDMI-A-2"
     opacity 1.0
 }
-

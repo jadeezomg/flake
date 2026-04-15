@@ -88,7 +88,7 @@
           inherit hostKey user isDarwin inputs system;
         };
       modules = [
-        inputs.nixpkgs.nixosModules.readOnlyPkgs
+        inputs.stylix.nixosModules.stylix
         (./. + "/../hosts/${hostKey}")
         sops-nix.nixosModules.sops
         determinate.nixosModules.default
