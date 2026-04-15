@@ -4,11 +4,15 @@
     ./niri
   ];
 
+  # DankGreeter — replaces GDM for reliable multi-monitor Wayland login
+  programs.dank-material-shell.greeter = {
+    enable = true;
+    compositor.name = "niri";
+    configHome = "/home/jadee";
+    configFiles = ["/home/jadee/.config/DankMaterialShell/settings.json"];
+  };
+
   services = {
-    displayManager.gdm = {
-      enable = true;
-      wayland = true;
-    };
     gvfs.enable = true; # Mount, trash, etc
     tumbler.enable = true; # Thumbnail support for images
     xserver = {

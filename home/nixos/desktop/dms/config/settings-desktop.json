@@ -441,7 +441,11 @@
   "showOnLastDisplay": {
     "osd": false
   },
-  "niriOutputSettings": {},
+  "niriOutputSettings": {
+    "DP-2": {
+      "focusAtStartup": true
+    }
+  },
   "hyprlandOutputSettings": {},
   "displayProfiles": {},
   "activeDisplayProfile": {},
