@@ -16,13 +16,13 @@ pkgs.buildNpmPackage rec {
   # Vendored lock may use tarball URLs (see update.json patch_git_ssh_lock). Sync package.json deps from lock.
   postPatch = ''
     cp ${./package-lock.json} package-lock.json
-    node ${./sync-deps-from-lock.mjs}
+    ${pkgs.nodejs}/bin/node ${./sync-deps-from-lock.mjs}
   '';
 
   npmDepsHash = "sha256-zAO7CGQyci5b6VfEGfI+Bgzyham6wsys9r11HDJiAtw=";
 
   dontNpmBuild = true;
-
+  nativeBuildInputs = [ pkgs.nodejs ];
   meta = with lib; {
     description = "CLI for Kagi search and summarizer via session token (unofficial)";
     homepage = "https://github.com/czottmann/kagi-ken-cli";
