@@ -1,5 +1,10 @@
 {...}: {
   security.pam.services = {
-    login.enableGnomeKeyring = true; # Enable Gnome keyring on login # FIX: This is flimsy. Sometimes it unlocks, sometimes it does not.
+    login.enableGnomeKeyring = true; # Enable GNOME keyring on tty login.
+    # DMS greeter is the active authentication service when using greetd+dms.
+    dms-greeter = {
+      enableGnomeKeyring = true;
+      startSession = true;
+    };
   };
 }

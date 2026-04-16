@@ -33,6 +33,8 @@
       username = "angelie";
       fullName = "Angelie";
       description = "Guest account (limited)";
+      initialPassword = "gremlin";
+      promptPasswordChange = true;
       extraGroups = [
         "audio"
         "networkmanager"

@@ -85,7 +85,7 @@ in {
       };
       zen-browser = {
         profileNames = ["default"];
-        enableCss = false; # maybe?
+        enableCss = true; # maybe?
       };
       # gnome.enable = false;
       # qt.enable = false;

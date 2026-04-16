@@ -20,10 +20,14 @@
       # Configure keyboard layout (works for both Wayland and X11)
       xkb = {
         layout = "us";
-        variant = "euro";
+        variant = "intl";
       };
     };
   };
+
+  # Niri is the primary compositor; include GNOME in XDG_CURRENT_DESKTOP so
+  # gnome-control-center and other GNOME tools detect a compatible session.
+  environment.sessionVariables.XDG_CURRENT_DESKTOP = "niri:GNOME";
 
   environment.systemPackages = with pkgs; [
     libnotify # Desktop notifications
