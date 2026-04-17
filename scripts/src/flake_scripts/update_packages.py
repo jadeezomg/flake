@@ -1,15 +1,24 @@
 """Update custom flake packages by reading update.json metadata from each package dir.
 
+The default `type` is `nix-update`; the npm + github_npm handlers exist only for
+cases `nix-update` cannot cover.
+
 Handler `type` values:
-  - npm: registry.npmjs.org package (see packages/context7/update.json). Updates
-    `version`, `url`, tarball `hash`, vendored `lock_file`, and `npmDepsHash`.
-  - github_release: release asset URL + nix-prefetch-url (see iosevka packages).
-  - github_tag: latest GitHub release tag (or newest tag if no releases), `nix-prefetch-github`
-    for fetchFromGitHub `hash` (see packages/workato-platform-cli/update.json).
-  - github_npm: latest GitHub release tag (or newest tag if no releases), `nix-prefetch-github`
-    for fetchFromGitHub `hash`, vendored `lock_file` from the tag archive, `prefetch-npm-deps`
-    for `npmDepsHash`, and `rev_field` set to the tag name. Optional `patch_git_ssh_lock`
-    rewrites `git+ssh://git@github.com/...` lockfile entries to https tarball + integrity.
+  - nix-update: delegate to Mic92/nix-update via `nix-update --flake <attr>`. The tool
+    owns the default.nix rewrite (version + every hash/rev/cargoHash/npmDepsHash it
+    knows). Use this for any package whose `src` is a resolver nix-update supports
+    (GitHub/GitLab/crates.io/PyPi/etc.). Optional `attr` overrides the flake
+    attribute (default: package dir name); optional `extra_args` is a list of CLI
+    flags forwarded verbatim (e.g. `["--generate-lockfile"]`).
+  - npm: registry.npmjs.org package (see packages/context7/update.json). Needed
+    because nix-update has no npm-registry resolver. Updates `version`, `url`,
+    tarball `hash`, vendored `lock_file`, and `npmDepsHash`.
+  - github_npm: latest GitHub release tag (or newest tag if no releases),
+    `nix-prefetch-github` for fetchFromGitHub `hash`, vendored `lock_file` from the
+    tag archive, `prefetch-npm-deps` for `npmDepsHash`, and `rev_field` set to the
+    tag name. Needed over nix-update when `patch_git_ssh_lock` is true: rewrites
+    `git+ssh://git@github.com/...` lockfile entries to https tarball + sha512
+    integrity so `buildNpmPackage` can resolve them in the sandbox.
 
 Each package stores `packages/<name>/.update-check.json` with `checked_at` (unix time).
 By default a 1h cooldown skips re-fetching if that file is newer than the cooldown (use
@@ -17,10 +26,10 @@ By default a 1h cooldown skips re-fetching if that file is newer than the cooldo
 """
 
 import base64
-from datetime import datetime
 import hashlib
 import json
 import re
+import shutil
 import ssl
 import subprocess
 import sys
@@ -55,30 +64,16 @@ CHECK_STATE_FILENAME = ".update-check.json"
 StatusCb = Callable[[str], None]
 
 
-def _noop(_: str) -> None: ...
-
-
 def _check_state_path(pkg_dir: Path) -> Path:
     return pkg_dir / CHECK_STATE_FILENAME
 
 
 def _read_last_checked(pkg_dir: Path) -> float | None:
     path = _check_state_path(pkg_dir)
-    if not path.is_file():
-        return None
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-        t = data.get("checked_at")
-        if isinstance(t, (int, float)):
-            return float(t)
-        if isinstance(t, str):
-            # Allow ISO-8601 state files so cooldown survives schema tweaks/manual edits.
-            return datetime.fromisoformat(t.replace("Z", "+00:00")).timestamp()
-    except (json.JSONDecodeError, OSError, TypeError):
-        pass
-    try:
-        return path.stat().st_mtime
-    except OSError:
+        t = json.loads(path.read_text(encoding="utf-8")).get("checked_at")
+        return float(t) if isinstance(t, (int, float)) else None
+    except (OSError, json.JSONDecodeError, TypeError):
         return None
 
 
@@ -105,14 +100,10 @@ def _fetch_json(url: str) -> dict:
         return json.loads(r.read())
 
 
-def _nix_sri(url: str, *, unpack: bool = False) -> str:
-    cmd = ["nix-prefetch-url", "--type", "sha256"]
-    if unpack:
-        cmd.append("--unpack")
-    cmd.append(url)
-    raw = subprocess.run(cmd, capture_output=True, text=True, check=True).stdout.strip()
+def _file_sri(path: Path) -> str:
+    """SRI sha256 of a file (matches fetchurl without unpack)."""
     return subprocess.run(
-        ["nix", "hash", "convert", "--hash-algo", "sha256", "--to", "sri", raw],
+        ["nix", "hash", "file", "--type", "sha256", "--sri", str(path)],
         capture_output=True,
         text=True,
         check=True,
@@ -149,30 +140,27 @@ def _current_version(text: str) -> str:
 # ---------------------------------------------------------------------------
 # Source type handlers
 # Each receives (meta, pkg_dir, status_cb, current_version) and returns
-# (new_version, url, field_updates).  current_version is pre-read by
+# (new_version, field_updates).  current_version is pre-read by
 # update_package so handlers never need to re-read default.nix themselves.
 # ---------------------------------------------------------------------------
 
 
 def _handle_npm(
     meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
-) -> tuple[str, str, dict]:
+) -> tuple[str, dict]:
     """npm package: fetch latest, compute src hash + npm deps hash."""
     status("fetching latest version from npm")
     data = _fetch_json(f"https://registry.npmjs.org/{meta['package']}/latest")
     new_version = data["version"]
     tarball_url = data["dist"]["tarball"]
 
-    status("hashing tarball")
-    src_hash = _nix_sri(tarball_url)
-
-    status("downloading tarball")
-    with urllib.request.urlopen(tarball_url, timeout=30, context=_SSL) as r:
-        raw = r.read()
-
     with tempfile.TemporaryDirectory() as tmp:
         tgz = Path(tmp) / "pkg.tgz"
-        tgz.write_bytes(raw)
+        status("downloading tarball")
+        with urllib.request.urlopen(tarball_url, timeout=30, context=_SSL) as r:
+            tgz.write_bytes(r.read())
+        status("hashing tarball")
+        src_hash = _file_sri(tgz)
         with tarfile.open(tgz) as tf:
             tf.extractall(tmp)
         pkg_json = Path(tmp) / "package" / "package.json"
@@ -183,38 +171,17 @@ def _handle_npm(
             capture_output=True,
             check=True,
         )
-        new_lock = pkg_json.parent / "package-lock.json"
         dest_lock = pkg_dir / meta["lock_file"]
-        dest_lock.write_text(new_lock.read_text())
+        dest_lock.write_text((pkg_json.parent / "package-lock.json").read_text())
         status("hashing npm deps")
         deps_hash = _npm_deps_hash(dest_lock)
 
-    return (
-        new_version,
-        tarball_url,
-        {
-            # Keep fetchurl in sync with npm `dist.tarball` (version bumps alone miss this).
-            "url": tarball_url,
-            meta["hash_field"]: src_hash,
-            meta["npm_deps_hash_field"]: deps_hash,
-        },
-    )
-
-
-def _handle_github_release(
-    meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
-) -> tuple[str, str, dict]:
-    """GitHub release: fetch latest tag, compute asset hash."""
-    status("fetching latest GitHub release")
-    data = _fetch_json(f"https://api.github.com/repos/{meta['repo']}/releases/latest")
-    new_version = data["tag_name"].lstrip("v")
-    asset = meta["asset"].format(version=new_version)
-    url = f"https://github.com/{meta['repo']}/releases/download/v{new_version}/{asset}"
-
-    status("hashing release asset")
-    src_hash = _nix_sri(url, unpack=meta.get("unpack", False))
-
-    return new_version, url, {meta["hash_field"]: src_hash}
+    return new_version, {
+        # Keep fetchurl in sync with npm `dist.tarball` (version bumps alone miss this).
+        "url": tarball_url,
+        meta["hash_field"]: src_hash,
+        meta["npm_deps_hash_field"]: deps_hash,
+    }
 
 
 _GIT_SSH_RESOLVED = re.compile(
@@ -308,14 +275,14 @@ def _patch_lock_git_ssh(lock: dict) -> None:
 
 def _handle_github_npm(
     meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
-) -> tuple[str, str, dict]:
+) -> tuple[str, dict]:
     """GitHub release/tag + fetchFromGitHub + buildNpmPackage: refresh lock + hashes."""
     owner, repo_name = meta["repo"].split("/", 1)
 
     status("fetching latest GitHub tag")
     tag, new_version = _github_latest_tag(owner, repo_name)
     if new_version == current_version:
-        return new_version, "", {}
+        return new_version, {}
 
     quoted_tag = urllib.parse.quote(tag, safe="")
     archive_url = (
@@ -355,43 +322,59 @@ def _handle_github_npm(
     status("prefetching GitHub source hash")
     src_hash = _nix_prefetch_github_hash(owner, repo_name, tag)
 
-    return (
-        new_version,
-        archive_url,
-        {
-            meta.get("rev_field", "rev"): tag,
-            meta["hash_field"]: src_hash,
-            meta["npm_deps_hash_field"]: deps_hash,
-        },
-    )
-
-
-def _handle_github_tag(
-    meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
-) -> tuple[str, str, dict]:
-    """GitHub tag + fetchFromGitHub: bump `version` and refresh `hash_field` via nix-prefetch-github."""
-    owner, repo_name = meta["repo"].split("/", 1)
-
-    status("fetching latest GitHub tag")
-    tag, new_version = _github_latest_tag(owner, repo_name)
-
-    quoted_tag = urllib.parse.quote(tag, safe="")
-    archive_url = (
-        f"https://github.com/{owner}/{repo_name}/archive/refs/tags/{quoted_tag}.tar.gz"
-    )
-
-    status("prefetching GitHub source hash")
-    src_hash = _nix_prefetch_github_hash(owner, repo_name, tag)
-
-    return new_version, archive_url, {meta["hash_field"]: src_hash}
+    return new_version, {
+        meta.get("rev_field", "rev"): tag,
+        meta["hash_field"]: src_hash,
+        meta["npm_deps_hash_field"]: deps_hash,
+    }
 
 
 _HANDLERS = {
     "npm": _handle_npm,
-    "github_release": _handle_github_release,
-    "github_tag": _handle_github_tag,
     "github_npm": _handle_github_npm,
 }
+
+
+def _nix_update_cmd(flake_root: Path, args: list[str]) -> list[str]:
+    """Build a `nix-update` invocation, falling back to `nix develop` when nix-update
+    is not on PATH (e.g. when update-packages is invoked outside the flake devShell)."""
+    if shutil.which("nix-update"):
+        return ["nix-update", *args]
+    return ["nix", "develop", str(flake_root), "--command", "nix-update", *args]
+
+
+def _handle_nix_update_self(
+    meta: dict,
+    pkg_dir: Path,
+    status: StatusCb,
+    old_version: str,
+    nix_text_before: str,
+) -> tuple[str, str, bool, bool]:
+    """Self-applying handler: `nix-update` rewrites default.nix in place.
+
+    Returns (old_version, new_version, version_changed, fields_changed).
+    """
+    attr = meta.get("attr", pkg_dir.name)
+    extra = list(meta.get("extra_args") or [])
+    flake_root = pkg_dir.parent.parent
+
+    status("running nix-update")
+    cmd = _nix_update_cmd(flake_root, ["--flake", *extra, attr])
+    proc = subprocess.run(
+        cmd,
+        cwd=flake_root,
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        msg = proc.stderr.strip() or proc.stdout.strip() or "nix-update failed"
+        raise RuntimeError(msg)
+
+    nix_text_after = (pkg_dir / "default.nix").read_text()
+    new_version = _current_version(nix_text_after)
+    version_changed = new_version != old_version
+    fields_changed = (not version_changed) and (nix_text_after != nix_text_before)
+    return old_version, new_version, version_changed, fields_changed
 
 
 # ---------------------------------------------------------------------------
@@ -401,7 +384,7 @@ _HANDLERS = {
 
 def update_package(
     pkg_dir: Path,
-    status: StatusCb = _noop,
+    status: StatusCb,
     *,
     force: bool = False,
     cooldown_s: int = COOLDOWN_DEFAULT_SEC,
@@ -423,8 +406,16 @@ def update_package(
             return old_version, old_version, False, False, True
 
     meta = json.loads((pkg_dir / "update.json").read_text())
+
+    if meta["type"] == "nix-update":
+        old, new, v_changed, f_changed = _handle_nix_update_self(
+            meta, pkg_dir, status, old_version, nix_text
+        )
+        _write_last_checked(pkg_dir)
+        return old, new, v_changed, f_changed, False
+
     handler = _HANDLERS[meta["type"]]
-    new_version, _url, field_updates = handler(meta, pkg_dir, status, old_version)
+    new_version, field_updates = handler(meta, pkg_dir, status, old_version)
 
     version_changed = new_version != old_version
     # Detect hash drift: field present in nix file but value differs from computed
@@ -512,6 +503,17 @@ def main(args: list[str] | None = None) -> None:
 
             return _cb
 
+        def finish(
+            tid: TaskID, icon: str, name_style: str, name: str, step: str
+        ) -> None:
+            progress.update(
+                tid,
+                icon=icon,
+                description=f"[{name_style}]{name}[/]",
+                step=step,
+                completed=1,
+            )
+
         with ThreadPoolExecutor(max_workers=len(targets)) as executor:
             futures = {
                 executor.submit(
@@ -525,52 +527,39 @@ def main(args: list[str] | None = None) -> None:
             for future in as_completed(futures):
                 pkg_dir = futures[future]
                 tid = pkg_tasks[pkg_dir]
+                name = pkg_dir.name
                 try:
                     old, new, version_changed, fields_changed, cooldown_skipped = (
                         future.result()
                     )
                     if cooldown_skipped:
-                        progress.update(
-                            tid,
-                            icon="[dim]~[/]",
-                            description=f"[dim]{pkg_dir.name}[/]",
-                            step="[dim]cooldown (1h)[/]",
-                            completed=1,
-                        )
+                        finish(tid, "[dim]~[/]", "dim", name, "[dim]cooldown (1h)[/]")
                     elif version_changed:
-                        progress.update(
-                            tid,
-                            icon="[green]✓[/]",
-                            description=f"[bold]{pkg_dir.name}[/]",
-                            step=f"{old} → [green]{new}[/]",
-                            completed=1,
+                        finish(
+                            tid, "[green]✓[/]", "bold", name, f"{old} → [green]{new}[/]"
                         )
-                        changed.append(pkg_dir.name)
+                        changed.append(name)
                     elif fields_changed:
-                        progress.update(
+                        finish(
                             tid,
-                            icon="[yellow]✓[/]",
-                            description=f"[bold]{pkg_dir.name}[/]",
-                            step=f"[yellow]hashes updated[/] ({new})",
-                            completed=1,
+                            "[yellow]✓[/]",
+                            "bold",
+                            name,
+                            f"[yellow]hashes updated[/] ({new})",
                         )
-                        changed.append(pkg_dir.name)
+                        changed.append(name)
                     else:
-                        progress.update(
-                            tid,
-                            icon="[dim]–[/]",
-                            description=f"[dim]{pkg_dir.name}[/]",
-                            step=f"[dim]already at {new}[/]",
-                            completed=1,
+                        finish(
+                            tid, "[dim]–[/]", "dim", name, f"[dim]already at {new}[/]"
                         )
                 except Exception as e:
-                    progress.update(
-                        tid,
-                        icon="[red]✗[/]",
-                        description=f"[red]{pkg_dir.name}[/]",
-                        step=f"[red]{e}[/]",
-                        completed=1,
+                    # Short cell (last non-empty line); print full error above the bar.
+                    msg = str(e)
+                    last = next(
+                        (ln for ln in reversed(msg.splitlines()) if ln.strip()), msg
                     )
+                    progress.console.print(f"[red]{name}[/]: {msg}")
+                    finish(tid, "[red]✗[/]", "red", name, f"[red]{last}[/]")
                     failed = True
                 finally:
                     progress.advance(overall)

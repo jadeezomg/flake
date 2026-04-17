@@ -168,6 +168,7 @@
             pkgs.alejandra
             pkgs.nil
             pkgs.nixd
+            pkgs.nix-update
             pkgs.jq
             pkgs.curl
             pkgs.age

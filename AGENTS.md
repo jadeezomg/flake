@@ -63,7 +63,8 @@ Always run from the flake root. The Justfile sets `NH_FLAKE` automatically.
 | Dry run | `just build-dry` |
 | Validate flake only | `just switch-check` |
 | Rollback | `just rollback` |
-| Preview input updates | `just update` |
+| Refresh externals (inputs + `packages/*`) | `just update` — `update-packages` (honors every `packages/*/update.json`, including `{"type":"nix-update"}` entries), `nix flake update`, `just fmt`; `UPDATE_FORCE=1` skips per-package cooldown |
+| Bump one flake package with [nix-update](https://github.com/Mic92/nix-update) | `just nix-update-pkg` (fzf picker of `packages.<system>.*`) or `just nix-update-pkg <attr> [options…]` — runs `nix-update --flake <attr>` then `just fmt`. For a full batch, use `just update`. |
 | Format all .nix files | `just fmt` |
 
 **Never use** `nixos-rebuild switch`, `home-manager switch`, or bare `nh os switch /path`.

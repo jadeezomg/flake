@@ -39,7 +39,7 @@ just fmt             # alejandra + deadnix + ruff + ty + biome
 just lint            # deadnix + statix
 
 # maintenance
-just update          # metadata packages, flake.lock, nix-update batch, fmt, Framework BIOS check
+just update          # packages/*/update.json (incl. nix-update entries), flake.lock, fmt, Framework BIOS check
 just gc-days         # nh clean, keep store paths newer than N days
 just health          # git status, disk, nh os info
 ```
@@ -56,7 +56,7 @@ just health          # git status, disk, nh os info
 | `generations` | `generation-list`, `generation-switch`, `generation-delete`, `generation-bootloader` |
 | `gc` | `gc-keep`, `gc-days`, `gc-all` |
 | `format` | `fmt`, `fmt-notree`, `lint` |
-| `check` | `check-packages`, `update-packages`, `symlink-check`, `check-zen-essentials` |
+| `check` | `check-packages`, `update-packages`, `nix-update-pkg`, `symlink-check`, `symlink-check-dms`, `check-zen-essentials` |
 | `config` | `init`, `post-install`, `read-defaults`, `setup-age-darwin` |
 | `system` | `health`, `rollback`, `reload-services`, `update` |
 | `repo` | `git` (fmt + status/log + commit + push) |
@@ -135,7 +135,7 @@ scripts/
     ├── symlinks.py          # symlink-check (DMS / niri / quickshell)
     ├── check_packages.py    # scan flake for broken package refs
     ├── read_defaults.py     # macOS `defaults` -> Nix-style output
-    ├── update_packages.py   # refresh packages/<name>/default.nix + lock hashes
+    ├── update_packages.py   # refresh packages/<name>/default.nix via nix-update or npm/github_npm handlers
     └── zen/
         ├── zen_session.py         # zen-session CLI entry
         ├── extract_pinned_tabs.py # pinned tabs per workspace (JSON/Nix)
@@ -148,7 +148,7 @@ Console scripts declared in `scripts/pyproject.toml`:
 |---|---|
 | `symlink-check` | DMS / niri / quickshell symlink report |
 | `check-packages` | Scan flake for broken / missing package references |
-| `update-packages` | Bump `packages/*` to latest upstream, rewrite lockfiles |
+| `update-packages` | Bump `packages/*` via `nix-update` or per-package lockfile handlers (driven by `packages/*/update.json`) |
 | `read-defaults` | macOS `defaults read <domain>` → Nix-style output |
 | `zen-session` | Zen browser session sync + extract (wraps the two below) |
 
