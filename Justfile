@@ -182,6 +182,8 @@ generation-delete:
 
 # -- gc ------------------------------------------------------------------------
 
+alias gc := gc-keep
+
 [doc('nh clean keeping last N generations (prompts N, default 5)')]
 [group('gc')]
 gc-keep:
@@ -365,7 +367,7 @@ health:
     is_darwin || nh os info 2>/dev/null | head -15
     print_header "END"
 
-[doc('Update flake.lock + Framework BIOS/firmware check')]
+[doc('Full external refresh: update-packages (packages/*/update.json, which includes nix-update entries), flake.lock, optional fwupdmgr; then just fmt. Set UPDATE_FORCE=1 for update-packages --force')]
 [group('system')]
 update:
     #!/usr/bin/env bash
@@ -373,11 +375,16 @@ update:
     source "$FLAKE/scripts/shell/common.sh"
     print_header "UPDATE"
     print_pending "update-packages  updating custom flake packages..."
-    uv run --project "$FLAKE/scripts" update-packages
+    up=()
+    [[ "${UPDATE_FORCE:-}" == 1 ]] && up+=(--force)
+    uv run --project "$FLAKE/scripts" update-packages "${up[@]}"
     print_success "update-packages  done"
     print_pending "nix              updating flake.lock..."
     nix flake update --flake "$FLAKE"
     print_success "nix              flake.lock updated"
+    print_pending "fmt              formatting..."
+    just --justfile "${JUSTFILE:?}" fmt
+    print_success "fmt              done"
     h="$(get_host "")"
     if ! is_darwin && [[ "$h" == framework-nixos ]] && command -v fwupdmgr >/dev/null; then
       print_pending "fwupdmgr         checking BIOS/firmware updates (framework)..."
@@ -418,10 +425,38 @@ git:
 check-packages:
     @uv run --project "$FLAKE/scripts" check-packages
 
-[doc('Update custom flake packages (context7, iosevka) to latest versions')]
+[doc('Update custom flake packages via scripts/update-packages (reads packages/*/update.json)')]
 [group('check')]
 update-packages *ARGS:
     @uv run --project "$FLAKE/scripts" update-packages {{ ARGS }}
+
+[doc('Run `nix-update` on one flake package (interactive picker when no attr). For the full batch, use `just update`.')]
+[group('check')]
+[positional-arguments]
+nix-update-pkg:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "${FLAKE:?}"
+    if [[ $# -eq 0 ]]; then
+      mapfile -t pkg_attrs < <(nix eval --impure --accept-flake-config \
+        --expr "builtins.attrNames (builtins.getFlake \"$PWD\").packages.\${builtins.currentSystem}" \
+        --json | jq -r '.[]' | sort -u)
+      if command -v fzf >/dev/null 2>&1; then
+        attr="$(printf '%s\n' "${pkg_attrs[@]}" | fzf --prompt='nix-update> ' --height=40%)"
+      else
+        echo "attrs: ${pkg_attrs[*]}"
+        read -rp "attr: " attr
+      fi
+      [[ -n "${attr:-}" ]] || exit 0
+      set -- "$attr"
+    fi
+    attr="$1"; shift
+    if command -v nix-update >/dev/null 2>&1; then
+      nix-update --flake "$@" "$attr"
+    else
+      nix develop "$FLAKE" --command nix-update --flake "$@" "$attr"
+    fi
+    just --justfile "${JUSTFILE:?}" fmt
 
 [doc('Verify Zen profile places.sqlite exists')]
 [group('check')]

@@ -1,5 +1,3 @@
 {
-	"type": "github_tag",
-	"repo": "workato-devs/workato-platform-cli",
-	"hash_field": "hash"
+	"type": "nix-update"
 }
