@@ -1,6 +1,6 @@
 {...}: {
   imports = [
-    ./nix-ld.nix
+    # ./nix-ld.nix
     ./core.nix
     ./usrbinenv.nix
     ./filesystem.nix
