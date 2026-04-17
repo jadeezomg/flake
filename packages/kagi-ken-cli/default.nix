@@ -22,7 +22,7 @@ pkgs.buildNpmPackage rec {
   npmDepsHash = "sha256-zAO7CGQyci5b6VfEGfI+Bgzyham6wsys9r11HDJiAtw=";
 
   dontNpmBuild = true;
-  nativeBuildInputs = [ pkgs.nodejs ];
+  nativeBuildInputs = [pkgs.nodejs];
   meta = with lib; {
     description = "CLI for Kagi search and summarizer via session token (unofficial)";
     homepage = "https://github.com/czottmann/kagi-ken-cli";

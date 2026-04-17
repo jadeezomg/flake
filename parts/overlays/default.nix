@@ -8,13 +8,13 @@
   isX86_64Linux = system == "x86_64-linux";
 in
   []
-    # x86_64-linux: niri-flake, CachyOS kernel, framework-control (patched src hash)
-    ++ (
+  # x86_64-linux: niri-flake, CachyOS kernel, framework-control (patched src hash)
+  ++ (
     if isX86_64Linux
     then [
       inputs.niri.overlays.niri
       inputs.nix-cachyos-kernel.overlays.pinned
-      (import ./framework-control.nix {inherit lib; })
+      (import ./framework-control.nix {inherit lib;})
     ]
     else []
   )
