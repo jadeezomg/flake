@@ -8,6 +8,9 @@ let
   # Darwin host uses caya-jonas user
   darwinUser = userData.users.caya-jonas;
 
+  # Extra Linux accounts (declared in data/users/users.nix), merged into each NixOS host
+  nixosExtraUsers = [userData.users.angelie];
+
   # Shared host configuration for NixOS hosts
   # Individual hosts can override specific fields
   sharedNixOSHost = {
@@ -15,6 +18,7 @@ let
     system = "x86_64-linux";
     homeDirectory = "/home/${sharedNixOSUser.username}";
     stateVersion = "25.11";
+    extraUsers = nixosExtraUsers;
   };
 
   hosts = {

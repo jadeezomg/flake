@@ -8,7 +8,7 @@ pkgs.buildNpmPackage {
   version = "0.3.13";
 
   src = pkgs.fetchurl {
-    url = "https://registry.npmjs.org/ctx7/-/ctx7-0.3.11.tgz";
+    url = "https://registry.npmjs.org/ctx7/-/ctx7-0.3.13.tgz";
     hash = "sha256-dDaZfHwdReyOGD+Os9ybVRxxMP9WqdX2gBZ069vKOYk=";
   };
 

@@ -104,6 +104,11 @@
       url = "github:googleworkspace/cli";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    forgecode = {
+      url = "github:tailcallhq/forgecode";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {flake-parts, ...}: let

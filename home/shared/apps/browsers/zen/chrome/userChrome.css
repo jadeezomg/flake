@@ -10,7 +10,7 @@
 }
 
 :root {
-	--zen-opacity: 0.9 !important;
+	--zen-opacity: 0.85 !important;
 	/* Replace Stylix’s solid backgrounds with transparent so the window can be see-through */
 	--zen-main-browser-background: transparent !important;
 	--zen-themed-toolbar-bg: transparent !important;

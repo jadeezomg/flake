@@ -1,7 +1,6 @@
 {
   config,
   hostKey,
-  user,
   ...
 }: let
   flakePath = "$HOME/.dotfiles/flake";
@@ -28,7 +27,7 @@ in {
       # This file is not used when running with --flake
       # It's only here to prevent error messages from legacy home-manager commands
 
-      home.username = "${user}";
+      home.username = "${config.home.username}";
       home.homeDirectory = "${config.home.homeDirectory}";
       home.stateVersion = "${config.home.stateVersion}";
 
