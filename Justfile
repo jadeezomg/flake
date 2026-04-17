@@ -414,6 +414,7 @@ git:
     [[ -d "$FLAKE/.git" ]] || exit 1
     alejandra --quiet "$FLAKE" >/dev/null 2>&1 || true
     git -C "$FLAKE" status -sb; git -C "$FLAKE" log --oneline -n 5
+    [[ -z "$(git -C "$FLAKE" status --porcelain)" ]] && exit 0
     read -r -p "Commit: " msg || true
     [[ -z "${msg:-}" || "$msg" == abort ]] && exit 0
     git -C "$FLAKE" add -A && git -C "$FLAKE" commit -m "$msg" && git -C "$FLAKE" push
