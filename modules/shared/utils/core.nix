@@ -13,5 +13,7 @@
     git
     jujutsu # Git-compatible DVCS
     jjui # Jujutsu UI
+
+    navi
   ];
 }

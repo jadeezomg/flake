@@ -1,7 +1,8 @@
 """Update custom flake packages by reading update.json metadata from each package dir.
 
 Handler `type` values:
-  - npm: registry.npmjs.org package (see packages/context7/update.json).
+  - npm: registry.npmjs.org package (see packages/context7/update.json). Updates
+    `version`, `url`, tarball `hash`, vendored `lock_file`, and `npmDepsHash`.
   - github_release: release asset URL + nix-prefetch-url (see iosevka packages).
   - github_tag: latest GitHub release tag (or newest tag if no releases), `nix-prefetch-github`
     for fetchFromGitHub `hash` (see packages/workato-platform-cli/update.json).
@@ -9,6 +10,10 @@ Handler `type` values:
     for fetchFromGitHub `hash`, vendored `lock_file` from the tag archive, `prefetch-npm-deps`
     for `npmDepsHash`, and `rev_field` set to the tag name. Optional `patch_git_ssh_lock`
     rewrites `git+ssh://git@github.com/...` lockfile entries to https tarball + integrity.
+
+Each package stores `packages/<name>/.update-check.json` with `checked_at` (unix time).
+By default a 1h cooldown skips re-fetching if that file is newer than the cooldown (use
+`--force` to always fetch).
 """
 
 import base64
@@ -18,6 +23,7 @@ import re
 import ssl
 import subprocess
 import sys
+import time
 import tarfile
 import tempfile
 import urllib.error
@@ -41,10 +47,49 @@ from flake_scripts.lib.common import console, resolve_flake_root
 
 _SSL = ssl.create_default_context(cafile=certifi.where())
 
+# Skip registry/GitHub fetches if we checked this package recently (per-machine state).
+COOLDOWN_DEFAULT_SEC = 3600
+CHECK_STATE_FILENAME = ".update-check.json"
+
 StatusCb = Callable[[str], None]
 
 
 def _noop(_: str) -> None: ...
+
+
+def _check_state_path(pkg_dir: Path) -> Path:
+    return pkg_dir / CHECK_STATE_FILENAME
+
+
+def _read_last_checked(pkg_dir: Path) -> float | None:
+    path = _check_state_path(pkg_dir)
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text())
+        t = data.get("checked_at")
+        if isinstance(t, (int, float)):
+            return float(t)
+    except (json.JSONDecodeError, OSError, TypeError):
+        return None
+    return None
+
+
+def _write_last_checked(pkg_dir: Path) -> None:
+    path = _check_state_path(pkg_dir)
+    path.write_text(
+        json.dumps({"checked_at": time.time()}, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _cooldown_remaining_human(last: float, cooldown_s: int) -> str:
+    left = max(0, int(cooldown_s - (time.time() - last)))
+    if left >= 3600:
+        return f"{left // 3600}h {(left % 3600) // 60}m left"
+    if left >= 60:
+        return f"{left // 60}m left"
+    return f"{left}s left"
 
 
 def _fetch_json(url: str) -> dict:
@@ -76,9 +121,17 @@ def _npm_deps_hash(lock_file: Path) -> str:
     ).stdout.strip()
 
 
-def _sub(path: Path, pattern: str, replacement: str) -> None:
+def _replace_attr_once(path: Path, field: str, value: str) -> None:
+    """Set `field = \"value\"` on the first matching line (optional indent). Fails if not found."""
     text = path.read_text()
-    path.write_text(re.sub(pattern, replacement, text, count=1))
+    pattern = rf'(?m)^([ \t]*{re.escape(field)}\s*=\s*)"[^"]*"'
+    new_text, n = re.subn(pattern, rf'\1"{value}"', text, count=1)
+    if n != 1:
+        raise RuntimeError(
+            f"{path}: expected exactly 1 line matching attribute {field!r}, got {n}. "
+            "Check default.nix uses the same attribute name as update.json."
+        )
+    path.write_text(new_text)
 
 
 def _current_version(text: str) -> str:
@@ -133,6 +186,8 @@ def _handle_npm(
         new_version,
         tarball_url,
         {
+            # Keep fetchurl in sync with npm `dist.tarball` (version bumps alone miss this).
+            "url": tarball_url,
             meta["hash_field"]: src_hash,
             meta["npm_deps_hash_field"]: deps_hash,
         },
@@ -338,38 +393,56 @@ _HANDLERS = {
 
 
 def update_package(
-    pkg_dir: Path, status: StatusCb = _noop
-) -> tuple[str, str, bool, bool]:
+    pkg_dir: Path,
+    status: StatusCb = _noop,
+    *,
+    force: bool = False,
+    cooldown_s: int = COOLDOWN_DEFAULT_SEC,
+) -> tuple[str, str, bool, bool, bool]:
     """Update a single package.
 
-    Returns (old_version, new_version, version_changed, fields_changed).
+    Returns (old_version, new_version, version_changed, fields_changed, cooldown_skipped).
+    cooldown_skipped is True when no network work ran due to the per-package cooldown.
     fields_changed is True when hashes drifted even without a version bump.
     """
-    meta = json.loads((pkg_dir / "update.json").read_text())
     nix_file = pkg_dir / "default.nix"
     nix_text = nix_file.read_text()
-
     old_version = _current_version(nix_text)
+
+    if not force and cooldown_s > 0:
+        last = _read_last_checked(pkg_dir)
+        if last is not None and (time.time() - last) < cooldown_s:
+            status(
+                f"skipped (cooldown {_cooldown_remaining_human(last, cooldown_s)})"
+            )
+            return old_version, old_version, False, False, True
+
+    meta = json.loads((pkg_dir / "update.json").read_text())
     handler = _HANDLERS[meta["type"]]
     new_version, _url, field_updates = handler(meta, pkg_dir, status, old_version)
 
     version_changed = new_version != old_version
     # Detect hash drift: field present in nix file but value differs from computed
     fields_changed = any(
-        not re.search(rf'{re.escape(field)}\s*=\s*"{re.escape(value)}"', nix_text)
+        not re.search(
+            rf'(?m)^[ \t]*{re.escape(field)}\s*=\s*"{re.escape(value)}"',
+            nix_text,
+        )
         for field, value in field_updates.items()
     )
 
     if not version_changed and not fields_changed:
-        return old_version, new_version, False, False
+        _write_last_checked(pkg_dir)
+        return old_version, new_version, False, False, False
 
     status("writing updated default.nix")
     if version_changed:
-        _sub(nix_file, r'version\s*=\s*"[^"]+"', f'version = "{new_version}"')
+        _replace_attr_once(nix_file, "version", new_version)
     for field, value in field_updates.items():
-        _sub(nix_file, rf'{re.escape(field)}\s*=\s*"[^"]+"', f'{field} = "{value}"')
+        _replace_attr_once(nix_file, field, value)
 
-    return old_version, new_version, version_changed, fields_changed
+    _write_last_checked(pkg_dir)
+    return old_version, new_version, version_changed, fields_changed, False
 
 
 def discover_packages(flake_root: Path) -> list[Path]:
@@ -389,6 +462,11 @@ def main(args: list[str] | None = None) -> None:
     all_names = [p.name for p in all_pkgs]
 
     ap = argparse.ArgumentParser(description="Update custom flake packages")
+    ap.add_argument(
+        "--force",
+        action="store_true",
+        help="Ignore the 1h per-package cooldown and re-fetch from registries/APIs.",
+    )
     ap.add_argument(
         "packages",
         nargs="*",
@@ -432,7 +510,10 @@ def main(args: list[str] | None = None) -> None:
         with ThreadPoolExecutor(max_workers=len(targets)) as executor:
             futures = {
                 executor.submit(
-                    update_package, pkg_dir, make_status(pkg_tasks[pkg_dir])
+                    update_package,
+                    pkg_dir,
+                    make_status(pkg_tasks[pkg_dir]),
+                    force=parsed.force,
                 ): pkg_dir
                 for pkg_dir in targets
             }
@@ -440,8 +521,18 @@ def main(args: list[str] | None = None) -> None:
                 pkg_dir = futures[future]
                 tid = pkg_tasks[pkg_dir]
                 try:
-                    old, new, version_changed, fields_changed = future.result()
-                    if version_changed:
+                    old, new, version_changed, fields_changed, cooldown_skipped = (
+                        future.result()
+                    )
+                    if cooldown_skipped:
+                        progress.update(
+                            tid,
+                            icon="[dim]~[/]",
+                            description=f"[dim]{pkg_dir.name}[/]",
+                            step="[dim]cooldown (1h)[/]",
+                            completed=1,
+                        )
+                    elif version_changed:
                         progress.update(
                             tid,
                             icon="[green]✓[/]",
