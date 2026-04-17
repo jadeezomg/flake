@@ -126,11 +126,3 @@ $ file: fd --type f --max-depth 2
 
 # Launch yazi file manager
 y
-
-% pay-respects
-
-; `f` is a shell function (bash/fish/nushell) that runs pay-respects with
-; correct env: last command, aliases, shell. It also cd's if needed.
-
-# Correct the previous failed command
-f

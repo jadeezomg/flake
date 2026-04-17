@@ -6,12 +6,6 @@
   '';
 in {
   programs = {
-    pay-respects = {
-      enable = true;
-      enableFishIntegration = true;
-      enableNushellIntegration = true;
-    };
-
     zoxide = {
       enable = true;
       enableFishIntegration = true;
