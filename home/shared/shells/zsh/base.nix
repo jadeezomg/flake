@@ -30,13 +30,6 @@
       zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
       zstyle ':completion:*' menu no
 
-      # pay-respects integration
-      alias f='eval $(_PR_LAST_COMMAND="$(fc -ln -1)" _PR_ALIAS="`alias`" _PR_SHELL="zsh" "pay-respects")'
-
-      command_not_found_handler() {
-        eval $(_PR_LAST_COMMAND="$@" _PR_SHELL="zsh" _PR_ALIAS="`alias`" _PR_MODE="cnf" "pay-respects")
-      }
-
       flake() {
         local j="''${FLAKE:?}/Justfile" c
         case "$1" in
