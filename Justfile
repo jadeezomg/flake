@@ -218,34 +218,29 @@ gc-all:
 
 # -- format --------------------------------------------------------------------
 
-[doc('Alejandra all *.nix under flake (summary line)')]
+[doc('Format all .nix/scripts/js/ts/json and type-check scripts')]
 [group('format')]
 fmt:
     #!/usr/bin/env bash
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     print_header "FMT"
-    changed=0 unchanged=0 failed=0
     print_pending "alejandra  formatting .nix files..."
-    while IFS= read -r -d '' f; do
-      [[ "$(basename "$f")" == default.nix ]] && continue
-      mb=$(stat -c %Y "$f" 2>/dev/null || stat -f %m "$f" 2>/dev/null || echo 0)
-      if alejandra "$f" >/dev/null 2>&1; then
-        ma=$(stat -c %Y "$f" 2>/dev/null || stat -f %m "$f" 2>/dev/null || echo 0)
-        [[ "$ma" != "$mb" ]] && changed=$((changed+1)) || unchanged=$((unchanged+1))
-      else failed=$((failed+1)); fi
-    done < <(find "$FLAKE" -name "*.nix" -type f -print0 2>/dev/null)
-    [[ "$failed" -gt 0 ]] && { print_error "alejandra  $failed file(s) failed"; exit 1; }
-    print_success "alejandra  changed:${changed} unchanged:${unchanged}"
+    alejandra --quiet "$FLAKE" 2>&1 | tail -n +2 || { print_error "alejandra  failed"; exit 1; }
+    print_success "alejandra  done"
+    echo
     print_pending "deadnix    removing unused bindings..."
     deadnix --edit "$FLAKE"
     print_success "deadnix    done"
+    echo
     print_pending "ruff       formatting scripts..."
     ruff format "$FLAKE/scripts"
     print_success "ruff       done"
+    echo
     print_pending "ty         type-checking scripts..."
     uv run --project "$FLAKE/scripts" ty check "$FLAKE/scripts/src"
     print_success "ty         done"
+    echo
     print_pending "biome      formatting js/ts/json..."
     cd "$FLAKE" && biome format --write .
     print_success "biome      done"
@@ -262,15 +257,10 @@ lint:
     statix check "$FLAKE"
     print_header "END"
 
-[doc('Alejandra without changed/unchanged summary (e.g. for git hook)')]
+[doc('Alejandra without banner output (e.g. for git hook)')]
 [group('format')]
 fmt-notree:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    while IFS= read -r -d '' f; do
-      [[ "$(basename "$f")" == default.nix ]] && continue
-      alejandra "$f" >/dev/null 2>&1 || exit 1
-    done < <(find "$FLAKE" -name "*.nix" -type f -print0 2>/dev/null)
+    @alejandra --quiet "$FLAKE" >/dev/null
 
 # -- backups -------------------------------------------------------------------
 
@@ -415,10 +405,7 @@ git:
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     [[ -d "$FLAKE/.git" ]] || exit 1
-    while IFS= read -r -d '' f; do
-      [[ "$(basename "$f")" == default.nix ]] && continue
-      alejandra "$f" >/dev/null 2>&1 || true
-    done < <(find "$FLAKE" -name "*.nix" -type f -print0 2>/dev/null)
+    alejandra --quiet "$FLAKE" >/dev/null 2>&1 || true
     git -C "$FLAKE" status -sb; git -C "$FLAKE" log --oneline -n 5
     read -r -p "Commit: " msg || true
     [[ -z "${msg:-}" || "$msg" == abort ]] && exit 0
