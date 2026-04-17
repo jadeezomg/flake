@@ -1,0 +1,93 @@
+% llm, claude
+
+; Claude Code CLI — interactive agent in the current directory.
+
+# Start an interactive session (cwd as context)
+claude
+
+# One-shot query, non-interactive
+claude -p '<prompt>'
+
+$ prompt: echo ""
+
+# Resume the previous conversation
+claude -c
+
+# Continue a specific conversation by id
+claude -r <id>
+
+$ id: claude --list 2>/dev/null | awk 'NR>1 {print $1}'
+
+# Specify model explicitly
+claude --model <model>
+
+$ model: echo "claude-sonnet-4-5;claude-opus-4-5;claude-haiku-4-5" | tr ';' '\n'
+
+# Pipe file contents as prompt
+cat <file> | claude -p '<prompt>'
+
+$ file: fd --type f
+$ prompt: echo ""
+
+% llm, opencode
+
+; Open-source multi-LLM agent.
+
+# Launch opencode TUI in cwd
+opencode
+
+# Run a one-shot query
+opencode run '<prompt>'
+
+$ prompt: echo ""
+
+# Pick a specific model provider
+opencode --model <provider>/<model>
+
+$ provider: echo "anthropic;openai;google;ollama" | tr ';' '\n'
+$ model: echo ""
+
+% docs, ctx7, context7
+
+; ctx7 fetches up-to-date library docs; prefer it over web-search for APIs.
+
+# Resolve a library id (prints matches)
+npx ctx7@latest library '<name>' '<question>'
+
+$ name: echo ""
+$ question: echo ""
+
+# Fetch docs for a resolved id (e.g. /vercel/next.js)
+npx ctx7@latest docs <id> '<question>'
+
+$ id: echo ""
+$ question: echo ""
+
+# Version-pinned docs
+npx ctx7@latest docs <id>/<version> '<question>'
+
+$ id: echo ""
+$ version: echo ""
+$ question: echo ""
+
+# Login for higher API quota
+npx ctx7@latest login
+
+% docs, navi
+
+; Reach for these when you want a cheat but don't have one locally.
+
+# tldr pages via navi (fast, curated)
+navi --tldr <cmd>
+
+$ cmd: echo ""
+
+# cheat.sh via navi (community one-liners)
+navi --cheatsh <cmd>
+
+$ cmd: echo ""
+
+# man page via bat (syntax-highlighted man)
+MANPAGER='sh -c "col -bx | bat -l man -p"' man <cmd>
+
+$ cmd: echo ""

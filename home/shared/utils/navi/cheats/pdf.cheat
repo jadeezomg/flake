@@ -1,0 +1,118 @@
+% pdf, poppler
+
+; pdftotext, pdfinfo, pdfimages come from poppler-utils.
+
+# Extract text (layout-preserving)
+pdftotext -layout <in> <out>
+
+$ in: fd -e pdf --type f
+$ out: echo "out.txt"
+
+# Extract text, default flow
+pdftotext <in> -
+
+$ in: fd -e pdf --type f
+
+# Show PDF metadata (title, pages, author, size)
+pdfinfo <in>
+
+$ in: fd -e pdf --type f
+
+# Extract all images as PNG
+pdfimages -png <in> <prefix>
+
+$ in: fd -e pdf --type f
+$ prefix: echo "img"
+
+% pdf, qpdf
+
+; Inspection + safe editing.
+
+# Linearize (web-optimized)
+qpdf --linearize <in> <out>
+
+$ in: fd -e pdf --type f
+$ out: echo "linear.pdf"
+
+# Decrypt a password-protected PDF
+qpdf --decrypt --password=<pass> <in> <out>
+
+$ pass: echo ""
+$ in: fd -e pdf --type f
+$ out: echo "decrypted.pdf"
+
+# Encrypt with a user + owner password (AES-256)
+qpdf --encrypt <user> <owner> 256 -- <in> <out>
+
+$ user: echo ""
+$ owner: echo ""
+$ in: fd -e pdf --type f
+$ out: echo "encrypted.pdf"
+
+# Split every page into its own file
+qpdf --split-pages <in> <prefix>-%d.pdf
+
+$ in: fd -e pdf --type f
+$ prefix: echo "page"
+
+# Rotate pages (+90, +180, +270)
+qpdf --rotate=<angle>:<pages> <in> <out>
+
+$ angle: echo "+90;+180;+270;-90" | tr ';' '\n'
+$ pages: echo "1-z;1;2-5" | tr ';' '\n'
+$ in: fd -e pdf --type f
+$ out: echo "rotated.pdf"
+
+# Show PDF structure/objects (debug)
+qpdf --check <in>
+
+$ in: fd -e pdf --type f
+
+% pdf, pdftk
+
+; Merge/split/reorder. `pdftk` on NixOS uses the pdftk-java rewrite.
+
+# Merge multiple PDFs in order
+pdftk <a> <b> cat output <out>
+
+$ a: fd -e pdf --type f
+$ b: fd -e pdf --type f
+$ out: echo "merged.pdf"
+
+# Extract a page range
+pdftk <in> cat <range> output <out>
+
+$ in: fd -e pdf --type f
+$ range: echo "1-5;5-10;1,3,5" | tr ';' '\n'
+$ out: echo "extract.pdf"
+
+# Reverse page order
+pdftk <in> cat end-1 output <out>
+
+$ in: fd -e pdf --type f
+$ out: echo "reversed.pdf"
+
+# Burst into one file per page
+pdftk <in> burst output <prefix>-%04d.pdf
+
+$ in: fd -e pdf --type f
+$ prefix: echo "page"
+
+# Compress output
+pdftk <in> output <out> compress
+
+$ in: fd -e pdf --type f
+$ out: echo "compressed.pdf"
+
+# Update metadata (dumps current to stdin for editing)
+pdftk <in> dump_data > <meta>
+
+$ in: fd -e pdf --type f
+$ meta: echo "meta.txt"
+
+# Apply updated metadata
+pdftk <in> update_info <meta> output <out>
+
+$ in: fd -e pdf --type f
+$ meta: fd -e txt --type f
+$ out: echo "out.pdf"

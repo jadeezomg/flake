@@ -1,0 +1,208 @@
+% aliases, flake
+
+; Source: home/shared/shells/shared/aliases.nix + per-shell init (bash, fish, nushell).
+; Everything listed here is available in bash, fish, and nushell unless noted.
+
+# Reveal every shell alias (pick a shell first)
+alias
+
+# List all aliases, filter by keyword
+alias | rg <keyword>
+
+$ keyword: echo ""
+
+% aliases, coreutil-replacements
+
+; These aliases transparently replace legacy tools with modern ones.
+
+# cat -> bat (syntax highlighting, pager)
+cat <file>
+
+$ file: fd --type f --max-depth 4
+
+# find -> fd (name substring match)
+find <name>
+
+$ name: echo ""
+
+# grep -> rg (ripgrep, smart-case)
+grep <pattern>
+
+$ pattern: echo ""
+
+# ls -> eza --icons -l --git (pretty ls with git column)
+ls
+
+# tree -> eza --icons -Ta (full tree, all files)
+tree
+
+% aliases, eza-shortcuts
+
+; `l2/l3` cap the depth; `lat*` show dotfiles too.
+
+# eza tree, depth 2
+l2
+
+# eza tree, depth 3
+l3
+
+# eza long tree (all depth)
+llt
+
+# eza, all files as tree
+lat
+
+# eza all files, depth 1/2/3/4/5
+lat<n>
+
+$ n: echo "1 2 3 4 5" | tr ' ' '\n'
+
+% aliases, search-shortcuts
+
+; Shorter wrappers around rg/fd.
+
+# search -> rg --smart-case
+search <pattern>
+
+$ pattern: echo ""
+
+# searchf -> fd --type f (files only)
+searchf <name>
+
+$ name: echo ""
+
+# searchd -> fd --type d (dirs only)
+searchd <name>
+
+$ name: echo ""
+
+% aliases, navigation
+
+; Parent-dir dot shortcuts + named dir jumps.
+
+# cd up N levels (.. ... .... .....)
+<dots>
+
+$ dots: echo ".. ... .... ....." | tr ' ' '\n'
+
+# zz -> $HOME
+zz
+
+# zc -> ~/.config
+zc
+
+# zd -> ~/Downloads
+zd
+
+# zp -> ~/.dotfiles
+zp
+
+# zf -> ~/.dotfiles/flake
+zf
+
+# zoxide interactive picker
+zi
+
+% aliases, flake-functions
+
+; `flake` is a nushell/bash/fish function wrapping `just` against the flake Justfile.
+
+# Interactive just picker against the flake Justfile
+flake
+
+# List every flake recipe (with docs)
+flake list
+
+# Run any just recipe in the flake
+flake <recipe>
+
+$ recipe: just --justfile "$FLAKE/Justfile" --summary | tr ' ' '\n'
+
+% aliases, home-manager
+
+; Raw home-manager shortcuts; normally use `just switch` / `flake switch`.
+
+# Run home-manager against this host
+hm
+
+# home-manager switch for this host
+hms
+
+# Show home-manager news for this host
+hmn
+
+% aliases, editor
+
+# zed -> zeditor (Zed editor binary rename)
+zed <file>
+
+$ file: fd --type f --max-depth 4
+
+# code -> cursor (Cursor IDE)
+code <path>
+
+$ path: fd --max-depth 3
+
+% aliases, git-shortcuts
+
+; Shell aliases defined in aliases.nix (all shells).
+
+# gst -> git status
+gst
+
+# gad -> git add .
+gad
+
+# gcm -> git commit -m <msg>
+gcm '<msg>'
+
+$ msg: echo ""
+
+# gpu -> git push -u origin main
+gpu
+
+% aliases, git-nu
+
+; Nushell-only: from fj0r/git.nu, sourced via shortcut.nu.
+; Available commands: gs, gl, gb, gp, ga, gc, gd, gm, gr (see `help gs` etc.)
+
+# git status (nushell git.nu)
+gs
+
+# git log (nushell git.nu)
+gl
+
+# git branch (nushell git.nu)
+gb
+
+# git push (nushell git.nu)
+gp
+
+# git add (nushell git.nu)
+ga
+
+# git commit (nushell git.nu)
+gc
+
+# git diff (nushell git.nu)
+gd
+
+# git merge (nushell git.nu)
+gm
+
+# git remote (nushell git.nu)
+gr
+
+% aliases, misc
+
+# cl -> clear
+cl
+
+# h -> history
+h
+
+# f -> pay-respects (correct last failed command; cd-aware)
+f
+
+# y -> yazi (file manager TUI)
+y

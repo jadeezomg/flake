@@ -1,0 +1,180 @@
+% search, rg, ripgrep
+
+; Shell aliases cover common cases:
+;   grep    -> rg                (coreutil replacement)
+;   search  -> rg --smart-case   (so `search foo` == this first snippet)
+; See the `aliases` cheatsheet for the full list.
+
+# Ripgrep: search for a pattern in cwd (smart case)
+rg --smart-case <pattern>
+
+$ pattern: echo ""
+
+# Ripgrep: search a specific file type (py, rs, ts, nix, md, ...)
+rg --smart-case -t <type> <pattern>
+
+$ type: rg --type-list | cut -d':' -f1
+$ pattern: echo ""
+
+# Ripgrep: only list matching file names
+rg -l <pattern>
+
+$ pattern: echo ""
+
+# Ripgrep: match whole words, count per file
+rg -w -c <pattern>
+
+$ pattern: echo ""
+
+# Ripgrep: search with N lines of context
+rg -C <n> <pattern>
+
+$ n: echo "3"
+$ pattern: echo ""
+
+# Ripgrep: hidden and .gitignored files included
+rg -uu <pattern>
+
+$ pattern: echo ""
+
+# Ripgrep: search multiline (regex spans lines)
+rg -U --multiline-dotall '<pattern>'
+
+$ pattern: echo ""
+
+% find, fd
+
+; Shell aliases:
+;   find     -> fd
+;   searchf  -> fd --type f
+;   searchd  -> fd --type d
+
+# Find files by name substring
+fd <name>
+
+$ name: echo ""
+
+# Find files by extension
+fd -e <ext> <name>
+
+$ ext: echo "nix rs py ts md sh" | tr ' ' '\n'
+$ name: echo ""
+
+# Find directories only
+fd --type d <name>
+
+$ name: echo ""
+
+# Find and execute a command on each result
+fd <name> -x <cmd>
+
+$ name: echo ""
+$ cmd: echo "echo;bat;rm;stat" | tr ';' '\n'
+
+# Find files changed in the last N minutes
+fd --changed-within <dur>
+
+$ dur: echo "5min;1h;1d;1week" | tr ';' '\n'
+
+% view, bat
+
+; Shell alias: cat -> bat (so `cat file.rs` highlights and pages).
+
+# View a file with syntax highlighting (pager)
+bat <file>
+
+$ file: fd --type f --max-depth 4
+
+# View with line numbers and no decorations
+bat -n <file>
+
+$ file: fd --type f --max-depth 4
+
+# Diff two files (bat --diff)
+bat --diff <a> <b>
+
+$ a: fd --type f --max-depth 4
+$ b: fd --type f --max-depth 4
+
+# Show the last N lines, syntax-highlighted
+bat --line-range <start>:<end> <file>
+
+$ start: echo "1"
+$ end: echo "50"
+$ file: fd --type f --max-depth 4
+
+% list, eza, ls
+
+; Shell aliases (all resolve to eza):
+;   ls    = eza --icons -l --git        (so `ls` already does this snippet)
+;   tree  = eza --icons -Ta             (full recursive tree)
+;   l2/l3 = eza --icons -l -T -L=2/3    (long tree, capped depth)
+;   lat / lat1..lat5 = eza --icons -Ta -L=N   (all files incl. dotfiles)
+
+# eza: pretty ls with icons and git status
+eza -l --icons --git
+
+# eza: tree view (all files)
+eza -Ta --level=<depth>
+
+$ depth: echo "2;3;4;5" | tr ';' '\n'
+
+# eza: sort by modified, newest first
+eza -l --icons --sort=modified --reverse
+
+# eza: show file sizes in human units
+eza -l --icons --total-size
+
+% jump, zoxide, z
+
+; Shell aliases/functions: .. / ... / .... / ..... jump up N levels via z.
+; Named jumps: zz = $HOME, zc = ~/.config, zd = ~/Downloads,
+; zp = ~/.dotfiles, zf = flake root.
+
+# Jump to a zoxide-tracked directory
+z <query>
+
+$ query: zoxide query --list | awk '{print $NF}'
+
+# Interactive zoxide picker
+zi
+
+# Show top-ranked zoxide directories
+zoxide query --list --score | head -20
+
+# Jump to the flake root
+zf
+
+% fuzzy, fzf
+
+# Pick a file from everything fd finds and echo it
+fd --type f --hidden | fzf
+
+# Cd into a fuzzy-chosen directory under cwd
+fd --type d | fzf | xargs -r -I{} echo 'cd {}'
+
+# Open a fuzzy-chosen file in $EDITOR
+fd --type f --hidden --exclude .git | fzf | xargs -r "$EDITOR"
+
+# Fuzzy history (use Ctrl-R instead in shell; `h` is aliased to `history`)
+history | fzf
+
+% navi
+
+# Open navi picker (or use Ctrl-G widget)
+navi
+
+# Search navi via tldr pages
+navi --tldr <cmd>
+
+$ cmd: echo ""
+
+# Search navi via cheat.sh
+navi --cheatsh <cmd>
+
+$ cmd: echo ""
+
+# Print a matched snippet without executing
+navi --print --query '<query>'
+
+$ query: echo ""

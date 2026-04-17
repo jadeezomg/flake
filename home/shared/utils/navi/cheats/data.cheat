@@ -1,0 +1,123 @@
+% json, jq
+
+# Pretty-print a JSON file
+jq . <file>
+
+$ file: fd -e json --type f
+
+# Extract a single key
+jq -r '.<key>' <file>
+
+$ key: echo ""
+$ file: fd -e json --type f
+
+# Map over an array and extract a field
+jq -r '.[] | .<field>' <file>
+
+$ field: echo ""
+$ file: fd -e json --type f
+
+# Filter array by predicate
+jq '.[] | select(.<field> == "<val>")' <file>
+
+$ field: echo ""
+$ val: echo ""
+$ file: fd -e json --type f
+
+# Count array length
+jq 'length' <file>
+
+$ file: fd -e json --type f
+
+# List keys of an object
+jq 'keys' <file>
+
+$ file: fd -e json --type f
+
+# Flatten nested arrays one level
+jq 'flatten(1)' <file>
+
+$ file: fd -e json --type f
+
+# Convert JSON to TSV (two fields)
+jq -r '.[] | [.<a>, .<b>] | @tsv' <file>
+
+$ a: echo ""
+$ b: echo ""
+$ file: fd -e json --type f
+
+# Merge two JSON files
+jq -s '.[0] * .[1]' <a> <b>
+
+$ a: fd -e json --type f
+$ b: fd -e json --type f
+
+% yaml, yq
+
+# Pretty-print a YAML/TOML/XML file (auto-detect)
+yq . <file>
+
+$ file: fd -e yaml -e yml -e toml -e xml --type f
+
+# Extract a key (dot path)
+yq -r '.<key>' <file>
+
+$ key: echo ""
+$ file: fd -e yaml -e yml -e toml --type f
+
+# Convert YAML to JSON
+yq -o json <file>
+
+$ file: fd -e yaml -e yml --type f
+
+# Convert JSON to YAML
+yq -P -o yaml <file>
+
+$ file: fd -e json --type f
+
+# Convert TOML to JSON
+yq -o json <file>
+
+$ file: fd -e toml --type f
+
+# In-place edit a YAML key
+yq -i '.<key> = "<val>"' <file>
+
+$ key: echo ""
+$ val: echo ""
+$ file: fd -e yaml -e yml --type f
+
+% sed, sd
+
+# Replace literal string in a file (in-place)
+sd '<old>' '<new>' <file>
+
+$ old: echo ""
+$ new: echo ""
+$ file: fd --type f
+
+# Replace with a regex (captures with $1, $2)
+sd '<pattern>' '<replacement>' <file>
+
+$ pattern: echo ""
+$ replacement: echo ""
+$ file: fd --type f
+
+# Replace across many files (via fd -x)
+fd -e <ext> --type f -x sd '<old>' '<new>' '{}'
+
+$ ext: echo "nix rs py ts md" | tr ' ' '\n'
+$ old: echo ""
+$ new: echo ""
+
+% toml, taplo
+
+# Format TOML in place
+taplo fmt <file>
+
+$ file: fd -e toml --type f
+
+# Validate TOML syntax
+taplo lint <file>
+
+$ file: fd -e toml --type f

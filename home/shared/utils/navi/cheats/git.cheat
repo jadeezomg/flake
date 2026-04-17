@@ -1,0 +1,195 @@
+% git
+
+; Shell aliases (all shells):
+;   gst = git status        gad = git add .
+;   gcm = git commit -m     gpu = git push -u origin main
+; Nushell-only (fj0r/git.nu):
+;   gs gl gb gp ga gc gd gm gr   (run `help <name>` in nushell for details)
+
+# Status (short + branch)
+git status -sb
+
+# Log: compact graph
+git log --oneline --graph --decorate --all -n <n>
+
+$ n: echo "20"
+
+# Log: diff of a single file
+git log -p -- <file>
+
+$ file: git ls-files | fzf
+
+# Show a commit
+git show <ref>
+
+$ ref: git log --oneline -n 30 | awk '{print $1}'
+
+# Diff staged vs HEAD
+git diff --staged
+
+# Restore a file from HEAD (drop local changes)
+git restore <file>
+
+$ file: git diff --name-only
+
+# Stage interactively
+git add -p
+
+# Amend last commit without editing the message
+git commit --amend --no-edit
+
+# Switch to a branch
+git switch <branch>
+
+$ branch: git branch --format='%(refname:short)'
+
+# Create and switch to a new branch
+git switch -c <name>
+
+$ name: echo ""
+
+# Fetch + rebase current branch onto upstream
+git pull --rebase --autostash
+
+# Force-push safely (fails if remote moved)
+git push --force-with-lease
+
+# Stash with a message
+git stash push -m '<msg>'
+
+$ msg: echo ""
+
+# Pop most recent stash
+git stash pop
+
+# List stashes
+git stash list
+
+# Blame a file (with bat pager)
+git blame <file>
+
+$ file: git ls-files | fzf
+
+# Find commits that introduced a string (pickaxe)
+git log -S '<str>' --oneline
+
+$ str: echo ""
+
+# Show files changed in a commit
+git show --name-status <ref>
+
+$ ref: git log --oneline -n 30 | awk '{print $1}'
+
+# Reset last commit, keep changes staged
+git reset --soft HEAD~1
+
+# Hard reset to origin/HEAD (DESTRUCTIVE)
+git reset --hard origin/HEAD
+
+% lazygit
+
+# Launch lazygit TUI
+lazygit
+
+% gitui
+
+# Launch gitui TUI
+gitui
+
+% jj, jujutsu
+
+# Status (working copy)
+jj status
+
+# Log (pretty graph)
+jj log
+
+# Describe the current change
+jj describe -m '<msg>'
+
+$ msg: echo ""
+
+# New empty change on top of @
+jj new
+
+# Edit an earlier commit
+jj edit <rev>
+
+$ rev: jj log --no-graph -T 'change_id.shortest()++"\n"' -n 30
+
+# Squash current change into its parent
+jj squash
+
+# Fetch from remote
+jj git fetch
+
+# Push a bookmark (branch) to git remote
+jj git push --bookmark <name>
+
+$ name: jj bookmark list -T 'name ++ "\n"'
+
+# Undo the last jj operation
+jj op undo
+
+% jjui
+
+# Launch jjui (jujutsu TUI)
+jjui
+
+% gh, github
+
+# List my open PRs
+gh pr list --assignee @me --state open
+
+# View current branch's PR
+gh pr view --web
+
+# Create PR from current branch (prompts)
+gh pr create --web
+
+# Check out a PR locally
+gh pr checkout <num>
+
+$ num: gh pr list --json number,title --limit 30 | jq -r '.[] | "\(.number) \(.title)"' --- --column 1
+
+# Merge current PR (squash)
+gh pr merge --squash --delete-branch
+
+# View latest workflow run
+gh run list --limit 10
+
+# Watch a running workflow
+gh run watch <id>
+
+$ id: gh run list --json databaseId,displayTitle --limit 10 | jq -r '.[] | "\(.databaseId) \(.displayTitle)"' --- --column 1
+
+# Clone a repo
+gh repo clone <repo>
+
+$ repo: echo ""
+
+# Rerun a failed run
+gh run rerun <id> --failed
+
+$ id: gh run list --status failure --json databaseId --limit 10 | jq -r '.[].databaseId'
+
+% act
+
+# List workflows available to run
+act -l
+
+# Run a workflow locally (push event)
+act -j <job>
+
+$ job: act -l | awk 'NR>1 {print $2}'
+
+% delta
+
+# Diff two arbitrary files with delta
+delta <a> <b>
+
+$ a: fd --type f
+$ b: fd --type f
+
+# Show git log with delta pager
+git log -p --ext-diff | delta

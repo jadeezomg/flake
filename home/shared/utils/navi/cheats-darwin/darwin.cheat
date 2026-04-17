@@ -1,0 +1,300 @@
+% darwin, macos, 1password, op
+
+; 1Password CLI. Requires `op signin` or the desktop app integration.
+
+# Sign in (interactive)
+op signin
+
+# Read a credential field from an item
+op read 'op://<vault>/<item>/<field>'
+
+$ vault: op vault list --format=json 2>/dev/null | jq -r '.[].name'
+$ item: echo ""
+$ field: echo "password;username;otp;url" | tr ';' '\n'
+
+# Get a full item (JSON)
+op item get '<name>' --format=json
+
+$ name: op item list --format=json 2>/dev/null | jq -r '.[].title'
+
+# List items in a vault
+op item list --vault '<vault>'
+
+$ vault: op vault list --format=json 2>/dev/null | jq -r '.[].name'
+
+# Run a command with secrets injected into env
+op run -- <cmd>
+
+$ cmd: echo ""
+
+# Inject secrets into a template (op:// placeholders)
+op inject -i <template> -o <out>
+
+$ template: fd -e tpl -e env --type f
+$ out: echo ""
+
+# Get one-time password (TOTP)
+op item get '<name>' --otp
+
+$ name: op item list --format=json 2>/dev/null | jq -r '.[].title'
+
+# Create a new login item
+op item create --category=login --title='<title>' --url=<url> username=<user> password=<pass>
+
+$ title: echo ""
+$ url: echo ""
+$ user: echo ""
+$ pass: echo ""
+
+% darwin, clipboard
+
+# Copy stdin to clipboard
+<cmd> | pbcopy
+
+$ cmd: echo ""
+
+# Paste clipboard to stdout
+pbpaste
+
+# Copy a file's contents to clipboard
+pbcopy < <file>
+
+$ file: fd --type f --max-depth 3
+
+# Copy last shell command's output
+!! | pbcopy
+
+% darwin, finder, open
+
+# Open a file/dir with its default app
+open <path>
+
+$ path: fd --max-depth 3
+
+# Open a URL in the default browser
+open <url>
+
+$ url: echo ""
+
+# Open with a specific app
+open -a '<app>' <path>
+
+$ app: echo "Safari;Google Chrome;Zen Browser;Zed;Cursor" | tr ';' '\n'
+$ path: fd --max-depth 3
+
+# Reveal a file in Finder
+open -R <path>
+
+$ path: fd --type f --max-depth 3
+
+# Open current directory in Finder
+open .
+
+# List installed apps (bundle ids)
+mdfind "kMDItemContentType == 'com.apple.application-bundle'" -onlyin /Applications
+
+% darwin, spotlight, mdfind
+
+# Search content + metadata across disk
+mdfind '<query>'
+
+$ query: echo ""
+
+# Search by filename
+mdfind -name '<name>'
+
+$ name: echo ""
+
+# Search within a specific directory
+mdfind -onlyin <dir> '<query>'
+
+$ dir: fd --type d --max-depth 3
+$ query: echo ""
+
+# Show metadata for a file (all attributes)
+mdls <file>
+
+$ file: fd --type f --max-depth 3
+
+# Specific metadata attribute
+mdls -name <attr> <file>
+
+$ attr: echo "kMDItemContentType;kMDItemKind;kMDItemLastUsedDate;kMDItemTitle" | tr ';' '\n'
+$ file: fd --type f --max-depth 3
+
+% darwin, defaults
+
+; macOS preferences via `defaults`. Prefer system.defaults in nix-darwin
+; for permanent settings. `just read-defaults` exports the Nix form.
+
+# Read a domain's entire preferences (plist)
+defaults read <domain>
+
+$ domain: defaults domains | tr ',' '\n' | sed 's/^ //'
+
+# Read a specific key
+defaults read <domain> <key>
+
+$ domain: defaults domains | tr ',' '\n' | sed 's/^ //'
+$ key: echo ""
+
+# Write a bool
+defaults write <domain> <key> -bool <val>
+
+$ domain: echo ""
+$ key: echo ""
+$ val: echo "true;false" | tr ';' '\n'
+
+# Write an int
+defaults write <domain> <key> -int <val>
+
+$ domain: echo ""
+$ key: echo ""
+$ val: echo ""
+
+# Delete a key
+defaults delete <domain> <key>
+
+$ domain: echo ""
+$ key: echo ""
+
+# Export a domain as nix snippets (flake recipe)
+just read-defaults
+
+# List every preference domain
+defaults domains | tr ',' '\n'
+
+% darwin, plist
+
+# Pretty-print a binary plist
+plutil -p <file>
+
+$ file: fd -e plist --type f
+
+# Convert binary plist to xml (edit-friendly)
+plutil -convert xml1 <file>
+
+$ file: fd -e plist --type f
+
+# Convert back to binary
+plutil -convert binary1 <file>
+
+$ file: fd -e plist --type f
+
+# Validate a plist
+plutil -lint <file>
+
+$ file: fd -e plist --type f
+
+% darwin, images, sips
+
+; `sips` is built-in image tool (resize, convert, rotate).
+
+# Resize to max dim (preserve aspect)
+sips -Z <size> <in> --out <out>
+
+$ size: echo "512;1024;2048" | tr ';' '\n'
+$ in: fd -e png -e jpg -e jpeg -e heic --type f
+$ out: echo "resized.png"
+
+# Convert format
+sips -s format <fmt> <in> --out <out>
+
+$ fmt: echo "png;jpeg;webp;tiff;heic" | tr ';' '\n'
+$ in: fd -e png -e jpg -e heic --type f
+$ out: echo "out.png"
+
+# Rotate 90° clockwise
+sips -r 90 <in> --out <out>
+
+$ in: fd -e png -e jpg --type f
+$ out: echo "rotated.png"
+
+# Strip all metadata (EXIF, etc.)
+sips -d all <in>
+
+$ in: fd -e png -e jpg --type f
+
+% darwin, launchctl
+
+# List user launch agents
+launchctl list | head -30
+
+# Status of a specific agent
+launchctl list <label>
+
+$ label: launchctl list 2>/dev/null | awk 'NR>1 {print $3}'
+
+# Bootstrap a launch agent (start it)
+launchctl bootstrap gui/$(id -u) <plist>
+
+$ plist: fd -e plist --type f
+
+# Bootout (stop + deregister)
+launchctl bootout gui/$(id -u) <plist>
+
+$ plist: fd -e plist --type f
+
+# Enable/disable
+launchctl enable gui/$(id -u)/<label>
+
+$ label: launchctl list 2>/dev/null | awk 'NR>1 {print $3}'
+
+% darwin, system, misc
+
+# Speak text
+say '<text>'
+
+$ text: echo ""
+
+# Show available voices
+say -v '?'
+
+# Text-to-audio-file
+say -o <out> '<text>'
+
+$ out: echo "speech.aiff"
+$ text: echo ""
+
+# Keychain: find a generic password
+security find-generic-password -s '<service>' -w
+
+$ service: echo ""
+
+# Keychain: add a generic password
+security add-generic-password -s '<service>' -a '<account>' -w '<pass>'
+
+$ service: echo ""
+$ account: echo ""
+$ pass: echo ""
+
+# Xcode CLT: show path
+xcode-select -p
+
+# Install Xcode CLT
+xcode-select --install
+
+% darwin, ruby, rbenv
+
+; rbenv is installed via Homebrew (see modules/darwin).
+
+# List installable Ruby versions
+rbenv install -l
+
+# Install a Ruby version
+rbenv install <ver>
+
+$ ver: rbenv install -l 2>/dev/null | sed 's/^ *//' | rg '^[0-9]'
+
+# Set the global Ruby
+rbenv global <ver>
+
+$ ver: rbenv versions --bare 2>/dev/null
+
+# Set a version for this directory only
+rbenv local <ver>
+
+$ ver: rbenv versions --bare 2>/dev/null
+
+# Show current Ruby + source
+rbenv version

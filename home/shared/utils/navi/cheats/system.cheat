@@ -1,0 +1,136 @@
+% monitor, btop
+
+# Full system monitor TUI
+btop
+
+% disk, dust, dua
+
+# Visual disk usage of cwd (dust)
+dust
+
+# Disk usage of a specific dir, depth-limited
+dust -d <depth> <dir>
+
+$ depth: echo "1;2;3;4" | tr ';' '\n'
+$ dir: fd --type d --max-depth 2
+
+# Disk usage, only files over N
+dust -s -t <n>
+
+$ n: echo "10"
+
+# dua interactive (navigable)
+dua i <dir>
+
+$ dir: fd --type d --max-depth 2
+
+# dua summary at cwd
+dua
+
+% bench, hyperfine
+
+# Benchmark a single command (3 warmups, 10 runs)
+hyperfine --warmup 3 '<cmd>'
+
+$ cmd: echo ""
+
+# Compare two commands
+hyperfine --warmup 3 '<a>' '<b>'
+
+$ a: echo ""
+$ b: echo ""
+
+# Parameterized benchmark (vary a value)
+hyperfine --warmup 2 -L val <list> '<cmd>'
+
+$ list: echo "foo,bar,baz"
+$ cmd: echo 'echo {val}'
+
+# Export benchmark results as JSON
+hyperfine --warmup 3 --export-json <out> '<cmd>'
+
+$ out: echo "bench.json"
+$ cmd: echo ""
+
+% archive, 7z
+
+# Create a .7z archive
+7z a <out> <src>
+
+$ out: echo "out.7z"
+$ src: fd --max-depth 2
+
+# Extract preserving paths
+7z x <archive>
+
+$ archive: fd -e 7z -e zip -e rar --type f
+
+# List archive contents
+7z l <archive>
+
+$ archive: fd -e 7z -e zip -e rar --type f
+
+# Encrypted archive with password
+7z a -p -mhe=on <out> <src>
+
+$ out: echo "secret.7z"
+$ src: fd --max-depth 2
+
+% diff, difft
+
+# Structural diff two files (difftastic)
+difft <a> <b>
+
+$ a: fd --type f
+$ b: fd --type f
+
+# Use difft as git pager for one diff
+GIT_EXTERNAL_DIFF=difft git diff <ref>
+
+$ ref: git log --oneline -n 20 | awk '{print $1}'
+
+% process
+
+# Find PIDs listening on a port (Linux)
+ss -tulpn | rg :<port>
+
+$ port: echo ""
+
+# Kill processes matching a name (psmisc)
+killall <name>
+
+$ name: echo ""
+
+# Tree of processes
+pstree -pa
+
+% fs
+
+# Count lines of code by language (via tokei if installed, otherwise rg)
+rg --files | wc -l
+
+# Human-readable `df` of the root filesystem
+df -h /
+
+# Mountpoints, sizes, fs type
+lsblk -f
+
+# Trash the file (user Trash dir)
+mv <file> "${XDG_DATA_HOME:-$HOME/.local/share}/Trash/files/"
+
+$ file: fd --type f --max-depth 2
+
+% yazi
+
+; Shell alias: y -> yazi (from programs.yazi.shellWrapperName).
+
+# Launch yazi file manager
+y
+
+% pay-respects
+
+; `f` is a shell function (bash/fish/nushell) that runs pay-respects with
+; correct env: last command, aliases, shell. It also cd's if needed.
+
+# Correct the previous failed command
+f
