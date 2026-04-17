@@ -1,0 +1,87 @@
+% shell, shellcheck
+
+# Lint a shell script
+shellcheck <file>
+
+$ file: fd -e sh -e bash --type f
+
+# Lint with a specific shell dialect
+shellcheck -s <shell> <file>
+
+$ shell: echo "bash sh dash ksh" | tr ' ' '\n'
+$ file: fd -e sh -e bash --type f
+
+# Exclude a specific warning code
+shellcheck -e <code> <file>
+
+$ code: echo "SC2086 SC2155 SC2181 SC2164" | tr ' ' '\n'
+$ file: fd -e sh -e bash --type f
+
+# Lint every shell script under cwd (batch)
+fd -e sh -e bash --type f -x shellcheck '{}'
+
+# Gcc-style output (editor-friendly)
+shellcheck -f gcc <file>
+
+$ file: fd -e sh -e bash --type f
+
+% shell, shfmt
+
+# Format in place (bash, 2-space indent)
+shfmt -w -i 2 <file>
+
+$ file: fd -e sh -e bash --type f
+
+# Check formatting without writing (CI mode)
+shfmt -d <file>
+
+$ file: fd -e sh -e bash --type f
+
+# Format all shell scripts under cwd
+shfmt -w -i 2 -l <dir>
+
+$ dir: fd --type d --max-depth 3
+
+# Simplify (simplify redirections, removes redundant quotes)
+shfmt -w -s <file>
+
+$ file: fd -e sh -e bash --type f
+
+% shell, nushell
+
+; We prefer writing new scripts in nushell.
+
+# Run a .nu script
+nu <file>
+
+$ file: fd -e nu --type f
+
+# Evaluate a one-liner
+nu -c '<expr>'
+
+$ expr: echo ""
+
+# Format a .nu file (nufmt — part of nushell)
+nufmt <file>
+
+$ file: fd -e nu --type f
+
+# Show all commands matching a pattern
+nu -c 'help commands | where name =~ "<pat>" | select name description'
+
+$ pat: echo ""
+
+% shell, bash
+
+# Syntax-check without running
+bash -n <file>
+
+$ file: fd -e sh -e bash --type f
+
+# Trace every command (debugging)
+bash -x <file>
+
+$ file: fd -e sh -e bash --type f
+
+# Strict mode flags for new scripts
+set -euo pipefail

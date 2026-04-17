@@ -1,0 +1,119 @@
+% python, uv
+
+; Always prefer `uv` over pip/pip3/poetry. Uses pyproject.toml by default.
+
+# Init a new uv project in cwd
+uv init <name>
+
+$ name: echo ""
+
+# Init a package (library layout)
+uv init --package <name>
+
+$ name: echo ""
+
+# Add a runtime dependency
+uv add <pkg>
+
+$ pkg: echo ""
+
+# Add a dev dependency
+uv add --dev <pkg>
+
+$ pkg: echo ""
+
+# Add from git (branch/tag/commit)
+uv add 'git+<url>@<rev>'
+
+$ url: echo ""
+$ rev: echo "main"
+
+# Remove a dependency
+uv remove <pkg>
+
+$ pkg: uv pip list 2>/dev/null | awk 'NR>2 {print $1}'
+
+# Sync the environment from lockfile
+uv sync
+
+# Sync including dev deps
+uv sync --all-extras --dev
+
+# Run a command inside the project venv
+uv run <cmd>
+
+$ cmd: echo "python;pytest;ruff check .;ruff format .;ty check" | tr ';' '\n'
+
+# Run a one-off script with inline deps (PEP 723)
+uv run --script <script>
+
+$ script: fd -e py --type f
+
+# Install a tool globally (pipx-style)
+uv tool install <pkg>
+
+$ pkg: echo ""
+
+# Run a tool without installing
+uv tool run <pkg>
+
+$ pkg: echo ""
+
+# Upgrade a dependency
+uv lock --upgrade-package <pkg>
+
+$ pkg: uv pip list 2>/dev/null | awk 'NR>2 {print $1}'
+
+# Upgrade everything
+uv lock --upgrade
+
+# Show dependency tree
+uv tree
+
+# Python interpreter: install + pin a version
+uv python install <ver>
+
+$ ver: echo "3.12;3.13;3.14" | tr ';' '\n'
+
+# Pin the python version for this project
+uv python pin <ver>
+
+$ ver: echo "3.12;3.13;3.14" | tr ';' '\n'
+
+% python, ruff
+
+; Replaces black + flake8 + isort in one tool.
+
+# Lint all py files in cwd
+ruff check .
+
+# Lint and auto-fix
+ruff check . --fix
+
+# Format all py files
+ruff format .
+
+# Check formatting without modifying (CI mode)
+ruff format --check .
+
+# Show rule docs
+ruff rule <code>
+
+$ code: echo "E501 F401 I001 UP006 TRY003" | tr ' ' '\n'
+
+% python, ty
+
+; ty = fast type checker (Rust-based, replaces mypy/pyright for simple cases).
+
+# Type-check all py files in cwd
+ty check
+
+# Type-check a specific path
+ty check <path>
+
+$ path: fd -e py --type f
+
+# Run via uv against the project env
+uv run ty check <path>
+
+$ path: fd -e py --type f

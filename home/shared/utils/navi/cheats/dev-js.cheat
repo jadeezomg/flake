@@ -1,0 +1,143 @@
+% javascript, typescript, bun
+
+; Prefer bun for running scripts + speed; yarn-berry for package mgmt.
+
+# Init a new bun project
+bun init
+
+# Run a script from package.json
+bun run <script>
+
+$ script: jq -r '.scripts | keys[]' package.json 2>/dev/null
+
+# Execute a TS/JS file directly (no tsc needed)
+bun <file>
+
+$ file: fd -e ts -e tsx -e js -e mjs --type f
+
+# Install dependencies (bun lockfile)
+bun install
+
+# Add a dependency
+bun add <pkg>
+
+$ pkg: echo ""
+
+# Add a dev dependency
+bun add -d <pkg>
+
+$ pkg: echo ""
+
+# Remove a dependency
+bun remove <pkg>
+
+$ pkg: jq -r '.dependencies, .devDependencies | keys[]' package.json 2>/dev/null
+
+# Run a package executable (npx-style)
+bunx <pkg>
+
+$ pkg: echo ""
+
+# Test runner (bun's own)
+bun test
+
+% javascript, yarn
+
+; yarn-berry (v4). Run via the plug'n'play resolver.
+
+# Install deps (respects yarn.lock)
+yarn install
+
+# Run a package.json script
+yarn <script>
+
+$ script: jq -r '.scripts | keys[]' package.json 2>/dev/null
+
+# Add dependency
+yarn add <pkg>
+
+$ pkg: echo ""
+
+# Add dev dependency
+yarn add -D <pkg>
+
+$ pkg: echo ""
+
+# Upgrade all deps interactively
+yarn upgrade-interactive
+
+# Run a workspace command
+yarn workspace <ws> <cmd>
+
+$ ws: jq -r '.workspaces[]? // empty' package.json 2>/dev/null
+$ cmd: echo "build;test;lint;dev" | tr ';' '\n'
+
+# Why is this package installed?
+yarn why <pkg>
+
+$ pkg: jq -r '.dependencies, .devDependencies | keys[]' package.json 2>/dev/null
+
+# Dedupe the lockfile
+yarn dedupe
+
+% typescript, tsc
+
+# Init a tsconfig.json (strict defaults)
+tsc --init
+
+# Type-check the project (no emit)
+tsc --noEmit
+
+# Watch mode
+tsc -w
+
+# Compile a single file
+tsc <file>
+
+$ file: fd -e ts -e tsx --type f
+
+% biome
+
+; Replaces eslint + prettier for JS/TS/JSON projects.
+
+# Lint + format check (CI mode)
+biome check .
+
+# Apply all safe fixes
+biome check --write .
+
+# Apply unsafe fixes too (code transformations)
+biome check --write --unsafe .
+
+# Format-only
+biome format --write .
+
+# Lint-only
+biome lint .
+
+% node
+
+# Run a JS file
+node <file>
+
+$ file: fd -e js -e mjs --type f
+
+# Interactive REPL
+node
+
+# Run TS directly via Node (>=22.6, --experimental-strip-types)
+node --experimental-strip-types <file>
+
+$ file: fd -e ts --type f
+
+% prettier
+
+; Fallback formatter for languages biome doesn't cover (md, yaml, html).
+
+# Format a file in place
+prettier --write <file>
+
+$ file: fd -e md -e yaml -e yml -e html -e css --type f
+
+# Check without writing (CI mode)
+prettier --check .

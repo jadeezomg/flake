@@ -4,6 +4,7 @@
     ./filesystem.nix
     ./text.nix
     ./monitoring.nix
+    ./navi
   ];
   home.packages = with pkgs; [
     nix-btm # Bottom-like system monitor for nix

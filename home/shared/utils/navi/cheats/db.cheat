@@ -1,0 +1,155 @@
+% db, rainfrog
+
+; Multi-DB TUI (sqlite, postgres, mysql). Prefer this for interactive browsing.
+
+# Launch rainfrog (connection picker)
+rainfrog
+
+# Connect to a sqlite file directly
+rainfrog --driver sqlite --connection sqlite:///<file>
+
+$ file: fd -e db -e sqlite -e sqlite3 --type f
+
+# Connect to a postgres URL
+rainfrog --driver postgres --connection '<url>'
+
+$ url: echo "postgres://user:pass@localhost:5432/dbname"
+
+# Connect to a mysql URL
+rainfrog --driver mysql --connection '<url>'
+
+$ url: echo "mysql://user:pass@localhost:3306/dbname"
+
+% db, sqlite
+
+# Open a sqlite db in the REPL
+sqlite3 <file>
+
+$ file: fd -e db -e sqlite -e sqlite3 --type f
+
+# List tables
+sqlite3 <file> '.tables'
+
+$ file: fd -e db -e sqlite -e sqlite3 --type f
+
+# Schema for a table
+sqlite3 <file> '.schema <table>'
+
+$ file: fd -e db -e sqlite -e sqlite3 --type f
+$ table: echo ""
+
+# Run a query, CSV output
+sqlite3 -header -csv <file> '<query>'
+
+$ file: fd -e db -e sqlite -e sqlite3 --type f
+$ query: echo "SELECT * FROM <table> LIMIT 10"
+
+# Dump db as SQL (backup)
+sqlite3 <file> .dump > <out>
+
+$ file: fd -e db -e sqlite -e sqlite3 --type f
+$ out: echo "dump.sql"
+
+# Import CSV into a table
+sqlite3 <file> -cmd '.mode csv' '.import <csv> <table>'
+
+$ file: fd -e db -e sqlite -e sqlite3 --type f
+$ csv: fd -e csv --type f
+$ table: echo ""
+
+# VACUUM (reclaim space)
+sqlite3 <file> 'VACUUM;'
+
+$ file: fd -e db -e sqlite -e sqlite3 --type f
+
+% db, postgres, psql
+
+# Connect via URL
+psql '<url>'
+
+$ url: echo "postgres://user:pass@localhost:5432/dbname"
+
+# Connect to local db as current user
+psql -d <db>
+
+$ db: psql -lqt 2>/dev/null | cut -d'|' -f1 | awk 'NF'
+
+# Run a single SQL statement
+psql -d <db> -c '<sql>'
+
+$ db: psql -lqt 2>/dev/null | cut -d'|' -f1 | awk 'NF'
+$ sql: echo "SELECT version();"
+
+# Execute a file
+psql -d <db> -f <file>
+
+$ db: psql -lqt 2>/dev/null | cut -d'|' -f1 | awk 'NF'
+$ file: fd -e sql --type f
+
+# List databases (\l)
+psql -l
+
+# List tables (\dt)
+psql -d <db> -c '\dt'
+
+$ db: psql -lqt 2>/dev/null | cut -d'|' -f1 | awk 'NF'
+
+# Describe a table (\d)
+psql -d <db> -c '\d <table>'
+
+$ db: psql -lqt 2>/dev/null | cut -d'|' -f1 | awk 'NF'
+$ table: echo ""
+
+# Dump a database to a file (custom format; use pg_restore to restore)
+pg_dump -Fc -f <out> <db>
+
+$ out: echo "backup.dump"
+$ db: psql -lqt 2>/dev/null | cut -d'|' -f1 | awk 'NF'
+
+# Restore from a custom-format dump
+pg_restore -d <db> <in>
+
+$ db: echo ""
+$ in: fd -e dump --type f
+
+% db, redis
+
+# Interactive redis shell
+redis-cli
+
+# Run a single command
+redis-cli <cmd>
+
+$ cmd: echo "PING;INFO;DBSIZE;CONFIG GET *;KEYS *" | tr ';' '\n'
+
+# Monitor all commands in real time
+redis-cli MONITOR
+
+# Subscribe to a channel
+redis-cli SUBSCRIBE <channel>
+
+$ channel: echo ""
+
+# Connect to a remote redis
+redis-cli -h <host> -p <port>
+
+$ host: echo "127.0.0.1"
+$ port: echo "6379"
+
+# Connect with AUTH
+redis-cli -h <host> -p <port> -a <pass>
+
+$ host: echo "127.0.0.1"
+$ port: echo "6379"
+$ pass: echo ""
+
+# Flush current db (DESTRUCTIVE)
+redis-cli FLUSHDB
+
+# Flush all dbs (DESTRUCTIVE)
+redis-cli FLUSHALL
+
+# Scan keys matching a pattern (safer than KEYS)
+redis-cli --scan --pattern '<pat>'
+
+$ pat: echo "*"

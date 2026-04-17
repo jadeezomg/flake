@@ -1,0 +1,118 @@
+% http, xh
+
+; Preferred HTTP client. Use xh over curl unless a curl-specific flag is needed.
+
+# GET a URL (pretty)
+xh GET <url>
+
+$ url: echo ""
+
+# GET with JSON body shortcut
+xh GET <url> <key>==<val>
+
+$ url: echo ""
+$ key: echo ""
+$ val: echo ""
+
+# POST JSON body (xh JSON shorthand)
+xh POST <url> <field>=<value>
+
+$ url: echo ""
+$ field: echo ""
+$ value: echo ""
+
+# POST with an Authorization header
+xh POST <url> Authorization:'Bearer <token>' <field>=<value>
+
+$ url: echo ""
+$ token: echo ""
+$ field: echo ""
+$ value: echo ""
+
+# Follow redirects, verbose
+xh -Fv GET <url>
+
+$ url: echo ""
+
+# Download a file
+xh --download GET <url>
+
+$ url: echo ""
+
+# Show only response headers
+xh --headers GET <url>
+
+$ url: echo ""
+
+# Ignore TLS errors (debug)
+xh --verify=no GET <url>
+
+$ url: echo ""
+
+% curl
+
+; Kept for things xh can't do (--resume, -C, specific TLS debug flags).
+; For everyday GET/POST, prefer xh (above).
+
+# GET with headers dumped
+curl -i <url>
+
+$ url: echo ""
+
+# POST JSON
+curl -X POST -H 'Content-Type: application/json' -d '<json>' <url>
+
+$ json: echo "{}"
+$ url: echo ""
+
+# Download with original filename
+curl -OL <url>
+
+$ url: echo ""
+
+# Resume a partial download
+curl -C - -O <url>
+
+$ url: echo ""
+
+% gping
+
+# Visual ping with a graph
+gping <host>
+
+$ host: echo "1.1.1.1;8.8.8.8;google.com;github.com" | tr ';' '\n'
+
+# Ping multiple hosts in parallel
+gping <a> <b>
+
+$ a: echo "1.1.1.1"
+$ b: echo "8.8.8.8"
+
+% dig
+
+# Quick DNS query (A record)
+dig +short <host>
+
+$ host: echo ""
+
+# Specific record type
+dig +short <host> <type>
+
+$ host: echo ""
+$ type: echo "A AAAA CNAME MX TXT NS SOA SRV" | tr ' ' '\n'
+
+# Trace DNS resolution path
+dig +trace <host>
+
+$ host: echo ""
+
+# Reverse DNS lookup
+dig -x <ip>
+
+$ ip: echo ""
+
+# Query a specific resolver
+dig @<resolver> <host>
+
+$ resolver: echo "1.1.1.1;8.8.8.8;9.9.9.9" | tr ';' '\n'
+$ host: echo ""

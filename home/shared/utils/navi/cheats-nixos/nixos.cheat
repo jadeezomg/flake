@@ -1,0 +1,222 @@
+% nixos, hardware, inxi
+
+; Installed in hosts/desktop and hosts/framework via modules/nixos.
+
+# Full hardware report (inxi, colorized)
+inxi -F
+
+# Just CPU info
+inxi -C
+
+# Just disk info
+inxi -D
+
+# Graphics info
+inxi -G
+
+# Network interfaces (show MACs)
+inxi -Nn
+
+# PCI devices (GPU, chipset)
+lspci
+
+# PCI devices, verbose (kernel driver too)
+lspci -nnk
+
+# USB devices
+lsusb
+
+# USB devices, tree view
+lsusb -t
+
+# Block devices (filesystems, UUIDs)
+lsblk -f
+
+# Block devices with size + mount
+lsblk -o NAME,SIZE,TYPE,MOUNTPOINTS,FSTYPE
+
+% nixos, sensors
+
+# Current temperatures + voltages + fans
+sensors
+
+# JSON output (pipe to jq)
+sensors -j | jq
+
+% nixos, smartmontools
+
+# Disk SMART data (needs sudo)
+sudo smartctl -a <dev>
+
+$ dev: lsblk -dno NAME 2>/dev/null | sed 's|^|/dev/|'
+
+# Short SMART self-test (runs in background)
+sudo smartctl -t short <dev>
+
+$ dev: lsblk -dno NAME 2>/dev/null | sed 's|^|/dev/|'
+
+# Health summary only
+sudo smartctl -H <dev>
+
+$ dev: lsblk -dno NAME 2>/dev/null | sed 's|^|/dev/|'
+
+% nixos, systemd, services
+
+# List failed services
+systemctl --failed
+
+# Status of a unit
+systemctl status <unit>
+
+$ unit: systemctl list-units --type=service --no-legend 2>/dev/null | awk '{print $1}'
+
+# Tail a unit's logs (follow)
+journalctl -u <unit> -f
+
+$ unit: systemctl list-units --type=service --no-legend 2>/dev/null | awk '{print $1}'
+
+# Last boot's logs
+journalctl -b
+
+# Errors since last boot
+journalctl -b -p err
+
+# User units
+systemctl --user status
+
+# Restart a user unit
+systemctl --user restart <unit>
+
+$ unit: systemctl --user list-units --type=service --no-legend 2>/dev/null | awk '{print $1}'
+
+# List enabled timers (cron-like)
+systemctl list-timers --all
+
+% nixos, niri, wayland
+
+; Niri is the active wayland compositor (desktop + framework).
+
+# Niri IPC: show version
+niri msg version
+
+# Niri: list connected outputs (monitors)
+niri msg outputs
+
+# Niri: list workspaces
+niri msg workspaces
+
+# Niri: list focused window info
+niri msg focused-window
+
+# Niri: trigger screen transition (used by reload-services)
+niri msg action do-screen-transition --delay-ms <ms>
+
+$ ms: echo "400;800;1500" | tr ';' '\n'
+
+# Niri: reload config (picked up automatically on save, but force it)
+niri msg action load-config-file
+
+# Reload all user desktop services (just recipe)
+just reload-services
+
+# Reload mako (notification daemon)
+makoctl reload
+
+# Dismiss the oldest notification
+makoctl dismiss
+
+# Dismiss all notifications
+makoctl dismiss --all
+
+# Display / output profiles (plugged/unplugged detection)
+autorandr --change
+
+# Save current display config as a profile
+autorandr --save <name>
+
+$ name: echo ""
+
+% nixos, docker
+
+; Docker daemon is a system service (NixOS only). Socket at /run/docker.sock.
+
+# Running containers
+docker ps
+
+# All containers (including stopped)
+docker ps -a
+
+# Images
+docker images
+
+# Logs of a container (follow)
+docker logs -f <container>
+
+$ container: docker ps --format '{{.Names}}'
+
+# Exec shell in a running container
+docker exec -it <container> <shell>
+
+$ container: docker ps --format '{{.Names}}'
+$ shell: echo "bash;sh;ash;zsh" | tr ';' '\n'
+
+# Stop + remove a container
+docker rm -f <container>
+
+$ container: docker ps --format '{{.Names}}'
+
+# Prune unused images/containers/volumes
+docker system prune -af --volumes
+
+# Compose: start in background from cwd
+docker compose up -d
+
+# Compose: tail logs
+docker compose logs -f
+
+# Compose: tear down
+docker compose down
+
+% nixos, framework, firmware
+
+; Only meaningful on hosts/framework.
+
+# Refresh firmware metadata
+fwupdmgr refresh --force
+
+# Show available updates
+fwupdmgr get-updates
+
+# Apply all available updates
+fwupdmgr update
+
+# Show devices fwupd manages
+fwupdmgr get-devices
+
+# Combined in the flake's `just update` recipe
+just update
+
+% nixos, process, psmisc
+
+; util-linux + psmisc commands.
+
+# Tree of all processes with args
+pstree -pa
+
+# Kill all processes matching a name
+killall <name>
+
+$ name: echo ""
+
+# Find which process owns a file/socket
+fuser <path>
+
+$ path: fd --type f --max-depth 3
+
+# Find what's listening on a TCP port
+ss -tlpn | rg :<port>
+
+$ port: echo ""
+
+# All listening sockets (tcp + udp)
+ss -tulpn

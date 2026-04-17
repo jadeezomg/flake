@@ -1,0 +1,169 @@
+% rust, cargo
+
+# Init a new binary crate
+cargo new <name>
+
+$ name: echo ""
+
+# Init a library crate
+cargo new --lib <name>
+
+$ name: echo ""
+
+# Add a dependency (latest from crates.io)
+cargo add <crate>
+
+$ crate: echo ""
+
+# Add with explicit features
+cargo add <crate> --features <features>
+
+$ crate: echo ""
+$ features: echo ""
+
+# Add from git
+cargo add <crate> --git <url>
+
+$ crate: echo ""
+$ url: echo ""
+
+# Remove a dependency
+cargo remove <crate>
+
+$ crate: rg -N '^[a-zA-Z0-9_-]+\s*=' Cargo.toml 2>/dev/null | cut -d= -f1 | tr -d ' '
+
+# Build debug
+cargo build
+
+# Build release
+cargo build --release
+
+# Run the default binary
+cargo run
+
+# Run with arguments
+cargo run -- <args>
+
+$ args: echo ""
+
+# Run a specific binary
+cargo run --bin <bin>
+
+$ bin: rg '^\[\[bin\]\]' -A2 Cargo.toml 2>/dev/null | rg '^name' | cut -d'"' -f2
+
+# Test everything
+cargo test
+
+# Test matching a name
+cargo test <pattern>
+
+$ pattern: echo ""
+
+# Check (faster than build — no codegen)
+cargo check
+
+# Clippy lints, fail on warnings
+cargo clippy --all-targets -- -D warnings
+
+# Clippy with auto-fix
+cargo clippy --fix --allow-dirty --allow-staged
+
+# Format in place
+cargo fmt
+
+# Format check (CI mode)
+cargo fmt --check
+
+# Update lockfile
+cargo update
+
+# Update a specific crate
+cargo update -p <crate>
+
+$ crate: rg -N '^[a-zA-Z0-9_-]+\s*=' Cargo.toml 2>/dev/null | cut -d= -f1 | tr -d ' '
+
+# Docs for this crate (opens browser)
+cargo doc --open
+
+# Tree of dependencies
+cargo tree
+
+# Reverse: who depends on <crate>
+cargo tree -i <crate>
+
+$ crate: cargo tree -q 2>/dev/null | rg -o '^\S+' | sort -u
+
+# Audit for vulnerabilities
+cargo audit
+
+# Dedupe duplicate versions
+cargo update --aggressive
+
+% rust, cargo-info
+
+; From cargo-info (our custom package) — metadata from crates.io.
+
+# Show info for a crate
+cargo info <crate>
+
+$ crate: echo ""
+
+# Show versions available
+cargo info <crate> --versions
+
+$ crate: echo ""
+
+% rust, rustup
+
+# Install a toolchain
+rustup toolchain install <ch>
+
+$ ch: echo "stable;beta;nightly" | tr ';' '\n'
+
+# Set default toolchain
+rustup default <ch>
+
+$ ch: rustup toolchain list | cut -d' ' -f1
+
+# Update all toolchains
+rustup update
+
+# Override toolchain for this directory
+rustup override set <ch>
+
+$ ch: rustup toolchain list | cut -d' ' -f1
+
+# Add a component to the active toolchain
+rustup component add <comp>
+
+$ comp: echo "rust-src rust-analyzer clippy rustfmt miri" | tr ' ' '\n'
+
+# Show installed toolchains + active
+rustup show
+
+% rust, bacon
+
+; Background compiler watcher. Run once, leaves a TUI.
+
+# Launch bacon (uses bacon.toml or defaults)
+bacon
+
+# Run clippy continuously
+bacon clippy
+
+# Run tests continuously
+bacon test
+
+# Run a custom job
+bacon <job>
+
+$ job: rg '^\[jobs\.' bacon.toml 2>/dev/null | sed 's/\[jobs\.\(.*\)\]/\1/'
+
+% rust, rusty-man
+
+; Offline rustdoc browser (TUI).
+
+# Look up an item (e.g. Vec, std::fs::File)
+rusty-man <item>
+
+$ item: echo ""

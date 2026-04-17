@@ -1,0 +1,210 @@
+% nix, dev
+
+; For the flake lifecycle (switch/build/gc), see the `flake` cheatsheet.
+; This sheet focuses on ad-hoc nix development.
+
+% nix, format
+
+# Format .nix files with alejandra (flake's canonical formatter)
+alejandra <path>
+
+$ path: fd -e nix --type f
+
+# Format quietly (banner off)
+alejandra --quiet <path>
+
+$ path: echo ". $FLAKE" | tr ' ' '\n'
+
+# Check formatting (CI mode)
+alejandra --check <path>
+
+$ path: echo ". $FLAKE" | tr ' ' '\n'
+
+% nix, lint
+
+# Remove unused bindings (deadnix, modify in place)
+deadnix --edit <path>
+
+$ path: echo ". $FLAKE" | tr ' ' '\n'
+
+# Just report, don't modify
+deadnix <path>
+
+$ path: echo ". $FLAKE" | tr ' ' '\n'
+
+# Lint antipatterns (statix)
+statix check <path>
+
+$ path: echo ". $FLAKE" | tr ' ' '\n'
+
+# Auto-fix what statix can
+statix fix <path>
+
+$ path: echo ". $FLAKE" | tr ' ' '\n'
+
+% nix, search
+
+; The flake rule: verify a package with `nix search` before adding it.
+
+# Search nixpkgs (builtin)
+nix search nixpkgs <query>
+
+$ query: echo ""
+
+# Pretty TUI search (nix-search from nixpkgs)
+nix-search <query>
+
+$ query: echo ""
+
+# Search NixOS options online
+echo 'https://search.nixos.org/options?query=<query>'
+
+$ query: echo ""
+
+# Search home-manager options online
+echo 'https://nix-community.github.io/home-manager/options.xhtml'
+
+% nix, build
+
+# Build a flake output
+nix build <flake>#<output>
+
+$ flake: echo "."
+$ output: echo ""
+
+# Build without writing result symlink
+nix build <flake> --no-link --print-out-paths
+
+$ flake: echo "."
+
+# Run an app from a flake
+nix run <flake>#<app>
+
+$ flake: echo "."
+$ app: echo ""
+
+# One-shot package use (ephemeral shell)
+nix shell nixpkgs#<pkg>
+
+$ pkg: echo ""
+
+# Temporary run without installing (cached)
+nix run nixpkgs#<pkg>
+
+$ pkg: echo ""
+
+% nix, flake
+
+# Flake metadata
+nix flake metadata <flake>
+
+$ flake: echo "."
+
+# Show all outputs
+nix flake show <flake>
+
+$ flake: echo "."
+
+# Check the flake (eval + builds all checks)
+nix flake check <flake>
+
+$ flake: echo "."
+
+# Update a single input
+nix flake update <input> --flake <flake>
+
+$ input: nix flake metadata --json 2>/dev/null | jq -r '.locks.nodes.root.inputs | keys[]'
+$ flake: echo "."
+
+# Update every input
+nix flake update --flake <flake>
+
+$ flake: echo "."
+
+% nix, repl
+
+# Open nix repl loaded with nixpkgs
+nix repl --expr 'import <nixpkgs> {}'
+
+# Load a flake into the repl (`:lf .`)
+nix repl
+
+% nix, store
+
+# Explore the store as a tree (TUI)
+nix-tree <path>
+
+$ path: echo "/run/current-system;$(nix build --no-link --print-out-paths nixpkgs#hello 2>/dev/null)" | tr ';' '\n'
+
+# Top-like process monitor for running nix builds
+nix-top
+
+# Disk usage of the store
+nix-du | less
+
+# Compare two generations (size + package diff)
+nix store diff-closures <a> <b>
+
+$ a: echo "/run/current-system"
+$ b: echo "/nix/var/nix/profiles/system"
+
+# Show why a path is in the closure
+nix why-depends <drv> <dep>
+
+$ drv: echo "/run/current-system"
+$ dep: echo ""
+
+# Prefetch a GitHub source (compute hash)
+nix-prefetch-github <owner> <repo> --rev <rev>
+
+$ owner: echo ""
+$ repo: echo ""
+$ rev: echo "main"
+
+# Prettier build output (for interactive use)
+nom build <flake>#<output>
+
+$ flake: echo "."
+$ output: echo ""
+
+% nix, devshell
+
+# Enter the default devShell for a flake
+nix develop <flake>
+
+$ flake: echo "."
+
+# Run a single command in the devShell
+nix develop <flake> --command <cmd>
+
+$ flake: echo "."
+$ cmd: echo ""
+
+# devenv: enter dev environment (uses devenv.nix)
+devenv shell
+
+# devenv: run a one-off command
+devenv shell -- <cmd>
+
+$ cmd: echo ""
+
+# Allow direnv for this directory (uses nix-direnv)
+direnv allow
+
+# Reload direnv
+direnv reload
+
+% nix, lsp
+
+; LSPs already configured in editors; these are the binaries if you need to invoke them.
+
+# Start nil LSP (zed/helix handle this automatically)
+nil
+
+# Start nixd LSP
+nixd
+
+% nix, melt
+
+# Ranger-like flake.lock viewer
+nix-melt

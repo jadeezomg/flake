@@ -1,0 +1,137 @@
+% flake, nix, just
+
+; jadee's flake lifecycle — always use `just` recipes over bare nh/nixos-rebuild.
+; Shell shortcuts (bash/fish/nushell):
+;   flake <recipe>   == just --justfile $FLAKE/Justfile <recipe>
+;   flake            == interactive just picker
+;   hm / hms / hmn   == raw home-manager for this host (prefer `flake switch`)
+;   zf               == cd to the flake root
+
+# Full switch (flake check + nh switch)
+just switch
+
+# Fast switch (skip flake check)
+just switch-fast
+
+# Build only, no switch
+just build
+
+# Stage generation for next boot
+just build-boot
+
+# Dry-run build (nh os test / darwin --dry)
+just build-dry
+
+# Build with --show-trace for debugging
+just build-dev
+
+# Rollback to previous generation
+just rollback
+
+# Validate flake (nix flake check --all-systems)
+just switch-check
+
+# Format all .nix / scripts / js / ts / json
+just fmt
+
+# Lint nix (deadnix + statix)
+just lint
+
+# Update flake.lock + check custom flake packages
+just update
+
+# GC: keep N generations (prompts for N, default 5)
+just gc-keep
+
+# GC: keep store paths newer than N days (default 7)
+just gc-days
+
+# Aggressive GC + empty user Trash
+just gc-all
+
+# List system generations
+just generation-list
+
+# Switch to a numbered generation (prompts)
+just generation-switch
+
+# Delete a numbered generation (prompts)
+just generation-delete
+
+# Show EFI/bootloader entries (NixOS)
+just generation-bootloader
+
+# Quick health snapshot (git + disk + nh info)
+just health
+
+# Interactive fzf recipe picker
+just
+
+# List every recipe with docs
+just list
+
+# Show flake metadata
+just info
+
+# Format + status + prompt-commit + push
+just git
+
+# Write .flake-host for this machine (prompts)
+just init
+
+# Scan flake for broken or missing package refs
+just check-packages
+
+# DMS/niri/quickshell symlink report
+just symlink-check
+
+# Reload user services (niri, waybar, swaybg, mako)
+just reload-services
+
+# Search nixpkgs for a package
+nix search nixpkgs <pkg>
+
+$ pkg: echo ""
+
+# Search nixpkgs (via nix-search, prettier output)
+nix-search <pkg>
+
+$ pkg: echo ""
+
+# Show flake metadata
+nix flake metadata <flake>
+
+$ flake: echo "."
+
+# Update a single flake input
+nix flake update <input> --flake <flake>
+
+$ input: nix flake metadata --json | jq -r '.locks.nodes.root.inputs | keys[]'
+$ flake: echo "."
+
+# Show flake.lock history (nix-melt TUI)
+nix-melt
+
+# Explore nix store as a tree (nix-tree TUI)
+nix-tree
+
+# Top-like nix process monitor
+nix-top
+
+# Disk usage of the nix store
+nix-du
+
+# Enter a nix devshell in this flake
+nix develop <flake>
+
+$ flake: echo "."
+
+# Run a package from nixpkgs without installing
+nix run nixpkgs#<pkg>
+
+$ pkg: echo ""
+
+# Shell with package(s) available
+nix shell nixpkgs#<pkg>
+
+$ pkg: echo ""
