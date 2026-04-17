@@ -247,7 +247,7 @@ fmt:
     uv run --project "$FLAKE/scripts" ty check "$FLAKE/scripts/src"
     print_success "ty         done"
     print_pending "biome      formatting js/ts/json..."
-    cd "$FLAKE" && biome format .
+    cd "$FLAKE" && biome format --write .
     print_success "biome      done"
     print_header "END"
 
