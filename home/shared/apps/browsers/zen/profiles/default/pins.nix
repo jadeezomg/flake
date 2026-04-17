@@ -208,33 +208,40 @@ in {
       position = 217;
       folderParentId = "{{1776271297993-96}}";
     };
-    "Github" = {
-      id = "a3faf72f-5455-44a9-9057-00a90a8af2bc";
-      url = "https://github.com/nix-community/stylix?tab=readme-ov-file";
+    "Introduction - Stylix" = {
+      id = "4e38f77f-020d-47f5-b250-429c30b93123";
+      url = "https://nix-community.github.io/stylix/";
       workspace = spaces."Themes".id;
       isEssential = false;
       position = 218;
     };
-    "Github_1" = {
+    "Danklinux" = {
+      id = "2403cb1d-efd1-437c-afc0-6c107f675735";
+      url = "https://danklinux.com/";
+      workspace = spaces."Themes".id;
+      isEssential = false;
+      position = 219;
+    };
+    "Github" = {
       id = "ec56b7ed-f746-4f38-b62e-024f0656f39c";
       url = "https://github.com/AvengeMedia/DankMaterialShell?tab=readme-ov-file";
       workspace = spaces."Themes".id;
       isEssential = false;
-      position = 219;
+      position = 220;
     };
     "JDownloader 2" = {
       id = "0502f069-bb8a-42ba-90b5-80e18e1a3d5b";
       url = "http://192.168.178.62:7807/";
       workspace = spaces."Downloads".id;
       isEssential = false;
-      position = 220;
+      position = 221;
     };
     "LinkSnappy - Get your files as a premium" = {
       id = "b19c8441-18b9-4cfb-ad0d-c6151f2cd526";
       url = "https://linksnappy.com/home";
       workspace = spaces."Downloads".id;
       isEssential = false;
-      position = 221;
+      position = 222;
     };
   };
 }
