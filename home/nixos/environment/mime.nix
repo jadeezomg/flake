@@ -6,7 +6,7 @@
   image = "org.gnome.Loupe";
   pdf = "org.pwmt.zathura";
   # Flatpak app ID (desktop file: io.github.diegopvlk.Cine.desktop)
-  video = "io.github.diegopvlk.Cine";
+  video = "org.gnome.Showtime";
   fileManager = "org.gnome.Nautilus";
 in {
   xdg.mimeApps = {
