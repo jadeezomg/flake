@@ -27,7 +27,6 @@ import sys
 import time
 import tarfile
 import tempfile
-import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -48,10 +47,6 @@ from rich.progress import (
 from flake_scripts.lib.common import console, resolve_flake_root
 
 _SSL = ssl.create_default_context(cafile=certifi.where())
-
-# Skip registry/GitHub fetches if we checked this package recently (per-machine state).
-COOLDOWN_DEFAULT_SEC = 3600
-CHECK_STATE_FILENAME = ".update-check.json"
 
 # Skip registry/GitHub fetches if we checked this package recently (per-machine state).
 COOLDOWN_DEFAULT_SEC = 3600
@@ -411,16 +406,8 @@ def update_package(
     force: bool = False,
     cooldown_s: int = COOLDOWN_DEFAULT_SEC,
 ) -> tuple[str, str, bool, bool, bool]:
-    pkg_dir: Path,
-    status: StatusCb = _noop,
-    *,
-    force: bool = False,
-    cooldown_s: int = COOLDOWN_DEFAULT_SEC,
-) -> tuple[str, str, bool, bool, bool]:
     """Update a single package.
 
-    Returns (old_version, new_version, version_changed, fields_changed, cooldown_skipped).
-    cooldown_skipped is True when no network work ran due to the per-package cooldown.
     Returns (old_version, new_version, version_changed, fields_changed, cooldown_skipped).
     cooldown_skipped is True when no network work ran due to the per-package cooldown.
     fields_changed is True when hashes drifted even without a version bump.
@@ -452,8 +439,6 @@ def update_package(
     if not version_changed and not fields_changed:
         _write_last_checked(pkg_dir)
         return old_version, new_version, False, False, False
-        _write_last_checked(pkg_dir)
-        return old_version, new_version, False, False, False
 
     status("writing updated default.nix")
     if version_changed:
@@ -461,8 +446,6 @@ def update_package(
     for field, value in field_updates.items():
         _replace_attr_once(nix_file, field, value)
 
-    _write_last_checked(pkg_dir)
-    return old_version, new_version, version_changed, fields_changed, False
     _write_last_checked(pkg_dir)
     return old_version, new_version, version_changed, fields_changed, False
 
@@ -484,11 +467,6 @@ def main(args: list[str] | None = None) -> None:
     all_names = [p.name for p in all_pkgs]
 
     ap = argparse.ArgumentParser(description="Update custom flake packages")
-    ap.add_argument(
-        "--force",
-        action="store_true",
-        help="Ignore the 1h per-package cooldown and re-fetch from registries/APIs.",
-    )
     ap.add_argument(
         "--force",
         action="store_true",
@@ -541,10 +519,6 @@ def main(args: list[str] | None = None) -> None:
                     pkg_dir,
                     make_status(pkg_tasks[pkg_dir]),
                     force=parsed.force,
-                    update_package,
-                    pkg_dir,
-                    make_status(pkg_tasks[pkg_dir]),
-                    force=parsed.force,
                 ): pkg_dir
                 for pkg_dir in targets
             }
@@ -552,18 +526,6 @@ def main(args: list[str] | None = None) -> None:
                 pkg_dir = futures[future]
                 tid = pkg_tasks[pkg_dir]
                 try:
-                    old, new, version_changed, fields_changed, cooldown_skipped = (
-                        future.result()
-                    )
-                    if cooldown_skipped:
-                        progress.update(
-                            tid,
-                            icon="[dim]~[/]",
-                            description=f"[dim]{pkg_dir.name}[/]",
-                            step="[dim]cooldown (1h)[/]",
-                            completed=1,
-                        )
-                    elif version_changed:
                     old, new, version_changed, fields_changed, cooldown_skipped = (
                         future.result()
                     )
