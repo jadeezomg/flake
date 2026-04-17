@@ -12,6 +12,7 @@ Handler `type` values:
 """
 
 import base64
+from datetime import datetime
 import hashlib
 import json
 import re
@@ -20,6 +21,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -41,10 +43,55 @@ from flake_scripts.lib.common import console, resolve_flake_root
 
 _SSL = ssl.create_default_context(cafile=certifi.where())
 
+# Skip registry/GitHub fetches if we checked this package recently (per-machine state).
+COOLDOWN_DEFAULT_SEC = 3600
+CHECK_STATE_FILENAME = ".update-check.json"
+
 StatusCb = Callable[[str], None]
 
 
 def _noop(_: str) -> None: ...
+
+
+def _check_state_path(pkg_dir: Path) -> Path:
+    return pkg_dir / CHECK_STATE_FILENAME
+
+
+def _read_last_checked(pkg_dir: Path) -> float | None:
+    path = _check_state_path(pkg_dir)
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        t = data.get("checked_at")
+        if isinstance(t, (int, float)):
+            return float(t)
+        if isinstance(t, str):
+            # Allow ISO-8601 state files so cooldown survives schema tweaks/manual edits.
+            return datetime.fromisoformat(t.replace("Z", "+00:00")).timestamp()
+    except (json.JSONDecodeError, OSError, TypeError):
+        pass
+    try:
+        return path.stat().st_mtime
+    except OSError:
+        return None
+
+
+def _write_last_checked(pkg_dir: Path) -> None:
+    path = _check_state_path(pkg_dir)
+    path.write_text(
+        json.dumps({"checked_at": time.time()}, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _cooldown_remaining_human(last: float, cooldown_s: int) -> str:
+    left = max(0, int(cooldown_s - (time.time() - last)))
+    if left >= 3600:
+        return f"{left // 3600}h {(left % 3600) // 60}m left"
+    if left >= 60:
+        return f"{left // 60}m left"
+    return f"{left}s left"
 
 
 def _fetch_json(url: str) -> dict:
@@ -338,18 +385,30 @@ _HANDLERS = {
 
 
 def update_package(
-    pkg_dir: Path, status: StatusCb = _noop
-) -> tuple[str, str, bool, bool]:
+    pkg_dir: Path,
+    status: StatusCb = _noop,
+    *,
+    force: bool = False,
+    cooldown_s: int = COOLDOWN_DEFAULT_SEC,
+) -> tuple[str, str, bool, bool, bool]:
     """Update a single package.
 
-    Returns (old_version, new_version, version_changed, fields_changed).
+    Returns (old_version, new_version, version_changed, fields_changed, cooldown_skipped).
+    cooldown_skipped is True when no network work ran due to the per-package cooldown.
     fields_changed is True when hashes drifted even without a version bump.
     """
-    meta = json.loads((pkg_dir / "update.json").read_text())
     nix_file = pkg_dir / "default.nix"
     nix_text = nix_file.read_text()
 
     old_version = _current_version(nix_text)
+
+    if not force and cooldown_s > 0:
+        last = _read_last_checked(pkg_dir)
+        if last is not None and (time.time() - last) < cooldown_s:
+            status(f"skipped (cooldown {_cooldown_remaining_human(last, cooldown_s)})")
+            return old_version, old_version, False, False, True
+
+    meta = json.loads((pkg_dir / "update.json").read_text())
     handler = _HANDLERS[meta["type"]]
     new_version, _url, field_updates = handler(meta, pkg_dir, status, old_version)
 
@@ -361,7 +420,8 @@ def update_package(
     )
 
     if not version_changed and not fields_changed:
-        return old_version, new_version, False, False
+        _write_last_checked(pkg_dir)
+        return old_version, new_version, False, False, False
 
     status("writing updated default.nix")
     if version_changed:
@@ -369,7 +429,8 @@ def update_package(
     for field, value in field_updates.items():
         _sub(nix_file, rf'{re.escape(field)}\s*=\s*"[^"]+"', f'{field} = "{value}"')
 
-    return old_version, new_version, version_changed, fields_changed
+    _write_last_checked(pkg_dir)
+    return old_version, new_version, version_changed, fields_changed, False
 
 
 def discover_packages(flake_root: Path) -> list[Path]:
@@ -389,6 +450,11 @@ def main(args: list[str] | None = None) -> None:
     all_names = [p.name for p in all_pkgs]
 
     ap = argparse.ArgumentParser(description="Update custom flake packages")
+    ap.add_argument(
+        "--force",
+        action="store_true",
+        help="Ignore the 1h per-package cooldown and re-fetch from registries/APIs.",
+    )
     ap.add_argument(
         "packages",
         nargs="*",
@@ -432,7 +498,10 @@ def main(args: list[str] | None = None) -> None:
         with ThreadPoolExecutor(max_workers=len(targets)) as executor:
             futures = {
                 executor.submit(
-                    update_package, pkg_dir, make_status(pkg_tasks[pkg_dir])
+                    update_package,
+                    pkg_dir,
+                    make_status(pkg_tasks[pkg_dir]),
+                    force=parsed.force,
                 ): pkg_dir
                 for pkg_dir in targets
             }
@@ -440,8 +509,18 @@ def main(args: list[str] | None = None) -> None:
                 pkg_dir = futures[future]
                 tid = pkg_tasks[pkg_dir]
                 try:
-                    old, new, version_changed, fields_changed = future.result()
-                    if version_changed:
+                    old, new, version_changed, fields_changed, cooldown_skipped = (
+                        future.result()
+                    )
+                    if cooldown_skipped:
+                        progress.update(
+                            tid,
+                            icon="[dim]~[/]",
+                            description=f"[dim]{pkg_dir.name}[/]",
+                            step="[dim]cooldown (1h)[/]",
+                            completed=1,
+                        )
+                    elif version_changed:
                         progress.update(
                             tid,
                             icon="[green]✓[/]",
