@@ -1,4 +1,4 @@
-# Flake — chooser-friendly recipes; CLI args via private _* or `just <cmd> …`.
+# Flake - chooser-friendly recipes; CLI args via private _* or `just <cmd> ...`.
 # Docs: https://just.systems/man/en/documentation-comments.html
 # Groups: https://just.systems/man/en/groups.html
 
@@ -23,13 +23,13 @@ export ICON_PENDING := THEME_YELLOW + "❖" + THEME_RESET
 export ICON_ERROR := THEME_RED + "▼" + THEME_RESET
 export ICON_INFO := THEME_CYAN + "▪" + THEME_RESET
 
-# ── default ───────────────────────────────────────────────────────────────────
+# -- default -------------------------------------------------------------------
 
 [doc('Interactive picker: fzf with group + doc (see scripts/shell/just-choose.bash)')]
 default:
     @bash "$FLAKE/scripts/shell/just-choose.bash"
 
-# ── build ─────────────────────────────────────────────────────────────────────
+# -- build ---------------------------------------------------------------------
 
 [doc('Build / home-manager build for .flake-host')]
 [group('build')]
@@ -40,7 +40,7 @@ build:
     print_header "BUILD"; h="$(get_host "")"
     is_darwin && sc="nh darwin build '${FLAKE}#${h}'" || sc="nh os build '${FLAKE}#${h}'"
     notify "Flake Build" "Building $h..." "pending"
-    print_info "→ $sc"; bash -c "$sc"
+    print_info "-> $sc"; bash -c "$sc"
     notify "Flake Build" "OK" "success"; print_header "END"
 
 [doc('Stage generation for next boot (nh boot)')]
@@ -52,7 +52,7 @@ build-boot:
     print_header "BUILD"; h="$(get_host "")"
     is_darwin && sc="nh darwin build '${FLAKE}#${h}'" || sc="nh os boot '${FLAKE}#${h}'"
     notify "Flake Build" "Boot $h..." "pending"
-    print_info "→ $sc"; bash -c "$sc"
+    print_info "-> $sc"; bash -c "$sc"
     notify "Flake Build" "Next reboot" "success"; print_header "END"
 
 [doc('Dry-run eval/build (no switch)')]
@@ -64,7 +64,7 @@ build-dry:
     print_header "BUILD"; h="$(get_host "")"
     is_darwin && sc="nh darwin build --dry '${FLAKE}#${h}'" || sc="nh os test '${FLAKE}#${h}'"
     notify "Flake Build" "Dry $h..." "pending"
-    print_info "→ $sc"; bash -c "$sc"; print_header "END"
+    print_info "-> $sc"; bash -c "$sc"; print_header "END"
 
 [doc('Build with extra trace (dev / debug)')]
 [group('build')]
@@ -75,9 +75,9 @@ build-dev:
     print_header "BUILD"; h="$(get_host "")"
     is_darwin && sc="nh darwin switch --show-trace '${FLAKE}#${h}'" || sc="nh os switch --show-trace '${FLAKE}#${h}'"
     notify "Flake Build" "Trace $h..." "pending"
-    print_info "→ $sc"; bash -c "$sc"; print_header "END"
+    print_info "-> $sc"; bash -c "$sc"; print_header "END"
 
-# ── switch ────────────────────────────────────────────────────────────────────
+# -- switch --------------------------------------------------------------------
 
 [doc('flake check + nh switch (full path)')]
 [group('switch')]
@@ -95,7 +95,7 @@ switch:
     h="$(get_host "")"
     is_darwin && sc="nh darwin switch '${FLAKE}#${h}'" || sc="nh os switch '${FLAKE}#${h}'"
     notify "Flake Switch" "Switching $h..." "pending"
-    print_info "→ $sc"; bash -lc "$sc"; echo ""
+    print_info "-> $sc"; bash -lc "$sc"; echo ""
     hm_vars="/etc/profiles/per-user/${USER}/etc/profile.d/hm-session-vars.sh"
     [[ -f "$hm_vars" ]] && bash -lc "source '$hm_vars'" || true
     print_header "END"
@@ -111,7 +111,7 @@ switch-fast:
     h="$(get_host "")"
     is_darwin && sc="nh darwin switch '${FLAKE}#${h}'" || sc="nh os switch '${FLAKE}#${h}'"
     notify "Flake Switch" "Switching $h..." "pending"
-    print_info "→ $sc"; bash -lc "$sc"; print_header "END"
+    print_info "-> $sc"; bash -lc "$sc"; print_header "END"
 
 [doc('nix flake check only (no switch)')]
 [group('switch')]
@@ -126,7 +126,7 @@ switch-check:
       || notify "Flake Switch" "Check failed" "pending"
     print_header "END"
 
-# ── generations ───────────────────────────────────────────────────────────────
+# -- generations ---------------------------------------------------------------
 
 [doc('List system generations (nh os info / darwin-rebuild)')]
 [group('generations')]
@@ -180,7 +180,7 @@ generation-delete:
     sudo nix-env --delete-generations "$num" -p /nix/var/nix/profiles/system
     print_header "END"
 
-# ── gc ────────────────────────────────────────────────────────────────────────
+# -- gc ------------------------------------------------------------------------
 
 [doc('nh clean keeping last N generations (prompts N, default 5)')]
 [group('gc')]
@@ -216,7 +216,7 @@ gc-all:
     [[ -d "$tr" ]] && { rm -rf "$tr" 2>/dev/null || sudo rm -rf "$tr" 2>/dev/null || true; }
     print_header "END"
 
-# ── format ────────────────────────────────────────────────────────────────────
+# -- format --------------------------------------------------------------------
 
 [doc('Alejandra all *.nix under flake (summary line)')]
 [group('format')]
@@ -226,7 +226,7 @@ fmt:
     source "$FLAKE/scripts/shell/common.sh"
     print_header "FMT"
     changed=0 unchanged=0 failed=0
-    print_pending "alejandra  formatting .nix files…"
+    print_pending "alejandra  formatting .nix files..."
     while IFS= read -r -d '' f; do
       [[ "$(basename "$f")" == default.nix ]] && continue
       mb=$(stat -c %Y "$f" 2>/dev/null || stat -f %m "$f" 2>/dev/null || echo 0)
@@ -237,16 +237,16 @@ fmt:
     done < <(find "$FLAKE" -name "*.nix" -type f -print0 2>/dev/null)
     [[ "$failed" -gt 0 ]] && { print_error "alejandra  $failed file(s) failed"; exit 1; }
     print_success "alejandra  changed:${changed} unchanged:${unchanged}"
-    print_pending "deadnix    removing unused bindings…"
+    print_pending "deadnix    removing unused bindings..."
     deadnix --edit "$FLAKE"
     print_success "deadnix    done"
-    print_pending "ruff       formatting scripts…"
+    print_pending "ruff       formatting scripts..."
     ruff format "$FLAKE/scripts"
     print_success "ruff       done"
-    print_pending "ty         type-checking scripts…"
+    print_pending "ty         type-checking scripts..."
     uv run --project "$FLAKE/scripts" ty check "$FLAKE/scripts/src"
     print_success "ty         done"
-    print_pending "biome      formatting js/ts/json…"
+    print_pending "biome      formatting js/ts/json..."
     cd "$FLAKE" && biome format .
     print_success "biome      done"
     print_header "END"
@@ -272,7 +272,7 @@ fmt-notree:
       alejandra "$f" >/dev/null 2>&1 || exit 1
     done < <(find "$FLAKE" -name "*.nix" -type f -print0 2>/dev/null)
 
-# ── backups ───────────────────────────────────────────────────────────────────
+# -- backups -------------------------------------------------------------------
 
 [doc('List *.backup / *.bkp under ~/.config with sizes')]
 [group('backups')]
@@ -303,7 +303,7 @@ backups-clean:
 backups-clean-dry:
     @find "${HOME}/.config" \( -name "*.backup" -o -name "*.bkp" \) -type f 2>/dev/null | xargs -r du -h
 
-# ── config ────────────────────────────────────────────────────────────────────
+# -- config --------------------------------------------------------------------
 
 [doc('Write .flake-host (prompts; use just _init <host> for no prompt)')]
 [group('config')]
@@ -319,13 +319,13 @@ init:
     cf="${FLAKE}/.flake-host"
     if [[ -f "$cf" ]]; then
       prev=$(tr -d '[:space:]' <"$cf" || true)
-      if [[ -n "$prev" && "$prev" != "$t" ]] && ! confirm "Overwrite $prev → $t?"; then
+      if [[ -n "$prev" && "$prev" != "$t" ]] && ! confirm "Overwrite $prev -> $t?"; then
         print_info "Unchanged."; exit 0
       fi
     fi
     set_host "$t"; print_header "END"
 
-[doc('macOS defaults → Nix-style output (prompts domain; empty = list domains)')]
+[doc('macOS defaults -> Nix-style output (prompts domain; empty = list domains)')]
 [group('config')]
 read-defaults:
     #!/usr/bin/env bash
@@ -351,7 +351,7 @@ post-install:
     set -euo pipefail
     bash "$FLAKE/scripts/shell/post-install.bash"
 
-# ── system ────────────────────────────────────────────────────────────────────
+# -- system --------------------------------------------------------------------
 
 [doc('Rollback to previous generation (nh rollback / darwin-rebuild --rollback)')]
 [group('system')]
@@ -375,19 +375,26 @@ health:
     is_darwin || nh os info 2>/dev/null | head -15
     print_header "END"
 
-[doc('Preview flake inputs update (nh switch --update --dry)')]
+[doc('Update flake.lock + Framework BIOS/firmware check')]
 [group('system')]
 update:
     #!/usr/bin/env bash
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     print_header "UPDATE"
-    print_pending "update-packages  updating custom flake packages…"
+    print_pending "update-packages  updating custom flake packages..."
     uv run --project "$FLAKE/scripts" update-packages
     print_success "update-packages  done"
-    print_pending "nh               previewing flake input updates…"
-    is_darwin && p="nh darwin" || p="nh os"
-    bash -c "$p switch --update --dry"
+    print_pending "nix              updating flake.lock..."
+    nix flake update --flake "$FLAKE"
+    print_success "nix              flake.lock updated"
+    h="$(get_host "")"
+    if ! is_darwin && [[ "$h" == framework-nixos ]] && command -v fwupdmgr >/dev/null; then
+      print_pending "fwupdmgr         checking BIOS/firmware updates (framework)..."
+      fwupdmgr refresh --force >/dev/null 2>&1 || true
+      fwupdmgr get-updates || true
+      print_success "fwupdmgr         check complete"
+    fi
     print_header "END"
 
 [doc('Reload user services (niri, swaybg, waybar, mako)')]
@@ -399,7 +406,7 @@ reload-services:
     for s in rh-swaybg rh-waybar; do systemctl --user restart "${s}.service" 2>/dev/null || true; done
     command -v makoctl >/dev/null && makoctl reload 2>/dev/null || true
 
-# ── repo ──────────────────────────────────────────────────────────────────────
+# -- repo ----------------------------------------------------------------------
 
 [doc('Quiet fmt, git status/log, then commit+push (prompts message)')]
 [group('repo')]
@@ -417,7 +424,7 @@ git:
     [[ -z "${msg:-}" || "$msg" == abort ]] && exit 0
     git -C "$FLAKE" add -A && git -C "$FLAKE" commit -m "$msg" && git -C "$FLAKE" push
 
-# ── check ─────────────────────────────────────────────────────────────────────
+# -- check ---------------------------------------------------------------------
 
 [doc('Scan flake for broken or missing package references')]
 [group('check')]
@@ -447,7 +454,7 @@ symlink-check:
 symlink-check-dms:
     @cd "$FLAKE" && uv run --project "$FLAKE/scripts" symlink-check dms-settings
 
-# ── zen ───────────────────────────────────────────────────────────────────────
+# -- zen -----------------------------------------------------------------------
 
 [doc('Zen session CLI; after sync, runs nix fmt on the flake')]
 [group('zen')]
@@ -476,7 +483,7 @@ zen-compare:
 zen-extract *ARGS:
     @cd "$FLAKE" && uv run --project "$FLAKE/scripts" zen-session extract {{ ARGS }}
 
-# ── meta ──────────────────────────────────────────────────────────────────────
+# -- meta ----------------------------------------------------------------------
 
 [doc('List all recipes (file order within groups)')]
 [group('meta')]
@@ -491,7 +498,7 @@ info:
     print_header "FLAKE INFO"
     nix flake metadata "$FLAKE"
 
-# ── private ───────────────────────────────────────────────────────────────────
+# -- private -------------------------------------------------------------------
 
 [private]
 _init host:

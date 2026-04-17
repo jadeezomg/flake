@@ -39,7 +39,7 @@ window-rule {
 window-rule {
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
     match app-id=r#"^org\.gnome\.World\.Secrets$"#
-    match app-id=r#"^Proton Pass$"#
+    match title=r#"^Proton Pass$"#
 
     block-out-from "screen-capture"
 

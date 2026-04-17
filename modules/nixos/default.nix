@@ -17,5 +17,6 @@
     ./utils
     ./virtualization
     ./user.nix
+    ../../home/nixos/guest/extra-users.nix
   ];
 }

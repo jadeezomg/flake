@@ -26,17 +26,9 @@
 
     configDir = "${flakeRoot}/home/nixos/desktop/dms/config";
 
-    # Filter out settings.json and host-specific settings files
-    allFiles = builtins.attrNames (builtins.readDir configsPath);
-    filteredFiles =
-      builtins.filter (
-        name:
-          name
-          != "settings.json"
-          && name != "settings-framework.json"
-          && name != "settings-desktop.json"
-      )
-      allFiles;
+    allNames = builtins.attrNames (builtins.readDir configsPath);
+    settingsBasenames = builtins.attrValues settingsFiles;
+    filteredFiles = builtins.filter (name: ! builtins.elem name settingsBasenames) allNames;
 
     mkSymlink = name: {
       name = name;
