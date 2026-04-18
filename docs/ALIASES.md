@@ -79,14 +79,6 @@ This document lists all aliases and commands available across different shells i
 | `zp` | Navigate to dotfiles directory | `$HOME/.dotfiles` |
 | `zf` | Navigate to flake directory | `$HOME/.dotfiles/flake` |
 
-## Home Manager Shortcuts (Bash, Fish, Nushell)
-
-| Function | Description |
-|----------|-------------|
-| `hm` | Run home-manager command |
-| `hms` | Apply home-manager configuration (switch) |
-| `hmn` | Show home-manager news |
-
 ## Flake Management (Bash, Fish, Nushell, Zsh)
 
 | Function | Description |
@@ -190,7 +182,6 @@ These commands are provided by [git.nu](https://github.com/fj0r/git.nu) and are 
 - `gd` - View diff
 
 **System:**
-- `hms` - Apply Home Manager config
 - `flake` / `nuflake` - Flake (`just --choose` when no args) vs legacy Nu
 - `cl` - Clear terminal
 
