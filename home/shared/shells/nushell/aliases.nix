@@ -1,12 +1,6 @@
-{
-  hostKey ? "framework",
-  pkgs,
-  ...
-}: let
+{pkgs, ...}: let
   sharedAliases = import ../shared/aliases.nix;
   sharedPaths = import ../shared/paths.nix;
-  sharedConfig = import ../shared/config.nix;
-  finalHostKey = hostKey;
   # Extract relative path parts from shared paths (remove $HOME/ prefix)
   configPath = builtins.replaceStrings ["$HOME/"] [""] sharedPaths.commonPaths.config;
   downloadsPath = builtins.replaceStrings ["$HOME/"] [""] sharedPaths.commonPaths.downloads;
@@ -57,11 +51,6 @@ in {
     def --env zd [] { cd $"(''$env.HOME)/${downloadsPath}" }
     def --env zp [] { cd $"(''$env.HOME)/${dotfilesPath}" }
     def --env zf [] { cd ''$env.FLAKE }
-
-    # Home Manager shortcuts
-    alias hm = nix run ${sharedConfig.nixConfig.homeManagerFlake} -- --flake $"(''$env.FLAKE)#${finalHostKey}"
-    alias hms = nix run ${sharedConfig.nixConfig.homeManagerFlake} -- switch --flake $"(''$env.FLAKE)#${finalHostKey}"
-    alias hmn = nix run ${sharedConfig.nixConfig.homeManagerFlake} -- news --flake $"(''$env.FLAKE)#${finalHostKey}"
 
     def --wrapped flake [...rest] {
       ^just --justfile $"(''$env.FLAKE)/Justfile" ...$rest

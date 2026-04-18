@@ -1,8 +1,6 @@
-{hostKey ? "framework", ...}: let
+{...}: let
   sharedAliases = import ../shared/aliases.nix;
   sharedPaths = import ../shared/paths.nix;
-  sharedConfig = import ../shared/config.nix;
-  finalHostKey = hostKey;
 in {
   # Import common aliases
   programs.bash.shellAliases = sharedAliases.commonAliases;
@@ -15,11 +13,6 @@ in {
     zd() { cd ${sharedPaths.commonPaths.downloads}; }
     zp() { cd ${sharedPaths.commonPaths.dotfiles}; }
     zf() { cd ${sharedPaths.commonPaths.flake}; }
-
-    # Home Manager shortcuts
-    hm() { nix run ${sharedConfig.nixConfig.homeManagerFlake} -- --flake "${sharedPaths.commonPaths.flake}#${finalHostKey}"; }
-    hms() { nix run ${sharedConfig.nixConfig.homeManagerFlake} -- switch --flake "${sharedPaths.commonPaths.flake}#${finalHostKey}"; }
-    hmn() { nix run ${sharedConfig.nixConfig.homeManagerFlake} -- news --flake "${sharedPaths.commonPaths.flake}#${finalHostKey}"; }
 
     flake() {
       local j="${sharedPaths.commonPaths.flake}/Justfile" c
