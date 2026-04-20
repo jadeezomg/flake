@@ -4,6 +4,5 @@
     ./aliases.nix
     ./env.nix
     ./theme.nix
-    ./forge.nix
   ];
 }
