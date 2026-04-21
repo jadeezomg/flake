@@ -12,6 +12,9 @@
 
     # Code knowledge graph + MCP (PyPI)
     (pkgs.callPackage ../../../../packages/code-review-graph {})
+
+    # Pi coding agent — npm release ahead of nixpkgs
+    (pkgs.callPackage ../../../../packages/pi-coding-agent {})
   ];
 
   programs.opencode = {
