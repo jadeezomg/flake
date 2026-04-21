@@ -7,5 +7,6 @@
     SOPS_EDITOR = "hx";
     BROWSER = "zen";
     PAGER = "bat";
+    PI_ACP_ENABLE_EMBEDDED_CONTEXT = "true";
   };
 }

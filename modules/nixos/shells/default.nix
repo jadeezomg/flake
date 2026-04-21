@@ -12,4 +12,6 @@
       enableFishIntegration = true;
     };
   };
+  # Atuin is a shell history management tool that works across shells
+  services.atuin.enable = true;
 }
