@@ -154,6 +154,10 @@
             inherit pkgs;
             lib = pkgs.lib;
           };
+          code-review-graph = import ./packages/code-review-graph/default.nix {
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
         };
 
         formatter = pkgs.alejandra;
