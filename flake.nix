@@ -158,6 +158,10 @@
             inherit pkgs;
             lib = pkgs.lib;
           };
+          pi-coding-agent = import ./packages/pi-coding-agent/default.nix {
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
         };
 
         formatter = pkgs.alejandra;
