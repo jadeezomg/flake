@@ -459,6 +459,21 @@ nix-update-pkg:
     fi
     just --justfile "${JUSTFILE:?}" fmt
 
+[doc('List installed pi packages (`pi list`)')]
+[group('check')]
+pi-list:
+    @pi list
+
+[doc('Update all pi packages to latest (`pi update`; skips pinned)')]
+[group('check')]
+pi-update:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    source "$FLAKE/scripts/shell/common.sh"
+    print_header "PI UPDATE"
+    pi update
+    print_header "END"
+
 [doc('Verify Zen profile places.sqlite exists')]
 [group('check')]
 check-zen-essentials:
