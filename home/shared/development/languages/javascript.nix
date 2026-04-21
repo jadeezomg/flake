@@ -7,7 +7,6 @@
     # --- Javascript/Typescript/React.js/Next.js ---
     nodejs_24 # Node.js JavaScript runtime
     bun
-    mise
     # Kagi client library (pair with kagi-ken-cli in tooling/llm.nix)
     (pkgs.callPackage ../../../../packages/kagi-ken {})
   ];
