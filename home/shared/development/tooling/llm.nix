@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}: {
+{pkgs, ...}: {
   home.packages = with pkgs; [
     # LLM Agent
     opencode
@@ -12,6 +9,9 @@
 
     # Kagi search/summarizer via session token (unofficial)
     (pkgs.callPackage ../../../../packages/kagi-ken-cli {})
+
+    # Code knowledge graph + MCP (PyPI)
+    (pkgs.callPackage ../../../../packages/code-review-graph {})
   ];
 
   programs.opencode = {

@@ -110,6 +110,15 @@
         };
       };
 
+      context_servers = {
+        code-review-graph = {
+          command = {
+            path = "uvx";
+            args = ["code-review-graph" "serve"];
+          };
+        };
+      };
+
       telemetry = {
         diagnostics = false;
         metrics = false;
