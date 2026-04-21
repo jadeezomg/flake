@@ -162,6 +162,10 @@
             inherit pkgs;
             lib = pkgs.lib;
           };
+          amp-code = import ./packages/amp-code/default.nix {
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
         };
 
         formatter = pkgs.alejandra;
