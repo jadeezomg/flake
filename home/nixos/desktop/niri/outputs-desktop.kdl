@@ -1,7 +1,7 @@
 // Desktop-specific output configuration
 // This file is automatically included in the main config.kdl for the desktop host
 
-output "HDMI-A-1" {
+output "HDMI-A-2" {
     mode "3840x2160@60.000"
     scale 1.3
     transform "90"
@@ -33,7 +33,7 @@ output "HDMI-A-1" {
     }
 }
 
-output "DP-1" {
+output "DP-2" {
     mode "2560x1440@170.002"
     scale 1
     transform "normal"
