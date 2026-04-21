@@ -104,11 +104,6 @@
       url = "github:googleworkspace/cli";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    forgecode = {
-      url = "github:tailcallhq/forgecode";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs = inputs @ {flake-parts, ...}: let
@@ -156,6 +151,18 @@
           };
           gws = inputs.google-workspace-cli.packages.${system}.default;
           workato-platform-cli = import ./packages/workato-platform-cli/default.nix {
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
+          code-review-graph = import ./packages/code-review-graph/default.nix {
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
+          pi-coding-agent = import ./packages/pi-coding-agent/default.nix {
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
+          amp-code = import ./packages/amp-code/default.nix {
             inherit pkgs;
             lib = pkgs.lib;
           };

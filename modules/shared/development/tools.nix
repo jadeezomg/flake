@@ -10,6 +10,7 @@
     delta # Better git diff viewer
     lazygit # Terminal UI for git
     gitui # Terminal UI for git
+    gh-dash # GitHub CLI dashboard
 
     # --- Code Metrics & Analysis ---
     tokei # Code metrics
@@ -21,5 +22,8 @@
     nixfmt # Nix formatter
     nil # Nix language server
     nixd # Alternative Nix language server
+
+    # --- Container Tools ---
+    dive
   ];
 }

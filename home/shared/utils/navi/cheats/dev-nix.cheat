@@ -194,6 +194,71 @@ direnv allow
 # Reload direnv
 direnv reload
 
+% nix, comma, nix-index, nurl, nix-init, direnv
+
+; Installed as system packages (see `modules/shared/utils/nix.nix`).
+
+# Run a program from nixpkgs without installing it (comma; shell alias `,` is common)
+comma <cmd>
+
+$ cmd: echo ""
+
+# Open a subshell with the derivation that contains the executable
+comma -s <cmd>
+
+$ cmd: echo ""
+
+# Show which nixpkgs attribute provides the executable
+comma -p <cmd>
+
+$ cmd: echo ""
+
+# Print the store path of the resolved executable
+comma -x <cmd>
+
+$ cmd: echo ""
+
+# Build the file index used by nix-locate (slow; re-run when channels change)
+nix-index
+
+# Find packages containing a path fragment (after `nix-index`)
+nix-locate '<pattern>'
+
+$ pattern: echo "bin/rg"
+
+# nix-locate: treat pattern as regex
+nix-locate -r '<regex>'
+
+$ regex: echo ""
+
+# nix-locate: only executables
+nix-locate -t x '<pattern>'
+
+$ pattern: echo ""
+
+# Emit a Nix fetcher snippet from a repo URL (for flakes / packages)
+nurl <url> <rev>
+
+$ url: echo "https://github.com/nix-community/nurl"
+$ rev: echo "main"
+
+# Scaffold a package expression with hash prefetch (Cargo, npm, etc.)
+nix-init
+
+# nix-init: target path or output file
+nix-init <output>
+
+$ output: echo "default.nix"
+
+# nix-init: from URL + revision
+nix-init -u <url> --rev <rev>
+
+$ url: echo ""
+$ rev: echo "main"
+
+# .envrc line for this directory's flake devShell (nix-direnv); then `direnv allow`
+echo use flake
+
 % nix, lsp
 
 ; LSPs already configured in editors; these are the binaries if you need to invoke them.

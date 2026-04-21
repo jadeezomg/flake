@@ -7,5 +7,6 @@
     wget # Web file downloader
     xh # A better curl
     resterm # Terminal-based REST client
+    httpie # HTTP client
   ];
 }

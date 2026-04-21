@@ -11,6 +11,7 @@ in {
       export SOPS_EDITOR=${sharedEnv.commonEnv.SOPS_EDITOR}
       export BROWSER=${sharedEnv.commonEnv.BROWSER}
       export PAGER=${sharedEnv.commonEnv.PAGER}
+      export PI_ACP_ENABLE_EMBEDDED_CONTEXT=${sharedEnv.commonEnv.PI_ACP_ENABLE_EMBEDDED_CONTEXT}
       # BAT_THEME is optional now (Stylix can own it). Only export if present.
       ${pkgs.lib.optionalString (sharedEnv.commonEnv ? BAT_THEME) ''
         export BAT_THEME=${sharedEnv.commonEnv.BAT_THEME}

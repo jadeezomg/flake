@@ -95,9 +95,24 @@ def _cooldown_remaining_human(last: float, cooldown_s: int) -> str:
 
 
 def _fetch_json(url: str) -> dict:
-    req = urllib.request.Request(url, headers={"Accept": "application/json"})
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "application/json",
+            "User-Agent": "flake-update-packages/1.0",
+        },
+    )
     with urllib.request.urlopen(req, timeout=15, context=_SSL) as r:
         return json.loads(r.read())
+
+
+def _fetch_text(url: str) -> str:
+    req = urllib.request.Request(
+        url,
+        headers={"Accept": "text/plain", "User-Agent": "flake-update-packages/1.0"},
+    )
+    with urllib.request.urlopen(req, timeout=15, context=_SSL) as r:
+        return r.read().decode("utf-8").strip()
 
 
 def _file_sri(path: Path) -> str:
@@ -329,7 +344,39 @@ def _handle_github_npm(
     }
 
 
+def _prefetch_file_hash(url: str) -> str:
+    with tempfile.TemporaryDirectory() as tmp:
+        out = Path(tmp) / "download.bin"
+        req = urllib.request.Request(
+            url,
+            headers={
+                "Accept": "application/octet-stream",
+                "User-Agent": "flake-update-packages/1.0",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=120, context=_SSL) as r:
+            out.write_bytes(r.read())
+        return _file_sri(out)
+
+
+def _handle_binary_channel(
+    meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
+) -> tuple[str, dict]:
+    """Generic binary updater with version text endpoint and URL template."""
+    status("fetching latest version")
+    new_version = _fetch_text(meta["version_url"])
+
+    field_updates = {}
+    for platform, field in meta["hash_fields"].items():
+        status(f"prefetching {platform}")
+        url = meta["url_template"].format(version=new_version, platform=platform)
+        field_updates[field] = _prefetch_file_hash(url)
+
+    return new_version, field_updates
+
+
 _HANDLERS = {
+    "binary_channel": _handle_binary_channel,
     "npm": _handle_npm,
     "github_npm": _handle_github_npm,
 }
