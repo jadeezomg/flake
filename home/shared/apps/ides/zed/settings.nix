@@ -87,9 +87,22 @@
 
       # --- External Agents ---
       agent_servers = {
+        # --- Claude ---
         claude-acp = {
           type = "registry";
         };
+
+        # --- Pi ---
+        pi = {
+          type = "custom";
+          command = "npx";
+          args = ["-y" "pi-acp"];
+          env = {
+            "PI_ACP_ENABLE_EMBEDDED_CONTEXT" = "true";
+          };
+        };
+
+        # --- Claude Agent ACP Fork with inline accept/reject---
         claude-agent-acp-fork = {
           type = "custom";
           command = "${claude-agent-acp-fork}/bin/claude-agent-acp";
