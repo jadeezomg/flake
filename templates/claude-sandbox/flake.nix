@@ -31,7 +31,10 @@
         outName = "claude-sandboxed";
 
         # Tools the agent is allowed to invoke. bash + cacert are added by
-        # the sandbox itself; everything else is opt-in.
+        # the sandbox itself. The list intentionally mirrors the
+        # dotfiles.profiles.minimal CLI floor so aliases from the shell
+        # core layer (cat=bat, find=fd, grep=rg, ls=eza) resolve if a human
+        # ever enters an interactive shell inside the sandbox for debugging.
         allowedPackages = with pkgs; [
           coreutils
           which
@@ -50,6 +53,7 @@
           delta
           just
           fzf
+          helix # EDITOR=hx from env/base.nix
           nodejs
         ];
 
@@ -70,6 +74,15 @@
           GIT_AUTHOR_EMAIL = "claude@localhost";
           GIT_COMMITTER_NAME = "claude";
           GIT_COMMITTER_EMAIL = "claude@localhost";
+
+          # Sandbox-safe env floor (matches home/shared/shells/env/data.nix
+          # `base` — never includes FLAKE, NH_FLAKE, SOPS_EDITOR, or any
+          # path that points at the dotfiles repo).
+          EDITOR = "hx";
+          VISUAL = "hx";
+          PAGER = "bat";
+          LC_ALL = "en_US.UTF-8";
+          LANG = "en_US.UTF-8";
         };
 
         restrictNetwork = true;

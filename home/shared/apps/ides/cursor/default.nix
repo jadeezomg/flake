@@ -1,5 +1,10 @@
-{pkgs, ...}: {
-  programs.vscode = {
+{
+  lib,
+  osConfig,
+  pkgs,
+  ...
+}: {
+  programs.vscode = lib.mkIf (osConfig.dotfiles.profiles.apps.editors.enable or false) {
     enable = true;
     package = pkgs.code-cursor;
     mutableExtensionsDir = false;
