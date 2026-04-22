@@ -2,7 +2,7 @@
   imports = [
     ./compat.nix
     ./apps
-    ./security
+    ./security.nix
     ./assets
     ./development
     ./shells

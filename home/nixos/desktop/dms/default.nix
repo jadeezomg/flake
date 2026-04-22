@@ -13,7 +13,6 @@
   hostOutputConfig = outputConfigs.${hostKey} or null;
 
   # Host-specific DMS settings files
-  # Each host can have its own settings.json configuration
   settingsFiles = {
     framework = "settings-framework.json";
     desktop = "settings-desktop.json";

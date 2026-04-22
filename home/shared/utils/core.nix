@@ -6,6 +6,19 @@
   '';
 in {
   programs = {
+    btop = {
+      enable = true;
+      settings = {
+        theme_background = false;
+      };
+    };
+
+    broot = {
+      enable = true;
+      enableFishIntegration = true;
+      enableNushellIntegration = true;
+    };
+
     zoxide = {
       enable = true;
       enableFishIntegration = true;

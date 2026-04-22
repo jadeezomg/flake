@@ -1,6 +1,6 @@
 % aliases, flake
 
-; Source: home/shared/shells/shared/aliases.nix + per-shell init (bash, fish, nushell).
+; Source: home/shared/shells/core/data/aliases.nix + per-shell init in shells/core/.
 ; Everything listed here is available in bash, fish, and nushell unless noted.
 
 # Reveal every shell alias (pick a shell first)

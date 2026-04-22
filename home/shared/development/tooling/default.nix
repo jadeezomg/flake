@@ -1,8 +1,7 @@
 {...}: {
+  # cloud, databases, tools moved to dotfiles.profiles.devenv.* in P3a.
+  # This dir keeps llm.nix because it still ships the opencode HM widget.
   imports = [
-    ./cloud.nix
-    ./databases.nix
     ./llm.nix
-    ./tools.nix
   ];
 }

@@ -1,9 +1,12 @@
 {
   isDarwin,
+  lib,
+  osConfig,
   pkgs,
   inputs,
   ...
 }: let
+  editorsEnabled = osConfig.dotfiles.profiles.apps.editors.enable or false;
   claude-agent-acp-fork = pkgs.buildNpmPackage {
     pname = "claude-agent-acp-fork";
     version = "0.25.1";
@@ -27,9 +30,9 @@ in {
 
   _module.args.claude-agent-acp-fork = claude-agent-acp-fork;
 
-  home.packages = [claude-agent-acp-fork];
+  home.packages = lib.mkIf editorsEnabled [claude-agent-acp-fork];
 
-  programs.zed-editor = {
+  programs.zed-editor = lib.mkIf editorsEnabled {
     enable = true;
     package =
       if isDarwin && inputs ? nixpkgs-zed

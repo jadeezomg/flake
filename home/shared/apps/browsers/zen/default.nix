@@ -3,6 +3,7 @@
   lib,
   pkgs,
   config,
+  osConfig,
   ...
 }: let
   extensions = import ./extensions.nix {inherit pkgs lib;};
@@ -38,7 +39,7 @@ in {
     inputs.zen-browser.homeModules.beta
   ];
 
-  programs.zen-browser = {
+  programs.zen-browser = lib.mkIf (osConfig.dotfiles.profiles.apps.browsers.enable or false) {
     enable = true;
     nativeMessagingHosts = lib.optionals pkgs.stdenv.isLinux [pkgs.firefoxpwa];
     # Required for macOS - see https://github.com/0xc000022070/zen-browser-flake#preferences

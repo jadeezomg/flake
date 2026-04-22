@@ -154,7 +154,7 @@ These commands are provided by [git.nu](https://github.com/fj0r/git.nu) and are 
 
 ## Notes
 
-- **Common aliases** are defined in `home/shared/shells/shared/aliases.nix`
+- **Common aliases** are defined in `home/shared/shells/core/data/aliases.nix`
 - **Shell-specific functions** are implemented in:
   - Bash: `home/shared/shells/bash/aliases.nix`
   - Fish: `home/shared/shells/fish/aliases.nix`

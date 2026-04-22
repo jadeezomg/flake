@@ -1,10 +1,11 @@
 {...}: {
+  # `./docs` was folded away in P4: obsidian moved to
+  # modules/shared/profiles/apps/notes.nix and zathura moved to ./files.
   imports = [
     ./browsers
-    ./docs
     ./editors
-    ./terminals
+    ./files
     ./ides
-    ./tools
+    ./terminals
   ];
 }

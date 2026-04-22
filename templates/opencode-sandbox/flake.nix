@@ -30,6 +30,7 @@
         binName = "opencode";
         outName = "opencode-sandboxed";
 
+        # Mirrors dotfiles.profiles.minimal (plus nodejs for opencode runtime).
         allowedPackages = with pkgs; [
           coreutils
           which
@@ -48,6 +49,7 @@
           delta
           just
           fzf
+          helix # EDITOR=hx from env/base.nix
           nodejs
         ];
 
@@ -67,6 +69,13 @@
           GIT_AUTHOR_EMAIL = "opencode@localhost";
           GIT_COMMITTER_NAME = "opencode";
           GIT_COMMITTER_EMAIL = "opencode@localhost";
+
+          # Sandbox-safe env floor (matches home/shared/shells/env/data.nix `base`).
+          EDITOR = "hx";
+          VISUAL = "hx";
+          PAGER = "bat";
+          LC_ALL = "en_US.UTF-8";
+          LANG = "en_US.UTF-8";
         };
 
         restrictNetwork = true;
