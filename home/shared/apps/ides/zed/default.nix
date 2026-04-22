@@ -1,4 +1,5 @@
 {
+  isDarwin,
   pkgs,
   inputs,
   ...
@@ -31,7 +32,7 @@ in {
   programs.zed-editor = {
     enable = true;
     package =
-      if inputs ? nixpkgs-zed
+      if isDarwin && inputs ? nixpkgs-zed
       then inputs.nixpkgs-zed.legacyPackages.${pkgs.system}.zed-editor
       else pkgs.zed-editor;
   };
