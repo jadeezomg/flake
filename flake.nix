@@ -109,6 +109,14 @@
       url = "github:googleworkspace/cli";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Lightweight, declarative sandboxing for AI coding agents
+    # (bubblewrap on Linux, sandbox-exec on macOS).
+    # https://github.com/archie-judd/agent-sandbox.nix
+    agent-sandbox = {
+      url = "github:archie-judd/agent-sandbox.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {flake-parts, ...}: let
@@ -125,6 +133,17 @@
         "aarch64-linux"
         "aarch64-darwin"
       ];
+
+      flake.templates = {
+        claude-sandbox = {
+          path = ./templates/claude-sandbox;
+          description = "Devenv shell with claude-code wrapped in agent-sandbox.nix";
+        };
+        opencode-sandbox = {
+          path = ./templates/opencode-sandbox;
+          description = "Devenv shell with opencode wrapped in agent-sandbox.nix";
+        };
+      };
 
       perSystem = {
         pkgs,
