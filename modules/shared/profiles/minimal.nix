@@ -8,45 +8,54 @@
 in {
   config = lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
-      # --- Daily-driver CLIs ---
+      # --- Search, find, path memory ---
       ripgrep
       fd
-      bat
-      eza
       fzf
       zoxide
+      broot
+
+      # --- List, preview, file browser ---
+      bat
+      eza
+      yazi
+
+      # --- Structured data & text transforms ---
       jq
       yq
       sd
+
+      # --- Disk, processes, quick benchmarks ---
       dust
-      broot
-      difftastic
       dua
       btop
+      lsof
       hyperfine
-      gping
+
+      # --- HTTP, DNS, reachability ---
+      curl
+      wget
+      dig
       xh
       httpie
-      delta
-      poppler-utils
-      yazi
+      gping
 
-      # --- Filesystem core ---
+      # --- Diffs & readable patches ---
+      difftastic
+      delta
+
+      # --- PDF helpers (pdftotext, etc.) ---
+      poppler-utils
+
+      # --- Archives & core file utilities ---
       file
       gawk
       libarchive
-      lsof
       p7zip
       unzip
-      uutils-coreutils-noprefix # Rust coreutils rewrite (relocated from nixos/utils)
       zip
 
-      # --- Networking core ---
-      curl
-      dig
-      wget
-
-      # --- Nix bootstrap ---
+      # --- Nix store / flake workflow ---
       nh
       nix-index
     ];

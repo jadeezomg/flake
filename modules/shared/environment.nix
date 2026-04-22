@@ -11,8 +11,8 @@
   };
   buildCores = hostBuildCores.${hostKey} or 6;
 in {
-  # Cross-platform nix.settings + cargo env vars + a diagnostic file listing
-  # the installed system packages. Automatic GC lives in `modules/nixos/gc.nix`
+  # Cross-platform nix.settings + cargo env vars + `/etc/current-system-packages`.
+  # Automatic GC lives in `modules/nixos/gc.nix`
   # since Darwin (Determinate Nix) manages its own GC and uses a different
   # option shape (`nix.gc.interval`).
 
