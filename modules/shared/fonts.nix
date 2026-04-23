@@ -14,6 +14,8 @@
     ibm-plex
     nerd-fonts.blex-mono
 
+    nerd-fonts.go-mono
+
     jetbrains-mono
     nerd-fonts.jetbrains-mono
 
