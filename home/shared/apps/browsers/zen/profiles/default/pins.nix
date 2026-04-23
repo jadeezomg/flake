@@ -16,7 +16,7 @@ in {
       isEssential = true;
       position = 102;
     };
-    "Unicorn graffiti : r/berlin" = {
+    "Reddit - The heart of the internet" = {
       id = "78d70083-a115-4ea1-a25a-be9bc67ca1df";
       url = "https://www.reddit.com/";
       isEssential = true;
