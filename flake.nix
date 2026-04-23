@@ -19,6 +19,11 @@
       url = "github:NixOS/nixpkgs/nixos-unstable";
     };
 
+    nixpkgs-zed = {
+      # zed-editor 0.231.2
+      url = "github:NixOS/nixpkgs/566acc07c54dc807f91625bb286cb9b321b5f42a";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";

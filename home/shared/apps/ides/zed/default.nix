@@ -1,4 +1,9 @@
-{pkgs, ...}: let
+{
+  isDarwin,
+  pkgs,
+  inputs,
+  ...
+}: let
   claude-agent-acp-fork = pkgs.buildNpmPackage {
     pname = "claude-agent-acp-fork";
     version = "0.25.1";
@@ -26,6 +31,9 @@ in {
 
   programs.zed-editor = {
     enable = true;
-    package = pkgs.zed-editor;
+    package =
+      if isDarwin && inputs ? nixpkgs-zed
+      then inputs.nixpkgs-zed.legacyPackages.${pkgs.system}.zed-editor
+      else pkgs.zed-editor;
   };
 }
