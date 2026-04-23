@@ -63,6 +63,32 @@ ZEN_SPACE_NAMES_FILE = os.environ.get(
 SKIP_URL_PREFIXES = ("about:blank", "about:")
 
 _UUID_RE = re.compile(r"^[0-9a-f\-]{36}$", re.I)
+# Firefox / Zen live-folder ids: "{<ms>-<seq>}"; repeated syncs can accumulate extra braces.
+_FOLDER_NUMERIC_ID_RE = re.compile(r"^(\d+-\d+)$")
+
+
+def normalize_zen_folder_id(raw):
+    """Strip nested `{`/`}` from round-tripped skifli/Nix state; canonicalize for pins.nix.
+
+    Returns ``{timestamp-seq}`` for numeric folder ids (single brace pair, matching a
+    fresh session), lowercase UUID string without braces for UUID-shaped ids, else the
+    stripped inner string.
+    """
+    if raw is None:
+        return None
+    s = str(raw).strip()
+    if not s:
+        return s
+    inner = s
+    while len(inner) >= 2 and inner.startswith("{") and inner.endswith("}"):
+        inner = inner[1:-1].strip()
+    if not inner:
+        return s
+    if _UUID_RE.match(inner):
+        return inner.lower()
+    if _FOLDER_NUMERIC_ID_RE.match(inner):
+        return "{" + inner + "}"
+    return inner
 
 
 def _read_mozlz4(path):
@@ -208,10 +234,16 @@ def _folders_from_window(w: dict[str, Any], spaces_map: dict):
             and isinstance(attrs.get("prevSiblingInfo"), dict)
         ):
             pos = attrs["prevSiblingInfo"].get("position")
+        nid = normalize_zen_folder_id(str(fid)) if fid else ""
+        pid = (
+            normalize_zen_folder_id(str(parent_id))
+            if parent_id is not None
+            else None
+        )
         return {
-            "id": str(fid),
+            "id": nid or str(fid),
             "name": name or "Folder",
-            "parentId": str(parent_id) if parent_id is not None else None,
+            "parentId": pid,
             "position": int(pos) if pos is not None else 1000 + idx,
             "spaceId": "",
             "spaceName": "Default",
@@ -255,8 +287,8 @@ def _tab_pins_from_tabs(tabs, folder_map):
         parent_id = t.get("groupId") or t.get("zenLiveFolderItemId")
         pin_folder = None
         if parent_id is not None:
-            parent_id = str(parent_id)
-            pin_folder = folder_map.get(parent_id)
+            parent_id = normalize_zen_folder_id(str(parent_id))
+            pin_folder = folder_map.get(parent_id) if parent_id else None
         space_id = _normalize_zen_workspace(t.get("zenWorkspace") or "")
         container_id = t.get("userContextId") or ent.get("userContextId")
         if container_id is not None:
