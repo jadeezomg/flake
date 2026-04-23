@@ -3,10 +3,10 @@
   lib,
   ...
 }: let
-  version = "0.0.1776788459-gfad969";
-  linuxX64Hash = "sha256-Ap2MzHasjQSqQ+YtX6MbCuNy10Hn5bk31ujkAJQ2PUU=";
-  linuxArm64Hash = "sha256-GrS+IzEDS1IBiAqo9mRu+m8vm694lG03GEEsZvyGkU4=";
-  darwinArm64Hash = "sha256-t3brPFjexdmAK7pRA746DVdWd62sUbvVd8SSabDA6BE=";
+  version = "0.0.1776975379-gfcf58c";
+  linuxX64Hash = "sha256-uLnXxGE951NpcntxsyaAMeP2iVTX9xrMiZL/4WtN08s=";
+  linuxArm64Hash = "sha256-YqmL1Eredx9cPM/XZOkomzVZaTsOZKo7o3iOrUvrgFk=";
+  darwinArm64Hash = "sha256-DjLaws6r/3WHsUGIwA7ZqdkF4/78+M4d6j/oBWGNsy8=";
 
   platform =
     if pkgs.stdenv.hostPlatform.isLinux && pkgs.stdenv.hostPlatform.isx86_64
