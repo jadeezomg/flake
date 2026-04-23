@@ -235,11 +235,7 @@ def _folders_from_window(w: dict[str, Any], spaces_map: dict):
         ):
             pos = attrs["prevSiblingInfo"].get("position")
         nid = normalize_zen_folder_id(str(fid)) if fid else ""
-        pid = (
-            normalize_zen_folder_id(str(parent_id))
-            if parent_id is not None
-            else None
-        )
+        pid = normalize_zen_folder_id(str(parent_id)) if parent_id is not None else None
         return {
             "id": nid or str(fid),
             "name": name or "Folder",
