@@ -25,6 +25,10 @@
         key = "kagi_api_key";
         path = ".config/nix/kagi-api-key";
       };
+      "openrouter-api-key" = {
+        key = "openrouter_api_key";
+        path = ".config/nix/openrouter-api-key";
+      };
     };
   };
 }

@@ -34,6 +34,8 @@
 
   shNixConfig = lib.optionalString (lib.elem "github-token" secretNames) ''
     if [ -n "''${GITHUB_TOKEN:-}" ]; then
+      export GITHUB_PAT="''${GITHUB_TOKEN}"
+      export GITHUB_PERSONAL_ACCESS_TOKEN="''${GITHUB_TOKEN}"
       export NIX_CONFIG="access-tokens = github.com=''${GITHUB_TOKEN} ''${NIX_CONFIG:-}"
     fi
   '';
@@ -53,6 +55,8 @@
 
   fishNixConfig = lib.optionalString (lib.elem "github-token" secretNames) ''
     if set -q GITHUB_TOKEN
+      set -gx GITHUB_PAT $GITHUB_TOKEN
+      set -gx GITHUB_PERSONAL_ACCESS_TOKEN $GITHUB_TOKEN
       set -gx NIX_CONFIG "access-tokens = github.com=$GITHUB_TOKEN $NIX_CONFIG"
     end
   '';
@@ -76,6 +80,8 @@
 
   nuNixConfig = lib.optionalString (lib.elem "github-token" secretNames) ''
     if (($env.GITHUB_TOKEN? | default "") != "") {
+      $env.GITHUB_PAT = $env.GITHUB_TOKEN
+      $env.GITHUB_PERSONAL_ACCESS_TOKEN = $env.GITHUB_TOKEN
       $env.NIX_CONFIG = "access-tokens = github.com=" + $env.GITHUB_TOKEN + " " + ($env.NIX_CONFIG? | default "")
     }
   '';
