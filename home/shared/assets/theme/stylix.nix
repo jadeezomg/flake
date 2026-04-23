@@ -81,7 +81,6 @@ in {
 
     targets =
       {
-        wezterm.enable = false;
         vscode.enable = false;
         firefox.enable = false;
         kitty = {

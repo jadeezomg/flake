@@ -32,13 +32,10 @@
     user,
     hostKey,
     isDarwin,
+    system,
     inputs,
     ...
   }: let
-    system =
-      if isDarwin
-      then "aarch64-darwin"
-      else "x86_64-linux";
     host = hostData.hosts.${hostKey};
     hmImports = homeModules isDarwin;
     guestHmUsers =
@@ -66,10 +63,11 @@
   mkHomeManagerModule = {
     hostKey,
     user,
+    system,
     isDarwin ? false,
   }: {
     home-manager = homeManagerConfig {
-      inherit user hostKey isDarwin inputs;
+      inherit user hostKey isDarwin inputs system;
     };
   };
 
@@ -98,7 +96,7 @@
         determinate.nixosModules.default
         lanzaboote.nixosModules.lanzaboote
         home-manager.nixosModules.home-manager
-        (mkHomeManagerModule {inherit hostKey user;})
+        (mkHomeManagerModule {inherit hostKey user system;})
       ];
     };
   in {
@@ -117,7 +115,7 @@
           sops-nix.darwinModules.sops
           home-manager.darwinModules.home-manager
           (mkHomeManagerModule {
-            inherit hostKey user;
+            inherit hostKey user system;
             isDarwin = true;
           })
           nix-homebrew.darwinModules.nix-homebrew
