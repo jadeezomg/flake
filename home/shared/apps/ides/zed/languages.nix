@@ -71,13 +71,6 @@
         };
       };
 
-      context_servers = {
-        gem = {
-          enabled = true;
-          settings = {};
-        };
-      };
-
       lsp = {
         nil = {
           binary.path = "nil";

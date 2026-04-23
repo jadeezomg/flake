@@ -3,5 +3,6 @@
   # This dir keeps llm.nix because it still ships the opencode HM widget.
   imports = [
     ./llm.nix
+    ./pi-packages.nix
   ];
 }

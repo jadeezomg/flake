@@ -8,8 +8,6 @@
       # --- Appearance ---
       buffer_font_fallbacks = [
         ".ZedMono"
-        "Consolas"
-        "Courier New"
       ];
 
       buffer_line_height = "comfortable";
@@ -80,9 +78,9 @@
       # --- Keymap ---
       base_keymap = "VSCode";
 
-      # --- Features And Telemetry ---
-      features = {
-        copilot = false;
+      # --- Edit Predictions ---
+      edit_predictions = {
+        provider = "mercury";
       };
 
       # --- External Agents ---
@@ -111,11 +109,20 @@
       };
 
       context_servers = {
+        mcp-server-context7 = {
+          enabled = true;
+          remote = false;
+        };
+        mcp-server-github = {
+          enabled = true;
+          remote = false;
+        };
         code-review-graph = {
-          command = {
-            path = "uvx";
-            args = ["code-review-graph" "serve"];
-          };
+          command = "uvx";
+          args = [
+            "code-review-graph"
+            "serve"
+          ];
         };
       };
 
@@ -201,7 +208,7 @@
       #   show_user_picture = true;
       # };
 
-      # # --- Toolbar ---
+      # # --- Toolbar ---e
       # toolbar = {
       #   agent_review = false;
       #   breadcrumbs = true;
