@@ -56,6 +56,7 @@ in {
       zip
 
       # --- Nix store / flake workflow ---
+      git
       nh
       nix-index
     ];

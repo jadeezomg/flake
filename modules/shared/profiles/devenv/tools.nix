@@ -16,20 +16,17 @@ in {
       pkg-config
 
       # --- Version control ---
-      git
       jujutsu
       jjui
+      gh
+      lazygit
+      gitui
+      gh-dash
 
       # --- Task runners ---
       just
       mask
       act
-
-      # --- Git tools (delta lives in minimal) ---
-      gh
-      lazygit
-      gitui
-      gh-dash
 
       # --- Code metrics & analysis ---
       tokei
