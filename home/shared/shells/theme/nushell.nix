@@ -4,10 +4,10 @@
   osConfig,
   ...
 }: let
-  themeColors = import ../../assets/theme/theme.nix;
   themePathRel = ".config/oh-my-posh/birds-of-paradise.json";
 in
-  lib.mkIf (osConfig.dotfiles.profiles.essentials.enable or true) {
+  lib.mkIf ((osConfig.dotfiles.profiles.essentials.enable or true)
+    && (osConfig.dotfiles.profiles.essentials.promptEngine or "oh-my-posh") == "oh-my-posh") {
     programs.nushell.extraEnv = ''
       $env.PROMPT_COMMAND = {||
         let exit_code = (if ($env.LAST_EXIT_CODE) == null { 0 } else { $env.LAST_EXIT_CODE })
@@ -22,39 +22,5 @@ in
       $env.PROMPT_INDICATOR_VI_INSERT = {|| "" }
       $env.PROMPT_INDICATOR_VI_NORMAL = {|| "" }
       $env.PROMPT_MULTILINE_INDICATOR = {|| "::: " }
-
-      $env.ENV_CONVERSIONS = {
-        "PATH": {
-          from_string: { |s| $s | split row (char esep) | path expand --no-symlink }
-          to_string: { |v| $v | path expand --no-symlink | str join (char esep) }
-        }
-        "Path": {
-          from_string: { |s| $s | split row (char esep) | path expand --no-symlink }
-          to_string: { |v| $v | path expand --no-symlink | str join (char esep) }
-        }
-      }
-
-      $env.NU_LIB_DIRS = [
-        ($nu.default-config-dir | path join 'scripts')
-        ($nu.data-dir | path join 'completions')
-      ]
-
-      $env.NU_PLUGIN_DIRS = [
-        ($nu.default-config-dir | path join 'plugins')
-      ]
-
-      if ($nu.is-interactive and $env.config.color_config? != null) {
-        $env.config.color_config = ($env.config.color_config | upsert background '#372725')
-      }
-    '';
-
-    programs.nushell.extraConfig = ''
-      if $nu.is-interactive {
-        ^sh -c 'test -t 1'
-        if $env.LAST_EXIT_CODE == 0 {
-          source ${pkgs.nu_scripts}/share/nu_scripts/themes/nu-themes/birds-of-paradise.nu
-          $env.config.color_config = ($env.config.color_config | upsert background '${themeColors.bg-primary}')
-        }
-      }
     '';
   }

@@ -254,7 +254,8 @@
   in
     restored;
 in
-  lib.mkIf (osConfig.dotfiles.profiles.essentials.enable or true) {
+  lib.mkIf ((osConfig.dotfiles.profiles.essentials.enable or true)
+    && (osConfig.dotfiles.profiles.essentials.promptEngine or "oh-my-posh") == "oh-my-posh") {
     home.packages = with pkgs; [
       oh-my-posh
     ];

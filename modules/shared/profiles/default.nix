@@ -19,7 +19,14 @@
   in {
     minimal.enable = enableOn "the minimal profile (system core + sandbox-safe shells + daily-driver CLIs)";
 
-    essentials.enable = enableOn "the essentials profile (shell theme, HM widgets, system env, Nix workstation tooling)";
+    essentials = {
+      enable = enableOn "the essentials profile (shell theme, HM widgets, system env, Nix workstation tooling)";
+      promptEngine = mkOption {
+        type = types.enum ["oh-my-posh" "starship"];
+        default = "oh-my-posh";
+        description = "Which prompt engine to use (oh-my-posh or starship)";
+      };
+    };
 
     apps = {
       enable = mkEnableOption "the apps meta-profile";
