@@ -10,13 +10,13 @@ in {
       isEssential = true;
       position = 101;
     };
-    "(4) YouTube" = {
+    "(2) YouTube" = {
       id = "9b78642f-0c6b-4caf-af02-9136b6363b5f";
       url = "https://www.youtube.com/";
       isEssential = true;
       position = 102;
     };
-    "Reddit - The heart of the internet" = {
+    "Unicorn graffiti : r/berlin" = {
       id = "78d70083-a115-4ea1-a25a-be9bc67ca1df";
       url = "https://www.reddit.com/";
       isEssential = true;
@@ -53,7 +53,7 @@ in {
       position = 108;
     };
     "Nix" = {
-      id = "{{{1775769307141-35}}}";
+      id = "{1775769307141-35}";
       workspace = spaces."Development".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -61,7 +61,7 @@ in {
       position = 1000;
     };
     "War Thunder" = {
-      id = "{{1776271316796-17}}";
+      id = "{1776271316796-17}";
       workspace = spaces."Games".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -69,7 +69,7 @@ in {
       position = 1001;
     };
     "Diablo 2" = {
-      id = "{{1776271297993-96}}";
+      id = "{1776271297993-96}";
       workspace = spaces."Games".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -96,7 +96,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 203;
-      folderParentId = "{{{1775769307141-35}}}";
+      folderParentId = "{1775769307141-35}";
     };
     "Home Manager - Option Search" = {
       id = "ecae3cd0-f530-479f-9308-62c33b0b13a8";
@@ -104,7 +104,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 204;
-      folderParentId = "{{{1775769307141-35}}}";
+      folderParentId = "{1775769307141-35}";
     };
     "NixOS Wiki" = {
       id = "14113b39-2a39-406b-b987-531863321d28";
@@ -112,7 +112,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 205;
-      folderParentId = "{{{1775769307141-35}}}";
+      folderParentId = "{1775769307141-35}";
     };
     "nixoffical wiki - Google Search" = {
       id = "7ea2c191-5af8-45e6-9470-f08d25c48b2d";
@@ -120,7 +120,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 206;
-      folderParentId = "{{{1775769307141-35}}}";
+      folderParentId = "{1775769307141-35}";
     };
     "Mydealz" = {
       id = "d37bad11-fbf6-43db-a280-2aaf4c506609";
@@ -142,7 +142,7 @@ in {
       workspace = spaces."Games".id;
       isEssential = false;
       position = 209;
-      folderParentId = "{{1776271316796-17}}";
+      folderParentId = "{1776271316796-17}";
     };
     "Gaijin" = {
       id = "d7c98010-35ea-470d-9b7c-3b2650a879ad";
@@ -150,7 +150,7 @@ in {
       workspace = spaces."Games".id;
       isEssential = false;
       position = 210;
-      folderParentId = "{{1776271316796-17}}";
+      folderParentId = "{1776271316796-17}";
     };
     "Gaijin Market" = {
       id = "217f5056-565c-4131-9209-2efbe19aaffb";
@@ -158,7 +158,7 @@ in {
       workspace = spaces."Games".id;
       isEssential = false;
       position = 211;
-      folderParentId = "{{1776271316796-17}}";
+      folderParentId = "{1776271316796-17}";
     };
     "Warthunder" = {
       id = "b9323a7a-f3e7-439f-ac7d-0a56ab56b4e1";
@@ -166,7 +166,7 @@ in {
       workspace = spaces."Games".id;
       isEssential = false;
       position = 212;
-      folderParentId = "{{1776271316796-17}}";
+      folderParentId = "{1776271316796-17}";
     };
     "war thunder content creators - Google Se" = {
       id = "8fd1f913-7b29-46b1-b942-21120de24e26";
@@ -174,7 +174,7 @@ in {
       workspace = spaces."Games".id;
       isEssential = false;
       position = 213;
-      folderParentId = "{{1776271316796-17}}";
+      folderParentId = "{1776271316796-17}";
     };
     "Google" = {
       id = "9fc59755-81f5-4826-8fac-fb8f81256197";
@@ -182,7 +182,7 @@ in {
       workspace = spaces."Games".id;
       isEssential = false;
       position = 214;
-      folderParentId = "{{1776271316796-17}}";
+      folderParentId = "{1776271316796-17}";
     };
     "Diablo 2 Runeword Calculator - PureDiabl" = {
       id = "6743c503-2f65-4f56-9946-ee3c1347b2fa";
@@ -190,7 +190,7 @@ in {
       workspace = spaces."Games".id;
       isEssential = false;
       position = 215;
-      folderParentId = "{{1776271297993-96}}";
+      folderParentId = "{1776271297993-96}";
     };
     "Diablo 2 Resurrected and Diablo 2 Classi" = {
       id = "b5b20d50-ad58-4152-a399-1a0b1a959284";
@@ -198,7 +198,7 @@ in {
       workspace = spaces."Games".id;
       isEssential = false;
       position = 216;
-      folderParentId = "{{1776271297993-96}}";
+      folderParentId = "{1776271297993-96}";
     };
     "All Diablo 2 Resurrected Cube Recipes •" = {
       id = "be8c0181-ace3-424f-b187-1f80cfd8991f";
@@ -206,7 +206,7 @@ in {
       workspace = spaces."Games".id;
       isEssential = false;
       position = 217;
-      folderParentId = "{{1776271297993-96}}";
+      folderParentId = "{1776271297993-96}";
     };
     "Introduction - Stylix" = {
       id = "4e38f77f-020d-47f5-b250-429c30b93123";
@@ -222,7 +222,7 @@ in {
       isEssential = false;
       position = 219;
     };
-    "Github" = {
+    "Github_1" = {
       id = "ec56b7ed-f746-4f38-b62e-024f0656f39c";
       url = "https://github.com/AvengeMedia/DankMaterialShell?tab=readme-ov-file";
       workspace = spaces."Themes".id;
