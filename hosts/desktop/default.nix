@@ -11,6 +11,7 @@
     devenv.enable = true;
     apps.enable = true;
     gaming.enable = true;
+    essentials.promptEngine = "starship";
   };
 
   # System state version — host specific, do not change.

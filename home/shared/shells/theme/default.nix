@@ -4,9 +4,11 @@
   # hosts get neither oh-my-posh nor the nushell color overlay.
   imports = [
     ./oh-my-posh.nix
+    ./starship.nix
     ./zsh.nix
     ./bash.nix
     ./fish.nix
     ./nushell.nix
+    ./nushell-env.nix
   ];
 }

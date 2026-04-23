@@ -6,7 +6,8 @@
 }: let
   themePath = "$HOME/.config/oh-my-posh/birds-of-paradise.json";
 in
-  lib.mkIf (osConfig.dotfiles.profiles.essentials.enable or true) {
+  lib.mkIf ((osConfig.dotfiles.profiles.essentials.enable or true)
+    && (osConfig.dotfiles.profiles.essentials.promptEngine or "oh-my-posh") == "oh-my-posh") {
     programs.bash = {
       profileExtra = ''
         [ -f "$HOME/.bashrc" ] && source "$HOME/.bashrc"
