@@ -10,7 +10,9 @@
         ".ZedMono"
       ];
 
-      buffer_line_height = "comfortable";
+      buffer_line_height = {
+        custom = 1.45;
+      };
       buffer_font_features = {
         calt = true;
       };
@@ -22,10 +24,34 @@
 
       current_line_highlight = "all";
       selection_highlight = true;
-      ui_font_family = lib.mkDefault ".SystemUIFont";
+      ui_font_family = lib.mkDefault "Inter Display";
+      ui_font_fallbacks = ["Helvetica Neue" ".SystemFont"];
 
       ui_font_features = {
         calt = true;
+      };
+
+      # --- Window ---
+      window_decorations = "client";
+      use_system_window_tabs = false;
+      focus_follows_mouse = {
+        enabled = true;
+      };
+      centered_layout = {
+        left_padding = 0.2;
+      };
+      bottom_dock_layout = "contained";
+      diff_view_style = "split";
+      text_rendering_mode = "platform_default";
+      ui_font_weight = 400;
+      buffer_font_weight = 400;
+      auto_update = false;
+      autosave = "on_focus_change";
+      session = {
+        trust_all_worktrees = true;
+      };
+      features = {
+        copilot = false;
       };
 
       # --- UI ---
@@ -36,16 +62,65 @@
       rounded_selection = true;
       cursor_shape = "bar";
 
+      # --- Git ---
+      git = {
+        inline_blame = {
+          show_commit_summary = true;
+        };
+      };
+      git_panel = {
+        show_count_badge = false;
+        diff_stats = true;
+        tree_view = true;
+        file_icons = false;
+        folder_icons = true;
+        collapse_untracked_diff = false;
+        sort_by_path = true;
+      };
+
+      # --- Panels ---
+      outline_panel = {
+        button = true;
+      };
+      project_panel = {
+        hide_hidden = false;
+        hide_root = true;
+        indent_guides = {
+          show = "always";
+        };
+        sticky_scroll = true;
+        git_status_indicator = false;
+        diagnostic_badges = false;
+        scrollbar = {
+          horizontal_scroll = false;
+        };
+        bold_folder_labels = false;
+        starts_open = true;
+        auto_reveal_entries = true;
+        indent_size = 12;
+        git_status = true;
+        folder_icons = true;
+        file_icons = true;
+        entry_spacing = "standard";
+        default_width = 230;
+        button = true;
+      };
+
       # --- Terminal ---
       terminal = {
+        minimum_contrast = 45;
+        blinking = "on";
+        font_weight = 350;
+        show_count_badge = false;
+        button = true;
         font_family = lib.mkDefault "Iosevka Nerd Font";
-        font_size = 14.0;
+        font_size = 13;
         font_features = {
           calt = true;
         };
         line_height = "standard";
         copy_on_select = true;
-        cursor_shape = "bar";
+        cursor_shape = "underline";
         shell = {
           program = "nu";
         };
@@ -85,7 +160,13 @@
 
       # --- External Agents ---
       agent_servers = {
-        # --- Claude ---
+        # --- Registry ---
+        pi-acp = {
+          type = "registry";
+        };
+        amp-acp = {
+          type = "registry";
+        };
         claude-acp = {
           type = "registry";
         };
@@ -151,11 +232,21 @@
       # --- Tabs ---
       tabs = {
         close_position = "right";
-        file_icons = false;
+        file_icons = true;
         git_status = true;
         activate_on_close = "history";
         show_close_button = "hover";
-        show_diagnostics = "off";
+        show_diagnostics = "all";
+      };
+      tab_bar = {
+        show_tab_bar_buttons = true;
+        show_pinned_tabs_in_separate_row = false;
+        show = true;
+      };
+      preview_tabs = {
+        enable_keep_preview_on_code_navigation = false;
+        enable_preview_multibuffer_from_code_navigation = true;
+        enable_preview_from_file_finder = true;
       };
 
       # --- Indent Guides ---
@@ -176,8 +267,32 @@
         hour_format = "hour24";
       };
 
+      # --- Diagnostics ---
+      diagnostics = {
+        button = true;
+        inline = {
+          enabled = true;
+        };
+      };
+
+      # --- Title / Status Bar ---
+      title_bar = {
+        show_project_items = true;
+        show_onboarding_banner = true;
+        show_menus = false;
+        show_branch_icon = true;
+      };
+      status_bar = {
+        show_active_file = false;
+        cursor_position_button = true;
+        active_encoding_button = "non_utf8";
+        active_language_button = true;
+      };
+
       # --- Agent ---
       agent = {
+        thinking_display = "always_collapsed";
+        play_sound_when_agent_done = "when_hidden";
         expand_edit_card = true;
         notify_when_agent_waiting = "never";
         single_file_review = true;
@@ -185,43 +300,6 @@
         tool_permissions = import ./tool-permissions.nix;
         show_turn_stats = true;
       };
-
-      # --- Scrollbar ---
-      # scrollbar = {
-      #   axes = {
-      #     horizontal = true;
-      #     vertical = true;
-      #   };
-      #   cursors = true;
-      #   diagnostics = "all";
-      #   git_diff = true;
-      #   search_results = true;
-      #   selected_symbol = true;
-      #   selected_text = true;
-      #   show = "auto";
-      # };
-
-      # # --- Title Bar ---
-      # title_bar = {
-      #   show_branch_icon = false;
-      #   show_onboarding_banner = true;
-      #   show_user_picture = true;
-      # };
-
-      # # --- Toolbar ---e
-      # toolbar = {
-      #   agent_review = false;
-      #   breadcrumbs = true;
-      #   quick_actions = true;
-      #   selections_menu = true;
-      # };
-
-      # # --- Repl Configuration ---
-      # jupyter = {
-      #   kernel_selections = {
-      #     python = "nixpython";
-      #   };
-      # };
     };
   };
 }
