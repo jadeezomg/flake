@@ -13,6 +13,7 @@
   dotfiles.profiles = {
     devenv.enable = true;
     apps.enable = true;
+    essentials.promptEngine = "starship";
   };
 
   # System state version — host specific, do not change.
