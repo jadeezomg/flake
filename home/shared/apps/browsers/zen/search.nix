@@ -125,7 +125,7 @@
       definedAliases = ["ddg" "d"];
     };
 
-    "YouTube" = {
+    "youtube" = {
       urls = [
         {
           template = "https://www.youtube.com/results";
