@@ -1,7 +1,6 @@
 {
   lib,
   osConfig,
-  pkgs,
   ...
 }:
 # LLM agent packages moved to modules/shared/profiles/devenv/llm/agents.nix.
