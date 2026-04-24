@@ -12,8 +12,7 @@
     devenv.enable = true;
     apps.enable = true;
     work.enable = true;
-    # devenv.llm.hosting auto-disables on darwin via the profile's mkIf
-    # (vllm/lmstudio aren't usable here), so leaving the meta-flag on is fine.
+    essentials.promptEngine = "starship";
   };
 
   nix-homebrew = {
