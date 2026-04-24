@@ -14,6 +14,7 @@
   systemPathList = [
     paths.commonPaths.localBin
     paths.commonPaths.cargoBin
+    paths.commonPaths.npmGlobalBin
   ];
 
   systemPathColon = lib.concatStringsSep ":" systemPathList;
