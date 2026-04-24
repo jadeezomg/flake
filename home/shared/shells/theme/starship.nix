@@ -79,19 +79,14 @@ in
         format = lib.concatStrings [
           "[ ](accent-blue)"
           "$cmd_duration"
-          "[ ](fg:accent-blue bg:accent-red)"
           "$status"
-          "[ ](fg:accent-red bg:bg-primary)"
           "$sudo"
           "$os"
           "$username"
           "$hostname"
-          "[ ](fg:bg-primary bg:bg-tertiary)"
           "$directory"
-          "[ ](fg:bg-tertiary bg:ansi-green)"
           "$git_branch"
           "$git_status"
-          "[ ](fg:ansi-green)"
           "$nix_shell"
           "$container"
           "$dotnet"
@@ -115,18 +110,18 @@ in
 
         cmd_duration = {
           min_time = 321;
-          format = "[ $duration]($style)";
+          format = "[ $duration ]($style)";
           style = "bg:accent-blue fg:bg-primary";
         };
 
         status = {
           disabled = false;
-          format = "[$status](bg:accent-red fg:text-primary)";
+          format = "[ $status ](bg:accent-red fg:text-primary)";
         };
 
         sudo = {
           disabled = false;
-          format = "[${icons.sudo} ](bg:ansi-yellow fg:bg-primary)";
+          format = "[ ${icons.sudo} ](bg:ansi-yellow fg:bg-primary)";
         };
 
         os = {
@@ -174,16 +169,16 @@ in
 
         git_status = {
           format = "[ $all_status$ahead_behind ](bg:ansi-green fg:bg-primary)";
-          stashed = "${icons.git-stash} ";
-          modified = "${icons.git-modified} ";
-          staged = "${icons.git-staged} ";
-          untracked = "${icons.git-untracked} ";
-          renamed = "${icons.git-renamed} ";
-          deleted = "${icons.git-deleted} ";
-          conflicted = "${icons.git-conflicted} ";
-          ahead = "${icons.git-ahead} ";
-          behind = "${icons.git-behind} ";
-          diverged = "${icons.git-diverged} ";
+          stashed = " ${icons.git-stash} ";
+          modified = " ${icons.git-modified} ";
+          staged = " ${icons.git-staged} ";
+          untracked = " ${icons.git-untracked} ";
+          renamed = " ${icons.git-renamed} ";
+          deleted = " ${icons.git-deleted} ";
+          conflicted = " ${icons.git-conflicted} ";
+          ahead = " ${icons.git-ahead} ";
+          behind = " ${icons.git-behind} ";
+          diverged = " ${icons.git-diverged} ";
         };
 
         # --- Nix / container ---
@@ -202,32 +197,32 @@ in
         # --- Language detectors ---
 
         dotnet = {
-          format = "[$symbol](bg:ansi-magenta fg:bg-primary)";
+          format = "[ $symbol ](bg:ansi-magenta fg:bg-primary)";
           symbol = " ${icons.dotnet} ";
         };
 
         golang = {
-          format = "[$symbol](bg:ansi-cyan fg:bg-primary)";
+          format = "[ $symbol ](bg:ansi-cyan fg:bg-primary)";
           symbol = " ${icons.go} ";
         };
 
         python = {
-          format = "[$symbol](bg:ansi-yellow fg:bg-primary)";
+          format = "[ $symbol ](bg:ansi-yellow fg:bg-primary)";
           symbol = " ${icons.python} ";
         };
 
         rust = {
-          format = "[$symbol](bg:ansi-red fg:text-primary)";
+          format = "[ $symbol ](bg:ansi-red fg:text-primary)";
           symbol = " ${icons.rust} ";
         };
 
         nodejs = {
-          format = "[$symbol](bg:ansi-green fg:bg-primary)";
+          format = "[ $symbol ](bg:ansi-green fg:bg-primary)";
           symbol = " ${icons.node} ";
         };
 
         bun = {
-          format = "[$symbol](bg:ansi-yellow fg:bg-primary)";
+          format = "[ $symbol ](bg:ansi-yellow fg:bg-primary)";
           symbol = " ${icons.bun} ";
         };
 
@@ -251,10 +246,10 @@ in
 
         shell = {
           disabled = false;
-          bash_indicator = "[$](accent-yellow)";
+          bash_indicator = "[#](accent-yellow)";
           fish_indicator = "[~](accent-blue)";
           zsh_indicator = "[%](ansi-magenta)";
-          nu_indicator = "[:\\)](ansi-green)";
+          nu_indicator = "[:](ansi-green)";
           format = "$indicator";
         };
       };
