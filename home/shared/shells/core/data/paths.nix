@@ -8,6 +8,7 @@
     downloads = "$HOME/Downloads";
     localBin = "$HOME/.local/bin";
     cargoBin = "$HOME/.cargo/bin";
+    npmGlobalBin = "$HOME/.npm-global/bin";
   };
 
   # PATH segments in canonical order. Wrappers must stay first so setuid

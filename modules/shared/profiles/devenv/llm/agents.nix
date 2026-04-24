@@ -19,6 +19,7 @@ in {
       kagi-ken-cli
       code-review-graph
       pi-coding-agent
+      agent-browser
     ];
   };
 }
