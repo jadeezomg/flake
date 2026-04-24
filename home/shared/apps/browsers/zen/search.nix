@@ -124,5 +124,20 @@
       ];
       definedAliases = ["ddg" "d"];
     };
+
+    "YouTube" = {
+      urls = [
+        {
+          template = "https://www.youtube.com/results";
+          params = [
+            {
+              name = "search_query";
+              value = "{searchTerms}";
+            }
+          ];
+        }
+      ];
+      definedAliases = ["y" "yt"];
+    };
   };
 }
