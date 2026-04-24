@@ -137,6 +137,26 @@
         "type": "github"
       }
     },
+    "charmbracelet-nur": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1777062504,
+        "narHash": "sha256-AqExE4bBax09B4jM0xDMGO+ZoDA6it/Yca288ROKrV0=",
+        "owner": "charmbracelet",
+        "repo": "nur",
+        "rev": "d65dd4f83427f43e8d9b3446ae12d9f6e334a487",
+        "type": "github"
+      },
+      "original": {
+        "owner": "charmbracelet",
+        "repo": "nur",
+        "type": "github"
+      }
+    },
     "crane": {
       "locked": {
         "lastModified": 1765145449,
@@ -1041,6 +1061,7 @@
     "root": {
       "inputs": {
         "agent-sandbox": "agent-sandbox",
+        "charmbracelet-nur": "charmbracelet-nur",
         "determinate": "determinate",
         "dms": "dms",
         "flake-parts": "flake-parts_2",

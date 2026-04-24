@@ -11,7 +11,7 @@ in {
 
     environment.systemPackages = with pkgs; [
       # Agent CLIs
-      opencode
+      # opencode
       claude-code
 
       # Docs / search / knowledge plumbing (local flake packages, surfaced
@@ -19,7 +19,7 @@ in {
       context7
       kagi-ken
       kagi-ken-cli
-      code-review-graph
+      # code-review-graph
       pi-coding-agent
       agent-browser
     ];
