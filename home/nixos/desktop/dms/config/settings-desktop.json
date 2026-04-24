@@ -485,6 +485,10 @@
         {
           "id": "notepadButton",
           "enabled": true
+        },
+        {
+          "id": "claudeCodeUsage",
+          "enabled": true
         }
       ],
       "centerWidgets": [
