@@ -117,6 +117,10 @@
       url = "github:archie-judd/agent-sandbox.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nur = {
+      url = "github:nix-community/NUR";
+    };
   };
 
   outputs = inputs @ {flake-parts, ...}: let

@@ -5,11 +5,11 @@
 }:
 pkgs.buildNpmPackage {
   pname = "context7";
-  version = "0.3.13";
+  version = "0.4.0";
 
   src = pkgs.fetchurl {
-    url = "https://registry.npmjs.org/ctx7/-/ctx7-0.3.13.tgz";
-    hash = "sha256-dDaZfHwdReyOGD+Os9ybVRxxMP9WqdX2gBZ069vKOYk=";
+    url = "https://registry.npmjs.org/ctx7/-/ctx7-0.4.0.tgz";
+    hash = "sha256-gd7ypZJ5cIfeOLuD1P7YAkuScYljb+3hvHUkPQV7Zi0=";
   };
 
   # Generated via: cd <unpacked-src> && npm install --package-lock-only
@@ -17,7 +17,7 @@ pkgs.buildNpmPackage {
     cp ${./package-lock.json} package-lock.json
   '';
 
-  npmDepsHash = "sha256-OixnNIegwKyvXaKxoFOtiMxIZ64ziLqANDWrruPLOLA=";
+  npmDepsHash = "sha256-kYsnZ1pxgF/FP5+Xf1m6tGVgIBYTTb3zNY5UPOmbfI4=";
 
   dontNpmBuild = true;
 

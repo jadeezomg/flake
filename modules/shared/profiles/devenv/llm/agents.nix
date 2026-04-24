@@ -7,6 +7,8 @@
   cfg = config.dotfiles.profiles.devenv.llm.agents;
 in {
   config = lib.mkIf cfg.enable {
+    programs.crush.enable = true;
+
     environment.systemPackages = with pkgs; [
       # Agent CLIs
       opencode
