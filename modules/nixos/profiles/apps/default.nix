@@ -4,6 +4,7 @@
     ./editors.nix
     ./files.nix
     ./media.nix
+    ./notes.nix
     ./terminals.nix
   ];
 }
