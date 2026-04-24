@@ -131,6 +131,7 @@
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         ./parts/hosts.nix
+        ./parts/shells.nix
       ];
 
       systems = [
@@ -138,17 +139,6 @@
         "aarch64-linux"
         "aarch64-darwin"
       ];
-
-      flake.templates = {
-        claude-sandbox = {
-          path = ./templates/claude-sandbox;
-          description = "Devenv shell with claude-code wrapped in agent-sandbox.nix";
-        };
-        opencode-sandbox = {
-          path = ./templates/opencode-sandbox;
-          description = "Devenv shell with opencode wrapped in agent-sandbox.nix";
-        };
-      };
 
       perSystem = {
         pkgs,
@@ -198,19 +188,6 @@
         };
 
         formatter = pkgs.alejandra;
-
-        devShells.default = pkgs.mkShell {
-          packages = [
-            pkgs.alejandra
-            pkgs.nil
-            pkgs.nixd
-            pkgs.nix-update
-            pkgs.jq
-            pkgs.curl
-            pkgs.age
-            pkgs.sops
-          ];
-        };
       };
     };
 }
