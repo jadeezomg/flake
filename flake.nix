@@ -118,8 +118,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nur = {
-      url = "github:nix-community/NUR";
+    charmbracelet-nur = {
+      url = "github:charmbracelet/nur";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
