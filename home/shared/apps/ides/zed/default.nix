@@ -13,8 +13,10 @@
     src = pkgs.fetchFromGitHub {
       owner = "rohan-patra";
       repo = "claude-agent-acp";
-      rev = "master";
+      rev = "d3d38c5b1cfdc566f93f106b9721100e27e43def";
+      hash = "sha256-CfO6dVJfuXPQUrXeOTlHjOFTiASQhTEVvJFuii/9hTc=";
     };
+    npmDepsHash = "sha256-tpKNra0XZbUOSsWYPpBNLggIcU4nbbD5hBEWrp+SZj4=";
   };
 in {
   imports = [
