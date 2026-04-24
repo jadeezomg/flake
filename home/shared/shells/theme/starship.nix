@@ -22,9 +22,22 @@
     ssh = u "eba9"; #
     nix = u "f313"; #
     nixos = u "f313"; #
+    linux = u "f17c"; #
+    macos = u "f179"; #
     container = u "f308"; #
     sudo = u "f0e7"; #
     lock = u "f023"; #
+    # git status
+    git-stash = u "f01c"; #
+    git-modified = u "f040"; #
+    git-staged = u "f067"; #
+    git-untracked = u "f128"; #
+    git-renamed = u "f553"; #
+    git-deleted = u "f014"; #
+    git-conflicted = u "e727"; #
+    git-ahead = u "f062"; #
+    git-behind = u "f063"; #
+    git-diverged = u "f047"; #
   };
 in
   lib.mkIf ((osConfig.dotfiles.profiles.essentials.enable or true)
@@ -45,7 +58,7 @@ in
 
         palette = lib.mkForce "birds-of-paradise";
 
-        "palettes.birds-of-paradise" = {
+        palettes.birds-of-paradise = {
           bg-primary = themeColors.bg-primary;
           bg-secondary = themeColors.bg-secondary;
           bg-tertiary = themeColors.bg-tertiary;
@@ -64,21 +77,21 @@ in
 
         # --- Prompt format — mirrors oh-my-posh left block order ---
         format = lib.concatStrings [
-          "[](accent-blue)"
+          "[ ](accent-blue)"
           "$cmd_duration"
-          "[](fg:accent-blue bg:accent-red)"
+          "[ ](fg:accent-blue bg:accent-red)"
           "$status"
-          "[](fg:accent-red bg:bg-primary)"
+          "[ ](fg:accent-red bg:bg-primary)"
           "$sudo"
           "$os"
           "$username"
           "$hostname"
-          "[](fg:bg-primary bg:bg-tertiary)"
+          "[ ](fg:bg-primary bg:bg-tertiary)"
           "$directory"
-          "[](fg:bg-tertiary bg:ansi-green)"
+          "[ ](fg:bg-tertiary bg:ansi-green)"
           "$git_branch"
           "$git_status"
-          "[](fg:ansi-green)"
+          "[ ](fg:ansi-green)"
           "$nix_shell"
           "$container"
           "$dotnet"
@@ -102,13 +115,13 @@ in
 
         cmd_duration = {
           min_time = 321;
-          format = "[ $duration ]($style)";
+          format = "[ $duration]($style)";
           style = "bg:accent-blue fg:bg-primary";
         };
 
         status = {
           disabled = false;
-          format = "[ $status ](bg:accent-red fg:text-primary)";
+          format = "[$status](bg:accent-red fg:text-primary)";
         };
 
         sudo = {
@@ -121,10 +134,10 @@ in
           format = "[ $symbol](bg:bg-primary fg:accent-blue)";
         };
 
-        "os.symbols" = {
+        os.symbols = {
           NixOS = "${icons.nixos} ";
-          Linux = " ";
-          Macos = " ";
+          Linux = "${icons.linux} ";
+          Macos = "${icons.macos} ";
         };
 
         username = {
@@ -140,14 +153,18 @@ in
 
         directory = {
           format = "[ $path ](bg:bg-tertiary fg:text-primary)";
+          repo_root_format = "[ $before_root_path$repo_root$path ](bg:bg-tertiary fg:text-primary)";
+          repo_root_style = "bg:bg-tertiary fg:accent-blue bold";
+          before_repo_root_style = "bg:bg-tertiary fg:text-primary dimmed";
           truncation_length = 4;
-          truncation_symbol = "${icons.ellipsis}/";
+          truncate_to_repo = false;
+          truncation_symbol = "${icons.ellipsis} /";
           read_only = " ${icons.lock}";
           style = "bg:bg-tertiary fg:text-primary";
         };
 
-        "directory.substitutions" = {
-          "~/.dotfiles/flake" = "${icons.nixos} flake";
+        directory.substitutions = {
+          ".dotfiles/flake" = "${icons.nixos} flake";
         };
 
         git_branch = {
@@ -156,7 +173,17 @@ in
         };
 
         git_status = {
-          format = "[$all_status$ahead_behind](bg:ansi-green fg:bg-primary)";
+          format = "[ $all_status$ahead_behind ](bg:ansi-green fg:bg-primary)";
+          stashed = "${icons.git-stash} ";
+          modified = "${icons.git-modified} ";
+          staged = "${icons.git-staged} ";
+          untracked = "${icons.git-untracked} ";
+          renamed = "${icons.git-renamed} ";
+          deleted = "${icons.git-deleted} ";
+          conflicted = "${icons.git-conflicted} ";
+          ahead = "${icons.git-ahead} ";
+          behind = "${icons.git-behind} ";
+          diverged = "${icons.git-diverged} ";
         };
 
         # --- Nix / container ---
@@ -209,7 +236,7 @@ in
         time = {
           disabled = false;
           format = "[ $time ](bg:bg-primary fg:accent-blue)";
-          time_format = "%H:%M:%S MEZ";
+          time_format = "%H:%M:%S";
         };
 
         # --- Shell indicator + prompt character ---
@@ -224,11 +251,11 @@ in
 
         shell = {
           disabled = false;
-          bash_indicator = "[$](ansi-yellow)";
-          fish_indicator = "[~>](accent-blue)";
-          zsh_indicator = "[%](accent-blue)";
-          nu_indicator = "[:)](ansi-green)";
-          format = "$indicator ";
+          bash_indicator = "[$](accent-yellow)";
+          fish_indicator = "[~](accent-blue)";
+          zsh_indicator = "[%](ansi-magenta)";
+          nu_indicator = "[:\\)](ansi-green)";
+          format = "$indicator";
         };
       };
     };
