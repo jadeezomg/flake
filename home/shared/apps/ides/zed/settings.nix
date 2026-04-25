@@ -155,7 +155,7 @@
 
       # --- Edit Predictions ---
       edit_predictions = {
-        provider = "mercury";
+        provider = "zed";
       };
 
       # --- External Agents ---

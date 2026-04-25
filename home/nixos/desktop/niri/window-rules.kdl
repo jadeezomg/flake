@@ -71,8 +71,21 @@ window-rule {
     match app-id="zen-twilight"
     match app-id="com.mitchellh.ghostty"
     match app-id="kitty"
-    
+
     default-column-width { proportion 0.4; }
+}
+
+window-rule {
+    match app-id="Loupe"
+
+    popups {
+        // Matches the default libadwaita pop-up corner radius.
+        geometry-corner-radius 15
+
+        background-effect {
+            blur true
+        }
+    }
 }
 
 // layer-rule {
@@ -122,11 +135,10 @@ window-rule {
         blur true
     }
 }
-    
+
 
 // Open DMS windows (quickshell) as floating by default
 window-rule {
     match app-id=r#"org.quickshell$"#
     open-floating true
 }
-
