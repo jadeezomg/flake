@@ -40,10 +40,8 @@ in {
     environment.systemPackages = with pkgs; [
       steamcmd
       mangohud
-      goverlay
       mangojuice
       heroic
-      faugus-launcher
       protonup-ng
       protonup-rs
       gamescope-wsi
