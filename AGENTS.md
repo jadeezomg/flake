@@ -1,186 +1,99 @@
-# Nix Flake — AI Assistant Rules
+# Nix Flake Agent Guide
 
-This is jadee's NixOS flake. Three rules apply to every task:
+This guide contains essential knowledge for AI agents working in this NixOS flake. Focus on non-obvious patterns, gotchas, and efficient workflows.
 
-1. **Always use `just` recipes** for building/switching — not bare `nh`, `nixos-rebuild`, or `home-manager switch`.
-2. **Always verify packages and options** against nixpkgs before adding them.
-3. **Always format** with `just fmt` after editing `.nix` files.
+## Core Philosophy
 
----
+This is a **single-flake, multi-host** configuration managing three machines:
+- `desktop`: x86_64-linux (NVIDIA)
+- `framework`: x86_64-linux (Framework 13 7040)
+- `caya`: aarch64-darwin (Apple Silicon)
 
-## Structure
+All changes flow from a shared set of modules. The active host is determined by `.flake-host`.
 
-**Root**: `/home/jadee/.dotfiles/flake`
+## Critical Rules (Non-Negotiable)
+
+1. **Always use `just` recipes** - never run `nixos-rebuild`, `home-manager switch`, or bare `nh` commands
+2. **Always verify packages/attributes** with `nix search nixpkgs` before adding anything
+3. **Always format** with `just fmt` after editing any `.nix` file
+4. **Never commit secrets** - use `sops` for encrypted secrets management
+
+## Directory Structure Quick Reference
 
 ```
 flake/
-├── flake.nix              # flake-parts entrypoint, inputs, perSystem outputs
-├── Justfile               # all build/switch/gc/format recipes
-├── scripts/               # shell/ (bash for Justfile) + pyproject + src/flake_scripts (uv)
-├── lib/
-│   └── pkgs.nix           # getPkgs / getPkgsStable (used by flake.nix + parts/)
-├── parts/
-│   ├── hosts.nix          # builds nixosConfigurations + darwinConfigurations
-│   └── overlays/          # per-system nixpkgs overlays
+├── flake.nix              # flake-parts entrypoint
+├── Justfile               # ALL build/switch/format commands
+├── lib/pkgs.nix           # getPkgs / getPkgsStable helpers
+├── parts/hosts.nix        # builds nixosConfigurations + darwinConfigurations
 ├── data/
-│   ├── hosts/hosts.nix    # host definitions (desktop, framework, caya)
-│   └── users/users.nix    # user definitions (jadee, caya-jonas)
-├── hosts/
-│   ├── desktop/           # x86_64-linux desktop (NVIDIA)
-│   ├── framework/         # x86_64-linux laptop (AMD, Framework 13 7040)
-│   └── caya/              # aarch64-darwin (also holds nix-homebrew tap config)
-├── modules/
-│   ├── shared/            # cross-platform system modules
-│   ├── nixos/             # Linux-only system modules
-│   └── darwin/            # macOS-only system modules
-├── home/
-│   ├── shared/            # cross-platform home-manager config
-│   │   ├── apps/          # browsers, editors, IDEs, terminals, tools
-│   │   ├── assets/        # fonts, icons, theme (stylix), wallpapers, file symlinks
-│   │   ├── development/
-│   │   │   ├── languages/ # per-language configs (57 files)
-│   │   │   └── tooling/   # cloud, databases, llm, tools
-│   │   ├── shells/        # bash, fish, nushell, zsh
-│   │   └── utils/         # core, filesystem, monitoring, text
-│   ├── nixos/             # Linux-only home-manager config
-│   └── darwin/            # macOS-only home-manager config
-├── packages/              # custom flake packages (iosevka-aile, iosevka-etoile)
-└── secrets/secrets.yaml   # sops-nix age-encrypted secrets
+│   ├── hosts/hosts.nix    # host definitions (system, username, homeDirectory)
+│   └── users/users.nix    # user definitions
+├── hosts/                 # host-specific configs
+│   ├── desktop/
+│   ├── framework/
+│   └── caya/
+├── modules/               # shared system modules
+│   ├hared/            # cross-platform ── shared/            # cross-platform
+│   ├── nixos/             # Linux-only
+│   └── darwin/            # macOS-only
+├── home/                  # home-manager config
+│   ├── shared/            # cross-platform
+│   ├── nixos/             # Linux-only
+│   └── darwin/            # macOS-only
+├── packages/              # custom flake packages
+└── scripts/               # Python console scripts + shell helpers
 ```
 
-Each category folder has a `default.nix` that auto-imports its siblings.
+## Essential Commands
 
----
-
-## Building and Switching
-
-Always run from the flake root. The Justfile sets `NH_FLAKE` automatically.
-
-| Goal | Command |
-|---|---|
-| Full switch (flake check + nh switch) | `just switch` |
-| Quick switch (skip flake check) | `just switch-fast` |
-| Dry run | `just build-dry` |
-| Validate flake only | `just switch-check` |
-| Rollback | `just rollback` |
-| Refresh externals (inputs + `packages/*`) | `just update` — `update-packages` (honors every `packages/*/update.json`, including `{"type":"nix-update"}` entries), `nix flake update`, `just fmt`; `UPDATE_FORCE=1` skips per-package cooldown |
-| Bump one flake package with [nix-update](https://github.com/Mic92/nix-update) | `just nix-update-pkg` (fzf picker of `packages.<system>.*`) or `just nix-update-pkg <attr> [options…]` — runs `nix-update --flake <attr>` then `just fmt`. For a full batch, use `just update`. |
-| Format all .nix files | `just fmt` |
-
-**Never use** `nixos-rebuild switch`, `home-manager switch`, or bare `nh os switch /path`.
-
----
-
-## Verifying Packages and Options
-
+### Build & Switch
 ```bash
-nix search nixpkgs <name>
+just switch          # full flake check + nh switch
+just switch-fast     # nh switch only (skip flake check)
+just build-dry       # dry run evaluation
+just rollback        # revert to previous generation
 ```
 
-- NixOS options: https://search.nixos.org/options
-- home-manager options: https://nix-community.github.io/home-manager/options.xhtml
-
-Use the exact attribute name from `nix search` (e.g. `pkgs.ripgrep`, not `pkgs.rg`).
-
----
-
-## Hydra API (nixpkgs Build Status)
-
-Use the Hydra API to check whether a package is built and cached before adding it. No authentication required for read-only queries. Always pass `Accept: application/json`.
-
-**Base URL**: `https://hydra.nixos.org`
-
-**Check if a package built successfully** (most common use case):
+### Format & Lint
 ```bash
-# Latest successful build for a package on a specific system
+just fmt             # alejandra + deadnix + ruff + ty + biome
+just lint            # deadnix + statix (linting)
+```
+
+### Maintenance
+```bash
+just update          # refresh externals: packages, flake.lock, fmt
+just health          # git status, disk usage, system info
+just gc-days         # clean store paths older than N days
+```
+
+### Package Management
+```bash
+nix search nixpkgs <name>   # verify package/attribute exists
+just check-packages    # scan flake for broken package refs
+just nix-update-pkg   # bump one flake package (interactive picker)
+```
+
+### Hydra Build Status (Cache Check)
+```bash
+# Check if package is built and cached
 curl -sL -H "Accept: application/json" \
-  "https://hydra.nixos.org/job/nixpkgs/unstable/<attr>.<system>/latest-finished" | jq '{success, finished, nixname}'
+  "https://hydra.nixos.org/job/nixpkgs/unstable/<name>.x86_64-linux/latest-finished" | jq '.success'
 
-# Examples
+# Get store path for verification
 curl -sL -H "Accept: application/json" \
-  "https://hydra.nixos.org/job/nixpkgs/unstable/ripgrep.x86_64-linux/latest-finished" | jq '{success, nixname}'
-
-curl -sL -H "Accept: application/json" \
-  "https://hydra.nixos.org/job/nixpkgs/unstable/ripgrep.aarch64-darwin/latest-finished" | jq '{success, nixname}'
+  "https://hydra.nixos.org/job/nixpkgs/unstable/<name>.x86_64-linux/latest-finished" | jq -r '.buildoutputs.out.path'
 ```
 
-**Check multiple systems at once:**
-```bash
-for system in x86_64-linux aarch64-darwin; do
-  echo "$system: $(curl -sL -H "Accept: application/json" \
-    "https://hydra.nixos.org/job/nixpkgs/unstable/<attr>.$system/latest-finished" | jq -r '.success')"
-done
-```
+## Module System Patterns
 
-**Get the store path of a built package** (to verify it's in cache.nixos.org):
-```bash
-curl -sL -H "Accept: application/json" \
-  "https://hydra.nixos.org/job/nixpkgs/unstable/<attr>.x86_64-linux/latest-finished" \
-  | jq -r '.buildoutputs.out.path'
-```
-
-**Key response fields:**
-- `success` — `true` if the build passed
-- `finished` — `1` if complete (not queued)
-- `buildstatus` — `0` = success, non-zero = failure
-- `nixname` — the derivation name (e.g. `ripgrep-14.1.1`)
-- `buildoutputs.out.path` — the `/nix/store/...` path
-
-**Jobsets**: `nixpkgs/unstable` (nixos-unstable channel), `nixpkgs/trunk` (master)
-
-**Systems**: `x86_64-linux`, `aarch64-linux`, `x86_64-darwin`, `aarch64-darwin`
-
-**Alternative — `hydra-check` CLI** (available in nixpkgs):
-```bash
-nix run nixpkgs#hydra-check -- ripgrep --arch x86_64-linux --channel unstable
-nix run nixpkgs#hydra-check -- ripgrep --json
-```
-
----
-
-## Where to Put Things
-
-| Goal | Location |
-|---|---|
-| System package, all Linux hosts | `modules/shared/` appropriate category |
-| System package, one host only | `hosts/<name>/default.nix` |
-| User package (home-manager) | `home/shared/apps/` or appropriate category |
-| Linux-only home config | `home/nixos/` appropriate category |
-| NixOS service/daemon | `modules/nixos/services/` |
-| Development tool | `modules/shared/development/` or `home/shared/development/` |
-| Desktop/Wayland config | `modules/nixos/desktop/` or `home/nixos/desktop/` |
-| Language dev config | `home/shared/development/languages/<lang>.nix` |
-| Dev tooling (cloud, db, llm) | `home/shared/development/tooling/` |
-| Theme, fonts, file symlinks | `home/shared/assets/` |
-
-Prefer editing existing files. If creating a new `.nix` file, add an import for it in that directory's `default.nix`.
-
----
-
-## Module Coding Style
-
+### Special Args Available in All Modules
 ```nix
-{ pkgs, ... }: {
-  home.packages = with pkgs; [ ripgrep ];
-}
+{ pkgs, lib, config, inputs, hostData, hostKey, host, user, isDarwin, system, pkgs-stable }:
 ```
 
-Available `specialArgs` parameters:
-
-| Parameter | What it is |
-|---|---|
-| `pkgs` | nixpkgs package set |
-| `lib` | nixpkgs lib |
-| `config` | current module config |
-| `inputs` | flake inputs (access individual inputs via `inputs.sops-nix` etc.) |
-| `hostData` | all host definitions from `data/hosts/hosts.nix` |
-| `hostKey` | current host name (`"desktop"`, `"framework"`, `"caya"`) |
-| `host` | current host attrset from hostData |
-| `user` | current username |
-| `isDarwin` | true on macOS |
-| `system` | system string, NixOS only (`"x86_64-linux"`) |
-| `pkgs-stable` | nixpkgs-stable package set |
-
+### Common Patterns
 ```nix
 # Conditional on host
 lib.mkIf (hostKey == "desktop") { ... }
@@ -191,41 +104,143 @@ lib.optionals (!isDarwin) [ pkgs.something ]
 # Stylix color
 config.lib.stylix.colors.base0D
 
-# Flake input module
+# Import from another flake
 imports = [ inputs.some-flake.homeModules.default ];
 ```
 
----
+## Where to Put Things
 
-## Secrets
+### System Packages
+- **All Linux hosts**: `modules/shared/` (appropriate category)
+- **One host only**: `hosts/<name>/default.nix`
 
+### User Packages (home-manager)
+- **Cross-platform**: `home/shared/apps/`
+- **Linux-only**: `home/nixos/`
+- **macOS-only**: `home/darwin/`
+
+### NixOS Services/Daemons
+- `modules/nixos/services/`
+
+### Desktop/Wayland Config
+- `modules/nixos/desktop/` or `home/nixos/desktop/`
+
+### Language Dev Config
+- `home/shared/development/languages/<lang>.nix`
+
+### Theme/Fonts/Symlinks
+- `home/shared/assets/`
+
+### Custom Packages
+- `packages/<name>/default.nix`
+- Add to `parts/overlays/` if you need custom nixpkgs overlays
+
+## Gotchas & Non-Obvious Patterns
+
+### 1. The `.flake-host` File
+- Determines active host for all `nh`-based commands
+- Created by `just init` (prompts) or `just _init <host>` (no prompt)
+- **Never commit this file** - it's host-specific
+
+### 2. Python Scripts Are a First-Class Citizen
+The `scripts/` directory is a `uv`-managed Python package with console entry points:
 ```bash
-sops secrets/secrets.yaml   # edit (decrypts, re-encrypts on save)
+uv run --project scripts <command>
 ```
+Common commands:
+- `symlink-check` - verify DMS/niri/quickshell symlinks
+- `check-packages` - scan for broken package references
+- `update-packages` - bump custom flake packages
+- `zen-session` - browser session sync/extract
 
+### 3. Justfile Groups
+Recipes are organized in groups. Use `just --list` to see all recipes in order.
+- `build` - system builds
+- `switch` - system switches  
+- `generations` - generation management
+- `gc` - garbage collection
+- `format` - formatting/linting
+- `check` - validation checks
+- `config` - configuration setup
+- `system` - system maintenance
+- `repo` - git operations
+- `zen` - Zen browser integration
+
+### 4. Conditional Imports
+When creating a new `.nix` file, **always add an import to that directory's `default.nix`**:
 ```nix
-sops.secrets.my_secret = {};
-# runtime path: config.sops.secrets.my_secret.path
+# In modules/shared/default.nix or similar
+imports = [ ./my-new-file.nix ];
 ```
 
----
+### 5. The `specialArgs` Pattern
+The flake passes rich context to every module. Use these instead of hardcoding:
+- `hostKey` - current host name (`"desktop"`, `"framework"`, `"caya"`)
+- `isDarwin` - true on macOS
+- `pkgs-stable` - stable nixpkgs set
 
-## Hosts
+### 6. Secrets Management
+- Edit with `sops secrets/secrets.yaml` (decrypts on open, re-encrypts on save)
+- Age keys: `~/.config/sops/age/keys.txt`
+- Darwin bootstrap: `just setup-age-darwin`
+- Secrets auto-export to interactive shells via `home/shared/shells/sops-shell-secrets.nix`
 
-| Host | System | Hardware |
-|---|---|---|
-| `desktop` | x86_64-linux | NVIDIA GPU |
-| `framework` | x86_64-linux | AMD, Framework 13 7040 |
-| `caya` | aarch64-darwin | Apple Silicon |
+### 7. Hydra Build Status is Required
+**Always** check if a package is built and cached before adding it. This prevents CI failures and ensures binary cache availability.
 
-Active host is set in `.flake-host`. Run `just init` to change it.
+### 8. The `update` Recipe Does Three Things
+```bash
+just update
+# 1. update-packages (packages/*/update.json, nix-update entries)
+# 2. nix flake update (flake.lock)
+# 3. just fmt (format all .nix files)
+```
 
----
+### 9. Framework-Specific Maintenance
+The `just update` recipe also checks for Framework BIOS/firmware updates via `fwupdmgr` when on the framework host.
 
-## Workflow
+### 10. Symlink Validation
+After making changes that affect symlinks (DMS settings, niri, quickshell), run:
+```bash
+just symlink-check   # general report
+just symlink-check-dms  # strict DMS settings check
+```
 
-1. Identify scope (system vs user, shared vs host-specific)
-2. Verify package/option: `nix search nixpkgs <name>`
-3. Find and edit the right existing `.nix` file
-4. `just fmt`
-5. `just switch`
+## Testing Your Changes
+
+1. **Format first**: `just fmt`
+2. **Dry run**: `just build-dry`
+3. **Switch**: `just switch` (or `just switch-fast` for quick iteration)
+4. **Verify**: Check for errors, then `just health` for system status
+
+## Debugging
+
+- **Show trace**: `just build-dev` or `just switch-dev` for full evaluation trace
+- **Check generations**: `just generation-list`
+- **System info**: `just health`
+- **NixOS options**: Search online at https://search.nixos.org/options
+
+## Common Pitfalls
+
+- **Never edit `.flake-host`** - it's generated
+- **Never commit `.flake-host`** or `secrets.yaml` (unencrypted)
+- **Always run `just fmt`** after editing `.nix` files
+- **Never use `nixos-rebuild`** - use `just` recipes instead
+- **Always verify packages** with `nix search` before adding
+- **Don't assume binary cache availability** - check Hydra first
+
+## When You're Stuck
+
+1. Check the existing documentation in `README.md` and `Justfile`
+2. Look at similar modules for patterns
+3. Use `nix search nixpkgs` for package verification
+4. Run `just build-dry` for evaluation errors
+5. Ask for help with specific error messages
+
+## Next Steps for New Agents
+
+1. Read `README.md` for high-level overview
+2. Study `Justfile` to understand available commands
+3. Explore `modules/shared/default.nix` to see the import pattern
+4. Try making a small change and going through the workflow
+5. Get comfortable with `nix search` and Hydra API
