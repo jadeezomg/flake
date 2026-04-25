@@ -95,6 +95,22 @@
       definedAliases = ["hmop" "hm"];
     };
 
+    "Nixpkgs PRs" = {
+      urls = [
+        {
+          template = "https://github.com/NixOS/nixpkgs/pulls";
+          params = [
+            {
+              name = "q";
+              value = "{searchTerms}";
+            }
+          ];
+        }
+      ];
+      icon = nixSnowflakeIcon;
+      definedAliases = ["nixpr" "pr"];
+    };
+
     "Google Maps" = {
       urls = [
         {
