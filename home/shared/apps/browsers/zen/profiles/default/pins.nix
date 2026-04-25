@@ -10,7 +10,7 @@ in {
       isEssential = true;
       position = 101;
     };
-    "(2) YouTube" = {
+    "(5) YouTube" = {
       id = "9b78642f-0c6b-4caf-af02-9136b6363b5f";
       url = "https://www.youtube.com/";
       isEssential = true;
@@ -200,12 +200,28 @@ in {
       position = 216;
       folderParentId = "{1776271297993-96}";
     };
-    "All Diablo 2 Resurrected Cube Recipes •" = {
+    "D2runewizard" = {
+      id = "f22f858e-39f6-433c-8eae-4f4d85b62978";
+      url = "https://d2runewizard.com/runeword-calculator?__cf_chl_tk=YKkhsYiICwms7rvueW_rAXMQ3nUmmF7S59dcL5jQtmM-1777134630-1.0.1.1-Ko1H2VL1fbflV_PoXc5cmAUo4oGvqu02IcIw36QSQIk";
+      workspace = spaces."Games".id;
+      isEssential = false;
+      position = 217;
+      folderParentId = "{1776271297993-96}";
+    };
+    "Summoner Warlock Endgame Build Guide for" = {
+      id = "f3283e15-0f38-4911-abce-c84ed4f4a040";
+      url = "https://maxroll.gg/d2/guides/summoner-warlock-guide";
+      workspace = spaces."Games".id;
+      isEssential = false;
+      position = 218;
+      folderParentId = "{1776271297993-96}";
+    };
+    "All Diablo 2 Resurrected Cube Recipes • " = {
       id = "be8c0181-ace3-424f-b187-1f80cfd8991f";
       url = "https://diablo2.io/recipes/";
       workspace = spaces."Games".id;
       isEssential = false;
-      position = 217;
+      position = 219;
       folderParentId = "{1776271297993-96}";
     };
     "Introduction - Stylix" = {
@@ -213,35 +229,35 @@ in {
       url = "https://nix-community.github.io/stylix/";
       workspace = spaces."Themes".id;
       isEssential = false;
-      position = 218;
+      position = 220;
     };
     "Danklinux" = {
       id = "2403cb1d-efd1-437c-afc0-6c107f675735";
       url = "https://danklinux.com/";
       workspace = spaces."Themes".id;
       isEssential = false;
-      position = 219;
+      position = 221;
     };
     "Github_1" = {
       id = "ec56b7ed-f746-4f38-b62e-024f0656f39c";
       url = "https://github.com/AvengeMedia/DankMaterialShell?tab=readme-ov-file";
       workspace = spaces."Themes".id;
       isEssential = false;
-      position = 220;
+      position = 222;
     };
     "JDownloader 2" = {
       id = "0502f069-bb8a-42ba-90b5-80e18e1a3d5b";
       url = "http://192.168.178.62:7807/";
       workspace = spaces."Downloads".id;
       isEssential = false;
-      position = 221;
+      position = 223;
     };
     "LinkSnappy - Get your files as a premium" = {
       id = "b19c8441-18b9-4cfb-ad0d-c6151f2cd526";
       url = "https://linksnappy.com/home";
       workspace = spaces."Downloads".id;
       isEssential = false;
-      position = 222;
+      position = 224;
     };
   };
 }
