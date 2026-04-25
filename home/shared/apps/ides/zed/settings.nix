@@ -25,7 +25,7 @@
       current_line_highlight = "all";
       selection_highlight = true;
       ui_font_family = lib.mkDefault "Inter Display";
-      ui_font_fallbacks = ["Helvetica Neue" ".SystemFont"];
+      ui_font_fallbacks = ["Helvetica Neue" ".SystemUIFont"];
 
       ui_font_features = {
         calt = true;
