@@ -3,6 +3,7 @@
     ./core.nix
     ./text.nix
     ./navi
+    ./yazi
   ];
   home.packages = with pkgs; [
     nix-btm # Bottom-like system monitor for nix
