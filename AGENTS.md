@@ -122,7 +122,17 @@ just backups                   # list *.backup / *.bkp in ~/.config
 just backups-clean             # delete those backup files
 ```
 
-Flake agent skills live in `agent-skills/` and install to `~/.agents/skills/` and `~/.claude/skills/` when `devenv.llm.agents` is enabled. Optional third-party skills are sourced from the `skills-mattpocock` flake input — toggle with `dotfiles.profiles.devenv.llm.agents.thirdPartySkills.enable = true;`. Every top-level `*/SKILL.md` whose name is **not** already in `agent-skills/` is symlinked from the locked store path into both skill dirs. Update with `nix flake update skills-mattpocock` (or `just update`).
+Flake agent skills live in `agent-skills/` and install to `~/.agents/skills/` and `~/.claude/skills/` when `devenv.llm.agents.enable = true`. Skills are **hardcopied** into the flake (no live symlinks from a third-party input), so they are freely editable.
+
+The `skills-mattpocock` flake input is kept solely as an upstream reference. To check for upstream drift and selectively pull updates:
+
+```bash
+just skills-upstream             # list changed skills + interactive per-skill review
+just skills-upstream --bump      # refresh the lock first, then review
+just skills-upstream --apply-all # copy upstream over local for every changed skill
+```
+
+Per-skill prompt accepts `[v]iew`, `[a]pply`, `[s]kip`, `[q]uit`. Initial seeding from upstream was a one-shot `cp` (skipping skills already named in `agent-skills/`).
 
 ### Zen Browser Integration
 ```bash

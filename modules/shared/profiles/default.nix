@@ -44,22 +44,7 @@
       tools.enable = mkEnableOption "devenv.tools (git, just, gh, lazygit, delta, jujutsu, etc.)";
       cloud.enable = mkEnableOption "devenv.cloud (awscli2, awslogs, gws)";
       llm = {
-        agents = mkOption {
-          default = {};
-          description = "Agent CLIs + global skill install (flake `agent-skills/` and optional git checkout).";
-          type = types.submodule {
-            options = {
-              enable = mkEnableOption "devenv.llm.agents (opencode, claude-code, context7, kagi-ken, ...)";
-              thirdPartySkills.enable = mkEnableOption ''
-                install third-party agent skills sourced from the `skills-mattpocock`
-                flake input. Each top-level directory containing a `SKILL.md` is
-                symlinked into `~/.agents/skills/` and `~/.claude/skills/`. Names
-                already present in the flake `agent-skills/` tree are skipped so
-                Home Manager owns those paths. Bump with `nix flake update`.
-              '';
-            };
-          };
-        };
+        agents.enable = mkEnableOption "devenv.llm.agents (opencode, claude-code, context7, kagi-ken, ...) and the flake `agent-skills/` install";
         hosting.enable = mkEnableOption "devenv.llm.hosting (vllm, lmstudio — Linux-only realistically)";
       };
       containers.enable = mkEnableOption "devenv.containers (podman, podman-desktop, dive)";
