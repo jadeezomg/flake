@@ -6,6 +6,29 @@
 }: let
   agentsEnabled = osConfig.dotfiles.profiles.devenv.llm.agents.enable or false;
   hostingEnabled = osConfig.dotfiles.profiles.devenv.llm.hosting.enable or false;
+  agentSkillsDir = ../../../../agent-skills;
+  agentSkillNames =
+    lib.attrNames
+    (lib.filterAttrs (_: type: type == "directory") (builtins.readDir agentSkillsDir));
+  agentSkillFiles = lib.listToAttrs (lib.concatMap (skillName: let
+      sourcePath = "${agentSkillsDir}/${skillName}";
+    in [
+      {
+        name = ".claude/skills/${skillName}";
+        value = {
+          source = sourcePath;
+          recursive = true;
+        };
+      }
+      {
+        name = ".cursor/skills/${skillName}";
+        value = {
+          source = sourcePath;
+          recursive = true;
+        };
+      }
+    ])
+    agentSkillNames);
   unslothDefaults = {
     containerName = "unsloth-studio";
     jupyterPassword = "unsloth";
@@ -63,10 +86,7 @@
 in
   lib.mkMerge [
     (lib.mkIf agentsEnabled {
-      home.file.".claude/skills/dotfiles-tools" = {
-        source = ../../../../.claude/skills/dotfiles-tools;
-        recursive = true;
-      };
+      home.file = agentSkillFiles;
     })
 
     (lib.mkIf hostingEnabled {

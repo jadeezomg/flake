@@ -421,11 +421,6 @@ git:
 
 # -- check ---------------------------------------------------------------------
 
-[doc('Scan flake for broken or missing package references')]
-[group('check')]
-check-packages:
-    @uv run --project "$FLAKE/scripts" check-packages
-
 [doc('Update custom flake packages via scripts/update-packages (reads packages/*/update.json)')]
 [group('check')]
 update-packages *ARGS:
