@@ -1,23 +1,89 @@
 {
+  pkgs,
   lib,
   osConfig,
   ...
-}:
-# LLM agent packages moved to modules/shared/profiles/devenv/llm/agents.nix.
-# This HM module wires up the cross-platform bits gated behind the same
-# profile toggle:
-#   - opencode HM widget
-#   - Claude skill symlink (points at flake-root .claude/skills/dotfiles-tools;
-#     used to live in home/{nixos,darwin}/development/llm.nix — unified in P9c
-#     because both copies were byte-identical except for their relative path).
-lib.mkIf (osConfig.dotfiles.profiles.devenv.llm.agents.enable or false) {
-  # programs.opencode = {
-  #   enable = true;
-  #   package = pkgs.opencode;
-  # };
-
-  home.file.".claude/skills/dotfiles-tools" = {
-    source = ../../../../.claude/skills/dotfiles-tools;
-    recursive = true;
+}: let
+  agentsEnabled = osConfig.dotfiles.profiles.devenv.llm.agents.enable or false;
+  hostingEnabled = osConfig.dotfiles.profiles.devenv.llm.hosting.enable or false;
+  unslothDefaults = {
+    containerName = "unsloth-studio";
+    jupyterPassword = "unsloth";
+    workdir = "%h/.local/share/unsloth/work";
+    studioPort = "8888";
+    apiPort = "8000";
+    sshPort = "2222";
+    enableGpu = "auto";
   };
-}
+  unslothServiceEnvironment = [
+    "UNSLOTH_CONTAINER_NAME=${unslothDefaults.containerName}"
+    "UNSLOTH_JUPYTER_PASSWORD=${unslothDefaults.jupyterPassword}"
+    "UNSLOTH_WORKDIR=${unslothDefaults.workdir}"
+    "UNSLOTH_STUDIO_PORT=${unslothDefaults.studioPort}"
+    "UNSLOTH_API_PORT=${unslothDefaults.apiPort}"
+    "UNSLOTH_SSH_PORT=${unslothDefaults.sshPort}"
+    "UNSLOTH_ENABLE_GPU=${unslothDefaults.enableGpu}"
+  ];
+  unslothServiceScript = pkgs.writeShellScript "unsloth-studio-service" ''
+    set -euo pipefail
+
+    container_name="''${UNSLOTH_CONTAINER_NAME:-${unslothDefaults.containerName}}"
+    password="''${UNSLOTH_JUPYTER_PASSWORD:-${unslothDefaults.jupyterPassword}}"
+    workdir="''${UNSLOTH_WORKDIR:-$HOME/.local/share/unsloth/work}"
+    studio_port="''${UNSLOTH_STUDIO_PORT:-${unslothDefaults.studioPort}}"
+    api_port="''${UNSLOTH_API_PORT:-${unslothDefaults.apiPort}}"
+    ssh_port="''${UNSLOTH_SSH_PORT:-${unslothDefaults.sshPort}}"
+    enable_gpu="''${UNSLOTH_ENABLE_GPU:-${unslothDefaults.enableGpu}}"
+    is_linux="${
+      if pkgs.stdenv.isLinux
+      then "1"
+      else "0"
+    }"
+
+    mkdir -p "$workdir"
+
+    if ${pkgs.podman}/bin/podman container exists "$container_name"; then
+      exec ${pkgs.podman}/bin/podman start -a "$container_name"
+    fi
+
+    gpu_args=()
+    if [[ "$is_linux" == "1" && "$enable_gpu" != "false" ]]; then
+      gpu_args+=(--gpus all)
+    fi
+
+    exec ${pkgs.podman}/bin/podman run --name "$container_name" \
+      -e "JUPYTER_PASSWORD=$password" \
+      -p "$studio_port:8888" \
+      -p "$api_port:8000" \
+      -p "$ssh_port:22" \
+      -v "$workdir:/workspace/work" \
+      "''${gpu_args[@]}" \
+      unsloth/unsloth
+  '';
+in
+  lib.mkMerge [
+    (lib.mkIf agentsEnabled {
+      home.file.".claude/skills/dotfiles-tools" = {
+        source = ../../../../.claude/skills/dotfiles-tools;
+        recursive = true;
+      };
+    })
+
+    (lib.mkIf hostingEnabled {
+      systemd.user.services.unsloth-studio = {
+        Unit = {
+          Description = "Unsloth Studio container (Podman)";
+          After = ["network-online.target"];
+          Wants = ["network-online.target"];
+        };
+        Service = {
+          Type = "simple";
+          Environment = unslothServiceEnvironment;
+          ExecStart = "${unslothServiceScript}";
+          ExecStop = "${pkgs.podman}/bin/podman stop -t 15 ${unslothDefaults.containerName}";
+          Restart = "on-failure";
+          RestartSec = 5;
+        };
+      };
+    })
+  ]
