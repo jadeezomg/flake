@@ -5,7 +5,7 @@
 
     settings = {
       mgr = {
-        ratio = [3 3 4];
+        ratio = [2 3 4];
         show_hidden = true;
         show_symlink = true;
         linemode = "size_and_mtime";
