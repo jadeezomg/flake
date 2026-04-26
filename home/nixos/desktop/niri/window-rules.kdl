@@ -57,10 +57,25 @@ window-rule {
 // Recommended window rules for DMS integration
 // GNOME applications
 window-rule {
-    match app-id=r#"^org\.gnome\."#
-    draw-border-with-background false
-    geometry-corner-radius 12
+    match app-id=r#"^org.gnome."#
+    // match app-id="Loupe"
+    // match app-id="Nautilus"
+
+    draw-border-with-background true
+    geometry-corner-radius 15
     clip-to-geometry true
+
+    background-effect {
+        blur true
+    }
+
+    popups {
+        opacity 0.90
+        geometry-corner-radius 15
+        background-effect {
+            blur true
+        }
+    }
 }
 
 // Terminal applications
@@ -75,32 +90,22 @@ window-rule {
     default-column-width { proportion 0.4; }
 }
 
-window-rule {
-    match app-id="Loupe"
+layer-rule {
+    match namespace="^dms:"
+    // match namespace="^dms:bar$"
+    // match namespace="^dms:app-launcher$"
+    // match namespace="^dms:control-center$"
+    // opacity 0.5
 
     popups {
-        // Matches the default libadwaita pop-up corner radius.
+        // opacity 0.5
         geometry-corner-radius 15
-
         background-effect {
             blur true
+            xray true
         }
     }
 }
-
-// layer-rule {
-//     match namespace="^dms:"
-//     match namespace="^dms:bar$"
-//     match namespace="^dms:app-launcher$"
-//     match namespace="^dms:control-center$"
-
-//     opacity 0.9
-
-//     background-effect {
-//         blur true
-//         xray false
-//     }
-// }
 
 window-rule {
     match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
@@ -118,12 +123,21 @@ window-rule {
 }
 
 window-rule {
-    match app-id="zen-beta"
-    match app-id="org.gnome.Nautilus"
+    match app-id="zen"
+    match app-id="org.gnome"
     match app-id="zed"
 
     background-effect {
         blur true
+    }
+
+    // opacity 0.95
+
+    popups {
+        geometry-corner-radius 15
+        background-effect {
+            blur true
+        }
     }
 }
 
