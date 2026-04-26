@@ -111,6 +111,22 @@
       definedAliases = ["nixpr" "pr"];
     };
 
+    "Nixpkgs PR Tracker" = {
+      urls = [
+        {
+          template = "https://nixpk.gs/pr-tracker.html";
+          params = [
+            {
+              name = "pr";
+              value = "{searchTerms}";
+            }
+          ];
+        }
+      ];
+      icon = nixSnowflakeIcon;
+      definedAliases = ["prt" "track"];
+    };
+
     "Google Maps" = {
       urls = [
         {
@@ -124,6 +140,40 @@
         }
       ];
       definedAliases = ["maps" "gmaps" "map"];
+    };
+
+    "Google" = {
+      urls = [
+        {
+          template = "https://www.google.com/search";
+          params = [
+            {
+              name = "q";
+              value = "{searchTerms}";
+            }
+          ];
+        }
+      ];
+      definedAliases = ["g" "google"];
+    };
+
+    "Google Images" = {
+      urls = [
+        {
+          template = "https://www.google.com/search";
+          params = [
+            {
+              name = "q";
+              value = "{searchTerms}";
+            }
+            {
+              name = "tbm";
+              value = "isch";
+            }
+          ];
+        }
+      ];
+      definedAliases = ["gi" "images"];
     };
 
     "Duck Duck Go" = {
