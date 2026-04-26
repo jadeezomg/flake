@@ -1076,6 +1076,7 @@
         "nixpkgs-stable": "nixpkgs-stable_2",
         "nixpkgs-zed": "nixpkgs-zed",
         "quickshell": "quickshell_2",
+        "skills-mattpocock": "skills-mattpocock",
         "sops-nix": "sops-nix",
         "stylix": "stylix",
         "zen-browser": "zen-browser"
@@ -1099,6 +1100,22 @@
       "original": {
         "owner": "oxalica",
         "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "skills-mattpocock": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777232946,
+        "narHash": "sha256-+6C7uTbdCyGz/VjU15zqALzRrrWI2/0I3mhEmwdUHDg=",
+        "owner": "mattpocock",
+        "repo": "skills",
+        "rev": "90ea8eec03d4ae8f43427aaf6fe4722653561a42",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mattpocock",
+        "repo": "skills",
         "type": "github"
       }
     },

@@ -41,7 +41,10 @@ in {
       containers.enable = lib.mkDefault true;
       databases.enable = lib.mkDefault true;
       llm = {
-        agents.enable = lib.mkDefault true;
+        agents = {
+          enable = lib.mkDefault true;
+          thirdPartySkills.enable = lib.mkDefault true;
+        };
         hosting.enable = lib.mkDefault true;
       };
       languages = lib.genAttrs langs (_: {enable = lib.mkDefault true;});

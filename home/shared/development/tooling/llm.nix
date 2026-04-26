@@ -2,33 +2,63 @@
   pkgs,
   lib,
   osConfig,
+  inputs,
   ...
 }: let
-  agentsEnabled = osConfig.dotfiles.profiles.devenv.llm.agents.enable or false;
+  agentsCfg = osConfig.dotfiles.profiles.devenv.llm.agents;
+  agentsEnabled = agentsCfg.enable or false;
   hostingEnabled = osConfig.dotfiles.profiles.devenv.llm.hosting.enable or false;
+  thirdEnabled = agentsEnabled && (agentsCfg.thirdPartySkills.enable or false);
   agentSkillsDir = ../../../../agent-skills;
   agentSkillNames =
     lib.attrNames
     (lib.filterAttrs (_: type: type == "directory") (builtins.readDir agentSkillsDir));
+  agentSkillInstallPrefixes = [
+    ".claude/skills"
+    ".agents/skills"
+  ];
+
   agentSkillFiles = lib.listToAttrs (lib.concatMap (skillName: let
-      sourcePath = "${agentSkillsDir}/${skillName}";
-    in [
-      {
-        name = ".claude/skills/${skillName}";
+    sourcePath = "${agentSkillsDir}/${skillName}";
+  in
+    map (prefix: {
+      name = "${prefix}/${skillName}";
+      value = {
+        source = sourcePath;
+        recursive = true;
+      };
+    })
+    agentSkillInstallPrefixes)
+  agentSkillNames);
+
+  thirdPartySkillSources =
+    builtins.filter (src: src != null)
+    [(inputs.skills-mattpocock or null)];
+
+  hasSkillFile = src: name:
+    builtins.pathExists "${src}/${name}/SKILL.md";
+
+  thirdPartySkillFiles = lib.listToAttrs (lib.concatMap (src: let
+    candidates =
+      lib.attrNames
+      (lib.filterAttrs (_: type: type == "directory") (builtins.readDir src));
+    keep =
+      builtins.filter
+      (n: !(lib.elem n agentSkillNames) && hasSkillFile src n)
+      candidates;
+  in
+    lib.concatMap (skillName:
+      map (prefix: {
+        name = "${prefix}/${skillName}";
         value = {
-          source = sourcePath;
+          source = "${src}/${skillName}";
           recursive = true;
         };
-      }
-      {
-        name = ".cursor/skills/${skillName}";
-        value = {
-          source = sourcePath;
-          recursive = true;
-        };
-      }
-    ])
-    agentSkillNames);
+      })
+      agentSkillInstallPrefixes)
+    keep)
+  thirdPartySkillSources);
+
   unslothDefaults = {
     containerName = "unsloth-studio";
     jupyterPassword = "unsloth";
@@ -87,6 +117,10 @@ in
   lib.mkMerge [
     (lib.mkIf agentsEnabled {
       home.file = agentSkillFiles;
+    })
+
+    (lib.mkIf thirdEnabled {
+      home.file = thirdPartySkillFiles;
     })
 
     (lib.mkIf hostingEnabled {
