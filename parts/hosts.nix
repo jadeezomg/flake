@@ -128,7 +128,6 @@
         determinate.nixosModules.default
         lanzaboote.nixosModules.lanzaboote
         home-manager.nixosModules.home-manager
-        inputs.charmbracelet-nur.nixosModules.crush
         (mkHomeManagerModule {inherit hostKey user system;})
       ];
     };

@@ -164,9 +164,6 @@
         pi-acp = {
           type = "registry";
         };
-        amp-acp = {
-          type = "registry";
-        };
         claude-acp = {
           type = "registry";
         };
