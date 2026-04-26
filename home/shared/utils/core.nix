@@ -36,22 +36,7 @@ in {
 
     direnv = {
       enable = true;
-      # enableFishIntegration and enableNushellIntegration are automatically enabled
-      # when programs.fish.enable or programs.nushell.enable are set
       nix-direnv.enable = true;
-    };
-
-    yazi = {
-      enable = true;
-      shellWrapperName = "y";
-      settings = {
-        mgr = {
-          ratio = [3 3 4];
-          show_hidden = true;
-          show_symlink = true;
-          linemode = "size_and_mtime";
-        };
-      };
     };
   };
 }
