@@ -16,11 +16,13 @@
 #
 # See: https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent#pi-packages
 {
+  config,
   lib,
   osConfig,
   pkgs,
   ...
 }: let
+  homeDir = config.home.homeDirectory;
   # Pi extensions (installed via `pi install`)
   packages = [
     "npm:pi-agent-browser-native"
@@ -41,10 +43,11 @@
 in
   lib.mkIf (osConfig.dotfiles.profiles.devenv.llm.agents.enable or false) {
     home.activation.piPackages = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      export NPM_CONFIG_PREFIX="$HOME/.npm-global"
-      export PATH="$HOME/.npm-global/bin:${lib.makeBinPath [pkgs.pi-coding-agent pkgs.nodejs pkgs.git pkgs.cacert]}:$PATH"
+      export HOME=${lib.escapeShellArg homeDir}
+      export NPM_CONFIG_PREFIX=${lib.escapeShellArg "${homeDir}/.npm-global"}
+      export PATH=${lib.escapeShellArg "${homeDir}/.npm-global/bin"}:${lib.makeBinPath [pkgs.pi-coding-agent pkgs.nodejs pkgs.git pkgs.cacert]}:$PATH
       export NODE_EXTRA_CA_CERTS=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt
-      mkdir -p "$HOME/.npm-global" "$HOME/.pi/agent"
+      mkdir -p ${lib.escapeShellArg "${homeDir}/.npm-global"} ${lib.escapeShellArg "${homeDir}/.pi/agent"}
 
       ${lib.optionalString (packages != []) ''
         installed=$(pi list 2>/dev/null || true)
