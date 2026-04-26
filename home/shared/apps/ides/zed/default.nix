@@ -1,5 +1,4 @@
 {
-  isDarwin,
   lib,
   osConfig,
   pkgs,
@@ -41,9 +40,9 @@ in {
 
   programs.zed-editor = lib.mkIf editorsEnabled {
     enable = true;
-    package =
-      if isDarwin && inputs ? nixpkgs-zed
-      then inputs.nixpkgs-zed.legacyPackages.${pkgs.system}.zed-editor
-      else pkgs.zed-editor;
+    package = inputs.nixpkgs-zed.legacyPackages.${pkgs.system}.zed-editor; # package =
+    #   if isDarwin && inputs ? nixpkgs-zed
+    #   then inputs.nixpkgs-zed.legacyPackages.${pkgs.system}.zed-editor
+    #   else pkgs.zed-editor;
   };
 }
