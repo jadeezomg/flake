@@ -78,6 +78,7 @@ mapfile -t picked < <(
     --header='Tab=toggle · Enter=run · matches just --list (group + doc)' \
     --height=60% \
     --layout=reverse \
+    --preview-window=hidden \
     2>/dev/null || true
 )
 

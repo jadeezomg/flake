@@ -394,15 +394,6 @@ update:
     fi
     print_header "END"
 
-[doc('Reload user services (niri, swaybg, waybar, mako)')]
-[group('system')]
-reload-services:
-    #!/usr/bin/env bash
-    systemctl --user daemon-reload
-    command -v niri >/dev/null && niri msg action do-screen-transition --delay-ms 800 2>/dev/null || true
-    for s in rh-swaybg rh-waybar; do systemctl --user restart "${s}.service" 2>/dev/null || true; done
-    command -v makoctl >/dev/null && makoctl reload 2>/dev/null || true
-
 # -- repo ----------------------------------------------------------------------
 
 [doc('Quiet fmt, git status/log, then commit+push (prompts message)')]
@@ -438,7 +429,7 @@ nix-update-pkg:
         --expr "builtins.attrNames (builtins.getFlake \"$PWD\").packages.\${builtins.currentSystem}" \
         --json | jq -r '.[]' | sort -u)
       if command -v fzf >/dev/null 2>&1; then
-        attr="$(printf '%s\n' "${pkg_attrs[@]}" | fzf --prompt='nix-update> ' --height=40%)"
+        attr="$(printf '%s\n' "${pkg_attrs[@]}" | fzf --prompt='nix-update> ' --height=40% --preview-window=hidden)"
       else
         echo "attrs: ${pkg_attrs[*]}"
         read -rp "attr: " attr
@@ -453,14 +444,6 @@ nix-update-pkg:
       nix develop "$FLAKE" --command nix-update --flake "$@" "$attr"
     fi
     just --justfile "${JUSTFILE:?}" fmt
-
-[doc('Verify Zen profile places.sqlite exists')]
-[group('check')]
-check-zen-essentials:
-    #!/usr/bin/env bash
-    Z="${HOME}/.zen/default"; D="$Z/places.sqlite"
-    [[ -d "$Z" && -f "$D" ]] || exit 1
-    echo "OK $D"
 
 [doc('DMS / niri / quickshell symlink report (uv symlink-check all)')]
 [group('check')]
