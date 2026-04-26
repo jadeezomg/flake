@@ -506,6 +506,51 @@ zen-compare:
 zen-extract *ARGS:
     @cd "$FLAKE" && uv run --project "$FLAKE/scripts" zen-session extract {{ ARGS }}
 
+# -- llm -----------------------------------------------------------------------
+
+[doc('Start declarative Unsloth Studio user service')]
+[group('llm')]
+unsloth:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    source "$FLAKE/scripts/shell/common.sh"
+    print_header "UNSLOTH"
+    print_info "-> systemctl --user start unsloth-studio.service"
+    systemctl --user start unsloth-studio.service
+    print_success "Unsloth Studio start requested"
+    print_header "END"
+
+[doc('Stop Unsloth Studio user service')]
+[group('llm')]
+unsloth-stop:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    systemctl --user stop unsloth-studio.service
+    echo "unsloth-studio service stopped"
+
+[doc('Delete Unsloth Studio container state (keeps mounted workdir)')]
+[group('llm')]
+unsloth-reset:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    systemctl --user stop unsloth-studio.service >/dev/null 2>&1 || true
+    podman rm -f unsloth-studio >/dev/null 2>&1 || true
+    echo "unsloth-studio container removed"
+
+[doc('Tail logs from Unsloth Studio user service')]
+[group('llm')]
+unsloth-logs:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    journalctl --user -u unsloth-studio.service -f
+
+[doc('Show status of Unsloth Studio user service')]
+[group('llm')]
+unsloth-status:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    systemctl --user status unsloth-studio.service
+
 # -- meta ----------------------------------------------------------------------
 
 [doc('List all recipes (file order within groups)')]
