@@ -1,11 +1,12 @@
 # Zed agent tool permissions. See: https://zed.dev/docs/ai/tool-permissions
 # Full tools list: https://zed.dev/docs/ai/tools#tools
 #
-# Only these 10 tools are permission-gatable in Zed; all are configured below.
+# Permission-gatable built-in tools are configured below.
 # Other tools (diagnostics, find_path, grep, list_directory, now, open, read_file,
 # thinking, spawn_agent) are not in tool_permissions and need no entries.
 #
-# Policy: default "confirm"; allow read-only/non-intrusive; approve anything that modifies.
+# Policy: global default is "confirm". Read-only/non-intrusive terminal commands are
+# auto-approved; anything that modifies state remains confirm unless explicitly allowed.
 {
   default = "confirm";
 
@@ -61,6 +62,10 @@
 
     # External access: allowed by default
     fetch = {default = "allow";};
-    web_search = {default = "allow";};
+    search_web = {default = "allow";};
+
+    # MCP: always allow Context7 documentation tools
+    "mcp:mcp-server-context7:resolve-library-id" = {default = "allow";};
+    "mcp:mcp-server-context7:get-library-docs" = {default = "allow";};
   };
 }
