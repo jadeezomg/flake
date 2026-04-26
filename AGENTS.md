@@ -122,6 +122,8 @@ just backups                   # list *.backup / *.bkp in ~/.config
 just backups-clean             # delete those backup files
 ```
 
+Flake agent skills live in `agent-skills/` and install to `~/.agents/skills/` and `~/.claude/skills/` when `devenv.llm.agents` is enabled. Optional third-party skills are sourced from the `skills-mattpocock` flake input — toggle with `dotfiles.profiles.devenv.llm.agents.thirdPartySkills.enable = true;`. Every top-level `*/SKILL.md` whose name is **not** already in `agent-skills/` is symlinked from the locked store path into both skill dirs. Update with `nix flake update skills-mattpocock` (or `just update`).
+
 ### Zen Browser Integration
 ```bash
 just zen-sync                  # write spaces.nix + pins.nix from live session + fmt

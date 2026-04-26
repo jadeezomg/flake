@@ -121,6 +121,12 @@
       url = "github:archie-judd/agent-sandbox.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Third-party agent skills (mattpocock). Locked via flake.lock; bump with `nix flake update`.
+    skills-mattpocock = {
+      url = "github:mattpocock/skills";
+      flake = false;
+    };
   };
 
   outputs = inputs @ {flake-parts, ...}: let
