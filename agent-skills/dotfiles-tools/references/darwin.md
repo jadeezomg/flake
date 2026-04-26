@@ -9,15 +9,6 @@ These tools are only available on the caya host (aarch64 Apple Silicon, macOS).
 | rbenv | `rbenv install 3.x`, `rbenv global` | Ruby version manager |
 | ruby-build | used by rbenv | Ruby compilation |
 
-## Homebrew Casks (GUI Apps with CLI components)
-
-| App | CLI / Notes |
-|-----|------------|
-| 1Password | `op` CLI (`op run`, `op inject`, `op item get`) |
-| Docker Desktop | `docker`, `docker compose` |
-| Raycast | Spotlight replacement (hotkey) |
-| LM Studio | Local LLM GUI |
-
 ## 1Password CLI (op)
 
 ```bash
@@ -51,32 +42,3 @@ op item list --vault Private       # list items
 macOS is managed via nix-darwin (caya host). The flake handles:
 - Homebrew casks and formulas declaratively
 - System defaults (`system.defaults.*`)
-- Launch agents
-- Shell configuration
-
-```bash
-# Always use just recipes to switch (never nix-darwin directly)
-just switch        # full switch
-just switch-fast   # skip flake check
-```
-
-## Docker on macOS
-
-Docker Desktop is installed via Homebrew cask. The socket is at `~/.docker/run/docker.sock` or `/var/run/docker.sock` via compatibility symlink.
-
-```bash
-docker ps
-docker compose up -d
-```
-
-## Key Differences from NixOS
-
-| Feature | macOS (caya) | NixOS |
-|---------|--------------|-------|
-| Package manager | Nix + Homebrew | Nix only |
-| System manager | nix-darwin | NixOS modules |
-| Docker | Docker Desktop (Homebrew) | Docker daemon (system service) |
-| GPU monitoring | nvtop (Apple) | NVTOP for NVIDIA |
-| Terminal | ghostty-bin (macOS build) | ghostty (Linux build) |
-| Ruby | rbenv (Homebrew) | Direct nixpkgs |
-| Languages | + Swift/sourcekit-lsp | + vllm, lmstudio |

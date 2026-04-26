@@ -11,7 +11,6 @@
 | fzf | `fzf` | Fuzzy finder; pipe anything in |
 | jq | `jq '.key'` | JSON processor; `-r` for raw output |
 | yq | `yq '.key'` | YAML/JSON/XML/TOML processor |
-| eza | `eza -l --icons --git` | Better ls with git status, colors |
 
 ## Filesystem
 
@@ -26,10 +25,6 @@
 | Tool | Command | Notes |
 |------|---------|-------|
 | git | `git` | Standard (delta configured as pager) |
-| delta | auto-used | Better git diffs (pager) |
-| gitui | `gitui` | Full TUI git client |
-| jujutsu | `jj` | Git-compatible DVCS |
-| jjui | `jjui` | Jujutsu TUI |
 | gh | `gh pr`, `gh issue`, `gh repo` | GitHub CLI |
 | act | `act` | Run GitHub Actions locally |
 
@@ -42,12 +37,12 @@
 | gping | `gping host` | Visual ping with graph |
 | dig | `dig domain` | DNS lookup |
 
-## Monitoring & Performance
+## Containers
 
 | Tool | Command | Notes |
 |------|---------|-------|
-| btop | `btop` | Full system monitor TUI |
-| hyperfine | `hyperfine 'cmd'` | CLI benchmarking tool |
+| podman | `podman ps` | OCI container runtime |
+| podman-compose | `podman-compose up -d` | Compose-style workflows |
 
 ## Development: Nix Tools
 
@@ -84,7 +79,6 @@
 | rustup | `rustup toolchain install` | Rust toolchain manager |
 | bacon | `bacon` | Background compiler watcher |
 | cargo-info | `cargo info pkg` | Crate info |
-| rusty-man | `rusty-man Item` | Rustdoc TUI viewer |
 
 ### Shell
 | Tool | Command | Notes |
@@ -97,17 +91,6 @@
 |------|---------|-------|
 | just | `just <recipe>` | Task runner (primary build tool) |
 | mermaid | inline in markdown fences | Use `\`\`\`mermaid` blocks |
-| prettier / prettierd | `prettier --write` | Fallback formatter |
-| taplo | `taplo fmt` | TOML formatter |
-
-## Databases
-
-| Tool | Command | Notes |
-|------|---------|-------|
-| rainfrog | `rainfrog` | DB management TUI |
-| sqlite3 | `sqlite3 file.db` | SQLite CLI |
-| redis-cli | `redis-cli` | Redis CLI |
-| psql | `psql` | PostgreSQL CLI |
 
 ## Security / Secrets
 
@@ -115,13 +98,6 @@
 |------|---------|-------|
 | age | `age -r pubkey -o out.age` | File encryption |
 | sops | `sops secrets.yaml` | Secrets management |
-
-## LLM / AI
-
-| Tool | Command | Notes |
-|------|---------|-------|
-| claude | `claude` | Claude Code CLI |
-| opencode | `opencode` | OpenCode LLM agent |
 
 
 ## PDF Tools

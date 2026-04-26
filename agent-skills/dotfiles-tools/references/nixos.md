@@ -26,7 +26,6 @@ These tools are only available on NixOS (desktop/framework hosts).
 | Tool | Notes |
 |------|-------|
 | gdb | GNU debugger (`gdb ./binary`) |
-| gitui | Alternative git TUI (like lazygit) |
 
 ## Gaming (desktop host only)
 
@@ -41,18 +40,7 @@ These tools are only available on NixOS (desktop/framework hosts).
 
 | Tool | Notes |
 |------|-------|
-| lmstudio | Local LLM GUI |
 | vllm | LLM serving engine |
-
-## Docker (NixOS)
-
-Docker is enabled as a system service. Use `docker` and `docker compose` directly. The socket is at `/run/docker.sock`.
-
-```bash
-docker ps
-docker compose up -d
-docker images
-```
 
 ## nix-index (fish integration)
 
@@ -60,6 +48,6 @@ docker images
 
 ## Key Files
 
-- `/etc/nixos/` — NixOS config (but prefer flake)
-- `~/.dotfiles/flake/` — The flake root (`zf` to navigate there)
-- `.flake-host` — Active host (desktop/framework)
+- `/etc/nixos/` - NixOS config (but prefer flake)
+- `~/.dotfiles/flake/` - The flake root (`zf` to navigate there)
+- `.flake-host` - Active host (desktop/framework)
