@@ -191,6 +191,21 @@
       definedAliases = ["ddg" "d"];
     };
 
+    "reddit" = {
+      urls = [
+        {
+          template = "https://kagi.com/search";
+          params = [
+            {
+              name = "q";
+              value = "site:reddit.com {searchTerms}";
+            }
+          ];
+        }
+      ];
+      definedAliases = ["r" "reddit"];
+    };
+
     "youtube" = {
       urls = [
         {
