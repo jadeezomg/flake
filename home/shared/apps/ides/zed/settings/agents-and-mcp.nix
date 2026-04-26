@@ -2,10 +2,10 @@
   # --- External Agents ---
   agent_servers = {
     # --- Registry ---
-    pi-acp = {
+    claude-acp = {
       type = "registry";
     };
-    claude-acp = {
+    goose = {
       type = "registry";
     };
 
