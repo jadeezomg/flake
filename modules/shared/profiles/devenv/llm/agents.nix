@@ -11,6 +11,7 @@ in {
       # Agent CLIs
       claude-code
       pi-coding-agent
+      goose-cli
 
       # Docs / search / knowledge plumbing (local flake packages, surfaced
       # via parts/overlays/local-packages.nix)
