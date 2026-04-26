@@ -9,6 +9,7 @@ source "${FLAKE:-${HOME}/.dotfiles/flake}/scripts/shell/common.sh"
 
 INPUT_NAME="skills-mattpocock"
 LOCAL_DIR="${FLAKE}/agent-skills"
+IGNORE_FILE="${LOCAL_DIR}/.upstream-ignore"
 BUMP=0
 APPLY_ALL=0
 
@@ -36,6 +37,16 @@ print_pending "resolving upstream store path"
 upstream="$(nix eval --raw --impure --expr "(builtins.getFlake \"${FLAKE}\").inputs.${INPUT_NAME}.outPath")"
 print_info "upstream: ${upstream}"
 
+# Skills the user has explicitly opted out of (one name per line, # comments)
+declare -A IGNORED=()
+if [[ -f "${IGNORE_FILE}" ]]; then
+  while IFS= read -r line; do
+    line="${line%%#*}"
+    line="${line//[[:space:]]/}"
+    [[ -z "$line" ]] || IGNORED["$line"]=1
+  done < "${IGNORE_FILE}"
+fi
+
 # Collect skill names that exist in BOTH local and upstream and have SKILL.md
 mapfile -t common < <(
   for d in "${LOCAL_DIR}"/*/; do
@@ -60,12 +71,14 @@ for n in "${common[@]}"; do
   fi
 done
 
-# Also report upstream-only skills (potential adds)
+# Also report upstream-only skills (potential adds), respecting .upstream-ignore
 mapfile -t upstream_only < <(
   for d in "${upstream}"/*/; do
     n="$(basename "$d")"
     [[ -f "${upstream}/${n}/SKILL.md" ]] || continue
-    [[ -e "${LOCAL_DIR}/${n}" ]] || printf '%s\n' "$n"
+    [[ -e "${LOCAL_DIR}/${n}" ]] && continue
+    [[ -n "${IGNORED[$n]:-}" ]] && continue
+    printf '%s\n' "$n"
   done | sort -u
 )
 

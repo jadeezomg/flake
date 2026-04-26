@@ -14,6 +14,8 @@
         newLinkFormat = "relative";
         useMarkdownLinks = true;
         attachmentFolderPath = "assets";
+        newFileLocation = "folder";
+        newFileFolderPath = "inbox";
         defaultViewMode = "source";
         livePreview = true;
         promptDelete = true;
@@ -35,8 +37,19 @@
         "tag-pane"
         "properties"
         "page-preview"
-        "daily-notes"
-        "templates"
+        {
+          name = "daily-notes";
+          settings = {
+            folder = "journal";
+            format = "YYYY-MM-DD";
+            template = "templates/daily.md";
+            autorun = false;
+          };
+        }
+        {
+          name = "templates";
+          settings.folder = "templates";
+        }
         "note-composer"
         "command-palette"
         "editor-status"

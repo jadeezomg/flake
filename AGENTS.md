@@ -134,6 +134,8 @@ just skills-upstream --apply-all # copy upstream over local for every changed sk
 
 Per-skill prompt accepts `[v]iew`, `[a]pply`, `[s]kip`, `[q]uit`. Initial seeding from upstream was a one-shot `cp` (skipping skills already named in `agent-skills/`).
 
+Skills you've explicitly opted out of go in `agent-skills/.upstream-ignore` (one name per line, `#` comments). The discovery script hides them from the "upstream-only" prompt so it never re-suggests adding them.
+
 ### Zen Browser Integration
 ```bash
 just zen-sync                  # write spaces.nix + pins.nix from live session + fmt
