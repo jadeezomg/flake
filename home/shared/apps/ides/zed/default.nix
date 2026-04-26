@@ -17,6 +17,14 @@
       hash = "sha256-CfO6dVJfuXPQUrXeOTlHjOFTiASQhTEVvJFuii/9hTc=";
     };
     npmDepsHash = "sha256-tpKNra0XZbUOSsWYPpBNLggIcU4nbbD5hBEWrp+SZj4=";
+
+    # The bundled @anthropic-ai/claude-agent-sdk probes the musl-linked
+    # native binary first (interp /lib/ld-musl-x86_64.so.1, absent on NixOS),
+    # then falls back to the glibc one which works via nix-ld.
+    # Drop the musl variants so the fallback path is taken.
+    postInstall = lib.optionalString pkgs.stdenv.isLinux ''
+      rm -rf $out/lib/node_modules/@agentclientprotocol/claude-agent-acp/node_modules/@anthropic-ai/claude-agent-sdk-linux-*-musl
+    '';
   };
 in {
   imports = [
