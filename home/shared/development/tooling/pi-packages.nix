@@ -29,6 +29,7 @@
     "npm:pi-markdown-preview"
     "npm:pi-openrouter-realtime"
     "npm:pi-connect"
+    "npm:pi-mcp-adapter"
   ];
 
   installScript =
