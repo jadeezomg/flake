@@ -117,7 +117,6 @@ just gc-all                    # aggressive nh clean all + empty Trash
 just health                    # git status + disk usage + nh os info
 just symlink-check             # DMS / niri / quickshell symlink report
 just symlink-check-dms         # strict: DMS settings.json must symlink into flake
-just reload-services           # reload niri, swaybg, waybar, mako (Linux)
 just post-install              # install Context7 CLI skills after a fresh switch
 just backups                   # list *.backup / *.bkp in ~/.config
 just backups-clean             # delete those backup files
@@ -257,7 +256,7 @@ Every updatable package has `update.json` with a `type`:
 - `settings.json` → host-specific `settings-{framework,desktop}.json`
 - `niri/host.kdl` → host-specific `outputs-{framework,desktop}.kdl`
 
-After editing niri/DMS config files: `just reload-services` or `just symlink-check`.
+After editing niri/DMS config files: `just symlink-check`, then `niri msg action load-config-file` and `makoctl reload` (restart other user units as needed).
 
 ---
 

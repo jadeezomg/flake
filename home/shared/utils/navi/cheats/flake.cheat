@@ -82,9 +82,6 @@ just init
 # DMS/niri/quickshell symlink report
 just symlink-check
 
-# Reload user services (niri, waybar, swaybg, mako)
-just reload-services
-
 # Search nixpkgs for a package
 nix search nixpkgs <pkg>
 
