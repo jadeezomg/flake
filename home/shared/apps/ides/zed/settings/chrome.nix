@@ -14,7 +14,6 @@
     show_project_items = true;
     show_onboarding_banner = true;
     show_menus = false;
-    show_branch_icon = true;
   };
   status_bar = {
     show_active_file = false;
