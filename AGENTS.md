@@ -237,7 +237,7 @@ Every updatable package has `update.json` with a `type`:
 - `nix-update` — delegates to `nix-update --flake <attr>` (most packages)
 - `npm` — npm registry packages (see `packages/context7/`)
 - `github_npm` — GitHub releases + npm lock regeneration
-- `binary_channel` — version URL + platform hash map (see `packages/amp-code/`)
+- `binary_channel` — version URL + platform hash map 
 
 `.update-check.json` stores last-checked timestamp; 1h cooldown by default. Skip with `UPDATE_FORCE=1`.
 

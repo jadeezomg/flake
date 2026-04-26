@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }: let
   cfg = config.dotfiles.profiles.apps.editors;
@@ -12,7 +13,7 @@ in {
     # home/shared/apps/ides and are gated on the same flag.
     environment.systemPackages = with pkgs; [
       code-cursor
-      zed-editor
+      inputs.nixpkgs-zed.legacyPackages.${pkgs.system}.zed-editor
     ];
   };
 }

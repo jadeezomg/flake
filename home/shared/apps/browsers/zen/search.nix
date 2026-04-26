@@ -142,7 +142,7 @@
       definedAliases = ["maps" "gmaps" "map"];
     };
 
-    "Google" = {
+    "google" = {
       urls = [
         {
           template = "https://www.google.com/search";

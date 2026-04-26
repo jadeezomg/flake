@@ -18,7 +18,7 @@
       cp ${./package-lock.json} package-lock.json
     '';
 
-    npmDepsHash = "sha256-bG1Hg8sH8kY0IEkL2CWdscrVLMVL6PDfDkTS5RviPDg=";
+    npmDepsHash = "sha256-UM8JEI+I469zP7vpfu73S9G3BxrI3rzNXiq3gihIOjc=";
 
     dontNpmBuild = true;
 

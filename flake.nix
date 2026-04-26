@@ -19,9 +19,13 @@
       url = "github:NixOS/nixpkgs/nixos-unstable";
     };
 
+    # nixpkgs-zed = {
+    #   # zed-editor 0.231.2
+    #   url = "github:NixOS/nixpkgs/566acc07c54dc807f91625bb286cb9b321b5f42a";
+    # };
+
     nixpkgs-zed = {
-      # zed-editor 0.231.2
-      url = "github:NixOS/nixpkgs/566acc07c54dc807f91625bb286cb9b321b5f42a";
+      url = "github:NixOS/nixpkgs/nixos-unstable-small";
     };
 
     home-manager = {
@@ -117,11 +121,6 @@
       url = "github:archie-judd/agent-sandbox.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    charmbracelet-nur = {
-      url = "github:charmbracelet/nur";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs = inputs @ {flake-parts, ...}: let
@@ -178,10 +177,6 @@
             lib = pkgs.lib;
           };
           pi-coding-agent = import ./packages/pi-coding-agent/default.nix {
-            inherit pkgs;
-            lib = pkgs.lib;
-          };
-          amp-code = import ./packages/amp-code/default.nix {
             inherit pkgs;
             lib = pkgs.lib;
           };
