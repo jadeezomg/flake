@@ -2,13 +2,11 @@
   pkgs,
   lib,
   osConfig,
-  inputs,
   ...
 }: let
   agentsCfg = osConfig.dotfiles.profiles.devenv.llm.agents;
   agentsEnabled = agentsCfg.enable or false;
   hostingEnabled = osConfig.dotfiles.profiles.devenv.llm.hosting.enable or false;
-  thirdEnabled = agentsEnabled && (agentsCfg.thirdPartySkills.enable or false);
   agentSkillsDir = ../../../../agent-skills;
   agentSkillNames =
     lib.attrNames
@@ -30,34 +28,6 @@
     })
     agentSkillInstallPrefixes)
   agentSkillNames);
-
-  thirdPartySkillSources =
-    builtins.filter (src: src != null)
-    [(inputs.skills-mattpocock or null)];
-
-  hasSkillFile = src: name:
-    builtins.pathExists "${src}/${name}/SKILL.md";
-
-  thirdPartySkillFiles = lib.listToAttrs (lib.concatMap (src: let
-    candidates =
-      lib.attrNames
-      (lib.filterAttrs (_: type: type == "directory") (builtins.readDir src));
-    keep =
-      builtins.filter
-      (n: !(lib.elem n agentSkillNames) && hasSkillFile src n)
-      candidates;
-  in
-    lib.concatMap (skillName:
-      map (prefix: {
-        name = "${prefix}/${skillName}";
-        value = {
-          source = "${src}/${skillName}";
-          recursive = true;
-        };
-      })
-      agentSkillInstallPrefixes)
-    keep)
-  thirdPartySkillSources);
 
   unslothDefaults = {
     containerName = "unsloth-studio";
@@ -117,10 +87,6 @@ in
   lib.mkMerge [
     (lib.mkIf agentsEnabled {
       home.file = agentSkillFiles;
-    })
-
-    (lib.mkIf thirdEnabled {
-      home.file = thirdPartySkillFiles;
     })
 
     (lib.mkIf hostingEnabled {
