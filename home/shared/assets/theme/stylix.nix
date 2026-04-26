@@ -103,7 +103,7 @@ in {
             dialog,
             headerbar,
             .background {
-              background-color: alpha(@theme_bg_color, 0.95);
+              background-color: alpha(@theme_bg_color, 0.9);
             }
 
             popover,
@@ -118,7 +118,7 @@ in {
             popover > arrow,
             menu > contents,
             menu > arrow {
-              background-color: alpha(@theme_bg_color, 0.95);
+              background-color: alpha(@theme_bg_color, 0.7);
             }
 
             * {
