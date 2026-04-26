@@ -1,4 +1,4 @@
-# Nix Flake Agent Guide
+# PROJECT KNOWLEDGE BASE
 
 Essential knowledge for AI agents working in this NixOS/Darwin flake. Focuses on non-obvious patterns, gotchas, and efficient workflows.
 
@@ -21,8 +21,9 @@ Active host is determined by `.flake-host` (never commit it).
 1. **Always use `just` recipes** — never run `nixos-rebuild`, `home-manager switch`, or bare `nh` directly
 2. **Always verify packages** with `nix search nixpkgs` before adding anything
 3. **Always format** with `just fmt` after editing any `.nix` file
-4. **Never commit secrets** — use `sops` for encrypted secrets management
-5. **Check Hydra** before adding packages (see below) to ensure binary cache availability
+4. **Run `git add`** before `nix eval/build` (flakes only see tracked files)
+5. **Never commit secrets** — use `sops` for encrypted secrets management
+6. **Check Hydra** before adding packages (see below) to ensure binary cache availability
 
 ---
 
@@ -69,7 +70,7 @@ flake/
 ├── scripts/
 │   ├── pyproject.toml         # uv/Hatch project `flake-scripts`
 │   ├── shell/                 # Bash helpers (common.sh, just-choose.bash)
-│   └── src/flake_scripts/     # Python package (check_packages, symlinks, update_packages, zen/)
+│   └── src/flake_scripts/     # Python package (symlinks, update_packages, zen/)
 └── secrets/secrets.yaml       # sops-encrypted secrets (age keys)
 ```
 
@@ -96,8 +97,6 @@ just lint            # deadnix + statix antipattern checks
 ### Package Management
 ```bash
 nix search nixpkgs <name>      # ALWAYS verify before adding a package
-just check-packages            # scan flake for broken/missing package refs
-just nix-update-pkg            # bump one flake package (fzf picker or pass attr)
 just update-packages [NAMES]   # run update.json handlers for custom packages
 just update                    # full refresh: update-packages + flake.lock + fmt
 UPDATE_FORCE=1 just update     # bypass per-package 1h cooldown
@@ -348,7 +347,7 @@ Secure boot keys live at `/var/lib/sbctl`. On a fresh install, `sbctl` must be r
 | Full eval trace | `just build-dev` |
 | List generations | `just generation-list` |
 | Symlink issues | `just symlink-check` |
-| Broken package refs | `just check-packages` |
+| Eval / missing attrs | `just build-dry` or `just switch-check` |
 | Nix options reference | https://search.nixos.org/options |
 | Home-manager options | https://home-manager-options.extendnix.com |
 
