@@ -1,6 +1,8 @@
 {
   config,
-  hostKey,
+  host,
+  hostData,
+  lib,
   ...
 }: let
   inherit
@@ -14,23 +16,20 @@
   dmsConfigDir = "${flakeRoot}/home/nixos/desktop/dms/config";
   niriDir = "${flakeRoot}/home/nixos/desktop/niri";
 
-  settingsFiles = {
-    framework = "settings-framework.json";
-    desktop = "settings-desktop.json";
-  };
-  hostSettingsFile = settingsFiles.${hostKey} or "settings-desktop.json";
-  settingsBasenames = builtins.attrValues settingsFiles;
+  hostSettingsFile = host.dmsSettingsFile or "settings-desktop.json";
+  settingsBasenames = lib.unique (
+    builtins.filter (p: p != null) (
+      map (h: h.dmsSettingsFile or null) (builtins.attrValues hostData.hosts)
+    )
+  );
 
-  outputFiles = {
-    framework = "outputs-framework.kdl";
-    desktop = "outputs-desktop.kdl";
-  };
-  hostOutputFile = outputFiles.${hostKey} or null;
+  hostOutputFile = host.niriOutputsFile or null;
 
   niriPredicate = name:
     name != "config.kdl" && builtins.match "outputs-.*\\.kdl" name == null;
 in {
   # Auto-symlink configuration files from the flake checkout (live paths).
+  # Host-specific filenames come from hosts/<name>/host.nix (dmsSettingsFile, niriOutputsFile).
   # Based on: https://gist.github.com/mawkler/195def384fd3f73aeb9a965c82781483
   xdg.configFile =
     {

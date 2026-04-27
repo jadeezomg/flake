@@ -14,10 +14,7 @@
   inherit (pkgsFuncs) getPkgs getPkgsStable;
 
   # Data
-  hostData =
-    if builtins.pathExists ../data/hosts/hosts.nix
-    then import ../data/hosts/hosts.nix
-    else {hosts = {};};
+  hostData = import ../hosts/hosts.nix;
 
   # Home-manager modules per platform
   darwinSystems = ["aarch64-darwin"];
@@ -65,6 +62,7 @@
     extraSpecialArgs = {
       inherit
         inputs
+        host
         hostData
         hostKey
         isDarwin

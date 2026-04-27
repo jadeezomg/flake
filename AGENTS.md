@@ -43,12 +43,13 @@ flake/
 │       ├── default.nix        # Central overlay list (local-packages + niri + cachyos kernel)
 │       └── local-packages.nix # Auto-registers packages/* as pkgs.<name>
 ├── data/
-│   ├── hosts/hosts.nix        # Host definitions (system, username, homeDirectory, monitors)
 │   └── users/users.nix        # User definitions
-├── hosts/                     # Host-specific configs (imports modules/shared + modules/nixos|darwin)
-│   ├── desktop/               # Has gpu.nix, display.nix, hardware-configuration.nix
-│   ├── framework/             # Has gpu.nix, input.nix, power.nix, hardware-configuration.nix
-│   └── caya/                  # Darwin; wires nix-homebrew
+├── hosts/                     # Per-machine: host.nix (facts) + profiles.nix + default.nix (imports)
+│   ├── hosts.nix              # Aggregates all host records for `hostData.hosts`
+│   ├── lib.nix                # sharedNixOSHost + user imports for Linux hosts
+│   ├── desktop/               # host.nix, profiles.nix, gpu.nix, display.nix, …
+│   ├── framework/             # host.nix, profiles.nix, gpu.nix, input.nix, power.nix, …
+│   └── caya/                  # host.nix, profiles.nix, Darwin; wires nix-homebrew
 ├── modules/
 │   ├── shared/                # Cross-platform system modules
 │   │   ├── profiles/          # Profile options + implementations (see Profile System below)
@@ -168,7 +169,7 @@ curl -sL -H "Accept: application/json" \
 ```
 
 - `hostKey` — `"desktop"`, `"framework"`, or `"caya"` (use this for host conditionals)
-- `host` — full host record from `data/hosts/hosts.nix` (includes `mainMonitor.*`)
+- `host` — full host record from `hosts/<hostKey>/host.nix` via `hosts/hosts.nix` (includes `mainMonitor.*`, `buildCores`, `dmsSettingsFile`, `niriOutputsFile`, …); also passed to Home Manager `extraSpecialArgs`
 - `isDarwin` — `true` on macOS
 - `pkgs-stable` — nixpkgs 25.11 (pinned stable channel)
 
@@ -195,7 +196,7 @@ host.mainMonitor.monitorScalingFactor
 
 ## Profile System
 
-All profile toggles live in `modules/shared/profiles/default.nix`. Enable them per-host in `hosts/<name>/default.nix`:
+All profile toggles live in `modules/shared/profiles/default.nix`. Enable them per-host in `hosts/<name>/profiles.nix` (imported by `default.nix`):
 
 ```nix
 dotfiles.profiles = {
@@ -222,6 +223,8 @@ Available language sub-profiles: `data`, `docs`, `general`, `nix`, `python`, `ru
 
 | What | Where |
 |------|-------|
+| Host facts (hostname, monitors, `buildCores`, DMS/niri names, …) | `hosts/<name>/host.nix` (registry: `hosts/hosts.nix`; shared Linux merge: `hosts/lib.nix`) |
+| Profile toggles (`dotfiles.profiles`) per host | `hosts/<name>/profiles.nix` |
 | System packages (all hosts) | `modules/shared/profiles/<profile>.nix` |
 | System packages (all nixos) | `modules/nixos/profiles/<profile>.nix` |
 | System packages (all darwin) | `modules/darwin/profiles/<profile>.nix` |

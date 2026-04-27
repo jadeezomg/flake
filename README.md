@@ -5,7 +5,7 @@ jadee's NixOS + nix-darwin flake. Manages three machines from a single
 
 - **flake.nix** — inputs, per-system outputs, `formatter = alejandra`
 - **parts/hosts.nix** — builds `nixosConfigurations` and `darwinConfigurations`
-  from `data/hosts/hosts.nix`
+  from `hosts/hosts.nix`
 - **Justfile** — all day-to-day recipes (build, switch, gc, format, repo, zen...)
 
 ## Hosts
@@ -16,9 +16,10 @@ jadee's NixOS + nix-darwin flake. Manages three machines from a single
 | `framework` | `x86_64-linux` | AMD, Framework 13 7040 | `eDP-2` @ 2880x1920 / 120Hz, 2.0x scale |
 | `caya` | `aarch64-darwin` | Apple Silicon | user `caya-jonas`; `nix-homebrew` for casks |
 
-Host definitions live in `data/hosts/hosts.nix` (hostname, system, username,
-home directory, main monitor). Users live in `data/users/users.nix`. NixOS
-hosts share `sharedNixOSUser = jadee` and an extra `angelie` account.
+Host metadata lives in `hosts/<name>/host.nix`, aggregated by `hosts/hosts.nix`
+(hostname, system, username, home directory, main monitor, build cores, …).
+Shared Linux fragments are in `hosts/lib.nix`. Users live in `data/users/users.nix`.
+NixOS hosts share `sharedNixOSUser = jadee` and an extra `angelie` account.
 
 The active host is set in `.flake-host`. Change with `just init` (prompts) or
 `just _init <host>` (no prompt).
@@ -80,12 +81,13 @@ flake/
 │   ├── hosts.nix          # builds nixosConfigurations + darwinConfigurations
 │   └── overlays/          # per-system nixpkgs overlays
 ├── data/
-│   ├── hosts/hosts.nix    # host definitions (system, username, homeDirectory)
 │   └── users/users.nix    # user definitions (jadee, angelie, caya-jonas)
 ├── hosts/
-│   ├── desktop/           # desktop NixOS config (NVIDIA)
-│   ├── framework/         # framework NixOS config (AMD, fw-ectool, fw-fanctrl)
-│   └── caya/              # caya nix-darwin config + homebrew taps
+│   ├── hosts.nix          # registry: imports each `hosts/<name>/host.nix`
+│   ├── lib.nix            # shared NixOS host merge + `data/users` imports
+│   ├── desktop/           # host.nix, profiles.nix, NixOS module (NVIDIA)
+│   ├── framework/         # host.nix, profiles.nix, NixOS module (AMD, …)
+│   └── caya/              # host.nix, profiles.nix, nix-darwin + homebrew taps
 ├── modules/
 │   ├── shared/            # cross-platform system modules
 │   ├── nixos/             # Linux-only (boot, desktop/niri, services, ...)
@@ -176,7 +178,7 @@ Available in every module on top of the nixpkgs defaults:
 | Param | Meaning |
 |---|---|
 | `inputs` | flake inputs |
-| `hostData` | all host definitions from `data/hosts/hosts.nix` |
+| `hostData` | all host definitions from `hosts/hosts.nix` |
 | `hostKey` | active host name (`"desktop"`, `"framework"`, `"caya"`) |
 | `host` | current host attrset |
 | `user` | current username |
@@ -203,7 +205,8 @@ sops.secrets.my_secret = {};
 | Goal | Location |
 |---|---|
 | System package, all Linux hosts | `modules/shared/` appropriate category |
-| System package, one host only | `hosts/<name>/default.nix` |
+| `dotfiles.profiles` toggles, one host | `hosts/<name>/profiles.nix` |
+| System package or other one-host wiring | `hosts/<name>/default.nix` or a sibling `.nix` imported there |
 | User package (home-manager) | `home/shared/apps/` or relevant category |
 | NixOS service/daemon | `modules/nixos/services/` |
 | Desktop/Wayland config | `modules/nixos/desktop/` or `home/nixos/desktop/` |

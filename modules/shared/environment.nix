@@ -1,15 +1,10 @@
 {
   config,
   pkgs,
-  hostKey ? null,
+  host ? {},
   ...
 }: let
-  hostBuildCores = {
-    desktop = 24;
-    framework = 6;
-    darwin = 6;
-  };
-  buildCores = hostBuildCores.${hostKey} or 6;
+  buildCores = host.buildCores or 6;
 in {
   # Cross-platform nix.settings + cargo env vars + `/etc/current-system-packages`.
   # Automatic GC lives in `modules/nixos/gc.nix`
