@@ -7,8 +7,8 @@
   envData = import ./data.nix;
   paths = import ../core/data/paths.nix;
 
-  flakeRoot = "${config.home.homeDirectory}/.dotfiles/flake";
-  dotfilesRoot = "${config.home.homeDirectory}/.dotfiles";
+  flakeRoot = config.dotfiles.flakeRoot;
+  dotfilesRoot = builtins.dirOf flakeRoot;
 
   # Workstation-only PATH additions on top of the base list from env/base.nix.
   systemPathList = [
@@ -159,8 +159,6 @@ in
 
     programs.nushell.environmentVariables = systemEnv;
     programs.nushell.extraEnv = lib.mkAfter ''
-      $env.FLAKE = $"($env.HOME)/.dotfiles/flake"
-      $env.NH_FLAKE = $"($env.HOME)/.dotfiles/flake"
       $env.PATH = ($env.PATH | split row (char esep) | append [
         ${lib.concatMapStringsSep "\n        " (p: "\"${p}\"") systemPathList}
       ])

@@ -1,98 +1,61 @@
 {
   config,
-  lib,
   hostKey,
   ...
 }: let
-  flakeRoot = "${config.home.homeDirectory}/.dotfiles/flake";
-  outputConfigs = {
-    framework = ../niri/outputs-framework.kdl;
-    desktop = ../niri/outputs-desktop.kdl;
-  };
+  inherit
+    (import ../../../../lib/home/live-xdg-symlinks.nix {inherit config;})
+    mkLiveSymlink
+    xdgConfigDirSymlinks
+    xdgConfigDirSymlinksPred
+    ;
 
-  hostOutputConfig = outputConfigs.${hostKey} or null;
+  flakeRoot = config.dotfiles.flakeRoot;
+  dmsConfigDir = "${flakeRoot}/home/nixos/desktop/dms/config";
+  niriDir = "${flakeRoot}/home/nixos/desktop/niri";
 
-  # Host-specific DMS settings files
   settingsFiles = {
     framework = "settings-framework.json";
     desktop = "settings-desktop.json";
   };
-
   hostSettingsFile = settingsFiles.${hostKey} or "settings-desktop.json";
+  settingsBasenames = builtins.attrValues settingsFiles;
 
-  configSymlinks = configsPath: let
-    inherit (config.lib.file) mkOutOfStoreSymlink;
+  outputFiles = {
+    framework = "outputs-framework.kdl";
+    desktop = "outputs-desktop.kdl";
+  };
+  hostOutputFile = outputFiles.${hostKey} or null;
 
-    configDir = "${flakeRoot}/home/nixos/desktop/dms/config";
-
-    allNames = builtins.attrNames (builtins.readDir configsPath);
-    settingsBasenames = builtins.attrValues settingsFiles;
-    filteredFiles = builtins.filter (name: ! builtins.elem name settingsBasenames) allNames;
-
-    mkSymlink = name: {
-      name = name;
-      value = {
-        source = mkOutOfStoreSymlink "${configDir}/${name}";
-        force = true;
-      };
-    };
-  in
-    builtins.listToAttrs (map mkSymlink filteredFiles);
+  niriPredicate = name:
+    name != "config.kdl" && builtins.match "outputs-.*\\.kdl" name == null;
 in {
-  # Auto-symlink configuration files
-  # This automatically creates symlinks for all files/directories in config folders
-  # without needing to manually specify each file
+  # Auto-symlink configuration files from the flake checkout (live paths).
   # Based on: https://gist.github.com/mawkler/195def384fd3f73aeb9a965c82781483
-  xdg.configFile = let
-    dmsSymlinks = lib.mapAttrs' (name: value: {
-      name = "DankMaterialShell/${name}";
-      inherit value;
-    }) (configSymlinks ./config);
-
-    niriDir = "${flakeRoot}/home/nixos/desktop/niri";
-    niriFiles = builtins.readDir ../niri;
-    niriFileNames = builtins.filter (
-      name:
-        name
-        != "config.kdl"
-        && ! (builtins.match "outputs-.*\\.kdl" name != null)
-    ) (builtins.attrNames niriFiles);
-    niriSymlinks = lib.listToAttrs (map (name: {
-        name = "niri/${name}";
-        value = {
-          source = config.lib.file.mkOutOfStoreSymlink "${niriDir}/${name}";
-          force = true;
-        };
-      })
-      niriFileNames);
-  in
+  xdg.configFile =
     {
-      "niri/config.kdl" = {
-        source = config.lib.file.mkOutOfStoreSymlink "${niriDir}/config.kdl";
-        force = true;
-      };
+      "niri/config.kdl" = mkLiveSymlink "${niriDir}/config.kdl";
 
       "niri/host.kdl" =
-        if hostOutputConfig != null
-        then let
-          outputsFileName =
-            if hostKey == "framework"
-            then "outputs-framework.kdl"
-            else "outputs-desktop.kdl";
-        in {
-          source = config.lib.file.mkOutOfStoreSymlink "${niriDir}/${outputsFileName}";
-          force = true;
-        }
+        if hostOutputFile != null
+        then mkLiveSymlink "${niriDir}/${hostOutputFile}"
         else {
           text = "// No host-specific output configuration\n";
           force = true;
         };
 
-      "DankMaterialShell/settings.json" = {
-        source = config.lib.file.mkOutOfStoreSymlink "${flakeRoot}/home/nixos/desktop/dms/config/${hostSettingsFile}";
-        force = true;
-      };
+      "DankMaterialShell/settings.json" = mkLiveSymlink "${dmsConfigDir}/${hostSettingsFile}";
     }
-    // dmsSymlinks
-    // niriSymlinks;
+    // xdgConfigDirSymlinks {
+      readDirPath = ./config;
+      liveDirAbs = dmsConfigDir;
+      relPrefix = "DankMaterialShell";
+      exclude = settingsBasenames;
+    }
+    // xdgConfigDirSymlinksPred {
+      readDirPath = ../niri;
+      liveDirAbs = niriDir;
+      relPrefix = "niri";
+      predicate = niriPredicate;
+    };
 }
