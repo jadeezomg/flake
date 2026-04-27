@@ -4,7 +4,7 @@
 in {
   pinsForce = true;
   pins = {
-    "Google Drive messaged you - Chat" = {
+    "Inbox (1) - jonas.hippauf@getcaya.com - Caya GmbH Mail" = {
       id = "22b1fd3c-57f8-4984-9ef9-e8a26e396e4a";
       url = "https://mail.google.com/mail/u/0/#inbox";
       isEssential = true;
