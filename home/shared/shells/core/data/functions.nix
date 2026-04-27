@@ -1,7 +1,7 @@
 {
   # Documentation for the cd shortcut family. Each shell in core/<shell>.nix
   # implements zz/zc/zd in its native syntax. Shortcuts that depend on the
-  # dotfiles repo path (zp, zf, flake, nuflake) live in env/system.nix and
+  # Flake path (zf, flake, nuflake) live in env/system.nix and
   # are only wired when essentials.enable = true.
   commonFunctions = {
     zz = {

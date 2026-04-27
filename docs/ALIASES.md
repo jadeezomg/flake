@@ -88,12 +88,11 @@ All defined in `home/shared/shells/env/system.nix` (imported via `home/shared/sh
 
 | Function | Description |
 |----------|-------------|
-| `zp` | `cd` to `$HOME/.dotfiles` |
-| `zf` | `cd` to `$HOME/.dotfiles/flake` |
+| `zf` | `cd` to `dotfiles.flakeRoot` (default `$HOME/.dotfiles/flake`) |
 | `flake` | `just --justfile $FLAKE/Justfile` — no args → **`just --choose`**. With extra args on `build`/`switch`/`generation`/`gc`/`fmt`/`backups`/`init`/`read-defaults`, forwards to private `_…` recipes, e.g. `flake build --dry`, `flake init myhost`. |
 | `nuflake` | `nu $FLAKE/build/flake.nu` |
 
-Requires **`just`** on PATH. **`FLAKE`** / **`NH_FLAKE`** default to `~/.dotfiles/flake` in that same module.
+Requires **`just`** on PATH. **`FLAKE`** / **`NH_FLAKE`** follow **`dotfiles.flakeRoot`** (default `~/.dotfiles/flake`).
 
 ---
 
@@ -163,7 +162,7 @@ These commands are provided by [git.nu](https://github.com/fj0r/git.nu) and are 
 
 - **Shared aliases** (`cat`, `find`, `grep`, `ls`, eza shortcuts, git one-liners, `search*`, etc.) live in `home/shared/shells/core/data/aliases.nix` and are wired as `shellAliases` from `home/shared/shells/core/{bash,fish,zsh,nushell}.nix`.
 - **`zz` / `zc` / `zd`** are small functions in those same `core/*.nix` files (not separate alias modules).
-- **`zp` / `zf` / `flake` / `nuflake`** and workstation env (`FLAKE`, extra `PATH`) come from `home/shared/shells/env/system.nix`; entry point is `home/shared/shells/env/default.nix`.
+- **`zf` / `flake` / `nuflake`** and workstation env (`FLAKE`, extra `PATH`) come from `home/shared/shells/env/system.nix`; entry point is `home/shared/shells/env/default.nix`.
 - **Navi cheat** for quick lookup: `home/shared/utils/navi/cheats/aliases.cheat` (points at the paths above).
 - **git.nu** commands are loaded in `home/shared/shells/core/nushell.nix` from the upstream `git.nu` flake input fetch; **Nushell only**. Some names overlap bash-style `gst` / `gad` aliases but implement different flows — see [git.nu](https://github.com/fj0r/git.nu).
 
@@ -174,7 +173,7 @@ These commands are provided by [git.nu](https://github.com/fj0r/git.nu) and are 
 ### Most Used Commands
 
 **Navigation:**
-- `zz`, `zc`, `zd`, `zp`, `zf` - Quick directory navigation
+- `zz`, `zc`, `zd`, `zf` - Quick directory navigation
 - `..`, `...`, `....`, `.....` - Navigate up directories
 
 **Git - git.nu (Nushell only):**

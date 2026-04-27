@@ -8,7 +8,6 @@
   paths = import ../core/data/paths.nix;
 
   flakeRoot = config.dotfiles.flakeRoot;
-  dotfilesRoot = builtins.dirOf flakeRoot;
 
   # Workstation-only PATH additions on top of the base list from env/base.nix.
   systemPathList = [
@@ -57,7 +56,6 @@
       command just --justfile "$j" "$@"
     }
     nuflake() { command nu "''${FLAKE:?}/build/flake.nu" "$@"; }
-    zp() { cd ${dotfilesRoot}; }
     zf() { cd ${flakeRoot}; }
   '';
 
@@ -78,7 +76,6 @@
       just --justfile "$j" "$@"
     }
     nuflake() { nu "${flakeRoot}/build/flake.nu" "$@"; }
-    zp() { cd ${dotfilesRoot}; }
     zf() { cd ${flakeRoot}; }
   '';
 
@@ -106,16 +103,12 @@
     function nuflake
       nu "${flakeRoot}/build/flake.nu" $argv
     end
-    function zp
-      cd ${dotfilesRoot}
-    end
     function zf
       cd ${flakeRoot}
     end
   '';
 
   nushellFlakeFn = ''
-    def --env zp [] { cd ${dotfilesRoot} }
     def --env zf [] { cd $env.FLAKE }
     def --wrapped flake [...rest] {
       ^just --justfile $"($env.FLAKE)/Justfile" ...$rest
