@@ -34,7 +34,9 @@ in {
     onActivation = {
       autoUpdate = false;
       cleanup = "uninstall";
-      upgrade = true;
+      # Avoid upgrading the full brew graph during activation; transient
+      # network/CDN issues can fail the whole switch.
+      upgrade = false;
     };
 
     brews = [
