@@ -120,6 +120,7 @@
         };
       modules = [
         inputs.stylix.nixosModules.stylix
+        inputs.dms.nixosModules.dank-material-shell
         inputs.dms.nixosModules.greeter
         (./. + "/../hosts/${hostKey}")
         sops-nix.nixosModules.sops

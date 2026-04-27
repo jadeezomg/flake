@@ -30,6 +30,7 @@
     "npm:pi-openrouter-realtime"
     "npm:pi-connect"
     "npm:pi-mcp-adapter"
+    "git:github.com/mksglu/context-mode"
   ];
 
   installScript =

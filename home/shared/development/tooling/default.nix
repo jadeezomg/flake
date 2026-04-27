@@ -4,5 +4,6 @@
   imports = [
     ./llm.nix
     ./pi-packages.nix
+    ./context-mode.nix
   ];
 }
