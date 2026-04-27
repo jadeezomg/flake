@@ -19,6 +19,10 @@ in {
     secrets =
       {
         ${githubPatSecretAttrName} = githubPatSecret;
+        "agent-pat" = {
+          key = "agent_pat";
+          path = ".config/nix/agent-pat";
+        };
       }
       // {
         "context7-api-key" = {

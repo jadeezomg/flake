@@ -20,13 +20,23 @@
 
       claude-sandbox = let
         sandboxFloor = import ../lib/packages/sandbox-floor.nix pkgs;
-        minimalPackages = import ../lib/packages/minimal.nix pkgs;
+        # minimal.nix minus Nix build / store clients — no nix(1), nh, nix-index in PATH
+        nixBuildTools = with pkgs; [
+          nh
+          nix-index
+          nix
+        ];
+        minimalPackages = pkgs.lib.subtractLists nixBuildTools (import ../lib/packages/minimal.nix pkgs);
 
         claude-sandboxed = inputs.agent-sandbox.lib.${system}.mkSandbox {
           pkg = pkgs.claude-code;
           binName = "claude";
           outName = "claude-sandboxed";
 
+          # On Linux, agent-sandbox.nix bwraps with --tmpfs $HOME, then only stateDirs and
+          # a few work paths are bind-mounted. The real ~/.config and ~/.nix are not
+          # visible (ephemeral HOME); only $HOME paths listed in stateDirs/stateFiles
+          # bridge through to the host.
           allowedPackages =
             sandboxFloor
             ++ minimalPackages
@@ -44,7 +54,7 @@
 
           extraEnv = {
             CLAUDE_CODE_OAUTH_TOKEN = "$CLAUDE_CODE_OAUTH_TOKEN";
-            GITHUB_TOKEN = "$GITHUB_TOKEN";
+            GITHUB_TOKEN = "$AGENT_PAT";
             GIT_AUTHOR_NAME = "claude";
             GIT_AUTHOR_EMAIL = "claude@localhost";
             GIT_COMMITTER_NAME = "claude";
@@ -54,6 +64,7 @@
             PAGER = "bat";
             LC_ALL = "en_US.UTF-8";
             LANG = "en_US.UTF-8";
+            NIX_PATH = "";
           };
 
           restrictNetwork = true;
