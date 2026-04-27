@@ -13,7 +13,9 @@ let
     homeDirectory = "/home/${sharedNixOSUser.username}";
     stateVersion = "25.11";
     extraUsers = nixosExtraUsers;
-    /** `nix.settings.cores` + half for CARGO_BUILD_JOBS */
+    /**
+    `nix.settings.cores` + half for CARGO_BUILD_JOBS
+    */
     buildCores = 6;
   };
 in {
