@@ -27,7 +27,7 @@ in {
 
     # --- DankMaterialShell (DMS) ---
     # xdg.configFile is handled in home/nixos/desktop/dms.nix (Home Manager).
-    programs.dms-shell = {
+    programs.dank-material-shell = {
       enable = true;
       quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.quickshell;
       systemd = {
