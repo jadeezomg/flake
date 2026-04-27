@@ -4,7 +4,7 @@
 in {
   pinsForce = true;
   pins = {
-    "Inbox (4) - jonas.hippauf@getcaya.com - Caya GmbH Mail" = {
+    "Google Drive messaged you - Chat" = {
       id = "22b1fd3c-57f8-4984-9ef9-e8a26e396e4a";
       url = "https://mail.google.com/mail/u/0/#inbox";
       isEssential = true;
@@ -22,7 +22,7 @@ in {
       isEssential = true;
       position = 103;
     };
-    "1/2 loaded · Dashboard · Metabase" = {
+    "PAM Dashboard · Dashboard · Metabase" = {
       id = "55d4921c-59db-4cec-ad03-cb21e5ae8ed5";
       url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer&e-mail&id&tab=7-customer";
       isEssential = true;
@@ -34,21 +34,21 @@ in {
       isEssential = true;
       position = 105;
     };
-    "Sprints" = {
-      id = "50467426-e9af-43bf-bde6-eb16140c65c8";
-      url = "https://one.zoho.eu/zohoone/cayagmbh/home/cxapp/sprints/workspace/cayagmbh?frameorigin=https%3A%2F%2Fone.zoho.eu#projects";
+    "Caya Document Automation - Connect your apps. Automate your work." = {
+      id = "7d00f1ba-b3d0-48a6-863d-dbadc14ef757";
+      url = "https://app.eu.workato.com/?fid=projects";
       isEssential = true;
       position = 106;
-    };
-    "[LIVE] Advanced Distribution Unified | Caya Document Automation" = {
-      id = "7d00f1ba-b3d0-48a6-863d-dbadc14ef757";
-      url = "https://app.eu.workato.com/recipes/1955260#jobs";
-      isEssential = true;
-      position = 107;
     };
     "Caya" = {
       id = "21f63058-e806-4b07-a023-90a85314ffa8";
       url = "https://github.com/AMN-DATA";
+      isEssential = true;
+      position = 107;
+    };
+    "Sprints" = {
+      id = "50467426-e9af-43bf-bde6-eb16140c65c8";
+      url = "https://one.zoho.eu/zohoone/cayagmbh/home/cxapp/sprints";
       isEssential = true;
       position = 108;
     };
@@ -88,7 +88,7 @@ in {
       editedTitle = true;
       position = 1002;
     };
-    "New Folder" = {
+    "casavi" = {
       id = "{1776351617692-26}";
       workspace = spaces."Development".id;
       isGroup = true;
@@ -471,7 +471,7 @@ in {
     };
     "Daily Workato Recipe failures that requi" = {
       id = "3f1f0649-da2b-4e38-9c7d-f252bda95c8f";
-      url = "https://metabase.caya.com/question/3316-daily-workato-recipe-failures-that-requires-follow-ups?days=1";
+      url = "https://metabase.caya.com/question/3316-daily-workato-recipe-failures-that-requires-follow-ups?days=3";
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 234;
@@ -574,7 +574,7 @@ in {
       position = 246;
       folderParentId = "{1774868454880-16}";
     };
-    "Caya Document Cockpit_3" = {
+    "Caya Document Cockpit_2_1" = {
       id = "cb4c2b75-aea4-4747-8a65-efcadaaf79ac";
       url = "https://develop--appcayacom.netlify.app/app/folder/inbox";
       workspace = spaces."Development".id;
@@ -583,9 +583,9 @@ in {
       folderParentId = "{1772811911012-80}";
       container = 4;
     };
-    "Workato" = {
+    "Login to build your integrations, automa" = {
       id = "8a1df9ea-9c7b-41bd-b206-e6d43358c2cc";
-      url = "https://app.eu.workato.com/?fid=projects";
+      url = "https://app.eu.workato.com/users/sign_in";
       workspace = spaces."Development".id;
       isEssential = false;
       position = 248;
