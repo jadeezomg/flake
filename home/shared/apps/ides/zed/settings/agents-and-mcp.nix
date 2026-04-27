@@ -8,6 +8,9 @@
     goose = {
       type = "registry";
     };
+    cursor = {
+      type = "registry";
+    };
 
     # --- Pi ---
     pi = {

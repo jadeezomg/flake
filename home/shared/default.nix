@@ -1,5 +1,6 @@
 {...}: {
   imports = [
+    ./dotfiles.nix
     ./compat.nix
     ./apps
     ./security.nix
