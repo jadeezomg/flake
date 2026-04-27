@@ -18,7 +18,6 @@ in {
       tinymist # Typst language server with built-in formatters
 
       # Diagrams
-      d2
       mermaid-cli
     ];
   };
