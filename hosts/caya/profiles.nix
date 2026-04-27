@@ -3,6 +3,5 @@
     devenv.enable = true;
     apps.enable = true;
     work.enable = true;
-    essentials.promptEngine = "starship";
   };
 }

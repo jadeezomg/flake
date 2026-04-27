@@ -6,7 +6,7 @@ in {
     enable = true;
 
     enableCompletion = true;
-    autosuggestion.enable = false; # remnant char issue with oh-my-posh
+    autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
     history = {

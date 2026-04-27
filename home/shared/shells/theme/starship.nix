@@ -40,8 +40,7 @@
     git-diverged = u "f047"; #
   };
 in
-  lib.mkIf ((osConfig.dotfiles.profiles.essentials.enable or true)
-    && (osConfig.dotfiles.profiles.essentials.promptEngine or "oh-my-posh") == "starship") {
+  lib.mkIf (osConfig.dotfiles.profiles.essentials.enable or true) {
     programs.starship = {
       enable = true;
       enableBashIntegration = true;
@@ -75,7 +74,7 @@ in
           ansi-bright-blue = themeColors.ansi-bright-blue;
         };
 
-        # --- Prompt format — mirrors oh-my-posh left block order ---
+        # --- Prompt format (left block) ---
         format = lib.concatStrings [
           "[ ](accent-blue)"
           "$cmd_duration"

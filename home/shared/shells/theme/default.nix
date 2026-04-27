@@ -1,14 +1,7 @@
 {...}: {
-  # All theme content is gated inside each submodule on
-  # `osConfig.dotfiles.profiles.essentials.enable`. Sandboxes and minimal-only
-  # hosts get neither oh-my-posh nor the nushell color overlay.
+  # Theme submodules gate on `osConfig.dotfiles.profiles.essentials.enable`.
   imports = [
-    ./oh-my-posh.nix
     ./starship.nix
-    ./zsh.nix
-    ./bash.nix
-    ./fish.nix
-    ./nushell.nix
     ./nushell-env.nix
   ];
 }

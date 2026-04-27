@@ -205,7 +205,6 @@ dotfiles.profiles = {
   gaming.enable = true;          # Steam stack (Linux only)
   work.enable = true;            # Workato, Postman, browsers on Darwin
   desktop.enable = true;         # niri + DMS + GNOME fallback (Linux only; default: true)
-  essentials.promptEngine = "starship";  # or "oh-my-posh"
 };
 ```
 
