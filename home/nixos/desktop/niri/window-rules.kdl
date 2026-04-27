@@ -93,16 +93,20 @@ window-rule {
 layer-rule {
     match namespace="^dms:"
     // match namespace="^dms:bar$"
-    // match namespace="^dms:app-launcher$"
+    match namespace="^dms:app-launcher$"
     // match namespace="^dms:control-center$"
     // opacity 0.5
+    background-effect {
+        // blur true
+        xray false
+    }
 
     popups {
-        // opacity 0.5
+        //opacity 0.5
         geometry-corner-radius 15
         background-effect {
             blur true
-            xray true
+            xray false
         }
     }
 }
@@ -154,5 +158,6 @@ window-rule {
 // Open DMS windows (quickshell) as floating by default
 window-rule {
     match app-id=r#"org.quickshell$"#
+    match app-id=r#"com.danklinux.dms"#
     open-floating true
 }
