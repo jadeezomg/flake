@@ -33,7 +33,7 @@
       browsers.enable = mkEnableOption "apps.browsers (zen-browser; firefox/chrome live in work)";
       terminals.enable = mkEnableOption "apps.terminals (ghostty, kitty)";
       editors.enable = mkEnableOption "apps.editors (helix; cursor/zed are HM-only large configs)";
-      files.enable = mkEnableOption "apps.files (zathura; nautilus/filezilla land in nixos/)";
+      files.enable = mkEnableOption "apps.files (zathura via HM on NixOS; nautilus/filezilla in nixos modules)";
       comms.enable = mkEnableOption "apps.comms (protonmail-desktop, etc.)";
       notes.enable = mkEnableOption "apps.notes (obsidian)";
       media.enable = mkEnableOption "apps.media (pear-desktop, future media players)";
