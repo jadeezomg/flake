@@ -6,14 +6,8 @@
   imports = [
     ../../modules/shared
     ../../modules/darwin
+    ./profiles.nix
   ];
-
-  dotfiles.profiles = {
-    devenv.enable = true;
-    apps.enable = true;
-    work.enable = true;
-    essentials.promptEngine = "starship";
-  };
 
   nix-homebrew = {
     inherit user;
