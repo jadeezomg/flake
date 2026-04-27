@@ -31,6 +31,7 @@ in {
     ./keybinds.nix
     ./languages.nix
     ./settings.nix
+    ./tasks.nix
     ./theme.nix
   ];
 
