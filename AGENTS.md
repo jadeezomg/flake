@@ -6,11 +6,11 @@ Essential knowledge for AI agents working in this NixOS/Darwin flake. Focuses on
 
 **Single-flake, multi-host** configuration managing three machines:
 
-| Key | Hostname | System | Description |
-|-----|----------|--------|-------------|
-| `desktop` | `desktop-nixos` | x86_64-linux | NVIDIA desktop |
-| `framework` | `framework-nixos` | x86_64-linux | Framework 13 7040 |
-| `caya` | `caya-darwin` | aarch64-darwin | Apple Silicon |
+| Key / Hostname | System | Description |
+|----------------|--------|-------------|
+| `desktop` | x86_64-linux | NVIDIA desktop |
+| `framework` | x86_64-linux | Framework 13 7040 |
+| `caya` | aarch64-darwin | Apple Silicon |
 
 Active host is determined by `.flake-host` (never commit it).
 
@@ -306,47 +306,44 @@ Stylix is enabled globally (`stylix.autoEnable = true`) but vscode, firefox, and
 ### 1. `.flake-host` File
 Created by `just init` (prompted) or `just _init <host>` (scripted). Never commit it. All `nh`-based recipes read it to determine which host to build.
 
-### 2. Hostname ≠ Host Key
-The `hostKey` (e.g. `"desktop"`) differs from `hostname` (e.g. `"desktop-nixos"`). Always use `hostKey` for Nix conditionals; `hostname` is the system hostname.
-
-### 3. nixpkgs-zed Input
+### 2. nixpkgs-zed Input
 `nixpkgs-zed` is a pinned nixpkgs commit for a specific zed-editor version. It does **not** follow `nixpkgs`. Don't accidentally upgrade it when running `nix flake update`.
 
-### 4. Local Packages Are pkgs.<name>
+### 3. Local Packages Are pkgs.<name>
 After adding `packages/<name>/default.nix`, the package is immediately available as `pkgs.<name>` everywhere — no explicit import needed. The overlay (`local-packages.nix`) handles it.
 
-### 5. Conditional Imports Always Need a `default.nix` Entry
+### 4. Conditional Imports Always Need a `default.nix` Entry
 When creating a new `.nix` file in any directory, add it to that directory's `default.nix` imports list. Files not imported are silently ignored.
 
-### 6. `pkgs-stable` for Specific Packages
+### 5. `pkgs-stable` for Specific Packages
 Use `pkgs-stable.<pkg>` when a package needs pinned stability. It's nixpkgs 25.11 without overlays (no local packages, no niri/cachyos overlays).
 
-### 7. `just switch` Runs `just git` First
+### 6. `just switch` Runs `just git` First
 The full `switch` recipe auto-runs `just git` (formats + prompts for commit). Use `just switch-fast` to skip this entirely.
 
-### 8. `just update` Does Three Things
+### 7. `just update` Does Three Things
 1. `update-packages` (custom package version + hash updates)
 2. `nix flake update` (flake.lock)
 3. `just fmt`
 
 For framework host, also checks firmware via `fwupdmgr`.
 
-### 9. Darwin: No nixpkgs Nix Daemon
+### 8. Darwin: No nixpkgs Nix Daemon
 `modules/darwin/default.nix` sets `nix.enable = false` — the Determinate Nix installer manages the daemon on macOS. Don't re-enable it.
 
-### 10. Home-Manager Guest Users
+### 9. Home-Manager Guest Users
 `homeManagerConfig` in `parts/hosts.nix` also creates HM configs for `extraUsers` (currently `angelie`). Guest users share the same HM module set as the primary user.
 
-### 11. `backupFileExtension = "backup"` + `overwriteBackup = true`
+### 10. `backupFileExtension = "backup"` + `overwriteBackup = true`
 Home-manager is configured to overwrite backup files on conflict. Old `.backup` files accumulate; clean with `just backups-clean`.
 
-### 12. DMS Settings Are Not Store-Copied
+### 11. DMS Settings Are Not Store-Copied
 `settings.json` for DMS is a live symlink into the flake — changes to `home/nixos/desktop/dms/config/settings-*.json` apply immediately without a switch. Run `just symlink-check-dms` to verify the link is correct.
 
-### 13. Lanzaboote Requires sbctl
+### 12. Lanzaboote Requires sbctl
 Secure boot keys live at `/var/lib/sbctl`. On a fresh install, `sbctl` must be run before `lanzaboote` will work. Don't touch `boot.loader.systemd-boot.enable` — it's force-disabled.
 
-### 14. Framework-Control Has Its Own nixpkgs
+### 13. Framework-Control Has Its Own nixpkgs
 `inputs.framework-control` uses a bundled nixpkgs fork and does **not** follow the flake's `nixpkgs`. Its package is system-gated to `x86_64-linux` in `local-packages.nix`.
 
 ---

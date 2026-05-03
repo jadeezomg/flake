@@ -3,7 +3,7 @@ let
 in
   sharedNixOSHost
   // {
-    hostname = "desktop-nixos";
+    hostname = "desktop";
     description = "Jadee Desktop NixOS Host";
     user = sharedNixOSUser;
     buildCores = 24;

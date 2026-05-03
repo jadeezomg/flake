@@ -386,7 +386,7 @@ update:
     just --justfile "${JUSTFILE:?}" fmt
     print_success "fmt              done"
     h="$(get_host "")"
-    if ! is_darwin && [[ "$h" == framework-nixos ]] && command -v fwupdmgr >/dev/null; then
+    if ! is_darwin && [[ "$h" == framework ]] && command -v fwupdmgr >/dev/null; then
       print_pending "fwupdmgr         checking BIOS/firmware updates (framework)..."
       fwupdmgr refresh --force >/dev/null 2>&1 || true
       fwupdmgr get-updates || true
