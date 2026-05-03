@@ -16,15 +16,15 @@ in {
       isEssential = true;
       position = 102;
     };
-    "Reddit - The heart of the internet" = {
+    "I think Tu-95 has enough space inside for way more than 4x FAB-500s or 6x 250s : r/Warthunder" = {
       id = "78d70083-a115-4ea1-a25a-be9bc67ca1df";
       url = "https://www.reddit.com/";
       isEssential = true;
       position = 103;
     };
-    "jadee-server/Login" = {
+    "jadee-server/Main" = {
       id = "98dbc3e9-ee34-44a2-8d1a-5539fa7dea98";
-      url = "http://jadee-server/login";
+      url = "http://jadee-server/Main";
       isEssential = true;
       position = 104;
     };
@@ -51,6 +51,12 @@ in {
       url = "https://chat.mistral.ai/chat";
       isEssential = true;
       position = 108;
+    };
+    "Kimi K2.6 - API Pricing & Providers | OpenRouter" = {
+      id = "284cf718-c531-4854-98ff-2fa84efeaf3c";
+      url = "https://openrouter.ai/moonshotai/kimi-k2.6";
+      isEssential = true;
+      position = 109;
     };
     "Nix" = {
       id = "{1775769307141-35}";
@@ -124,7 +130,7 @@ in {
     };
     "Mydealz" = {
       id = "d37bad11-fbf6-43db-a280-2aaf4c506609";
-      url = "https://www.mydealz.de/deals-new?page=4";
+      url = "https://www.mydealz.de/deals-new";
       workspace = spaces."Shopping".id;
       isEssential = false;
       position = 207;

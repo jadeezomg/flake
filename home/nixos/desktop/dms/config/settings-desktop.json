@@ -356,6 +356,7 @@
   "matugenTemplatePywalfox": false,
   "matugenTemplateZenBrowser": false,
   "matugenTemplateVesktop": false,
+  "matugenTemplateVencord": true,
   "matugenTemplateEquibop": false,
   "matugenTemplateGhostty": false,
   "matugenTemplateKitty": false,
@@ -481,6 +482,9 @@
   "updaterUseCustomCommand": true,
   "updaterCustomCommand": "nh os build",
   "updaterTerminalAdditionalParams": "",
+  "updaterIntervalSeconds": 1800,
+  "updaterIncludeFlatpak": true,
+  "updaterAllowAUR": true,
   "displayNameMode": "system",
   "screenPreferences": {
     "osd": [

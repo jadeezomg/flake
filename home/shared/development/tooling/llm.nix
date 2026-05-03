@@ -18,12 +18,12 @@
   agentSkillEntries = lib.concatLists (map (category:
     lib.optionals (category != "deprecated")
     (map (skillName: {
-      name = skillName;
-      path = "${agentSkillsDir}/${category}/${skillName}";
-    })
-    (lib.attrNames
-      (lib.filterAttrs (_: type: type == "directory")
-        (builtins.readDir "${agentSkillsDir}/${category}")))))
+        name = skillName;
+        path = "${agentSkillsDir}/${category}/${skillName}";
+      })
+      (lib.attrNames
+        (lib.filterAttrs (_: type: type == "directory")
+          (builtins.readDir "${agentSkillsDir}/${category}")))))
   agentSkillCategories);
 
   agentSkillFiles = lib.listToAttrs (lib.concatMap (skill:
