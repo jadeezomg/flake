@@ -1,7 +1,7 @@
 let
   inherit (import ../lib.nix) darwinUser;
 in {
-  hostname = "caya-darwin";
+  hostname = "caya";
   description = "Jadee Caya Darwin Host";
   username = darwinUser.username;
   system = "aarch64-darwin";

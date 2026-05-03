@@ -38,7 +38,7 @@ just fmt             # alejandra + deadnix + ruff + ty + biome
 just lint            # deadnix + statix
 
 # maintenance
-just update          # update-packages, flake update, fmt; Framework: fwupdmgr when on framework-nixos
+just update          # update-packages, flake update, fmt; Framework: fwupdmgr when on framework
 just gc-days         # nh clean, keep store paths newer than N days
 just health          # git status, disk, nh os info
 ```

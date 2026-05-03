@@ -3,7 +3,7 @@ let
 in
   sharedNixOSHost
   // {
-    hostname = "framework-nixos";
+    hostname = "framework";
     description = "Jadee Framework NixOS Host";
     user = sharedNixOSUser;
     dmsSettingsFile = "settings-framework.json";
