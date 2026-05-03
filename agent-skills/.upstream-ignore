@@ -1,8 +1,12 @@
-# Skills present in the skills-mattpocock upstream that we explicitly do NOT
-# want pulled into our flake. `just skills-upstream` will hide these from the
-# "upstream-only" list and never propose adding them.
+# Skills present in the upstream that we explicitly do NOT want pulled into our
+# flake. `just skills-upstream` will hide these from the "upstream-only" list.
 #
 # One skill name per line. Blank lines and lines starting with # are ignored.
 
-migrate-to-shoehorn
-scaffold-exercises
+setup-matt-pocock-skills  # handled via the flake directly
+
+# deprecated upstream skills
+design-an-interface
+qa
+request-refactor-plan
+ubiquitous-language

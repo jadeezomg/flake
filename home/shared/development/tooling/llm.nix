@@ -8,26 +8,34 @@
   agentsEnabled = agentsCfg.enable or false;
   hostingEnabled = osConfig.dotfiles.profiles.devenv.llm.hosting.enable or false;
   agentSkillsDir = ../../../../agent-skills;
-  agentSkillNames =
-    lib.attrNames
-    (lib.filterAttrs (_: type: type == "directory") (builtins.readDir agentSkillsDir));
   agentSkillInstallPrefixes = [
     ".claude/skills"
     ".agents/skills"
   ];
+  agentSkillCategories =
+    lib.attrNames
+    (lib.filterAttrs (_: type: type == "directory") (builtins.readDir agentSkillsDir));
+  agentSkillEntries = lib.concatLists (map (category:
+    lib.optionals (category != "deprecated")
+    (map (skillName: {
+      name = skillName;
+      path = "${agentSkillsDir}/${category}/${skillName}";
+    })
+    (lib.attrNames
+      (lib.filterAttrs (_: type: type == "directory")
+        (builtins.readDir "${agentSkillsDir}/${category}")))))
+  agentSkillCategories);
 
-  agentSkillFiles = lib.listToAttrs (lib.concatMap (skillName: let
-    sourcePath = "${agentSkillsDir}/${skillName}";
-  in
+  agentSkillFiles = lib.listToAttrs (lib.concatMap (skill:
     map (prefix: {
-      name = "${prefix}/${skillName}";
+      name = "${prefix}/${skill.name}";
       value = {
-        source = sourcePath;
+        source = skill.path;
         recursive = true;
       };
     })
     agentSkillInstallPrefixes)
-  agentSkillNames);
+  agentSkillEntries);
 
   unslothDefaults = {
     containerName = "unsloth-studio";

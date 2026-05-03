@@ -1,24 +1,21 @@
 #!/usr/bin/env bash
-# Diff agent-skills/ against the locked skills-mattpocock input.
-# Usage: just skills-upstream [--bump] [--apply-all]
-#   --bump       run `nix flake update skills-mattpocock` first
+# Diff agent-skills/ against ~/Git/skills (nested category structure).
+# Usage: just skills-upstream [--apply-all]
 #   --apply-all  copy upstream over local for every changed skill (no prompt)
 set -euo pipefail
 
 source "${FLAKE:-${HOME}/.dotfiles/flake}/scripts/shell/common.sh"
 
-INPUT_NAME="skills-mattpocock"
 LOCAL_DIR="${FLAKE}/agent-skills"
+UPSTREAM_DIR="${HOME}/Git/skills/skills"
 IGNORE_FILE="${LOCAL_DIR}/.upstream-ignore"
-BUMP=0
 APPLY_ALL=0
 
 for arg in "$@"; do
   case "$arg" in
-    --bump) BUMP=1 ;;
     --apply-all) APPLY_ALL=1 ;;
     -h|--help)
-      sed -n '2,5p' "$0" | sed 's/^# \?//'
+      sed -n '2,4p' "$0" | sed 's/^# \?//'
       exit 0
       ;;
     *) print_error "unknown arg: $arg"; exit 2 ;;
@@ -26,16 +23,7 @@ for arg in "$@"; do
 done
 
 print_header "SKILLS UPSTREAM"
-
-if [[ $BUMP -eq 1 ]]; then
-  print_pending "bumping ${INPUT_NAME} input"
-  nix flake update "${INPUT_NAME}" --flake "${FLAKE}"
-  print_success "input updated"
-fi
-
-print_pending "resolving upstream store path"
-upstream="$(nix eval --raw --impure --expr "(builtins.getFlake \"${FLAKE}\").inputs.${INPUT_NAME}.outPath")"
-print_info "upstream: ${upstream}"
+print_info "upstream: ${UPSTREAM_DIR}"
 
 # Skills the user has explicitly opted out of (one name per line, # comments)
 declare -A IGNORED=()
@@ -47,56 +35,76 @@ if [[ -f "${IGNORE_FILE}" ]]; then
   done < "${IGNORE_FILE}"
 fi
 
-# Collect skill names that exist in BOTH local and upstream and have SKILL.md
-mapfile -t common < <(
-  for d in "${LOCAL_DIR}"/*/; do
-    n="$(basename "$d")"
-    if [[ -f "${LOCAL_DIR}/${n}/SKILL.md" && -f "${upstream}/${n}/SKILL.md" ]]; then
-      printf '%s\n' "$n"
-    fi
-  done | sort -u
-)
-
-if [[ ${#common[@]} -eq 0 ]]; then
-  print_info "no overlapping skills"
-  print_header "END"
-  exit 0
-fi
-
-# Find which differ
-changed=()
-for n in "${common[@]}"; do
-  if ! diff -rq "${LOCAL_DIR}/${n}" "${upstream}/${n}" >/dev/null 2>&1; then
-    changed+=("$n")
-  fi
+# Build map: skillName -> upstream_path (skip deprecated)
+declare -A upstream_map=()
+for cat_dir in "${UPSTREAM_DIR}"/*/; do
+  cat="$(basename "$cat_dir")"
+  [[ "$cat" == "deprecated" ]] && continue
+  for skill_dir in "${cat_dir}"*/; do
+    [[ -d "$skill_dir" ]] || continue
+    n="$(basename "$skill_dir")"
+    upstream_map["$n"]="${skill_dir%/}"
+  done
 done
 
-# Also report upstream-only skills (potential adds), respecting .upstream-ignore
-mapfile -t upstream_only < <(
-  for d in "${upstream}"/*/; do
-    n="$(basename "$d")"
-    [[ -f "${upstream}/${n}/SKILL.md" ]] || continue
-    [[ -e "${LOCAL_DIR}/${n}" ]] && continue
-    [[ -n "${IGNORED[$n]:-}" ]] && continue
-    printf '%s\n' "$n"
-  done | sort -u
-)
+# Build map: skillName -> local_path (skip deprecated and local categories)
+declare -A local_map=()
+for cat_dir in "${LOCAL_DIR}"/*/; do
+  cat="$(basename "$cat_dir")"
+  [[ "$cat" == "deprecated" || "$cat" == "local" ]] && continue
+  for skill_dir in "${cat_dir}"*/; do
+    [[ -d "$skill_dir" ]] || continue
+    n="$(basename "$skill_dir")"
+    local_map["$n"]="${skill_dir%/}"
+  done
+done
+
+# Find changed (exist in both, differ)
+changed_names=()
+changed_local=()
+changed_upstream=()
+for n in "${!local_map[@]}"; do
+  [[ -v upstream_map["$n"] ]] || continue
+  if ! diff -rq "${local_map[$n]}" "${upstream_map[$n]}" >/dev/null 2>&1; then
+    changed_names+=("$n")
+    changed_local+=("${local_map[$n]}")
+    changed_upstream+=("${upstream_map[$n]}")
+  fi
+done
+# Sort for stable output
+IFS=$'\n' changed_names=($(sort <<<"${changed_names[*]+"${changed_names[*]}"}")); unset IFS
+
+# Find upstream-only (potential adds), respecting .upstream-ignore
+upstream_only=()
+for n in "${!upstream_map[@]}"; do
+  [[ -v local_map["$n"] ]] && continue
+  [[ -n "${IGNORED[$n]:-}" ]] && continue
+  upstream_only+=("$n")
+done
+IFS=$'\n' upstream_only=($(sort <<<"${upstream_only[*]+"${upstream_only[*]}"}")); unset IFS
 
 echo
-if [[ ${#changed[@]} -eq 0 ]]; then
-  print_success "all ${#common[@]} overlapping skill(s) match upstream"
+if [[ ${#changed_names[@]} -eq 0 ]]; then
+  print_success "all overlapping skills match upstream"
 else
-  print_pending "${#changed[@]} of ${#common[@]} skill(s) differ from upstream:"
-  for n in "${changed[@]}"; do printf '  %b~%b %s\n' "${THEME_YELLOW}" "${THEME_RESET}" "${n}"; done
+  print_pending "${#changed_names[@]} skill(s) differ from upstream:"
+  for n in "${changed_names[@]}"; do printf '  %b~%b %s\n' "${THEME_YELLOW}" "${THEME_RESET}" "${n}"; done
 fi
 
 if [[ ${#upstream_only[@]} -gt 0 ]]; then
   echo
   print_info "upstream-only (not in flake): ${#upstream_only[@]}"
-  for n in "${upstream_only[@]}"; do printf '  %b+%b %s\n' "${THEME_CYAN}" "${THEME_RESET}" "${n}"; done
+  for n in "${upstream_only[@]}"; do
+    # find its category
+    cat="unknown"
+    for cat_dir in "${UPSTREAM_DIR}"/*/; do
+      [[ -d "${cat_dir}${n}" ]] && cat="$(basename "$cat_dir")" && break
+    done
+    printf '  %b+%b %s (%s)\n' "${THEME_CYAN}" "${THEME_RESET}" "${n}" "${cat}"
+  done
 fi
 
-if [[ ${#changed[@]} -eq 0 ]]; then
+if [[ ${#changed_names[@]} -eq 0 ]]; then
   print_header "END"
   exit 0
 fi
@@ -114,31 +122,34 @@ diff_tool() {
 }
 
 apply() {
-  local n="$1"
-  rm -rf "${LOCAL_DIR:?}/${n}"
-  cp -r --no-preserve=mode "${upstream}/${n}" "${LOCAL_DIR}/${n}"
-  chmod -R u+w "${LOCAL_DIR}/${n}"
+  local n="$1" local_path="$2" upstream_path="$3"
+  rm -rf "${local_path:?}"
+  cp -r --no-preserve=mode "${upstream_path}" "${local_path}"
+  chmod -R u+w "${local_path}"
   print_success "applied: ${n}"
 }
 
 if [[ $APPLY_ALL -eq 1 ]]; then
   echo
-  for n in "${changed[@]}"; do apply "$n"; done
+  for i in "${!changed_names[@]}"; do
+    apply "${changed_names[$i]}" "${changed_local[$i]}" "${changed_upstream[$i]}"
+  done
   print_header "END"
   exit 0
 fi
 
 echo
 print_info "interactive review — [v]iew diff / [a]pply / [s]kip / [q]uit"
-for n in "${changed[@]}"; do
+for i in "${!changed_names[@]}"; do
+  n="${changed_names[$i]}"
   while true; do
     read -r -p "${n} > [v/a/s/q]: " ans || ans=q
     case "${ans,,}" in
       v|view)
-        diff_tool "${LOCAL_DIR}/${n}" "${upstream}/${n}" | ${PAGER:-less -R}
+        diff_tool "${changed_local[$i]}" "${changed_upstream[$i]}" | ${PAGER:-less -R}
         ;;
       a|apply)
-        apply "$n"
+        apply "$n" "${changed_local[$i]}" "${changed_upstream[$i]}"
         break
         ;;
       s|skip|"")

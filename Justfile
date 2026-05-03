@@ -515,7 +515,7 @@ unsloth-reset:
     podman rm -f unsloth-studio >/dev/null 2>&1 || true
     echo "unsloth-studio container removed"
 
-[doc('Diff agent-skills/ vs locked skills-mattpocock input; interactive apply. Pass --bump to refresh lock first, --apply-all to skip prompts.')]
+[doc('Diff agent-skills/ vs ~/Git/skills (nested structure); interactive apply. Pass --apply-all to skip prompts.')]
 [group('llm')]
 [positional-arguments]
 skills-upstream *ARGS:
