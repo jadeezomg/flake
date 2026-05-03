@@ -123,17 +123,24 @@ just backups                   # list *.backup / *.bkp in ~/.config
 just backups-clean             # delete those backup files
 ```
 
-Flake agent skills live in `agent-skills/` and install to `~/.agents/skills/` and `~/.claude/skills/` when `devenv.llm.agents.enable = true`. Skills are **hardcopied** into the flake (no live symlinks from a third-party input), so they are freely editable.
+Flake agent skills live in `agent-skills/` and install to `~/.agents/skills/` and `~/.claude/skills/` when `devenv.llm.agents.enable = true`. Skills are **hardcopied** into the flake, so they are freely editable.
 
-The `skills-mattpocock` flake input is kept solely as an upstream reference. To check for upstream drift and selectively pull updates:
+Skills use a nested category structure mirroring `~/Git/skills/skills/`:
+- `engineering/` — tdd, triage, diagnose, improve-codebase-architecture, …
+- `misc/` — git-guardrails, setup-pre-commit, scaffold-exercises, …
+- `personal/` — edit-article, obsidian-vault
+- `productivity/` — caveman, grill-me, write-a-skill
+- `deprecated/` — kept for reference, not installed
+- `local/` — dotfiles-specific skills not in upstream
+
+To check for upstream drift and selectively pull updates from `~/Git/skills`:
 
 ```bash
 just skills-upstream             # list changed skills + interactive per-skill review
-just skills-upstream --bump      # refresh the lock first, then review
 just skills-upstream --apply-all # copy upstream over local for every changed skill
 ```
 
-Per-skill prompt accepts `[v]iew`, `[a]pply`, `[s]kip`, `[q]uit`. Initial seeding from upstream was a one-shot `cp` (skipping skills already named in `agent-skills/`).
+Per-skill prompt accepts `[v]iew`, `[a]pply`, `[s]kip`, `[q]uit`.
 
 Skills you've explicitly opted out of go in `agent-skills/.upstream-ignore` (one name per line, `#` comments). The discovery script hides them from the "upstream-only" prompt so it never re-suggests adding them.
 
