@@ -16,7 +16,7 @@ in {
       isEssential = true;
       position = 102;
     };
-    "I think Tu-95 has enough space inside for way more than 4x FAB-500s or 6x 250s : r/Warthunder" = {
+    "Reddit - The heart of the internet" = {
       id = "78d70083-a115-4ea1-a25a-be9bc67ca1df";
       url = "https://www.reddit.com/";
       isEssential = true;
@@ -51,12 +51,6 @@ in {
       url = "https://chat.mistral.ai/chat";
       isEssential = true;
       position = 108;
-    };
-    "Kimi K2.6 - API Pricing & Providers | OpenRouter" = {
-      id = "284cf718-c531-4854-98ff-2fa84efeaf3c";
-      url = "https://openrouter.ai/moonshotai/kimi-k2.6";
-      isEssential = true;
-      position = 109;
     };
     "Nix" = {
       id = "{1775769307141-35}";
