@@ -23,6 +23,7 @@ with pkgs; [
   btop
   lsof
   hyperfine
+  y-cruncher
 
   # --- HTTP, DNS, reachability ---
   curl
