@@ -19,11 +19,6 @@
       url = "github:NixOS/nixpkgs/nixos-unstable";
     };
 
-    # nixpkgs-zed = {
-    #   # zed-editor 0.231.2
-    #   url = "github:NixOS/nixpkgs/566acc07c54dc807f91625bb286cb9b321b5f42a";
-    # };
-
     nixpkgs-zed = {
       url = "github:NixOS/nixpkgs/nixos-unstable-small";
     };
@@ -127,6 +122,8 @@
       url = "github:mattpocock/skills";
       flake = false;
     };
+
+    corecycler.url = "github:Daaboulex/linux-corecycler";
   };
 
   outputs = inputs @ {flake-parts, ...}: let
