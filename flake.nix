@@ -20,8 +20,7 @@
     };
 
     nixpkgs-zed = {
-      # zed-editor 0.231.2
-      url = "github:NixOS/nixpkgs/566acc07c54dc807f91625bb286cb9b321b5f42a";
+      url = "github:NixOS/nixpkgs/nixos-unstable-small";
     };
 
     home-manager = {
@@ -96,7 +95,7 @@
     };
 
     dms = {
-      url = "github:AvengeMedia/DankMaterialShell/stable";
+      url = "github:AvengeMedia/DankMaterialShell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -109,6 +108,22 @@
       url = "github:googleworkspace/cli";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Lightweight, declarative sandboxing for AI coding agents
+    # (bubblewrap on Linux, sandbox-exec on macOS).
+    # https://github.com/archie-judd/agent-sandbox.nix
+    agent-sandbox = {
+      url = "github:archie-judd/agent-sandbox.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Third-party agent skills (mattpocock). Locked via flake.lock; bump with `nix flake update`.
+    skills-mattpocock = {
+      url = "github:mattpocock/skills";
+      flake = false;
+    };
+
+    corecycler.url = "github:Daaboulex/linux-corecycler";
   };
 
   outputs = inputs @ {flake-parts, ...}: let
@@ -118,6 +133,7 @@
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         ./parts/hosts.nix
+        ./parts/shells.nix
       ];
 
       systems = [
@@ -167,26 +183,9 @@
             inherit pkgs;
             lib = pkgs.lib;
           };
-          amp-code = import ./packages/amp-code/default.nix {
-            inherit pkgs;
-            lib = pkgs.lib;
-          };
         };
 
         formatter = pkgs.alejandra;
-
-        devShells.default = pkgs.mkShell {
-          packages = [
-            pkgs.alejandra
-            pkgs.nil
-            pkgs.nixd
-            pkgs.nix-update
-            pkgs.jq
-            pkgs.curl
-            pkgs.age
-            pkgs.sops
-          ];
-        };
       };
     };
 }

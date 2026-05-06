@@ -1,22 +1,15 @@
 {...}: {
   imports = [
-    ./apps
-    ./boot
-    ./desktop
-    ./development
-    ./fonts
-    ./hardware
-    ./integration
-    ./locale
-    ./maintenance
-    ./networking
-    ./gaming
-    ./security
-    ./services
-    ./shells
-    ./utils
-    ./virtualization
+    ./profiles
+    ./boot.nix
+    ./gc.nix
+    ./guest-users.nix
+    ./hardware.nix
+    ./networking.nix
+    ./nix-ld.nix
+    ./security.nix
+    ./usrbinenv.nix
     ./user.nix
-    ../../home/nixos/guest/extra-users.nix
+    ./virtualization.nix
   ];
 }

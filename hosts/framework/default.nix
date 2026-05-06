@@ -8,6 +8,7 @@
     ./gpu.nix
     ./input.nix
     ./power.nix
+    ./profiles.nix
   ];
 
   # System state version — host specific, do not change.

@@ -194,6 +194,30 @@ direnv allow
 # Reload direnv
 direnv reload
 
+% nix, agent, sandbox
+
+; Templates from this flake that wrap AI agents in agent-sandbox.nix
+; (bubblewrap on Linux, sandbox-exec on macOS). See templates/ in the flake.
+
+# Init: claude-code wrapped in agent-sandbox in the current directory
+nix flake init -t <flake>#claude-sandbox
+
+$ flake: echo "$FLAKE"
+
+# Init: opencode wrapped in agent-sandbox in the current directory
+nix flake init -t <flake>#opencode-sandbox
+
+$ flake: echo "$FLAKE"
+
+# Enter the sandboxed dev shell (NIXPKGS_ALLOW_UNFREE for claude-code)
+NIXPKGS_ALLOW_UNFREE=1 nix develop --impure
+
+# Tail the agent-sandbox proxy log (when restrictNetwork = true)
+tail -f /tmp/sandbox-proxy.log
+
+# macOS only: query system log for sandbox-exec denials in the last minute
+log show --predicate 'eventMessage CONTAINS "deny"' --last 1m
+
 % nix, comma, nix-index, nurl, nix-init, direnv
 
 ; Installed as system packages (see `modules/shared/utils/nix.nix`).

@@ -1,10 +1,9 @@
 {pkgs, ...}: {
   imports = [
     ./core.nix
-    ./filesystem.nix
     ./text.nix
-    ./monitoring.nix
     ./navi
+    ./yazi
   ];
   home.packages = with pkgs; [
     nix-btm # Bottom-like system monitor for nix
@@ -16,6 +15,5 @@
     nix-top # Top-like process monitor for nix
     nix-tree # Explore nix store
     nix-update # Update nix package versions
-    nix-web # Web interface for nix store
   ];
 }

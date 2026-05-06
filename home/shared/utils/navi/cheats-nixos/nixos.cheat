@@ -108,16 +108,13 @@ niri msg workspaces
 # Niri: list focused window info
 niri msg focused-window
 
-# Niri: trigger screen transition (used by reload-services)
+# Niri: trigger screen transition
 niri msg action do-screen-transition --delay-ms <ms>
 
 $ ms: echo "400;800;1500" | tr ';' '\n'
 
 # Niri: reload config (picked up automatically on save, but force it)
 niri msg action load-config-file
-
-# Reload all user desktop services (just recipe)
-just reload-services
 
 # Reload mako (notification daemon)
 makoctl reload

@@ -12,7 +12,10 @@
   };
   hardware.nvidia-container-toolkit.enable = true;
 
-  services.xserver.videoDrivers = ["nvidia"];
+  services = {
+    lact.enable = true;
+    xserver.videoDrivers = ["nvidia"];
+  };
 
   environment.systemPackages = with pkgs; [nvtopPackages.nvidia];
 

@@ -1,36 +1,35 @@
 # dotfiles
 
-jadee's NixOS + nix-darwin flake. Manages three machines from a single
-`flake-parts` entrypoint with shared home-manager config across Linux and macOS.
+jadee's NixOS and nix-darwin flake. One `flake-parts` entry point builds three machines with shared home-manager modules on Linux and macOS.
 
-- **flake.nix** — inputs, per-system outputs, `formatter = alejandra`
-- **parts/hosts.nix** — builds `nixosConfigurations` and `darwinConfigurations`
-  from `data/hosts/hosts.nix`
-- **Justfile** — all day-to-day recipes (build, switch, gc, format, repo, zen...)
+**Full reference:** [AGENTS.md](AGENTS.md) (workflows, profiles, desktop stack, gotchas). This file is the short tour.
 
 ## Hosts
 
-| Host | System | Hardware | Notes |
-|---|---|---|---|
-| `desktop` | `x86_64-linux` | NVIDIA GPU | `DP-2` @ 2560x1440 / 170Hz |
-| `framework` | `x86_64-linux` | AMD, Framework 13 7040 | `eDP-2` @ 2880x1920 / 120Hz, 2.0x scale |
-| `caya` | `aarch64-darwin` | Apple Silicon | user `caya-jonas`; `nix-homebrew` for casks |
+| Host        | System          | Hardware              | Notes                                              |
+| ----------- | --------------- | --------------------- | -------------------------------------------------- |
+| `desktop`   | `x86_64-linux`  | NVIDIA GPU            | `DP-2` @ 2560×1440 / 170 Hz                        |
+| `framework` | `x86_64-linux`  | AMD, Framework 13 7040 | `eDP-2` @ 2880×1920 / 120 Hz, 2.0× scale           |
+| `caya`      | `aarch64-darwin` | Apple Silicon        | user `caya-jonas`; Homebrew casks via nix-homebrew |
 
-Host definitions live in `data/hosts/hosts.nix` (hostname, system, username,
-home directory, main monitor). Users live in `data/users/users.nix`. NixOS
-hosts share `sharedNixOSUser = jadee` and an extra `angelie` account.
+Per-host metadata lives in `hosts/<name>/host.nix`. The registry is `hosts/hosts.nix` (hostnames, users, home directories, main monitor, build cores, DMS/niri config filenames). Linux hosts share `sharedNixOSUser = jadee` and an extra `angelie` account (`hosts/lib.nix`).
 
-The active host is set in `.flake-host`. Change with `just init` (prompts) or
-`just _init <host>` (no prompt).
+The active host is read from **`.flake-host`** (not committed). Set it with `just init` (prompts) or `just _init <host>` (no prompt).
+
+## Conventions
+
+Use **`just` recipes** for builds and switches (not bare `nixos-rebuild` / `home-manager switch` / `nh` without the Justfile). Flakes only see **git-tracked** files: run `git add` before `nix build`, `nix eval`, or anything that must see new files.
+
+For new nixpkgs names, run `nix search nixpkgs <name>` first; check [Hydra](https://hydra.nixos.org/) if you care about binary cache hits ([AGENTS.md](AGENTS.md) has a one-liner).
 
 ## Quick start
 
 ```bash
 # build / switch
-just switch          # flake check + nh switch
+just switch          # flake check; runs `just git` first (optional commit) + nh switch
 just switch-fast     # nh switch only
 just switch-check    # nix flake check only
-just build-dry       # dry run
+just build-dry       # dry run (nh darwin build --dry / nh os test)
 just build-dev       # switch with --show-trace
 just rollback        # previous generation
 
@@ -39,186 +38,121 @@ just fmt             # alejandra + deadnix + ruff + ty + biome
 just lint            # deadnix + statix
 
 # maintenance
-just update          # packages/*/update.json (incl. nix-update entries), flake.lock, fmt, Framework BIOS check
+just update          # update-packages, flake update, fmt; Framework: fwupdmgr when on framework
 just gc-days         # nh clean, keep store paths newer than N days
 just health          # git status, disk, nh os info
 ```
 
-`just` alone launches an `fzf` picker over every recipe (see
-`scripts/shell/just-choose.bash`).
+`just` alone runs an `fzf` recipe picker (`scripts/shell/just-choose.bash`). `just list` lists every recipe; `just info` shows `nix flake metadata`.
 
 ## Justfile groups
 
-| Group | Recipes |
-|---|---|
-| `build` | `build`, `build-boot`, `build-dev`, `build-dry` |
-| `switch` | `switch`, `switch-fast`, `switch-check` |
+| Group         | Recipes |
+| ------------- | ------- |
+| `build`       | `build`, `build-boot`, `build-dev`, `build-dry` |
+| `switch`      | `switch`, `switch-fast`, `switch-check` |
 | `generations` | `generation-list`, `generation-switch`, `generation-delete`, `generation-bootloader` |
-| `gc` | `gc-keep`, `gc-days`, `gc-all` |
-| `format` | `fmt`, `fmt-notree`, `lint` |
-| `check` | `check-packages`, `update-packages`, `nix-update-pkg`, `symlink-check`, `symlink-check-dms`, `check-zen-essentials` |
-| `config` | `init`, `post-install`, `read-defaults`, `setup-age-darwin` |
-| `system` | `health`, `rollback`, `reload-services`, `update` |
-| `repo` | `git` (fmt + status/log + commit + push) |
-| `zen` | `zen-session`, `zen-extract`, `zen-sync`, `zen-compare` |
-| `backups` | `backups`, `backups-clean`, `backups-clean-dry` |
+| `gc`          | `gc` (= `gc-keep`), `gc-days`, `gc-all` |
+| `format`      | `fmt`, `fmt-notree`, `lint` |
+| `backups`     | `backups`, `backups-clean`, `backups-clean-dry` |
+| `check`       | `update-packages`, `nix-update-pkg`, `symlink-check`, `symlink-check-dms` |
+| `config`      | `init`, `post-install`, `read-defaults`, `setup-age-darwin` |
+| `system`      | `health`, `rollback`, `update` |
+| `repo`        | `git` (quiet fmt + status/log + commit + push) |
+| `zen`         | `zen-session`, `zen-sync`, `zen-compare`, `zen-extract` |
+| `llm`         | `unsloth`, `unsloth-stop`, `unsloth-reset`, `unsloth-logs`, `unsloth-status`, `skills-upstream` |
+| `meta`        | `list`, `info` |
 
-The Justfile exports `NH_FLAKE=$FLAKE` so bare `nh` calls target this repo, and
-sources `scripts/shell/common.sh` for colored `print_header`, `print_pending`,
-`notify`, `get_host`, `is_darwin`, and `prompt_number` helpers.
+`NH_FLAKE` is set to this repo. Shell helpers live in `scripts/shell/common.sh` (`get_host`, `is_darwin`, `notify`, …).
 
-## Structure
+## Layout
 
-```
+```text
 flake/
-├── flake.nix              # flake-parts entrypoint, inputs, per-system outputs
-├── Justfile               # all build/switch/gc/format/repo recipes
-├── .flake-host            # active host name (used by `nh`-based recipes)
-├── lib/
-│   └── pkgs.nix           # getPkgs / getPkgsStable helpers (unfree + overlays)
+├── flake.nix                 # inputs, per-system packages, formatter = alejandra
+├── Justfile
+├── .flake-host               # active host (local only)
+├── lib/                      # getPkgs / getPkgsStable
 ├── parts/
-│   ├── hosts.nix          # builds nixosConfigurations + darwinConfigurations
-│   └── overlays/          # per-system nixpkgs overlays
-├── data/
-│   ├── hosts/hosts.nix    # host definitions (system, username, homeDirectory)
-│   └── users/users.nix    # user definitions (jadee, angelie, caya-jonas)
-├── hosts/
-│   ├── desktop/           # desktop NixOS config (NVIDIA)
-│   ├── framework/         # framework NixOS config (AMD, fw-ectool, fw-fanctrl)
-│   └── caya/              # caya nix-darwin config + homebrew taps
-├── modules/
-│   ├── shared/            # cross-platform system modules
-│   ├── nixos/             # Linux-only (boot, desktop/niri, services, ...)
-│   └── darwin/            # macOS-only
-├── home/
-│   ├── shared/            # cross-platform home-manager
-│   │   ├── apps/          # browsers, editors, IDEs, terminals, tools
-│   │   ├── assets/        # fonts, icons, stylix theme, wallpapers
-│   │   ├── development/
-│   │   │   ├── languages/ # per-language configs
-│   │   │   └── tooling/   # cloud, databases, llm, dev tools
-│   │   ├── security/      # sops-nix home-manager secrets
-│   │   ├── shells/        # bash, fish, nushell, zsh + shared env/paths
-│   │   └── utils/         # core, filesystem, monitoring, text tools
-│   ├── nixos/             # Linux-only home-manager (desktop, environment, ...)
-│   └── darwin/            # macOS-only home-manager
-├── packages/              # custom flake packages
-│   ├── context7/          # ctx7 CLI
-│   ├── kagi-ken/          # kagi search helper
-│   ├── kagi-ken-cli/
-│   ├── iosevka-aile/
-│   ├── iosevka-etoile/
-│   ├── workato-platform-cli/
-│   └── framework-control/
-├── scripts/               # Justfile shell helpers + uv/python package
-└── secrets/secrets.yaml   # sops-nix age-encrypted secrets
+│   ├── hosts.nix             # nixosConfigurations + darwinConfigurations
+│   ├── shells.nix            # devShell
+│   └── overlays/             # local packages, niri, CachyOS kernel, …
+├── data/                     # e.g. users/users.nix, static files
+├── hosts/                    # hosts.nix + per-host NixOS/darwin config
+├── modules/                  # shared / nixos / darwin
+├── home/                     # shared, nixos, darwin (home-manager)
+├── packages/                 # custom packages; auto-registered as pkgs.<name> (see overlays)
+├── agent-skills/             # copy-in agent skills; upstream ref: skills-mattpocock
+├── scripts/                  # Justfile helpers + uv Python package (flake-scripts)
+└── secrets/secrets.yaml        # sops + age
 ```
 
-Each category folder has a `default.nix` that auto-imports its siblings.
+`packages/*` with a `default.nix` is picked up by `parts/overlays/local-packages.nix` (with a system filter for e.g. `framework-control`).
 
 ## Scripts
 
-`scripts/` splits by language. Bash helpers support the Justfile; Python is a
-`uv`-managed package (`flake-scripts`) with several console entry points.
+Bash under `scripts/shell/` backs the Justfile. Python is a uv project in `scripts/` (console entry points in `pyproject.toml`): `symlink-check`, `update-packages`, `read-defaults`, `zen-session`, etc. See `scripts/README.md` for details.
 
-```
-scripts/
-├── shell/
-│   ├── common.sh            # sourced by every Justfile recipe
-│   ├── just-choose.bash     # fzf recipe picker (default recipe)
-│   └── post-install.bash    # Context7 CLI skill install (Claude/Cursor/OpenCode)
-├── pyproject.toml           # uv / hatch project `flake-scripts`
-└── src/flake_scripts/
-    ├── lib/
-    │   ├── common.py        # flake paths, Rich consoles
-    │   └── palette.py       # hex mirror of home/shared/assets/theme/theme.nix
-    ├── symlinks.py          # symlink-check (DMS / niri / quickshell)
-    ├── check_packages.py    # scan flake for broken package refs
-    ├── read_defaults.py     # macOS `defaults` -> Nix-style output
-    ├── update_packages.py   # refresh packages/<name>/default.nix via nix-update or npm/github_npm handlers
-    └── zen/
-        ├── zen_session.py         # zen-session CLI entry
-        ├── extract_pinned_tabs.py # pinned tabs per workspace (JSON/Nix)
-        └── sync_flake_profiles.py # write spaces.nix + pins.nix from live Zen
-```
+## Flake inputs (high level)
 
-Console scripts declared in `scripts/pyproject.toml`:
-
-| Command | What it does |
-|---|---|
-| `symlink-check` | DMS / niri / quickshell symlink report |
-| `check-packages` | Scan flake for broken / missing package references |
-| `update-packages` | Bump `packages/*` via `nix-update` or per-package lockfile handlers (driven by `packages/*/update.json`) |
-| `read-defaults` | macOS `defaults read <domain>` → Nix-style output |
-| `zen-session` | Zen browser session sync + extract (wraps the two below) |
-
-Invoke directly with `uv run --project scripts <command>`, or via the Justfile
-recipes in `[group('check')]` / `[group('zen')]`.
-
-## Inputs
-
-| Input | Purpose |
-|---|---|
+| Input | Role |
+| ----- | ---- |
 | `nixpkgs` | nixos-unstable |
-| `nixpkgs-stable` | nixos-25.11 (available as `pkgs-stable` in modules) |
-| `home-manager` | user environment |
-| `sops-nix` | secret management (age) |
-| `stylix` | system-wide theming |
-| `lanzaboote` | secure boot |
-| `niri` | Wayland compositor |
+| `nixpkgs-stable` | nixos-25.11 → `pkgs-stable` in modules |
+| `nixpkgs-zed` | pinned nixpkgs for Zed (does not follow `nixpkgs`; do not bump accidentally with a blanket `nix flake update`) |
+| `home-manager`, `nix-darwin` | user / macOS system config |
+| `flake-parts` | module structure |
+| `determinate` | Determinate Nix |
+| `sops-nix` | secrets |
+| `stylix` | theming |
+| `lanzaboote` | secure boot (Linux) |
+| `niri` | niri compositor (Wayland) |
+| `dms` | DankMaterialShell (bar / desktop shell) |
 | `quickshell` | shell/bar framework |
-| `determinate` | Nix daemon |
-| `nix-darwin` | macOS config |
-| `nix-homebrew` | Homebrew casks declared via Nix |
+| `zen-browser` | Zen browser |
+| `nix-homebrew`, `homebrew-*` | Homebrew pins (non-flake fetches) |
+| `nixos-hardware` | hardware modules |
+| `nix-cachyos-kernel` | CachyOS kernel (x86_64-linux) |
+| `framework-control` | Framework laptop tools (separate nixpkgs) |
+| `google-workspace-cli` | `gws` in per-system `packages` |
+| `agent-sandbox` | sandbox profiles for agents |
+| `skills-mattpocock` | optional upstream skills sync via `just skills-upstream` |
+
+`perSystem.packages` in `flake.nix` also exposes: `iosevka-aile`, `iosevka-etoile`, `context7`, `kagi-ken`, `kagi-ken-cli`, `workato-platform-cli`, `gws`, `code-review-graph`, `pi-coding-agent`.
 
 ## specialArgs
 
-Available in every module on top of the nixpkgs defaults:
-
-| Param | Meaning |
-|---|---|
-| `inputs` | flake inputs |
-| `hostData` | all host definitions from `data/hosts/hosts.nix` |
-| `hostKey` | active host name (`"desktop"`, `"framework"`, `"caya"`) |
-| `host` | current host attrset |
-| `user` | current username |
-| `isDarwin` | true on macOS |
-| `system` | system string (NixOS only) |
-| `pkgs-stable` | nixpkgs-stable package set |
+Available in system/home modules (see [AGENTS.md](AGENTS.md) for the full list): `inputs`, `hostData`, `hostKey`, `host`, `user`, `isDarwin`, `system`, `pkgs-stable`, …
 
 ## Secrets
 
-Encrypted with age/sops. Edit with `sops secrets/secrets.yaml` (decrypts on
-open, re-encrypts on save). Age keys live at `~/.config/sops/age/keys.txt`
-(Darwin bootstrap: `just setup-age-darwin`).
+`secrets/secrets.yaml` is encrypted with sops and age. Edit with `sops secrets/secrets.yaml`. Age keys: `~/.config/sops/age/keys.txt` (macOS bootstrap: `just setup-age-darwin`).
 
-Secrets auto-export as env vars in every interactive shell via
-`home/shared/shells/sops-shell-secrets.nix`.
+Home-manager can export select secrets to the interactive shell via `home/shared/shells/sops-shell-secrets.nix`.
 
-```nix
-sops.secrets.my_secret = {};
-# runtime: config.sops.secrets.my_secret.path
-```
+## Where to add things
 
-## Adding things
+| Goal | Where |
+| ---- | ---- |
+| Profile toggles | `dotfiles.profiles` in `modules/shared/profiles/`; enable per host in `hosts/<name>/` |
+| System packages (all Linux) | `modules/nixos/` or shared profiles |
+| System packages (all hosts) | `modules/shared/profiles/` |
+| One host only | `hosts/<name>/` |
+| User packages (home-manager) | `home/shared/…` or `home/nixos` / `home/darwin` |
+| NixOS services | `modules/nixos/` |
+| Desktop / Wayland | `modules/nixos/` and `home/nixos/desktop/` |
+| Custom package | `packages/<name>/` + `update.json` when you want `just update-packages` to handle bumps |
+| New secret | sops file + declarations (see `modules/shared/security/` / encryption) |
 
-| Goal | Location |
-|---|---|
-| System package, all Linux hosts | `modules/shared/` appropriate category |
-| System package, one host only | `hosts/<name>/default.nix` |
-| User package (home-manager) | `home/shared/apps/` or relevant category |
-| NixOS service/daemon | `modules/nixos/services/` |
-| Desktop/Wayland config | `modules/nixos/desktop/` or `home/nixos/desktop/` |
-| Language dev config | `home/shared/development/languages/<lang>.nix` |
-| Theme / fonts / file symlinks | `home/shared/assets/` |
-| Custom package | `packages/<name>/default.nix`, add to `parts/overlays/` if needed |
-| New secret | `sops secrets/secrets.yaml`, declare in `modules/shared/security/encryption/age-sops.nix` |
-
-Prefer editing the existing `.nix` file in place. If creating a new file, add
-an import in that directory's `default.nix`.
+New `.nix` files must be listed in the parent directory’s `default.nix` imports.
 
 ## Workflow
 
-1. Find and edit the right file (see *Adding things*)
+1. Edit the right file (table above; details in [AGENTS.md](AGENTS.md)).
 2. `just fmt`
-3. `just switch` (or `just switch-fast`)
+3. `just switch` or `just switch-fast`
+4. After desktop config edits, `just symlink-check` (and reload compositor / session tools as needed).
+
+---
+
+*Theme, Stylix, niri, DMS, and recovery topics are documented in [AGENTS.md](AGENTS.md).*

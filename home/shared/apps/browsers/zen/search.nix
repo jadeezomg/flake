@@ -95,6 +95,38 @@
       definedAliases = ["hmop" "hm"];
     };
 
+    "Nixpkgs PRs" = {
+      urls = [
+        {
+          template = "https://github.com/NixOS/nixpkgs/pulls";
+          params = [
+            {
+              name = "q";
+              value = "{searchTerms}";
+            }
+          ];
+        }
+      ];
+      icon = nixSnowflakeIcon;
+      definedAliases = ["nixpr" "pr"];
+    };
+
+    "Nixpkgs PR Tracker" = {
+      urls = [
+        {
+          template = "https://nixpk.gs/pr-tracker.html";
+          params = [
+            {
+              name = "pr";
+              value = "{searchTerms}";
+            }
+          ];
+        }
+      ];
+      icon = nixSnowflakeIcon;
+      definedAliases = ["prt" "track"];
+    };
+
     "Google Maps" = {
       urls = [
         {
@@ -110,6 +142,40 @@
       definedAliases = ["maps" "gmaps" "map"];
     };
 
+    "google" = {
+      urls = [
+        {
+          template = "https://www.google.com/search";
+          params = [
+            {
+              name = "q";
+              value = "{searchTerms}";
+            }
+          ];
+        }
+      ];
+      definedAliases = ["g" "google"];
+    };
+
+    "Google Images" = {
+      urls = [
+        {
+          template = "https://www.google.com/search";
+          params = [
+            {
+              name = "q";
+              value = "{searchTerms}";
+            }
+            {
+              name = "tbm";
+              value = "isch";
+            }
+          ];
+        }
+      ];
+      definedAliases = ["gi" "images"];
+    };
+
     "Duck Duck Go" = {
       urls = [
         {
@@ -123,6 +189,36 @@
         }
       ];
       definedAliases = ["ddg" "d"];
+    };
+
+    "reddit" = {
+      urls = [
+        {
+          template = "https://kagi.com/search";
+          params = [
+            {
+              name = "q";
+              value = "site:reddit.com {searchTerms}";
+            }
+          ];
+        }
+      ];
+      definedAliases = ["r" "reddit"];
+    };
+
+    "youtube" = {
+      urls = [
+        {
+          template = "https://www.youtube.com/results";
+          params = [
+            {
+              name = "search_query";
+              value = "{searchTerms}";
+            }
+          ];
+        }
+      ];
+      definedAliases = ["y" "yt"];
     };
   };
 }
