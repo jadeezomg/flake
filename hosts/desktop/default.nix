@@ -20,6 +20,10 @@ in {
     inputs.corecycler.nixosModules.default
   ];
 
+  programs.coolercontrol = {
+    enable = true;
+  };
+
   services.corecycler = {
     enable = true;
     unfreeBackends = true; # include mprime (best for CO tuning)
