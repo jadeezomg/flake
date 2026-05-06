@@ -5,5 +5,6 @@
     framework = import ./framework/host.nix;
     desktop = import ./desktop/host.nix;
     caya = import ./caya/host.nix;
+    mini = import ./mini/host.nix;
   };
 }
