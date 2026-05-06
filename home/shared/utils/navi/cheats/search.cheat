@@ -128,8 +128,7 @@ eza -l --icons --total-size
 % jump, zoxide, z
 
 ; Shell aliases/functions: .. / ... / .... / ..... jump up N levels via z.
-; Named jumps: zz = $HOME, zc = ~/.config, zd = ~/Downloads,
-; zp = ~/.dotfiles, zf = flake root.
+; Named jumps: zz = $HOME, zc = ~/.config, zd = ~/Downloads, zf = flake root.
 
 # Jump to a zoxide-tracked directory
 z <query>

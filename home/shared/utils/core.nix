@@ -6,6 +6,19 @@
   '';
 in {
   programs = {
+    btop = {
+      enable = true;
+      settings = {
+        theme_background = false;
+      };
+    };
+
+    broot = {
+      enable = true;
+      enableFishIntegration = true;
+      enableNushellIntegration = true;
+    };
+
     zoxide = {
       enable = true;
       enableFishIntegration = true;
@@ -23,19 +36,7 @@ in {
 
     direnv = {
       enable = true;
-      # enableFishIntegration and enableNushellIntegration are automatically enabled
-      # when programs.fish.enable or programs.nushell.enable are set
       nix-direnv.enable = true;
-    };
-
-    yazi = {
-      enable = true;
-      shellWrapperName = "y";
-      settings = {
-        mgr = {
-          show_hidden = true;
-        };
-      };
     };
   };
 }

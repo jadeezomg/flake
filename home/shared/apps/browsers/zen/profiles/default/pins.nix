@@ -10,7 +10,7 @@ in {
       isEssential = true;
       position = 101;
     };
-    "(4) YouTube" = {
+    "(6) YouTube" = {
       id = "9b78642f-0c6b-4caf-af02-9136b6363b5f";
       url = "https://www.youtube.com/";
       isEssential = true;
@@ -22,9 +22,9 @@ in {
       isEssential = true;
       position = 103;
     };
-    "jadee-server/Login" = {
+    "jadee-server/Main" = {
       id = "98dbc3e9-ee34-44a2-8d1a-5539fa7dea98";
-      url = "http://jadee-server/login";
+      url = "http://jadee-server/Main";
       isEssential = true;
       position = 104;
     };
@@ -53,7 +53,7 @@ in {
       position = 108;
     };
     "Nix" = {
-      id = "{{{1775769307141-35}}}";
+      id = "{1775769307141-35}";
       workspace = spaces."Development".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -61,7 +61,7 @@ in {
       position = 1000;
     };
     "War Thunder" = {
-      id = "{{1776271316796-17}}";
+      id = "{1776271316796-17}";
       workspace = spaces."Games".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -69,7 +69,7 @@ in {
       position = 1001;
     };
     "Diablo 2" = {
-      id = "{{1776271297993-96}}";
+      id = "{1776271297993-96}";
       workspace = spaces."Games".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -96,7 +96,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 203;
-      folderParentId = "{{{1775769307141-35}}}";
+      folderParentId = "{1775769307141-35}";
     };
     "Home Manager - Option Search" = {
       id = "ecae3cd0-f530-479f-9308-62c33b0b13a8";
@@ -104,7 +104,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 204;
-      folderParentId = "{{{1775769307141-35}}}";
+      folderParentId = "{1775769307141-35}";
     };
     "NixOS Wiki" = {
       id = "14113b39-2a39-406b-b987-531863321d28";
@@ -112,7 +112,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 205;
-      folderParentId = "{{{1775769307141-35}}}";
+      folderParentId = "{1775769307141-35}";
     };
     "nixoffical wiki - Google Search" = {
       id = "7ea2c191-5af8-45e6-9470-f08d25c48b2d";
@@ -120,7 +120,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 206;
-      folderParentId = "{{{1775769307141-35}}}";
+      folderParentId = "{1775769307141-35}";
     };
     "Mydealz" = {
       id = "d37bad11-fbf6-43db-a280-2aaf4c506609";
@@ -136,112 +136,135 @@ in {
       isEssential = false;
       position = 208;
     };
+    "hhv" = {
+      id = "a173efd9-49cc-467d-938b-4f3a0d0a9328";
+      url = "https://www.hhv.de/en-DE-EUR-us/clothing";
+      workspace = spaces."Shopping".id;
+      isEssential = false;
+      position = 209;
+    };
     "War thunder - Kagi Search" = {
       id = "c8e9cdc9-e283-4f77-a734-bb7cb5e97336";
       url = "https://kagi.com/search?q=War%20thunder";
       workspace = spaces."Games".id;
       isEssential = false;
-      position = 209;
-      folderParentId = "{{1776271316796-17}}";
+      position = 210;
+      folderParentId = "{1776271316796-17}";
     };
     "Gaijin" = {
       id = "d7c98010-35ea-470d-9b7c-3b2650a879ad";
       url = "https://store.gaijin.net/catalog.php?category=WarThunder&partner=News&partner_val=8jrteghy";
       workspace = spaces."Games".id;
       isEssential = false;
-      position = 210;
-      folderParentId = "{{1776271316796-17}}";
+      position = 211;
+      folderParentId = "{1776271316796-17}";
     };
     "Gaijin Market" = {
       id = "217f5056-565c-4131-9209-2efbe19aaffb";
       url = "https://trade.gaijin.net/";
       workspace = spaces."Games".id;
       isEssential = false;
-      position = 211;
-      folderParentId = "{{1776271316796-17}}";
+      position = 212;
+      folderParentId = "{1776271316796-17}";
     };
     "Warthunder" = {
       id = "b9323a7a-f3e7-439f-ac7d-0a56ab56b4e1";
       url = "https://live.warthunder.com/feed/camouflages/?q=%23vrcc";
       workspace = spaces."Games".id;
       isEssential = false;
-      position = 212;
-      folderParentId = "{{1776271316796-17}}";
+      position = 213;
+      folderParentId = "{1776271316796-17}";
     };
     "war thunder content creators - Google Se" = {
       id = "8fd1f913-7b29-46b1-b942-21120de24e26";
       url = "https://www.google.com/search?client=firefox-b-d&channel=entpr&q=war%20thunder%20content%20creators";
       workspace = spaces."Games".id;
       isEssential = false;
-      position = 213;
-      folderParentId = "{{1776271316796-17}}";
+      position = 214;
+      folderParentId = "{1776271316796-17}";
     };
     "Google" = {
       id = "9fc59755-81f5-4826-8fac-fb8f81256197";
       url = "https://docs.google.com/spreadsheets/d/1oNwp_MXszU5J2dcaz5IoCtSAQ-infPdOWhwtJXqtrwU/edit?pli=1&gid=325556979#gid=325556979";
       workspace = spaces."Games".id;
       isEssential = false;
-      position = 214;
-      folderParentId = "{{1776271316796-17}}";
+      position = 215;
+      folderParentId = "{1776271316796-17}";
     };
     "Diablo 2 Runeword Calculator - PureDiabl" = {
       id = "6743c503-2f65-4f56-9946-ee3c1347b2fa";
       url = "https://www.purediablo.com/diablo-2/runeword-calculator";
       workspace = spaces."Games".id;
       isEssential = false;
-      position = 215;
-      folderParentId = "{{1776271297993-96}}";
+      position = 216;
+      folderParentId = "{1776271297993-96}";
     };
     "Diablo 2 Resurrected and Diablo 2 Classi" = {
       id = "b5b20d50-ad58-4152-a399-1a0b1a959284";
       url = "https://www.purediablo.com/diablo-2";
       workspace = spaces."Games".id;
       isEssential = false;
-      position = 216;
-      folderParentId = "{{1776271297993-96}}";
+      position = 217;
+      folderParentId = "{1776271297993-96}";
+    };
+    "D2runewizard" = {
+      id = "f22f858e-39f6-433c-8eae-4f4d85b62978";
+      url = "https://d2runewizard.com/runeword-calculator?__cf_chl_tk=YKkhsYiICwms7rvueW_rAXMQ3nUmmF7S59dcL5jQtmM-1777134630-1.0.1.1-Ko1H2VL1fbflV_PoXc5cmAUo4oGvqu02IcIw36QSQIk";
+      workspace = spaces."Games".id;
+      isEssential = false;
+      position = 218;
+      folderParentId = "{1776271297993-96}";
+    };
+    "Summoner Warlock Endgame Build Guide for" = {
+      id = "f3283e15-0f38-4911-abce-c84ed4f4a040";
+      url = "https://maxroll.gg/d2/guides/summoner-warlock-guide";
+      workspace = spaces."Games".id;
+      isEssential = false;
+      position = 219;
+      folderParentId = "{1776271297993-96}";
     };
     "All Diablo 2 Resurrected Cube Recipes •" = {
       id = "be8c0181-ace3-424f-b187-1f80cfd8991f";
       url = "https://diablo2.io/recipes/";
       workspace = spaces."Games".id;
       isEssential = false;
-      position = 217;
-      folderParentId = "{{1776271297993-96}}";
+      position = 220;
+      folderParentId = "{1776271297993-96}";
     };
     "Introduction - Stylix" = {
       id = "4e38f77f-020d-47f5-b250-429c30b93123";
       url = "https://nix-community.github.io/stylix/";
       workspace = spaces."Themes".id;
       isEssential = false;
-      position = 218;
+      position = 221;
     };
     "Danklinux" = {
       id = "2403cb1d-efd1-437c-afc0-6c107f675735";
       url = "https://danklinux.com/";
       workspace = spaces."Themes".id;
       isEssential = false;
-      position = 219;
+      position = 222;
     };
-    "Github" = {
+    "Github_1" = {
       id = "ec56b7ed-f746-4f38-b62e-024f0656f39c";
       url = "https://github.com/AvengeMedia/DankMaterialShell?tab=readme-ov-file";
       workspace = spaces."Themes".id;
       isEssential = false;
-      position = 220;
+      position = 223;
     };
     "JDownloader 2" = {
       id = "0502f069-bb8a-42ba-90b5-80e18e1a3d5b";
       url = "http://192.168.178.62:7807/";
       workspace = spaces."Downloads".id;
       isEssential = false;
-      position = 221;
+      position = 224;
     };
     "LinkSnappy - Get your files as a premium" = {
       id = "b19c8441-18b9-4cfb-ad0d-c6151f2cd526";
       url = "https://linksnappy.com/home";
       workspace = spaces."Downloads".id;
       isEssential = false;
-      position = 222;
+      position = 225;
     };
   };
 }

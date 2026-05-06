@@ -79,14 +79,8 @@ just git
 # Write .flake-host for this machine (prompts)
 just init
 
-# Scan flake for broken or missing package refs
-just check-packages
-
 # DMS/niri/quickshell symlink report
 just symlink-check
-
-# Reload user services (niri, waybar, swaybg, mako)
-just reload-services
 
 # Search nixpkgs for a package
 nix search nixpkgs <pkg>

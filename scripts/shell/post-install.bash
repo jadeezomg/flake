@@ -65,37 +65,9 @@ setup_caveman() {
   fi
 }
 
-# Cavekit: clones or updates ~/.cavekit and runs upstream install.sh (Claude marketplace symlink + cavekit CLI).
-setup_cavekit() {
-  print_header "Cavekit"
-
-  if ! command_exists git; then
-    print_error "git not on PATH — required to clone cavekit."
-    return 1
-  fi
-
-  local ck="${HOME}/.cavekit"
-  if [[ -d "${ck}/.git" ]]; then
-    print_info "Updating ${ck}…"
-    git -C "$ck" pull --ff-only
-  else
-    if [[ -e "$ck" ]]; then
-      print_error "${ck} exists but is not a git repo — remove or rename it, then re-run: just post-install"
-      return 1
-    fi
-    print_info "Cloning https://github.com/JuliusBrussee/cavekit.git → ${ck}…"
-    git clone https://github.com/JuliusBrussee/cavekit.git "$ck"
-  fi
-
-  print_info "Running ${ck}/install.sh…"
-  bash "${ck}/install.sh"
-  print_success "Cavekit finished. Restart Claude Code (and Codex if you use it) per upstream README."
-}
-
 main() {
   setup_ctx7_cli
   setup_caveman
-  setup_cavekit
   print_header "POST-INSTALL DONE"
 }
 

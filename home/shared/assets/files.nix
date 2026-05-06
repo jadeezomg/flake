@@ -1,5 +1,5 @@
 {config, ...}: let
-  flakeRoot = "${config.home.homeDirectory}/.dotfiles/flake";
+  flakeRoot = config.dotfiles.flakeRoot;
   assetsDir = "${flakeRoot}/home/shared/assets";
 in {
   home.file = {

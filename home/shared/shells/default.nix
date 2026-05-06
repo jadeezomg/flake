@@ -1,10 +1,8 @@
 {...}: {
   imports = [
-    ./shared
+    ./core
+    ./env
+    ./theme
     ./sops-shell-secrets.nix
-    ./nushell
-    ./fish
-    ./bash
-    ./zsh
   ];
 }
