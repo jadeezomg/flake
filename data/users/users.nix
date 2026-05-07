@@ -33,7 +33,7 @@
       email = "jonas.hippauf@getcaya.com";
       description = "Caya Jonas Darwin User";
       homeDirectory = "/Users/caya-jonas";
-      stateVersion = "25.11";
+      stateVersion = "26.05";
       extraGroups = [];
       packages = [];
     };
