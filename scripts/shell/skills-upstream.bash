@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Diff agent-skills/ against ~/Git/skills (nested category structure).
+# Diff data/agents/skills/ against ~/Git/skills (nested category structure).
 # Usage: just skills-upstream [--apply-all]
 #   --apply-all  copy upstream over local for every changed skill (no prompt)
 set -euo pipefail
 
 source "${FLAKE:-${HOME}/.dotfiles/flake}/scripts/shell/common.sh"
 
-LOCAL_DIR="${FLAKE}/agent-skills"
+LOCAL_DIR="${FLAKE}/data/agents/skills"
 UPSTREAM_DIR="${HOME}/Git/skills/skills"
 IGNORE_FILE="${LOCAL_DIR}/.upstream-ignore"
 APPLY_ALL=0

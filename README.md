@@ -82,7 +82,7 @@ flake/
 ├── modules/                  # shared / nixos / darwin
 ├── home/                     # shared, nixos, darwin (home-manager)
 ├── packages/                 # custom packages; auto-registered as pkgs.<name> (see overlays)
-├── agent-skills/             # copy-in agent skills; upstream ref: skills-mattpocock
+├── data/agents/              # global AGENTS.md + copy-in agent skills (upstream ref: skills-mattpocock)
 ├── scripts/                  # Justfile helpers + uv Python package (flake-scripts)
 └── secrets/secrets.yaml        # sops + age
 ```

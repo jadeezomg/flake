@@ -39,7 +39,7 @@
       tools.enable = mkEnableOption "devenv.tools (git, just, gh, lazygit, delta, jujutsu, etc.)";
       cloud.enable = mkEnableOption "devenv.cloud (awscli2, awslogs, gws)";
       llm = {
-        agents.enable = mkEnableOption "devenv.llm.agents (opencode, claude-code, context7, kagi-ken, ...) and the flake `agent-skills/` install";
+        agents.enable = mkEnableOption "devenv.llm.agents (opencode, claude-code, context7, kagi-ken, ...) and the flake `data/agents/skills/` install";
         hosting.enable = mkEnableOption "devenv.llm.hosting (vllm, lmstudio — Linux-only realistically)";
       };
       containers.enable = mkEnableOption "devenv.containers (podman, podman-desktop, dive)";
