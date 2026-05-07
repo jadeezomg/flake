@@ -2,11 +2,6 @@
 {...}: {
   spacesForce = true;
   spaces = {
-    "Default" = {
-      id = "default";
-      icon = "";
-      position = 1000;
-    };
     "Random" = {
       id = "060b1a27-d488-4c97-a51d-333fdac0eb7c";
       icon = "🏠";
