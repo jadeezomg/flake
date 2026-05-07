@@ -5,12 +5,12 @@
 }: let
   unwrapped = pkgs.buildNpmPackage rec {
     pname = "pi-coding-agent-unwrapped";
-    version = "0.73.1";
+    version = "0.74.0";
 
-    # Published bundle (includes dist/); newer than nixpkgs @mariozechner/pi-coding-agent.
+    # Published bundle (includes dist/). Upstream moved from @mariozechner to @earendil-works.
     src = pkgs.fetchurl {
-      url = "https://registry.npmjs.org/@mariozechner/pi-coding-agent/-/pi-coding-agent-0.73.1.tgz";
-      hash = "sha256-e/XUkmcMBP18WZ3ufm6qv/lkCEr/0hZ2YQfmdB33ouE=";
+      url = "https://registry.npmjs.org/@earendil-works/pi-coding-agent/-/pi-coding-agent-0.74.0.tgz";
+      hash = "sha256-l0pzuWGVvX1jDhFYaey14N16XDo47kkm3JlEhmPUo0Q=";
     };
 
     # Generated: unpack tgz, cd package, npm install --package-lock-only
@@ -18,13 +18,13 @@
       cp ${./package-lock.json} package-lock.json
     '';
 
-    npmDepsHash = "sha256-dINw3FeJ7SN5YiUQ1zQ/MVTEBVb+xHbykBm9f8p/kNU=";
+    npmDepsHash = "sha256-lkF4GyXWzVl9vy/VHFkwwbuDbtAVJGtMNRtT0KJ6vZo=";
 
     dontNpmBuild = true;
 
     meta = with lib; {
-      description = "Pi terminal coding agent (npm @mariozechner/pi-coding-agent)";
-      homepage = "https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent";
+      description = "Pi terminal coding agent (npm @earendil-works/pi-coding-agent)";
+      homepage = "https://github.com/earendil-works/pi/tree/main/packages/coding-agent";
       license = licenses.mit;
       mainProgram = "pi";
     };
