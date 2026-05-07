@@ -55,5 +55,5 @@ in {
   ];
 
   # System state version — host specific, do not change.
-  system.stateVersion = "25.11";
+  system.stateVersion = "26.05";
 }

@@ -52,7 +52,7 @@
     guestHmUsers = builtins.filter (u: (u.manageHome or true)) (host.extraUsers or []);
     mkUserCfg = {
       imports = hmImports;
-      home.stateVersion = host.stateVersion or "25.11";
+      home.stateVersion = host.stateVersion or "26.05";
     };
   in {
     useGlobalPkgs = true;

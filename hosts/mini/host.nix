@@ -10,7 +10,7 @@ in
     extraUsers = [];
     # i5-12600H — 16 threads; leave 4 for daemon/SSH/hermes/etc.
     buildCores = 12;
-    stateVersion = "25.11";
+    stateVersion = "26.05";
     # Note: mainMonitor / dmsSettingsFile / niriOutputsFile intentionally omitted.
     # `home/nixos/default.nix` skips the desktop HM tree when mainMonitor is unset.
   }
