@@ -6,6 +6,7 @@
   imports = [
     ../../modules/shared
     ../../modules/darwin
+    ./profiles.nix
   ];
 
   nix-homebrew = {

@@ -1,0 +1,32 @@
+{
+	"$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+	"runtime.version": "LuaJIT",
+	"diagnostics.globals": [
+		"Linemode",
+		"Status",
+		"Header",
+		"Tab",
+		"Folder",
+		"File",
+		"Entity",
+		"Manager",
+		"Mode",
+		"Marker",
+		"Parent",
+		"Preview",
+		"Progress",
+		"Rail",
+		"Root",
+		"Side",
+		"Title",
+		"ya",
+		"cx",
+		"rt",
+		"th",
+		"fs",
+		"ui",
+		"ps",
+		"Command",
+		"Url"
+	]
+}

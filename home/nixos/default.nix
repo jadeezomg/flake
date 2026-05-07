@@ -1,9 +1,8 @@
 {...}: {
   imports = [
-    ./apps
     ./desktop
-    ./development
-    ./environment
-    ./guest/password-reminder.nix
+    ./environment.nix
+    ./files.nix
+    ./guest-password-reminder.nix
   ];
 }

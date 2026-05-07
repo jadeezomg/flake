@@ -7,8 +7,23 @@
 }: let
   host = hostData.hosts.${hostKey} or {};
   userConfig = host.user or {};
+  localeConfig =
+    host.locale or {
+      defaultLocale = "en_US.UTF-8";
+      timeZone = "Europe/Berlin";
+      extraLocaleSettings = {
+        LC_ADDRESS = "de_DE.UTF-8";
+        LC_IDENTIFICATION = "de_DE.UTF-8";
+        LC_MEASUREMENT = "de_DE.UTF-8";
+        LC_MONETARY = "de_DE.UTF-8";
+        LC_NAME = "de_DE.UTF-8";
+        LC_NUMERIC = "de_DE.UTF-8";
+        LC_PAPER = "de_DE.UTF-8";
+        LC_TELEPHONE = "de_DE.UTF-8";
+        LC_TIME = "de_DE.UTF-8";
+      };
+    };
 in {
-  # Define user account. Don't forget to set a password with 'passwd'.
   users.users.${user} = {
     isNormalUser = true;
     description = userConfig.description or "user account";
@@ -16,4 +31,10 @@ in {
     shell = pkgs.nushell;
     packages = with pkgs; userConfig.packages or [];
   };
+
+  time.timeZone = localeConfig.timeZone;
+  services.timesyncd.enable = true;
+
+  i18n.defaultLocale = localeConfig.defaultLocale;
+  i18n.extraLocaleSettings = localeConfig.extraLocaleSettings;
 }

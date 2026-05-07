@@ -3,7 +3,7 @@
   hostKey,
   ...
 }: let
-  flakePath = "$HOME/.dotfiles/flake";
+  flakePath = config.dotfiles.flakeRoot;
 in {
   # Generate compatibility home.nix for legacy home-manager commands
   # This file is auto-generated from the flake configuration

@@ -4,7 +4,7 @@ This document lists all aliases and commands available across different shells i
 
 ---
 
-## Tool Replacements (Bash, Fish, Nushell)
+## Tool replacements (Bash, Fish, Nushell, Zsh)
 
 | Alias | Command | Description |
 |-------|---------|-------------|
@@ -12,22 +12,25 @@ This document lists all aliases and commands available across different shells i
 | `find` | `fd` | Faster `find` alternative |
 | `grep` | `rg` | Ripgrep - faster `grep` alternative |
 
-## Directory Listing (eza) (Bash, Fish, Nushell)
+## Directory Listing (eza) (Bash, Fish, Nushell, Zsh)
+
+Source: `home/shared/shells/core/data/aliases.nix` (same `shellAliases` map for every shell).
 
 | Alias | Command | Description |
 |-------|---------|-------------|
+| `ls` | `eza --icons -l --git` | Git-aware list with icons |
 | `l2` | `eza --icons -l -T -L=2` | List with tree view, depth 2 |
 | `l3` | `eza --icons -l -T -L=3` | List with tree view, depth 3 |
-| `llt` | `eza -T` | Tree view |
-| `lat` | `eza -Ta` | Tree view (all files) |
-| `tree` | `eza -Ta` | Tree view (all files) |
-| `lat1` | `eza -Ta -L=1` | Tree view, depth 1 |
-| `lat2` | `eza -Ta -L=2` | Tree view, depth 2 |
-| `lat3` | `eza -Ta -L=3` | Tree view, depth 3 |
-| `lat4` | `eza -Ta -L=4` | Tree view, depth 4 |
-| `lat5` | `eza -Ta -L=5` | Tree view, depth 5 |
+| `llt` | `eza --icons -T` | Tree view (icons) |
+| `lat` | `eza --icons -Ta` | Tree view (all files) |
+| `tree` | `eza --icons -Ta` | Same as `lat` |
+| `lat1` | `eza --icons -Ta -L=1` | Tree view, depth 1 |
+| `lat2` | `eza --icons -Ta -L=2` | Tree view, depth 2 |
+| `lat3` | `eza --icons -Ta -L=3` | Tree view, depth 3 |
+| `lat4` | `eza --icons -Ta -L=4` | Tree view, depth 4 |
+| `lat5` | `eza --icons -Ta -L=5` | Tree view, depth 5 |
 
-## Navigation Shortcuts (Bash, Fish, Nushell)
+## Navigation shortcuts (Bash, Fish, Nushell, Zsh)
 
 | Alias | Command | Description |
 |-------|---------|-------------|
@@ -36,21 +39,21 @@ This document lists all aliases and commands available across different shells i
 | `....` | `z ../../..` | Navigate up three directories |
 | `.....` | `z ../../../..` | Navigate up four directories |
 
-## Editor Shortcuts (Bash, Fish, Nushell)
+## Editor shortcuts (Bash, Fish, Nushell, Zsh)
 
 | Alias | Command | Description |
 |-------|---------|-------------|
 | `zed` | `zeditor` | Open Zed editor |
 | `code` | `cursor` | Open Cursor editor |
 
-## General Shortcuts (Bash, Fish, Nushell)
+## General shortcuts (Bash, Fish, Nushell, Zsh)
 
 | Alias | Command | Description |
 |-------|---------|-------------|
 | `cl` | `clear` | Clear terminal |
 | `h` | `history` | Show command history |
 
-## Git Shortcuts - Basic (Bash, Fish, Nushell)
+## Git shortcuts — basic (Bash, Fish, Nushell, Zsh)
 
 | Alias | Command | Description |
 |-------|---------|-------------|
@@ -59,7 +62,7 @@ This document lists all aliases and commands available across different shells i
 | `gcm` | `git commit -m` | Commit with message |
 | `gpu` | `git push -u origin main` | Push to main branch |
 
-## Search Shortcuts (Bash, Fish, Nushell)
+## Search shortcuts (Bash, Fish, Nushell, Zsh)
 
 | Alias | Command | Description |
 |-------|---------|-------------|
@@ -69,24 +72,27 @@ This document lists all aliases and commands available across different shells i
 
 ---
 
-## Directory Navigation Functions (Bash, Fish, Nushell)
+## Directory navigation (`zz` / `zc` / `zd`)
 
 | Function | Description | Path |
 |----------|-------------|------|
-| `zz` | Navigate to home directory | `$HOME` |
-| `zc` | Navigate to config directory | `$HOME/.config` |
-| `zd` | Navigate to downloads directory | `$HOME/Downloads` |
-| `zp` | Navigate to dotfiles directory | `$HOME/.dotfiles` |
-| `zf` | Navigate to flake directory | `$HOME/.dotfiles/flake` |
+| `zz` | Navigate to home | `$HOME` |
+| `zc` | Navigate to config | `$HOME/.config` |
+| `zd` | Navigate to downloads | `$HOME/Downloads` |
 
-## Flake Management (Bash, Fish, Nushell, Zsh)
+Implemented per shell in `home/shared/shells/core/bash.nix`, `core/fish.nix`, `core/zsh.nix`, and `core/nushell.nix` (same behavior; Nushell uses `def --env`).
+
+## Dotfiles & flake helpers (Bash, Fish, Nushell, Zsh)
+
+All defined in `home/shared/shells/env/system.nix` (imported via `home/shared/shells/env/default.nix`), together with `FLAKE`, `NH_FLAKE`, and workstation `PATH` bits. Intended to apply when the **essentials** system profile is enabled; see the `lib.mkIf` in that file for the exact condition.
 
 | Function | Description |
 |----------|-------------|
+| `zf` | `cd` to `dotfiles.flakeRoot` (default `$HOME/.dotfiles/flake`) |
 | `flake` | `just --justfile $FLAKE/Justfile` — no args → **`just --choose`**. With extra args on `build`/`switch`/`generation`/`gc`/`fmt`/`backups`/`init`/`read-defaults`, forwards to private `_…` recipes, e.g. `flake build --dry`, `flake init myhost`. |
-| `nuflake` | Legacy Nushell dispatcher: `nu $FLAKE/build/flake.nu` |
+| `nuflake` | `nu $FLAKE/build/flake.nu` |
 
-Requires **`just`** on PATH (declared in home packages). Set **`FLAKE`** to your flake directory (default `~/.dotfiles/flake`).
+Requires **`just`** on PATH. **`FLAKE`** / **`NH_FLAKE`** follow **`dotfiles.flakeRoot`** (default `~/.dotfiles/flake`).
 
 ---
 
@@ -154,14 +160,11 @@ These commands are provided by [git.nu](https://github.com/fj0r/git.nu) and are 
 
 ## Notes
 
-- **Common aliases** are defined in `home/shared/shells/shared/aliases.nix`
-- **Shell-specific functions** are implemented in:
-  - Bash: `home/shared/shells/bash/aliases.nix`
-  - Fish: `home/shared/shells/fish/aliases.nix`
-  - Nushell: `home/shared/shells/nushell/aliases.nix`
-  - Zsh: `home/shared/shells/zsh/base.nix` (`flake`, `nuflake`)
-- **git.nu commands** are sourced from the [fj0r/git.nu](https://github.com/fj0r/git.nu) repository and are only available in Nushell
-- Some git.nu commands may have different behavior than standard git commands - refer to the [git.nu documentation](https://github.com/fj0r/git.nu) for details
+- **Shared aliases** (`cat`, `find`, `grep`, `ls`, eza shortcuts, git one-liners, `search*`, etc.) live in `home/shared/shells/core/data/aliases.nix` and are wired as `shellAliases` from `home/shared/shells/core/{bash,fish,zsh,nushell}.nix`.
+- **`zz` / `zc` / `zd`** are small functions in those same `core/*.nix` files (not separate alias modules).
+- **`zf` / `flake` / `nuflake`** and workstation env (`FLAKE`, extra `PATH`) come from `home/shared/shells/env/system.nix`; entry point is `home/shared/shells/env/default.nix`.
+- **Navi cheat** for quick lookup: `home/shared/utils/navi/cheats/aliases.cheat` (points at the paths above).
+- **git.nu** commands are loaded in `home/shared/shells/core/nushell.nix` from the upstream `git.nu` flake input fetch; **Nushell only**. Some names overlap bash-style `gst` / `gad` aliases but implement different flows — see [git.nu](https://github.com/fj0r/git.nu).
 
 ---
 
@@ -170,7 +173,7 @@ These commands are provided by [git.nu](https://github.com/fj0r/git.nu) and are 
 ### Most Used Commands
 
 **Navigation:**
-- `zz`, `zc`, `zd`, `zp`, `zf` - Quick directory navigation
+- `zz`, `zc`, `zd`, `zf` - Quick directory navigation
 - `..`, `...`, `....`, `.....` - Navigate up directories
 
 **Git - git.nu (Nushell only):**

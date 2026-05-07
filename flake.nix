@@ -20,8 +20,7 @@
     };
 
     nixpkgs-zed = {
-      # zed-editor 0.231.2
-      url = "github:NixOS/nixpkgs/566acc07c54dc807f91625bb286cb9b321b5f42a";
+      url = "github:NixOS/nixpkgs/nixos-unstable-small";
     };
 
     home-manager = {
@@ -96,7 +95,7 @@
     };
 
     dms = {
-      url = "github:AvengeMedia/DankMaterialShell/stable";
+      url = "github:AvengeMedia/DankMaterialShell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -117,6 +116,14 @@
       url = "github:archie-judd/agent-sandbox.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Third-party agent skills (mattpocock). Locked via flake.lock; bump with `nix flake update`.
+    skills-mattpocock = {
+      url = "github:mattpocock/skills";
+      flake = false;
+    };
+
+    corecycler.url = "github:Daaboulex/linux-corecycler";
   };
 
   outputs = inputs @ {flake-parts, ...}: let
@@ -126,6 +133,7 @@
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         ./parts/hosts.nix
+        ./parts/shells.nix
       ];
 
       systems = [
@@ -133,17 +141,6 @@
         "aarch64-linux"
         "aarch64-darwin"
       ];
-
-      flake.templates = {
-        claude-sandbox = {
-          path = ./templates/claude-sandbox;
-          description = "Devenv shell with claude-code wrapped in agent-sandbox.nix";
-        };
-        opencode-sandbox = {
-          path = ./templates/opencode-sandbox;
-          description = "Devenv shell with opencode wrapped in agent-sandbox.nix";
-        };
-      };
 
       perSystem = {
         pkgs,
@@ -186,26 +183,9 @@
             inherit pkgs;
             lib = pkgs.lib;
           };
-          amp-code = import ./packages/amp-code/default.nix {
-            inherit pkgs;
-            lib = pkgs.lib;
-          };
         };
 
         formatter = pkgs.alejandra;
-
-        devShells.default = pkgs.mkShell {
-          packages = [
-            pkgs.alejandra
-            pkgs.nil
-            pkgs.nixd
-            pkgs.nix-update
-            pkgs.jq
-            pkgs.curl
-            pkgs.age
-            pkgs.sops
-          ];
-        };
       };
     };
 }

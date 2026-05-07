@@ -1,6 +1,9 @@
-{...}: {
+{pkgs, ...}: {
   imports = [
-    ./apps
-    ./development
+    ./brew-casks
+  ];
+
+  home.packages = with pkgs; [
+    nvtopPackages.apple
   ];
 }
