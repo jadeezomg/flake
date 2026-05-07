@@ -1,55 +1,59 @@
 pkgs:
-with pkgs; [
-  # --- Search, find, path memory ---
-  ripgrep
-  fd
-  fzf
-  zoxide
-  broot
+with pkgs;
+  [
+    # --- Search, find, path memory ---
+    ripgrep
+    fd
+    fzf
+    zoxide
+    broot
 
-  # --- List, preview, file browser ---
-  bat
-  eza
-  yazi
+    # --- List, preview, file browser ---
+    bat
+    eza
+    yazi
 
-  # --- Structured data & text transforms ---
-  jq
-  yq
-  sd
+    # --- Structured data & text transforms ---
+    jq
+    yq
+    sd
 
-  # --- Disk, processes, quick benchmarks ---
-  dust
-  dua
-  btop
-  lsof
-  hyperfine
-  y-cruncher
+    # --- Disk, processes, quick benchmarks ---
+    dust
+    dua
+    btop
+    lsof
+    hyperfine
+  ]
+  ++ lib.optionals stdenv.isLinux [
+    y-cruncher
+  ]
+  ++ [
+    # --- HTTP, DNS, reachability ---
+    curl
+    wget
+    dig
+    xh
+    httpie
+    gping
 
-  # --- HTTP, DNS, reachability ---
-  curl
-  wget
-  dig
-  xh
-  httpie
-  gping
+    # --- Diffs & readable patches ---
+    difftastic
+    delta
 
-  # --- Diffs & readable patches ---
-  difftastic
-  delta
+    # --- PDF helpers (pdftotext, etc.) ---
+    poppler-utils
 
-  # --- PDF helpers (pdftotext, etc.) ---
-  poppler-utils
+    # --- Archives & core file utilities ---
+    file
+    gawk
+    libarchive
+    p7zip
+    unzip
+    zip
 
-  # --- Archives & core file utilities ---
-  file
-  gawk
-  libarchive
-  p7zip
-  unzip
-  zip
-
-  # --- Nix store / flake workflow ---
-  git
-  nh
-  nix-index
-]
+    # --- Nix store / flake workflow ---
+    git
+    nh
+    nix-index
+  ]
