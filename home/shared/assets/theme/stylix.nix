@@ -36,7 +36,7 @@ in {
       base05 = themeColors.text-primary;
       base06 = themeColors.text-secondary;
       base07 = themeColors.text-secondary;
-      base08 = themeColors.ansi-red;
+      base08 = themeColors.text-primary;
       base09 = themeColors.ansi-yellow;
       base0A = themeColors.accent-yellow;
       base0B = themeColors.ansi-green;
@@ -81,7 +81,6 @@ in {
 
     targets =
       {
-        wezterm.enable = false;
         vscode.enable = false;
         firefox.enable = false;
         kitty = {
@@ -96,17 +95,32 @@ in {
         # qt.enable = false;
         gtk = {
           extraCss = ''
-            /* Keep GTK backgrounds slightly translucent (95% opacity). */
+            /* Keep GTK backgrounds slightly translucent (95% opacity).
+               Popovers/menus must stay transparent on the outer element
+               so the shadow padding doesn't render as a solid square; paint
+               the inner `contents` (and arrow) instead. */
             window,
             dialog,
-            popover,
-            menu,
             headerbar,
             .background {
-              background-color: alpha(@theme_bg_color, 0.95);
+              background-color: alpha(@theme_bg_color, 0.9);
             }
 
+            popover,
+            popover.background,
+            menu,
+            menu.background {
+              background-color: transparent;
+              background-image: none;
             }
+
+            popover > contents,
+            popover > arrow,
+            menu > contents,
+            menu > arrow {
+              background-color: alpha(@theme_bg_color, 0.7);
+            }
+
             * {
               font-size: 10pt;
             }

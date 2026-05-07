@@ -7,7 +7,6 @@
         "--height=40%"
         "--layout=reverse"
         "--border"
-        "--preview='bat --color=always --style=plain {}'"
       ];
       fileWidgetCommand = "fd --type f";
       fileWidgetOptions = [

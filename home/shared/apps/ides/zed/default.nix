@@ -1,20 +1,29 @@
 {
-  isDarwin,
+  lib,
+  osConfig,
   pkgs,
   inputs,
   ...
 }: let
+  editorsEnabled = osConfig.dotfiles.profiles.apps.editors.enable or false;
   claude-agent-acp-fork = pkgs.buildNpmPackage {
     pname = "claude-agent-acp-fork";
-    version = "0.25.1";
+    version = "latest";
     src = pkgs.fetchFromGitHub {
       owner = "rohan-patra";
       repo = "claude-agent-acp";
-      rev = "07dc92cb5afa479848dd7d003e3be3effd9f2057";
-      hash = "sha256-yBY0Sektb7vtz0FuVhRr1dqPW8lw5ubpkR4d+LO2kLo=";
+      rev = "d3d38c5b1cfdc566f93f106b9721100e27e43def";
+      hash = "sha256-CfO6dVJfuXPQUrXeOTlHjOFTiASQhTEVvJFuii/9hTc=";
     };
-    npmDepsHash = "sha256-KDYRPlPgi9K9HjOIopkUcGnauq034otdIHm0gQ2PjsU=";
-    buildPhase = "npm run build";
+    npmDepsHash = "sha256-tpKNra0XZbUOSsWYPpBNLggIcU4nbbD5hBEWrp+SZj4=";
+
+    # The bundled @anthropic-ai/claude-agent-sdk probes the musl-linked
+    # native binary first (interp /lib/ld-musl-x86_64.so.1, absent on NixOS),
+    # then falls back to the glibc one which works via nix-ld.
+    # Drop the musl variants so the fallback path is taken.
+    postInstall = lib.optionalString pkgs.stdenv.isLinux ''
+      rm -rf $out/lib/node_modules/@agentclientprotocol/claude-agent-acp/node_modules/@anthropic-ai/claude-agent-sdk-linux-*-musl
+    '';
   };
 in {
   imports = [
@@ -22,18 +31,19 @@ in {
     ./keybinds.nix
     ./languages.nix
     ./settings.nix
+    ./tasks.nix
     ./theme.nix
   ];
 
   _module.args.claude-agent-acp-fork = claude-agent-acp-fork;
 
-  home.packages = [claude-agent-acp-fork];
+  home.packages = lib.mkIf editorsEnabled [claude-agent-acp-fork];
 
-  programs.zed-editor = {
+  programs.zed-editor = lib.mkIf editorsEnabled {
     enable = true;
-    package =
-      if isDarwin && inputs ? nixpkgs-zed
-      then inputs.nixpkgs-zed.legacyPackages.${pkgs.system}.zed-editor
-      else pkgs.zed-editor;
+    package = inputs.nixpkgs-zed.legacyPackages.${pkgs.system}.zed-editor; # package =
+    #   if isDarwin && inputs ? nixpkgs-zed
+    #   then inputs.nixpkgs-zed.legacyPackages.${pkgs.system}.zed-editor
+    #   else pkgs.zed-editor;
   };
 }

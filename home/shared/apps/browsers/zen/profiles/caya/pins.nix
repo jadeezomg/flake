@@ -65,7 +65,7 @@ in {
       position = 110;
     };
     "Dev Env" = {
-      id = "{{1772811911012-80}}";
+      id = "{1772811911012-80}";
       workspace = spaces."Development".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -73,7 +73,7 @@ in {
       position = 1000;
     };
     "Toolbox" = {
-      id = "{{1774867657222-23}}";
+      id = "{1774867657222-23}";
       workspace = spaces."Development".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -81,7 +81,7 @@ in {
       position = 1001;
     };
     "Tools" = {
-      id = "{{1774867666645-82}}";
+      id = "{1774867666645-82}";
       workspace = spaces."Development".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -89,7 +89,7 @@ in {
       position = 1002;
     };
     "casavi" = {
-      id = "{{1776351617692-26}}";
+      id = "{1776351617692-26}";
       workspace = spaces."Development".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -97,7 +97,7 @@ in {
       position = 1003;
     };
     "Website AI Tools" = {
-      id = "{{1774867297412-79}}";
+      id = "{1774867297412-79}";
       workspace = spaces."Research".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -105,7 +105,7 @@ in {
       position = 1004;
     };
     "OCR -> Data Research" = {
-      id = "{{1774866958574-54}}";
+      id = "{1774866958574-54}";
       workspace = spaces."Research".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -113,7 +113,7 @@ in {
       position = 1005;
     };
     "OCR -> Data Tests" = {
-      id = "{{1774867395074-62}}";
+      id = "{1774867395074-62}";
       workspace = spaces."Research".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -121,7 +121,7 @@ in {
       position = 1006;
     };
     "Automat" = {
-      id = "{{1772811910849-71}}";
+      id = "{1772811910849-71}";
       workspace = spaces."Solutions".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -129,7 +129,7 @@ in {
       position = 1007;
     };
     "Magic" = {
-      id = "{{1772811910792-66}}";
+      id = "{1772811910792-66}";
       workspace = spaces."Solutions".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -137,7 +137,7 @@ in {
       position = 1008;
     };
     "Reports" = {
-      id = "{{1772811910929-76}}";
+      id = "{1772811910929-76}";
       workspace = spaces."Solutions".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -145,7 +145,7 @@ in {
       position = 1009;
     };
     "Sheets" = {
-      id = "{{1772811910969-69}}";
+      id = "{1772811910969-69}";
       workspace = spaces."Solutions".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -153,7 +153,7 @@ in {
       position = 1010;
     };
     "Extraction Customers" = {
-      id = "{{1774868454880-16}}";
+      id = "{1774868454880-16}";
       workspace = spaces."Solutions".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -161,7 +161,7 @@ in {
       position = 1011;
     };
     "Ops Sheets" = {
-      id = "{{1772811910818-8}}";
+      id = "{1772811910818-8}";
       workspace = spaces."Work".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -169,7 +169,7 @@ in {
       position = 1012;
     };
     "Mailroom" = {
-      id = "{{1774867533295-57}}";
+      id = "{1774867533295-57}";
       workspace = spaces."Work".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -177,7 +177,7 @@ in {
       position = 1013;
     };
     "Forwards" = {
-      id = "{{1772811910906-87}}";
+      id = "{1772811910906-87}";
       workspace = spaces."Work".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -185,7 +185,7 @@ in {
       position = 1014;
     };
     "Irrläufer" = {
-      id = "{{1774867512358-0}}";
+      id = "{1774867512358-0}";
       workspace = spaces."Work".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -193,7 +193,7 @@ in {
       position = 1015;
     };
     "PIN" = {
-      id = "{{1774866854440-80}}";
+      id = "{1774866854440-80}";
       workspace = spaces."Work".id;
       isGroup = true;
       isFolderCollapsed = true;
@@ -206,7 +206,7 @@ in {
       workspace = spaces."Research".id;
       isEssential = false;
       position = 201;
-      folderParentId = "{{1774867297412-79}}";
+      folderParentId = "{1774867297412-79}";
     };
     "Huggingface" = {
       id = "0abf4228-46c9-4164-98d2-003f78f566f2";
@@ -214,7 +214,7 @@ in {
       workspace = spaces."Research".id;
       isEssential = false;
       position = 202;
-      folderParentId = "{{1774866958574-54}}";
+      folderParentId = "{1774866958574-54}";
     };
     "Welcome to Datalab - Datalab Documentati" = {
       id = "398bc992-9ad6-4527-8232-603963053c95";
@@ -222,7 +222,7 @@ in {
       workspace = spaces."Research".id;
       isEssential = false;
       position = 203;
-      folderParentId = "{{1774866958574-54}}";
+      folderParentId = "{1774866958574-54}";
     };
     "Github" = {
       id = "cf973d62-b983-47d8-99f6-5e418a9df065";
@@ -230,7 +230,7 @@ in {
       workspace = spaces."Research".id;
       isEssential = false;
       position = 204;
-      folderParentId = "{{1774866958574-54}}";
+      folderParentId = "{1774866958574-54}";
     };
     "Allenai" = {
       id = "10a5a5a4-59e9-44de-92a4-76278c283e21";
@@ -238,7 +238,7 @@ in {
       workspace = spaces."Research".id;
       isEssential = false;
       position = 205;
-      folderParentId = "{{1774866958574-54}}";
+      folderParentId = "{1774866958574-54}";
     };
     "Github_1" = {
       id = "0cd839f7-696b-4abb-9e23-dd29a763d601";
@@ -246,7 +246,7 @@ in {
       workspace = spaces."Research".id;
       isEssential = false;
       position = 206;
-      folderParentId = "{{1774866958574-54}}";
+      folderParentId = "{1774866958574-54}";
     };
     "Mistral" = {
       id = "b9b51298-ca51-4750-81c4-7b73897e87b1";
@@ -254,7 +254,7 @@ in {
       workspace = spaces."Research".id;
       isEssential = false;
       position = 207;
-      folderParentId = "{{1774866958574-54}}";
+      folderParentId = "{1774866958574-54}";
     };
     "Mistral_1" = {
       id = "451a2205-115f-42d5-bb3a-0c6910dc517d";
@@ -262,7 +262,7 @@ in {
       workspace = spaces."Research".id;
       isEssential = false;
       position = 208;
-      folderParentId = "{{1774866958574-54}}";
+      folderParentId = "{1774866958574-54}";
     };
     "Kreuzberg" = {
       id = "f40be5ec-0983-4eb1-b8ee-bd9bf5991123";
@@ -270,7 +270,7 @@ in {
       workspace = spaces."Research".id;
       isEssential = false;
       position = 209;
-      folderParentId = "{{1774867395074-62}}";
+      folderParentId = "{1774867395074-62}";
     };
     "Rabbitmq" = {
       id = "4a442371-46f7-4636-8e35-f6d8b27844dd";
@@ -292,7 +292,7 @@ in {
       workspace = spaces."Work".id;
       isEssential = false;
       position = 212;
-      folderParentId = "{{1772811910818-8}}";
+      folderParentId = "{1772811910818-8}";
     };
     "NSA_Bot2 - Google Sheets" = {
       id = "25cc0890-5a6e-4783-9d96-65d60102343c";
@@ -300,7 +300,7 @@ in {
       workspace = spaces."Work".id;
       isEssential = false;
       position = 213;
-      folderParentId = "{{1772811910818-8}}";
+      folderParentId = "{1772811910818-8}";
     };
     "Einzurichtende NSA - Google Sheets" = {
       id = "c7ac2e21-eb72-44ad-9904-a1836da952e5";
@@ -308,7 +308,7 @@ in {
       workspace = spaces."Work".id;
       isEssential = false;
       position = 214;
-      folderParentId = "{{1772811910818-8}}";
+      folderParentId = "{1772811910818-8}";
     };
     "FRAUDSTER CHECK - Google Sheets" = {
       id = "91c336f9-988b-4f71-bdd5-3557dea7246d";
@@ -316,7 +316,7 @@ in {
       workspace = spaces."Work".id;
       isEssential = false;
       position = 215;
-      folderParentId = "{{1772811910818-8}}";
+      folderParentId = "{1772811910818-8}";
     };
     "SQL_customerdata - Google Sheets" = {
       id = "cab70d0c-247b-409e-bf85-871d3e5bb6c7";
@@ -324,7 +324,7 @@ in {
       workspace = spaces."Work".id;
       isEssential = false;
       position = 216;
-      folderParentId = "{{1772811910818-8}}";
+      folderParentId = "{1772811910818-8}";
     };
     "Mailroom_1" = {
       id = "401f151b-2f73-449a-8503-7bb288bac7a1";
@@ -332,7 +332,7 @@ in {
       workspace = spaces."Work".id;
       isEssential = false;
       position = 217;
-      folderParentId = "{{1774867533295-57}}";
+      folderParentId = "{1774867533295-57}";
     };
     "GraphQL Playground" = {
       id = "3a459f36-4b12-46b2-abcc-07ab1899fdf8";
@@ -340,7 +340,7 @@ in {
       workspace = spaces."Work".id;
       isEssential = false;
       position = 218;
-      folderParentId = "{{1774867533295-57}}";
+      folderParentId = "{1774867533295-57}";
     };
     "Caya_3" = {
       id = "da02b43b-2262-4ed3-8c58-0feec10c6aa0";
@@ -348,7 +348,7 @@ in {
       workspace = spaces."Work".id;
       isEssential = false;
       position = 219;
-      folderParentId = "{{1774867533295-57}}";
+      folderParentId = "{1774867533295-57}";
     };
     "Gmail" = {
       id = "94e1a0bf-c281-4bc4-9ae4-42508ebe1195";
@@ -356,7 +356,7 @@ in {
       workspace = spaces."Work".id;
       isEssential = false;
       position = 220;
-      folderParentId = "{{1772811910906-87}}";
+      folderParentId = "{1772811910906-87}";
       container = 2;
     };
     "My Drive - Google Drive" = {
@@ -365,7 +365,7 @@ in {
       workspace = spaces."Work".id;
       isEssential = false;
       position = 221;
-      folderParentId = "{{1772811910906-87}}";
+      folderParentId = "{1772811910906-87}";
       container = 2;
     };
     "Deutschepost" = {
@@ -374,7 +374,7 @@ in {
       workspace = spaces."Work".id;
       isEssential = false;
       position = 222;
-      folderParentId = "{{1772811910906-87}}";
+      folderParentId = "{1772811910906-87}";
       container = 2;
     };
     "Figma" = {
@@ -383,7 +383,7 @@ in {
       workspace = spaces."Work".id;
       isEssential = false;
       position = 223;
-      folderParentId = "{{1774867512358-0}}";
+      folderParentId = "{1774867512358-0}";
     };
     "PIN 2026 - Google Drive" = {
       id = "1cb161df-c024-4e05-a9f7-c194f1feb775";
@@ -391,7 +391,7 @@ in {
       workspace = spaces."Work".id;
       isEssential = false;
       position = 224;
-      folderParentId = "{{1774866854440-80}}";
+      folderParentId = "{1774866854440-80}";
     };
     "Caya_2" = {
       id = "42ae8969-2192-40c7-b796-35c0428166b4";
@@ -399,7 +399,7 @@ in {
       workspace = spaces."Work".id;
       isEssential = false;
       position = 225;
-      folderParentId = "{{1774866854440-80}}";
+      folderParentId = "{1774866854440-80}";
     };
     "PIN Process - Google Docs" = {
       id = "c3e6b854-a771-489d-bcf3-08d023dc661b";
@@ -407,7 +407,7 @@ in {
       workspace = spaces."Work".id;
       isEssential = false;
       position = 226;
-      folderParentId = "{{1774866854440-80}}";
+      folderParentId = "{1774866854440-80}";
     };
     "Caya Document Cockpit" = {
       id = "917f2c5d-5915-4daa-bb87-05e867a92a8b";
@@ -436,7 +436,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 230;
-      folderParentId = "{{1772811910849-71}}";
+      folderParentId = "{1772811910849-71}";
       container = 1;
     };
     "Home - Google Drive" = {
@@ -445,7 +445,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 231;
-      folderParentId = "{{1772811910849-71}}";
+      folderParentId = "{1772811910849-71}";
       container = 1;
     };
     "AutomagicTemplate - Project Editor - App" = {
@@ -454,7 +454,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 232;
-      folderParentId = "{{1772811910849-71}}";
+      folderParentId = "{1772811910849-71}";
       container = 1;
     };
     "AutomagicTemplateJSON - Project Editor -" = {
@@ -463,7 +463,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 233;
-      folderParentId = "{{1772811910849-71}}";
+      folderParentId = "{1772811910849-71}";
       container = 1;
     };
     "Caya Document Cockpit_1" = {
@@ -472,7 +472,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 234;
-      folderParentId = "{{1772811910792-66}}";
+      folderParentId = "{1772811910792-66}";
     };
     "Caya Document Cockpit_2" = {
       id = "f502a956-0060-4f32-a998-9e89b168d828";
@@ -480,7 +480,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 235;
-      folderParentId = "{{1772811910792-66}}";
+      folderParentId = "{1772811910792-66}";
       container = 3;
     };
     "Caya_4" = {
@@ -489,7 +489,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 236;
-      folderParentId = "{{1772811910929-76}}";
+      folderParentId = "{1772811910929-76}";
     };
     "Caya_5" = {
       id = "8e254e3a-eb7b-441b-8969-e7de6da4c9e7";
@@ -497,7 +497,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 237;
-      folderParentId = "{{1772811910929-76}}";
+      folderParentId = "{1772811910929-76}";
       container = 3;
     };
     "Google_1" = {
@@ -506,7 +506,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 238;
-      folderParentId = "{{1772811910969-69}}";
+      folderParentId = "{1772811910969-69}";
     };
     "Team - Google Drive" = {
       id = "22f7f290-37bc-4ddc-8de6-b1193a746bcd";
@@ -514,7 +514,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 239;
-      folderParentId = "{{1772811910969-69}}";
+      folderParentId = "{1772811910969-69}";
     };
     "AUTOMATION TEAM OVERVIEW - Google Sheets" = {
       id = "43b492f0-a2cb-41c9-be55-6c09f25064cb";
@@ -522,7 +522,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 240;
-      folderParentId = "{{1772811910969-69}}";
+      folderParentId = "{1772811910969-69}";
     };
     "Google_2" = {
       id = "28d3f318-2f89-411e-8cdb-e8e9f1438c49";
@@ -530,7 +530,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 241;
-      folderParentId = "{{1772811910969-69}}";
+      folderParentId = "{1772811910969-69}";
     };
     "Google_3" = {
       id = "6f7f3e93-a9a4-440c-b0b5-1df24b903100";
@@ -538,7 +538,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 242;
-      folderParentId = "{{1772811910969-69}}";
+      folderParentId = "{1772811910969-69}";
     };
     "Caya alignment - Rollout strategy - Goog" = {
       id = "2a185ef9-aec5-4c32-b80f-c1f62517f88f";
@@ -546,7 +546,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 243;
-      folderParentId = "{{1774868454880-16}}";
+      folderParentId = "{1774868454880-16}";
     };
     "Standard Operational Procedure Classifie" = {
       id = "436fdc5e-9c1f-4072-b33b-8c6cd2dab699";
@@ -554,7 +554,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 244;
-      folderParentId = "{{1774868454880-16}}";
+      folderParentId = "{1774868454880-16}";
     };
     "Google_4" = {
       id = "2f6cad1d-3e77-4ee1-8627-42bea45278f3";
@@ -562,7 +562,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 245;
-      folderParentId = "{{1774868454880-16}}";
+      folderParentId = "{1774868454880-16}";
     };
     "Zoho CRM" = {
       id = "b3b17f5c-bcc9-4836-abd5-9a1371f5c824";
@@ -570,7 +570,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 246;
-      folderParentId = "{{1774868454880-16}}";
+      folderParentId = "{1774868454880-16}";
     };
     "Zoho" = {
       id = "c5911db0-a501-47ba-ae13-069e1f2ce63f";
@@ -578,7 +578,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 247;
-      folderParentId = "{{1774868454880-16}}";
+      folderParentId = "{1774868454880-16}";
     };
     "Zoho CRM_1" = {
       id = "aed08224-8d88-4d3c-bb88-91b76d7941be";
@@ -586,7 +586,7 @@ in {
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 248;
-      folderParentId = "{{1774868454880-16}}";
+      folderParentId = "{1774868454880-16}";
     };
     "Caya Document Cockpit_2_1" = {
       id = "cb4c2b75-aea4-4747-8a65-efcadaaf79ac";
@@ -594,7 +594,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 249;
-      folderParentId = "{{1772811911012-80}}";
+      folderParentId = "{1772811911012-80}";
       container = 4;
     };
     "Login to build your integrations, automa" = {
@@ -603,7 +603,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 250;
-      folderParentId = "{{1772811911012-80}}";
+      folderParentId = "{1772811911012-80}";
       container = 4;
     };
     "Tools-dev" = {
@@ -612,7 +612,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 251;
-      folderParentId = "{{1774867657222-23}}";
+      folderParentId = "{1774867657222-23}";
     };
     "DevToolbox - Fast Developer Utilities" = {
       id = "7adcad78-fa30-4aa4-851e-414f62a5ca54";
@@ -620,7 +620,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 252;
-      folderParentId = "{{1774867657222-23}}";
+      folderParentId = "{1774867657222-23}";
     };
     "Github_2" = {
       id = "398748d4-abdb-4d36-84f8-ab1f390ec4fa";
@@ -628,7 +628,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 253;
-      folderParentId = "{{1774867666645-82}}";
+      folderParentId = "{1774867666645-82}";
     };
     "Github_3" = {
       id = "f45ac0e3-6c2a-41c3-aafe-9cde05ff5ef3";
@@ -636,7 +636,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 254;
-      folderParentId = "{{1774867666645-82}}";
+      folderParentId = "{1774867666645-82}";
     };
     "Globale E-Mails - casavi" = {
       id = "b6de9f51-8d90-4b31-8b72-ef72c6d1e7da";
@@ -644,7 +644,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 255;
-      folderParentId = "{{1776351617692-26}}";
+      folderParentId = "{1776351617692-26}";
     };
     "casavi manager API" = {
       id = "6163d521-903f-4114-9dad-5a5dbc1790ab";
@@ -652,7 +652,7 @@ in {
       workspace = spaces."Development".id;
       isEssential = false;
       position = 256;
-      folderParentId = "{{1776351617692-26}}";
+      folderParentId = "{1776351617692-26}";
     };
   };
 }

@@ -386,22 +386,13 @@ update:
     just --justfile "${JUSTFILE:?}" fmt
     print_success "fmt              done"
     h="$(get_host "")"
-    if ! is_darwin && [[ "$h" == framework-nixos ]] && command -v fwupdmgr >/dev/null; then
+    if ! is_darwin && [[ "$h" == framework ]] && command -v fwupdmgr >/dev/null; then
       print_pending "fwupdmgr         checking BIOS/firmware updates (framework)..."
       fwupdmgr refresh --force >/dev/null 2>&1 || true
       fwupdmgr get-updates || true
       print_success "fwupdmgr         check complete"
     fi
     print_header "END"
-
-[doc('Reload user services (niri, swaybg, waybar, mako)')]
-[group('system')]
-reload-services:
-    #!/usr/bin/env bash
-    systemctl --user daemon-reload
-    command -v niri >/dev/null && niri msg action do-screen-transition --delay-ms 800 2>/dev/null || true
-    for s in rh-swaybg rh-waybar; do systemctl --user restart "${s}.service" 2>/dev/null || true; done
-    command -v makoctl >/dev/null && makoctl reload 2>/dev/null || true
 
 # -- repo ----------------------------------------------------------------------
 
@@ -421,11 +412,6 @@ git:
 
 # -- check ---------------------------------------------------------------------
 
-[doc('Scan flake for broken or missing package references')]
-[group('check')]
-check-packages:
-    @uv run --project "$FLAKE/scripts" check-packages
-
 [doc('Update custom flake packages via scripts/update-packages (reads packages/*/update.json)')]
 [group('check')]
 update-packages *ARGS:
@@ -443,7 +429,7 @@ nix-update-pkg:
         --expr "builtins.attrNames (builtins.getFlake \"$PWD\").packages.\${builtins.currentSystem}" \
         --json | jq -r '.[]' | sort -u)
       if command -v fzf >/dev/null 2>&1; then
-        attr="$(printf '%s\n' "${pkg_attrs[@]}" | fzf --prompt='nix-update> ' --height=40%)"
+        attr="$(printf '%s\n' "${pkg_attrs[@]}" | fzf --prompt='nix-update> ' --height=40% --preview-window=hidden)"
       else
         echo "attrs: ${pkg_attrs[*]}"
         read -rp "attr: " attr
@@ -505,6 +491,57 @@ zen-compare:
 [group('zen')]
 zen-extract *ARGS:
     @cd "$FLAKE" && uv run --project "$FLAKE/scripts" zen-session extract {{ ARGS }}
+
+# -- llm -----------------------------------------------------------------------
+
+[doc('Start declarative Unsloth Studio user service')]
+[group('llm')]
+unsloth:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    source "$FLAKE/scripts/shell/common.sh"
+    print_header "UNSLOTH"
+    print_info "-> systemctl --user start unsloth-studio.service"
+    systemctl --user start unsloth-studio.service
+    print_success "Unsloth Studio start requested"
+    print_header "END"
+
+[doc('Stop Unsloth Studio user service')]
+[group('llm')]
+unsloth-stop:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    systemctl --user stop unsloth-studio.service
+    echo "unsloth-studio service stopped"
+
+[doc('Delete Unsloth Studio container state (keeps mounted workdir)')]
+[group('llm')]
+unsloth-reset:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    systemctl --user stop unsloth-studio.service >/dev/null 2>&1 || true
+    podman rm -f unsloth-studio >/dev/null 2>&1 || true
+    echo "unsloth-studio container removed"
+
+[doc('Diff agent-skills/ vs ~/Git/skills (nested structure); interactive apply. Pass --apply-all to skip prompts.')]
+[group('llm')]
+[positional-arguments]
+skills-upstream *ARGS:
+    @bash "$FLAKE/scripts/shell/skills-upstream.bash" "$@"
+
+[doc('Tail logs from Unsloth Studio user service')]
+[group('llm')]
+unsloth-logs:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    journalctl --user -u unsloth-studio.service -f
+
+[doc('Show status of Unsloth Studio user service')]
+[group('llm')]
+unsloth-status:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    systemctl --user status unsloth-studio.service
 
 # -- meta ----------------------------------------------------------------------
 
