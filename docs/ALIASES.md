@@ -11,6 +11,7 @@ This document lists all aliases and commands available across different shells i
 | `cat` | `bat` | Better `cat` with syntax highlighting |
 | `find` | `fd` | Faster `find` alternative |
 | `grep` | `rg` | Ripgrep - faster `grep` alternative |
+| `trash` | `gio trash` *(Linux only)* | Move files to trash via GLib. On Darwin, the `trash` Homebrew formula provides the binary directly (no alias). |
 
 ## Directory Listing (eza) (Bash, Fish, Nushell, Zsh)
 

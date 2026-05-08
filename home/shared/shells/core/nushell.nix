@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   aliases = (import ./data/aliases.nix).commonAliases;
   paths = (import ./data/paths.nix).commonPaths;
 
@@ -21,7 +25,11 @@
 in {
   programs.nushell = {
     enable = true;
-    shellAliases = aliases;
+    shellAliases =
+      aliases
+      // lib.optionalAttrs pkgs.stdenv.isLinux {
+        trash = "gio trash";
+      };
 
     settings = {
       show_banner = false;
