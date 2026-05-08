@@ -41,13 +41,6 @@
       enabled = true;
       remote = false;
     };
-    code-review-graph = {
-      command = "uvx";
-      args = [
-        "code-review-graph"
-        "serve"
-      ];
-    };
   };
 
   # --- Agent ---

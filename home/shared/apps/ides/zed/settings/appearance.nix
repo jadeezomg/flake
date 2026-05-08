@@ -44,9 +44,6 @@
   session = {
     trust_all_worktrees = true;
   };
-  features = {
-    copilot = false;
-  };
 
   # --- UI ---
   active_pane_modifiers = {
