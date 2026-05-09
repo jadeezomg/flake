@@ -1,15 +1,7 @@
-# fastfetch banner on first interactive shell of a session. Sectioned
-# layout (╭ ├ ╰ box-drawing) inspired by jaimeadeur's config; colors pulled
-# from the Birds of Paradise palette in home/shared/assets/theme/theme.nix
-# so they auto-track theme changes.
-#
-# Custom modules call `host-status <module>` (built in lib/host-status.nix)
-# so detached nono sessions, OpenRouter credits, Claude rate-limit
-# utilization, and other per-host context surface alongside the standard
-# system info. OS-agnostic — same config renders on Linux + Darwin.
-#
-# Gating: $FASTFETCH_SHOWN env var prevents re-firing on nested shells (an
-# editor terminal, `bash -l` from zsh, etc.).
+# fastfetch banner on first interactive shell; $FASTFETCH_SHOWN prevents nested
+# shell re-renders. Colors track home/shared/assets/theme/theme.nix.
+# host-status command modules intentionally fall back to "?" so shell startup
+# survives optional service/API failures.
 {
   lib,
   pkgs,
@@ -17,12 +9,11 @@
 }: let
   theme = import ../../assets/theme/theme.nix;
 
-  # Per-section accents — 4 distinct hues, all from the Birds of Paradise
-  # palette. Edit a single key here to recolor the corresponding section.
-  systemAccent = theme."accent-yellow"; # foundational / golden anchor
-  terminalAccent = theme."ansi-cyan"; # prompt-cyan, CLI vibes
-  hardwareAccent = theme."accent-blue"; # cool / metallic
-  projectAccent = theme."ansi-bright-red"; # warm / active state changes
+  # Edit one accent here to recolor its section.
+  systemAccent = theme."accent-yellow";
+  terminalAccent = theme."ansi-cyan";
+  hardwareAccent = theme."accent-blue";
+  projectAccent = theme."ansi-bright-red";
 
   banner = ''
     if [ -t 1 ] && [ -z "$FASTFETCH_SHOWN" ]; then
@@ -45,18 +36,17 @@ in {
 
       logo = {
         type = "auto";
-        # 9-stop gradient mapping our palette light→dark via the warm tones.
-        # Inspired by jaimeadeur's #dc5f00→#ffffff gradient pattern.
+        # Palette gradient inspired by jaimeadeur's #dc5f00→#ffffff pattern.
         color = {
-          "1" = theme."text-secondary"; # white-ish, lightest
-          "2" = theme."text-primary"; # cream
-          "3" = theme."ansi-bright-yellow"; # bright yellow
-          "4" = theme."accent-yellow"; # canonical golden accent
-          "5" = theme."ansi-yellow"; # warm amber
-          "6" = theme."ansi-bright-red"; # bright orange-red
-          "7" = theme."ansi-red"; # red
-          "8" = theme."ansi-bright-black"; # warm brown
-          "9" = theme."ansi-black"; # darkest brown
+          "1" = theme."text-secondary";
+          "2" = theme."text-primary";
+          "3" = theme."ansi-bright-yellow";
+          "4" = theme."accent-yellow";
+          "5" = theme."ansi-yellow";
+          "6" = theme."ansi-bright-red";
+          "7" = theme."ansi-red";
+          "8" = theme."ansi-bright-black";
+          "9" = theme."ansi-black";
         };
         padding = {top = 1;};
       };
@@ -69,31 +59,28 @@ in {
       modules = [
         "break"
 
-        # ----- System -----
         {
-          type = "os"; # 󰌽 nf-md-linux U+F033D
+          type = "os";
           key = "╭ 󰌽 ";
           keyColor = systemAccent;
         }
         {
-          type = "kernel"; # 󰒓 nf-md-cog U+F0493
+          type = "kernel";
           key = "├ 󰒓 ";
           keyColor = systemAccent;
         }
         {
-          type = "packages"; # 󰏖 nf-md-package_variant_closed U+F03D6
+          type = "packages";
           key = "├ 󰏖 ";
           keyColor = systemAccent;
         }
         {
-          # Generation — 󰥔 nf-md-update U+F0954
           type = "command";
           key = "├ 󰥔 ";
           keyColor = systemAccent;
           text = "host-status generation 2>/dev/null || echo '?'";
         }
         {
-          # Flake — ❄ Unicode SNOWFLAKE U+2744 (Nix snowflake; no NF needed)
           type = "command";
           key = "╰ ❄ ";
           keyColor = systemAccent;
@@ -102,103 +89,91 @@ in {
 
         "break"
 
-        # ----- Terminal -----
         {
-          type = "terminal"; # 󰆍 nf-md-console_line U+F018D
+          type = "terminal";
           key = "╭ 󰆍 ";
           keyColor = terminalAccent;
         }
         {
-          type = "shell"; # 󰌌 nf-md-keyboard U+F030C
+          type = "shell";
           key = "├ 󰌌 ";
           keyColor = terminalAccent;
         }
         {
-          type = "terminalfont"; # 󰛖 nf-md-format_letter_case U+F06D6
+          type = "terminalfont";
           key = "╰ 󰛖 ";
           keyColor = terminalAccent;
         }
 
         "break"
 
-        # ----- Hardware -----
         {
-          type = "host"; # 󰌢 nf-md-laptop U+F0322
+          type = "host";
           key = "╭ 󰌢 ";
           keyColor = hardwareAccent;
         }
         {
-          type = "cpu"; # 󰻟 nf-md-cpu_64_bit U+F0EDF
+          type = "cpu";
           key = "├ 󰻟 ";
           keyColor = hardwareAccent;
         }
         {
-          type = "gpu"; # 󰢮 nf-md-expansion_card U+F08AE
+          type = "gpu";
           key = "├ 󰢮 ";
           format = "{2}";
           keyColor = hardwareAccent;
         }
         {
-          type = "memory"; # 󰍛 nf-md-memory U+F035B
+          type = "memory";
           key = "├ 󰍛 ";
           keyColor = hardwareAccent;
           percent = {type = 3;};
         }
         {
-          type = "disk"; # 󰋊 nf-md-harddisk U+F02CA
+          type = "disk";
           key = "├ 󰋊 ";
           keyColor = hardwareAccent;
           percent = {type = 3;};
         }
         {
-          type = "uptime"; # 󰅐 nf-md-clock_outline U+F0150
+          type = "uptime";
           key = "╰ 󰅐 ";
           keyColor = hardwareAccent;
         }
 
         "break"
 
-        # ----- Project / network / agents -----
-        # All mdi-prefix Nerd Font icons (the family confirmed working in
-        # the user's font; FA-prefix fails). If a specific codepoint below
-        # renders as a box, swap it for an alternate mdi codepoint.
         {
-          # Tailscale — 󰒍 nf-md-network U+F048D
           type = "command";
           key = "╭ 󰒍 ";
           keyColor = projectAccent;
           text = "host-status tailscale 2>/dev/null || echo '?'";
         }
         {
-          # Containers — 󰡨 nf-md-docker U+F0868
           type = "command";
           key = "├ 󰡨 ";
           keyColor = projectAccent;
           text = "host-status containers 2>/dev/null || echo '?'";
         }
         {
-          # Agents — 󰚩 nf-md-robot U+F06A9
           type = "command";
           key = "├ 󰚩 ";
           keyColor = projectAccent;
           text = "host-status agents 2>/dev/null || echo '?'";
         }
         {
-          # Claude — 󰧑 nf-md-brain U+F09D1
           type = "command";
           key = "├ 󰧑 ";
           keyColor = projectAccent;
           text = "host-status render claude 2>/dev/null || echo '?'";
         }
         {
-          # OpenRouter — 󰈸 nf-md-router-network U+F0238
           type = "command";
           key = "├ 󰈸 ";
           keyColor = projectAccent;
           text = "host-status render openrouter 2>/dev/null || echo '?'";
         }
         {
-          # Skills — 󰂺 nf-md-book-open-page-variant U+F00BA
           type = "command";
           key = "╰ 󰂺 ";
           keyColor = projectAccent;
@@ -210,7 +185,7 @@ in {
     };
   };
 
-  # Wire the banner into each interactive shell.
+  # Shell hooks gate on FASTFETCH_SHOWN to avoid nested-shell rerenders.
   programs.bash.initExtra = lib.mkAfter banner;
   programs.zsh.initContent = lib.mkAfter banner;
   programs.fish.interactiveShellInit = lib.mkAfter ''

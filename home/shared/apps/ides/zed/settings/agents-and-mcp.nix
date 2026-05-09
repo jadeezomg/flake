@@ -28,9 +28,7 @@
     };
   };
 in {
-  # --- External Agents ---
   agent_servers = {
-    # --- Registry ---
     claude-acp = {
       type = "registry";
     };
@@ -41,7 +39,6 @@ in {
       type = "registry";
     };
 
-    # --- Pi ---
     pi = {
       type = "custom";
       command = "npx";
@@ -51,11 +48,8 @@ in {
       };
     };
 
-    # --- Pi (sandboxed via nono) ---
     # FS-isolated to ~/.pi, ~/.npm*, and the cwd. Network open until tightened
-    # via --allow-domain. Profile lives in parts/shells.nix (`nono-pi` devShell)
-    # — drop a copy at ~/.config/nono/profiles/pi-flake.json or reference the
-    # store path printed by `nix develop .#nono-pi`.
+    # via --allow-domain. Profile comes from the `nono-pi` devShell.
     pi-nono = {
       type = "custom";
       command = "nono";
@@ -78,18 +72,14 @@ in {
       };
     };
 
-    # --- omp (oh-my-pi) ---
-    # Uses omp's first-class `--mode acp` (cli/args.ts: Mode includes "acp").
-    # No pi-acp adapter needed — omp ships a complete ACP server implementation.
+    # omp ships ACP directly via `--mode acp`; no pi-acp adapter needed.
     omp = {
       type = "custom";
       command = "omp";
       args = ["--mode" "acp"];
     };
 
-    # --- omp (sandboxed via nono) ---
-    # Profile lives at ~/.config/nono/profiles/omp-flake.json (installed by
-    # home/shared/development/tooling/nono-profiles.nix from lib/nono-profiles.nix).
+    # Uses the omp-flake nono profile installed by nono-profiles.nix.
     omp-nono = {
       type = "custom";
       command = "nono";
@@ -109,7 +99,6 @@ in {
       ];
     };
 
-    # --- Claude Agent ACP Fork with inline accept/reject---
     claude-agent-acp-fork = {
       type = "custom";
       command = "${claude-agent-acp-fork}/bin/claude-agent-acp";
@@ -119,7 +108,6 @@ in {
 
   context_servers = mcpRegistry.toZedContextServers extensionManagedMcpServers;
 
-  # --- Agent ---
   agent = {
     thinking_display = "always_collapsed";
     play_sound_when_agent_done = "when_hidden";

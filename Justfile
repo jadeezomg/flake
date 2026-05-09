@@ -1,7 +1,3 @@
-# Flake - chooser-friendly recipes; CLI args via private _* or `just <cmd> ...`.
-# Docs: https://just.systems/man/en/documentation-comments.html
-# Groups: https://just.systems/man/en/groups.html
-
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 set unstable := true
 set script-interpreter := ['uv', 'run', '--script']
@@ -23,13 +19,11 @@ export ICON_PENDING := THEME_YELLOW + "❖" + THEME_RESET
 export ICON_ERROR := THEME_RED + "▼" + THEME_RESET
 export ICON_INFO := THEME_CYAN + "▪" + THEME_RESET
 
-# -- default -------------------------------------------------------------------
 
 [doc('Interactive picker: fzf with group + doc (see scripts/shell/just-choose.bash)')]
 default:
     @bash "$FLAKE/scripts/shell/just-choose.bash"
 
-# -- build ---------------------------------------------------------------------
 
 [doc('Build / home-manager build for .flake-host')]
 [group('build')]
@@ -77,7 +71,6 @@ build-dev:
     notify "Flake Build" "Trace $h..." "pending"
     print_info "-> $sc"; bash -c "$sc"; print_header "END"
 
-# -- switch --------------------------------------------------------------------
 
 [doc('flake check + nh switch (full path)')]
 [group('switch')]
@@ -126,7 +119,6 @@ switch-check:
       || notify "Flake Switch" "Check failed" "pending"
     print_header "END"
 
-# -- generations ---------------------------------------------------------------
 
 [doc('List system generations (nh os info / darwin-rebuild)')]
 [group('generations')]
@@ -180,7 +172,6 @@ generation-delete:
     sudo nix-env --delete-generations "$num" -p /nix/var/nix/profiles/system
     print_header "END"
 
-# -- gc ------------------------------------------------------------------------
 
 alias gc := gc-keep
 
@@ -218,7 +209,6 @@ gc-all:
     [[ -d "$tr" ]] && { rm -rf "$tr" 2>/dev/null || sudo rm -rf "$tr" 2>/dev/null || true; }
     print_header "END"
 
-# -- format --------------------------------------------------------------------
 
 [doc('Format all .nix/scripts/js/ts/json and type-check scripts')]
 [group('format')]
@@ -264,7 +254,6 @@ lint:
 fmt-notree:
     @alejandra --quiet "$FLAKE" >/dev/null
 
-# -- backups -------------------------------------------------------------------
 
 [doc('List *.backup / *.bkp under ~/.config with sizes')]
 [group('backups')]
@@ -295,7 +284,6 @@ backups-clean:
 backups-clean-dry:
     @find "${HOME}/.config" \( -name "*.backup" -o -name "*.bkp" \) -type f 2>/dev/null | xargs -r du -h
 
-# -- config --------------------------------------------------------------------
 
 [doc('Write .flake-host (prompts; use just _init <host> for no prompt)')]
 [group('config')]
@@ -343,7 +331,6 @@ post-install:
     set -euo pipefail
     bash "$FLAKE/scripts/shell/post-install.bash"
 
-# -- system --------------------------------------------------------------------
 
 [doc('Rollback to previous generation (nh rollback / darwin-rebuild --rollback)')]
 [group('system')]
@@ -395,7 +382,6 @@ update:
     fi
     print_header "END"
 
-# -- repo ----------------------------------------------------------------------
 
 [doc('Quiet fmt, git status/log, then commit+push (prompts message)')]
 [group('repo')]
@@ -411,7 +397,6 @@ git:
     [[ -z "${msg:-}" || "$msg" == abort ]] && exit 0
     git -C "$FLAKE" add -A && git -C "$FLAKE" commit -m "$msg" && git -C "$FLAKE" push
 
-# -- check ---------------------------------------------------------------------
 
 [doc('Update custom flake packages via scripts/update-packages (reads packages/*/update.json)')]
 [group('check')]
@@ -456,7 +441,6 @@ symlink-check:
 symlink-check-dms:
     @cd "$FLAKE" && uv run --project "$FLAKE/scripts" symlink-check dms-settings
 
-# -- zen -----------------------------------------------------------------------
 
 [doc('Zen session CLI; after sync, runs nix fmt on the flake')]
 [group('zen')]
@@ -485,7 +469,6 @@ zen-compare:
 zen-extract *ARGS:
     @cd "$FLAKE" && uv run --project "$FLAKE/scripts" zen-session extract {{ ARGS }}
 
-# -- llm -----------------------------------------------------------------------
 
 [doc('Start declarative Unsloth Studio user service')]
 [group('llm')]
@@ -536,7 +519,6 @@ unsloth-status:
     set -euo pipefail
     systemctl --user status unsloth-studio.service
 
-# -- meta ----------------------------------------------------------------------
 
 [doc('List all recipes (file order within groups)')]
 [group('meta')]
@@ -551,7 +533,6 @@ info:
     print_header "FLAKE INFO"
     nix flake metadata "$FLAKE"
 
-# -- private -------------------------------------------------------------------
 
 [private]
 _init host:

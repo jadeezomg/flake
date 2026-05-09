@@ -1,7 +1,4 @@
-# Installs nono profiles to ~/.config/nono/profiles/<name>.json so they
-# resolve by name from `nono run --profile <name>`. Profile data lives in
-# lib/nono-profiles.nix (single source of truth, also consumed by the
-# devShells in parts/shells.nix).
+# Profile data lives in lib/nono-profiles.nix; installed under ~/.config/nono/profiles.
 {
   lib,
   osConfig,

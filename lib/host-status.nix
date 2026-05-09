@@ -1,19 +1,7 @@
-# Host status helpers — small status one-liners for fastfetch and ad-hoc use.
-#
-# Returns:
-#   {
-#     hostStatus                = derivation;  # `host-status <module>` dispatcher
-#     credentialCacheSources    = attrset;     # cache path/refresher/cadence Interface
-#     openrouterRefresh         = derivation;  # background fetcher, run by timer
-#     claudeRefresh             = derivation;  # background fetcher, run by timer
-#
-# All modules emit one line of stdout, exit 0 even on failure (so a banner
-# never breaks shell startup). External-API modules read a cache file written
-# by their refresher derivation; the cache TTL is enforced by how often the
-# systemd user timer / launchd agent runs (configured in the home-manager
-# wiring at home/shared/development/tooling/host-status.nix).
-#
-# Imported with `{ inherit pkgs; }`.
+# Host status helpers emit one stdout line and exit 0 on probe failure so
+# fastfetch or shell startup never fails because an optional service/API is down.
+# Cache TTL is controlled by the Home Manager scheduler in
+# home/shared/development/tooling/host-status.nix.
 {pkgs}: let
   inherit (pkgs) lib;
 
@@ -45,6 +33,7 @@
         cache="${source.cachePath}"
         tmp="$cache.tmp.$$"
 
+        # Credential sources: 1Password on Darwin, libsecret on Linux.
         if [ "$(uname)" = "Darwin" ]; then
           key="$(op read "op://Personal/openrouter_api_key/credential" 2>/dev/null || true)"
         else
@@ -81,6 +70,7 @@
 
         version="$(claude --version 2>/dev/null | head -1 | grep -oE '[0-9.]+' | head -1 || echo "2.0.0")"
 
+        # Reverse-engineered from Claude Code OAuth traffic; not a public Anthropic API.
         if curl -sSf -m 10 \
             -H "Authorization: Bearer $token" \
             -H "Accept: application/json" \
@@ -100,8 +90,6 @@
 
   openrouterRefresh = mkOpenRouterRefresh credentialCacheSources.openrouter;
   claudeRefresh = mkClaudeRefresh credentialCacheSources.claude;
-
-  # ----- dispatcher ---------------------------------------------------------
 
   hostStatus = pkgs.writeShellApplication {
     name = "host-status";

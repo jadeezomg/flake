@@ -14,12 +14,10 @@ in {
         goose-cli
         codex
         codex-acp
-        # Sandboxing primitive for the agents above. Profiles in
-        # ~/.config/nono/profiles/ installed by home/shared/development/tooling/nono-profiles.nix.
+        # Profiles installed by home/shared/development/tooling/nono-profiles.nix.
         nono
 
-        # Docs / search / knowledge plumbing (local flake packages, surfaced
-        # via parts/overlays/local-packages.nix)
+        # Local flake packages from parts/overlays/local-packages.nix.
         context7
         kagi-ken
         kagi-ken-cli
