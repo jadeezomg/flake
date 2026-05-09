@@ -355,13 +355,14 @@ rollback:
     if is_darwin; then darwin-rebuild switch --rollback; else nh os rollback; fi
     print_header "END"
 
-[doc('Quick snapshot: git status, disk, nh os info')]
+[doc('Quick snapshot: Host Status, git status, disk, nh os info')]
 [group('system')]
 health:
     #!/usr/bin/env bash
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     print_header "HEALTH"
+    command -v host-status >/dev/null && host-status all || true
     git -C "$FLAKE" status --short 2>/dev/null | head -5
     df -h / 2>/dev/null | head -2
     is_darwin || nh os info 2>/dev/null | head -15
