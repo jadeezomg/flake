@@ -1,6 +1,6 @@
 {config, ...}: let
   # Sops *attribute* name for the GitHub PAT file. Must be one of `githubPatSecretAttrs` in
-  # `home/shared/shells/sops-shell-secrets.nix` (e.g. "github-token" or "gh-token").
+  # `home/shared/shells/sops-session-env.nix` (e.g. "github-token" or "gh-token").
   githubPatSecretAttrName = "github-token";
   githubPatSecret = {
     key = "github_token";

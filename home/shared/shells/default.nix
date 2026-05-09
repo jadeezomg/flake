@@ -3,6 +3,6 @@
     ./core
     ./env
     ./theme
-    ./sops-shell-secrets.nix
+    ./sops-session-env.nix
   ];
 }
