@@ -1,47 +1,55 @@
-{inputs, ...}: {
-  perSystem = {
-    pkgs,
-    system,
-    ...
-  }: let
-    # Profile data lives in lib/nono-profiles.nix so the home-manager installer
-    # (home/shared/development/tooling/nono-profiles.nix) and these devShells
-    # render the same JSON.
-    nonoProfileData = import ../lib/nono-profiles.nix;
+{...}: {
+  perSystem = {pkgs, ...}: let
+    nonoAgents = import ../lib/nono-profiles.nix {inherit pkgs;};
+    inherit (nonoAgents) metadata mkAgentInvocation mkAgentProfileFile;
 
-    # Build a self-contained devShell that runs `<agentBin>` inside `nono`
-    # using a profile from nonoProfileData. Self-contained = the profile is
-    # rendered to a Nix store path; works without a home-manager switch.
-    mkNonoShell = {
-      profileName,
-      agentPkg,
-      agentBin,
-      extraNotes ? "",
-    }: let
-      profileFile =
-        pkgs.writeText "${profileName}.json"
-        (builtins.toJSON nonoProfileData.${profileName});
-      invocation = "nono run --profile ${profileFile} --allow-cwd --rollback -- ${agentBin}";
+    # Build a self-contained devShell that runs `<agent>` inside `nono` using
+    # the invocation defined in lib/nono-profiles.nix. Self-contained = the
+    # profile is rendered to a Nix store path; works without a HM switch.
+    #
+    # Per-agent git identity is set via `env GIT_AUTHOR_*=...` before the
+    # agent binary, because nono profiles have no env-set field today.
+    # Means: `nono run --profile <name> -- <agent>` invoked outside this
+    # shell will NOT carry agent identity / Co-author trailer. Canonical
+    # entry point is the dispatcher (`agent claude` / `agent pi`) installed
+    # via home/shared/development/tooling/agents-cli.nix.
+    mkNonoShell = agentName: extraNotes: let
+      meta = metadata.${agentName};
+      profileFile = mkAgentProfileFile agentName;
+      invocation = mkAgentInvocation {
+        inherit agentName;
+        usePackagePath = false;
+      };
+      detachedInvocation = mkAgentInvocation {
+        inherit agentName;
+        detached = true;
+        usePackagePath = false;
+      };
     in
       pkgs.mkShell {
-        packages = [pkgs.nono agentPkg];
+        packages = [pkgs.nono meta.pkg];
         shellHook = ''
           cat <<'EOF'
-          nono-${agentBin} devShell
+          nono-${meta.bin} devShell
 
             First-time setup (once per host):
               nono setup
+              # Then `home-manager switch` populates libsecret with broker creds
+              # (sops-keyring activation). Verify: secret-tool lookup service nono account context7_api_key
 
             Foreground (attached TUI):
               ${invocation}
 
             Detached, reattach later:
-              nono run --detached --profile ${profileFile} --allow-cwd --rollback -- ${agentBin}
+              ${detachedInvocation}
               nono ps
               nono attach <session>      # Ctrl-] d to detach again
 
             Inspect resolved capabilities:
               nono profile show ${profileFile}
+
+            Identity injected as ${meta.gitName} <${meta.gitEmail}>; commits get
+            Co-Authored-By: jadeezomg <github@jadee.fyi> via prepare-commit-msg.
           ${extraNotes}
           EOF
         '';
@@ -61,95 +69,16 @@
         ];
       };
 
-      nono-claude = mkNonoShell {
-        profileName = "claude-flake";
-        agentPkg = pkgs.claude-code;
-        agentBin = "claude";
-        extraNotes = ''
-          Credentials inherited from session env (sops). To upgrade to
-          broker/proxy mode (key never enters sandbox), load it into the
-          nono keystore and add `--credential anthropic` to the run.
-        '';
-      };
+      nono-claude = mkNonoShell "claude" ''
+        Anthropic OAuth token persists in ~/.claude/.credentials.json
+        (granted by base claude-code profile). Broker promotion deferred —
+        see ADR-0001 future-work item 2.
+      '';
 
-      nono-pi = mkNonoShell {
-        profileName = "pi-flake";
-        agentPkg = pkgs.pi-coding-agent;
-        agentBin = "pi";
-        extraNotes = ''
-          Tighten egress after observing usage:
-            nono why <denied-domain>           # diagnose a denial
-            # then add --allow-domain <domain> to the profile in lib/nono-profiles.nix
-        '';
-      };
-
-      claude-sandbox = let
-        sandboxFloor = import ../lib/packages/sandbox-floor.nix pkgs;
-        # minimal.nix minus Nix build / store clients — no nix(1), nh, nix-index in PATH
-        nixBuildTools = with pkgs; [
-          nh
-          nix-index
-          nix
-        ];
-        minimalPackages = pkgs.lib.subtractLists nixBuildTools (import ../lib/packages/minimal.nix pkgs);
-
-        claude-sandboxed = inputs.agent-sandbox.lib.${system}.mkSandbox {
-          pkg = pkgs.claude-code;
-          binName = "claude";
-          outName = "claude-sandboxed";
-
-          # On Linux, agent-sandbox.nix bwraps with --tmpfs $HOME, then only stateDirs and
-          # a few work paths are bind-mounted. The real ~/.config and ~/.nix are not
-          # visible (ephemeral HOME); only $HOME paths listed in stateDirs/stateFiles
-          # bridge through to the host.
-          allowedPackages =
-            sandboxFloor
-            ++ minimalPackages
-            ++ [
-              pkgs.just
-              pkgs.helix
-              pkgs.nodejs
-            ];
-
-          stateDirs = ["$HOME/.claude"];
-          stateFiles = [
-            "$HOME/.claude.json"
-            "$HOME/.claude.json.lock"
-          ];
-
-          extraEnv = {
-            CLAUDE_CODE_OAUTH_TOKEN = "$CLAUDE_CODE_OAUTH_TOKEN";
-            GITHUB_TOKEN = "$AGENT_PAT";
-            GIT_AUTHOR_NAME = "claude";
-            GIT_AUTHOR_EMAIL = "claude@localhost";
-            GIT_COMMITTER_NAME = "claude";
-            GIT_COMMITTER_EMAIL = "claude@localhost";
-            EDITOR = "hx";
-            VISUAL = "hx";
-            PAGER = "bat";
-            LC_ALL = "en_US.UTF-8";
-            LANG = "en_US.UTF-8";
-            NIX_PATH = "";
-          };
-
-          restrictNetwork = true;
-          allowedDomains = {
-            "anthropic.com" = "*";
-            "claude.com" = "*";
-            "statsig.anthropic.com" = "*";
-            "raw.githubusercontent.com" = ["GET" "HEAD"];
-            "objects.githubusercontent.com" = ["GET" "HEAD"];
-            "api.github.com" = ["GET" "HEAD"];
-            "registry.npmjs.org" = ["GET" "HEAD"];
-          };
-        };
-      in
-        pkgs.mkShell {
-          packages = [claude-sandboxed];
-          shellHook = ''
-            echo "claude-sandbox ready — invoke: claude-sandboxed --dangerously-skip-permissions"
-          '';
-        };
+      nono-pi = mkNonoShell "pi" ''
+        OpenRouter, Context7, GitHub PAT injected via nono broker from
+        libsecret. No LLM keys in pi's sandbox env.
+      '';
     };
   };
 }

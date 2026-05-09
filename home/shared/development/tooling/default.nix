@@ -5,7 +5,11 @@
     ./llm.nix
     ./pi-packages.nix
     ./pi-mcp.nix
+    ./omp-mcp.nix
     ./claude-mcp.nix
     ./nono-profiles.nix
+    ./agents-cli.nix
+    ./host-status.nix
+    ./fastfetch.nix
   ];
 }

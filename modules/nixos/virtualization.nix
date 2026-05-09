@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  user,
   ...
 }: {
   config = lib.mkMerge [
@@ -15,6 +16,12 @@
         # need the `podman` group).
         dockerSocket.enable = true;
       };
+
+      # Enable lingering so the user-level systemd manager (and rootless
+      # podman.socket at $XDG_RUNTIME_DIR/podman/podman.sock) keeps running
+      # without an active GUI login. Required for nono-sandboxed agents to
+      # reach podman over SSH or headless sessions — see ADR-0001.
+      users.users.${user}.linger = true;
     })
 
     # --- `nixos-rebuild build-vm` variant ---

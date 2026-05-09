@@ -1,25 +1,5 @@
 {
   "nodes": {
-    "agent-sandbox": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1777663282,
-        "narHash": "sha256-OzRLgQvNUIylrnP9UFmxnjZ2jASbQxI8DpHCUCAW/SU=",
-        "owner": "archie-judd",
-        "repo": "agent-sandbox.nix",
-        "rev": "0d8b0abb9bd29c5c2e97ef54628017ec42130dd3",
-        "type": "github"
-      },
-      "original": {
-        "owner": "archie-judd",
-        "repo": "agent-sandbox.nix",
-        "type": "github"
-      }
-    },
     "base16": {
       "inputs": {
         "fromYaml": "fromYaml"
@@ -1422,7 +1402,6 @@
     },
     "root": {
       "inputs": {
-        "agent-sandbox": "agent-sandbox",
         "corecycler": "corecycler",
         "determinate": "determinate",
         "disko": "disko",
