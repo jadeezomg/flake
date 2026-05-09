@@ -5,11 +5,12 @@
 {
   lib,
   osConfig,
+  pkgs,
   ...
 }: let
   agentsEnabled = osConfig.dotfiles.profiles.devenv.llm.agents.enable or false;
 
-  profiles = import ../../../../lib/nono-profiles.nix;
+  profiles = (import ../../../../lib/nono-profiles.nix {inherit pkgs;}).profiles;
 
   mkProfileFile = name: data: {
     name = "nono/profiles/${name}.json";

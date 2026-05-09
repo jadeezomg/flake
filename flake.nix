@@ -117,14 +117,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Lightweight, declarative sandboxing for AI coding agents
-    # (bubblewrap on Linux, sandbox-exec on macOS).
-    # https://github.com/archie-judd/agent-sandbox.nix
-    agent-sandbox = {
-      url = "github:archie-judd/agent-sandbox.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # Third-party agent skills (mattpocock). Locked via flake.lock; bump with `nix flake update`.
     skills-mattpocock = {
       url = "github:mattpocock/skills";
