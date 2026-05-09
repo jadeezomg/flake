@@ -1,4 +1,6 @@
-{claude-agent-acp-fork}: {
+{claude-agent-acp-fork}: let
+  sharedMcpServers = import ../../../../development/tooling/mcp-servers.nix;
+in {
   # --- External Agents ---
   agent_servers = {
     # --- Registry ---
@@ -22,6 +24,33 @@
       };
     };
 
+    # --- Pi (sandboxed via nono) ---
+    # FS-isolated to ~/.pi, ~/.npm*, and the cwd. Network open until tightened
+    # via --allow-domain. Profile lives in parts/shells.nix (`nono-pi` devShell)
+    # — drop a copy at ~/.config/nono/profiles/pi-flake.json or reference the
+    # store path printed by `nix develop .#nono-pi`.
+    pi-nono = {
+      type = "custom";
+      command = "nono";
+      args = [
+        "run"
+        "--profile"
+        "pi-flake"
+        "--allow-cwd"
+        "--rollback"
+        "--no-rollback-prompt"
+        "--name"
+        "pi-zed"
+        "--"
+        "npx"
+        "-y"
+        "pi-acp"
+      ];
+      env = {
+        "PI_ACP_ENABLE_EMBEDDED_CONTEXT" = "true";
+      };
+    };
+
     # --- Claude Agent ACP Fork with inline accept/reject---
     claude-agent-acp-fork = {
       type = "custom";
@@ -30,18 +59,20 @@
     };
   };
 
-  context_servers = {
-    mcp-server-context7 = {
-      settings = {};
-      enabled = true;
-      remote = false;
-    };
-    mcp-server-github = {
-      settings = {};
-      enabled = true;
-      remote = false;
-    };
-  };
+  context_servers =
+    {
+      mcp-server-context7 = {
+        settings = {};
+        enabled = true;
+        remote = false;
+      };
+      mcp-server-github = {
+        settings = {};
+        enabled = true;
+        remote = false;
+      };
+    }
+    // sharedMcpServers;
 
   # --- Agent ---
   agent = {

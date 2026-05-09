@@ -1,13 +1,18 @@
 {config, ...}: let
   flakeRoot = config.dotfiles.flakeRoot;
   agentsFile = "${flakeRoot}/data/agents/global/AGENTS.md";
-  link = config.lib.file.mkOutOfStoreSymlink agentsFile;
+  agentsLink = config.lib.file.mkOutOfStoreSymlink agentsFile;
+
+  claudeSettingsFile = "${flakeRoot}/data/agents/global/settings.json";
+  claudeSettingsLink = config.lib.file.mkOutOfStoreSymlink claudeSettingsFile;
 in {
   home.file = {
-    "AGENTS.md".source = link;
-    ".codex/AGENTS.md".source = link;
-    ".claude/CLAUDE.md".source = link;
-    ".config/agents/AGENTS.md".source = link;
-    ".pi/agent/AGENTS.md".source = link;
+    "AGENTS.md".source = agentsLink;
+    ".codex/AGENTS.md".source = agentsLink;
+    ".claude/CLAUDE.md".source = agentsLink;
+    ".config/agents/AGENTS.md".source = agentsLink;
+    ".pi/agent/AGENTS.md".source = agentsLink;
+
+    ".claude/settings.json".source = claudeSettingsLink;
   };
 }
