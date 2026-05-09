@@ -1,0 +1,10 @@
+{
+	"permissions": {
+		"allow": [
+			"Bash(nix flake check *)",
+			"Bash(ctx7 *)",
+			"Bash(systemctl status *)",
+			"mcp__mcp-nixos__nix"
+		]
+	}
+}
