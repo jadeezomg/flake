@@ -4,6 +4,8 @@
   imports = [
     ./llm.nix
     ./pi-packages.nix
-    ./context-mode.nix
+    ./pi-mcp.nix
+    ./claude-mcp.nix
+    ./nono-profiles.nix
   ];
 }
