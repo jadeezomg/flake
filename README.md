@@ -115,7 +115,6 @@ Bash under `scripts/shell/` backs the Justfile. Python is a uv project in `scrip
 | `nix-cachyos-kernel` | CachyOS kernel (x86_64-linux) |
 | `framework-control` | Framework laptop tools (separate nixpkgs) |
 | `google-workspace-cli` | `gws` in per-system `packages` |
-| `agent-sandbox` | sandbox profiles for agents |
 | `skills-mattpocock` | optional upstream skills sync via `just skills-upstream` |
 
 `perSystem.packages` in `flake.nix` also exposes: `iosevka-aile`, `iosevka-etoile`, `context7`, `kagi-ken`, `kagi-ken-cli`, `workato-platform-cli`, `gws`, `pi-coding-agent`.
