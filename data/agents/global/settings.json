@@ -1,33 +1,33 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(nix flake check *)",
-      "Bash(ctx7 *)",
-      "Bash(systemctl status *)",
-      "mcp__mcp-nixos__nix"
-    ]
-  },
-  "extraKnownMarketplaces": {
-    "context-mode": {
-      "source": {
-        "source": "github",
-        "repo": "mksglu/context-mode"
-      }
-    }
-  },
-  "enabledPlugins": {
-    "context-mode@context-mode": true
-  },
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"/home/jadee/.claude/hooks/context-mode-cache-heal.mjs\""
-          }
-        ]
-      }
-    ]
-  }
+	"permissions": {
+		"allow": [
+			"Bash(nix flake check *)",
+			"Bash(ctx7 *)",
+			"Bash(systemctl status *)",
+			"mcp__mcp-nixos__nix"
+		]
+	},
+	"extraKnownMarketplaces": {
+		"context-mode": {
+			"source": {
+				"source": "github",
+				"repo": "mksglu/context-mode"
+			}
+		}
+	},
+	"enabledPlugins": {
+		"context-mode@context-mode": true
+	},
+	"hooks": {
+		"SessionStart": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "\"/home/jadee/.claude/hooks/context-mode-cache-heal.mjs\""
+					}
+				]
+			}
+		]
+	}
 }
