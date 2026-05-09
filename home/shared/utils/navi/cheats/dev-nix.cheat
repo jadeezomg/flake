@@ -199,8 +199,10 @@ direnv reload
 ; nono profiles are the single sandboxing layer for coding agents — see
 ; lib/nono-profiles.nix and docs/adr/0001-nono-as-single-sandboxing-system.md.
 ; Profile JSONs are installed by HM to ~/.config/nono/profiles/.
+; For day-to-day agent launches use the `agent` dispatcher (see `llm` cheats).
+; The devShells below are the lower-level entry kept for ad-hoc use.
 
-# Enter Claude in its sandbox via the flake devShell (preferred entry point)
+# Enter Claude in its sandbox via the flake devShell
 nix develop <flake>#nono-claude
 
 $ flake: echo "$FLAKE"

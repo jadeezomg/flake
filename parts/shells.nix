@@ -3,16 +3,9 @@
     nonoAgents = import ../lib/nono-profiles.nix {inherit pkgs;};
     inherit (nonoAgents) metadata mkAgentInvocation mkAgentProfileFile;
 
-    # Build a self-contained devShell that runs `<agent>` inside `nono` using
-    # the invocation defined in lib/nono-profiles.nix. Self-contained = the
-    # profile is rendered to a Nix store path; works without a HM switch.
-    #
-    # Per-agent git identity is set via `env GIT_AUTHOR_*=...` before the
-    # agent binary, because nono profiles have no env-set field today.
-    # Means: `nono run --profile <name> -- <agent>` invoked outside this
-    # shell will NOT carry agent identity / Co-author trailer. Canonical
-    # entry point is the dispatcher (`agent claude` / `agent pi`) installed
-    # via home/shared/development/tooling/agents-cli.nix.
+    # Per-agent git identity is injected in the invocation because nono
+    # profiles have no env-set field today; raw `nono run --profile <name>`
+    # will not carry agent identity or the Co-authored-by hook.
     mkNonoShell = agentName: extraNotes: let
       meta = metadata.${agentName};
       profileFile = mkAgentProfileFile agentName;

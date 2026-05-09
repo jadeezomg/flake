@@ -1,15 +1,4 @@
-# Single source of truth for nono-sandboxed agents. Returns:
-#   {
-#     profiles    = { claude-flake, pi-flake, omp-flake };  # profile JSON (HM xdg.configFile + devShells)
-#     metadata    = { claude, pi, omp };                    # per-agent identity + binary refs
-#     mkAgentInvocation :: { agentName, detached?, passArgs?, usePackagePath? } -> string
-#     mkAgentBin  :: agentName -> derivation                # writeShellApplication for one agent
-#     agentPackages = [ claude-code pi-coding-agent oh-my-pi ];
-#     mkAgentProfileFile :: agentName -> path
-#     agentBins   = { claude, pi, omp };                    # the bins for all agents
-#     agent       = derivation                              # `agent <name> [args...]` dispatcher
-#   }
-#
+# Single source of truth for nono-sandboxed agent profiles and wrappers.
 # omp (oh-my-pi) is a fork of pi-mono with extended tooling. It coexists with
 # pi side-by-side: same OpenRouter broker route, same git identity, isolated
 # config directories (~/.omp vs ~/.pi). omp ships native --mode acp so its Zed
@@ -17,15 +6,6 @@
 #
 # Architecture decisions: docs/adr/0001-nono-as-single-sandboxing-system.md.
 #
-# Consumers:
-#   home/shared/development/tooling/nono-profiles.nix
-#     reads .profiles → installs each as ~/.config/nono/profiles/<name>.json
-#   home/shared/development/tooling/agents-cli.nix
-#     reads .agent → installs `agent` dispatcher bin to home.packages
-#   parts/shells.nix
-#     reads .profiles for devShell rendering; uses .metadata for identity strings
-#
-# Imported with `{ inherit pkgs; }`.
 {pkgs}: let
   inherit (pkgs) lib;
 
@@ -39,8 +19,6 @@
     if pkgs.stdenv.isDarwin
     then "op://${opVault}/${name}/credential"
     else name;
-
-  # ----- shared profile content ---------------------------------------------
 
   loopbackPorts = [
     3000
@@ -75,8 +53,8 @@
     "$XDG_RUNTIME_DIR/podman/podman.sock"
   ];
 
-  # Broker credential routes shared by both agents. Read keystore accounts
-  # populated by home/shared/shells/sops-keyring.nix at HM activation.
+  # Broker credential routes read keystore accounts populated by
+  # home/shared/shells/sops-keyring.nix at HM activation.
   sharedCustomCredentials = {
     context7 = {
       upstream = "https://context7.com";
@@ -133,8 +111,6 @@
     workdir.access = "readwrite";
   };
 
-  # ----- profile JSON (consumed by HM xdg.configFile + devShell rendering) ---
-
   profiles = {
     claude-flake = mkAgentProfile {
       name = "claude-flake";
@@ -187,8 +163,6 @@
       extraServiceList = ["openrouter"];
     };
   };
-
-  # ----- per-agent invocation metadata --------------------------------------
 
   metadata = {
     claude = {
@@ -267,8 +241,6 @@
   in
     lib.concatStringsSep " " argv;
 
-  # ----- shared git artifacts ------------------------------------------------
-
   prepareCommitMsg = pkgs.writeShellScript "agent-prepare-commit-msg" ''
     set -e
     [ -n "$1" ] && [ -f "$1" ] || exit 0
@@ -289,8 +261,6 @@
     	hooksPath = ${hooksDir}
   '';
 
-  # ----- per-agent wrapper binaries -----------------------------------------
-
   mkAgentBin = agentName:
     pkgs.writeShellApplication {
       name = "agent-${agentName}";
@@ -306,12 +276,6 @@
   agentNames = lib.attrNames metadata;
   agentBins = lib.genAttrs agentNames mkAgentBin;
 
-  # ----- `agent doctor` — setup health check --------------------------------
-  #
-  # Single command that exercises the full stack: keyring lookup for each
-  # broker credential, podman socket reachability, profile resolution, the
-  # static `nono why` decisions for the key endpoints. Prints a checklist;
-  # exits non-zero if anything's broken so it's CI/script-friendly too.
   credentialAccounts = ["openrouter_api_key" "context7_api_key" "github_token"];
   profileNames = map (n: metadata.${n}.profileName) agentNames;
 
@@ -406,12 +370,6 @@
     '';
   };
 
-  # ----- `agent status` — one-line summary of running sessions --------------
-  #
-  # Designed for shell-startup banners (fastfetch custom module). Compact
-  # output: "none" when nothing's running, "<n> session(s): <name>
-  # [<status>/<attachment>], ..." otherwise. Always exits 0 so a banner
-  # invocation never breaks shell startup.
   status = pkgs.writeShellApplication {
     name = "agent-status";
     runtimeInputs = [pkgs.nono pkgs.jq];
@@ -426,8 +384,6 @@
       printf '%s session(s): %s\n' "$count" "$summary"
     '';
   };
-
-  # ----- `agent` dispatcher -------------------------------------------------
 
   agent = pkgs.writeShellApplication {
     name = "agent";

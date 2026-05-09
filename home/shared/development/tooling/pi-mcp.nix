@@ -1,11 +1,5 @@
-# Declarative pi MCP servers — merged into ~/.pi/agent/mcp.json (pi's actual
-# MCP config path) at activation. Pi's other state (`imports`, runtime-added
-# fields like `directTools`, etc.) is preserved; we only own the keys we
-# declare, per-server.
-#
-# Claude Code consumes its own MCP servers via `claude mcp add-json --scope user`,
-# wired in ./claude-mcp.nix (~/.claude.json holds other state we don't want
-# to manage by symlink/merge).
+# Claude Code MCP registration is separate; ~/.claude.json contains auth/state
+# that must not be managed by symlink/merge.
 {
   config,
   lib,

@@ -1,5 +1,3 @@
-# Registry of all machines: metadata for each lives next to its system module in
-# `hosts/<hostname-key>/host.nix` (this file only aggregates).
 let
   requiredHostFields = [
     "hostname"

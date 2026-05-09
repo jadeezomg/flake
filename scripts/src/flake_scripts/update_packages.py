@@ -1,37 +1,9 @@
-"""Update custom flake packages by reading update.json metadata from each package dir.
+"""Update custom flake packages from per-package update.json metadata.
 
-The default `type` is `nix-update`; the npm + github_npm handlers exist only for
-cases `nix-update` cannot cover.
-
-Handler `type` values:
-  - nix-update: delegate to Mic92/nix-update via `nix-update --flake <attr>`. The tool
-    owns the default.nix rewrite (version + every hash/rev/cargoHash/npmDepsHash it
-    knows). Use this for any package whose `src` is a resolver nix-update supports
-    (GitHub/GitLab/crates.io/PyPi/etc.). Optional `attr` overrides the flake
-    attribute (default: package dir name); optional `extra_args` is a list of CLI
-    flags forwarded verbatim (e.g. `["--generate-lockfile"]`).
-  - npm: registry.npmjs.org package (see packages/context7/update.json). Needed
-    because nix-update has no npm-registry resolver. Updates `version`, `url`,
-    tarball `hash`, vendored `lock_file`, and `npmDepsHash`.
-  - github_npm: latest GitHub release tag (or newest tag if no releases),
-    `nix-prefetch-github` for fetchFromGitHub `hash`, vendored `lock_file` from the
-    tag archive, `prefetch-npm-deps` for `npmDepsHash`, and `rev_field` set to the
-    tag name. Needed over nix-update when `patch_git_ssh_lock` is true: rewrites
-    `git+ssh://git@github.com/...` lockfile entries to https tarball + sha512
-    integrity so `buildNpmPackage` can resolve them in the sandbox.
-  - binary_channel: prebuilt-binary releases. `version_url` returns the latest
-    version (plain text by default; pass `version_jsonpath` to pluck a dotted
-    path from a JSON response — e.g. `"tag_name"` against
-    `api.github.com/repos/.../releases/latest`). `version_strip_prefix`
-    optionally trims a literal prefix (e.g. `"v"` so `v14.8.1` → `14.8.1`).
-    `url_template` accepts `{version}` and `{platform}` placeholders;
-    `hash_fields` maps each upstream platform name to the matching default.nix
-    attribute (e.g. `{"linux-x64": "linuxX64Hash"}`). Skips the per-platform
-    download when the upstream version matches the on-disk version.
-
-Each package stores `packages/<name>/.update-check.json` with `checked_at` (unix time).
-By default a 1h cooldown skips re-fetching if that file is newer than the cooldown (use
-`--force` to always fetch).
+Custom handlers cover package sources `nix-update` cannot resolve directly:
+npm registry tarballs, GitHub releases with npm lock regeneration, and
+prebuilt binary release channels. `github_npm` may patch git+ssh lockfile
+entries so `buildNpmPackage` can resolve them in the Nix sandbox.
 """
 
 import base64
@@ -334,18 +306,9 @@ def _current_version(text: str) -> str:
     return m.group(1) if m else "unknown"
 
 
-# ---------------------------------------------------------------------------
-# Source type handlers
-# Each receives (meta, pkg_dir, status_cb, current_version) and returns
-# (new_version, field_updates).  current_version is pre-read by
-# update_package so handlers never need to re-read default.nix themselves.
-# ---------------------------------------------------------------------------
-
-
 def _handle_npm(
     meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
 ) -> tuple[str, dict]:
-    """npm package: fetch latest, compute src hash + npm deps hash."""
     status("fetching latest version from npm")
     data = _fetch_json(f"https://registry.npmjs.org/{meta['package']}/latest")
     new_version = data["version"]
@@ -473,7 +436,6 @@ def _patch_lock_git_ssh(lock: dict) -> None:
 def _handle_github_npm(
     meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
 ) -> tuple[str, dict]:
-    """GitHub release/tag + fetchFromGitHub + buildNpmPackage: refresh lock + hashes."""
     owner, repo_name = meta["repo"].split("/", 1)
 
     status("fetching latest GitHub tag")
@@ -546,14 +508,8 @@ def _handle_binary_channel(
 ) -> tuple[str, dict]:
     """Generic binary updater with version endpoint and URL template.
 
-    `version_url` is fetched as plain text by default. When `version_jsonpath`
-    is set the response is parsed as JSON and the dotted path is plucked
-    (e.g. `"tag_name"` for a GitHub release endpoint). `version_strip_prefix`
-    optionally trims a literal prefix (e.g. `"v"`) — useful when the upstream
-    tag is `v14.8.1` but the nix `version` field should be `14.8.1`.
-
-    Short-circuits when the upstream version matches the on-disk version, so
-    no-op runs don't re-download multi-hundred-MB binaries on every check.
+    Short-circuits on matching versions so no-op runs do not re-download large
+    release assets just to rediscover unchanged hashes.
     """
     status("fetching latest version")
     if "version_jsonpath" in meta:
@@ -662,11 +618,6 @@ def _cooldown_skip(pkg_dir: Path, cooldown_s: int) -> tuple[bool, str | None]:
     return False, None
 
 
-# ---------------------------------------------------------------------------
-# Core update logic
-# ---------------------------------------------------------------------------
-
-
 def update_package(
     pkg_dir: Path,
     status: StatusCb,
@@ -724,11 +675,6 @@ def update_package(
 
 def discover_packages(flake_root: Path) -> list[Path]:
     return sorted(p.parent for p in (flake_root / "packages").glob("*/update.json"))
-
-
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
 
 
 def main(args: list[str] | None = None) -> None:
@@ -834,7 +780,6 @@ def main(args: list[str] | None = None) -> None:
                             tid, "[dim]–[/]", "dim", name, f"[dim]already at {new}[/]"
                         )
                 except Exception as e:
-                    # Short cell (last non-empty line); print full error above the bar.
                     msg = str(e)
                     last = next(
                         (ln for ln in reversed(msg.splitlines()) if ln.strip()), msg

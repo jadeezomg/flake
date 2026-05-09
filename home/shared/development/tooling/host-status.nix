@@ -1,6 +1,4 @@
-# Installs the `host-status` CLI and background refreshers declared by
-# lib/host-status.nix. Cadence and cache paths stay with the Host Status
-# cache declaration so readers and schedulers move together.
+# Keep cache cadence with cache paths so readers and schedulers move together.
 {
   lib,
   pkgs,
@@ -19,7 +17,6 @@
     })
   credentialCacheSources;
 
-  # Linux: systemd user timer pair
   mkLinuxTimer = name: source: {
     "host-status-${name}" = {
       Unit.Description = "Refresh ${name} cache for host-status";
@@ -42,7 +39,6 @@
     };
   };
 
-  # Darwin: launchd agent
   mkDarwinAgent = source: {
     enable = true;
     config = {

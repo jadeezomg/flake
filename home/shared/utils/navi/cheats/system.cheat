@@ -126,3 +126,31 @@ $ file: fd --type f --max-depth 2
 
 # Launch yazi file manager
 y
+
+% status, host-status
+
+; Banner-friendly per-host status modules backing fastfetch and ad-hoc checks.
+; Each module emits one line, exits 0 on probe failure. Cross-platform
+; (Linux + Darwin). Implementation: lib/host-status.nix.
+
+# Print every module as a labelled list (default)
+host-status
+
+# Print one module
+host-status <module>
+
+$ module: host-status ls
+
+# Structured JSON snapshot of credential caches
+host-status snapshot
+
+# Render one display field from the snapshot JSON
+host-status render <key>
+
+$ key: printf '%s\n' openrouter claude
+
+# List module names
+host-status ls
+
+# Show usage / module reference
+host-status --help

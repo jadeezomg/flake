@@ -1,12 +1,5 @@
-# Declarative user-scoped MCP servers for Claude Code (`~/.claude.json`).
-#
-# `claude mcp add-json --scope user <name> <payload>` is the supported way to
-# register a stdio MCP server without overwriting the rest of `~/.claude.json`
-# (which holds auth tokens and other state we don't want to manage).
-#
-# Activation is idempotent via `claude mcp list` grep — re-running on each
-# switch is a no-op once an entry exists. Failures are logged and don't block
-# activation; a later switch retries.
+# Claude MCP registration must use `claude mcp add-json --scope user` so
+# activation does not overwrite auth/state in ~/.claude.json.
 {
   config,
   lib,
