@@ -18,7 +18,7 @@ in {
       context7
       kagi-ken
       kagi-ken-cli
-      # code-review-graph
+      mcp-nixos
       agent-browser
     ];
   };
