@@ -118,7 +118,7 @@ Bash under `scripts/shell/` backs the Justfile. Python is a uv project in `scrip
 | `agent-sandbox` | sandbox profiles for agents |
 | `skills-mattpocock` | optional upstream skills sync via `just skills-upstream` |
 
-`perSystem.packages` in `flake.nix` also exposes: `iosevka-aile`, `iosevka-etoile`, `context7`, `kagi-ken`, `kagi-ken-cli`, `workato-platform-cli`, `gws`, `code-review-graph`, `pi-coding-agent`.
+`perSystem.packages` in `flake.nix` also exposes: `iosevka-aile`, `iosevka-etoile`, `context7`, `kagi-ken`, `kagi-ken-cli`, `workato-platform-cli`, `gws`, `pi-coding-agent`.
 
 ## specialArgs
 
@@ -128,7 +128,7 @@ Available in system/home modules (see [AGENTS.md](AGENTS.md) for the full list):
 
 `secrets/secrets.yaml` is encrypted with sops and age. Edit with `sops secrets/secrets.yaml`. Age keys: `~/.config/sops/age/keys.txt` (macOS bootstrap: `just setup-age-darwin`).
 
-Home-manager can export select secrets to the interactive shell via `home/shared/shells/sops-shell-secrets.nix`.
+Home-manager exports select secrets to the user session env via `home/shared/shells/sops-session-env.nix` (env.d + `systemctl --user set-environment` on Linux; LaunchAgent + `launchctl setenv` on Darwin), so every new shell — and GUI apps launched outside a terminal — inherit them.
 
 ## Where to add things
 
