@@ -85,6 +85,10 @@ in {
       # Niri auto-spawns xwayland-satellite for X11 apps when it's in PATH.
       # See: https://github.com/YaLTeR/niri/wiki/Xwayland
       xwayland-satellite
+
+      # Handy — offline speech-to-text. Tracked from upstream flake until
+      # nixpkgs ships it; Darwin uses brew cask `handy`.
+      inputs.handy.packages.${pkgs.stdenv.hostPlatform.system}.default
     ];
   };
 }

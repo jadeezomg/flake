@@ -19,6 +19,9 @@ in {
 
       # Diagrams
       mermaid-cli
+
+      # Slides
+      slidev-cli
     ];
   };
 }

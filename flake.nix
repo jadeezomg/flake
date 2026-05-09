@@ -99,6 +99,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Handy — offline speech-to-text desktop app. Linux outputs only; Darwin
+    # is installed via brew cask (modules/darwin/default.nix). Track upstream
+    # until nixpkgs ships it. https://github.com/cjpais/Handy
+    handy = {
+      url = "github:cjpais/Handy";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # https://github.com/ozturkkl/framework-control — uses bundled nixpkgs fork for the package until upstream nixpkgs ships it
     framework-control = {
       url = "github:ozturkkl/framework-control";
