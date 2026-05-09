@@ -32,8 +32,11 @@ nono's local HTTPS reverse proxy. Intercepts the sandbox's outbound HTTPS calls 
 _Avoid_: "proxy" (ambiguous with HTTP forward proxy)
 
 **Credential**:
-A named secret stored in libsecret (gnome-keyring) and referenced in agent profiles as `keyring://nono/<account>`. Loaded from sops into libsecret at home-manager activation. Distinct from a sops "secret" (the encrypted YAML entry — the source).
+A named secret in the platform keystore — libsecret on Linux, 1Password vault on Darwin — and referenced in agent profiles via `mkCredentialKey`, which emits the bare account name on Linux and an `op://Personal/<account>/credential` URI on Darwin. Loaded from sops into the platform keystore at home-manager activation (`sops-keyring.nix` / `sops-1password.nix`). Distinct from a sops "secret" (the encrypted YAML entry — the source).
 _Avoid_: "key", "token" (those refer to the value; credential refers to the named entry)
+
+**Dispatcher**:
+The `agent` shell binary on PATH. Subcommands: `agent <name>` runs an agent; `agent ps` / `agent attach` / `agent stop` forward to nono session management; `agent doctor` runs setup health checks. Built once in `lib/nono-profiles.nix` and installed via `home/shared/development/tooling/agents-cli.nix`.
 
 **Agent identity**:
 A per-agent git author/committer identity injected via `GIT_AUTHOR_*` / `GIT_COMMITTER_*` env vars in the sandbox. Today: `claude-jadee <claude@jadee.fyi>` and `pi-jadee <pi@jadee.fyi>`. Distinct from the **co-author trailer**.
