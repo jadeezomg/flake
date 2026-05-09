@@ -12,6 +12,7 @@ let
     system = "x86_64-linux";
     homeDirectory = "/home/${sharedNixOSUser.username}";
     stateVersion = "26.05";
+    hostClass = "workstation";
     extraUsers = nixosExtraUsers;
     /**
     `nix.settings.cores` + half for CARGO_BUILD_JOBS

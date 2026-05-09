@@ -52,7 +52,7 @@
     guestHmUsers = builtins.filter (u: (u.manageHome or true)) (host.extraUsers or []);
     mkUserCfg = {
       imports = hmImports;
-      home.stateVersion = host.stateVersion or "26.05";
+      home.stateVersion = host.stateVersion;
     };
   in {
     useGlobalPkgs = true;
@@ -97,10 +97,10 @@
 
   # Build outputs per host
   mkHostOutputs = hostKey: host: let
-    system = host.system or "x86_64-linux";
+    system = host.system;
     isDarwin = lib.elem system darwinSystems;
-    user = host.username or "jadee";
-    hostname = host.hostname or hostKey;
+    user = host.username;
+    hostname = host.hostname;
     pkgs = getPkgs system [];
     nixosConfig = lib.nixosSystem {
       system = null;

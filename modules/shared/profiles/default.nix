@@ -1,4 +1,10 @@
-{lib, ...}: {
+{
+  config,
+  host ? {},
+  hostKey ? "unknown",
+  lib,
+  ...
+}: {
   imports = [
     ./minimal.nix
     ./essentials.nix
@@ -79,5 +85,33 @@
       appimage.enable = enableOn "integrations.appimage (AppImage binfmt support)";
       flatpak.enable = enableOn "integrations.flatpak (flatpak daemon + Flathub remote)";
     };
+  };
+
+  config = let
+    cfg = config.dotfiles.profiles;
+    hostClass = host.hostClass or "workstation";
+  in {
+    assertions = [
+      {
+        assertion = !(hostClass == "server" && cfg.desktop.enable);
+        message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.desktop; disable it in hosts/${hostKey}/profiles.nix.";
+      }
+      {
+        assertion = !(hostClass == "server" && cfg.apps.enable);
+        message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.apps; disable it in hosts/${hostKey}/profiles.nix.";
+      }
+      {
+        assertion = !(hostClass == "server" && cfg.integrations.enable);
+        message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.integrations; disable it in hosts/${hostKey}/profiles.nix.";
+      }
+      {
+        assertion = !(hostClass == "server" && cfg.gaming.enable);
+        message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.gaming; disable it in hosts/${hostKey}/profiles.nix.";
+      }
+      {
+        assertion = !(hostClass == "server" && cfg.work.enable);
+        message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.work; disable it in hosts/${hostKey}/profiles.nix.";
+      }
+    ];
   };
 }
