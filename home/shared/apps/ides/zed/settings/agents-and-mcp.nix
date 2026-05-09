@@ -1,5 +1,32 @@
 {claude-agent-acp-fork}: let
-  sharedMcpServers = import ../../../../development/tooling/mcp-servers.nix;
+  registryLib = rec {
+    attrNames = builtins.attrNames;
+    concatStringsSep = builtins.concatStringsSep;
+    mapAttrs = f: attrs:
+      builtins.listToAttrs (map (name: {
+          inherit name;
+          value = f name attrs.${name};
+        })
+        (attrNames attrs));
+    intersectLists = left: right: builtins.filter (name: builtins.elem name right) left;
+    assertMsg = condition: message:
+      if condition
+      then true
+      else builtins.throw message;
+  };
+  mcpRegistry = import ../../../../development/tooling/mcp-servers.nix {lib = registryLib;};
+  extensionManagedMcpServers = {
+    mcp-server-context7 = {
+      settings = {};
+      enabled = true;
+      remote = false;
+    };
+    mcp-server-github = {
+      settings = {};
+      enabled = true;
+      remote = false;
+    };
+  };
 in {
   # --- External Agents ---
   agent_servers = {
@@ -51,6 +78,37 @@ in {
       };
     };
 
+    # --- omp (oh-my-pi) ---
+    # Uses omp's first-class `--mode acp` (cli/args.ts: Mode includes "acp").
+    # No pi-acp adapter needed — omp ships a complete ACP server implementation.
+    omp = {
+      type = "custom";
+      command = "omp";
+      args = ["--mode" "acp"];
+    };
+
+    # --- omp (sandboxed via nono) ---
+    # Profile lives at ~/.config/nono/profiles/omp-flake.json (installed by
+    # home/shared/development/tooling/nono-profiles.nix from lib/nono-profiles.nix).
+    omp-nono = {
+      type = "custom";
+      command = "nono";
+      args = [
+        "run"
+        "--profile"
+        "omp-flake"
+        "--allow-cwd"
+        "--rollback"
+        "--no-rollback-prompt"
+        "--name"
+        "omp-zed"
+        "--"
+        "omp"
+        "--mode"
+        "acp"
+      ];
+    };
+
     # --- Claude Agent ACP Fork with inline accept/reject---
     claude-agent-acp-fork = {
       type = "custom";
@@ -59,20 +117,7 @@ in {
     };
   };
 
-  context_servers =
-    {
-      mcp-server-context7 = {
-        settings = {};
-        enabled = true;
-        remote = false;
-      };
-      mcp-server-github = {
-        settings = {};
-        enabled = true;
-        remote = false;
-      };
-    }
-    // sharedMcpServers;
+  context_servers = mcpRegistry.toZedContextServers extensionManagedMcpServers;
 
   # --- Agent ---
   agent = {

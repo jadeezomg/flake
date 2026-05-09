@@ -14,10 +14,10 @@
   pkgs,
   ...
 }: let
-  agentsEnabled = osConfig.dotfiles.profiles.devenv.llm.agents.enable or false;
+  mcpRegistry = import ./mcp-servers.nix {inherit lib osConfig;};
+  inherit (mcpRegistry) agentsEnabled;
+  mcpServers = mcpRegistry.sharedServers;
   homeDir = config.home.homeDirectory;
-
-  mcpServers = import ./mcp-servers.nix;
 
   registerScript =
     lib.concatMapStringsSep "\n"

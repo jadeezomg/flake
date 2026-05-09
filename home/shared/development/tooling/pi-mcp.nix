@@ -15,26 +15,17 @@
 }: let
   homeDir = config.home.homeDirectory;
 
-  mcpServers = import ./mcp-servers.nix;
+  mcpRegistry = import ./mcp-servers.nix {inherit lib osConfig;};
+  mcpServers = mcpRegistry.sharedServers;
 
   mcpDir = "${homeDir}/.pi/agent";
   mcpFile = "${mcpDir}/mcp.json";
 
-  esc = lib.escapeShellArg;
-
-  agentsEnabled = osConfig.dotfiles.profiles.devenv.llm.agents.enable or false;
+  agentsEnabled = mcpRegistry.agentsEnabled;
 in
   lib.mkIf (agentsEnabled && mcpServers != {}) {
     home.activation.piMcp = lib.hm.dag.entryAfter ["writeBoundary"] ''
       export PATH=${lib.makeBinPath [pkgs.jq pkgs.coreutils]}:$PATH
-      mkdir -p ${esc mcpDir}
-      if ! jq -e . ${esc mcpFile} >/dev/null 2>&1; then
-        printf '%s\n' '{}' >${esc mcpFile}
-      fi
-      tmp=$(mktemp)
-      jq --argjson servers ${esc (builtins.toJSON mcpServers)} \
-        'reduce ($servers | to_entries[]) as $e (.;
-          .mcpServers[$e.key] = ((.mcpServers[$e.key] // {}) + $e.value))' \
-        ${esc mcpFile} >"$tmp" && mv "$tmp" ${esc mcpFile}
+      ${mcpRegistry.mkMcpJsonMergeActivation {inherit mcpDir mcpFile;}}
     '';
   }
