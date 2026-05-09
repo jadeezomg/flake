@@ -30,7 +30,6 @@ with pkgs; [
   wget
   dig
   xh
-  httpie
   gping
 
   # --- Diffs & readable patches ---

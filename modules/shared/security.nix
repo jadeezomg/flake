@@ -11,8 +11,8 @@
     sops
   ];
 
-  # User-facing secrets (paths under $HOME) and shell env exports live in
-  # home-manager: `home/shared/security.nix` + `sops-shell-secrets.nix`.
+  # User-facing secrets (paths under $HOME) and session env exports live in
+  # home-manager: `home/shared/security.nix` + `sops-session-env.nix`.
   #
   # When you need activation-time or root-owned keys, add them here with the
   # flake's `sops-nix` NixOS/Darwin module, e.g.:
