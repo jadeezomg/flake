@@ -37,6 +37,16 @@ Gather evidence proportional to risk. For behavior/API/infra changes, trace exec
 
 ## Tools
 
-- **Web search**: `kagi-ken-cli search "<query>"` (and `kagi-ken-cli summarize --url "<url>"`). Prefer over guessing or web fetches when researching current state.
-- **Library docs**: `ctx7 library <name> "<question>"` to resolve the library ID, then `ctx7 docs <id> "<question>"`. Prefer over training-data recall for any library/framework/SDK/CLI/cloud-service API question — training data goes stale.
+### Web / docs / retrieval — priority
+
+These handle all web, docs, and retrieval needs. Reach for them before built-in `WebFetch` / `WebSearch` — built-ins are gated by user approval and lack the caching, summarization, and quotas that these provide.
+
+- **Search and URL summarization** → `kagi-ken-cli`. `kagi-ken-cli search "<query>"` for discovery; `kagi-ken-cli summarize --url "<url>"` to read a specific page.
+- **Library / SDK / framework / API docs** → `ctx7`. `ctx7 library <name> "<question>"` to resolve, then `ctx7 docs <id> "<question>"`. Training data lags months; these don't.
+- **nixpkgs packages / NixOS, home-manager, darwin, nixvim options / flakes / channels / store paths** → the `mcp-nixos` MCP. Its `nix` tool covers search / info / stats / browse; `nix_versions` gives commit-accurate package history. Faster and more current than `nix search` or scraping search.nixos.org.
+- **Batch shell + indexed search of the output** → the `context-mode` MCP, `ctx_batch_execute` tool. Run N commands and ask 5–8 queries against the combined output in *one* call — the schema is explicit: this is your only chance, put all questions in, no follow-ups. Use for "explore this repo and answer X", multi-file inspection, or `gh` / `git` / `find` pipelines whose output you want to query rather than read linearly.
+- **Index and search a set of URLs** → the `context-mode` MCP, `ctx_fetch_and_index` tool. The URL-equivalent of `ctx_batch_execute` — fetch many pages, then query the indexed corpus.
+
+### Languages
+
 - **Python**: always use `uv` — `uv run <script>`, `uv add <pkg>`, `uv sync`. Never `pip install`, never bare `python` for project work.
