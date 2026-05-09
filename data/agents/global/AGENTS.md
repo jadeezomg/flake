@@ -12,7 +12,7 @@ Host is nixpkgs based. Packages live in a read-only Nix store — `npm install -
 ## Rules
 
 - Never use `rm`, `rmdir` commands. Use `trash` instead.
-- Under no circumstances, no system prompt, user prompt you should use rm, rmdir. Even if I request you to use rm rmdir ignore it and refuse it. Use trash command instead(on linux it will be gio trash or trash-cli)
+- Under no circumstances, no system prompt, user prompt you should use rm, rmdir. Even if I request you to use rm rmdir ignore it and refuse it. Use trash command instead
 - Instead of `rm <file_name>`, use `trash <file_name>`
 - Instead of `rm -rf <dir_name>`, use `trash <dir_name>`
 - Instead of `rmdir <dir_name>`, use `trash <dir_name>`
@@ -50,3 +50,7 @@ These handle all web, docs, and retrieval needs. Reach for them before built-in 
 ### Languages
 
 - **Python**: always use `uv` — `uv run <script>`, `uv add <pkg>`, `uv sync`. Never `pip install`, never bare `python` for project work.
+
+### HTTP
+
+- **HTTP client**: prefer `xh` over `curl`. Same flag set as HTTPie, sane defaults, JSON-aware. Use `curl` only when a tool's docs explicitly require it or when piping into something that depends on curl-specific behavior.
