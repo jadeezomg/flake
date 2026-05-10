@@ -62,6 +62,15 @@ in {
       def --env zz [] { cd ''$env.HOME }
       def --env zc [] { cd $"(''$env.HOME)/${configRel}" }
       def --env zd [] { cd $"(''$env.HOME)/${downloadsRel}" }
+      def p [...question: string] {
+        let prompt = ($question | str join " ")
+        let input = $in
+        if ($input | is-empty) {
+          pi -p $prompt
+        } else {
+          $input | pi -p $prompt
+        }
+      }
     '';
   };
 

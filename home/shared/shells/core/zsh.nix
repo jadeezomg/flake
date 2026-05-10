@@ -42,6 +42,9 @@ in {
       zz() { cd ${paths.home}; }
       zc() { cd ${paths.config}; }
       zd() { cd ${paths.downloads}; }
+      p() {
+        pi -p "$*"
+      }
     '';
   };
 }
