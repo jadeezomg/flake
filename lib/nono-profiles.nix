@@ -82,12 +82,14 @@
     dotDirs ? [],
     extraCredentials ? {},
     extraServiceList ? [],
+    extraGroups ? [],
   }: {
     meta = {
       inherit name description;
       version = "1.0.0";
     };
     extends = baseProfiles;
+    security.groups = extraGroups;
     network = {
       # `developer` engages the broker with these domain groups: llm_apis,
       # package_registries, github, sigstore, documentation. Without it,
@@ -123,6 +125,10 @@
       name = "pi-flake";
       description = "pi coding agent — OpenRouter broker, podman socket, loopback dev ports";
       baseProfiles = ["linux-host-compat"];
+      # nix_runtime: agent binary lives in /nix/store; without it the
+      # wrapper's /nix/store/.../bin/env exec fails (directory not readable).
+      # node_runtime: pi shells out to bun/npm.
+      extraGroups = ["nix_runtime" "node_runtime"];
       dotDirs = [
         "$HOME/.pi"
         "$HOME/.npm-global"
@@ -144,6 +150,7 @@
       name = "omp-flake";
       description = "oh-my-pi (omp) — OpenRouter broker, podman socket, loopback dev ports";
       baseProfiles = ["linux-host-compat"];
+      extraGroups = ["nix_runtime" "node_runtime"];
       # omp's plugin manager shells out to `bun install` against
       # ~/.omp/plugins/, so the npm dotdirs are kept in scope alongside ~/.omp.
       dotDirs = [
@@ -173,7 +180,9 @@
       gitEmail = "claude@jadee.fyi";
       # nono is now the security boundary; Claude's internal permission
       # prompts become friction. Per nono docs/cli/clients/claude-code.
-      extraArgs = ["--dangerously-skip-permissions"];
+      # Claude 2.x gates --dangerously-skip-permissions behind a separate
+      # --allow-… opt-in; both flags are needed to launch without prompting.
+      extraArgs = ["--allow-dangerously-skip-permissions" "--dangerously-skip-permissions"];
     };
     pi = {
       profileName = "pi-flake";
@@ -220,8 +229,12 @@
   }: let
     meta = metadata.${agentName};
     profileFile = mkAgentProfileFile agentName;
+    nonoBin =
+      if usePackagePath
+      then "${pkgs.nono}/bin/nono"
+      else "nono";
     nonoArgs =
-      ["run"]
+      [nonoBin "run"]
       ++ lib.optional detached "--detached"
       ++ [
         "--profile"
@@ -288,7 +301,7 @@
     ]
     ++ map (acc: {
       label = "keyring: ${acc} present";
-      cmd = "${pkgs.libsecret}/bin/secret-tool lookup service nono account ${acc} >/dev/null 2>&1";
+      cmd = "${pkgs.libsecret}/bin/secret-tool lookup service nono username ${acc} target default >/dev/null 2>&1";
     })
     credentialAccounts;
 
