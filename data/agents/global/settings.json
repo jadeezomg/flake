@@ -7,17 +7,6 @@
 			"mcp__mcp-nixos__nix"
 		]
 	},
-	"extraKnownMarketplaces": {
-		"context-mode": {
-			"source": {
-				"source": "github",
-				"repo": "mksglu/context-mode"
-			}
-		}
-	},
-	"enabledPlugins": {
-		"context-mode@context-mode": true
-	},
 	"hooks": {
 		"SessionStart": [
 			{
@@ -29,5 +18,17 @@
 				]
 			}
 		]
-	}
+	},
+	"enabledPlugins": {
+		"context-mode@context-mode": true
+	},
+	"extraKnownMarketplaces": {
+		"context-mode": {
+			"source": {
+				"source": "github",
+				"repo": "mksglu/context-mode"
+			}
+		}
+	},
+	"skipDangerousModePermissionPrompt": true
 }

@@ -48,7 +48,7 @@
       if [ -n "$_val" ]; then
         printf '%s' "$_val" | secret-tool store \
           --label=${esc "nono: ${account}"} \
-          service nono account ${esc account} \
+          service nono username ${esc account} target default \
           2>/dev/null || true
       fi
       unset _val
@@ -58,9 +58,17 @@
   presentMap = lib.filterAttrs (_: sopsName: lib.hasAttr sopsName secrets) agentKeyMap;
   script = lib.concatStrings (lib.mapAttrsToList emit presentMap);
 in
-  lib.mkIf (pkgs.stdenv.isLinux && presentMap != {}) {
-    home.activation.sopsKeyring = lib.hm.dag.entryAfter ["sops-nix"] ''
-      export PATH=${lib.makeBinPath [pkgs.coreutils pkgs.libsecret]}:$PATH
-      ${script}
-    '';
-  }
+  lib.mkMerge [
+    (lib.mkIf pkgs.stdenv.isLinux {
+      # `secret-tool` is the supported way to inspect / manage the nono
+      # keystore; ship it on user PATH so the same tool that activation
+      # uses is available in interactive shells.
+      home.packages = [pkgs.libsecret];
+    })
+    (lib.mkIf (pkgs.stdenv.isLinux && presentMap != {}) {
+      home.activation.sopsKeyring = lib.hm.dag.entryAfter ["sops-nix"] ''
+        export PATH=${lib.makeBinPath [pkgs.coreutils pkgs.libsecret]}:$PATH
+        ${script}
+      '';
+    })
+  ]
