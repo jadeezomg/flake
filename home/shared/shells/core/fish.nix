@@ -26,6 +26,10 @@ in {
       function zd
         cd ${paths.downloads}
       end
+      function p
+        set -l prompt $argv
+        pi -p "$prompt"
+      end
     '';
   };
 }

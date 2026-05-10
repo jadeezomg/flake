@@ -69,6 +69,19 @@ cat <file> | claude -p '<prompt>'
 $ file: fd --type f
 $ prompt: echo ""
 
+% llm, pi
+
+# Ask Pi a one-shot question
+p <question>
+
+$ question: echo ""
+
+# Pipe command output into Pi shortcut
+<command> | p <question>
+
+$ command: echo "just <recipe>"
+$ question: echo "what is this"
+
 % docs, ctx7, context7
 
 ; ctx7 fetches up-to-date library docs; prefer it over web-search for APIs.
