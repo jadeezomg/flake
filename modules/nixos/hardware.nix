@@ -52,6 +52,9 @@
     usbutils # lsusb
     util-linux # lscpu et al.
 
+    # --- Benchmarks ---
+    y-cruncher
+
     # --- Sensors / monitoring ---
     lm_sensors
     nmon
