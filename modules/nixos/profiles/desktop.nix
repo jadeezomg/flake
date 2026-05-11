@@ -7,6 +7,22 @@
   ...
 }: let
   cfg = config.dotfiles.profiles.desktop;
+  # Handy override: whisper-rs-sys 0.15.0 (pulled via transcribe-rs's
+  # `whisper-vulkan` feature) generates ggml-vulkan.cpp references to coopmat1
+  # SPIR-V shader symbols (`matmul_id_subgroup_*_cm1_*`) that the bundled
+  # vulkan-shaders-gen does not emit on current nixpkgs (shaderc / Vulkan SDK
+  # combo). Build CPU-only until upstream fixes it; revisit when whisper-rs-sys
+  # > 0.15 lands or handy's transcribe-rs feature is overridable.
+  # handyCpuOnly = (inputs.handy.packages.${pkgs.stdenv.hostPlatform.system}.default).overrideAttrs (old: {
+  #   postPatch =
+  #     (old.postPatch or "")
+  #     + ''
+  #       substituteInPlace src-tauri/Cargo.toml \
+  #         --replace-fail \
+  #           'transcribe-rs = { version = "0.3.3", features = ["whisper-vulkan"] }' \
+  #           'transcribe-rs = { version = "0.3.3", features = ["whisper-cpp"] }'
+  #     '';
+  # });
 in {
   imports = [inputs.niri.nixosModules.niri];
 
@@ -88,6 +104,8 @@ in {
 
       # Handy — offline speech-to-text. Tracked from upstream flake until
       # nixpkgs ships it; Darwin uses brew cask `handy`.
+      # CPU-only override (Vulkan whisper currently broken upstream — see top of file).
+      # handyCpuOnly
       inputs.handy.packages.${pkgs.stdenv.hostPlatform.system}.default
     ];
   };

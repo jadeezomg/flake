@@ -103,7 +103,11 @@
     # is installed via brew cask (modules/darwin/default.nix). Track upstream
     # until nixpkgs ships it. https://github.com/cjpais/Handy
     handy = {
-      url = "github:cjpais/Handy";
+      # Pinned to v0.8.3 release (085cd530); HEAD's PR #1335 nix refactor breaks
+      # the bundled llama.cpp Vulkan backend (unresolved coopmat1 shader symbols).
+      # Bump back to HEAD once upstream fixes the regression.
+      # url = "github:cjpais/Handy";
+      url = "github:cjpais/Handy/085cd530a30db479822125c758613c38fe0771b0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
