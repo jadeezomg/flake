@@ -416,12 +416,26 @@ in {
       isEssential = false;
       position = 227;
     };
+    "Customer" = {
+      id = "2b6bb4ee-b9cc-4e76-8326-4d003f573ea4";
+      url = "https://fly.customer.io/workspaces/105641/home";
+      workspace = spaces."Solutions".id;
+      isEssential = false;
+      position = 228;
+    };
+    "Mandrillapp" = {
+      id = "05361bf1-c295-4663-b039-bbfeed5a6e11";
+      url = "https://mandrillapp.com/";
+      workspace = spaces."Solutions".id;
+      isEssential = false;
+      position = 229;
+    };
     "Google" = {
       id = "90112971-dd55-47ab-8b26-ed1c301277ea";
       url = "https://mail.google.com/mail/u/0/#inbox";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 228;
+      position = 230;
       folderParentId = "{1772811910849-71}";
       container = 1;
     };
@@ -430,7 +444,7 @@ in {
       url = "https://drive.google.com/drive/home";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 229;
+      position = 231;
       folderParentId = "{1772811910849-71}";
       container = 1;
     };
@@ -439,7 +453,7 @@ in {
       url = "https://script.google.com/home/projects/1vIY1x68Obg2kPtB5tX4u8DMp0g7X0sGoG5LGnr1HjfxmrKTtbJdqaDYr/edit";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 230;
+      position = 232;
       folderParentId = "{1772811910849-71}";
       container = 1;
     };
@@ -448,7 +462,7 @@ in {
       url = "https://script.google.com/home/projects/1n8d38mlfk14p3NF1gCMP9Q97j9IP44NMV5jkEhrL78V7uaC_LLbmOob3/edit";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 231;
+      position = 233;
       folderParentId = "{1772811910849-71}";
       container = 1;
     };
@@ -457,7 +471,7 @@ in {
       url = "https://app.caya.com/login/magic";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 232;
+      position = 234;
       folderParentId = "{1772811910792-66}";
     };
     "Caya Document Cockpit_2" = {
@@ -465,24 +479,24 @@ in {
       url = "https://app.caya.com/login/magic";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 233;
+      position = 235;
       folderParentId = "{1772811910792-66}";
       container = 3;
     };
-    "Daily Workato Recipe failures that requi" = {
+    "Caya_4" = {
       id = "3f1f0649-da2b-4e38-9c7d-f252bda95c8f";
-      url = "https://metabase.caya.com/question/3316-daily-workato-recipe-failures-that-requires-follow-ups?days=3";
+      url = "https://metabase.caya.com/question/3316-daily-workato-recipe-failures-that-requires-follow-ups?days=1";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 234;
+      position = 236;
       folderParentId = "{1772811910929-76}";
     };
-    "Caya_4" = {
+    "Caya_5" = {
       id = "8e254e3a-eb7b-441b-8969-e7de6da4c9e7";
       url = "https://metabase.caya.com/question/2844-active-documents-with-missing-automation-to-be-retriggered-inc-stacked-distribution?days=31";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 235;
+      position = 237;
       folderParentId = "{1772811910929-76}";
       container = 3;
     };
@@ -491,7 +505,7 @@ in {
       url = "https://docs.google.com/document/d/13qGBQ_yMl0y4H6BYgsIbm6jOL1EvFAp0_YTHmu3D00o/edit?tab=t.lsx0mf7ch6wy#heading=h.6ewrr9jlp0yl";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 236;
+      position = 238;
       folderParentId = "{1772811910969-69}";
     };
     "Team - Google Drive" = {
@@ -499,7 +513,7 @@ in {
       url = "https://drive.google.com/drive/folders/1D4gIDEJVprKpioyH7PJkEyZx0a9TCTCj";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 237;
+      position = 239;
       folderParentId = "{1772811910969-69}";
     };
     "AUTOMATION TEAM OVERVIEW - Google Sheets" = {
@@ -507,7 +521,7 @@ in {
       url = "https://docs.google.com/spreadsheets/d/1ZStYBJHhUrm5MfmGGc3ry5BFHgKquKGV1fuSjFdscWs/edit?gid=0#gid=0";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 238;
+      position = 240;
       folderParentId = "{1772811910969-69}";
     };
     "Google_2" = {
@@ -515,7 +529,7 @@ in {
       url = "https://docs.google.com/spreadsheets/d/1vkz3je8w2a-xEd9-CZuT5CSszUTiJKt3Zbx1RgLGVAk/edit?gid=189094951#gid=189094951";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 239;
+      position = 241;
       folderParentId = "{1772811910969-69}";
     };
     "Google_3" = {
@@ -523,7 +537,7 @@ in {
       url = "https://docs.google.com/document/d/1CpUDcK4leVxk7H4-7cnVYyogIA3aJoc1X8Ook8LvYAQ/edit?tab=t.0#heading=h.xp3kdom7uoef";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 240;
+      position = 242;
       folderParentId = "{1772811910969-69}";
     };
     "Caya alignment - Rollout strategy - Goog" = {
@@ -531,7 +545,7 @@ in {
       url = "https://docs.google.com/document/d/18UmUsbcQZJbY7mzZopPNlFgQJ5AG6h4hkhFnP9LmypA/edit?tab=t.0#heading=h.8vobuj5y55ls";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 241;
+      position = 243;
       folderParentId = "{1774868454880-16}";
     };
     "Standard Operational Procedure Classifie" = {
@@ -539,7 +553,7 @@ in {
       url = "https://docs.google.com/document/d/19NmnQd3aVsITZvyPaTgl7fEIHRchgyeDgBlQkAxF8uU/edit?tab=t.0";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 242;
+      position = 244;
       folderParentId = "{1774868454880-16}";
     };
     "Google_4" = {
@@ -547,7 +561,7 @@ in {
       url = "https://docs.google.com/spreadsheets/d/1O55Lci-L0Ol4-pfiSkdnsL53YR0SrKYsU6a7mToCR4E/edit?gid=0#gid=0";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 243;
+      position = 245;
       folderParentId = "{1774868454880-16}";
     };
     "Zoho CRM" = {
@@ -555,7 +569,7 @@ in {
       url = "https://crm.zoho.eu/crm/org20101102016/tab/CustomModule4/639790000022723260";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 244;
+      position = 246;
       folderParentId = "{1774868454880-16}";
     };
     "Zoho" = {
@@ -563,7 +577,7 @@ in {
       url = "https://crm.zoho.eu/crm/org20101102016/tab/Potentials/639790000026605832?pfrom=gsearch";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 245;
+      position = 247;
       folderParentId = "{1774868454880-16}";
     };
     "Zoho CRM_1" = {
@@ -571,7 +585,7 @@ in {
       url = "https://crm.zoho.eu/crm/org20101102016/tab/CustomModule4/639790000027567302";
       workspace = spaces."Solutions".id;
       isEssential = false;
-      position = 246;
+      position = 248;
       folderParentId = "{1774868454880-16}";
     };
     "Caya Document Cockpit_2_1" = {
@@ -579,7 +593,7 @@ in {
       url = "https://develop--appcayacom.netlify.app/app/folder/inbox";
       workspace = spaces."Development".id;
       isEssential = false;
-      position = 247;
+      position = 249;
       folderParentId = "{1772811911012-80}";
       container = 4;
     };
@@ -588,7 +602,7 @@ in {
       url = "https://app.eu.workato.com/users/sign_in";
       workspace = spaces."Development".id;
       isEssential = false;
-      position = 248;
+      position = 250;
       folderParentId = "{1772811911012-80}";
       container = 4;
     };
@@ -597,7 +611,7 @@ in {
       url = "https://www.tools-dev.com/en/tools/xml-format/";
       workspace = spaces."Development".id;
       isEssential = false;
-      position = 249;
+      position = 251;
       folderParentId = "{1774867657222-23}";
     };
     "DevToolbox - Fast Developer Utilities" = {
@@ -605,7 +619,7 @@ in {
       url = "https://encode.click/";
       workspace = spaces."Development".id;
       isEssential = false;
-      position = 250;
+      position = 252;
       folderParentId = "{1774867657222-23}";
     };
     "Github_2" = {
@@ -613,7 +627,7 @@ in {
       url = "https://github.com/unkn0wn-root/resterm";
       workspace = spaces."Development".id;
       isEssential = false;
-      position = 251;
+      position = 253;
       folderParentId = "{1774867666645-82}";
     };
     "Github_3" = {
@@ -621,7 +635,7 @@ in {
       url = "https://github.com/aleiepure/devtoolbox?tab=readme-ov-file#features";
       workspace = spaces."Development".id;
       isEssential = false;
-      position = 252;
+      position = 254;
       folderParentId = "{1774867666645-82}";
     };
     "Globale E-Mails - casavi" = {
@@ -629,7 +643,7 @@ in {
       url = "https://caya-testaccount.mycasavi.com/tenants/13739/manage/emails/global/971152/";
       workspace = spaces."Development".id;
       isEssential = false;
-      position = 253;
+      position = 255;
       folderParentId = "{1776351617692-26}";
     };
     "casavi manager API" = {
@@ -637,7 +651,7 @@ in {
       url = "https://api.mycasavi.com/v2/docs/manager";
       workspace = spaces."Development".id;
       isEssential = false;
-      position = 254;
+      position = 256;
       folderParentId = "{1776351617692-26}";
     };
   };
