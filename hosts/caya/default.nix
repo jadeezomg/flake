@@ -16,6 +16,7 @@
       "homebrew/homebrew-core" = inputs.homebrew-core;
       "homebrew/homebrew-cask" = inputs.homebrew-cask;
       "homebrew/homebrew-bundle" = inputs.homebrew-bundle;
+      "xykong/homebrew-tap" = inputs.homebrew-xykong-tap;
     };
     mutableTaps = true;
     autoMigrate = true;

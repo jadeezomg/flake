@@ -22,7 +22,7 @@
   pkgs,
   ...
 }: let
-  opVault = "Personal";
+  opVault = "Employee";
 
   # 1Password item title  →  sops secret attribute
   agentKeyMap = {
@@ -50,17 +50,23 @@
       _val="$(tr -d '[:space:]' <${esc path})"
       if [ -n "$_val" ]; then
         if op item get ${esc item} --vault ${esc opVault} >/dev/null 2>&1; then
-          op item edit ${esc item} --vault ${esc opVault} \
-            "credential=$_val" >/dev/null 2>&1 \
-            || echo "sops-1password: edit failed for ${item} (op not signed in?)" >&2
+          if _err="$(op item edit ${esc item} --vault ${esc opVault} \
+              "credential=$_val" 2>&1 >/dev/null)"; then
+            echo "sops-1password: updated ${item}"
+          else
+            echo "sops-1password: edit failed for ${item}: $_err" >&2
+          fi
         else
-          op item create --category "API Credential" \
-            --vault ${esc opVault} --title ${esc item} \
-            "credential=$_val" >/dev/null 2>&1 \
-            || echo "sops-1password: create failed for ${item} (op not signed in?)" >&2
+          if _err="$(op item create --category "API Credential" \
+              --vault ${esc opVault} --title ${esc item} \
+              "credential=$_val" 2>&1 >/dev/null)"; then
+            echo "sops-1password: created ${item}"
+          else
+            echo "sops-1password: create failed for ${item}: $_err" >&2
+          fi
         fi
       fi
-      unset _val
+      unset _val _err
     fi
   '';
 
@@ -69,7 +75,16 @@
 in
   lib.mkIf (pkgs.stdenv.isDarwin && presentMap != {}) {
     home.activation.sops1Password = lib.hm.dag.entryAfter ["sops-nix"] ''
-      export PATH=${lib.makeBinPath [pkgs.coreutils pkgs._1password-cli]}:$PATH
-      ${script}
+      # Prefer the Homebrew `op` (the binary path the 1Password desktop app's
+      # CLI integration was authorized against). The nixpkgs `_1password-cli`
+      # lives at a different store path and would need its own CLI-integration
+      # approval, so it only serves as a fallback.
+      export PATH=/opt/homebrew/bin:${lib.makeBinPath [pkgs.coreutils pkgs._1password-cli]}:$PATH
+      if ! op whoami >/dev/null 2>&1; then
+        echo "sops-1password: op not signed in, skipping. Open 1Password, unlock, enable Settings → Developer → 'Integrate with 1Password CLI', then re-run home-manager switch." >&2
+      else
+        echo "sops-1password: syncing ${toString (builtins.length (lib.attrNames presentMap))} item(s) to vault ${opVault}"
+        ${script}
+      fi
     '';
   }

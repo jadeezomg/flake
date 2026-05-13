@@ -14,7 +14,7 @@
   #   Darwin → 1Password URI under the Personal vault
   # The vault name is duplicated in home/shared/shells/sops-1password.nix.
   # Item-naming convention is shared so the same `<name>` works on both.
-  opVault = "Personal";
+  opVault = "Employee";
   mkCredentialKey = name:
     if pkgs.stdenv.isDarwin
     then "op://${opVault}/${name}/credential"
