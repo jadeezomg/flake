@@ -78,6 +78,11 @@
       flake = false;
     };
 
+    homebrew-xykong-tap = {
+      url = "github:xykong/homebrew-tap";
+      flake = false;
+    };
+
     quickshell = {
       url = "git+https://git.outfoxxed.me/quickshell/quickshell";
       inputs.nixpkgs.follows = "nixpkgs";
