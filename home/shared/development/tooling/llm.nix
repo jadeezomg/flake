@@ -7,7 +7,7 @@
   agentsCfg = osConfig.dotfiles.profiles.devenv.llm.agents;
   agentsEnabled = agentsCfg.enable or false;
   hostingEnabled = osConfig.dotfiles.profiles.devenv.llm.hosting.enable or false;
-  agentSkillsDir = ../../../../agent-skills;
+  agentSkillsDir = ../../../../data/agents/skills;
   agentSkillInstallPrefixes = [
     ".claude/skills"
     ".agents/skills"

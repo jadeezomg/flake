@@ -405,6 +405,12 @@ Mini opts out manually in `hosts/mini/profiles.nix`:
 
 ## 11. TODOs (deferred — track here, revisit after stability)
 
+- [ ] **Wire up the cachix cache-warming pipeline** (§7 of this doc) — code lives at `hosts/mini/flake-cache-warm.nix` but is **not imported** from `hosts/mini/default.nix`. Bring online once the host is stable. Steps:
+  1. `cachix create jadee-flake` (public read), copy public key into `modules/shared/environment.nix` (replace the TODO marker)
+  2. `cachix authtoken --create-token --scope push --cache jadee-flake` → sops-encrypt as `cachix/auth-token`
+  3. `ssh-keygen` deploy key on mini → register on `github.com/jadeezomg/flake` with write access → sops-encrypt private key as `mini/git/deploy-key`
+  4. Uncomment the `./flake-cache-warm.nix` import in `hosts/mini/default.nix`
+  5. `just switch`, then `sudo systemctl start flake-cache-warm.service` for a first manual run
 - [ ] **Other services** — concrete enumeration (jellyfin / syncthing / gitea / paperless / nextcloud / etc.). Out of scope for the first install; basics first.
 - [ ] **Monitoring** — pick stack (netdata / glances / prometheus + grafana). Requirement: dashboard accessible from desktop/framework/caya browsers. Recommendation when revisiting: **netdata** for low-power, single-host start; migrate to Prometheus/Grafana when scraping multiple hosts becomes a need.
 - [ ] **Power tuning** — keep stock for the first install for stability. After validating the box runs reliably, layer in:

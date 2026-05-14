@@ -21,353 +21,71 @@ enrollment last because it requires the OS to be installed and reachable.
 
 ## 1. Workstation prep — flake changes
 
-All edits committed before booting the mini. Mini will `git clone` this on
-first install, so anything missing here means manual scp during install.
+**Status: implemented on branch `add-mini-host`.** The flake compiles
+(`nix eval .#nixosConfigurations.mini.config.system.build.toplevel.drvPath`
+returns a valid `.drv`). Below is what changed and the inline TODO markers
+that **must be filled in** before nixos-install.
 
-### 1.1 Add flake inputs
+### 1.1 What was changed
 
-Edit `flake.nix`:
+| File | Change |
+|---|---|
+| `flake.nix` | new inputs: `disko` (`github:nix-community/disko`), `hermes-agent` (`github:NousResearch/hermes-agent`) — both with `nixpkgs.follows` |
+| `parts/hosts.nix` | wired `inputs.disko.nixosModules.disko` and `inputs.hermes-agent.nixosModules.default` into the NixOS module list |
+| `modules/nixos/boot.nix` | kernel branches on `server.enable` (cachyos-server vs cachyos-latest-zen4); plymouth gated `lib.mkIf (!server.enable)`; lanzaboote unchanged |
+| `modules/nixos/networking.nix` | NixOS `networking.firewall` activated when `server.enable` (drops firewalld/firewalld-gui/proton-vpn/wireguard-ui/networkmanagerapplet from systemPackages on server hosts) |
+| `modules/shared/profiles/server.nix` | body emptied — `server.enable` is a steering toggle, gating happens inline in `boot.nix`/`networking.nix` |
+| `data/users/users.nix` | added `sshKeys = [ … ]` to `jadee` user (TODO inline; placeholders) |
+| `modules/nixos/user.nix` | consumes `userConfig.sshKeys` → `users.users.${user}.openssh.authorizedKeys.keys` |
+| `modules/shared/environment.nix` | added `https://jadee-flake.cachix.org` substituter + TODO marker for the trusted public key |
+| `home/nixos/default.nix` | gates `./desktop` HM tree on `host ? mainMonitor` — headless hosts skip niri/DMS/dconf-desktop |
+| `hosts/hosts.nix` | registered `mini = import ./mini/host.nix` |
+| `hosts/mini/*` | full new host: `host.nix`, `profiles.nix`, `default.nix`, `hardware-configuration.nix`, `disko.nix`, `hermes.nix`, `flake-cache-warm.nix` |
+| `flake.lock` | locked disko + hermes-agent |
 
-```nix
-inputs = {
-  # ...existing...
+### 1.2 Inline TODO markers that block install
 
-  disko = {
-    url = "github:nix-community/disko";
-    inputs.nixpkgs.follows = "nixpkgs";
-  };
+Search `git grep -n TODO` on the branch for the canonical list. As of writing:
 
-  hermes-agent = {
-    url = "github:NousResearch/hermes-agent";
-    inputs.nixpkgs.follows = "nixpkgs";
-  };
-};
-```
+| Location | Action before install |
+|---|---|
+| `data/users/users.nix:23` | paste the actual `ssh-ed25519` public keys from desktop/framework/caya |
+| `modules/shared/environment.nix:43` | paste the real `jadee-flake.cachix.org-1:<pubkey>=` (only after running `cachix create jadee-flake` — see §6.1) |
+| `hosts/mini/disko.nix:7` | replace `/dev/disk/by-id/nvme-REPLACE_ME` with the real NVMe id from the live ISO (`ls -l /dev/disk/by-id/ \| grep nvme`) |
+| `hosts/mini/default.nix:34` (`address1`/`dns`/`interface-name`) | real static IP/gateway/DNS values + verify the 2.5G NIC's predictable name on first boot |
+| `hosts/mini/default.nix:8` (`bootstrap`) | leave as `true` for the very first `nixos-install` so jadee gets `initialPassword = "changeme"` (sops decryption would fail before mini's host age key exists); flip to `false` after §5.4 |
 
-### 1.2 Wire modules in `parts/hosts.nix`
+### 1.3 Sops state on workstation (pre-install)
 
-Add to the NixOS `modules = [ ... ]` list (Linux-only path):
+`secrets/secrets.yaml` does **not** yet include mini-encrypted secrets — mini's
+host age key only exists once the OS is installed (§5.4). Plan now, encrypt
+in §5–§7.
 
-```nix
-inputs.disko.nixosModules.disko
-inputs.hermes-agent.nixosModules.default
-```
+Canonical schema lives in [`secrets/SCHEMA.md`](../../secrets/SCHEMA.md).
+Mini-relevant entries (quick reference):
 
-### 1.3 Refactor `modules/nixos/boot.nix`
+| Sops path | When to add |
+|---|---|
+| `users/jadee/password` | before §5.5 (post-bootstrap switch) |
+| `mini/amt/password` | §5.7 (after MEBx is set up) |
+| `mini/git/deploy-key` | §6 (cache-warm bootstrap, deferred) |
+| `cachix/auth-token` | §6 (cache-warm bootstrap, deferred) |
+| `hermes/env` | §7 (hermes first run) |
 
-Gate plymouth + kernel choice behind `server.enable`:
+Re-encrypt with `sops updatekeys secrets/secrets.yaml` after adding mini's
+age recipient in §5.4 — schema and command details are in `SCHEMA.md`.
 
-```nix
-{ pkgs, lib, config, ... }:
-let serverProfile = config.dotfiles.profiles.server.enable;
-in {
-  boot = {
-    loader.systemd-boot.enable = lib.mkForce false;
-    loader.efi = {
-      canTouchEfiVariables = true;
-      efiSysMountPoint = "/boot";
-    };
-
-    kernelPackages =
-      if serverProfile && pkgs ? cachyosKernels
-      then pkgs.cachyosKernels.linuxPackages-cachyos-server
-      else if pkgs ? cachyosKernels
-      then pkgs.cachyosKernels.linuxPackages-cachyos-latest-zen4
-      else pkgs.linuxPackages_latest;
-
-    lanzaboote = {
-      enable = true;
-      pkiBundle = "/var/lib/sbctl";
-    };
-
-    plymouth = lib.mkIf (!serverProfile) {
-      enable = true;
-      theme = lib.mkForce "blahaj";
-      themePackages = [ pkgs.plymouth-blahaj-theme ];
-    };
-  };
-}
-```
-
-### 1.4 Refactor `modules/nixos/networking.nix`
-
-Split GUI tools out, replace firewalld with NixOS firewall when
-`server.enable`:
-
-```nix
-{ host, pkgs, lib, config, ... }:
-let serverProfile = config.dotfiles.profiles.server.enable;
-in {
-  networking.hostName = host.hostname or "nixos";
-  networking.networkmanager.enable = true;
-
-  services.tailscale = {
-    enable = true;
-    openFirewall = true;
-    extraUpFlags = [ "--ssh" ];
-  };
-
-  networking.firewall = lib.mkIf serverProfile {
-    enable = true;
-    allowedTCPPorts = [ 22 ];
-    trustedInterfaces = [ "tailscale0" ];
-  };
-
-  environment.systemPackages = with pkgs; (
-    [ networkmanager openresolv wirelesstools nfs-utils samba tailscale wireguard-tools ]
-    ++ lib.optionals (!serverProfile) [
-      networkmanagerapplet
-      firewalld
-      firewalld-gui
-      proton-vpn
-      wireguard-ui
-    ]
-  );
-}
-```
-
-### 1.5 Repurpose `modules/shared/profiles/server.nix`
-
-Body becomes empty (or minimal); server-mode behaviour is gated inline in
-boot/networking via `config.dotfiles.profiles.server.enable`. Remove the
-postgres+redis lines (they were placeholders that were never used).
-
-```nix
-{ ... }: {
-  # Headless-server overrides are gated inline in modules/nixos/{boot,networking}.nix
-  # via config.dotfiles.profiles.server.enable. This profile body is intentionally
-  # minimal — toggles, not packages.
-}
-```
-
-### 1.6 Extend `data/users/users.nix` — shared SSH keys
-
-Add `sshKeys` field to the `jadee` user record:
-
-```nix
-jadee = {
-  username = "jadee";
-  # ...existing...
-  sshKeys = [
-    "ssh-ed25519 AAAA... jadee@desktop"
-    "ssh-ed25519 AAAA... jadee@framework"
-    "ssh-ed25519 AAAA... jadee@caya"
-  ];
-};
-```
-
-Update `modules/nixos/user.nix` to consume it:
-
-```nix
-users.users.${user} = {
-  # ...existing...
-  openssh.authorizedKeys.keys = userConfig.sshKeys or [];
-};
-```
-
-(Get the actual public keys: `cat ~/.ssh/id_ed25519.pub` on each existing host.)
-
-### 1.7 Sops password+token scaffolding
-
-Generate a placeholder hashed password and add four secrets to
-`secrets/secrets.yaml` using `sops`:
-
-```bash
-# Generate hashed password (interactive)
-mkpasswd -m sha-512
-
-# Edit secrets file
-sops secrets/secrets.yaml
-```
-
-Add (don't commit values until later when mini has its key):
-
-```yaml
-users:
-  jadee:
-    password: "$6$..."          # mkpasswd output
-cachix:
-  auth-token: ""                # filled in §6
-mini:
-  git:
-    deploy-key: |               # filled in §6
-      -----BEGIN OPENSSH PRIVATE KEY-----
-      ...
-      -----END OPENSSH PRIVATE KEY-----
-  amt:
-    password: ""                # filled in §3
-hermes:
-  env: |                        # filled in later
-    ANTHROPIC_API_KEY=
-    OPENAI_API_KEY=
-```
-
-Mini's age key recipient is added in §5.4 — secrets stay encrypted-without-mini
-until then. That's fine; `nixos-install` doesn't need them yet.
-
-### 1.8 Create `hosts/mini/` files
-
-```
-hosts/mini/
-  host.nix            # facts (see below)
-  profiles.nix        # toggle list (see below)
-  default.nix         # imports + hermes service
-  hardware-configuration.nix   # minimal — kernel modules only
-  disko.nix           # partition schema (see mini.md §4.1)
-  hermes.nix          # services.hermes-agent config
-  flake-cache-warm.nix # systemd timer + service for nightly bot (see §6)
-```
-
-Register in `hosts/hosts.nix`:
-
-```nix
-{
-  hosts = {
-    framework = import ./framework/host.nix;
-    desktop = import ./desktop/host.nix;
-    caya = import ./caya/host.nix;
-    mini = import ./mini/host.nix;
-  };
-}
-```
-
-`hosts/mini/host.nix`:
-
-```nix
-let
-  inherit (import ../lib.nix) sharedNixOSHost sharedNixOSUser;
-in
-  sharedNixOSHost
-  // {
-    hostname = "mini";
-    description = "Mini — Minisforum MS-01 headless server";
-    user = sharedNixOSUser;
-    extraUsers = [];                     # no guest accounts on a server
-    buildCores = 12;                     # i5-12600H — 16 threads, leave 4 for daemon/ssh/hermes
-    stateVersion = "25.11";
-  }
-```
-
-Note: `mainMonitor`, `dmsSettingsFile`, `niriOutputsFile` deliberately omitted
-— consumers must `host.mainMonitor or null` guard. Verify during impl that
-no module hard-references these without a guard.
-
-`hosts/mini/profiles.nix`: see `mini.md` §10.
-
-`hosts/mini/default.nix`:
-
-```nix
-{ ... }: {
-  imports = [
-    ./hardware-configuration.nix
-    ./disko.nix
-    ../../modules/shared
-    ../../modules/nixos
-    ./profiles.nix
-    ./hermes.nix
-    ./flake-cache-warm.nix
-  ];
-
-  # NOPASSWD wheel — mini-only quality-of-life over SSH
-  security.sudo.wheelNeedsPassword = false;
-
-  # Aggressive GC for cache-warming host
-  maintenance.garbageCollection = {
-    schedule = "daily";
-    deleteOlderThan = "3d";
-  };
-
-  # Static IP on the 2.5G NIC
-  networking.networkmanager.ensureProfiles.profiles."mini-lan" = {
-    connection = {
-      id = "mini-lan";
-      type = "ethernet";
-      interface-name = "enp2s0f0";   # adjust after first boot if naming differs
-      autoconnect = true;
-    };
-    ipv4 = {
-      method = "manual";
-      address1 = "192.168.X.Y/24,192.168.X.1";    # fill in
-      dns = "1.1.1.1;9.9.9.9";
-    };
-    ipv6.method = "auto";
-  };
-
-  # Swap via zram
-  zramSwap = {
-    enable = true;
-    memoryPercent = 50;
-  };
-
-  # AMT — non-root /dev/mei access
-  users.groups.amt = {};
-  services.udev.extraRules = ''
-    KERNEL=="mei*", GROUP="amt", MODE="0660"
-  '';
-  users.users.jadee.extraGroups = [ "amt" ];
-
-  environment.systemPackages = with pkgs; [
-    amtterm
-    openwsman
-  ];
-
-  services.fwupd.enable = true;
-
-  # SSH config
-  services.openssh = {
-    enable = true;
-    settings = {
-      PasswordAuthentication = false;
-      PermitRootLogin = "no";
-      AllowUsers = [ "jadee" ];
-    };
-  };
-
-  # Sops secret for jadee password (declarative, replaces manual passwd)
-  sops.secrets."users/jadee/password".neededForUsers = true;
-  users.users.jadee.hashedPasswordFile = config.sops.secrets."users/jadee/password".path;
-
-  system.stateVersion = "25.11";
-}
-```
-
-`hosts/mini/hermes.nix`: see `mini.md` §9.2.
-
-`hosts/mini/flake-cache-warm.nix`: see §6 below.
-
-### 1.9 Add cachix substituter for all hosts
-
-Edit `modules/shared/environment.nix` — append to the existing
-`extra-substituters` and `extra-trusted-public-keys`:
-
-```nix
-extra-substituters = [
-  # ...existing...
-  "https://jadee-flake.cachix.org"
-];
-extra-trusted-public-keys = [
-  # ...existing...
-  "jadee-flake.cachix.org-1:<pubkey-from-§6.1>"   # fill in after creating cache
-];
-```
-
-### 1.10 Format + commit
+### 1.4 Pre-install verification
 
 ```bash
 just fmt
-git add hosts/mini hosts/hosts.nix data/users/users.nix \
-        modules/nixos/{boot,networking,user}.nix \
-        modules/shared/{environment.nix,profiles/server.nix} \
-        flake.nix flake.lock \
-        parts/hosts.nix \
-        secrets/secrets.yaml \
-        docs/hosts/
-git commit -m "feat(hosts): add mini headless server scaffolding"
-git push origin main
+nix flake check --no-build
+nix eval .#nixosConfigurations.mini.config.system.build.toplevel.drvPath
 ```
 
-The flake is self-consistent at this point. desktop/framework can keep
-running unchanged (they don't get `server.enable = true`).
+The flake should evaluate clean for `mini` and `desktop`. (As of this branch:
+`framework` has a pre-existing upstream `fw-fanctrl` issue unrelated to this
+change.)
 
 ---
 
@@ -377,17 +95,21 @@ Two paths, in order of preference.
 
 ### 2.1 Path A — physical USB (first boot, no AMT yet)
 
-Make a USB stick:
+Grab the official **minimal** ISO from https://nixos.org/download (pick the
+≥25.11 minimal x86_64 image). Don't build from the flake — there's no
+ready-made `isoImage` attribute on `nixpkgs` to point a `nix build` at, and
+rolling a custom installer adds drift for no benefit here.
+
+> **Reminder — adjust the device path before `dd`.** Run `lsblk` first and
+> double-check `/dev/sdX` is the USB stick and not an internal disk.
 
 ```bash
-# On workstation
-nix run nixpkgs#disko -- --help    # sanity check disko CLI works
-ISO=$(nix build --print-out-paths github:NixOS/nixpkgs#nixos-installer-graphical-gnome.config.system.build.isoImage --no-link)
-sudo dd if=$ISO of=/dev/sdX bs=4M status=progress conv=fsync
+# On workstation — replace /dev/sdX with the actual USB device
+lsblk
+sudo dd if=~/Downloads/nixos-minimal-25.11-x86_64-linux.iso \
+        of=/dev/sdX bs=4M status=progress conv=fsync
+sync
 ```
-
-Or download `nixos-25.11-minimal-x86_64-linux.iso` and use `dd` /
-`bootable-usb-creator`.
 
 Plug into mini, boot, F11 (boot menu) → USB.
 
@@ -435,14 +157,25 @@ Once verified, every subsequent step can be done remotely via AMT KVM.
 
 Boot the installer (USB or via AMT IDER + KVM), open a terminal.
 
-### 4.1 Network on the installer
+### 4.1 Network on the installer (wifi for first boot)
+
+Ethernet hasn't been routed to mini's final position yet — bring up wifi on
+the installer so we can `git clone` and `nixos-install` without moving cables.
 
 ```bash
 sudo systemctl start NetworkManager
-nmcli device wifi list                  # if needed; mini has ethernet
-nmcli con add type ethernet con-name lan ifname enp2s0f0
-sudo nmcli con up lan
+ip link                                 # confirm the wireless iface name (e.g. wlan0)
+nmcli radio wifi on
+nmcli device wifi rescan
+nmcli device wifi list                  # find the SSID
+nmcli device wifi connect "<SSID>" password "<password>"
+ping -c 3 1.1.1.1                       # sanity check
 ```
+
+The declarative static-ethernet profile in `hosts/mini/default.nix` only
+applies after `nixos-install`; the wifi connection lives in the installer's
+in-memory NetworkManager and disappears on reboot. Wire ethernet up before
+§4.5 (reboot) or be ready to bring wifi back up on the installed system.
 
 ### 4.2 Find the NVMe id, edit disko.nix
 
@@ -474,16 +207,25 @@ sudo nix --extra-experimental-features 'nix-command flakes' run \
 This formats the disk, creates the GPT layout (2GiB ESP + btrfs root with
 subvolumes), and mounts everything under `/mnt`.
 
-### 4.4 nixos-install
+### 4.4 nixos-install (bootstrap mode)
+
+`hosts/mini/default.nix` has `bootstrap = true` set (see §1.2). In this
+mode jadee is created with `initialPassword = "changeme"` and the
+sops-managed `hashedPasswordFile` is *not* declared — this avoids the
+chicken-and-egg where sops-nix can't decrypt before mini's SSH host key
+(its age key source) exists.
 
 ```bash
 sudo nixos-install --flake .#mini --no-root-password
 ```
 
-The `--no-root-password` flag is fine — root is locked, jadee has wheel.
+`--no-root-password` is fine — root stays locked, jadee has wheel. Don't
+override the user password prompt here; the declarative `initialPassword`
+will be applied at first boot.
 
-When it asks for a password (for the user), set a temporary one. Sops will
-override it on next switch.
+After §5.4 succeeds, flip `bootstrap = true` → `false` in
+`hosts/mini/default.nix`, commit, and run `just switch` (§5.5) to swap to
+the sops-managed password.
 
 ### 4.5 Reboot
 
@@ -531,17 +273,23 @@ nix-shell -p ssh-to-age --run \
 # → age1abc...   ← copy this
 ```
 
-On workstation, edit `.sops.yaml` (top of repo):
+On workstation, edit `.sops.yaml` (top of repo) — add `&mini` alongside the
+existing host recipients and include it in the `creation_rules`:
 
 ```yaml
 keys:
-  - &jadee age1...                  # existing
-  - &mini  age1abc...               # new — paste output from above
+  - &framework age1pmtv9wwwfmsjp5pud8afv7c6cvjyc54t2attmr5wukvvtnu0kdvqsrxmj2
+  - &desktop   age1s6yrgxcpwm8qy3cpjc2fz6pyq76afd33e2kfg7q58q69ehxwzd2s6qjrxu
+  - &caya      age1yrt6l02984f5gemerpzlf5v4ymakdmf45qhu3ecy2qtjwuzn43tqh755nz
+  - &mini      age1abc...               # NEW — paste output from above
+
 creation_rules:
-  - path_regex: secrets/secrets.yaml
+  - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
     key_groups:
       - age:
-          - *jadee
+          - *framework
+          - *desktop
+          - *caya
           - *mini
 ```
 
@@ -554,13 +302,25 @@ git commit -m "feat(secrets): add mini host recipient"
 git push
 ```
 
-### 5.5 Switch on mini
+### 5.5 Switch on mini (post-bootstrap)
+
+Flip the bootstrap flag in `hosts/mini/default.nix` (see §4.4) so the
+sops-managed password takes over, then switch:
+
+```bash
+# On workstation
+$EDITOR hosts/mini/default.nix    # bootstrap = true  →  bootstrap = false
+git commit -am "feat(mini): exit bootstrap mode"
+git push
+```
 
 ```bash
 # On mini
-cd ~/.dotfiles/flake          # if not already cloned, git clone first
+cd ~/.dotfiles/flake          # if not already cloned: git clone ...
 git pull
-just init                     # writes .flake-host = mini (verify just recipe behaviour)
+just init                     # writes .flake-host = mini
+                              # (recipe just writes the file; no build is
+                              #  triggered. Verified against Justfile §init.)
 just switch
 ```
 
@@ -568,16 +328,40 @@ After this:
 - jadee's password is the sops-managed one
 - All declarative config is live
 
-### 5.6 Lanzaboote SecureBoot enrollment
+### 5.5.1 Tailscale — first-time login
 
-From workstation, attach to mini via AMT KVM (you'll need to reboot into
-firmware):
+The tailscale daemon runs (declared in `modules/nixos/networking.nix` with
+`extraUpFlags = ["--ssh"]`), but the node is not yet logged into the
+tailnet. Run once, manually:
 
 ```bash
-# On mini
+sudo tailscale up --ssh
+# → opens an https://login.tailscale.com/... URL
+# → copy it to a browser on a logged-in device and approve
+tailscale status                 # mini should now show up
+tailscale ip -4                  # note the 100.x.x.x address
+```
+
+After this `ssh jadee@mini.<tailnet>.ts.net` works from any tailnet peer,
+and the ACL-gated tailscale SSH path is live.
+
+### 5.6 Lanzaboote SecureBoot enrollment
+
+Order matters here — see the **SecureBoot ordering note** in §5.6.1 below.
+The short version:
+
+```bash
+# On mini — 1. generate keys
 sudo sbctl create-keys
-sudo sbctl enroll-keys --microsoft     # --microsoft preserves OEM/fwupd capsule signing
-sudo nixos-rebuild switch --flake .#mini
+
+# 2. switch FIRST — lanzaboote writes signed .efi files to /boot
+just switch
+
+# 3. verify lanzaboote signed everything
+sudo sbctl verify              # all .efi entries should report "signed"
+
+# 4. now enroll keys into firmware (UEFI must be in Setup Mode — see 5.6.1)
+sudo sbctl enroll-keys -m      # -m = include Microsoft KEK + DB
 ```
 
 Reboot via AMT, enter firmware (Del/F2 during POST), enable SecureBoot,
@@ -585,8 +369,35 @@ save & exit. Mini boots SecureBoot-validated.
 
 ```bash
 sudo sbctl status               # confirm "Secure Boot: enabled"
-sudo sbctl verify              # confirm all kernels/efi binaries pass
+sudo sbctl verify               # confirm all kernels/efi binaries pass
 ```
+
+#### 5.6.1 SecureBoot ordering note
+
+The previous version of this doc had `enroll-keys` before `nixos-rebuild
+switch`. That **breaks**: if you enroll keys into firmware before lanzaboote
+has installed signed binaries onto the ESP, the next boot fails — firmware
+will refuse to load unsigned files.
+
+Correct order:
+
+1. `sbctl create-keys` — generate the PKI bundle at `/var/lib/sbctl`.
+2. `nixos-rebuild switch` (or `just switch`) — lanzaboote picks up the bundle
+   and writes **signed** boot files to `/boot/EFI/Linux/`.
+3. `sbctl verify` — confirm every entry on the ESP is signed.
+4. Put the firmware into **Setup Mode**: in MEBx or BIOS, find "SecureBoot →
+   Reset to Setup Mode" / "Clear PK". On the MS-01 this is under the
+   Security menu. (Without Setup Mode, `sbctl enroll-keys` will fail or
+   silently no-op because the firmware refuses to accept new platform keys.)
+5. `sbctl enroll-keys -m` — `-m` (or `--microsoft`) imports Microsoft's KEK
+   + DB alongside our own, so OEM firmware capsules and fwupd updates keep
+   working. Skip the flag and you'll brick fwupd capsule updates.
+6. Reboot, enable SecureBoot in firmware (now it has keys to validate
+   against), save, exit. `sbctl status` should report `Secure Boot:
+   enabled`.
+
+If something goes wrong: boot into firmware, clear all SecureBoot keys
+(returns to Setup Mode), reboot to the OS, redo from step 1.
 
 ### 5.7 Mirror AMT password into sops
 
@@ -603,190 +414,66 @@ git push
 
 ---
 
-## 6. Cache-warming pipeline — first run
+## 6. Cache-warming pipeline — DEFERRED
 
-### 6.1 Create the cachix cache
+Wiring the cachix nightly pipeline is **deferred** until after the host runs
+reliably on its own. Goal: bring up SSH + sops + lanzaboote + hermes first,
+prove stability, then turn on the bot.
 
-On workstation:
+The nix code for the pipeline already exists at
+[`hosts/mini/flake-cache-warm.nix`](../../hosts/mini/flake-cache-warm.nix).
+The import is **commented out** in `hosts/mini/default.nix`. To bring it
+online (one-time bootstrap):
 
-```bash
-cachix authtoken <your-personal-token>      # one-time
-cachix create jadee-flake                   # creates the cache, public read by default
-cachix use jadee-flake                       # prints the public key
-```
+1. **Create the cache** — workstation:
+   ```bash
+   cachix authtoken <personal-token>
+   cachix create jadee-flake             # public read
+   cachix use jadee-flake                 # prints the public key
+   ```
+   Paste the printed `jadee-flake.cachix.org-1:<pubkey>=` into
+   `modules/shared/environment.nix` (replacing the `# TODO: replace…` line).
 
-Copy the printed `jadee-flake.cachix.org-1:<pubkey>=` into
-`modules/shared/environment.nix` (§1.9 placeholder), commit, push.
+2. **Push-scoped auth token**:
+   ```bash
+   cachix authtoken --create-token --scope push --cache jadee-flake
+   sops secrets/secrets.yaml              # cachix/auth-token = <token>
+   ```
 
-Generate a **push-only** auth token for the bot:
+3. **Deploy key** — on mini:
+   ```bash
+   ssh-keygen -t ed25519 -N '' -C 'mini@flake-bot' -f /tmp/mini-deploy-key
+   cat /tmp/mini-deploy-key.pub          # → register on github.com/jadeezomg/flake
+   ```
+   GitHub UI → repo Settings → Deploy keys → Add → ✅ Allow write access.
+   Then on workstation:
+   ```bash
+   ssh jadee@mini cat /tmp/mini-deploy-key
+   sops secrets/secrets.yaml              # mini/git/deploy-key = <multiline>
+   ssh jadee@mini rm /tmp/mini-deploy-key{,.pub}
+   ```
 
-```bash
-cachix authtoken --create-token --scope push --cache jadee-flake
-# → token-xxx...
-```
+4. **Enable the import** — uncomment `./flake-cache-warm.nix` in
+   `hosts/mini/default.nix`, commit, push.
 
-Sops-encrypt:
+5. **Switch + first manual run**:
+   ```bash
+   # On mini
+   git pull && just switch
+   sudo systemctl start flake-cache-warm.service
+   journalctl -fu flake-cache-warm.service
+   ```
+   Expected: clones repo into `/var/lib/flake-cache-warm/flake`, runs
+   `nix flake update`, builds three closures, pushes new paths to
+   `jadee-flake.cachix.org`, commits + pushes lockfile bump to `main`.
 
-```bash
-sops secrets/secrets.yaml      # set cachix.auth-token = "token-xxx..."
-git add secrets/secrets.yaml
-git commit -m "feat(secrets): add cachix push token"
-git push
-```
+6. **Verify** — on desktop:
+   ```bash
+   git pull && just switch
+   # output should show "copying path '/nix/store/...' from 'https://jadee-flake.cachix.org'"
+   ```
 
-### 6.2 Generate the deploy key on mini
-
-```bash
-# On mini
-ssh-keygen -t ed25519 -N '' -C 'mini@flake-bot' -f /tmp/mini-deploy-key
-cat /tmp/mini-deploy-key.pub
-# → copy this for the next step
-```
-
-GitHub UI → `jadeezomg/flake` → Settings → Deploy keys → Add deploy key:
-- Title: `mini-bot`
-- Key: paste the public key
-- ✅ Allow write access
-- Save
-
-Sops-encrypt the private key:
-
-```bash
-# On workstation
-ssh jadee@mini cat /tmp/mini-deploy-key
-# Paste content into secrets.yaml under mini.git.deploy-key (multiline)
-sops secrets/secrets.yaml
-git commit + push
-ssh jadee@mini rm /tmp/mini-deploy-key /tmp/mini-deploy-key.pub
-```
-
-Add to `flake-cache-warm.nix` on mini (sketch):
-
-```nix
-{ config, pkgs, lib, ... }:
-let
-  cacheWarm = pkgs.writeShellApplication {
-    name = "flake-cache-warm";
-    runtimeInputs = with pkgs; [ git nix cachix coreutils openssh jq ];
-    text = ''
-      set -euo pipefail
-      REPO=/var/lib/flake-cache-warm/flake
-      CACHIX_NAME=jadee-flake
-
-      # Setup git identity + ssh
-      export GIT_SSH_COMMAND="ssh -i $CREDENTIALS_DIRECTORY/deploy-key -o StrictHostKeyChecking=accept-new"
-      git config --global user.email "bot@jadee.fyi"
-      git config --global user.name  "jadee-mini[bot]"
-
-      mkdir -p "$(dirname "$REPO")"
-      if [ ! -d "$REPO" ]; then
-        git clone git@github.com:jadeezomg/flake.git "$REPO"
-      fi
-      cd "$REPO"
-      git fetch origin main
-      git reset --hard origin/main
-
-      # Mass update
-      nix flake update
-
-      build_all() {
-        nix build --no-link \
-          .#nixosConfigurations.mini.config.system.build.toplevel \
-          .#nixosConfigurations.desktop.config.system.build.toplevel \
-          .#nixosConfigurations.framework.config.system.build.toplevel
-      }
-
-      if build_all; then
-        echo "mass build OK"
-      else
-        echo "mass build failed; entering bisect"
-        git checkout flake.lock
-        HELD_BACK=()
-        # iterate through flake inputs; per-input update + retry (see mini.md §7.3)
-        for input in $(nix flake metadata --json | jq -r '.locks.nodes.root.inputs | keys[]'); do
-          nix flake update "$input"
-          if build_all; then
-            echo "input $input: kept"
-          else
-            echo "input $input: held back"
-            git checkout flake.lock
-            nix flake update --override-input "$input" "$(nix flake metadata --json | jq -r ".locks.nodes.\"$input\".original | tojson")"
-            HELD_BACK+=("$input")
-          fi
-        done
-        echo "Held back: ''${HELD_BACK[*]}"
-      fi
-
-      # Push paths to cachix
-      export CACHIX_AUTH_TOKEN=$(cat "$CREDENTIALS_DIRECTORY/cachix-token")
-      nix path-info --json --closure-size \
-        .#nixosConfigurations.mini.config.system.build.toplevel \
-        .#nixosConfigurations.desktop.config.system.build.toplevel \
-        .#nixosConfigurations.framework.config.system.build.toplevel \
-        | jq -r 'to_entries[].key' \
-        | cachix push "$CACHIX_NAME"
-
-      # Commit + push if lockfile changed
-      if ! git diff --quiet flake.lock; then
-        git add flake.lock
-        git commit -m "chore(flake): nightly lockfile bump ($(date -I))"
-        git push origin main
-      fi
-    '';
-  };
-in {
-  systemd.services.flake-cache-warm = {
-    description = "Nightly flake update + build + cachix push";
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${cacheWarm}/bin/flake-cache-warm";
-      LoadCredential = [
-        "deploy-key:${config.sops.secrets."mini/git/deploy-key".path}"
-        "cachix-token:${config.sops.secrets."cachix/auth-token".path}"
-      ];
-      User = "root";   # need to read sops secrets + write into /var/lib/flake-cache-warm
-    };
-  };
-
-  systemd.timers.flake-cache-warm = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "*-*-* 06:00:00";
-      RandomizedDelaySec = "10m";
-      Persistent = true;
-    };
-  };
-
-  sops.secrets."mini/git/deploy-key" = { mode = "0400"; };
-  sops.secrets."cachix/auth-token" = { mode = "0400"; };
-}
-```
-
-(Bisect block above is a sketch — refine the `--override-input` revert logic
-during impl. The lock-file revert via `git checkout flake.lock` per-input is
-the working approach.)
-
-### 6.3 First manual run
-
-```bash
-ssh jadee@mini
-sudo systemctl start flake-cache-warm.service
-journalctl -fu flake-cache-warm.service
-```
-
-Expected: clones repo, runs `nix flake update`, builds three closures (mostly
-cache-hits from upstream caches), pushes new paths to `jadee-flake.cachix.org`,
-commits + pushes lockfile bump to `main`.
-
-### 6.4 Verify other hosts pull from the new cache
-
-```bash
-# On desktop
-git pull
-just switch       # should show "copying path '/nix/store/...' from 'https://jadee-flake.cachix.org'"
-```
-
-If you see the cachix URL in the output, the pipeline is end-to-end working.
+Tracked in `mini.md` §11 as the top deferred TODO.
 
 ---
 
@@ -822,9 +509,14 @@ Run-through after everything above is done:
 | `sbctl status` on mini | `Secure Boot: enabled` |
 | `amtterm <mini-amt-ip>` from desktop | SOL prompt |
 | `https://<mini-amt-ip>:16993` from a browser | AMT web UI |
-| `systemctl list-timers flake-cache-warm.timer` | scheduled for 06:00 |
 | `systemctl status hermes-agent.service` | `active (running)` |
-| `nix store info --store https://jadee-flake.cachix.org` | reachable |
+
+After the §6 cache-warming bootstrap (deferred), additionally:
+
+| Check | Expected |
+|---|---|
+| `systemctl list-timers flake-cache-warm.timer` | scheduled for 06:00 |
+| `curl -fsS https://jadee-flake.cachix.org/nix-cache-info` | returns store info |
 | `just switch` on desktop after a `git pull` | substitutes from `jadee-flake.cachix.org` |
 
 ---

@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   aliases = (import ./data/aliases.nix).commonAliases;
   paths = (import ./data/paths.nix).commonPaths;
 
@@ -21,7 +25,11 @@
 in {
   programs.nushell = {
     enable = true;
-    shellAliases = aliases;
+    shellAliases =
+      aliases
+      // lib.optionalAttrs pkgs.stdenv.isLinux {
+        trash = "gio trash";
+      };
 
     settings = {
       show_banner = false;
@@ -54,6 +62,15 @@ in {
       def --env zz [] { cd ''$env.HOME }
       def --env zc [] { cd $"(''$env.HOME)/${configRel}" }
       def --env zd [] { cd $"(''$env.HOME)/${downloadsRel}" }
+      def p [...question: string] {
+        let prompt = ($question | str join " ")
+        let input = $in
+        if ($input | is-empty) {
+          pi -p $prompt
+        } else {
+          $input | pi -p $prompt
+        }
+      }
     '';
   };
 

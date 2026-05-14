@@ -42,12 +42,6 @@
           redhat.vscode-yaml # YAML support
         ]
         ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
-          # {
-          #   name = "claude-code";
-          #   publisher = "anthropic";
-          #   version = "2.1.96";
-          #   sha256 = "sha256-f+6xXZVb5sYrmrH7eoon6/QoQaTnBuTnb+YnvszqyKA=";
-          # }
           {
             name = "schemastore"; # JSON Schema support
             publisher = "remcohaszing";
@@ -71,13 +65,6 @@
             publisher = "kdl-org";
             version = "2.1.3";
             sha256 = "sha256-Jssmb5owrgNWlmLFSKCgqMJKp3sPpOrlEUBwzZSSpbM=";
-          }
-          # OpenCode — https://github.com/anomalyco/opencode/tree/dev/sdks/vscode
-          {
-            name = "opencode";
-            publisher = "sst-dev";
-            version = "0.0.13";
-            sha256 = "sha256-6adXUaoh/OP5yYItH3GAQ7GpupfmTGaxkKP6hYUMYNQ=";
           }
           # Just — https://github.com/nefrob/vscode-just
           {

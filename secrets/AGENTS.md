@@ -9,11 +9,15 @@ sops secrets/secrets.yaml             # decrypt → edit → re-encrypt on save
 sops updatekeys secrets/secrets.yaml  # after editing .sops.yaml recipients
 ```
 
-## Shell Export
+## Session Env Export
 
-Secrets auto-export to interactive shells via `home/shared/shells/sops-shell-secrets.nix`:
+Secrets auto-export to the user session env via `home/shared/shells/sops-session-env.nix`:
 - Attr `foo-bar` → env var `FOO_BAR`
 - `github-token` → also sets `GITHUB_PAT`, `GITHUB_PERSONAL_ACCESS_TOKEN`, `NIX_CONFIG` access-tokens
+- Linux: writes `~/.config/environment.d/50-sops-secrets.conf` + `systemctl --user set-environment`
+- Darwin: LaunchAgent runs `launchctl setenv` at login (and during activation)
+
+Picked up by every shell launched after activation (PAM session on Linux, launchd-spawned terminals on Darwin). Already-running processes need a restart.
 
 ## Gotchas
 

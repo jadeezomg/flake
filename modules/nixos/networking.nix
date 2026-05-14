@@ -1,8 +1,12 @@
 {
+  config,
   host,
+  lib,
   pkgs,
   ...
-}: {
+}: let
+  serverProfile = config.dotfiles.profiles.server.enable;
+in {
   networking.hostName = host.hostname or "nixos";
   networking.networkmanager.enable = true;
 
@@ -13,29 +17,39 @@
     extraUpFlags = ["--ssh"];
   };
 
-  environment.systemPackages = with pkgs; [
-    # --- Network management ---
-    networkmanager
-    networkmanagerapplet
-    openresolv
+  # Server hosts use NixOS's built-in nftables-backed firewall; desktop hosts keep
+  # firewalld (the GUI app expects it).
+  networking.firewall = lib.mkIf serverProfile {
+    enable = true;
+    allowedTCPPorts = [22];
+    trustedInterfaces = ["tailscale0"];
+  };
 
-    # --- Firewall ---
-    firewalld
-    firewalld-gui
+  environment.systemPackages = with pkgs;
+    [
+      # --- Network management ---
+      networkmanager
+      openresolv
 
-    # --- VPN clients ---
-    wireguard-tools
-    wireguard-ui
-    proton-vpn
+      # --- VPN clients ---
+      wireguard-tools
 
-    # --- Wireless ---
-    wirelesstools
+      # --- Wireless ---
+      wirelesstools
 
-    # --- Network filesystems ---
-    nfs-utils
-    samba
+      # --- Network filesystems ---
+      nfs-utils
+      samba
 
-    # --- Tailscale CLI ---
-    tailscale
-  ];
+      # --- Tailscale CLI ---
+      tailscale
+    ]
+    ++ lib.optionals (!serverProfile) [
+      # --- GUI / desktop-only network tooling ---
+      networkmanagerapplet
+      firewalld
+      firewalld-gui
+      proton-vpn
+      wireguard-ui
+    ];
 }

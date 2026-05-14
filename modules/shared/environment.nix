@@ -29,6 +29,8 @@ in {
       "https://niri.cachix.org"
       # CachyOS kernel (nix-cachyos-kernel)
       "https://attic.xuyh0120.win/lantian"
+      # mini host nightly cache-warming output
+      # "https://jadee-flake.cachix.org"
     ];
     extra-trusted-public-keys = [
       "zed.cachix.org-1:/pHQ6dpMsAZk2DiP4WCL0p9YDNKWj2Q5FL20bNmw1cU="
@@ -37,6 +39,8 @@ in {
       "yazi.cachix.org-1:Dcdz63NZKfvUCbDGngQDAZq6kOroIrFoyO064uvLh8k="
       "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
       "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
+      # TODO: replace with the real public key after running `cachix create jadee-flake`
+      # "jadee-flake.cachix.org-1:REPLACE_ME="
     ];
     experimental-features = [
       "nix-command"

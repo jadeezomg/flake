@@ -1,7 +1,7 @@
 {
   # Sandbox-safe env. Always loaded. Anything that should appear inside an
-  # agent-sandbox.nix mkSandbox extraEnv block belongs here too — keep this
-  # list small and free of paths that point at this repo.
+  # agent's nono sandbox env belongs here too — keep this list small and
+  # free of paths that point at this repo.
   base = {
     EDITOR = "hx";
     VISUAL = "hx";

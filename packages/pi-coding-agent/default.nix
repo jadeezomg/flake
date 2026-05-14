@@ -5,12 +5,12 @@
 }: let
   unwrapped = pkgs.buildNpmPackage rec {
     pname = "pi-coding-agent-unwrapped";
-    version = "0.73.0";
+    version = "0.74.0";
 
-    # Published bundle (includes dist/); newer than nixpkgs @mariozechner/pi-coding-agent.
+    # Published bundle (includes dist/). Upstream moved from @mariozechner to @earendil-works.
     src = pkgs.fetchurl {
-      url = "https://registry.npmjs.org/@mariozechner/pi-coding-agent/-/pi-coding-agent-0.73.0.tgz";
-      hash = "sha256-9hTRUh87tkSOQdKW1q9OcUC+ekxa844O65yuabsSdLs=";
+      url = "https://registry.npmjs.org/@earendil-works/pi-coding-agent/-/pi-coding-agent-0.74.0.tgz";
+      hash = "sha256-l0pzuWGVvX1jDhFYaey14N16XDo47kkm3JlEhmPUo0Q=";
     };
 
     # Generated: unpack tgz, cd package, npm install --package-lock-only
@@ -18,13 +18,13 @@
       cp ${./package-lock.json} package-lock.json
     '';
 
-    npmDepsHash = "sha256-1AIMOdaBjDr3WzwQiakjafwOAtnw8NWC3YvcwAJsiVw=";
+    npmDepsHash = "sha256-8i6vGKIxYjzhlST74fKIMrrMwqtNpksQKvQO9q38lB8=";
 
     dontNpmBuild = true;
 
     meta = with lib; {
-      description = "Pi terminal coding agent (npm @mariozechner/pi-coding-agent)";
-      homepage = "https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent";
+      description = "Pi terminal coding agent (npm @earendil-works/pi-coding-agent)";
+      homepage = "https://github.com/earendil-works/pi/tree/main/packages/coding-agent";
       license = licenses.mit;
       mainProgram = "pi";
     };
@@ -32,13 +32,21 @@
 in
   # Wrap pi so npm install -g (used by `pi install npm:…`) writes to
   # ~/.npm-global instead of trying to mkdir in the read-only nix store.
+  #
+  # Also scrub `npm_*` / `npm_config_*` env vars inherited from ancestor
+  # processes (Zed and Claude Code launch their child shells inside an npm
+  # exec context, which sets `npm_config_prefix` / `npm_config_globalconfig`
+  # pointing at editor-managed paths). Those lowercase env vars take
+  # precedence over `NPM_CONFIG_PREFIX`, so without scrubbing them pi's
+  # `npm install -g` would silently write bin symlinks to the wrong prefix
+  # (or skip them entirely).
   pkgs.symlinkJoin {
     name = "pi-coding-agent";
     paths = [unwrapped];
     buildInputs = [pkgs.makeWrapper];
     postBuild = ''
       wrapProgram $out/bin/pi \
-        --run 'export NPM_CONFIG_PREFIX="''${NPM_CONFIG_PREFIX:-$HOME/.npm-global}"'
+        --run 'for _v in $(${pkgs.coreutils}/bin/env | ${pkgs.gnused}/bin/sed -n "s/^\(npm_[a-zA-Z_][a-zA-Z0-9_]*\)=.*/\1/p"); do unset "$_v"; done; export NPM_CONFIG_PREFIX="''${NPM_CONFIG_PREFIX:-$HOME/.npm-global}"'
     '';
     meta = unwrapped.meta;
   }

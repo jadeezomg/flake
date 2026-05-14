@@ -14,6 +14,16 @@
         "video"
         "wheel"
       ];
+      # Authorized SSH public keys for this user across all hosts.
+      # Wired into `users.users.${user}.openssh.authorizedKeys.keys` by
+      # `modules/nixos/user.nix`. Populate with keys from each host that should
+      # be able to SSH-in without password.
+      sshKeys = [
+        # TODO: paste actual public keys before first nixos-install on mini
+        # "ssh-ed25519 AAAA... jadee@desktop"
+        # "ssh-ed25519 AAAA... jadee@framework"
+        # "ssh-ed25519 AAAA... jadee@caya"
+      ];
       packages = [];
     };
 

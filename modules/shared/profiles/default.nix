@@ -1,4 +1,10 @@
-{lib, ...}: {
+{
+  config,
+  host ? {},
+  hostKey ? "unknown",
+  lib,
+  ...
+}: {
   imports = [
     ./minimal.nix
     ./essentials.nix
@@ -39,7 +45,7 @@
       tools.enable = mkEnableOption "devenv.tools (git, just, gh, lazygit, delta, jujutsu, etc.)";
       cloud.enable = mkEnableOption "devenv.cloud (awscli2, awslogs, gws)";
       llm = {
-        agents.enable = mkEnableOption "devenv.llm.agents (opencode, claude-code, context7, kagi-ken, ...) and the flake `agent-skills/` install";
+        agents.enable = mkEnableOption "devenv.llm.agents (opencode, claude-code, context7, kagi-ken, ...) and the flake `data/agents/skills/` install";
         hosting.enable = mkEnableOption "devenv.llm.hosting (vllm, lmstudio — Linux-only realistically)";
       };
       containers.enable = mkEnableOption "devenv.containers (podman, podman-desktop, dive)";
@@ -79,5 +85,33 @@
       appimage.enable = enableOn "integrations.appimage (AppImage binfmt support)";
       flatpak.enable = enableOn "integrations.flatpak (flatpak daemon + Flathub remote)";
     };
+  };
+
+  config = let
+    cfg = config.dotfiles.profiles;
+    hostClass = host.hostClass or "workstation";
+  in {
+    assertions = [
+      {
+        assertion = !(hostClass == "server" && cfg.desktop.enable);
+        message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.desktop; disable it in hosts/${hostKey}/profiles.nix.";
+      }
+      {
+        assertion = !(hostClass == "server" && cfg.apps.enable);
+        message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.apps; disable it in hosts/${hostKey}/profiles.nix.";
+      }
+      {
+        assertion = !(hostClass == "server" && cfg.integrations.enable);
+        message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.integrations; disable it in hosts/${hostKey}/profiles.nix.";
+      }
+      {
+        assertion = !(hostClass == "server" && cfg.gaming.enable);
+        message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.gaming; disable it in hosts/${hostKey}/profiles.nix.";
+      }
+      {
+        assertion = !(hostClass == "server" && cfg.work.enable);
+        message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.work; disable it in hosts/${hostKey}/profiles.nix.";
+      }
+    ];
   };
 }

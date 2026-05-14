@@ -1,28 +1,9 @@
-"""Update custom flake packages by reading update.json metadata from each package dir.
+"""Update custom flake packages from per-package update.json metadata.
 
-The default `type` is `nix-update`; the npm + github_npm handlers exist only for
-cases `nix-update` cannot cover.
-
-Handler `type` values:
-  - nix-update: delegate to Mic92/nix-update via `nix-update --flake <attr>`. The tool
-    owns the default.nix rewrite (version + every hash/rev/cargoHash/npmDepsHash it
-    knows). Use this for any package whose `src` is a resolver nix-update supports
-    (GitHub/GitLab/crates.io/PyPi/etc.). Optional `attr` overrides the flake
-    attribute (default: package dir name); optional `extra_args` is a list of CLI
-    flags forwarded verbatim (e.g. `["--generate-lockfile"]`).
-  - npm: registry.npmjs.org package (see packages/context7/update.json). Needed
-    because nix-update has no npm-registry resolver. Updates `version`, `url`,
-    tarball `hash`, vendored `lock_file`, and `npmDepsHash`.
-  - github_npm: latest GitHub release tag (or newest tag if no releases),
-    `nix-prefetch-github` for fetchFromGitHub `hash`, vendored `lock_file` from the
-    tag archive, `prefetch-npm-deps` for `npmDepsHash`, and `rev_field` set to the
-    tag name. Needed over nix-update when `patch_git_ssh_lock` is true: rewrites
-    `git+ssh://git@github.com/...` lockfile entries to https tarball + sha512
-    integrity so `buildNpmPackage` can resolve them in the sandbox.
-
-Each package stores `packages/<name>/.update-check.json` with `checked_at` (unix time).
-By default a 1h cooldown skips re-fetching if that file is newer than the cooldown (use
-`--force` to always fetch).
+Custom handlers cover package sources `nix-update` cannot resolve directly:
+npm registry tarballs, GitHub releases with npm lock regeneration, and
+prebuilt binary release channels. `github_npm` may patch git+ssh lockfile
+entries so `buildNpmPackage` can resolve them in the Nix sandbox.
 """
 
 import base64
@@ -40,6 +21,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from collections.abc import Callable
+from typing import Any
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -135,7 +117,7 @@ def _npm_deps_hash(lock_file: Path) -> str:
 
 
 def _replace_attr_once(path: Path, field: str, value: str) -> None:
-    """Set `field = \"value\"` on the first matching line (optional indent). Fails if not found."""
+    """Set `field = "value"` on the first matching line (optional indent). Fails if not found."""
     text = path.read_text()
     pattern = rf'(?m)^([ \t]*{re.escape(field)}\s*=\s*)"[^"]*"'
     new_text, n = re.subn(pattern, rf'\1"{value}"', text, count=1)
@@ -147,23 +129,186 @@ def _replace_attr_once(path: Path, field: str, value: str) -> None:
     path.write_text(new_text)
 
 
+def _has_attr(text: str, field: str) -> bool:
+    return bool(re.search(rf"(?m)^[ \t]*{re.escape(field)}\s*=", text))
+
+
+def _require_fields(pkg_name: str, meta: dict[str, Any], fields: list[str]) -> None:
+    for field in fields:
+        if field not in meta:
+            raise ValueError(
+                f"{pkg_name}: update.json missing required field {field!r}"
+            )
+
+
+def _require_text_field(pkg_name: str, meta: dict[str, Any], field: str) -> None:
+    if not isinstance(meta.get(field), str) or not meta[field]:
+        raise ValueError(
+            f"{pkg_name}: update.json field {field!r} must be a non-empty string"
+        )
+
+
+def _require_default_attr(
+    pkg_name: str, nix_text: str, source_field: str, attr_name: str
+) -> None:
+    if not _has_attr(nix_text, attr_name):
+        raise ValueError(
+            f"{pkg_name}: update.json field {source_field!r} references missing "
+            f"default.nix attribute {attr_name!r}"
+        )
+
+
+def _binary_channel_platforms(
+    meta: dict[str, Any],
+) -> list[tuple[str | None, str, str]]:
+    platforms = meta.get("platforms")
+    if isinstance(platforms, dict):
+        rows = []
+        for nix_system, row in platforms.items():
+            if not isinstance(row, dict):
+                continue
+            upstream = row.get("upstream_platform") or row.get("platform")
+            field = row.get("hash_field")
+            if isinstance(upstream, str) and isinstance(field, str):
+                rows.append((str(nix_system), upstream, field))
+        return rows
+
+    hash_fields = meta.get("hash_fields")
+    if isinstance(hash_fields, dict):
+        return [
+            (None, str(upstream_platform), str(field))
+            for upstream_platform, field in hash_fields.items()
+        ]
+    return []
+
+
+def validate_update_metadata(
+    pkg_dir: Path, meta: dict[str, Any], nix_text: str
+) -> None:
+    pkg_name = pkg_dir.name
+    handler_type = meta.get("type")
+    valid_types = {"nix-update", *_HANDLERS.keys()}
+    if not isinstance(handler_type, str) or handler_type not in valid_types:
+        raise ValueError(
+            f"{pkg_name}: update.json field 'type' has unsupported handler {handler_type!r}; "
+            f"expected one of {', '.join(sorted(valid_types))}"
+        )
+
+    if handler_type == "nix-update":
+        extra_args = meta.get("extra_args", [])
+        if not isinstance(extra_args, list) or not all(
+            isinstance(arg, str) for arg in extra_args
+        ):
+            raise ValueError(
+                f"{pkg_name}: update.json field 'extra_args' must be a list of strings"
+            )
+        return
+
+    if handler_type == "npm":
+        _require_fields(
+            pkg_name,
+            meta,
+            ["package", "hash_field", "npm_deps_hash_field", "lock_file"],
+        )
+        for field in ["package", "hash_field", "npm_deps_hash_field", "lock_file"]:
+            _require_text_field(pkg_name, meta, field)
+        _require_default_attr(pkg_name, nix_text, "hash_field", meta["hash_field"])
+        _require_default_attr(
+            pkg_name, nix_text, "npm_deps_hash_field", meta["npm_deps_hash_field"]
+        )
+        return
+
+    if handler_type == "github_npm":
+        _require_fields(
+            pkg_name,
+            meta,
+            ["repo", "hash_field", "npm_deps_hash_field", "lock_file"],
+        )
+        for field in ["repo", "hash_field", "npm_deps_hash_field", "lock_file"]:
+            _require_text_field(pkg_name, meta, field)
+        rev_field = meta.get("rev_field", "rev")
+        if not isinstance(rev_field, str) or not rev_field:
+            raise ValueError(
+                f"{pkg_name}: update.json field 'rev_field' must be a non-empty string"
+            )
+        _require_default_attr(pkg_name, nix_text, "rev_field", rev_field)
+        _require_default_attr(pkg_name, nix_text, "hash_field", meta["hash_field"])
+        _require_default_attr(
+            pkg_name, nix_text, "npm_deps_hash_field", meta["npm_deps_hash_field"]
+        )
+        return
+
+    if handler_type == "binary_channel":
+        _require_fields(pkg_name, meta, ["version_url", "url_template"])
+        for field in ["version_url", "url_template"]:
+            _require_text_field(pkg_name, meta, field)
+        if (
+            "{version}" not in meta["url_template"]
+            or "{platform}" not in meta["url_template"]
+        ):
+            raise ValueError(
+                f"{pkg_name}: update.json field 'url_template' must include {{version}} and {{platform}}"
+            )
+        if "version_jsonpath" in meta:
+            _require_text_field(pkg_name, meta, "version_jsonpath")
+        if "version_strip_prefix" in meta and not isinstance(
+            meta["version_strip_prefix"], str
+        ):
+            raise ValueError(
+                f"{pkg_name}: update.json field 'version_strip_prefix' must be a string"
+            )
+
+        has_new = "platforms" in meta
+        has_legacy = "hash_fields" in meta
+        if has_new == has_legacy:
+            raise ValueError(
+                f"{pkg_name}: update.json field 'platforms' is required; legacy 'hash_fields' remains supported alone"
+            )
+
+        platform_rows = _binary_channel_platforms(meta)
+        if not platform_rows:
+            field = "platforms" if has_new else "hash_fields"
+            raise ValueError(
+                f"{pkg_name}: update.json field {field!r} must not be empty"
+            )
+
+        if has_new:
+            for nix_system, upstream_platform, hash_field in platform_rows:
+                if not nix_system:
+                    raise ValueError(
+                        f"{pkg_name}: update.json field 'platforms' has empty Nix system"
+                    )
+                if nix_system not in nix_text:
+                    raise ValueError(
+                        f"{pkg_name}: update.json field 'platforms.{nix_system}' is missing from default.nix"
+                    )
+                if upstream_platform not in nix_text:
+                    raise ValueError(
+                        f"{pkg_name}: update.json field 'platforms.{nix_system}.upstream_platform' "
+                        f"references {upstream_platform!r}, missing from default.nix"
+                    )
+                _require_default_attr(
+                    pkg_name,
+                    nix_text,
+                    f"platforms.{nix_system}.hash_field",
+                    hash_field,
+                )
+        else:
+            for _, upstream_platform, hash_field in platform_rows:
+                _require_default_attr(
+                    pkg_name, nix_text, f"hash_fields.{upstream_platform}", hash_field
+                )
+        return
+
+
 def _current_version(text: str) -> str:
     m = re.search(r'version\s*=\s*"([^"]+)"', text)
     return m.group(1) if m else "unknown"
 
 
-# ---------------------------------------------------------------------------
-# Source type handlers
-# Each receives (meta, pkg_dir, status_cb, current_version) and returns
-# (new_version, field_updates).  current_version is pre-read by
-# update_package so handlers never need to re-read default.nix themselves.
-# ---------------------------------------------------------------------------
-
-
 def _handle_npm(
     meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
 ) -> tuple[str, dict]:
-    """npm package: fetch latest, compute src hash + npm deps hash."""
     status("fetching latest version from npm")
     data = _fetch_json(f"https://registry.npmjs.org/{meta['package']}/latest")
     new_version = data["version"]
@@ -291,7 +436,6 @@ def _patch_lock_git_ssh(lock: dict) -> None:
 def _handle_github_npm(
     meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
 ) -> tuple[str, dict]:
-    """GitHub release/tag + fetchFromGitHub + buildNpmPackage: refresh lock + hashes."""
     owner, repo_name = meta["repo"].split("/", 1)
 
     status("fetching latest GitHub tag")
@@ -362,12 +506,30 @@ def _prefetch_file_hash(url: str) -> str:
 def _handle_binary_channel(
     meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
 ) -> tuple[str, dict]:
-    """Generic binary updater with version text endpoint and URL template."""
+    """Generic binary updater with version endpoint and URL template.
+
+    Short-circuits on matching versions so no-op runs do not re-download large
+    release assets just to rediscover unchanged hashes.
+    """
     status("fetching latest version")
-    new_version = _fetch_text(meta["version_url"])
+    if "version_jsonpath" in meta:
+        data = _fetch_json(meta["version_url"])
+        new_version = data
+        for segment in str(meta["version_jsonpath"]).split("."):
+            new_version = new_version[segment]
+        new_version = str(new_version)
+    else:
+        new_version = _fetch_text(meta["version_url"])
+
+    prefix = meta.get("version_strip_prefix")
+    if prefix and new_version.startswith(prefix):
+        new_version = new_version[len(prefix) :]
+
+    if new_version == current_version:
+        return new_version, {}
 
     field_updates = {}
-    for platform, field in meta["hash_fields"].items():
+    for _, platform, field in _binary_channel_platforms(meta):
         status(f"prefetching {platform}")
         url = meta["url_template"].format(version=new_version, platform=platform)
         field_updates[field] = _prefetch_file_hash(url)
@@ -424,9 +586,36 @@ def _handle_nix_update_self(
     return old_version, new_version, version_changed, fields_changed
 
 
-# ---------------------------------------------------------------------------
-# Core update logic
-# ---------------------------------------------------------------------------
+def _field_updates_changed(nix_text: str, field_updates: dict[str, str]) -> bool:
+    return any(
+        not re.search(
+            rf'(?m)^[ \t]*{re.escape(field)}\s*=\s*"{re.escape(value)}"',
+            nix_text,
+        )
+        for field, value in field_updates.items()
+    )
+
+
+def _apply_update_rewrites(
+    nix_file: Path,
+    *,
+    version_changed: bool,
+    new_version: str,
+    field_updates: dict[str, str],
+) -> None:
+    if version_changed:
+        _replace_attr_once(nix_file, "version", new_version)
+    for field, value in field_updates.items():
+        _replace_attr_once(nix_file, field, value)
+
+
+def _cooldown_skip(pkg_dir: Path, cooldown_s: int) -> tuple[bool, str | None]:
+    if cooldown_s <= 0:
+        return False, None
+    last = _read_last_checked(pkg_dir)
+    if last is not None and (time.time() - last) < cooldown_s:
+        return True, _cooldown_remaining_human(last, cooldown_s)
+    return False, None
 
 
 def update_package(
@@ -446,13 +635,14 @@ def update_package(
     nix_text = nix_file.read_text()
     old_version = _current_version(nix_text)
 
-    if not force and cooldown_s > 0:
-        last = _read_last_checked(pkg_dir)
-        if last is not None and (time.time() - last) < cooldown_s:
-            status(f"skipped (cooldown {_cooldown_remaining_human(last, cooldown_s)})")
-            return old_version, old_version, False, False, True
-
     meta = json.loads((pkg_dir / "update.json").read_text())
+    validate_update_metadata(pkg_dir, meta, nix_text)
+
+    if not force:
+        cooldown_skipped, remaining = _cooldown_skip(pkg_dir, cooldown_s)
+        if cooldown_skipped:
+            status(f"skipped (cooldown {remaining})")
+            return old_version, old_version, False, False, True
 
     if meta["type"] == "nix-update":
         old, new, v_changed, f_changed = _handle_nix_update_self(
@@ -465,24 +655,19 @@ def update_package(
     new_version, field_updates = handler(meta, pkg_dir, status, old_version)
 
     version_changed = new_version != old_version
-    # Detect hash drift: field present in nix file but value differs from computed
-    fields_changed = any(
-        not re.search(
-            rf'(?m)^[ \t]*{re.escape(field)}\s*=\s*"{re.escape(value)}"',
-            nix_text,
-        )
-        for field, value in field_updates.items()
-    )
+    fields_changed = _field_updates_changed(nix_text, field_updates)
 
     if not version_changed and not fields_changed:
         _write_last_checked(pkg_dir)
         return old_version, new_version, False, False, False
 
     status("writing updated default.nix")
-    if version_changed:
-        _replace_attr_once(nix_file, "version", new_version)
-    for field, value in field_updates.items():
-        _replace_attr_once(nix_file, field, value)
+    _apply_update_rewrites(
+        nix_file,
+        version_changed=version_changed,
+        new_version=new_version,
+        field_updates=field_updates,
+    )
 
     _write_last_checked(pkg_dir)
     return old_version, new_version, version_changed, fields_changed, False
@@ -490,11 +675,6 @@ def update_package(
 
 def discover_packages(flake_root: Path) -> list[Path]:
     return sorted(p.parent for p in (flake_root / "packages").glob("*/update.json"))
-
-
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
 
 
 def main(args: list[str] | None = None) -> None:
@@ -600,7 +780,6 @@ def main(args: list[str] | None = None) -> None:
                             tid, "[dim]–[/]", "dim", name, f"[dim]already at {new}[/]"
                         )
                 except Exception as e:
-                    # Short cell (last non-empty line); print full error above the bar.
                     msg = str(e)
                     last = next(
                         (ln for ln in reversed(msg.splitlines()) if ln.strip()), msg

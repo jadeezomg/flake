@@ -4,13 +4,13 @@
 in {
   pinsForce = true;
   pins = {
-    "Inbox (3) - jonas.hippauf@getcaya.com - Caya GmbH Mail" = {
+    "Inbox (1) - jonas.hippauf@getcaya.com - Caya GmbH Mail" = {
       id = "22b1fd3c-57f8-4984-9ef9-e8a26e396e4a";
       url = "https://mail.google.com/mail/u/0/#inbox";
       isEssential = true;
       position = 101;
     };
-    "Caya GmbH - Calendar - Week of April 6, 2026" = {
+    "Caya GmbH - Calendar - Week of April 27, 2026" = {
       id = "2fc017e6-0793-435b-a6b9-69fce452eb29";
       url = "https://calendar.google.com/calendar/u/0/r";
       isEssential = true;
@@ -22,9 +22,9 @@ in {
       isEssential = true;
       position = 103;
     };
-    "2/2 loaded · Dashboard · Metabase" = {
+    "PAM Dashboard · Dashboard · Metabase" = {
       id = "55d4921c-59db-4cec-ad03-cb21e5ae8ed5";
-      url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer=MELAYO%20GmbH&e-mail&id&tab=7-customer";
+      url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer&e-mail&id&tab=7-customer";
       isEssential = true;
       position = 104;
     };
@@ -36,7 +36,7 @@ in {
     };
     "Caya Document Automation - Connect your apps. Automate your work." = {
       id = "7d00f1ba-b3d0-48a6-863d-dbadc14ef757";
-      url = "https://app.eu.workato.com/recipes/2013287/job/j-Aa69EtRX-ApegfL-CE";
+      url = "https://app.eu.workato.com/?fid=projects";
       isEssential = true;
       position = 106;
     };
@@ -352,7 +352,7 @@ in {
     };
     "Gmail" = {
       id = "94e1a0bf-c281-4bc4-9ae4-42508ebe1195";
-      url = "https://mail.google.com/mail/u/0/?pli=1#inbox";
+      url = "https://accounts.google.com/v3/signin/confirmidentifier?authuser=0&continue=https%3A%2F%2Fmail.google.com%2Fmail%2Fu%2F0%2F&dsh=S-1808202172%3A1772835813530803&emr=1&followup=https%3A%2F%2Fmail.google.com%2Fmail%2Fu%2F0%2F&ifkv=ASfE1-qx_GiuPEyNjRUmwUNJc1i_5ur27PLDay4xBTTDnvXGA5NzUaT209XJ5dzM1FWhvZiiZAyuqw&osid=1&passive=1209600&service=mail&flowName=GlifWebSignIn&flowEntry=ServiceLogin#inbox";
       workspace = spaces."Work".id;
       isEssential = false;
       position = 220;

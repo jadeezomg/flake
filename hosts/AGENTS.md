@@ -32,5 +32,5 @@ Non-obvious fields:
 ## Gotchas
 
 - **`.flake-host`** — created by `just init`; stores the active host key; never commit it; all `nh`-based recipes read it
-- **`stateVersion` is per-host** — never change it on existing hosts
+- **`stateVersion` is per-host** — bumping it gates default-value changes in NixOS/HM modules. Audit the release notes' "State Version Changes" section before raising it on an existing host; never lower it
 - **Guest users** — `homeManagerConfig` in `parts/hosts.nix` also creates HM configs for `extraUsers`

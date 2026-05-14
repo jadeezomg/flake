@@ -4,6 +4,12 @@
   imports = [
     ./llm.nix
     ./pi-packages.nix
-    ./context-mode.nix
+    ./pi-mcp.nix
+    ./omp-mcp.nix
+    ./claude-mcp.nix
+    ./nono-profiles.nix
+    ./agents-cli.nix
+    ./host-status.nix
+    ./fastfetch.nix
   ];
 }

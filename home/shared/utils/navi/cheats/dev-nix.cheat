@@ -194,29 +194,41 @@ direnv allow
 # Reload direnv
 direnv reload
 
-% nix, agent, sandbox
+% nix, agent, sandbox, nono
 
-; Templates from this flake that wrap AI agents in agent-sandbox.nix
-; (bubblewrap on Linux, sandbox-exec on macOS). See templates/ in the flake.
+; nono profiles are the single sandboxing layer for coding agents — see
+; lib/nono-profiles.nix and docs/adr/0001-nono-as-single-sandboxing-system.md.
+; Profile JSONs are installed by HM to ~/.config/nono/profiles/.
+; For day-to-day agent launches use the `agent` dispatcher (see `llm` cheats).
+; The devShells below are the lower-level entry kept for ad-hoc use.
 
-# Init: claude-code wrapped in agent-sandbox in the current directory
-nix flake init -t <flake>#claude-sandbox
-
-$ flake: echo "$FLAKE"
-
-# Init: opencode wrapped in agent-sandbox in the current directory
-nix flake init -t <flake>#opencode-sandbox
+# Enter Claude in its sandbox via the flake devShell
+nix develop <flake>#nono-claude
 
 $ flake: echo "$FLAKE"
 
-# Enter the sandboxed dev shell (NIXPKGS_ALLOW_UNFREE for claude-code)
-NIXPKGS_ALLOW_UNFREE=1 nix develop --impure
+# Enter pi in its sandbox via the flake devShell
+nix develop <flake>#nono-pi
 
-# Tail the agent-sandbox proxy log (when restrictNetwork = true)
-tail -f /tmp/sandbox-proxy.log
+$ flake: echo "$FLAKE"
 
-# macOS only: query system log for sandbox-exec denials in the last minute
-log show --predicate 'eventMessage CONTAINS "deny"' --last 1m
+# Why was a path or host denied/granted by a profile?
+nono why --profile <profile> --path <path> --op readwrite
+nono why --profile <profile> --host <host> --port <port>
+
+$ profile: ls ~/.config/nono/profiles/ | sed 's/.json$//'
+
+# Show the resolved capability set for a profile
+nono profile show <profile>
+
+$ profile: ls ~/.config/nono/profiles/ | sed 's/.json$//'
+
+# Inspect detached sessions / attach / stop
+nono ps
+nono attach <session>
+nono stop <session>
+
+$ session: nono ps --quiet
 
 % nix, comma, nix-index, nurl, nix-init, direnv
 
