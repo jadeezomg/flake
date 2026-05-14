@@ -43,7 +43,7 @@ in {
       dive
 
       # --- Session recording ---
-      asciinema_3
+      asciinema
     ];
   };
 }
