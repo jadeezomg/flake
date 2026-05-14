@@ -12,8 +12,9 @@ Nested categories mirroring `~/Git/skills/skills/`:
 ## Upstream Sync
 
 ```bash
-just skills-upstream             # list changed skills + interactive per-skill review
-just skills-upstream --apply-all # copy upstream over local for every changed skill
+just skills-upstream                         # review changed skills, then import/ignore new skills
+just skills-upstream --apply-all             # copy upstream over local for every changed skill
+just skills-upstream --apply-all --import-new # also import every upstream-only skill
 ```
 
 Skills to opt out of go in `.upstream-ignore` (one name per line, `#` comments).
