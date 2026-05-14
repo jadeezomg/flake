@@ -1,8 +1,20 @@
 {
   config,
+  lib,
   pkgs,
   ...
-}: {
+}: let
+  # Bootstrap toggle — breaks the sops/host-key chicken-and-egg.
+  #
+  # On a fresh install the SSH host key doesn't exist yet, so sops-nix can't
+  # decrypt `users/jadee/password` during the first activation. Set this to
+  # `true` for the very first `nixos-install`; jadee gets `initialPassword`
+  # ("changeme") and the sops secret is skipped. After §5.4 in
+  # docs/hosts/mini-install.md (host added to .sops.yaml, secrets rekeyed),
+  # flip to `false`, commit, `just switch` — jadee's password becomes the
+  # sops-managed one.
+  bootstrap = true;
+in {
   imports = [
     ./hardware-configuration.nix
     ./disko.nix
@@ -54,7 +66,6 @@
 
   # AMT / vPro — non-root /dev/mei access for amtterm / openwsman.
   users.groups.amt = {};
-  users.users.jadee.extraGroups = ["amt"];
   services.udev.extraRules = ''
     KERNEL=="mei*", GROUP="amt", MODE="0660"
   '';
@@ -91,10 +102,20 @@
   # Declarative password — sourced from sops, replaces manual `passwd`.
   # The secret must exist in secrets/secrets.yaml under `users/jadee/password`
   # encrypted to mini's host age key (see docs/hosts/mini-install.md §5.4).
-  sops.secrets."users/jadee/password" = {
+  # Gated on `bootstrap` so the very first install doesn't try to decrypt
+  # before mini's age key exists.
+  sops.secrets."users/jadee/password" = lib.mkIf (!bootstrap) {
     neededForUsers = true;
   };
-  users.users.jadee.hashedPasswordFile = config.sops.secrets."users/jadee/password".path;
+  users.users.jadee = lib.mkMerge [
+    {extraGroups = ["amt"];}
+    (lib.mkIf bootstrap {
+      initialPassword = "changeme";
+    })
+    (lib.mkIf (!bootstrap) {
+      hashedPasswordFile = config.sops.secrets."users/jadee/password".path;
+    })
+  ];
 
   # System state version — host specific, do not change.
   system.stateVersion = "26.05";
