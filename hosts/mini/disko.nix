@@ -10,7 +10,7 @@
       partitions = {
         ESP = {
           priority = 1;
-          size = "2G";
+          size = "1G";
           type = "EF00";
           content = {
             type = "filesystem";
@@ -27,21 +27,23 @@
             subvolumes = {
               "@root" = {
                 mountpoint = "/";
+                mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
               };
               "@nix" = {
                 mountpoint = "/nix";
-                mountOptions = ["compress=zstd:3" "noatime"];
+                mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
               };
               "@home" = {
                 mountpoint = "/home";
-                mountOptions = ["compress=zstd:3"];
+                mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
               };
               "@var-log" = {
                 mountpoint = "/var/log";
-                mountOptions = ["compress=zstd:3" "noatime"];
+                mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
               };
               "@snapshots" = {
                 mountpoint = "/.snapshots";
+                mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
               };
             };
           };
