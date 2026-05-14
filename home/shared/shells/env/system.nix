@@ -9,8 +9,16 @@
 
   flakeRoot = config.dotfiles.flakeRoot;
 
+  # data.nix and paths.nix use `$HOME`/`$USER` placeholders so shell-init
+  # contexts (bash/zsh/fish init blocks rendered into double-quoted shell
+  # strings) can rely on POSIX expansion. Anything routed through
+  # `lib.escapeShellArg` (single-quoted) or programs.nushell.environmentVariables
+  # (no POSIX expansion) loses that, so resolve placeholders at eval time
+  # before those values hit such consumers.
+  expand = lib.replaceStrings ["$HOME" "$USER"] [config.home.homeDirectory config.home.username];
+
   # Workstation-only PATH additions on top of the base list from env/base.nix.
-  systemPathList = [
+  systemPathList = map expand [
     paths.commonPaths.localBin
     paths.commonPaths.cargoBin
     paths.commonPaths.npmGlobalBin
@@ -21,13 +29,14 @@
   # sessionVariables/environmentVariables is single-source-of-truth when
   # essentials is on: merge base with system overrides so both the
   # sandbox-safe defaults and the workstation overrides show up in .zshenv.
-  systemEnv =
+  systemEnv = lib.mapAttrs (_: expand) (
     envData.base
     // envData.system
     // {
       FLAKE = flakeRoot;
       NH_FLAKE = flakeRoot;
-    };
+    }
+  );
 
   exportLines =
     lib.concatStringsSep "\n"

@@ -1,4 +1,9 @@
-{config, ...}: let
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
   aliases = (import ./data/aliases.nix).commonAliases;
   paths = (import ./data/paths.nix).commonPaths;
 in {
@@ -19,7 +24,11 @@ in {
       share = true;
     };
 
-    shellAliases = aliases;
+    shellAliases =
+      aliases
+      // lib.optionalAttrs pkgs.stdenv.isLinux {
+        trash = "gio trash";
+      };
 
     initContent = ''
       bindkey '^p' history-search-backward
@@ -33,6 +42,9 @@ in {
       zz() { cd ${paths.home}; }
       zc() { cd ${paths.config}; }
       zd() { cd ${paths.downloads}; }
+      p() {
+        pi -p "$*"
+      }
     '';
   };
 }

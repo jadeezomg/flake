@@ -11,6 +11,7 @@ This document lists all aliases and commands available across different shells i
 | `cat` | `bat` | Better `cat` with syntax highlighting |
 | `find` | `fd` | Faster `find` alternative |
 | `grep` | `rg` | Ripgrep - faster `grep` alternative |
+| `trash` | `gio trash` *(Linux only)* | Move files to trash via GLib. On Darwin, the `trash` Homebrew formula provides the binary directly (no alias). |
 
 ## Directory Listing (eza) (Bash, Fish, Nushell, Zsh)
 
@@ -52,6 +53,12 @@ Source: `home/shared/shells/core/data/aliases.nix` (same `shellAliases` map for 
 |-------|---------|-------------|
 | `cl` | `clear` | Clear terminal |
 | `h` | `history` | Show command history |
+
+## LLM shortcuts (Bash, Fish, Nushell, Zsh)
+
+| Command | Implementation | Description |
+|---------|----------------|-------------|
+| `p <question...>` | `pi -p "<question...>"` | Non-interactive Pi prompt shortcut. Joins unquoted words into one prompt and preserves piped stdin, e.g. `just <recipe> | p what is this`. |
 
 ## Git shortcuts — basic (Bash, Fish, Nushell, Zsh)
 
@@ -161,7 +168,7 @@ These commands are provided by [git.nu](https://github.com/fj0r/git.nu) and are 
 ## Notes
 
 - **Shared aliases** (`cat`, `find`, `grep`, `ls`, eza shortcuts, git one-liners, `search*`, etc.) live in `home/shared/shells/core/data/aliases.nix` and are wired as `shellAliases` from `home/shared/shells/core/{bash,fish,zsh,nushell}.nix`.
-- **`zz` / `zc` / `zd`** are small functions in those same `core/*.nix` files (not separate alias modules).
+- **`zz` / `zc` / `zd`** and **`p`** are small functions in those same `core/*.nix` files (not separate alias modules). `p <question...>` wraps `pi -p "<question...>"` while preserving piped stdin.
 - **`zf` / `flake` / `nuflake`** and workstation env (`FLAKE`, extra `PATH`) come from `home/shared/shells/env/system.nix`; entry point is `home/shared/shells/env/default.nix`.
 - **Navi cheat** for quick lookup: `home/shared/utils/navi/cheats/aliases.cheat` (points at the paths above).
 - **git.nu** commands are loaded in `home/shared/shells/core/nushell.nix` from the upstream `git.nu` flake input fetch; **Nushell only**. Some names overlap bash-style `gst` / `gad` aliases but implement different flows — see [git.nu](https://github.com/fj0r/git.nu).
@@ -187,6 +194,7 @@ These commands are provided by [git.nu](https://github.com/fj0r/git.nu) and are 
 **System:**
 - `flake` / `nuflake` - Flake (`just --choose` when no args) vs legacy Nu
 - `cl` - Clear terminal
+- `p <question...>` - Ask Pi a one-shot question, including piped stdin
 
 **File Operations:**
 - `cat` - View files (bat)

@@ -13,10 +13,8 @@
   pkgsFuncs = import ../lib/pkgs.nix {inherit inputs;};
   inherit (pkgsFuncs) getPkgs getPkgsStable;
 
-  # Data
   hostData = import ../hosts/hosts.nix;
 
-  # Home-manager modules per platform
   darwinSystems = ["aarch64-darwin"];
   homeModules = isDarwin:
     [
@@ -35,10 +33,8 @@
       ]
     );
 
-  # Special args passed to all system modules
   commonSpecialArgs = {inherit inputs hostData;};
 
-  # Home-manager embedded module configuration
   homeManagerConfig = {
     user,
     hostKey,
@@ -52,7 +48,7 @@
     guestHmUsers = builtins.filter (u: (u.manageHome or true)) (host.extraUsers or []);
     mkUserCfg = {
       imports = hmImports;
-      home.stateVersion = host.stateVersion or "25.11";
+      home.stateVersion = host.stateVersion;
     };
   in {
     useGlobalPkgs = true;
@@ -77,7 +73,6 @@
       // lib.listToAttrs (map (g: lib.nameValuePair g.username mkUserCfg) guestHmUsers);
   };
 
-  # Wrap homeManagerConfig as a system module
   mkHomeManagerModule = {
     hostKey,
     user,
@@ -95,12 +90,11 @@
     };
   };
 
-  # Build outputs per host
   mkHostOutputs = hostKey: host: let
-    system = host.system or "x86_64-linux";
+    system = host.system;
     isDarwin = lib.elem system darwinSystems;
-    user = host.username or "jadee";
-    hostname = host.hostname or hostKey;
+    user = host.username;
+    hostname = host.hostname;
     pkgs = getPkgs system [];
     nixosConfig = lib.nixosSystem {
       system = null;
@@ -122,6 +116,8 @@
         inputs.stylix.nixosModules.stylix
         inputs.dms.nixosModules.dank-material-shell
         inputs.dms.nixosModules.greeter
+        inputs.disko.nixosModules.disko
+        inputs.hermes-agent.nixosModules.default
         (./. + "/../hosts/${hostKey}")
         sops-nix.nixosModules.sops
         determinate.nixosModules.default
@@ -167,7 +163,6 @@
     );
   };
 
-  # Aggregate all per-host outputs
   hostOutputs = lib.foldl' lib.recursiveUpdate {} (
     lib.mapAttrsToList mkHostOutputs (hostData.hosts or {})
   );

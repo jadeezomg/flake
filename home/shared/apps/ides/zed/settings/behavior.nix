@@ -19,7 +19,6 @@
     show_type_hints = true;
     show_parameter_hints = true;
     show_other_hints = true;
-    # Let the theme color them more softly than normal code.
     show_background = false;
   };
 

@@ -99,6 +99,18 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Handy — offline speech-to-text desktop app. Linux outputs only; Darwin
+    # is installed via brew cask (modules/darwin/default.nix). Track upstream
+    # until nixpkgs ships it. https://github.com/cjpais/Handy
+    handy = {
+      # Pinned to v0.8.3 release (085cd530); HEAD's PR #1335 nix refactor breaks
+      # the bundled llama.cpp Vulkan backend (unresolved coopmat1 shader symbols).
+      # Bump back to HEAD once upstream fixes the regression.
+      url = "github:cjpais/Handy";
+      # url = "github:cjpais/Handy/085cd530a30db479822125c758613c38fe0771b0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # https://github.com/ozturkkl/framework-control — uses bundled nixpkgs fork for the package until upstream nixpkgs ships it
     framework-control = {
       url = "github:ozturkkl/framework-control";
@@ -109,14 +121,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Lightweight, declarative sandboxing for AI coding agents
-    # (bubblewrap on Linux, sandbox-exec on macOS).
-    # https://github.com/archie-judd/agent-sandbox.nix
-    agent-sandbox = {
-      url = "github:archie-judd/agent-sandbox.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # Third-party agent skills (mattpocock). Locked via flake.lock; bump with `nix flake update`.
     skills-mattpocock = {
       url = "github:mattpocock/skills";
@@ -124,6 +128,16 @@
     };
 
     corecycler.url = "github:Daaboulex/linux-corecycler";
+
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {flake-parts, ...}: let
@@ -172,10 +186,6 @@
           };
           gws = inputs.google-workspace-cli.packages.${system}.default;
           workato-platform-cli = import ./packages/workato-platform-cli/default.nix {
-            inherit pkgs;
-            lib = pkgs.lib;
-          };
-          code-review-graph = import ./packages/code-review-graph/default.nix {
             inherit pkgs;
             lib = pkgs.lib;
           };

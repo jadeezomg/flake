@@ -1,6 +1,46 @@
+% llm, agent, sandbox, nono
+
+; Single sandboxed entry point for every coding agent. Per-agent identity
+; (claude-jadee, pi-jadee), broker-injected creds, Co-Authored-By trailer.
+; Implementation: lib/nono-profiles.nix. ADR: docs/adr/0001-nono-as-single-sandboxing-system.md.
+
+# List available agents
+agent ls
+
+# Launch an agent in its sandbox (foreground TUI)
+agent <agent>
+
+$ agent: agent ls
+
+# Pass arguments through to the agent
+agent <agent> <args>
+
+$ agent: agent ls
+$ args: echo ""
+
+# One-line summary of running sessions (banner-friendly)
+agent status
+
+# Verify keyring, podman, profiles
+agent doctor
+
+# List running / detached sandbox sessions
+agent ps
+
+# Attach to a detached session (Ctrl-] d to detach)
+agent attach <session>
+
+$ session: nono ps --quiet
+
+# Stop a running session
+agent stop <session>
+
+$ session: nono ps --quiet
+
 % llm, claude
 
-; Claude Code CLI — interactive agent in the current directory.
+; Claude Code CLI — direct (unsandboxed) invocations. For sandboxed runs use
+; `agent claude` from the agent-dispatcher cheat above.
 
 # Start an interactive session (cwd as context)
 claude
@@ -29,23 +69,18 @@ cat <file> | claude -p '<prompt>'
 $ file: fd --type f
 $ prompt: echo ""
 
-% llm, opencode
+% llm, pi
 
-; Open-source multi-LLM agent.
+# Ask Pi a one-shot question
+p <question>
 
-# Launch opencode TUI in cwd
-opencode
+$ question: echo ""
 
-# Run a one-shot query
-opencode run '<prompt>'
+# Pipe command output into Pi shortcut
+<command> | p <question>
 
-$ prompt: echo ""
-
-# Pick a specific model provider
-opencode --model <provider>/<model>
-
-$ provider: echo "anthropic;openai;google;ollama" | tr ';' '\n'
-$ model: echo ""
+$ command: echo "just <recipe>"
+$ question: echo "what is this"
 
 % docs, ctx7, context7
 

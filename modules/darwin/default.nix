@@ -42,6 +42,7 @@ in {
     brews = [
       "rbenv" # Ruby version manager
       "ruby-build" # Ruby version installer for rbenv
+      "trash" # Send files to Finder Trash from CLI
     ];
 
     casks = [
@@ -59,14 +60,17 @@ in {
       "google-chrome"
 
       # --- Utilities ---
-      "alt-tab" # Window switcher (Mac-specific)
+      # "alt-tab" # Window switcher (Mac-specific)
+      "dockdoor" # alt-tab replacement
       "middleclick" # Three-finger click utility (Mac-specific)
       "notunes" # Disable iTunes/Music auto-launch (Mac-specific)
-      "scroll-reverser" # Reverse scroll direction (Mac-specific)
+      # "scroll-reverser" # Reverse scroll direction (Mac-specific)
+      "linearmouse" # mouse options
       "finetune" # Per-app volume control
-
-      # --- Development ---
+      "xykong/tap/flux-markdown" # md for peek
+      "hyperkey" # rebind keys
       "handy" # Offline speech-to-text desktop app
+      "shottr" # screenshot tool
 
       # --- Fonts (not in nixpkgs) ---
       "font-sf-mono"

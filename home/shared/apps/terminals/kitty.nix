@@ -9,7 +9,7 @@
 
     font = {
       package = lib.mkForce pkgs.nerd-fonts.iosevka;
-      name = "Iosevka Nerd Font Mono";
+      name = "Iosevka Nerd Font";
       size = 12;
     };
 
@@ -23,10 +23,10 @@
       shell_integration = "enabled";
 
       # Font (explicit; not using Stylix)
-      font_family = "family='Iosevka Nerd Font Mono' style=Regular";
-      bold_font = "family='Iosevka Nerd Font Mono' style=Bold";
-      italic_font = "family='Iosevka Nerd Font Mono' style=Italic";
-      bold_italic_font = "family='Iosevka Nerd Font Mono' style='Bold Italic'";
+      font_family = "family='Iosevka Nerd Font' style=Regular";
+      bold_font = "family='Iosevka Nerd Font' style=Bold";
+      italic_font = "family='Iosevka Nerd Font' style=Italic";
+      bold_italic_font = "family='Iosevka Nerd Font' style='Bold Italic'";
 
       # Window configuration
       initial_window_width = 130;

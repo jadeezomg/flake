@@ -29,7 +29,8 @@ in {
     description = userConfig.description or "user account";
     extraGroups = userConfig.extraGroups or ["wheel"];
     shell = pkgs.nushell;
-    packages = with pkgs; userConfig.packages or [];
+    packages = userConfig.packages or [];
+    openssh.authorizedKeys.keys = userConfig.sshKeys or [];
   };
 
   time.timeZone = localeConfig.timeZone;
