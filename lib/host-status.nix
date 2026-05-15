@@ -62,10 +62,18 @@
         mkdir -p "${cacheDir}"
         cache="${source.cachePath}"
         tmp="$cache.tmp.$$"
-        creds="$HOME/.claude/.credentials.json"
 
-        [ -r "$creds" ] || exit 0
-        token="$(jq -r '.claudeAiOauth.accessToken // ""' "$creds" 2>/dev/null || true)"
+        # Claude Code stores its OAuth blob in the macOS Keychain on Darwin
+        # ("Claude Code-credentials"); Linux ships a plaintext credentials.json.
+        if [ "$(uname)" = "Darwin" ]; then
+          creds_json="$(/usr/bin/security find-generic-password -s 'Claude Code-credentials' -w 2>/dev/null || true)"
+          [ -n "$creds_json" ] || exit 0
+          token="$(printf '%s' "$creds_json" | jq -r '.claudeAiOauth.accessToken // ""' 2>/dev/null || true)"
+        else
+          creds="$HOME/.claude/.credentials.json"
+          [ -r "$creds" ] || exit 0
+          token="$(jq -r '.claudeAiOauth.accessToken // ""' "$creds" 2>/dev/null || true)"
+        fi
         [ -n "$token" ] || exit 0
 
         version="$(claude --version 2>/dev/null | head -1 | grep -oE '[0-9.]+' | head -1 || echo "2.0.0")"
@@ -124,9 +132,16 @@
         if ! command -v podman >/dev/null 2>&1; then
           printf '(not installed)\n'; return 0
         fi
-        local running total stopped
-        running="$(podman ps -q 2>/dev/null | wc -l | tr -d ' ')"
-        total="$(podman ps -aq 2>/dev/null | wc -l | tr -d ' ')"
+        # `podman ps` exits 125 when the socket is missing (Darwin: no
+        # `podman machine`, Linux: socket not started). Detect that
+        # explicitly so pipefail does not abort the whole script.
+        local running_out total_out running total stopped
+        if ! running_out="$(podman ps -q 2>/dev/null)"; then
+          printf '(machine stopped)\n'; return 0
+        fi
+        total_out="$(podman ps -aq 2>/dev/null || true)"
+        running="$(printf '%s' "$running_out" | grep -c . || true)"
+        total="$(printf '%s' "$total_out" | grep -c . || true)"
         stopped=$(( total - running ))
         printf '%s running, %s stopped\n' "$running" "$stopped"
       }
@@ -153,8 +168,12 @@
         fi
         local gen_num mtime now age
         gen_num="$(readlink "$profile" | grep -oE '[0-9]+' | head -1)"
+        # runtimeInputs puts GNU coreutils ahead of /usr/bin on PATH, so a
+        # bare `stat -f %m` on Darwin would invoke GNU stat (which treats
+        # `-f` as --file-system and emits a `File: ...` header). Pin to
+        # BSD stat by absolute path; Linux keeps GNU semantics.
         if [ "$(uname)" = "Darwin" ]; then
-          mtime="$(stat -f %m "$profile" 2>/dev/null || echo 0)"
+          mtime="$(/usr/bin/stat -f %m "$profile" 2>/dev/null || echo 0)"
         else
           mtime="$(stat -c %Y "$profile" 2>/dev/null || echo 0)"
         fi
