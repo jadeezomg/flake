@@ -786,6 +786,22 @@
         "type": "github"
       }
     },
+    "homebrew-xykong-tap": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1778638751,
+        "narHash": "sha256-EGdLnzf3wD/w1Cr7QcEX3nlddcx0qATMECi6KXwYTvk=",
+        "owner": "xykong",
+        "repo": "homebrew-tap",
+        "rev": "ab94af12dc097fbb971f8e7e56806e354065a002",
+        "type": "github"
+      },
+      "original": {
+        "owner": "xykong",
+        "repo": "homebrew-tap",
+        "type": "github"
+      }
+    },
     "import-tree": {
       "locked": {
         "lastModified": 1763762820,
@@ -1392,6 +1408,7 @@
         "homebrew-bundle": "homebrew-bundle",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
+        "homebrew-xykong-tap": "homebrew-xykong-tap",
         "lanzaboote": "lanzaboote",
         "niri": "niri",
         "nix-cachyos-kernel": "nix-cachyos-kernel",
