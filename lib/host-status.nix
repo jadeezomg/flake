@@ -264,7 +264,9 @@
         printf '%-12s %s\n' 'Containers'  "$(containers_status)"
         printf '%-12s %s\n' 'Agents'      "$(agents_status)"
         printf '%-12s %s\n' 'Claude'      "$(claude_status)"
+        ${lib.optionalString (!pkgs.stdenv.isDarwin) ''
         printf '%-12s %s\n' 'OpenRouter'  "$(openrouter_status)"
+      ''}
         printf '%-12s %s\n' 'Skills'      "$(skills_status)"
       }
 
