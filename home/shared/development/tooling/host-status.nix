@@ -63,9 +63,13 @@ in {
     cacheSources
   );
 
+  # openrouter is gated out on Darwin: the refresher would call
+  # `op read op://Personal/openrouter_api_key/credential`, which pops the
+  # 1Password "exec is trying to access 1Password" prompt every 5 minutes.
+  # OpenRouter usage tracking remains Linux-only.
   launchd.agents = lib.mkIf pkgs.stdenv.isDarwin (
     lib.mapAttrs' (name: source:
       lib.nameValuePair "host-status-${name}" (mkDarwinAgent source))
-    cacheSources
+    (lib.filterAttrs (name: _: name != "openrouter") cacheSources)
   );
 }
