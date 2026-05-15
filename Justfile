@@ -331,6 +331,13 @@ post-install:
     set -euo pipefail
     bash "$FLAKE/scripts/shell/post-install.bash"
 
+[doc('Sync sops secrets into 1Password "Employee" vault (Darwin); needs op signin')]
+[group('config')]
+sync-1password:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    bash "$FLAKE/scripts/shell/sync-1password.bash"
+
 
 [doc('Rollback to previous generation (nh rollback / darwin-rebuild --rollback)')]
 [group('system')]

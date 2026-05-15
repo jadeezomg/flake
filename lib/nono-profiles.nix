@@ -12,7 +12,7 @@
   # Per-platform credential-key resolution.
   #   Linux  → libsecret account name (service "nono", account <name>)
   #   Darwin → 1Password URI under the Personal vault
-  # The vault name is duplicated in home/shared/shells/sops-1password.nix.
+  # The vault name is duplicated in scripts/shell/sync-1password.bash.
   # Item-naming convention is shared so the same `<name>` works on both.
   opVault = "Employee";
   mkCredentialKey = name:
@@ -373,10 +373,10 @@
       if [ $fail -gt 0 ]; then
         printf '\n\033[31m%d check(s) failed\033[0m\n\n' "$fail"
         printf 'Hints:\n'
-        printf '  - credential entries missing -> run home-manager switch (sops-keyring / sops-1password activation)\n'
+        printf '  - credential entries missing -> Linux: run home-manager switch (sops-keyring activation); Darwin: run "just sync-1password"\n'
         printf '  - podman socket missing -> systemctl --user enable --now podman.socket (Linux) or podman machine start (Darwin)\n'
         printf '  - profile not resolving -> check ~/.config/nono/profiles/ after HM switch\n'
-        printf '  - 1Password not signed in -> op signin then re-run home-manager switch\n'
+        printf '  - 1Password not signed in -> op signin then re-run "just sync-1password"\n'
         exit 1
       fi
       printf '\nall checks passed.\n'
