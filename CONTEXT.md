@@ -32,7 +32,7 @@ nono's local HTTPS reverse proxy. Intercepts the sandbox's outbound HTTPS calls 
 _Avoid_: "proxy" (ambiguous with HTTP forward proxy)
 
 **Credential**:
-A named secret in the platform keystore — libsecret on Linux, 1Password vault on Darwin — and referenced in agent profiles via `mkCredentialKey`, which emits the bare account name on Linux and an `op://Personal/<account>/credential` URI on Darwin. Loaded from sops into the platform keystore at home-manager activation (`sops-keyring.nix` / `sops-1password.nix`). Distinct from a sops "secret" (the encrypted YAML entry — the source).
+A named secret in the platform keystore — libsecret on Linux, 1Password vault on Darwin — and referenced in agent profiles via `mkCredentialKey`, which emits the bare account name on Linux and an `op://Personal/<account>/credential` URI on Darwin. Loaded from sops into the platform keystore at home-manager activation on Linux (`sops-keyring.nix`); on Darwin loaded manually via `just sync-1password` (`scripts/shell/sync-1password.bash`), since `op` auth is per-shell. Distinct from a sops "secret" (the encrypted YAML entry — the source).
 _Avoid_: "key", "token" (those refer to the value; credential refers to the named entry)
 
 **Dispatcher**:
