@@ -22,6 +22,14 @@ Config lives in `home/nixos/desktop/`. `home/nixos/desktop/dms/default.nix` uses
 
 After editing: `just symlink-check`, then `niri msg action load-config-file` and `makoctl reload`.
 
+## Live Symlink Convention
+
+For mutable app config that should live in git but remain writable by the app, store the file under the flake checkout and expose it with an out-of-store Home Manager symlink:
+- Use `config.dotfiles.flakeRoot` for the repo path, never a hardcoded `/home/...` path.
+- Use `mkLiveSymlink` from `lib/home/live-xdg-symlinks.nix` for both `home.file` and `xdg.configFile` entries. It sets `mkOutOfStoreSymlink` plus `force = true`.
+- Put cross-platform user config in `home/shared/`; put Linux-only desktop config in `home/nixos/`.
+- Do not use this for secrets, databases, logs, caches, or generated state. Keep those in the app's normal writable directory.
+
 lanzaboote handles secure boot (`/var/lib/sbctl`); `systemd-boot` is force-disabled — don't touch `boot.loader.systemd-boot.enable`.
 
 ## Theme

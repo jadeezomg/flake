@@ -1,0 +1,97 @@
+modelRoles:
+  default: openai-codex/gpt-5.5:high
+theme:
+  dark: dark-gruvbox
+  light: light-gruvbox
+symbolPreset: nerd
+statusLine:
+  preset: full
+  separator: block
+  sessionAccent: true
+  showHookStatus: true
+terminal:
+  showImages: true
+display:
+  showTokenUsage: true
+autoResume: true
+startup:
+  checkUpdate: false
+compaction:
+  strategy: context-full
+memory:
+  backend: "off"
+edit:
+  mode: hashline
+readLineNumbers: true
+bashInterceptor:
+  enabled: true
+python:
+  sharedGateway: true
+lsp:
+  enabled: true
+  diagnosticsOnWrite: false
+  formatOnWrite: true
+todo:
+  reminders: true
+  eager: true
+irc:
+  enabled: false
+debug:
+  enabled: false
+renderMermaid:
+  enabled: true
+github:
+  enabled: true
+mcp:
+  discoveryMode: true
+  enableProjectConfig: true
+  notifications: true
+plan:
+  enabled: false
+task:
+  isolation:
+    mode: none
+    merge: patch
+  simple: default
+  maxConcurrency: 4
+commands:
+  enableOpencodeUser: false
+  enableOpencodeProject: false
+secrets:
+  enabled: true
+providers:
+  webSearch: anthropic
+  image: auto
+  kimiApiFormat: anthropic
+  openaiWebsockets: auto
+  parallelFetch: true
+exa:
+  enabled: false
+  enableSearch: false
+searxng:
+  endpoint: ""
+astGrep:
+  enabled: true
+astEdit:
+  enabled: true
+recipe:
+  enabled: true
+fetch:
+  enabled: true
+browser:
+  enabled: true
+  headless: false
+  screenshotDir: ~/Pictures
+tools:
+  intentTracing: true
+  discoveryMode: all
+autocompleteMaxVisible: 10
+dev:
+  autoqa: true
+bash:
+  autoBackground:
+    enabled: true
+async:
+  enabled: true
+checkpoint:
+  enabled: true

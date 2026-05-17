@@ -3,11 +3,11 @@
   lib,
   ...
 }: let
-  version = "14.9.8";
+  version = "15.1.3";
 
   # update_packages.py rewrites these top-level attrs for each release asset.
-  linuxX64Hash = "sha256-Td8qnJ6WBQCrqHH07B8UAXUpYNVnetmE1j4mYYd+hN0=";
-  darwinArm64Hash = "sha256-y3EH3lP+7sGO34qSlVX/q1JZunDRRZ6MkZojhX0qLTA=";
+  linuxX64Hash = "sha256-yQQ/kHT/bqulNp6qI1Kr85IS+z+KlLkSWOjZBJEb5pY=";
+  darwinArm64Hash = "sha256-j85G2F1uKCn+s//r6XrxXJJ+Gy52xxiXyKytYUuLMkc=";
 
   # nixpkgs system → upstream release asset. Only packaged host systems are mapped.
   platforms = {
