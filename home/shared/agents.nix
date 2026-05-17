@@ -12,6 +12,7 @@
   claudeSettingsLink = config.lib.file.mkOutOfStoreSymlink claudeSettingsFile;
 
   ompConfigFile = "${flakeRoot}/data/agents/omp/config.yml";
+  ompThemeFile = "${flakeRoot}/data/agents/omp/themes/birds-of-paradise.json";
 in {
   home.file = {
     "AGENTS.md".source = agentsLink;
@@ -23,5 +24,6 @@ in {
     ".claude/settings.json".source = claudeSettingsLink;
 
     ".omp/agent/config.yml" = mkLiveSymlink ompConfigFile;
+    ".omp/agent/themes/birds-of-paradise.json" = mkLiveSymlink ompThemeFile;
   };
 }

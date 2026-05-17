@@ -51,7 +51,7 @@ Search `git grep -n TODO` on the branch for the canonical list. As of writing:
 |---|---|
 | `data/users/users.nix:23` | paste the actual `ssh-ed25519` public keys from desktop/framework/caya |
 | `modules/shared/environment.nix:43` | paste the real `jadee-flake.cachix.org-1:<pubkey>=` (only after running `cachix create jadee-flake` — see §6.1) |
-| `hosts/mini/disko.nix:7` | replace `/dev/disk/by-id/nvme-REPLACE_ME` with the real NVMe id from the live ISO (`ls -l /dev/disk/by-id/ \| grep nvme`) |
+| `hosts/mini/disko.nix:8` / `:86` | replace both placeholder NVMe ids with real by-id paths from the live ISO: `nvme-SYSTEM_256GB_REPLACE_ME` must be the 256 GB system SSD, `nvme-APPLICATIONS_2TB_REPLACE_ME` must be the 2 TB application-storage SSD (`ls -l /dev/disk/by-id/ \| grep nvme`, verify by model/serial/size) |
 | `hosts/mini/default.nix:34` (`address1`/`dns`/`interface-name`) | real static IP/gateway/DNS values + verify the 2.5G NIC's predictable name on first boot |
 | `hosts/mini/default.nix:8` (`bootstrap`) | leave as `true` for the very first `nixos-install` so jadee gets `initialPassword = "changeme"` (sops decryption would fail before mini's host age key exists); flip to `false` after §5.4 |
 
@@ -177,26 +177,29 @@ applies after `nixos-install`; the wifi connection lives in the installer's
 in-memory NetworkManager and disappears on reboot. Wire ethernet up before
 §4.5 (reboot) or be ready to bring wifi back up on the installed system.
 
-### 4.2 Find the NVMe id, edit disko.nix
+### 4.2 Find both NVMe ids, edit disko.nix
 
 ```bash
+lsblk -o NAME,SIZE,MODEL,SERIAL,TYPE,MOUNTPOINTS
 ls -l /dev/disk/by-id/ | grep nvme
-# nvme-WD_BLACK_SN770_250GB_xxxxxxxxxxxx -> ../../nvme0n1
+# nvme-..._256GB_... -> ../../nvme0n1  # system SSD
+# nvme-..._2TB_...   -> ../../nvme1n1  # /srv application-storage SSD
 ```
 
-Clone the flake, edit disko.nix's `device =` to the real id:
+Clone the flake, edit disko.nix's two `device =` placeholders to the real ids:
 
 ```bash
 sudo -i
 cd /tmp
 git clone https://github.com/jadeezomg/flake.git
 cd flake
-$EDITOR hosts/mini/disko.nix    # paste the real nvme-... id
+$EDITOR hosts/mini/disko.nix    # paste both real nvme-... ids
 ```
 
 ### 4.3 Run disko
 
-**Destroys all data on the target NVMe.** Verify the device id one more time.
+**Destroys all data on both selected NVMe disks.** Verify the 256 GB system SSD
+and 2 TB application-storage SSD ids one more time.
 
 ```bash
 sudo nix --extra-experimental-features 'nix-command flakes' run \
@@ -204,8 +207,9 @@ sudo nix --extra-experimental-features 'nix-command flakes' run \
   --mode disko --flake .#mini
 ```
 
-This formats the disk, creates the GPT layout (2GiB ESP + btrfs root with
-subvolumes), and mounts everything under `/mnt`.
+This formats both disks, creates a 1GiB ESP + btrfs system root (including
+`/nix`) on the 256 GB SSD, creates a separate btrfs `/srv` filesystem on the
+2 TB SSD for service/application data, and mounts everything under `/mnt`.
 
 ### 4.4 nixos-install (bootstrap mode)
 
@@ -529,6 +533,5 @@ Pulled forward from `mini.md` §11:
 - Monitoring stack (defer; revisit when needed)
 - Backups (real gap; address before storing anything important)
 - Other services (out of scope; basics first)
-- Storage future (deferred until 2nd NVMe)
 - Stylix/DMS/Niri inertness check (verify during a `just build-dry`)
 - Tailscale subnet router for AMT-over-VPN (skip until needed)

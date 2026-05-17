@@ -12,18 +12,16 @@ but not yet implemented. Sections marked **[OPEN]** still need grilling.
 | `hostKey` / hostname | `mini` |
 | Chassis | Minisforum MS-01 |
 | CPU | Intel Core i5-12600H (4P + 8E, 16 threads, vPro) |
-| RAM | 8 GB (will expand later) |
-| Storage | 1× 256 GB NVMe (3 NVMe slots total — 2 free for future expansion) |
+| RAM | 24 GB |
+| Storage | 1× 256 GB NVMe system SSD + 1× 2 TB NVMe application-storage SSD (3 NVMe slots total — 1 free) |
 | NICs | 2× SFP+ 10G (Intel X710), 2× 2.5G (Intel I226-V) — only one 2.5G NIC used initially |
 | GPU | Intel UHD (iGPU) |
 | Out-of-band mgmt | Intel AMT 16.x (vPro) |
 | System | `x86_64-linux` |
 
-Risks flagged:
-- 8 GB RAM is tight for a remote builder; some big derivations (chromium, llvm,
-  cachyos kernel link step) may OOM. Acceptable until RAM upgrade.
-- 256 GB is small for nightly multi-closure builds + nix-store + cachix push
-  staging; aggressive GC compensates (see §7).
+Storage split:
+- 256 GB system SSD: ESP, root, `/nix`, home, logs, snapshots.
+- 2 TB application SSD: `/srv` for service/application data.
 
 ---
 
@@ -90,43 +88,70 @@ Wire `inputs.disko.nixosModules.disko` into `parts/hosts.nix` modules list
 
 ```nix
 {
-  disko.devices.disk.main = {
-    type = "disk";
-    device = "/dev/disk/by-id/nvme-Foobar_256GB_SN1234567"; # fill in real id
-    content = {
-      type = "gpt";
-      partitions = {
-        ESP = {
-          priority = 1;
-          size = "2G";
-          type = "EF00";
-          content = {
-            type = "filesystem";
-            format = "vfat";
-            mountpoint = "/boot";
-            mountOptions = [ "umask=0077" ];
+  disko.devices.disk = {
+    system = {
+      type = "disk";
+      device = "/dev/disk/by-id/nvme-SYSTEM_256GB_REPLACE_ME"; # fill in real 256 GB id
+      content = {
+        type = "gpt";
+        partitions = {
+          ESP = {
+            priority = 1;
+            size = "1G";
+            type = "EF00";
+            content = {
+              type = "filesystem";
+              format = "vfat";
+              mountpoint = "/boot";
+              mountOptions = ["umask=0077"];
+            };
+          };
+          root = {
+            size = "100%";
+            content = {
+              type = "btrfs";
+              extraArgs = ["-L" "nixos-system" "-f"];
+              subvolumes = {
+                "@root" = {
+                  mountpoint = "/";
+                  mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
+                };
+                "@nix" = {
+                  mountpoint = "/nix";
+                  mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
+                };
+                "@home" = {
+                  mountpoint = "/home";
+                  mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
+                };
+                "@var-log" = {
+                  mountpoint = "/var/log";
+                  mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
+                };
+                "@snapshots" = {
+                  mountpoint = "/.snapshots";
+                  mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
+                };
+              };
+            };
           };
         };
-        root = {
+      };
+    };
+
+    applications = {
+      type = "disk";
+      device = "/dev/disk/by-id/nvme-APPLICATIONS_2TB_REPLACE_ME"; # fill in real 2 TB id
+      content = {
+        type = "gpt";
+        partitions.srv = {
           size = "100%";
           content = {
             type = "btrfs";
-            extraArgs = [ "-L" "nixos" "-f" ];
-            subvolumes = {
-              "@root"      = { mountpoint = "/"; };
-              "@nix"       = {
-                mountpoint = "/nix";
-                mountOptions = [ "compress=zstd:3" "noatime" ];
-              };
-              "@home"      = {
-                mountpoint = "/home";
-                mountOptions = [ "compress=zstd:3" ];
-              };
-              "@var-log"   = {
-                mountpoint = "/var/log";
-                mountOptions = [ "compress=zstd:3" "noatime" ];
-              };
-              "@snapshots" = { mountpoint = "/.snapshots"; };
+            extraArgs = ["-L" "application-storage" "-f"];
+            subvolumes."@srv" = {
+              mountpoint = "/srv";
+              mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
             };
           };
         };
@@ -153,9 +178,8 @@ Wire `inputs.disko.nixosModules.disko` into `parts/hosts.nix` modules list
 
 ### 4.3 Swap
 
-No disk swap. Enable `zramSwap.enable = true; zramSwap.memoryPercent = 50;`
-on the mini (gated `lib.mkIf server.enable` or directly in mini's `default.nix`).
-Add real swap only if OOMs become a recurring issue.
+No disk swap. `zramSwap.enable = true; zramSwap.memoryPercent = 50;` stays on
+for transient build spikes without adding NVMe swap writes.
 
 ### 4.4 Install flow (one-time, from NixOS minimal ISO booted via AMT KVM)
 
@@ -287,7 +311,7 @@ desktop / framework / mini
 | Push tool | `cachix push` after build (not `watch-store`) |
 | Schedule | 06:00 Europe/Berlin (`OnCalendar=*-*-* 06:00:00`, `RandomizedDelaySec=600`) — accepts that bisect days may overrun into morning; heavy artifacts come from upstream caches |
 | Auth token | sops secret `cachix/auth-token`, exposed via `LoadCredential` |
-| GC retention | aggressive: `daily` schedule, `--delete-older-than 3d` (mini-only override of `maintenance.garbageCollection.{schedule, deleteOlderThan}`) |
+| GC retention | conservative: `daily` schedule, `--delete-older-than 3d` (mini-only override of `maintenance.garbageCollection.{schedule, deleteOlderThan}`); `/nix` stays on the 256 GB system SSD, Cachix remains canonical |
 | Self-substitution | mini also configures `jadee-flake.cachix.org` as a substituter — pulls its own freshly-pushed paths on next switch |
 | Repo remote | `git@github.com:jadeezomg/flake.git` |
 | Push credentials | per-repo SSH **deploy key**, push-only, sops-stored (`mini/git/deploy-key`) |
@@ -422,6 +446,5 @@ Mini opts out manually in `hosts/mini/profiles.nix`:
   - No `tlp` (laptop-oriented; conflicts with thermald)
   - Wake-on-LAN: skip (always on)
 - [ ] **Backups** — borg / restic / btrbk for btrfs subvols. Off-site target TBD. Not blocking but a real gap.
-- [ ] **Storage future** — when adding the second NVMe slot, decide between (a) single btrfs pool with `btrfs device add` (simple, balanced reads, no parity), (b) separate pools per role (build cache / service data / backups), (c) introduce ZFS for snapshots+send/recv (only worth it if RAM is upgraded to ≥32 GB).
 - [ ] **Stylix/DMS/Niri inertness** — verify all three modules are no-ops when `desktop.enable = false`. If any leak host activations or system packages, gate their imports on `host.headless or false` in `parts/hosts.nix`.
 - [ ] **Tailscale subnet router** — re-enable AMT-over-VPN by adding a subnet router on desktop or framework. Skip until the need arises.

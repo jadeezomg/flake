@@ -32,8 +32,8 @@ in {
   # is unnecessary because this file only loads for the mini host).
   security.sudo.wheelNeedsPassword = false;
 
-  # Aggressive GC for the cache-warming host: 256 GB NVMe + nightly multi-closure
-  # builds means the local store fills fast. Cachix holds the canonical artefacts.
+  # Cache-warming host: nightly multi-closure builds still churn through /nix.
+  # Keep GC conservative on the 256 GB system SSD; Cachix holds canonical artefacts.
   maintenance.garbageCollection = {
     schedule = "daily";
     deleteOlderThan = "3d";
@@ -57,8 +57,8 @@ in {
     ipv6.method = "auto";
   };
 
-  # Compressed RAM swap — 8 GB is tight for nix builds; zram cushions OOM
-  # without burning NVMe writes. Add real swap only if we hit recurring OOMs.
+  # Compressed RAM swap — 24 GB is workable for nix builds; zram cushions
+  # transient spikes without burning NVMe writes.
   zramSwap = {
     enable = true;
     memoryPercent = 50;
