@@ -1,97 +1,117 @@
-modelRoles:
+modelRoles: 
   default: openai-codex/gpt-5.5:high
-theme:
+theme: 
   dark: dark-gruvbox
   light: light-gruvbox
 symbolPreset: nerd
-statusLine:
-  preset: full
+statusLine: 
+  preset: nerd
   separator: block
   sessionAccent: true
   showHookStatus: true
-terminal:
+terminal: 
   showImages: true
-display:
+display: 
   showTokenUsage: true
 autoResume: true
-startup:
+startup: 
   checkUpdate: false
-compaction:
+compaction: 
   strategy: context-full
-memory:
-  backend: "off"
-edit:
+  thresholdPercent: 80
+  handoffSaveToDisk: true
+  idleEnabled: true
+memory: 
+  backend: hindsight
+edit: 
   mode: hashline
+  streamingAbort: true
+  hashlineAutoDropPureInsertDuplicates: true
 readLineNumbers: true
-bashInterceptor:
+bashInterceptor: 
   enabled: true
-python:
+python: 
   sharedGateway: true
-lsp:
+  kernelMode: session
+lsp: 
   enabled: true
   diagnosticsOnWrite: false
   formatOnWrite: true
-todo:
+todo: 
   reminders: true
-  eager: true
-irc:
+  eager: false
+irc: 
   enabled: false
-debug:
+debug: 
   enabled: false
-renderMermaid:
+renderMermaid: 
   enabled: true
-github:
+github: 
   enabled: true
-mcp:
+mcp: 
   discoveryMode: true
   enableProjectConfig: true
   notifications: true
-plan:
+plan: 
   enabled: false
-task:
-  isolation:
+task: 
+  isolation: 
     mode: none
     merge: patch
+    commits: ai
   simple: default
   maxConcurrency: 4
-commands:
+  eager: true
+commands: 
   enableOpencodeUser: false
   enableOpencodeProject: false
-secrets:
+secrets: 
   enabled: true
-providers:
+providers: 
   webSearch: anthropic
   image: auto
   kimiApiFormat: anthropic
   openaiWebsockets: auto
   parallelFetch: true
-exa:
+exa: 
   enabled: false
   enableSearch: false
-searxng:
+searxng: 
   endpoint: ""
-astGrep:
+astGrep: 
   enabled: true
-astEdit:
+astEdit: 
   enabled: true
-recipe:
+recipe: 
   enabled: true
-fetch:
+fetch: 
   enabled: true
-browser:
+browser: 
   enabled: true
   headless: false
-  screenshotDir: ~/Pictures
-tools:
+  screenshotDir: ~/Pictures/Agent
+tools: 
   intentTracing: true
   discoveryMode: all
-autocompleteMaxVisible: 10
-dev:
-  autoqa: true
-bash:
-  autoBackground:
+autocompleteMaxVisible: 15
+dev: 
+  autoqa: false
+bash: 
+  autoBackground: 
     enabled: true
-async:
+async: 
   enabled: true
-checkpoint:
+checkpoint: 
   enabled: true
+defaultThinkingLevel: high
+hideThinkingBlock: false
+serviceTier: auto
+retry: 
+  fallbackRevertPolicy: cooldown-expiry
+steeringMode: one-at-a-time
+loop: 
+  mode: prompt
+doubleEscapeAction: tree
+treeFilterMode: all
+stt: 
+  modelName: medium.en
