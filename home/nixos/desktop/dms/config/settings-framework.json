@@ -296,6 +296,8 @@
 	"monoFontFamily": "Iosevka Nerd Font Mono",
 	"fontWeight": 300,
 	"fontScale": 1,
+	"textRenderType": 0,
+	"textRenderQuality": 0,
 	"notepadUseMonospace": true,
 	"notepadFontFamily": "",
 	"notepadFontSize": 14,
@@ -478,6 +480,7 @@
 	"customPowerActionReboot": "",
 	"customPowerActionPowerOff": "",
 	"updaterHideWidget": true,
+	"updaterCheckOnStart": false,
 	"updaterUseCustomCommand": true,
 	"updaterCustomCommand": "nh os build",
 	"updaterTerminalAdditionalParams": "",
@@ -500,7 +503,6 @@
 	"displayShowDisconnected": false,
 	"displaySnapToEdge": true,
 	"connectedFrameBarStyleBackups": {},
-	"connectedFrameModalDarkenBackup": null,
 	"barConfigs": [
 		{
 			"id": "default",
