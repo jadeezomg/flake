@@ -7,10 +7,6 @@
       command = "mcp-nixos";
       args = [];
     };
-    "context-mode" = {
-      command = "context-mode";
-      args = [];
-    };
   };
 
   agentsEnabled =
@@ -21,6 +17,7 @@
   esc = lib.escapeShellArg;
 
   mapSharedServers = transform: lib.mapAttrs transform sharedServers;
+  obsoleteSharedServers = ["context-mode"];
 
   mkMcpJsonMergeActivation = {
     mcpDir,
@@ -32,8 +29,12 @@
     fi
     tmp=$(mktemp)
     jq --argjson servers ${esc (builtins.toJSON sharedServers)} \
-      'reduce ($servers | to_entries[]) as $e (.;
-        .mcpServers[$e.key] = ((.mcpServers[$e.key] // {}) + $e.value))' \
+      --argjson obsolete ${esc (builtins.toJSON obsoleteSharedServers)} \
+      '(.mcpServers //= {}) |
+       reduce $obsolete[] as $name (.;
+         del(.mcpServers[$name])) |
+       reduce ($servers | to_entries[]) as $e (.;
+         .mcpServers[$e.key] = ((.mcpServers[$e.key] // {}) + $e.value))' \
       ${esc mcpFile} >"$tmp" && mv "$tmp" ${esc mcpFile}
   '';
 
@@ -46,14 +47,20 @@
     };
 
   toZedContextServers = extensionManagedServers: let
-    collisions =
-      lib.intersectLists
-      (lib.attrNames extensionManagedServers)
-      (lib.attrNames sharedServers);
+    collisions = lib.intersectLists (lib.attrNames extensionManagedServers) (
+      lib.attrNames sharedServers
+    );
   in
     assert lib.assertMsg (collisions == [])
     "Zed MCP shared server name collision with extension-managed entries: ${lib.concatStringsSep ", " collisions}";
       extensionManagedServers // mapSharedServers toZedContextServer;
 in {
-  inherit agentsEnabled sharedServers mapSharedServers mkMcpJsonMergeActivation toZedContextServers;
+  inherit
+    agentsEnabled
+    sharedServers
+    mapSharedServers
+    mkMcpJsonMergeActivation
+    toZedContextServers
+    obsoleteSharedServers
+    ;
 }
