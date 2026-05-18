@@ -92,7 +92,7 @@ browser:
   screenshotDir: ~/Pictures/Agent
 tools: 
   intentTracing: true
-  discoveryMode: all
+  discoveryMode: mcp-only
 autocompleteMaxVisible: 15
 dev: 
   autoqa: 
