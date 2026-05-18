@@ -19,6 +19,8 @@ in {
         # binaries ship as regular system packages.
         podman
         podman-desktop
+        # `docker` → `podman` shim, mirroring NixOS `dockerCompat`.
+        (pkgs.writeShellScriptBin "docker" ''exec ${pkgs.podman}/bin/podman "$@"'')
       ];
   };
 }
