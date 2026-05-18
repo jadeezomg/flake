@@ -1,7 +1,7 @@
 modelRoles: 
   default: openai-codex/gpt-5.5:high
 theme: 
-  dark: dark-gruvbox
+  dark: mahogany
   light: light-gruvbox
 symbolPreset: nerd
 statusLine: 
@@ -95,7 +95,8 @@ tools:
   discoveryMode: all
 autocompleteMaxVisible: 15
 dev: 
-  autoqa: false
+  autoqa: 
+    consent: granted
 bash: 
   autoBackground: 
     enabled: true

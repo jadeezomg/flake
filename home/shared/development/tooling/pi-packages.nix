@@ -28,7 +28,6 @@
     "npm:pi-openrouter-realtime"
     "npm:pi-connect"
     "npm:pi-mcp-adapter"
-    "npm:context-mode"
   ];
 
   settingsDir = "${homeDir}/.pi/agent";
@@ -38,7 +37,12 @@
 in
   lib.mkIf (osConfig.dotfiles.profiles.devenv.llm.agents.enable or false) {
     home.activation.piPackages = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      export PATH=${lib.makeBinPath [pkgs.jq pkgs.coreutils]}:$PATH
+      export PATH=${
+        lib.makeBinPath [
+          pkgs.jq
+          pkgs.coreutils
+        ]
+      }:$PATH
       mkdir -p ${esc settingsDir}
       if ! jq -e . ${esc settingsPath} >/dev/null 2>&1; then
         printf '%s\n' '{}' >${esc settingsPath}

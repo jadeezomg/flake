@@ -52,22 +52,44 @@
     };
 
     # All modifying tools: default confirm, no always_allow → user must approve
-    edit_file = {default = "confirm";};
-    save_file = {default = "confirm";};
-    delete_path = {default = "confirm";};
-    move_path = {default = "confirm";};
-    copy_path = {default = "confirm";};
-    create_directory = {default = "confirm";};
-    restore_file_from_disk = {default = "confirm";};
+    edit_file = {
+      default = "confirm";
+    };
+    save_file = {
+      default = "confirm";
+    };
+    delete_path = {
+      default = "confirm";
+    };
+    move_path = {
+      default = "confirm";
+    };
+    copy_path = {
+      default = "confirm";
+    };
+    create_directory = {
+      default = "confirm";
+    };
+    restore_file_from_disk = {
+      default = "confirm";
+    };
 
     # External access: require approval. Prefer the funnel CLIs documented in
-    # data/agents/global/AGENTS.md (kagi-ken-cli, ctx7, context-mode) — they
-    # have stable network shape, persistent caching, and known auth.
-    fetch = {default = "confirm";};
-    search_web = {default = "confirm";};
+    # data/agents/global/AGENTS.md (kagi-ken-cli, ctx7) — they have stable
+    # network shape, persistent caching, and known auth.
+    fetch = {
+      default = "confirm";
+    };
+    search_web = {
+      default = "confirm";
+    };
 
     # MCP: always allow Context7 documentation tools
-    "mcp:mcp-server-context7:resolve-library-id" = {default = "allow";};
-    "mcp:mcp-server-context7:get-library-docs" = {default = "allow";};
+    "mcp:mcp-server-context7:resolve-library-id" = {
+      default = "allow";
+    };
+    "mcp:mcp-server-context7:get-library-docs" = {
+      default = "allow";
+    };
   };
 }
