@@ -1,7 +1,7 @@
 modelRoles: 
   default: openai-codex/gpt-5.5:high
 theme: 
-  dark: mahogany
+  dark: birds-of-paradise
   light: light-gruvbox
 symbolPreset: nerd
 statusLine: 
