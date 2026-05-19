@@ -13,6 +13,7 @@ in
     # per-package system gates inside the overlay).
     (import ./local-packages.nix {inherit lib system;})
     (import ./direnv-skip-check-darwin.nix {inherit system;})
+    (import ./nono-skip-check-darwin.nix {inherit system;})
   ]
   # x86_64-linux only: niri-flake + CachyOS kernel.
   ++ (
