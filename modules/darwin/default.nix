@@ -32,7 +32,7 @@ in {
     enable = true;
 
     onActivation = {
-      autoUpdate = false;
+      autoUpdate = true;
       cleanup = "uninstall";
       # Avoid upgrading the full brew graph during activation; transient
       # network/CDN issues can fail the whole switch.
@@ -60,11 +60,9 @@ in {
       "google-chrome"
 
       # --- Utilities ---
-      # "alt-tab" # Window switcher (Mac-specific)
       "dockdoor" # alt-tab replacement
       "middleclick" # Three-finger click utility (Mac-specific)
       "notunes" # Disable iTunes/Music auto-launch (Mac-specific)
-      # "scroll-reverser" # Reverse scroll direction (Mac-specific)
       "linearmouse" # mouse options
       "finetune" # Per-app volume control
       "xykong/tap/flux-markdown" # md for peek
