@@ -55,10 +55,15 @@
 
   # Broker credential routes read keystore accounts populated by
   # home/shared/shells/sops-keyring.nix at HM activation.
+  # `env_var` is required by nono when `credential_key` is a URI manager
+  # reference (op://, apple-password://, file://). It names the SDK env var
+  # the broker exposes as a phantom token inside the sandbox. Set on every
+  # entry so the same profile works on Linux (bare keystore names) too.
   sharedCustomCredentials = {
     context7 = {
       upstream = "https://context7.com";
       credential_key = mkCredentialKey "context7_api_key";
+      env_var = "CONTEXT7_API_KEY";
       inject_mode = "header";
       inject_header = "Authorization";
       credential_format = "Bearer {}";
@@ -69,6 +74,7 @@
     github = {
       upstream = "https://api.github.com";
       credential_key = mkCredentialKey "github_token";
+      env_var = "GITHUB_TOKEN";
       inject_mode = "header";
       inject_header = "Authorization";
       credential_format = "token {}";
@@ -138,6 +144,7 @@
         openrouter = {
           upstream = "https://openrouter.ai/api/v1";
           credential_key = mkCredentialKey "openrouter_api_key";
+          env_var = "OPENROUTER_API_KEY";
           inject_mode = "header";
           inject_header = "Authorization";
           credential_format = "Bearer {}";
@@ -162,6 +169,7 @@
         openrouter = {
           upstream = "https://openrouter.ai/api/v1";
           credential_key = mkCredentialKey "openrouter_api_key";
+          env_var = "OPENROUTER_API_KEY";
           inject_mode = "header";
           inject_header = "Authorization";
           credential_format = "Bearer {}";
