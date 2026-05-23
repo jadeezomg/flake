@@ -91,11 +91,6 @@ git reset --hard origin/HEAD
 # Launch lazygit TUI
 lazygit
 
-% gitui
-
-# Launch gitui TUI
-gitui
-
 % jj, jujutsu
 
 # Status (working copy)

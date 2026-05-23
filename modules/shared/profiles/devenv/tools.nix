@@ -20,7 +20,6 @@ in {
       jjui
       gh
       lazygit
-      gitui
       gh-dash
 
       # --- Task runners ---
