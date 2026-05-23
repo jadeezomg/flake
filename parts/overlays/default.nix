@@ -14,6 +14,7 @@ in
     (import ./local-packages.nix {inherit lib system;})
     (import ./direnv-skip-check-darwin.nix {inherit system;})
     (import ./nono-skip-check-darwin.nix {inherit system;})
+    (import ./python-package-fixes.nix)
   ]
   # x86_64-linux only: niri-flake + CachyOS kernel.
   ++ (
