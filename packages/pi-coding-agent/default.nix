@@ -16,6 +16,9 @@
     # Generated: unpack tgz, cd package, npm install --package-lock-only
     postPatch = ''
       cp ${./package-lock.json} package-lock.json
+      # npm gives shrinkwrap precedence over package-lock.json; the published
+      # shrinkwrap is missing integrity for @earendil-works workspace packages.
+      mv npm-shrinkwrap.json npm-shrinkwrap.upstream.json
     '';
 
     npmDepsHash = "sha256-GEmGk7exRffNHVcag+GAlmDVIf4C7rQdZ1Fe+ALIA8U=";
