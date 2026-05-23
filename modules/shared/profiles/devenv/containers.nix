@@ -12,13 +12,12 @@ in {
       [
         dockfmt
         dockerfile-language-server
+        podman
+        podman-desktop
+        podman-tui
         podman-compose
       ]
       ++ lib.optionals isDarwin [
-        # nix-darwin has no `virtualisation.podman` equivalent, so the
-        # binaries ship as regular system packages.
-        podman
-        podman-desktop
         # `docker` → `podman` shim, mirroring NixOS `dockerCompat`.
         (pkgs.writeShellScriptBin "docker" ''exec ${pkgs.podman}/bin/podman "$@"'')
       ];
