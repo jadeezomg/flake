@@ -324,6 +324,11 @@ def _handle_npm(
         with tarfile.open(tgz) as tf:
             tf.extractall(tmp)
         pkg_json = Path(tmp) / "package" / "package.json"
+        # npm-shrinkwrap.json takes precedence over package-lock.json — if the
+        # tarball ships one, `npm install --package-lock-only` updates the
+        # shrinkwrap and never emits package-lock.json. Remove it so the lock
+        # path below is guaranteed to exist.
+        (pkg_json.parent / "npm-shrinkwrap.json").unlink(missing_ok=True)
         status("generating package-lock.json")
         subprocess.run(
             ["npm", "install", "--package-lock-only", "--ignore-scripts"],
