@@ -13,6 +13,11 @@ in
     # per-package system gates inside the overlay).
     (import ./local-packages.nix {inherit lib system;})
     (import ./direnv-skip-check-darwin.nix {inherit system;})
+    # pipx 1.8.0 test suite has assertions that break on newer packaging
+    # library formatting of PEP 508 specifiers (space before '@').
+    (_final: prev: {
+      pipx = prev.pipx.overridePythonAttrs (_: {doCheck = false;});
+    })
   ]
   # x86_64-linux only: niri-flake + CachyOS kernel.
   ++ (
