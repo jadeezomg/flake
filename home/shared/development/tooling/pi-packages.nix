@@ -28,7 +28,6 @@
     "npm:pi-openrouter-realtime"
     "npm:pi-connect"
     "npm:pi-mcp-adapter"
-    "npm:context-mode"
   ];
 
   settingsDir = "${homeDir}/.pi/agent";

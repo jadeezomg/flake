@@ -7,10 +7,6 @@
       command = "mcp-nixos";
       args = [];
     };
-    "context-mode" = {
-      command = "context-mode";
-      args = [];
-    };
   };
 
   agentsEnabled =
