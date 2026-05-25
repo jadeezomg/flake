@@ -20,6 +20,12 @@ in {
     inputs.corecycler.nixosModules.default
   ];
 
+  fileSystems."/mnt/storage" = {
+    device = "/dev/disk/by-uuid/777dc8ab-1fe3-4b38-b6e2-9976491ce434";
+    fsType = "ext4";
+    options = ["defaults"];
+  };
+
   programs.coolercontrol = {
     enable = true;
   };
