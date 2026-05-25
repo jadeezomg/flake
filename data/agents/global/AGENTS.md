@@ -41,11 +41,9 @@ Gather evidence proportional to risk. For behavior/API/infra changes, trace exec
 
 These handle all web, docs, and retrieval needs. Reach for them before built-in `WebFetch` / `WebSearch` — built-ins are gated by user approval and lack the caching, summarization, and quotas that these provide.
 
-- **Search and URL summarization** → `kagi-ken-cli`. `kagi-ken-cli search "<query>"` for discovery; `kagi-ken-cli summarize --url "<url>"` for a *short* summary of a page — gist only, not full content. When you need concrete details (exact flags, code snippets, version numbers, API signatures, quoted text), fetch the page itself instead (e.g. `xh <url>` or the `context-mode` `ctx_fetch_and_index`).
+- **Search and URL summarization** → `kagi-ken-cli`. `kagi-ken-cli search "<query>"` for discovery; `kagi-ken-cli summarize --url "<url>"` for a *short* summary of a page — gist only, not full content. When you need concrete details (exact flags, code snippets, version numbers, API signatures, quoted text), fetch the page itself instead (e.g. `xh <url>`).
 - **Library / SDK / framework / API docs** → `ctx7`. `ctx7 library <name> "<question>"` to resolve, then `ctx7 docs <id> "<question>"`. Training data lags months; these don't.
 - **nixpkgs packages / NixOS, home-manager, darwin, nixvim options / flakes / channels / store paths** → the `mcp-nixos` MCP. Its `nix` tool covers search / info / stats / browse; `nix_versions` gives commit-accurate package history. Faster and more current than `nix search` or scraping search.nixos.org.
-- **Batch shell + indexed search of the output** → the `context-mode` MCP, `ctx_batch_execute` tool. Run N commands and ask 5–8 queries against the combined output in *one* call — the schema is explicit: this is your only chance, put all questions in, no follow-ups. Use for "explore this repo and answer X", multi-file inspection, or `gh` / `git` / `find` pipelines whose output you want to query rather than read linearly.
-- **Index and search a set of URLs** → the `context-mode` MCP, `ctx_fetch_and_index` tool. The URL-equivalent of `ctx_batch_execute` — fetch many pages, then query the indexed corpus.
 
 ### Languages
 

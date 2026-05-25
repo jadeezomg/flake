@@ -61,7 +61,7 @@
     restore_file_from_disk = {default = "confirm";};
 
     # External access: require approval. Prefer the funnel CLIs documented in
-    # data/agents/global/AGENTS.md (kagi-ken-cli, ctx7, context-mode) — they
+    # data/agents/global/AGENTS.md (kagi-ken-cli, ctx7) — they
     # have stable network shape, persistent caching, and known auth.
     fetch = {default = "confirm";};
     search_web = {default = "confirm";};
