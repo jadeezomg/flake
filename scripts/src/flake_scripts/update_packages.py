@@ -306,6 +306,27 @@ def _current_version(text: str) -> str:
     return m.group(1) if m else "unknown"
 
 
+def _patch_lock_missing_integrity(lock: dict) -> None:
+    """Add integrity hashes for registry entries that npm-shrinkwrap omits.
+
+    Some tarballs (e.g. @earendil-works/pi-coding-agent) ship a shrinkwrap whose
+    own-scope entries lack `integrity`. prefetch-npm-deps panics on those.
+    We compute sha512 integrity from the resolved tarball URL for each affected entry.
+    """
+    packages = lock.get("packages")
+    if not isinstance(packages, dict):
+        return
+    for entry in packages.values():
+        if not isinstance(entry, dict):
+            continue
+        if "integrity" in entry or entry.get("link"):
+            continue
+        resolved = entry.get("resolved", "")
+        if not resolved.startswith("https://"):
+            continue
+        entry["integrity"] = _npm_integrity_sha512_from_url(resolved)
+
+
 def _handle_npm(
     meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
 ) -> tuple[str, dict]:
@@ -325,14 +346,31 @@ def _handle_npm(
             tf.extractall(tmp)
         pkg_json = Path(tmp) / "package" / "package.json"
         status("generating package-lock.json")
-        subprocess.run(
+        proc = subprocess.run(
             ["npm", "install", "--package-lock-only", "--ignore-scripts"],
             cwd=pkg_json.parent,
             capture_output=True,
-            check=True,
+            text=True,
         )
+        if proc.returncode != 0:
+            raise RuntimeError(
+                f"npm install --package-lock-only failed:\n{proc.stderr or proc.stdout}"
+            )
+        # Some packages ship npm-shrinkwrap.json; npm updates it in place instead
+        # of creating package-lock.json. Accept either.
+        lock_src = pkg_json.parent / "package-lock.json"
+        if not lock_src.exists():
+            lock_src = pkg_json.parent / "npm-shrinkwrap.json"
+        if not lock_src.exists():
+            raise RuntimeError(
+                "npm install --package-lock-only produced neither package-lock.json "
+                f"nor npm-shrinkwrap.json in {pkg_json.parent}"
+            )
+        lock = json.loads(lock_src.read_text())
+        status("patching missing integrity hashes")
+        _patch_lock_missing_integrity(lock)
         dest_lock = pkg_dir / meta["lock_file"]
-        dest_lock.write_text((pkg_json.parent / "package-lock.json").read_text())
+        dest_lock.write_text(json.dumps(lock, indent=2) + "\n")
         status("hashing npm deps")
         deps_hash = _npm_deps_hash(dest_lock)
 
