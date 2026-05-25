@@ -3,25 +3,25 @@
   lib,
   ...
 }: let
-  unwrapped = pkgs.buildNpmPackage {
+  unwrapped = pkgs.buildNpmPackage rec {
     pname = "pi-coding-agent-unwrapped";
-    version = "0.75.4";
+    version = "0.75.5";
 
     # Published bundle (includes dist/). Upstream moved from @mariozechner to @earendil-works.
     src = pkgs.fetchurl {
-      url = "https://registry.npmjs.org/@earendil-works/pi-coding-agent/-/pi-coding-agent-0.75.4.tgz";
-      hash = "sha256-12e1dKKCSyy2dee6hT7Wo9hNw36DUCviKxSuubgY1pc=";
+      url = "https://registry.npmjs.org/@earendil-works/pi-coding-agent/-/pi-coding-agent-0.75.5.tgz";
+      hash = "sha256-iP/3TR/MkzQ+g5qoherLNeiM2quX2sJjaxG+zDskmfw=";
     };
 
     # Generated: unpack tgz, cd package, npm install --package-lock-only
+    # Both files are written: buildNpmPackage prefers npm-shrinkwrap.json when
+    # both exist, and the tarball ships one without integrity hashes.
     postPatch = ''
       cp ${./package-lock.json} package-lock.json
-      # npm gives shrinkwrap precedence over package-lock.json; the published
-      # shrinkwrap is missing integrity for @earendil-works workspace packages.
-      mv npm-shrinkwrap.json npm-shrinkwrap.upstream.json
+      cp ${./package-lock.json} npm-shrinkwrap.json
     '';
 
-    npmDepsHash = "sha256-GEmGk7exRffNHVcag+GAlmDVIf4C7rQdZ1Fe+ALIA8U=";
+    npmDepsHash = "sha256-CXN0QJjSMxTwzmW7RafbbzstwBcnYhL/TZvtEa55NTo=";
 
     dontNpmBuild = true;
 
