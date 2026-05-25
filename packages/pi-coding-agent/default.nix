@@ -5,20 +5,23 @@
 }: let
   unwrapped = pkgs.buildNpmPackage rec {
     pname = "pi-coding-agent-unwrapped";
-    version = "0.74.0";
+    version = "0.75.5";
 
     # Published bundle (includes dist/). Upstream moved from @mariozechner to @earendil-works.
     src = pkgs.fetchurl {
-      url = "https://registry.npmjs.org/@earendil-works/pi-coding-agent/-/pi-coding-agent-0.74.0.tgz";
-      hash = "sha256-l0pzuWGVvX1jDhFYaey14N16XDo47kkm3JlEhmPUo0Q=";
+      url = "https://registry.npmjs.org/@earendil-works/pi-coding-agent/-/pi-coding-agent-0.75.5.tgz";
+      hash = "sha256-iP/3TR/MkzQ+g5qoherLNeiM2quX2sJjaxG+zDskmfw=";
     };
 
     # Generated: unpack tgz, cd package, npm install --package-lock-only
+    # Both files are written: buildNpmPackage prefers npm-shrinkwrap.json when
+    # both exist, and the tarball ships one without integrity hashes.
     postPatch = ''
       cp ${./package-lock.json} package-lock.json
+      cp ${./package-lock.json} npm-shrinkwrap.json
     '';
 
-    npmDepsHash = "sha256-8i6vGKIxYjzhlST74fKIMrrMwqtNpksQKvQO9q38lB8=";
+    npmDepsHash = "sha256-CXN0QJjSMxTwzmW7RafbbzstwBcnYhL/TZvtEa55NTo=";
 
     dontNpmBuild = true;
 
