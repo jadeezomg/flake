@@ -7,6 +7,15 @@
 			"mcp__mcp-nixos__nix"
 		]
 	},
+	"hooks": {
+		"SessionStart": [
+			{
+				"hooks": []
+			}
+		]
+	},
+
+	"extraKnownMarketplaces": {},
 	"skipDangerousModePermissionPrompt": true,
 	"enabledPlugins": {
 		"typescript-lsp@claude-plugins-official": true

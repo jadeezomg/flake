@@ -105,8 +105,7 @@
     };
 
     handy = {
-      url = "github:cjpais/Handy";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:philocalyst/nixpkgs/handy";
     };
 
     # https://github.com/ozturkkl/framework-control — uses bundled nixpkgs fork for the package until upstream nixpkgs ships it
