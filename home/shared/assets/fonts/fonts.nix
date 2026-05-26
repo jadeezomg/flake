@@ -200,7 +200,7 @@ in {
     };
     iosevka = {
       enable = true;
-      package = pkgs.iosevka;
+      package = pkgs.iosevka-bin;
       name = "Iosevka";
       style = "Monospace Pro";
       licenseInfo = "Free (SIL OFL)";
