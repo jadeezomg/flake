@@ -1,9 +1,11 @@
 {lib}: {
   # --- Appearance ---
+  # mkForce overrides Stylix's computed font values while keeping its theme.
+  buffer_font_family = lib.mkForce "Iosevka Nerd Font";
   buffer_font_fallbacks = [
     ".ZedMono"
   ];
-
+  buffer_font_size = lib.mkForce 13;
   buffer_line_height = {
     custom = 1.45;
   };
@@ -13,12 +15,14 @@
 
   icon_theme = "Catppuccin Latte";
 
-  # --- Agent Font ---
-  agent_buffer_font_size = 14;
+  # --- Font Sizes ---
+  ui_font_size = lib.mkForce 15.2;
+  agent_buffer_font_size = 13;
+  agent_ui_font_size = 15.2;
 
   current_line_highlight = "all";
   selection_highlight = true;
-  ui_font_family = lib.mkDefault "Inter Display";
+  ui_font_family = lib.mkForce "Inter Display";
   ui_font_fallbacks = ["Helvetica Neue" ".SystemUIFont"];
 
   ui_font_features = {
@@ -26,7 +30,7 @@
   };
 
   # --- Window ---
-  window_decorations = "client";
+  window_decorations = "server";
   use_system_window_tabs = false;
   focus_follows_mouse = {
     enabled = true;
@@ -47,9 +51,9 @@
 
   # --- UI ---
   active_pane_modifiers = {
-    border_size = 1;
+    border_size = 2;
     inactive_opacity = 0.8;
   };
   rounded_selection = true;
-  cursor_shape = "bar";
+  cursor_shape = "hollow";
 }
