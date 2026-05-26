@@ -10,7 +10,7 @@
     font = {
       package = lib.mkForce pkgs.nerd-fonts.iosevka;
       name = "Iosevka Nerd Font";
-      size = 12;
+      size = 11;
     };
 
     keybindings = {
