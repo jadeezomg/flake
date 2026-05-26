@@ -26,10 +26,5 @@ in {
       # GraphQL
       graphql-language-service-cli
     ];
-
-    # NODE_PATH so the kagi-ken MCP helper can be required without
-    # global-install hacks. Applies to all login shells (cross-platform).
-    environment.variables.NODE_PATH =
-      lib.makeSearchPath "lib/node_modules" [pkgs.kagi-ken];
   };
 }

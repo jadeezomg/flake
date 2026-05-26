@@ -75,7 +75,7 @@
     };
 
     # External access: require approval. Prefer the funnel CLIs documented in
-    # data/agents/global/AGENTS.md (kagi-ken-cli, ctx7) — they have stable
+    # data/agents/global/AGENTS.md (kagi, ctx7) — they have stable
     # network shape, persistent caching, and known auth.
     fetch = {
       default = "confirm";
