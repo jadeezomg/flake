@@ -58,6 +58,8 @@ window-rule {
 // GNOME applications
 window-rule {
     match app-id=r#"^org.gnome."#
+    match app-id=r#"^gnome-"#
+
     // match app-id="Loupe"
     // match app-id="Nautilus"
 
@@ -70,12 +72,12 @@ window-rule {
     }
 
     popups {
-        opacity 0.90
-        geometry-corner-radius 15
-        background-effect {
-            blur true
-            xray true
-        }
+        // opacity 0.90
+        // geometry-corner-radius 15
+        // background-effect {
+        //     blur true
+        //     xray true
+        // }
     }
 }
 
