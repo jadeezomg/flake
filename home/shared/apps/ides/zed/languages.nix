@@ -7,6 +7,7 @@
             "ty"
             "!basedpyright"
           ];
+          formatter = {language_server = {name = "ruff";};};
         };
 
         Ruby = {
@@ -97,9 +98,7 @@
         biome = {
           binary.path = "biome";
           binary.arguments = ["lsp-proxy"];
-          settings = {
-            require_config_file = true;
-          };
+          settings = {};
         };
       };
     };

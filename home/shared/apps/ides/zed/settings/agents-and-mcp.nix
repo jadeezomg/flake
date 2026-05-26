@@ -1,18 +1,19 @@
-{claude-agent-acp-fork}: let
+{}: let
   registryLib = rec {
     attrNames = builtins.attrNames;
     concatStringsSep = builtins.concatStringsSep;
     mapAttrs = f: attrs:
-      builtins.listToAttrs (map (name: {
+      builtins.listToAttrs (
+        map (name: {
           inherit name;
           value = f name attrs.${name};
-        })
-        (attrNames attrs));
+        }) (attrNames attrs)
+      );
     intersectLists = left: right: builtins.filter (name: builtins.elem name right) left;
     assertMsg = condition: message:
       if condition
       then true
-      else builtins.throw message;
+      else throw message;
   };
   mcpRegistry = import ../../../../development/tooling/mcp-servers.nix {lib = registryLib;};
   extensionManagedMcpServers = {
@@ -29,23 +30,16 @@
   };
 in {
   agent_servers = {
-    claude-acp = {
-      type = "registry";
-    };
     goose = {
-      type = "registry";
-    };
-    cursor = {
       type = "registry";
     };
 
     pi = {
-      type = "custom";
-      command = "npx";
-      args = ["-y" "pi-acp"];
-      env = {
-        "PI_ACP_ENABLE_EMBEDDED_CONTEXT" = "true";
-      };
+      type = "registry";
+      favorite_models = [
+        "openrouter/~anthropic/claude-opus-latest"
+        "openrouter/moonshotai/kimi-k2.6"
+      ];
     };
 
     # FS-isolated to ~/.pi, ~/.npm*, and the cwd. Network open until tightened
@@ -76,7 +70,10 @@ in {
     omp = {
       type = "custom";
       command = "omp";
-      args = ["--mode" "acp"];
+      args = [
+        "--mode"
+        "acp"
+      ];
     };
 
     # Uses the omp-flake nono profile installed by nono-profiles.nix.
@@ -98,19 +95,13 @@ in {
         "acp"
       ];
     };
-
-    claude-agent-acp-fork = {
-      type = "custom";
-      command = "${claude-agent-acp-fork}/bin/claude-agent-acp";
-      args = [];
-    };
   };
 
   context_servers = mcpRegistry.toZedContextServers extensionManagedMcpServers;
 
   agent = {
     thinking_display = "always_collapsed";
-    play_sound_when_agent_done = "when_hidden";
+    play_sound_when_agent_done = "always";
     expand_edit_card = true;
     notify_when_agent_waiting = "never";
     single_file_review = true;

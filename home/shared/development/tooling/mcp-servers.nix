@@ -41,7 +41,6 @@
   toZedContextServer = _name: server:
     server
     // {
-      settings = server.settings or {};
       enabled = server.enabled or true;
       remote = server.remote or false;
     };

@@ -43,8 +43,9 @@
 
   # --- Indent Guides ---
   indent_guides = {
+    background_coloring = "disabled";
     enabled = true;
-    line_width = 3;
+    line_width = 4;
     active_line_width = 6;
     coloring = "indent_aware";
   };

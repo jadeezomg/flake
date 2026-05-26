@@ -81,7 +81,7 @@
       default = "confirm";
     };
     search_web = {
-      default = "confirm";
+      default = "allow";
     };
 
     # MCP: always allow Context7 documentation tools
