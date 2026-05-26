@@ -10,16 +10,6 @@
   # whisper-rs-sys 0.15 (via transcribe-rs's whisper-vulkan feature) references
   # coopmat1 SPIR-V symbols that vulkan-shaders-gen doesn't emit on current
   # nixpkgs. Patch Cargo.toml to use whisper-cpp until upstream fixes it.
-  handyCpuOnly = (inputs.handy.legacyPackages.${pkgs.stdenv.hostPlatform.system}.handy).overrideAttrs (old: {
-    postPatch =
-      (old.postPatch or "")
-      + ''
-        substituteInPlace src-tauri/Cargo.toml \
-          --replace-fail \
-            'transcribe-rs = { version = "0.3.3", features = ["whisper-vulkan"] }' \
-            'transcribe-rs = { version = "0.3.3", features = ["whisper-cpp"] }'
-      '';
-  });
 in {
   imports = [inputs.niri.nixosModules.niri];
 
@@ -99,6 +89,7 @@ in {
       # See: https://github.com/YaLTeR/niri/wiki/Xwayland
       xwayland-satellite
       handyCpuOnly
+      # inputs.handy.legacyPackages.${pkgs.stdenv.hostPlatform.system}.handy
     ];
   };
 }
