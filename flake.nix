@@ -173,11 +173,7 @@
             inherit pkgs;
             lib = pkgs.lib;
           };
-          kagi-ken-cli = import ./packages/kagi-ken-cli/default.nix {
-            inherit pkgs;
-            lib = pkgs.lib;
-          };
-          kagi-ken = import ./packages/kagi-ken/default.nix {
+          kagi-cli = import ./packages/kagi-cli/default.nix {
             inherit pkgs;
             lib = pkgs.lib;
           };

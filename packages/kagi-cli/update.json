@@ -1,0 +1,17 @@
+{
+	"type": "binary_channel",
+	"version_url": "https://api.github.com/repos/Microck/kagi-cli/releases/latest",
+	"version_jsonpath": "tag_name",
+	"version_strip_prefix": "v",
+	"url_template": "https://github.com/Microck/kagi-cli/releases/download/v{version}/kagi-v{version}-{platform}.tar.gz",
+	"platforms": {
+		"x86_64-linux": {
+			"upstream_platform": "x86_64-unknown-linux-gnu",
+			"hash_field": "linuxX64Hash"
+		},
+		"aarch64-darwin": {
+			"upstream_platform": "aarch64-apple-darwin",
+			"hash_field": "darwinArm64Hash"
+		}
+	}
+}

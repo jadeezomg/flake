@@ -19,8 +19,7 @@ in {
 
         # Local flake packages from parts/overlays/local-packages.nix.
         context7
-        kagi-ken
-        kagi-ken-cli
+        kagi-cli
         agent-browser
       ])
       # mcp-nixos pulls python3.lupa → luajit_2_0, which nixpkgs 26.05 marks
