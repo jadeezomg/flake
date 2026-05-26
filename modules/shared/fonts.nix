@@ -30,7 +30,7 @@
     nerd-fonts.caskaydia-cove
 
     # Iosevka Family
-    iosevka
+    iosevka-bin
     nerd-fonts.iosevka
     nerd-fonts.iosevka-term
     nerd-fonts.iosevka-term-slab
