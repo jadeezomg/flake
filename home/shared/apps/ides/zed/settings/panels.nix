@@ -37,5 +37,6 @@
     enabled = true;
     dock = "right";
     button = true;
+    sidebar_side = "right";
   };
 }
