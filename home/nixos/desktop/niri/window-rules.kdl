@@ -132,6 +132,7 @@ window-rule {
 
 window-rule {
     match app-id="zen"
+    match app-id="zen-beta"
     match app-id="org.gnome"
     match app-id="dev.zed.Zed"
 
@@ -139,6 +140,7 @@ window-rule {
         blur true
     }
 
+    geometry-corner-radius 15
     // opacity 0.95
 
     popups {
