@@ -33,8 +33,8 @@ in {
           key = "inception_api_key";
           path = ".config/nix/inception-api-key";
         };
-        "kagi-api-key" = {
-          key = "kagi_api_key";
+        "kagi-session-token" = {
+          key = "kagi_session_token";
           path = ".kagi_session_token";
         };
         "openrouter-api-key" = {
