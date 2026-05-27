@@ -1,7 +1,3 @@
 {...}: {
-  programs.atuin = {
-    enable = true;
-    # enableBashIntegration, enableFishIntegration, enableNushellIntegration,
-    # enableZshIntegration all default to true
-  };
+  programs.atuin.enable = true;
 }
