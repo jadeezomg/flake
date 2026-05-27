@@ -1,3 +1,29 @@
-{...}: {
-  home.file."biome.json".source = ../../../../data/files/biome.json;
+{pkgs, ...}: {
+  home.file."biome.json".source = pkgs.writeText "biome.json" (builtins.toJSON {
+    "$schema" = "https://biomejs.dev/schemas/2.4.15/schema.json";
+    vcs = {
+      enabled = true;
+      clientKind = "git";
+    };
+    formatter = {
+      formatWithErrors = true;
+    };
+    files = {
+      includes = [
+        "**"
+        "!!**/.git"
+        "!!**/.claude"
+        "!!**/.direnv"
+        "!!**/node_modules"
+        "!!**/.venv"
+        "!!result"
+        "!!result-*"
+      ];
+    };
+    html = {
+      formatter = {
+        enabled = true;
+      };
+    };
+  });
 }

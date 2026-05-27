@@ -4,6 +4,9 @@
 		"enabled": true,
 		"clientKind": "git"
 	},
+	"formatter": {
+		"formatWithErrors": true
+	},
 	"files": {
 		"includes": [
 			"**",
