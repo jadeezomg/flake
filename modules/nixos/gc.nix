@@ -26,11 +26,6 @@ in {
   config = {
     maintenance.garbageCollection.enable = lib.mkDefault true;
 
-    # Determinate Nix manages its own build users via determinate-nixd.
-    # Setting this to 0 prevents NixOS from creating nixbld1-32 (UIDs 30001-30032)
-    # which otherwise show up in the DMS greeter's user list.
-    nix.nrBuildUsers = 0;
-
     nix.gc = lib.mkIf cfg.enable {
       automatic = true;
       dates = cfg.schedule;

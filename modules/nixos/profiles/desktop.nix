@@ -10,16 +10,34 @@
   # whisper-rs-sys 0.15 (via transcribe-rs's whisper-vulkan feature) references
   # coopmat1 SPIR-V symbols that vulkan-shaders-gen doesn't emit on current
   # nixpkgs. Patch Cargo.toml to use whisper-cpp until upstream fixes it.
-  handyCpuOnly = (inputs.handy.legacyPackages.${pkgs.stdenv.hostPlatform.system}.handy).overrideAttrs (old: {
-    postPatch =
-      (old.postPatch or "")
+  dmsShell = inputs.dms.packages.${pkgs.stdenv.hostPlatform.system}.dms-shell.overrideAttrs (old: {
+    # DMS' greeter user picker currently shells out to:
+    #   getent passwd | awk -F: '$3>=1000 && $3<60000 && $1!="nobody" ...'
+    # Nix build users are intentionally static system users at 30001..30032,
+    # so they pass that UID-only filter even though NixOS already marks them
+    # as display-manager hiddenUsers. Keep the build users for Nix, hide them
+    # at the DMS seam until upstream respects hiddenUsers or shell filtering.
+    postInstall =
+      (old.postInstall or "")
       + ''
-        substituteInPlace src-tauri/Cargo.toml \
+        substituteInPlace $out/share/quickshell/dms/Services/GreeterUsersService.qml \
           --replace-fail \
-            'transcribe-rs = { version = "0.3.3", features = ["whisper-vulkan"] }' \
-            'transcribe-rs = { version = "0.3.3", features = ["whisper-cpp"] }'
+            '$3>=1000 && $3<60000 && $1!=\"nobody\"' \
+            '$3>=1000 && $3<60000 && $1!=\"nobody\" && $1 !~ /^nixbld[0-9]+$/'
       '';
   });
+  handyCpuOnly =
+    (inputs.handy.legacyPackages.${pkgs.stdenv.hostPlatform.system}.handy).overrideAttrs
+    (old: {
+      postPatch =
+        (old.postPatch or "")
+        + ''
+          substituteInPlace src-tauri/Cargo.toml \
+            --replace-fail \
+              'transcribe-rs = { version = "0.3.3", features = ["whisper-vulkan"] }' \
+              'transcribe-rs = { version = "0.3.3", features = ["whisper-cpp"] }'
+        '';
+    });
 in {
   imports = [inputs.niri.nixosModules.niri];
 
@@ -42,6 +60,7 @@ in {
     # xdg.configFile is handled in home/nixos/desktop/dms.nix (Home Manager).
     programs.dank-material-shell = {
       enable = true;
+      package = dmsShell;
       quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.quickshell;
       systemd = {
         enable = true;
