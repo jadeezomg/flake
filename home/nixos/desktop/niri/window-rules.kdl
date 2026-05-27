@@ -85,10 +85,11 @@ window-rule {
 window-rule {
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
     match app-id="Alacritty"
-    match app-id="zen-beta"
-    match app-id="zen-twilight"
+    // match app-id="zen-beta"
+    // match app-id="zen-twilight"
     match app-id="com.mitchellh.ghostty"
     match app-id="kitty"
+    match app-id="org.gnome.NautilusPreviewer"
 
     default-column-width { proportion 0.4; }
 }
@@ -132,7 +133,7 @@ window-rule {
 window-rule {
     match app-id="zen"
     match app-id="org.gnome"
-    match app-id="zed"
+    match app-id="dev.zed.Zed"
 
     background-effect {
         blur true
@@ -141,7 +142,7 @@ window-rule {
     // opacity 0.95
 
     popups {
-        geometry-corner-radius 15
+        // geometry-corner-radius 15
         background-effect {
             blur true
         }

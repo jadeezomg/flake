@@ -33,4 +33,9 @@
     default_width = 200;
     button = true;
   };
+  agent = {
+    enabled = true;
+    dock = "right";
+    button = true;
+  };
 }

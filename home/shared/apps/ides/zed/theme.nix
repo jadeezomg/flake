@@ -43,6 +43,7 @@
               | ."tab.inactive_background"   |= with_alpha("00")
               | ."status_bar.background"     |= with_alpha("c0")
               | ."toolbar.background"        |= with_alpha("d0")
+              | ."background.appearance"    = "blurred"
 
             )
           else .
