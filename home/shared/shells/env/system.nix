@@ -64,7 +64,6 @@
       esac
       command just --justfile "$j" "$@"
     }
-    nuflake() { command nu "''${FLAKE:?}/build/flake.nu" "$@"; }
     zf() { cd ${flakeRoot}; }
   '';
 
@@ -84,7 +83,6 @@
       esac
       just --justfile "$j" "$@"
     }
-    nuflake() { nu "${flakeRoot}/build/flake.nu" "$@"; }
     zf() { cd ${flakeRoot}; }
   '';
 
@@ -109,9 +107,6 @@
       end
       just --justfile $j $argv
     end
-    function nuflake
-      nu "${flakeRoot}/build/flake.nu" $argv
-    end
     function zf
       cd ${flakeRoot}
     end
@@ -121,9 +116,6 @@
     def --env zf [] { cd $env.FLAKE }
     def --wrapped flake [...rest] {
       ^just --justfile $"($env.FLAKE)/Justfile" ...$rest
-    }
-    def --wrapped nuflake [...rest] {
-      nu $"($env.FLAKE)/build/flake.nu" ...$rest
     }
   '';
 in
