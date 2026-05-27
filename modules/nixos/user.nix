@@ -24,6 +24,8 @@
       };
     };
 in {
+  users.mutableUsers = false;
+
   users.users.${user} = {
     isNormalUser = true;
     description = userConfig.description or "user account";
