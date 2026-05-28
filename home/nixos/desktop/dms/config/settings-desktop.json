@@ -836,7 +836,7 @@
 	"frameThickness": 8,
 	"frameRounding": 5,
 	"frameColor": "",
-	"frameOpacity": 0,
+	"frameOpacity": 0.1,
 	"frameScreenPreferences": ["all"],
 	"frameBarSize": 40,
 	"frameShowOnOverview": true,

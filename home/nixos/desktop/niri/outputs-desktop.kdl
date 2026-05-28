@@ -37,7 +37,7 @@ output "DP-2" {
     mode "2560x1440@170.002"
     scale 1
     transform "normal"
-    variable-refresh-rate
+    variable-refresh-rate on-demand=true
     focus-at-startup
     position x=1665 y=700
 
@@ -75,6 +75,7 @@ window-rule {
     open-on-output "DP-2"
     open-maximized-to-edges true
     opacity 1.0
+    variable-refresh-rate true
 }
 
 // Open the zen browser picture-in-picture player as floating by default.
