@@ -18,12 +18,13 @@ Active host is determined by `.flake-host` (never commit it).
 
 ## Critical Rules (Non-Negotiable)
 
-1. **Always use `just` recipes** — never run `nixos-rebuild`, `home-manager switch`, or bare `nh` directly
+1. **Always use `flake` recipes** — never run `nixos-rebuild`, `home-manager switch`, or bare `nh` directly
 2. **Always verify packages** with `nix search nixpkgs` before adding anything
-3. **Always format** with `just fmt` after editing any `.nix` file
+3. **Always format** with `flake fmt` after editing any `.nix` file
 4. **Run `git add`** before `nix eval/build` (flakes only see tracked files)
 5. **Never commit secrets** — use `sops` for encrypted secrets management
 6. **Check Hydra** before adding packages to ensure binary cache availability
+7. **Agent/skills files** — edit under `data/agents/` in this flake only; never `~/.claude/skills/`, `~/AGENTS.md`, or other installed copies (see `data/agents/skills/AGENTS.md`)
 
 ---
 
@@ -31,38 +32,38 @@ Active host is determined by `.flake-host` (never commit it).
 
 ### Build & Switch
 ```bash
-just build-dry       # dry-run eval/build (no switch); use to catch errors
-just build-dev       # build with --show-trace (full evaluation trace)
-just switch-check    # run nix flake check only (no switch)
+flake build-dry       # dry-run eval/build (no switch); use to catch errors
+flake build-dev       # build with --show-trace (full evaluation trace)
+flake switch-check    # run nix flake check only (no switch)
 ```
 
 ### Format & Lint
 ```bash
-just fmt             # alejandra (.nix) + deadnix + ruff (scripts) + ty (type-check) + biome (js/ts/json)
-just lint            # deadnix + statix antipattern checks
+flake fmt             # alejandra (.nix) + deadnix + ruff (scripts) + ty (type-check) + biome (js/ts/json)
+flake lint            # deadnix + statix antipattern checks
 ```
 
 ### Package Management
 ```bash
 nix search nixpkgs <name>      # ALWAYS verify before adding a package
-just update-packages [NAMES]   # run update.json handlers for custom packages
-just update                    # full refresh: update-packages + flake.lock + fmt
-UPDATE_FORCE=1 just update     # bypass per-package 1h cooldown
+flake update-packages [NAMES]   # run update.json handlers for custom packages
+flake update                    # full refresh: update-packages + flake.lock + fmt
+UPDATE_FORCE=1 flake update     # bypass per-package 1h cooldown
 ```
 
 ### Generations
 ```bash
-just generation-list           # list system generations
-just generation-switch         # switch to a numbered generation
-just rollback                  # roll back to previous generation
+flake generation-list           # list system generations
+flake generation-switch         # switch to a numbered generation
+flake rollback                  # roll back to previous generation
 ```
 
 ### Maintenance
 ```bash
-just health                    # git status + disk usage + nh os info
-just symlink-check             # DMS / niri / quickshell symlink report
-just post-install              # install Context7 CLI skills after a fresh switch
-just backups-clean             # delete *.backup / *.bkp in ~/.config
+flake health                    # git status + disk usage + nh os info
+flake symlink-check             # DMS / niri / quickshell symlink report
+flake post-install              # install Context7 CLI skills after a fresh switch
+flake backups-clean             # delete *.backup / *.bkp in ~/.config
 ```
 
 ---
@@ -71,9 +72,9 @@ just backups-clean             # delete *.backup / *.bkp in ~/.config
 
 | Problem | Command |
 |---------|---------|
-| Full eval trace | `just build-dev` |
-| List generations | `just generation-list` |
-| Symlink issues | `just symlink-check` |
-| Eval / missing attrs | `just build-dry` or `just switch-check` |
+| Full eval trace | `flake build-dev` |
+| List generations | `flake generation-list` |
+| Symlink issues | `flake symlink-check` |
+| Eval / missing attrs | `flake build-dry` or `flake switch-check` |
 | Nix options reference | https://search.nixos.org/options |
 | Home-manager options | https://home-manager-options.extendnix.com |

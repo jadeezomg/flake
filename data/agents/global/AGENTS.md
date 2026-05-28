@@ -2,6 +2,8 @@
 
 Applies across projects. Local instructions override.
 
+**Source:** `~/.dotfiles/flake/data/agents/global/AGENTS.md` — edit there only; Home Manager symlinks this into `$HOME` on `just switch`. See `data/agents/skills/AGENTS.md` for skills and other agent paths.
+
 ## Environment
 
 Host is nixpkgs based. Packages live in a read-only Nix store — `npm install -g`, `pip install --user`, `cargo install`, `brew install`, etc. typically fail or don't persist. To add a tool:

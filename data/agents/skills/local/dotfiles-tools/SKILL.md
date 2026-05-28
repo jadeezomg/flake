@@ -5,6 +5,8 @@ description: Reference for all CLI tools and development preferences in jadee's 
 
 # Dotfiles CLI Tools & Development Preferences
 
+**Edit this skill in the flake only:** `data/agents/skills/local/dotfiles-tools/` (including `references/`). Do not edit `~/.claude/skills/dotfiles-tools/` — Home Manager copies from the flake on `flake switch`.
+
 For platform-specific tools, read `references/nixos.md` (NixOS) or `references/darwin.md` (macOS).
 The full shared tool list is in `references/shared-tools.md`.
 
@@ -27,14 +29,25 @@ The full shared tool list is in `references/shared-tools.md`.
 - `rustup` to manage toolchain versions
 
 ### Nix
-- Format with `just fmt` (runs alejandra), never edit unformatted
-- Use `just switch` / `just switch-fast` - never bare `nixos-rebuild`, `darwin-rebuild`, or `nh`
+- Format with `flake fmt` (runs alejandra), never edit unformatted
+- Use `flake switch` / `flake switch-fast` - never bare `nixos-rebuild`, `darwin-rebuild`, or `nh`
 - Verify packages with `nix search nixpkgs <name>` before adding
 
 ### Task Running
-- **Always use `just`** for project tasks - check `just --list` first before running commands manually
+- **Always use `flake`** for project tasks - check `flake --list` first before running commands manually
+
+## File Deletion
+
+- **Never use `rm` or `rmdir`** — use trash instead
+- **Interactive shell:** `trash <path>` (user alias)
+- **Under `sudo`:** use `gio trash` — the `trash` alias is not available in sudo's environment
+
+```bash
+trash ./some-file
+sudo gio trash /path/owned/by/root
+```
 
 ## Shell Functions
 
 - `z <dir>` - smart directory jump (zoxide)
-- `flake <cmd>` - shorthand for `just` recipes
+- `flake <cmd>` - shorthand for `flake` recipes

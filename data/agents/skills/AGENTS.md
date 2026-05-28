@@ -1,6 +1,19 @@
 # AGENT SKILLS
 
-Skills are hardcopied into the flake and install to `~/.agents/skills/` and `~/.claude/skills/` when `devenv.llm.agents.enable = true`.
+Skills and agent config are **managed in this flake** and installed into `$HOME` by Home Manager when `devenv.llm.agents.enable = true`.
+
+## Source of truth — edit in the flake only
+
+**Always edit files under `data/agents/` in this repo.** Do not edit installed copies — they are overwritten or symlinked from the flake on `flake switch`.
+
+| What | Edit here | Installed to (do not edit) |
+|------|-----------|----------------------------|
+| Skills | `data/agents/skills/<category>/<name>/` | `~/.claude/skills/`, `~/.agents/skills/` |
+| Global agent instructions | `data/agents/global/AGENTS.md` | `~/AGENTS.md`, `~/.claude/CLAUDE.md`, … |
+| Claude settings | `data/agents/global/settings.json` | `~/.claude/settings.json` |
+| Oh-my-posh agent config | `data/agents/omp/` | `~/.omp/agent/` |
+
+Wiring lives in `home/shared/agents.nix` (global files) and `home/shared/development/tooling/llm.nix` (skill install). After edits, run `flake switch`.
 
 ## Structure
 
@@ -12,9 +25,9 @@ Nested categories mirroring `~/Git/skills/skills/`:
 ## Upstream Sync
 
 ```bash
-just skills-upstream                         # review changed skills, then import/ignore new skills
-just skills-upstream --apply-all             # copy upstream over local for every changed skill
-just skills-upstream --apply-all --import-new # also import every upstream-only skill
+flake skills-upstream                         # review changed skills, then import/ignore new skills
+flake skills-upstream --apply-all             # copy upstream over local for every changed skill
+flake skills-upstream --apply-all --import-new # also import every upstream-only skill
 ```
 
 Skills to opt out of go in `.upstream-ignore` (one name per line, `#` comments).
