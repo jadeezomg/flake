@@ -66,7 +66,7 @@ Mini-relevant entries (quick reference):
 
 | Sops path | When to add |
 |---|---|
-| `users/jadee/password` | before §5.5 (post-bootstrap switch) |
+| `users/jadee/password_mini` | before §5.5 (post-bootstrap switch) |
 | `mini/amt/password` | §5.7 (after MEBx is set up) |
 | `mini/git/deploy-key` | §6 (cache-warm bootstrap, deferred) |
 | `cachix/auth-token` | §6 (cache-warm bootstrap, deferred) |

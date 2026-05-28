@@ -222,7 +222,7 @@ sudo nixos-rebuild switch --flake .#mini
 | sshd auth | `PasswordAuthentication = false`, `PermitRootLogin = no`, `AllowUsers = [ "jadee" ]` |
 | Authorized keys | new shared `sshKeys` field added to `data/users/users.nix` user records; `modules/nixos/user.nix` reads it into `users.users.${user}.openssh.authorizedKeys.keys` — applies to all NixOS hosts |
 | sudo policy | `wheelNeedsPassword = false` — **only on mini** (gated `hostKey == "mini"` or via `server.enable`); desktop/framework keep password requirement |
-| jadee password | sops secret (`users/jadee/password`) → `users.users.jadee.hashedPasswordFile` |
+| jadee password | sops secret (`users/jadee/password_mini`) → `users.users.jadee.hashedPasswordFile` |
 
 Schema change to `data/users/users.nix`:
 ```nix
