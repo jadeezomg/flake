@@ -16,6 +16,8 @@
 
 | Tool | Command | Notes |
 |------|---------|-------|
+| trash | `trash <path>` | Preferred delete (user shell alias); never `rm`/`rmdir` |
+| gio | `gio trash <path>` | Trash via GLib; **required under `sudo`** (alias unavailable) |
 | dust | `dust` | Visual disk usage (like du but better) |
 | difftastic | `difft` | Structural diff (understands syntax) |
 | p7zip | `7z` | Archive tool |
