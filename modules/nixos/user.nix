@@ -1,4 +1,6 @@
 {
+  config,
+  lib,
   pkgs,
   hostData,
   hostKey,
@@ -26,6 +28,12 @@
 in {
   users.mutableUsers = false;
 
+  # mini sets `hashedPasswordFile` via its own bootstrap toggle in
+  # `hosts/mini/default.nix`; opt it out here to avoid a double-decl.
+  sops.secrets."users/jadee/password" = lib.mkIf (hostKey != "mini") {
+    neededForUsers = true;
+  };
+
   users.users.${user} = {
     isNormalUser = true;
     description = userConfig.description or "user account";
@@ -33,6 +41,7 @@ in {
     shell = pkgs.nushell;
     packages = userConfig.packages or [];
     openssh.authorizedKeys.keys = userConfig.sshKeys or [];
+    hashedPasswordFile = lib.mkIf (hostKey != "mini") config.sops.secrets."users/jadee/password".path;
   };
 
   time.timeZone = localeConfig.timeZone;
