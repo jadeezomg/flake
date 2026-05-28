@@ -13,9 +13,9 @@ Every entry below lists:
 - Flat keys (`github_token`) auto-export to the user session env as
   `GITHUB_TOKEN` via `home/shared/shells/sops-session-env.nix`. Use this form
   for any secret that needs to be visible to interactive shells.
-- Nested paths (`users/jadee/password`, `mini/git/deploy-key`) are referenced
-  explicitly by `sops.secrets.<path>` declarations in Nix modules and are
-  *not* exported to the env.
+- Nested paths (`users/jadee/password_<hostKey>`, `mini/git/deploy-key`) are
+  referenced explicitly by `sops.secrets.<path>` declarations in Nix modules
+  and are *not* exported to the env.
 - Multi-line values (SSH keys, env files) use YAML literal block (`|`).
 - Anything host-specific lives under `<hostKey>/...`.
 
@@ -23,9 +23,20 @@ Every entry below lists:
 
 ### User auth
 
+One entry per NixOS host — `modules/nixos/user.nix` maps `hostKey` to the
+corresponding secret. Picking distinct hashes per host means rotating one
+host doesn't invalidate the others' `/etc/shadow` on next switch.
+
 | Path | Source | Consumed by | Scope |
 |---|---|---|---|
-| `users/jadee/password` | `mkpasswd -m sha-512` (deterministic across hosts; same hash everywhere) | `users.users.jadee.hashedPasswordFile` on every NixOS host (currently mini; expand to desktop/framework once they migrate off interactive `passwd`) | all NixOS hosts |
+| `users/jadee/password_desktop` | `mkpasswd -m sha-512` | `users.users.jadee.hashedPasswordFile` on desktop | desktop |
+| `users/jadee/password_framework` | `mkpasswd -m sha-512` | `users.users.jadee.hashedPasswordFile` on framework | framework |
+| `users/jadee/password_mini` | `mkpasswd -m sha-512` | `users.users.jadee.hashedPasswordFile` on mini (post-bootstrap) | mini |
+
+> **Always paste the `$6$rounds=...$...` output of `mkpasswd`, never the
+> plaintext.** sops happily encrypts whatever string you save; if it isn't a
+> crypt hash, NixOS still writes it verbatim to `/etc/shadow` and login will
+> reject every password you type.
 
 ### Session-env API keys (flat keys, auto-exported)
 
