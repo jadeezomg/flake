@@ -11,7 +11,7 @@
   userConfig = host.user or {};
   passwordSecretKey =
     {
-      desktop = "users/jadee/password";
+      desktop = "users/jadee/password_desktop";
       framework = "users/jadee/password_framework";
       mini = "users/jadee/password_mini";
     }
