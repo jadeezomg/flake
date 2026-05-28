@@ -8,6 +8,7 @@
     ./networking.nix
     ./nix-ld.nix
     ./security.nix
+    ./sops.nix
     ./usrbinenv.nix
     ./user.nix
     ./virtualization.nix
