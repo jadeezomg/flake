@@ -21,19 +21,20 @@
 # sops updatekeys secrets/secrets.yaml
 
 keys:
-  # Framework NixOS host
-  - &framework age1pmtv9wwwfmsjp5pud8afv7c6cvjyc54t2attmr5wukvvtnu0kdvqsrxmj2
+    # Framework NixOS host
+    - &framework age1pmtv9wwwfmsjp5pud8afv7c6cvjyc54t2attmr5wukvvtnu0kdvqsrxmj2
 
-  # Desktop NixOS host
-  - &desktop age1s6yrgxcpwm8qy3cpjc2fz6pyq76afd33e2kfg7q58q69ehxwzd2s6qjrxu
+    # Desktop NixOS host
+    # - &desktop age1s6yrgxcpwm8qy3cpjc2fz6pyq76afd33e2kfg7q58q69ehxwzd2s6qjrxu
+    - &desktop age1me2u0t6xnp4g2gnzvu6dthclrr9qjn7raud37gyj2j2cx2myjc4qzdep49
 
-  # Caya Darwin host
-  - &caya age1yrt6l02984f5gemerpzlf5v4ymakdmf45qhu3ecy2qtjwuzn43tqh755nz
+    # Caya Darwin host
+    - &caya age1yrt6l02984f5gemerpzlf5v4ymakdmf45qhu3ecy2qtjwuzn43tqh755nz
 
 creation_rules:
-  - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
-    key_groups:
-      - age:
-          - *framework
-          - *desktop
-          - *caya
+    - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
+      key_groups:
+          - age:
+                - *framework
+                - *desktop
+                - *caya
