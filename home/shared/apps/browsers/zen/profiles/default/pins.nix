@@ -10,21 +10,21 @@ in {
       isEssential = true;
       position = 101;
     };
-    "(6) YouTube" = {
+    "(2) YouTube" = {
       id = "9b78642f-0c6b-4caf-af02-9136b6363b5f";
       url = "https://www.youtube.com/";
       isEssential = true;
       position = 102;
     };
-    "Reddit - The heart of the internet" = {
+    "I think Tu-95 has enough space inside for way more than 4x FAB-500s or 6x 250s : r/Warthunder" = {
       id = "78d70083-a115-4ea1-a25a-be9bc67ca1df";
       url = "https://www.reddit.com/";
       isEssential = true;
       position = 103;
     };
-    "jadee-server/Main" = {
+    "jadee-server/Login" = {
       id = "98dbc3e9-ee34-44a2-8d1a-5539fa7dea98";
-      url = "http://jadee-server/Main";
+      url = "http://jadee-server/login";
       isEssential = true;
       position = 104;
     };
@@ -143,9 +143,9 @@ in {
       isEssential = false;
       position = 209;
     };
-    "War thunder - Kagi Search" = {
-      id = "c8e9cdc9-e283-4f77-a734-bb7cb5e97336";
-      url = "https://kagi.com/search?q=War%20thunder";
+    "Warthunder" = {
+      id = "78a9def4-f240-4cfa-b853-cb7d833e5e1f";
+      url = "https://warthunder.com/en/news/";
       workspace = spaces."Games".id;
       isEssential = false;
       position = 210;
@@ -167,7 +167,7 @@ in {
       position = 212;
       folderParentId = "{1776271316796-17}";
     };
-    "Warthunder" = {
+    "Warthunder_1" = {
       id = "b9323a7a-f3e7-439f-ac7d-0a56ab56b4e1";
       url = "https://live.warthunder.com/feed/camouflages/?q=%23vrcc";
       workspace = spaces."Games".id;
@@ -175,9 +175,9 @@ in {
       position = 213;
       folderParentId = "{1776271316796-17}";
     };
-    "war thunder content creators - Google Se" = {
-      id = "8fd1f913-7b29-46b1-b942-21120de24e26";
-      url = "https://www.google.com/search?client=firefox-b-d&channel=entpr&q=war%20thunder%20content%20creators";
+    "War Thunder Partner Bonuses" = {
+      id = "eab057de-7c16-4696-81c7-093deada68a8";
+      url = "https://wtpb.net/";
       workspace = spaces."Games".id;
       isEssential = false;
       position = 214;
