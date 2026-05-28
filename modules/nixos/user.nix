@@ -9,6 +9,15 @@
 }: let
   host = hostData.hosts.${hostKey} or {};
   userConfig = host.user or {};
+  passwordSecretKey =
+    {
+      desktop = "users/jadee/password";
+      framework = "users/jadee/password_framework";
+      mini = "users/jadee/password_mini";
+    }
+    .${
+      hostKey
+    };
   localeConfig =
     host.locale or {
       defaultLocale = "en_US.UTF-8";
@@ -28,9 +37,9 @@
 in {
   users.mutableUsers = false;
 
-  # mini sets `hashedPasswordFile` via its own bootstrap toggle in
-  # `hosts/mini/default.nix`; opt it out here to avoid a double-decl.
-  sops.secrets."users/jadee/password" = lib.mkIf (hostKey != "mini") {
+  # Per-host password hash. mini's bootstrap toggle in `hosts/mini/default.nix`
+  # gates its own declaration, so we opt it out here to avoid a double-decl.
+  sops.secrets.${passwordSecretKey} = lib.mkIf (hostKey != "mini") {
     neededForUsers = true;
   };
 
@@ -41,7 +50,7 @@ in {
     shell = pkgs.nushell;
     packages = userConfig.packages or [];
     openssh.authorizedKeys.keys = userConfig.sshKeys or [];
-    hashedPasswordFile = lib.mkIf (hostKey != "mini") config.sops.secrets."users/jadee/password".path;
+    hashedPasswordFile = lib.mkIf (hostKey != "mini") config.sops.secrets.${passwordSecretKey}.path;
   };
 
   time.timeZone = localeConfig.timeZone;

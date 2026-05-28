@@ -7,7 +7,7 @@
   # Bootstrap toggle — breaks the sops/host-key chicken-and-egg.
   #
   # On a fresh install the SSH host key doesn't exist yet, so sops-nix can't
-  # decrypt `users/jadee/password` during the first activation. Set this to
+  # decrypt `users/jadee/password_mini` during the first activation. Set this to
   # `true` for the very first `nixos-install`; jadee gets `initialPassword`
   # ("changeme") and the sops secret is skipped. After §5.4 in
   # docs/hosts/mini-install.md (host added to .sops.yaml, secrets rekeyed),
@@ -100,11 +100,11 @@ in {
   };
 
   # Declarative password — sourced from sops, replaces manual `passwd`.
-  # The secret must exist in secrets/secrets.yaml under `users/jadee/password`
+  # The secret must exist in secrets/secrets.yaml under `users/jadee/password_mini`
   # encrypted to mini's host age key (see docs/hosts/mini-install.md §5.4).
   # Gated on `bootstrap` so the very first install doesn't try to decrypt
   # before mini's age key exists.
-  sops.secrets."users/jadee/password" = lib.mkIf (!bootstrap) {
+  sops.secrets."users/jadee/password_mini" = lib.mkIf (!bootstrap) {
     neededForUsers = true;
   };
   users.users.jadee = lib.mkMerge [
@@ -113,7 +113,7 @@ in {
       initialPassword = "changeme";
     })
     (lib.mkIf (!bootstrap) {
-      hashedPasswordFile = config.sops.secrets."users/jadee/password".path;
+      hashedPasswordFile = config.sops.secrets."users/jadee/password_mini".path;
     })
   ];
 
