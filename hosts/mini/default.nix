@@ -4,15 +4,14 @@
   pkgs,
   ...
 }: let
-  # Bootstrap toggle — breaks the sops/host-key chicken-and-egg.
+  # Bootstrap toggle — breaks the sops host-age-key chicken-and-egg.
   #
-  # On a fresh install the SSH host key doesn't exist yet, so sops-nix can't
-  # decrypt `users/jadee/password_mini` during the first activation. Set this to
-  # `true` for the very first `nixos-install`; jadee gets `initialPassword`
+  # On a fresh install `/var/lib/private/sops/age/keys.txt` does not exist yet,
+  # so sops-nix can't decrypt `users/jadee/password_mini` during activation.
+  # Set `true` for the very first `nixos-install`; jadee gets `initialPassword`
   # ("changeme") and the sops secret is skipped. After §5.4 in
-  # docs/hosts/mini-install.md (host added to .sops.yaml, secrets rekeyed),
-  # flip to `false`, commit, `just switch` — jadee's password becomes the
-  # sops-managed one.
+  # docs/hosts/mini-install.md (host key bootstrapped, `.sops.yaml` updated,
+  # secrets rekeyed), flip to `false`, commit, `just switch`.
   bootstrap = true;
 in {
   imports = [
@@ -79,31 +78,10 @@ in {
     openwsman
   ];
 
-  # SSH — key-only, jadee-only.
-  services.openssh = {
-    enable = true;
-    settings = {
-      PasswordAuthentication = false;
-      PermitRootLogin = "no";
-      AllowUsers = ["jadee"];
-    };
-  };
-
-  # --- sops-nix (system-level) ---
-  # Mini's age key is derived from its SSH host key (ed25519). Add the host's
-  # public age recipient to `.sops.yaml` and re-encrypt secrets/secrets.yaml
-  # before running `nixos-rebuild switch` for the first time on the box.
-  # See docs/hosts/mini-install.md §5.4 for the bootstrap procedure.
-  sops = {
-    defaultSopsFile = ../../secrets/secrets.yaml;
-    age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
-  };
-
   # Declarative password — sourced from sops, replaces manual `passwd`.
-  # The secret must exist in secrets/secrets.yaml under `users/jadee/password_mini`
-  # encrypted to mini's host age key (see docs/hosts/mini-install.md §5.4).
-  # Gated on `bootstrap` so the very first install doesn't try to decrypt
-  # before mini's age key exists.
+  # Requires `users/jadee/password_mini` in secrets/secrets.yaml and mini's host
+  # age pubkey in `.sops.yaml` (see docs/hosts/mini-install.md §5.4).
+  # Gated on `bootstrap` until `/var/lib/private/sops/age/keys.txt` exists.
   sops.secrets."users/jadee/password_mini" = lib.mkIf (!bootstrap) {
     neededForUsers = true;
   };

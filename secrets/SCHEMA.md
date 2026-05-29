@@ -6,7 +6,14 @@ Every entry below lists:
 - **Path** — the YAML key (slash-separated for nested attrs)
 - **Source** — how to generate / obtain the value
 - **Consumed by** — Nix path(s) that read it
-- **Scope** — which hosts need it decryptable (recipient list in `.sops.yaml`)
+- **Consumed on** — which host(s) mount/use the secret at runtime (organizational)
+
+## Encryption scope
+
+> **All secrets** in `secrets/secrets.yaml` are encrypted to **every** recipient in
+> `.sops.yaml` (`&editor`, `&framework`, `&desktop`, `&caya`, `&mini` when listed).
+> Any host with a valid runtime private key can decrypt the full file. The
+> **Consumed on** column is which host reads the value — not who can decrypt it.
 
 ## Conventions
 
@@ -27,7 +34,7 @@ One entry per NixOS host — `modules/nixos/user.nix` maps `hostKey` to the
 corresponding secret. Picking distinct hashes per host means rotating one
 host doesn't invalidate the others' `/etc/shadow` on next switch.
 
-| Path | Source | Consumed by | Scope |
+| Path | Source | Consumed by | Consumed on |
 |---|---|---|---|
 | `users/jadee/password_desktop` | `mkpasswd -m sha-512` | `users.users.jadee.hashedPasswordFile` on desktop | desktop |
 | `users/jadee/password_framework` | `mkpasswd -m sha-512` | `users.users.jadee.hashedPasswordFile` on framework | framework |
@@ -40,7 +47,7 @@ host doesn't invalidate the others' `/etc/shadow` on next switch.
 
 ### Session-env API keys (flat keys, auto-exported)
 
-| Path | Source | Consumed by | Scope |
+| Path | Source | Consumed by | Consumed on |
 |---|---|---|---|
 | `github_token` | https://github.com/settings/tokens — fine-grained, read-only, `public_repo` | shell env `GITHUB_TOKEN` / `GITHUB_PAT`, plus `NIX_CONFIG` access-tokens for flake fetching | all hosts |
 | `agent_pat` | GitHub PAT with `repo` + `workflow` scope for AFK agents | shell env `AGENT_PAT` | desktop, framework, caya |
@@ -54,9 +61,9 @@ host doesn't invalidate the others' `/etc/shadow` on next switch.
 
 ### mini host
 
-| Path | Source | Consumed by | Scope |
+| Path | Source | Consumed by | Consumed on |
 |---|---|---|---|
-| `mini/amt/password` | the MEBx password set in `docs/hosts/mini-install.md` §3 | **reference only** — not consumed declaratively; stored for recovery | mini, desktop (for restore from workstation) |
+| `mini/amt/password` | the MEBx password set in `docs/hosts/mini-install.md` §3 | **reference only** — not consumed declaratively; stored for recovery | (reference) |
 | `mini/git/deploy-key` | `ssh-keygen -t ed25519 -N '' -C 'mini@flake-bot'` on mini; register `.pub` as a deploy key with write access on `github.com/jadeezomg/flake`. Paste the **private** key here. | `hosts/mini/flake-cache-warm.nix` → `systemd LoadCredential` → `GIT_SSH_COMMAND` | mini |
 | `cachix/auth-token` | `cachix authtoken --create-token --scope push --cache jadee-flake` | `hosts/mini/flake-cache-warm.nix` → `cachix push` | mini |
 | `hermes/env` | API keys + provider creds for `services.hermes-agent`. Format: multi-line `KEY=value`. Schema TBD on first hermes run. | `hosts/mini/hermes.nix` → `services.hermes-agent.environmentFiles` (currently optional) | mini |
@@ -64,9 +71,15 @@ host doesn't invalidate the others' `/etc/shadow` on next switch.
 ### Future / not yet wired
 
 - `users/<name>/password` for guest users once `passwd` is migrated to sops.
-- Per-host SSH host keys, **only** if you want to provision them declaratively
-  rather than relying on first-boot `ssh-keygen -A`. Not recommended — host
-  keys are the age recipient source; chicken-and-egg.
+
+## Age & SSH keys
+
+See [docs/secrets/sops-age-keys.md](../docs/secrets/sops-age-keys.md).
+
+- **Editor key** — `~/.config/sops/age/keys.txt` → `&editor`; for `sops secrets/secrets.yaml`
+- **Host runtime keys** — NixOS: `/var/lib/private/sops/age/keys.txt`; Darwin: HM path → `&<hostKey>`
+- **SSH login** — public keys in `data/users/users.nix`; private keys stay on clients
+- **SSH deploy** — private keys in sops (e.g. `mini/git/deploy-key`) for daemons only
 
 ## YAML layout (illustrative)
 
@@ -110,7 +123,5 @@ hermes:
    sops.secrets."<path>" = { mode = "0400"; };
    config.sops.secrets."<path>".path  # the file path at runtime
    ```
-4. If host-restricted, check `.sops.yaml`'s `creation_rules` — currently
-   *all* secrets are encrypted to *all* hosts. Tighten via per-path
-   `creation_rules` if a secret should be readable on only one host.
+4. If nested, declare it in the consuming module (see examples in this file).
 5. After any change to recipients (`.sops.yaml`): `sops updatekeys secrets/secrets.yaml`.

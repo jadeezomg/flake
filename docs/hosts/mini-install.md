@@ -66,7 +66,7 @@ Mini-relevant entries (quick reference):
 
 | Sops path | When to add |
 |---|---|
-| `users/jadee/password_mini` | before §5.5 (post-bootstrap switch) |
+| `users/jadee/password_mini` | **before §5.5** — required in secrets before `bootstrap = false` (see §5.4 checklist) |
 | `mini/amt/password` | §5.7 (after MEBx is set up) |
 | `mini/git/deploy-key` | §6 (cache-warm bootstrap, deferred) |
 | `cachix/auth-token` | §6 (cache-warm bootstrap, deferred) |
@@ -216,8 +216,8 @@ This formats both disks, creates a 1GiB ESP + btrfs system root (including
 `hosts/mini/default.nix` has `bootstrap = true` set (see §1.2). In this
 mode jadee is created with `initialPassword = "changeme"` and the
 sops-managed `hashedPasswordFile` is *not* declared — this avoids the
-chicken-and-egg where sops-nix can't decrypt before mini's SSH host key
-(its age key source) exists.
+chicken-and-egg where sops-nix can't decrypt before mini's age host key
+exists at `/var/lib/private/sops/age/keys.txt`.
 
 ```bash
 sudo nixos-install --flake .#mini --no-root-password
@@ -240,7 +240,7 @@ sudo reboot
 
 ---
 
-## 5. First boot — host key + sops + manual switch
+## 5. First boot — age host key + sops + manual switch
 
 ### 5.1 Verify boot
 
@@ -252,7 +252,7 @@ Login as `jadee` with the temp password from §4.4.
 ```bash
 ip a                            # confirm static IP came up
 ping -c 3 1.1.1.1
-ssh-keygen -A                   # ensure host keys exist
+systemctl status sshd             # openssh enabled via modules/nixos/openssh.nix
 ```
 
 ### 5.3 SSH from workstation
@@ -266,36 +266,46 @@ ssh jadee@mini.lan              # or the static IP
 If this works, AMT KVM is no longer needed for OS-level work — only for
 SecureBoot enrollment in §5.6.
 
-### 5.4 Add mini to sops recipients
+### 5.4 Bootstrap mini age host key + workstation secrets
 
-On mini:
+On mini (after first boot and SSH access):
 
 ```bash
-# Generate mini's age key from its SSH host key
-nix-shell -p ssh-to-age --run \
-  'sudo cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
+cd ~/.dotfiles/flake
+just bootstrap-sops-host-key    # first install only — host path must be empty
 # → age1abc...   ← copy this
 ```
 
-On workstation, edit `.sops.yaml` (top of repo) — add `&mini` alongside the
-existing host recipients and include it in the `creation_rules`:
+**Blocking checklist (workstation) — complete before §5.5:**
+
+- [ ] `users/jadee/password_mini` in `secrets/secrets.yaml` (`mkpasswd -m sha-512` hash)
+- [ ] `&mini` in `.sops.yaml` with pubkey from above
+- [ ] `- *mini` under `creation_rules`
+- [ ] `sops updatekeys secrets/secrets.yaml` run and committed
+
+On workstation, edit `.sops.yaml` — uncomment and set `&mini`, add `- *mini` to
+`creation_rules`:
 
 ```yaml
 keys:
-  - &framework age1pmtv9wwwfmsjp5pud8afv7c6cvjyc54t2attmr5wukvvtnu0kdvqsrxmj2
-  - &desktop   age1s6yrgxcpwm8qy3cpjc2fz6pyq76afd33e2kfg7q58q69ehxwzd2s6qjrxu
-  - &caya      age1yrt6l02984f5gemerpzlf5v4ymakdmf45qhu3ecy2qtjwuzn43tqh755nz
+  - &editor    age1pmtv9wwwfmsjp5pud8afv7c6cvjyc54t2attmr5wukvvtnu0kdvqsrxmj2
+  - &framework age1…
+  - &desktop   age1…
+  - &caya      age1…
   - &mini      age1abc...               # NEW — paste output from above
 
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
     key_groups:
       - age:
+          - *editor
           - *framework
           - *desktop
           - *caya
           - *mini
 ```
+
+Full reference: [docs/secrets/sops-age-keys.md](../secrets/sops-age-keys.md).
 
 Re-encrypt:
 
@@ -306,7 +316,16 @@ git commit -m "feat(secrets): add mini host recipient"
 git push
 ```
 
+Add `password_mini` if not done yet:
+
+```bash
+mkpasswd -m sha-512
+sops secrets/secrets.yaml
+```
+
 ### 5.5 Switch on mini (post-bootstrap)
+
+**Do not flip `bootstrap = false` until the §5.4 checklist is complete.**
 
 Flip the bootstrap flag in `hosts/mini/default.nix` (see §4.4) so the
 sops-managed password takes over, then switch:
@@ -322,9 +341,8 @@ git push
 # On mini
 cd ~/.dotfiles/flake          # if not already cloned: git clone ...
 git pull
+just verify-sops-host-key mini
 just init                     # writes .flake-host = mini
-                              # (recipe just writes the file; no build is
-                              #  triggered. Verified against Justfile §init.)
 just switch
 ```
 
