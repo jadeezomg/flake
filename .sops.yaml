@@ -1,40 +1,43 @@
-# Make a user key
+# Age key model (see docs/secrets/sops-age-keys.md):
+#   editor  — your personal key (~/.config/sops/age/keys.txt); edit secrets from any dev machine
+#   <host>  — per-machine runtime key (/var/lib/private/sops/age/keys.txt on NixOS; HM path on Darwin)
+#
+# Editor key
 # mkdir -p ~/.config/sops/age
 # age-keygen -o ~/.config/sops/age/keys.txt
-
-# Display the user public key:
 # age-keygen -y ~/.config/sops/age/keys.txt
-
-# Make a host key:
-# sudo mkdir -p /var/lib/private/sops/age
-# sudo age-keygen -o /var/lib/private/sops/age/keys.txt
-
-# Display the host public key:
-# sudo age-keygen -y /var/lib/private/sops/age/keys.txt
-
-# Encrypt a new file (first time):
-#   sops --encrypt --in-place secrets/secrets.yaml
-# Edit encrypted secrets:
-#   sops secrets/secrets.yaml
-
-# Rekey secrets.yaml after editing recipients in .sops.yaml:
+#
+# NixOS host key (on each NixOS box)
+# just bootstrap-sops-host-key
+#
+# Rekey after editing recipients:
 # sops updatekeys secrets/secrets.yaml
 
 keys:
-    # Framework NixOS host
+    # Personal editing key — sync ~/.config/sops/age/keys.txt to machines where you run `sops`.
+    - &editor age1pmtv9wwwfmsjp5pud8afv7c6cvjyc54t2attmr5wukvvtnu0kdvqsrxmj2
+
+    # Framework NixOS host runtime key.
+    # TODO(migrate): replace with dedicated host pubkey from `just bootstrap-sops-host-key` on framework.
+    # Until migrated, this matches &editor so copying the editor key to /var/lib/.../keys.txt unblocks switch.
     - &framework age1pmtv9wwwfmsjp5pud8afv7c6cvjyc54t2attmr5wukvvtnu0kdvqsrxmj2
 
-    # Desktop NixOS host
+    # Desktop NixOS host runtime key
     # - &desktop age1s6yrgxcpwm8qy3cpjc2fz6pyq76afd33e2kfg7q58q69ehxwzd2s6qjrxu
     - &desktop age1me2u0t6xnp4g2gnzvu6dthclrr9qjn7raud37gyj2j2cx2myjc4qzdep49
 
-    # Caya Darwin host
+    # Caya Darwin host runtime key (~/.config/sops/age/keys.txt on caya)
     - &caya age1yrt6l02984f5gemerpzlf5v4ymakdmf45qhu3ecy2qtjwuzn43tqh755nz
+
+    # Mini NixOS host — add after `just bootstrap-sops-host-key` on mini (see docs/hosts/mini-install.md §5.4)
+    # - &mini age1...
 
 creation_rules:
     - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
       key_groups:
           - age:
+                - *editor
                 - *framework
                 - *desktop
                 - *caya
+                # - *mini

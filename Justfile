@@ -314,15 +314,144 @@ read-defaults:
     if [[ -z "${d:-}" ]]; then uv run --project "$FLAKE/scripts" read-defaults
     else uv run --project "$FLAKE/scripts" read-defaults "$d"; fi
 
-[doc('Create sops age key under ~/.config/sops/age (Darwin)')]
+[doc('Create sops editor age key under ~/.config/sops/age (Linux/macOS)')]
 [group('config')]
-setup-age-darwin:
+setup-age-editor:
     #!/usr/bin/env bash
     set -euo pipefail
-    kd="${HOME}/.config/sops/age"; kf="$kd/keys.txt"
+    kd="${HOME}/.config/sops/age"
+    kf="$kd/keys.txt"
     mkdir -p "$kd"
-    [[ ! -f "$kf" ]] && nix develop "$FLAKE" --command age-keygen -o "$kf"
+    if [[ ! -f "$kf" ]]; then
+      nix develop "$FLAKE" --command age-keygen -o "$kf"
+    fi
+    chmod 600 "$kf"
+    echo "Editor public key (add as &editor in .sops.yaml if rotating):"
     nix develop "$FLAKE" --command age-keygen -y "$kf"
+
+[doc('Create caya HM/runtime age key (~/.config/sops/age/keys.txt); must match &caya')]
+[group('config')]
+setup-age-darwin:
+    @just setup-age-editor
+
+[doc('First install only: create NixOS host age key at /var/lib/private/sops/age/keys.txt')]
+[group('config')]
+bootstrap-sops-host-key:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    host_dir="/var/lib/private/sops/age"
+    host_key="$host_dir/keys.txt"
+    if [[ -f "$host_key" ]]; then
+      echo "Host key already exists at $host_key" >&2
+      echo "  First install on a fresh box: you already have a key — skip bootstrap." >&2
+      echo "  Phase 1 temporary copy from editor: use rotate-sops-host-key for a dedicated key." >&2
+      echo "  Current public key:" >&2
+      sudo nix develop "$FLAKE" --command age-keygen -y "$host_key"
+      exit 1
+    fi
+    sudo mkdir -p "$host_dir"
+    sudo nix develop "$FLAKE" --command age-keygen -o "$host_key"
+    sudo chmod 700 "$host_dir"
+    sudo chmod 600 "$host_key"
+    echo ""
+    echo "Host public key — add/replace the matching &<hostKey> entry in .sops.yaml:"
+    sudo nix develop "$FLAKE" --command age-keygen -y "$host_key"
+    echo ""
+    echo "Next: sops updatekeys secrets/secrets.yaml && git add .sops.yaml secrets/secrets.yaml && flake switch"
+
+[doc('Quick unblock: install editor key as host key (temporary; rotate before production)')]
+[group('config')]
+bootstrap-sops-host-key-from-editor:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    editor_key="${HOME}/.config/sops/age/keys.txt"
+    host_dir="/var/lib/private/sops/age"
+    host_key="$host_dir/keys.txt"
+    [[ -f "$editor_key" ]] || { echo "Missing $editor_key — run: just setup-age-editor" >&2; exit 1; }
+    if [[ -f "$host_key" ]]; then
+      echo "Host key already exists at $host_key" >&2
+      echo "Use: just verify-sops-host-key" >&2
+      echo "To replace with a dedicated key: just rotate-sops-host-key" >&2
+      exit 1
+    fi
+    sudo mkdir -p "$host_dir"
+    sudo install -m 600 -o root -g root "$editor_key" "$host_key"
+    sudo chmod 700 "$host_dir"
+    echo "Installed editor key as temporary host runtime key at $host_key"
+    echo "Works only while &<hostKey> matches &editor in .sops.yaml."
+    echo "Before treating this host as done: just rotate-sops-host-key (see docs/secrets/sops-age-keys.md Phase 2)."
+
+[doc('Replace host age key: backup old, generate new, print pubkey — update .sops.yaml + updatekeys BEFORE switch')]
+[group('config')]
+rotate-sops-host-key:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    host_dir="/var/lib/private/sops/age"
+    host_key="$host_dir/keys.txt"
+    if [[ ! -f "$host_key" ]]; then
+      echo "No host key at $host_key — run: just bootstrap-sops-host-key" >&2
+      exit 1
+    fi
+    ts="$(date -u +%Y%m%d-%H%M%S)"
+    backup="$host_key.bak.$ts"
+    sudo cp -a "$host_key" "$backup"
+    sudo chmod 600 "$backup"
+    echo "Backed up previous host key to $backup"
+    sudo nix develop "$FLAKE" --command age-keygen -o "$host_key"
+    sudo chmod 700 "$host_dir"
+    sudo chmod 600 "$host_key"
+    echo ""
+    echo "NEW host public key — update &<hostKey> in .sops.yaml to this value:"
+    sudo nix develop "$FLAKE" --command age-keygen -y "$host_key"
+    echo ""
+    echo "STOP — required before flake switch on this host:"
+    echo "  1. Edit .sops.yaml (&<hostKey> = pubkey above; must differ from &editor)"
+    echo "  2. sops updatekeys secrets/secrets.yaml"
+    echo "  3. git commit .sops.yaml secrets/secrets.yaml && git pull on this host"
+    echo "  4. just verify-sops-host-key <hostKey>"
+    echo "  5. flake switch"
+    echo ""
+    echo "Store backup offline: $backup"
+
+[doc('Verify host runtime pubkey vs .sops.yaml anchor; fails if host still equals editor')]
+[group('config')]
+verify-sops-host-key anchor="framework":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    host_key="/var/lib/private/sops/age/keys.txt"
+    editor_key="${HOME}/.config/sops/age/keys.txt"
+    sops_yaml="$FLAKE/.sops.yaml"
+    anchor="{{anchor}}"
+    [[ -f "$host_key" ]] || { echo "Missing $host_key" >&2; exit 1; }
+    host_pub="$(sudo nix develop "$FLAKE" --command age-keygen -y "$host_key")"
+    editor_pub=""
+    if [[ -f "$editor_key" ]]; then
+      editor_pub="$(nix develop "$FLAKE" --command age-keygen -y "$editor_key")"
+    fi
+    anchor_pub="$(grep -E "^[[:space:]]*-[[:space:]]*&${anchor}[[:space:]]+age1" "$sops_yaml" | awk '{print $NF}' | head -1 || true)"
+    editor_yaml_pub="$(grep -E "^[[:space:]]*-[[:space:]]*&editor[[:space:]]+age1" "$sops_yaml" | awk '{print $NF}' | head -1 || true)"
+    echo "host runtime ($host_key): $host_pub"
+    echo "editor (~/.config/sops/age/keys.txt): ${editor_pub:-<missing>}"
+    echo ".sops.yaml &${anchor}: ${anchor_pub:-<not found>}"
+    echo ".sops.yaml &editor: ${editor_yaml_pub:-<not found>}"
+    failed=0
+    if [[ -n "$editor_pub" && "$host_pub" == "$editor_pub" ]]; then
+      echo "FAIL: host key still equals editor private key — run: just rotate-sops-host-key" >&2
+      failed=1
+    fi
+    if [[ -n "$anchor_pub" && "$host_pub" != "$anchor_pub" ]]; then
+      echo "FAIL: host pubkey != .sops.yaml &${anchor} — update yaml + sops updatekeys before switch" >&2
+      failed=1
+    fi
+    if [[ -n "$editor_yaml_pub" && -n "$anchor_pub" && "$anchor_pub" == "$editor_yaml_pub" ]]; then
+      echo "FAIL: &${anchor} still equals &editor in .sops.yaml — rotate host key and update yaml" >&2
+      failed=1
+    fi
+    if [[ $failed -eq 0 ]]; then
+      echo "OK: host key matches &${anchor} and is dedicated (not editor)"
+    fi
+    exit "$failed"
+
 
 [doc('Post-switch: Context7 CLI skills (Claude, Cursor, OpenCode); needs ctx7 login or CONTEXT7_API_KEY')]
 [group('config')]

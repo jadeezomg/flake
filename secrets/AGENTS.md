@@ -1,25 +1,28 @@
 # SECRETS
 
-Encrypted with `sops` + `age`. Keys in `~/.config/sops/age/keys.txt`.
+Encrypted with `sops` + `age`. Full guide: [docs/secrets/sops-age-keys.md](../docs/secrets/sops-age-keys.md).
 
-## Usage
+## Key model
+
+| Key | Path | `.sops.yaml` |
+|-----|------|--------------|
+| **Editor** (edit secrets) | `~/.config/sops/age/keys.txt` | `&editor` |
+| **NixOS host runtime** | `/var/lib/private/sops/age/keys.txt` | `&framework`, `&desktop`, `&mini` |
+| **Caya HM/runtime** | `~/.config/sops/age/keys.txt` on caya | `&caya` |
+
+All recipients can decrypt the whole secrets file (see SCHEMA.md).
 
 ```bash
-sops secrets/secrets.yaml             # decrypt → edit → re-encrypt on save
-sops updatekeys secrets/secrets.yaml  # after editing .sops.yaml recipients
+just setup-age-editor                  # editor key
+just setup-age-darwin                    # caya HM/runtime key (same path)
+just bootstrap-sops-host-key             # first install only (empty host path)
+just rotate-sops-host-key                # dedicated host key after Phase 1 copy
+just verify-sops-host-key framework      # post-rotation check
+sops updatekeys secrets/secrets.yaml     # after .sops.yaml changes
 ```
-
-## Session Env Export
-
-Secrets auto-export to the user session env via `home/shared/shells/sops-session-env.nix`:
-- Attr `foo-bar` → env var `FOO_BAR`
-- `github-token` → also sets `GITHUB_PAT`, `GITHUB_PERSONAL_ACCESS_TOKEN`, `NIX_CONFIG` access-tokens
-- Linux: writes `~/.config/environment.d/50-sops-secrets.conf` + `systemctl --user set-environment`
-- Darwin: LaunchAgent runs `launchctl setenv` at login (and during activation)
-
-Picked up by every shell launched after activation (PAM session on Linux, launchd-spawned terminals on Darwin). Already-running processes need a restart.
 
 ## Gotchas
 
 - Never commit `secrets.yaml` unencrypted or `.flake-host`
-- After adding a new age key recipient, always run `sops updatekeys secrets/secrets.yaml`
+- `bootstrap-sops-host-key` does **not** replace an existing host key — use `rotate-sops-host-key`
+- Do **not** put SSH login private keys or age host private keys in sops

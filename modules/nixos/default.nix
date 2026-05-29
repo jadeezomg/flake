@@ -7,6 +7,7 @@
     ./hardware.nix
     ./networking.nix
     ./nix-ld.nix
+    ./openssh.nix
     ./security.nix
     ./sops.nix
     ./usrbinenv.nix

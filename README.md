@@ -125,7 +125,7 @@ Available in system/home modules (see [AGENTS.md](AGENTS.md) for the full list):
 
 ## Secrets
 
-`secrets/secrets.yaml` is encrypted with sops and age. Edit with `sops secrets/secrets.yaml`. Age keys: `~/.config/sops/age/keys.txt` (macOS bootstrap: `just setup-age-darwin`).
+`secrets/secrets.yaml` is encrypted with sops and age. See [docs/secrets/sops-age-keys.md](docs/secrets/sops-age-keys.md). Edit with `sops secrets/secrets.yaml`. Editor key: `just setup-age-editor` → `~/.config/sops/age/keys.txt`.
 
 Home-manager exports select secrets to the user session env via `home/shared/shells/sops-session-env.nix` (env.d + `systemctl --user set-environment` on Linux; LaunchAgent + `launchctl setenv` on Darwin), so every new shell — and GUI apps launched outside a terminal — inherit them.
 
