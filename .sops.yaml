@@ -8,7 +8,9 @@
 # age-keygen -y ~/.config/sops/age/keys.txt
 #
 # NixOS host key (on each NixOS box)
-# just bootstrap-sops-host-key
+# just bootstrap-sops-host-key     # first install only (empty path)
+# just rotate-sops-host-key        # dedicated key after Phase 1 editor copy
+# just verify-sops-host-key framework
 #
 # Rekey after editing recipients:
 # sops updatekeys secrets/secrets.yaml
