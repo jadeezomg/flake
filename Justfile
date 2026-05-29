@@ -341,7 +341,8 @@ bootstrap-sops-host-key:
     set -euo pipefail
     host_dir="/var/lib/private/sops/age"
     host_key="$host_dir/keys.txt"
-    if [[ -f "$host_key" ]]; then
+    # Host key is root:root 600 — plain [[ -f ]] fails for non-root.
+    if sudo test -f "$host_key"; then
       echo "Host key already exists at $host_key" >&2
       echo "  First install on a fresh box: you already have a key — skip bootstrap." >&2
       echo "  Phase 1 temporary copy from editor: use rotate-sops-host-key for a dedicated key." >&2
@@ -368,7 +369,7 @@ bootstrap-sops-host-key-from-editor:
     host_dir="/var/lib/private/sops/age"
     host_key="$host_dir/keys.txt"
     [[ -f "$editor_key" ]] || { echo "Missing $editor_key — run: just setup-age-editor" >&2; exit 1; }
-    if [[ -f "$host_key" ]]; then
+    if sudo test -f "$host_key"; then
       echo "Host key already exists at $host_key" >&2
       echo "Use: just verify-sops-host-key" >&2
       echo "To replace with a dedicated key: just rotate-sops-host-key" >&2
@@ -388,8 +389,8 @@ rotate-sops-host-key:
     set -euo pipefail
     host_dir="/var/lib/private/sops/age"
     host_key="$host_dir/keys.txt"
-    if [[ ! -f "$host_key" ]]; then
-      echo "No host key at $host_key — run: just bootstrap-sops-host-key" >&2
+    if ! sudo test -f "$host_key"; then
+      echo "No host key at $host_key — run: just bootstrap-sops-host-key-from-editor or just bootstrap-sops-host-key" >&2
       exit 1
     fi
     ts="$(date -u +%Y%m%d-%H%M%S)"
@@ -397,9 +398,12 @@ rotate-sops-host-key:
     sudo cp -a "$host_key" "$backup"
     sudo chmod 600 "$backup"
     echo "Backed up previous host key to $backup"
-    sudo nix develop "$FLAKE" --command age-keygen -o "$host_key"
+    tmp="$(mktemp)"
+    trap 'rm -f "$tmp"' EXIT
+    rm -f "$tmp"
+    nix develop "$FLAKE" --command age-keygen -o "$tmp"
+    sudo install -m 600 -o root -g root "$tmp" "$host_key"
     sudo chmod 700 "$host_dir"
-    sudo chmod 600 "$host_key"
     echo ""
     echo "NEW host public key — update &<hostKey> in .sops.yaml to this value:"
     sudo nix develop "$FLAKE" --command age-keygen -y "$host_key"
@@ -422,7 +426,7 @@ verify-sops-host-key anchor="framework":
     editor_key="${HOME}/.config/sops/age/keys.txt"
     sops_yaml="$FLAKE/.sops.yaml"
     anchor="{{anchor}}"
-    [[ -f "$host_key" ]] || { echo "Missing $host_key" >&2; exit 1; }
+    sudo test -f "$host_key" || { echo "Missing $host_key" >&2; exit 1; }
     host_pub="$(sudo nix develop "$FLAKE" --command age-keygen -y "$host_key")"
     editor_pub=""
     if [[ -f "$editor_key" ]]; then

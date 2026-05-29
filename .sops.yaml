@@ -20,9 +20,7 @@ keys:
     - &editor age1pmtv9wwwfmsjp5pud8afv7c6cvjyc54t2attmr5wukvvtnu0kdvqsrxmj2
 
     # Framework NixOS host runtime key.
-    # TODO(migrate): replace with dedicated host pubkey from `just bootstrap-sops-host-key` on framework.
-    # Until migrated, this matches &editor so copying the editor key to /var/lib/.../keys.txt unblocks switch.
-    - &framework age1pmtv9wwwfmsjp5pud8afv7c6cvjyc54t2attmr5wukvvtnu0kdvqsrxmj2
+    - &framework age1nkadhmd3f5y7zeme8tjftkdjxsgyz8rwu2nqcrl5tu4t9enj0q0sp7n42u
 
     # Desktop NixOS host runtime key
     # - &desktop age1s6yrgxcpwm8qy3cpjc2fz6pyq76afd33e2kfg7q58q69ehxwzd2s6qjrxu
