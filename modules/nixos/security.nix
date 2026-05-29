@@ -5,7 +5,7 @@
   # --- Keyrings (PAM) ---
   security.pam.services = {
     login.enableGnomeKeyring = true;
-    # DMS greeter is the active authentication service when using greetd+dms.
+    # DMS greeter PAM when loginManager = "dms-greeter"; GDM uses gdm-password / gdm-fingerprint.
     dms-greeter = {
       enableGnomeKeyring = true;
       startSession = true;

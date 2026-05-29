@@ -1,14 +1,18 @@
 {
+  config,
   pkgs,
   user,
+  lib,
   ...
-}: {
-  # Add user to greeter group for DMS config access
-  users.users.${user}.extraGroups = ["greeter"];
+}: let
+  loginManager = config.dotfiles.profiles.desktop.loginManager;
+in {
+  # --- DMS greeter config sync (loginManager = "dms-greeter") ---
+  users.users.${user}.extraGroups = lib.optionals (loginManager == "dms-greeter") ["greeter"];
 
   # ACL: grant greeter group read access to user's home for DMS config sync.
   # Equivalent of `dms greeter sync` which is unavailable on NixOS.
-  systemd.services.dms-greeter-acl = {
+  systemd.services.dms-greeter-acl = lib.mkIf (loginManager == "dms-greeter") {
     description = "Set ACL permissions for DMS greeter config sync";
     before = ["greetd.service"];
     wantedBy = ["graphical.target"];

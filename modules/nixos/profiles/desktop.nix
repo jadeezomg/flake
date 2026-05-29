@@ -7,6 +7,8 @@
   ...
 }: let
   cfg = config.dotfiles.profiles.desktop;
+  useDmsGreeter = cfg.loginManager == "dms-greeter";
+  useGdm = cfg.loginManager == "gdm";
   # whisper-rs-sys 0.15 (via transcribe-rs's whisper-vulkan feature) references
   # coopmat1 SPIR-V symbols that vulkan-shaders-gen doesn't emit on current
   # nixpkgs. Patch Cargo.toml to use whisper-cpp until upstream fixes it.
@@ -42,9 +44,9 @@ in {
   imports = [inputs.niri.nixosModules.niri];
 
   config = lib.mkIf cfg.enable {
-    # --- Greeter (replaces GDM for reliable multi-monitor Wayland login) ---
+    # --- Login manager: set dotfiles.profiles.desktop.loginManager per host ---
     programs.dank-material-shell.greeter = {
-      enable = true;
+      enable = useDmsGreeter;
       compositor.name = "niri";
       configHome = "/home/${user}";
       configFiles = ["/home/${user}/.config/DankMaterialShell/settings.json"];
@@ -63,7 +65,8 @@ in {
       package = dmsShell;
       quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.quickshell;
       systemd = {
-        enable = true;
+        # System-wide unit lands in graphical-session.target; breaks GDM greeter.
+        enable = useDmsGreeter;
         restartIfChanged = true;
       };
       enableSystemMonitoring = true; # dgop widgets
@@ -76,13 +79,18 @@ in {
     programs.dsearch = {
       enable = true;
       systemd = {
-        enable = true;
+        # System-wide user unit runs for gdm-greeter too and breaks GDM login.
+        enable = useDmsGreeter;
         target = "default.target";
       };
     };
 
     # --- Supporting services ---
     services = {
+      displayManager.gdm = lib.mkIf useGdm {
+        enable = true;
+      };
+
       desktopManager.gnome.enable = true; # GNOME session kept as fallback DE
       gvfs.enable = true;
       tumbler.enable = true;
@@ -101,7 +109,7 @@ in {
     # Niri is primary; include GNOME so gnome-control-center detects a compatible session.
     environment.sessionVariables.XDG_CURRENT_DESKTOP = "niri:GNOME";
 
-    # Wayland session file so greeter can offer Niri as a session.
+    # Wayland session file so GDM / greeter can offer Niri as a session.
     environment.etc."wayland-sessions/niri.desktop".text = ''
       [Desktop Entry]
       Name=Niri

@@ -80,6 +80,16 @@
     # darwin has no effect.
     desktop.enable = enableOn "the desktop profile (niri + DMS + GNOME fallback; Linux only)";
 
+    desktop.loginManager = mkOption {
+      type = types.enum ["gdm" "dms-greeter"];
+      default = "dms-greeter";
+      description = ''
+        Login screen for the desktop profile.
+        `gdm` — GNOME Display Manager.
+        `dms-greeter` — DankMaterialShell greeter via greetd.
+      '';
+    };
+
     integrations = {
       enable = enableOn "the integrations meta-profile (AppImage + Flatpak; Linux only)";
       appimage.enable = enableOn "integrations.appimage (AppImage binfmt support)";
