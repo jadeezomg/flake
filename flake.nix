@@ -188,6 +188,14 @@
           };
         };
 
+        checks.mcp-servers = let
+          testPassed = import ./tests/mcp-servers.nix {lib = pkgs.lib;};
+        in
+          assert testPassed;
+            pkgs.runCommand "mcp-servers-tests" {} ''
+              touch "$out"
+            '';
+
         formatter = pkgs.alejandra;
       };
     };
