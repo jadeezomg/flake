@@ -12,6 +12,7 @@ in {
     environment.systemPackages =
       lib.optionals (!isDarwin) [
         pkgs-stable.vllm
+        pkgs.llama-cpp
       ]
       ++ lib.optionals isDarwin [
         # Required by the HM unsloth-studio user service on Darwin.
