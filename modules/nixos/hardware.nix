@@ -1,5 +1,16 @@
-{pkgs, ...}: {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   hardware.graphics.enable = true;
+
+  # Compressed RAM swap for parallel nix builds (fork overcommit without disk wear).
+  zramSwap = {
+    enable = lib.mkDefault true;
+    memoryPercent = lib.mkDefault 50;
+  };
 
   # --- Audio (pipewire stack) ---
   services = {
