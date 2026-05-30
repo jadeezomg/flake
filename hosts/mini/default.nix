@@ -56,13 +56,6 @@ in {
     ipv6.method = "auto";
   };
 
-  # Compressed RAM swap — 24 GB is workable for nix builds; zram cushions
-  # transient spikes without burning NVMe writes.
-  zramSwap = {
-    enable = true;
-    memoryPercent = 50;
-  };
-
   # AMT / vPro — non-root /dev/mei access for amtterm / openwsman.
   users.groups.amt = {};
   services.udev.extraRules = ''
