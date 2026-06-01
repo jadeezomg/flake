@@ -109,9 +109,11 @@ window-rule {
     }
 }
 
+// Zen: blur only — no compositor opacity (would fade the whole UI, not just chrome)
 window-rule {
     match app-id="zen"
     match app-id="zen-beta"
+    match app-id="zen-twilight"
     match app-id="org.gnome"
     match app-id="dev.zed.Zed"
 
@@ -128,6 +130,8 @@ window-rule {
 
 window-rule {
     match app-id="zen"
+    match app-id="zen-beta"
+    match app-id="zen-twilight"
     geometry-corner-radius 15
 }
 
