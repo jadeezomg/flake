@@ -2,7 +2,6 @@
   lib,
   osConfig,
   pkgs,
-  inputs,
   ...
 }: let
   editorsEnabled = osConfig.dotfiles.profiles.apps.editors.enable or false;
@@ -18,9 +17,6 @@ in {
 
   programs.zed-editor = lib.mkIf editorsEnabled {
     enable = true;
-    package = inputs.nixpkgs-zed.legacyPackages.${pkgs.stdenv.hostPlatform.system}.zed-editor; # package =
-    #   if isDarwin && inputs ? nixpkgs-zed
-    #   then inputs.nixpkgs-zed.legacyPackages.${pkgs.stdenv.hostPlatform.system}.zed-editor
-    #   else pkgs.zed-editor;
+    package = pkgs.zed-editor;
   };
 }

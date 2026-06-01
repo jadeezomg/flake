@@ -25,6 +25,7 @@
       "kdl"
       "biome"
       "xml"
+      "comment"
     ];
   };
 }
