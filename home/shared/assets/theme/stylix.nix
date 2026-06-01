@@ -1,9 +1,4 @@
-{
-  lib,
-  pkgs,
-  isDarwin ? false,
-  ...
-}: let
+{pkgs, ...}: let
   # Import our custom theme colors
   themeColors = import ./theme.nix;
 
@@ -46,8 +41,8 @@ in {
       base0F = themeColors.accent-red;
     };
 
-    # Fonts configuration - matching your existing terminal setup
     fonts = {
+      sizes.applications = 10;
       monospace = {
         package = pkgs.nerd-fonts.iosevka;
         name = "Iosevka Nerd Font";
@@ -79,110 +74,20 @@ in {
     # Image/wallpaper
     image = ../wallpapers/wallpaper.jpg;
 
-    targets =
-      {
-        vscode.enable = false;
-        firefox.enable = false;
-        kitty = {
-          enable = true;
-          fonts.enable = false;
-        };
-        zen-browser = {
-          profileNames = ["default"];
-          enableCss = true; # maybe?
-        };
-        # gnome.enable = false;
-        # qt.enable = false;
-        gtk = {
-          extraCss = ''
-            /* Keep GTK backgrounds slightly translucent (95% opacity).
-               Popovers/menus must stay transparent on the outer element
-               so the shadow padding doesn't render as a solid square; paint
-               the inner `contents` (and arrow) instead. */
-            window,
-            dialog,
-            headerbar,
-            .background {
-              background-color: alpha(@theme_bg_color, 0.9);
-            }
-
-            popover,
-            popover.background,
-            menu,
-            menu.background {
-              background-color: transparent;
-              background-image: none;
-            }
-
-            popover > contents,
-            popover > arrow,
-            menu > contents,
-            menu > arrow {
-              background-color: alpha(@theme_bg_color, 0.7);
-            }
-
-            * {
-              font-size: 10pt;
-            }
-
-            /* Reduce GTK decoration font size */
-            headerbar.titlebar,
-            .titlebar,
-            headerbar {
-              font-size: 10pt;
-            }
-
-            headerbar.titlebar .title,
-            .titlebar .title,
-            headerbar .title {
-              font-size: 10pt;
-            }
-
-            /* Specific element text size adjustments */
-            label {
-              font-size: 10pt;
-            }
-
-            button {
-              font-size: 10pt;
-            }
-
-            entry {
-              font-size: 10pt;
-            }
-
-            textview text {
-              font-size: 10pt;
-            }
-
-            menu {
-              font-size: 10pt;
-            }
-
-            menuitem {
-              font-size: 10pt;
-            }
-
-            toolbar {
-              font-size: 10pt;
-            }
-
-            notebook tab {
-              font-size: 10pt;
-            }
-
-            treeview {
-              font-size: 10pt;
-            }
-
-            list {
-              font-size: 10pt;
-            }
-          '';
-        };
-      }
-      // lib.optionalAttrs (!isDarwin) {
-        niri.enable = false;
+    targets = {
+      vscode.enable = false;
+      firefox.enable = false;
+      kitty = {
+        enable = true;
+        fonts.enable = false;
       };
+      zen-browser = {
+        profileNames = ["default"];
+        enableCss = true; # maybe?
+      };
+      # gnome.enable = false;
+      # qt.enable = false;
+      gtk = {};
+    };
   };
 }
