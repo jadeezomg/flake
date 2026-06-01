@@ -3,19 +3,23 @@
 # apps from Finder/Dock/Spotlight on Darwin) and shells alike — inherits
 # them.
 #
-# Per-platform two-stage activation:
+# Three delivery paths (same `exports` list):
 #
-#   Linux:
+#   Linux session (GUI apps, systemd-spawned children):
 #     1. Write `~/.config/environment.d/50-sops-secrets.conf` (mode 0600).
 #        systemd-environment-d-generator picks this up at user manager start.
 #     2. `systemctl --user set-environment` for the live session.
 #
-#   Darwin:
+#   Darwin session (GUI apps):
 #     1. LaunchAgent `~/Library/LaunchAgents/org.nix-community.home.sops-session-env.plist`
 #        runs a wrapper script at login (RunAtLoad=true) that calls
 #        `launchctl setenv` for each secret.
 #     2. The same wrapper script is invoked during home-manager activation so
 #        the live session sees vars without a re-login.
+#
+#   Interactive shells (bash/zsh/fish/nushell):
+#     Read decrypted secret files at startup. Terminals and tools like Cursor
+#     do not inherit systemd user env on Niri, so shell init is required.
 #
 # Already-running processes don't pick up updates on either OS — restart them
 # (Zed, terminals, etc.) after a switch.
@@ -105,8 +109,45 @@
     export PATH=${lib.makeBinPath [pkgs.coreutils]}:/bin:/usr/bin:$PATH
     ${darwinScript}
   '';
+
+  shBlock =
+    lib.concatMapStrings (e: ''
+      if [ -r ${esc e.path} ]; then
+        export ${e.var}=${esc (prefixOf e)}"$(tr -d '[:space:]' <${esc e.path})"
+      fi
+    '')
+    exports;
+
+  fishBlock =
+    lib.concatMapStrings (e: ''
+      if test -r ${esc e.path}
+        set -gx ${e.var} ${esc (prefixOf e)}(cat ${esc e.path} | string trim)
+      end
+    '')
+    exports;
+
+  nuBlock =
+    lib.concatMapStrings (e: let
+      fileAlias = "${e.var}_sops_file";
+      pJson = builtins.toJSON e.path;
+      prefixJson = builtins.toJSON (prefixOf e);
+    in ''
+      let ${fileAlias} = ${pJson}
+      if (''${fileAlias} | path exists) {
+        $env.${e.var} = ${prefixJson} + (''${fileAlias} | open | str trim)
+      }
+
+    '')
+    exports;
 in
   lib.mkMerge [
+    (lib.mkIf (exports != []) {
+      programs.bash.initExtra = lib.mkAfter shBlock;
+      programs.zsh.initContent = lib.mkAfter shBlock;
+      programs.fish.interactiveShellInit = lib.mkAfter fishBlock;
+      programs.nushell.extraEnv = lib.mkAfter nuBlock;
+    })
+
     (lib.mkIf (pkgs.stdenv.isLinux && exports != []) {
       home.activation.sopsSessionEnv = lib.hm.dag.entryAfter ["sops-nix"] ''
         export PATH=${lib.makeBinPath [pkgs.coreutils pkgs.systemd]}:$PATH
