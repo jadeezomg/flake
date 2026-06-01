@@ -11,7 +11,7 @@
       config = {
         allowUnfree = true;
         input-fonts.acceptLicense = true;
-        permittedInsecurePackages = ["ventoy-1.1.12"];
+        permittedInsecurePackages = ["ventoy-1.1.12" "python3.13-vllm-0.16.0"];
       };
     };
 

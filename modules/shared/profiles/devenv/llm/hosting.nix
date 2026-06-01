@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  pkgs-stable,
   isDarwin,
   ...
 }: let
@@ -11,7 +10,7 @@ in {
   config = lib.mkIf cfg.enable {
     environment.systemPackages =
       lib.optionals (!isDarwin) [
-        pkgs-stable.vllm
+        # pkgs.vllm
         pkgs.llama-cpp
       ]
       ++ lib.optionals isDarwin [
