@@ -1,10 +1,53 @@
-/* Opacity for about: pages (newtab, preferences, etc.) and override Stylix solid backgrounds */
-:root {
-	--zen-opacity: 0.85 !important;
-	--newtab-background-color: transparent !important;
-	opacity: var(--zen-opacity) !important;
+/* Opacity layer — after Stylix userContent (accent/text colors from Stylix). */
+
+@-moz-document url-prefix("about:") {
+   :root {
+      --zen-chrome-surface: color-mix(in srgb,
+            var(--zen-chrome-bg) 90%,
+            transparent);
+      --zen-chrome-surface-secondary: color-mix(in srgb,
+            var(--zen-chrome-bg-secondary) 90%,
+            transparent);
+      --newtab-background-color: var(--zen-chrome-surface) !important;
+      --in-content-page-background: var(--zen-chrome-surface) !important;
+      background-color: var(--zen-chrome-surface) !important;
+   }
 }
 
-/* body {
-  background-color: transparent !important;
-} */
+@-moz-document url("about:newtab"), url("about:home") {
+   :root {
+      --newtab-background-color: var(--zen-chrome-surface) !important;
+      --newtab-background-color-secondary: var(--zen-chrome-surface-secondary) !important;
+      --newtab-element-hover-color: var(--zen-chrome-surface-secondary) !important;
+   }
+}
+
+@-moz-document url-prefix("about:preferences") {
+
+   groupbox,
+   moz-card {
+      background: var(--zen-chrome-surface) !important;
+   }
+
+   button,
+   groupbox menulist {
+      background: var(--zen-chrome-surface-secondary) !important;
+   }
+
+   .main-content {
+      background-color: var(--zen-chrome-surface) !important;
+   }
+}
+
+@-moz-document url-prefix("about:addons") {
+   :root {
+      --zen-dark-color-mix-base: var(--zen-chrome-surface-secondary) !important;
+      --background-color-box: var(--zen-chrome-surface) !important;
+   }
+}
+
+@-moz-document url-prefix("about:protections") {
+   .card {
+      background-color: var(--zen-chrome-surface-secondary) !important;
+   }
+}
