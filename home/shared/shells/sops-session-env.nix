@@ -128,13 +128,11 @@
 
   nuBlock =
     lib.concatMapStrings (e: let
-      fileAlias = "${e.var}_sops_file";
       pJson = builtins.toJSON e.path;
       prefixJson = builtins.toJSON (prefixOf e);
     in ''
-      let ${fileAlias} = ${pJson}
-      if (''${fileAlias} | path exists) {
-        $env.${e.var} = ${prefixJson} + (''${fileAlias} | open | str trim)
+      if (${pJson} | path exists) {
+        $env.${e.var} = ${prefixJson} + (${pJson} | open | str trim)
       }
 
     '')
