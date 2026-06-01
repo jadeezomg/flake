@@ -1,5 +1,5 @@
 modelRoles: 
-  default: openai-codex/gpt-5.5:high
+  default: cursor/composer-2.5
 theme: 
   dark: birds-of-paradise
   light: light-gruvbox
@@ -22,7 +22,7 @@ compaction:
   handoffSaveToDisk: true
   idleEnabled: true
 memory: 
-  backend: hindsight
+  backend: local
 edit: 
   mode: hashline
   streamingAbort: true
@@ -116,3 +116,4 @@ doubleEscapeAction: tree
 treeFilterMode: all
 stt: 
   modelName: medium.en
+repeatToolDescriptions: false
