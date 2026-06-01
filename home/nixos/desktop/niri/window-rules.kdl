@@ -60,41 +60,22 @@ window-rule {
     match app-id=r#"^org.gnome."#
     match app-id=r#"^gnome-"#
 
-    // match app-id="Loupe"
-    // match app-id="Nautilus"
-
-    draw-border-with-background true
-    geometry-corner-radius 15
     clip-to-geometry true
     opacity 0.9
 
     background-effect {
         blur true
     }
-
-    popups {
-        // opacity 0.90
-        // geometry-corner-radius 15
-        // background-effect {
-        //     blur true
-        //     xray true
-        // }
-    }
 }
 
 // Terminal applications
-// opacity 1.0: terminals manage their own background opacity via stylix;
-// compositor opacity would stack on top and make them too transparent.
 window-rule {
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
     match app-id="Alacritty"
-    // match app-id="zen-beta"
-    // match app-id="zen-twilight"
     match app-id="com.mitchellh.ghostty"
     match app-id="kitty"
     match app-id="org.gnome.NautilusPreviewer"
 
-    opacity 1.0
     default-column-width { proportion 0.4; }
 }
 
@@ -102,18 +83,13 @@ layer-rule {
     match namespace="^dms:"
     // match namespace="^dms:bar$"
     match namespace="^dms:app-launcher$"
-    // match namespace="^dms:control-center$"
-    // opacity 0.5
+
     background-effect {
-        // blur true
         xray false
     }
 
     popups {
-        //opacity 0.5
-        geometry-corner-radius 15
         background-effect {
-            blur true
             xray false
         }
     }
@@ -125,7 +101,6 @@ window-rule {
 }
 
 window-rule {
-    // match app-id="zen-beta"
     match app-id="cursor"
     opacity 0.90
 
@@ -144,15 +119,16 @@ window-rule {
         blur true
     }
 
-    geometry-corner-radius 15
-    // opacity 0.95
-
     popups {
-        // geometry-corner-radius 15
         background-effect {
             blur true
         }
     }
+}
+
+window-rule {
+    match app-id="zen"
+    geometry-corner-radius 15
 }
 
 window-rule {
