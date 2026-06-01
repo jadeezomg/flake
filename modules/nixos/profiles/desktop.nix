@@ -26,8 +26,6 @@
       '';
   });
 in {
-  imports = [inputs.niri.nixosModules.niri];
-
   config = lib.mkIf cfg.enable {
     # --- Login manager: set dotfiles.profiles.desktop.loginManager per host ---
     programs.dank-material-shell.greeter = {
@@ -37,11 +35,7 @@ in {
       configFiles = ["/home/${user}/.config/DankMaterialShell/settings.json"];
     };
 
-    # --- Niri compositor (niri-unstable from niri-flake) ---
-    programs.niri = {
-      enable = true;
-      package = pkgs.niri-unstable;
-    };
+    programs.niri.enable = true;
 
     # --- DankMaterialShell (DMS) ---
     # xdg.configFile is handled in home/nixos/desktop/dms.nix (Home Manager).
@@ -110,7 +104,7 @@ in {
       # Niri auto-spawns xwayland-satellite for X11 apps when it's in PATH.
       # See: https://github.com/YaLTeR/niri/wiki/Xwayland
       xwayland-satellite
-      inputs.handy.legacyPackages.${pkgs.stdenv.hostPlatform.system}.handy
+      pkgs.handy
     ];
   };
 }
