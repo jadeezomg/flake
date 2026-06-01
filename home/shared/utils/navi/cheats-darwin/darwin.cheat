@@ -125,7 +125,7 @@ $ file: fd --type f --max-depth 3
 % darwin, defaults
 
 ; macOS preferences via `defaults`. Prefer system.defaults in nix-darwin
-; for permanent settings. `just read-defaults` exports the Nix form.
+; for permanent settings. `flake read-defaults` exports the Nix form.
 
 # Read a domain's entire preferences (plist)
 defaults read <domain>
@@ -159,7 +159,7 @@ $ domain: echo ""
 $ key: echo ""
 
 # Export a domain as nix snippets (flake recipe)
-just read-defaults
+flake read-defaults
 
 # List every preference domain
 defaults domains | tr ',' '\n'
