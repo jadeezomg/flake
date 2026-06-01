@@ -15,13 +15,10 @@ in
     (import ./direnv-skip-check-darwin.nix {inherit system;})
     (import ./nono-skip-check-darwin.nix {inherit system;})
     (import ./python-package-fixes.nix)
+    (import ./pending-nixpkgs-fixes.nix)
   ]
-  # x86_64-linux only: niri-flake + CachyOS kernel.
   ++ (
     if isX86_64Linux
-    then [
-      inputs.niri.overlays.niri
-      inputs.nix-cachyos-kernel.overlays.pinned
-    ]
+    then [inputs.nix-cachyos-kernel.overlays.pinned]
     else []
   )
