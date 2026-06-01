@@ -16,7 +16,7 @@ in {
       isEssential = true;
       position = 102;
     };
-    "I think Tu-95 has enough space inside for way more than 4x FAB-500s or 6x 250s : r/Warthunder" = {
+    "Reddit - The heart of the internet" = {
       id = "78d70083-a115-4ea1-a25a-be9bc67ca1df";
       url = "https://www.reddit.com/";
       isEssential = true;
@@ -28,9 +28,9 @@ in {
       isEssential = true;
       position = 104;
     };
-    "Discord - Group Chat That’s All Fun & Games" = {
+    "(216) Discord | #poe2-builds | Rentner mit Keyboard" = {
       id = "5fb91047-d89a-47fd-8a68-0eb8f1ac0f9e";
-      url = "https://discord.com/";
+      url = "https://discord.com/channels/1143944016535228419/1311062719453069324";
       isEssential = true;
       position = 105;
     };
