@@ -24,9 +24,9 @@ keys:
 
     # Desktop NixOS host runtime key
     # - &desktop age1s6yrgxcpwm8qy3cpjc2fz6pyq76afd33e2kfg7q58q69ehxwzd2s6qjrxu
-    - &desktop age1me2u0t6xnp4g2gnzvu6dthclrr9qjn7raud37gyj2j2cx2myjc4qzdep49
+    # - &desktop age1me2u0t6xnp4g2gnzvu6dthclrr9qjn7raud37gyj2j2cx2myjc4qzdep49
+    - &desktop age1y9h34vax2fkhlluxadltze4djctcsszznldq24d66pmj3r7kfuzss9h083
 
-    # Caya Darwin host runtime key (~/.config/sops/age/keys.txt on caya)
     - &caya age1yrt6l02984f5gemerpzlf5v4ymakdmf45qhu3ecy2qtjwuzn43tqh755nz
 
     # Mini NixOS host — add after `just bootstrap-sops-host-key` on mini (see docs/hosts/mini-install.md §5.4)
