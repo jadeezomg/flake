@@ -1,37 +1,35 @@
-/* Opacity layer — after Stylix in userChrome.css (text/accent colors stay from Stylix).
-   zen-themes.css loads after this file; HM regenerates it with transparency overrides. */
+/* After Stylix in userChrome.css. zen-themes.css loads later (see default.nix). */
 
 :root {
-   --zen-chrome-surface: color-mix(in srgb,
-         var(--zen-chrome-bg) 90%,
-         transparent);
-   --zen-chrome-surface-secondary: color-mix(in srgb,
-         var(--zen-chrome-bg-secondary) 90%,
-         transparent);
-   --zen-chrome-surface-tertiary: color-mix(in srgb,
-         var(--zen-chrome-tertiary) 90%,
-         transparent);
+	--zen-chrome-surface: color-mix(
+		in srgb,
+		var(--zen-chrome-bg) 80%,
+		transparent
+	);
+	--zen-chrome-surface-secondary: color-mix(
+		in srgb,
+		var(--zen-chrome-bg-secondary) 80%,
+		transparent
+	);
+	--zen-chrome-surface-tertiary: color-mix(
+		in srgb,
+		var(--zen-chrome-tertiary) 80%,
+		transparent
+	);
 }
 
-/* Linux compositor transparency: shell must stay transparent (zen.widget.linux.transparency). */
+/* Compositor path: shell transparent (requires zen.widget.linux.transparency). */
 .zen-browser-generic-background,
-#main-window .zen-browser-generic-background,
-zen-workspace .zen-browser-generic-background,
-.zen-browser-generic-background[style],
-#zen-browser-background[style] {
-   background: transparent !important;
-   background-color: transparent !important;
-   background-image: none !important;
-   --zen-main-browser-background: transparent !important;
-}
-
 #main-window,
 #browser,
 #zen-browser-background {
-   background: transparent !important;
-   background-color: transparent !important;
+	background: transparent !important;
+	background-color: transparent !important;
+	background-image: none !important;
+	--zen-main-browser-background: transparent !important;
 }
 
+/* Chrome UI: ~90% Stylix tint (stylix.opacity.applications). */
 #navigator-toolbox,
 #titlebar,
 #TabsToolbar,
@@ -42,31 +40,32 @@ zen-workspace .zen-browser-generic-background,
 .sidebar-placesTree,
 #zen-workspaces-button,
 .content-shortcuts {
-   background: var(--zen-chrome-surface-secondary) !important;
-   background-color: var(--zen-chrome-surface-secondary) !important;
+	background: var(--zen-chrome-surface-secondary) !important;
+	background-color: var(--zen-chrome-surface-secondary) !important;
 }
 
 :root {
-   --zen-main-browser-background: transparent !important;
-   --zen-themed-toolbar-bg: var(--zen-chrome-surface-secondary) !important;
-   --zen-themed-toolbar-bg-transparent: var(--zen-chrome-surface-secondary) !important;
-   --zen-main-browser-background-toolbar: var(--zen-chrome-surface-secondary) !important;
-   --newtab-background-color: var(--zen-chrome-surface) !important;
-   --lwt-sidebar-background-color: var(--zen-chrome-surface-secondary) !important;
-   --toolbar-bgcolor: var(--zen-chrome-surface-secondary) !important;
-   --arrowpanel-background: var(--zen-chrome-surface-tertiary) !important;
+	--zen-themed-toolbar-bg: var(--zen-chrome-surface-secondary) !important;
+	--zen-themed-toolbar-bg-transparent: var(
+		--zen-chrome-surface-secondary
+	) !important;
+	--zen-main-browser-background-toolbar: var(
+		--zen-chrome-surface-secondary
+	) !important;
+	--newtab-background-color: var(--zen-chrome-surface) !important;
+	--lwt-sidebar-background-color: var(
+		--zen-chrome-surface-secondary
+	) !important;
+	--toolbar-bgcolor: var(--zen-chrome-surface-secondary) !important;
+	--arrowpanel-background: var(--zen-chrome-surface-tertiary) !important;
 }
 
 .urlbar-background {
-   background-color: var(--zen-chrome-surface-tertiary) !important;
+	background-color: var(--zen-chrome-surface-tertiary) !important;
 }
 
 #zenEditBookmarkPanelFaviconContainer,
 #commonDialog {
-   background: var(--zen-chrome-surface) !important;
-   background-color: var(--zen-chrome-surface) !important;
-}
-
-#zen-media-controls-toolbar #zen-media-progress-bar::-moz-range-track {
-   background: var(--zen-chrome-surface-tertiary) !important;
+	background: var(--zen-chrome-surface) !important;
+	background-color: var(--zen-chrome-surface) !important;
 }
