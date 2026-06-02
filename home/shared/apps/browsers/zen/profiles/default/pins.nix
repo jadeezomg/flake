@@ -259,12 +259,19 @@ in {
       isEssential = false;
       position = 224;
     };
+    "178" = {
+      id = "3ba97525-29d8-4c3f-8728-c6a8c2d0c160";
+      url = "http://192.168.178.62:8080/";
+      workspace = spaces."Downloads".id;
+      isEssential = false;
+      position = 225;
+    };
     "LinkSnappy - Get your files as a premium" = {
       id = "b19c8441-18b9-4cfb-ad0d-c6151f2cd526";
       url = "https://linksnappy.com/home";
       workspace = spaces."Downloads".id;
       isEssential = false;
-      position = 225;
+      position = 226;
     };
   };
 }

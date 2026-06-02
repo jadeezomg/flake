@@ -235,6 +235,7 @@
 	"lockDateFormat": "",
 	"greeterRememberLastSession": true,
 	"greeterRememberLastUser": true,
+	"greeterAutoLogin": false,
 	"greeterEnableFprint": false,
 	"greeterEnableU2f": false,
 	"greeterWallpaperPath": "",

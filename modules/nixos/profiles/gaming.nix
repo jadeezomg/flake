@@ -45,6 +45,7 @@ in {
       protonup-ng
       protonup-rs
       gamescope-wsi
+      wine-wayland
     ];
 
     environment.sessionVariables = {
