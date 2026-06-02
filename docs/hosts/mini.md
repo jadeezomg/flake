@@ -1,7 +1,8 @@
 # Mini — Headless Server Host (design doc)
 
-Working doc for the new `mini` NixOS host. Decisions captured here are agreed
-but not yet implemented. Sections marked **[OPEN]** still need grilling.
+Design doc for the `mini` NixOS host. **Implemented on `main`** — follow
+[`mini-install.md`](./mini-install.md) for the install walkthrough. Sections
+marked **[OPEN]** in §11 are deferred follow-ups, not blockers for first boot.
 
 ---
 
@@ -199,14 +200,14 @@ sudo nixos-install --flake .#mini --no-root-password
 
 ### 4.5 Lanzaboote enrollment (post-install, one-time)
 
-Order: AMT first, then SecureBoot enrollment via AMT KVM.
+See `mini-install.md` §5.6 — **switch before enroll-keys**. Summary:
 
 ```bash
-# In firmware: disable SecureBoot, boot NixOS once
 sudo sbctl create-keys
-sudo sbctl enroll-keys --microsoft   # --microsoft preserves OEM/fwupd capsule signing
-sudo nixos-rebuild switch --flake .#mini
-# Reboot into firmware → re-enable SecureBoot → boot
+just switch
+sudo sbctl verify
+sudo sbctl enroll-keys -m    # -m = --microsoft; required for fwupd capsules
+# Reboot → firmware Setup Mode if needed → enable SecureBoot
 ```
 
 ---
@@ -266,9 +267,10 @@ On mini:
 - udev rule: `KERNEL=="mei*", GROUP="amt"`
 - `users.users.jadee.extraGroups += [ "amt" ];`
 
-On desktop / framework (controller side) — new toggle:
+On desktop / framework (controller side) — **planned, not yet wired:**
 - `dotfiles.profiles.devenv.amt.enable` (default true on Linux desktops, false on Darwin)
-- Adds `amtterm` and a VNC client compatible with AMT's KVM redirection (`tigervnc`/`remmina`) when enabled
+- Would add `amtterm` and a VNC client for AMT KVM (`tigervnc`/`remmina`)
+- Until then: `nix shell nixpkgs#amtterm` from the workstation (see `mini-install.md` §2)
 
 ### 6.3 Security posture
 
