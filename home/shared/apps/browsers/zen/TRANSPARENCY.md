@@ -32,7 +32,7 @@ Linux compositor transparency for Zen: see-through window shell with ~90% tinted
 | `default.nix` | Merges Stylix + `chrome/*.css`; regenerates `zen-themes.css` on activation |
 | `chrome/userChrome.css` | Transparent shell + tinted chrome surfaces |
 | `chrome/userContent.css` | Tinted `about:` pages |
-| `profiles/default/spaces.nix` | Optional `theme.opacity = 0.0` per workspace (only if `// spaces` is enabled in profile) |
+| `profiles/default/spaces.nix` | `theme = transparentWorkspaceTheme` on every workspace — **`zen-session sync` always writes this** (session gradient themes are not synced) |
 
 ## Tuning
 

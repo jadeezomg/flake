@@ -5,12 +5,14 @@
   config,
   osConfig,
   ...
-}:
-let
-  extensions = import ./extensions.nix { inherit pkgs lib; };
-  defaultProfile = import ./profiles/default { inherit pkgs extensions; };
-  cayaProfile = import ./profiles/caya { inherit pkgs extensions lib; };
-  defaultProfileData = if pkgs.stdenv.isLinux then defaultProfile else cayaProfile;
+}: let
+  extensions = import ./extensions.nix {inherit pkgs lib;};
+  defaultProfile = import ./profiles/default {inherit pkgs extensions;};
+  cayaProfile = import ./profiles/caya {inherit pkgs extensions lib;};
+  defaultProfileData =
+    if pkgs.stdenv.isLinux
+    then defaultProfile
+    else cayaProfile;
   activeProfileExtensions = defaultProfileData.profileExtensions;
   policies = import ./policies.nix {
     inherit pkgs lib extensions;
@@ -42,11 +44,11 @@ let
     }
   '';
 
-  chromeOpacityLayer = lib.replaceStrings [ "90%" ] [ "${zenOpacityPercent}%" ] (
+  chromeOpacityLayer = lib.replaceStrings ["90%"] ["${zenOpacityPercent}%"] (
     builtins.readFile ./chrome/userChrome.css
   );
 
-  contentOpacityLayer = lib.replaceStrings [ "90%" ] [ "${zenOpacityPercent}%" ] (
+  contentOpacityLayer = lib.replaceStrings ["90%"] ["${zenOpacityPercent}%"] (
     builtins.readFile ./chrome/userContent.css
   );
 
@@ -72,7 +74,8 @@ let
       if [ -f "$themesFile" ] && ${lib.getExe pkgs.jq} -e --arg u "${uuid}" 'has($u)' "$themesFile" >/dev/null 2>&1; then
         ${lib.getExe pkgs.jq} --arg u "${uuid}" '.[$u].enabled = true' "$themesFile" > "$themesFile.tmp" && mv "$themesFile.tmp" "$themesFile"
       fi
-    '') zenManagedMods
+    '')
+    zenManagedMods
   );
 
   regenerateThemesCssScript = pkgs.writeShellScript "zen-regenerate-themes-css" ''
@@ -100,32 +103,35 @@ let
 
     rm -f "$tmpMods"
   '';
-in
-{
+in {
   imports = [
     inputs.zen-browser.homeModules.beta
   ];
 
   programs.zen-browser = lib.mkIf (osConfig.dotfiles.profiles.apps.browsers.enable or false) {
     enable = true;
-    nativeMessagingHosts = lib.optionals pkgs.stdenv.isLinux [ pkgs.firefoxpwa ];
+    nativeMessagingHosts = lib.optionals pkgs.stdenv.isLinux [pkgs.firefoxpwa];
     darwinDefaultsId = lib.mkIf (!pkgs.stdenv.isLinux) "com.zen.browser";
 
     inherit policies;
 
-    profiles.default = builtins.removeAttrs defaultProfileData [ "profileExtensions" ] // {
-      id = 0;
-      isDefault = true;
-      settings = defaultProfileData.settings // {
-        "mod.sameerasw.zen_bg_opacity" = zenOpacity;
+    profiles.default =
+      builtins.removeAttrs defaultProfileData ["profileExtensions"]
+      // {
+        id = 0;
+        isDefault = true;
+        settings =
+          defaultProfileData.settings
+          // {
+            "mod.sameerasw.zen_bg_opacity" = zenOpacity;
+          };
+        userChrome = zenUserChrome;
+        userContent = zenUserContent;
+        mods = zenManagedMods;
       };
-      userChrome = zenUserChrome;
-      userContent = zenUserContent;
-      mods = zenManagedMods;
-    };
   };
 
-  home.activation.zenThemesCss = lib.hm.dag.entryAfter [ "zen-mods-default" ] ''
+  home.activation.zenThemesCss = lib.hm.dag.entryAfter ["zen-mods-default"] ''
     profileDir="${config.xdg.configHome}/zen/default"
     themesFile="$profileDir/zen-themes.json"
     themesCss="$profileDir/chrome/zen-themes.css"
