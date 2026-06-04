@@ -46,10 +46,12 @@ in {
       protonup-rs
       gamescope-wsi
       wine-wayland
+      winetricks
     ];
 
     environment.sessionVariables = {
       STEAM_EXTRA_COMPAT_TOOLS_PATH = "/home/${user}/.steam/root/compatibilitytools.d";
+      WINEPREFIX = "/mnt/storage/Games";
     };
   };
 }
