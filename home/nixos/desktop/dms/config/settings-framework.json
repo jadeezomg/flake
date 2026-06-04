@@ -504,8 +504,10 @@
 	"niriOutputSettings": {},
 	"hyprlandOutputSettings": {},
 	"displayProfiles": {},
-	"activeDisplayProfile": {},
-	"displayProfileAutoSelect": false,
+	"activeDisplayProfile": {
+		"niri": "auto_5467317c"
+	},
+	"displayProfileAutoSelect": true,
 	"displayShowDisconnected": false,
 	"displaySnapToEdge": true,
 	"connectedFrameBarStyleBackups": {},
