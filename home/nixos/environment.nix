@@ -13,7 +13,7 @@
   video = "org.gnome.Showtime";
   fileManager = "org.gnome.Nautilus";
 in {
-  gtk.gtk4.theme = null;
+  gtk.gtk4.theme = lib.mkForce null;
 
   dconf.enable = true;
   dconf.settings = {
