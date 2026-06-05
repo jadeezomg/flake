@@ -35,6 +35,12 @@ installer on a brand-new box.
 - Your desktop **SSH public key** present in `data/users/users.nix` →
   `jadee.sshKeys` (OpenSSH has **password auth disabled** — key auth is required
   from first boot)
+- **GitHub push over HTTPS** — GitHub does not accept your login password for
+  `git push` to `https://github.com/...`. Use an **SSH remote** (see
+  [`mini.md`](./mini.md) repo remote), or run `gh auth login` and
+  `gh auth setup-git`, or a [personal access
+  token](https://github.com/settings/tokens) when Git asks for a password over
+  HTTPS.
 
 ---
 

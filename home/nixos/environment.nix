@@ -1,4 +1,5 @@
 {
+  host,
   lib,
   osConfig,
   ...
@@ -15,8 +16,12 @@
 in {
   gtk.gtk4.theme = lib.mkForce null;
 
-  dconf.enable = true;
-  dconf.settings = {
+  # dconf activation talks to the user dconf D-Bus service (ca.desrt.dconf).
+  # Headless hosts (e.g. mini) omit `mainMonitor` and skip the desktop HM tree;
+  # they have no graphical session, so dconf must stay off — otherwise
+  # home-manager-jadee.service fails at "Activating dconfSettings".
+  dconf.enable = host ? mainMonitor;
+  dconf.settings = lib.mkIf (host ? mainMonitor) {
     "org/gnome/desktop/input-sources" = {
       sources = [
         (mkTuple ["xkb" "us+intl"])
