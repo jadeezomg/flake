@@ -2,13 +2,15 @@
   config,
   pkgs,
   lib,
+  host ? {},
   ...
 }: let
+  secureBoot = host.secureBoot or true;
   serverProfile = config.dotfiles.profiles.server.enable;
 in {
   boot = {
     loader = {
-      systemd-boot.enable = lib.mkForce false;
+      systemd-boot.enable = lib.mkForce (!secureBoot);
       efi = {
         canTouchEfiVariables = true;
         efiSysMountPoint = "/boot";
@@ -29,7 +31,7 @@ in {
       else pkgs.linuxPackages_latest;
 
     lanzaboote = {
-      enable = true;
+      enable = secureBoot;
       pkiBundle = "/var/lib/sbctl";
     };
 

@@ -282,8 +282,19 @@ chicken-and-egg where sops-nix can't decrypt before mini's age host key
 exists at `/var/lib/private/sops/age/keys.txt`.
 
 ```bash
-sudo nixos-install --flake .#mini --no-root-password
+sudo nixos-install \
+  --flake .#mini \
+  --no-root-password \
+  --max-jobs 1 \
+  --cores 4 \
+  --show-trace \
+  --log-format bar-with-logs \
+  --option log-lines 200
 ```
+
+`--max-jobs 1 --cores 4` is intentional for the 24 GiB installer environment:
+the target config also caps `mini` to four build cores, but `nixos-install`
+uses the live installer's Nix daemon while building the closure.
 
 `--no-root-password` is fine — root stays locked, jadee has wheel. Don't
 override the user password prompt here; the declarative `initialPassword`
@@ -452,20 +463,24 @@ and the ACL-gated tailscale SSH path is live.
 
 ### 5.6 Lanzaboote SecureBoot enrollment
 
-Order matters here — see the **SecureBoot ordering note** in §5.6.1 below.
-The short version:
+`hosts/mini/host.nix` starts with `secureBoot = false`, so the first install
+uses plain systemd-boot. Enable lanzaboote only after `/var/lib/sbctl` exists.
 
 ```bash
 # On mini — 1. generate keys
 sudo sbctl create-keys
 
-# 2. switch FIRST — lanzaboote writes signed .efi files to /boot
+# 2. In the flake, flip hosts/mini/host.nix:
+# secureBoot = false; -> secureBoot = true;
+# Commit/push or edit the local checkout on mini.
+
+# 3. switch — lanzaboote writes signed .efi files to /boot
 just switch
 
-# 3. verify lanzaboote signed everything
+# 4. verify lanzaboote signed everything
 sudo sbctl verify              # all .efi entries should report "signed"
 
-# 4. now enroll keys into firmware (UEFI must be in Setup Mode — see 5.6.1)
+# 5. now enroll keys into firmware (UEFI must be in Setup Mode — see 5.6.1)
 sudo sbctl enroll-keys -m      # -m = include Microsoft KEK + DB
 ```
 
@@ -480,24 +495,32 @@ sudo sbctl verify               # confirm all kernels/efi binaries pass
 #### 5.6.1 SecureBoot ordering note
 
 The previous version of this doc had `enroll-keys` before `nixos-rebuild
-switch`. That **breaks**: if you enroll keys into firmware before lanzaboote
-has installed signed binaries onto the ESP, the next boot fails — firmware
-will refuse to load unsigned files.
+switch`, and the initial mini config enabled lanzaboote before sbctl keys
+existed. Both break:
+
+- enrolling keys into firmware before lanzaboote has installed signed binaries
+  onto the ESP makes the next boot fail — firmware refuses unsigned files.
+- enabling lanzaboote before `/var/lib/sbctl` exists makes the switch fail
+  because there is no PKI bundle for signing.
 
 Correct order:
 
-1. `sbctl create-keys` — generate the PKI bundle at `/var/lib/sbctl`.
-2. `nixos-rebuild switch` (or `just switch`) — lanzaboote picks up the bundle
+1. Keep `hosts/mini/host.nix` at `secureBoot = false` for the first
+   `nixos-install`.
+2. `sbctl create-keys` — generate the PKI bundle at `/var/lib/sbctl`.
+3. Flip `hosts/mini/host.nix` to `secureBoot = true`, commit/push or edit the
+   local mini checkout.
+4. `nixos-rebuild switch` (or `just switch`) — lanzaboote picks up the bundle
    and writes **signed** boot files to `/boot/EFI/Linux/`.
-3. `sbctl verify` — confirm every entry on the ESP is signed.
-4. Put the firmware into **Setup Mode**: in MEBx or BIOS, find "SecureBoot →
+5. `sbctl verify` — confirm every entry on the ESP is signed.
+6. Put the firmware into **Setup Mode**: in MEBx or BIOS, find "SecureBoot →
    Reset to Setup Mode" / "Clear PK". On the MS-01 this is under the
    Security menu. (Without Setup Mode, `sbctl enroll-keys` will fail or
    silently no-op because the firmware refuses to accept new platform keys.)
-5. `sbctl enroll-keys -m` — `-m` (or `--microsoft`) imports Microsoft's KEK
+7. `sbctl enroll-keys -m` — `-m` (or `--microsoft`) imports Microsoft's KEK
    + DB alongside our own, so OEM firmware capsules and fwupd updates keep
    working. Skip the flag and you'll brick fwupd capsule updates.
-6. Reboot, enable SecureBoot in firmware (now it has keys to validate
+8. Reboot, enable SecureBoot in firmware (now it has keys to validate
    against), save, exit. `sbctl status` should report `Secure Boot:
    enabled`.
 
