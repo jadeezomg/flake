@@ -6,8 +6,9 @@
     desktop.enable = false;
     integrations.enable = false;
     apps.enable = false;
-    devenv.enable = false;
+    devenv.enable = true;
     gaming.enable = false;
     work.enable = false;
+    devenv.languages.swift.enable = false;
   };
 }

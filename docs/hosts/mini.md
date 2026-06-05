@@ -412,7 +412,12 @@ Native systemd service (default) over OCI container — simpler, fewer moving pa
 
 ## 10. Profile interaction
 
-Mini opts out manually in `hosts/mini/profiles.nix`:
+Mini opts out of desktop-style profiles in `hosts/mini/profiles.nix` but keeps
+**`devenv.enable = true`** so Hermes and shells get the full devenv stack:
+**tools**, **cloud**, **containers**, **databases**, **LLM agents + hosting**
+(`llama-cpp` with Vulkan), and **language stacks**. Only **`languages.swift`**
+stays off (Apple-centric; useless on this Linux host). **`hardware.graphics`**
+and **`render`** (+ **`amt`**) live in `hosts/mini/default.nix` for the Intel dGPU.
 
 ```nix
 { ... }: {
@@ -421,9 +426,11 @@ Mini opts out manually in `hosts/mini/profiles.nix`:
     desktop.enable = false;
     integrations.enable = false;
     apps.enable = false;
-    devenv.enable = false;
     gaming.enable = false;
     work.enable = false;
+
+    devenv.enable = true;
+    devenv.languages.swift.enable = false;
   };
 }
 ```
