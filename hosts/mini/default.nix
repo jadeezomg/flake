@@ -56,11 +56,19 @@ in {
     ipv6.method = "auto";
   };
 
+  # Intel discrete GPU (Arc B-series, etc.) — Mesa + Vulkan for `llama-cpp` hosting.
+  hardware.graphics.enable = true;
+
   # AMT / vPro — non-root /dev/mei access for amtterm / openwsman.
   users.groups.amt = {};
   services.udev.extraRules = ''
     KERNEL=="mei*", GROUP="amt", MODE="0660"
   '';
+
+  # Kitty (and other modern terminals) set TERM=xterm-kitty; SSH forwards it.
+  # Without matching terminfo on the server, tools complain ('unknown terminal type')
+  # or behave oddly. Pulls small terminfo-only outputs (kitty, ghostty, foot, …).
+  environment.enableAllTerminfo = true;
 
   # Intel CSME firmware updates over LVFS — critical for AMT CVE patching.
   services.fwupd.enable = true;
@@ -79,7 +87,7 @@ in {
     neededForUsers = true;
   };
   users.users.jadee = lib.mkMerge [
-    {extraGroups = ["amt"];}
+    {extraGroups = ["amt" "render"];}
     (lib.mkIf bootstrap {
       initialPassword = "changeme";
     })

@@ -380,6 +380,11 @@ ssh jadee@<static-ip>           # use the IP from hosts/mini/default.nix
 If this works, AMT KVM is no longer needed for OS-level work — only for
 SecureBoot enrollment in §5.6.
 
+**Kitty locally:** SSH forwards `TERM=xterm-kitty`. After `just switch` on mini,
+`environment.enableAllTerminfo` is enabled so `systemctl`, pagers, etc. recognise
+that type. Until the next switch, use `kitty +kitten ssh …`, or
+`SetEnv TERM=xterm-256color` for that host in `~/.ssh/config`.
+
 **SSH fails?** Console or AMT KVM → `jadee` / `changeme` → verify
 `~/.ssh/authorized_keys` or fix keys in git and reinstall.
 
@@ -396,8 +401,10 @@ cd ~/.dotfiles/flake
 just _init mini    # writes .flake-host = mini (non-interactive)
 ```
 
-`just` is available after the first `nixos-install` generation (wheel user can
-use `nix shell nixpkgs#just -c just …` until HM installs it on a later switch).
+`just` is on **system** PATH via **`dotfiles.profiles.devenv.tools`** (mini has
+`devenv.enable = true` with heavy sub-profiles trimmed in
+`hosts/mini/profiles.nix` — see comment there). On a **very** old generation
+before that landed, use **`nix shell nixpkgs#just -c just …`** once-off.
 
 ### 5.4 Bootstrap mini age host key + workstation secrets
 
@@ -470,6 +477,33 @@ git commit -am "feat(mini): exit bootstrap mode"
 git push
 ```
 
+**Editor age key on mini (before `just switch`):** Home Manager decrypts user
+secrets with the same **editor** private key as on your workstation — the file
+at `~/.config/sops/age/keys.txt` (see [docs/secrets/sops-age-keys.md](../secrets/sops-age-keys.md)).
+NixOS secrets still use the **host** key under `/var/lib/private/sops/age/keys.txt`;
+that path alone is not enough for HM `sops-nix.service`. Copy the editor key over
+first (tight perms: directory `0700`, file `0600`). Use the **same
+`jadee@…` target that already works for plain `ssh` in §5.3** (usually the
+**static LAN IP** from `hosts/mini/default.nix`). Bare `mini` only works if
+something on your network resolves that name — otherwise SSH sits in **DNS
+lookup** or **TCP connect** and `scp` looks like it “hangs”. After Tailscale
+(§5.5.1), `jadee@mini.<tailnet>.ts.net` is fine too.
+
+```bash
+MINI=jadee@192.168.x.x    # replace with your working SSH target
+
+ssh -o ConnectTimeout=10 "$MINI" 'mkdir -p ~/.config/sops/age'
+scp -o ConnectTimeout=10 ~/.config/sops/age/keys.txt "$MINI:~/.config/sops/age/keys.txt"
+ssh "$MINI" chmod 600 ~/.config/sops/age/keys.txt
+```
+
+If it still stalls, run **`ssh -vvv "$MINI"`** (or `scp -v …`) and note the
+last line printed before the long pause — that pinpoints DNS vs TCP vs auth.
+
+**No working network path?** Copy the key out-of-band (USB, AMT KVM paste into
+`nano`, or `cat keys.txt | ssh … 'cat > ~/.config/sops/age/keys.txt'` from a
+shell that *does* reach mini).
+
 ```bash
 # On mini
 cd ~/.dotfiles/flake
@@ -482,6 +516,8 @@ just switch
 After this:
 - jadee's password is the sops-managed one
 - All declarative config is live
+- HM user secrets exist under `~/.config/…`; `sops-session-env.nix` can export them
+  to the user session (see [README](../../README.md) Secrets).
 
 ### 5.5.1 Tailscale — first-time login
 
