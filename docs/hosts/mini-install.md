@@ -222,12 +222,45 @@ the installer so we can `git clone` and `nixos-install` without moving cables.
 
 ```bash
 sudo systemctl start NetworkManager
-ip link                                 # confirm the wireless iface name (e.g. wlan0)
+ip link                                 # confirm the wireless iface name
+
+iface=wlp91s0                           # replace if `ip link` shows a different name
+ssid="<SSID>"
+bssid="AA:BB:CC:DD:EE:FF"              # BSSID from `nmcli ... wifi list`
+
+# Some APs/routers get confused by NetworkManager scan MAC randomization during
+# installer sessions. Disable it in the live environment before connecting.
+sudo mkdir -p /etc/NetworkManager/conf.d
+printf '[device]\nwifi.scan-rand-mac-address=no\n' \
+  | sudo tee /etc/NetworkManager/conf.d/10-disable-wifi-randmac.conf
+sudo systemctl restart NetworkManager
+
 nmcli radio wifi on
-nmcli device wifi rescan
-nmcli device wifi list                  # find the SSID
-nmcli device wifi connect "<SSID>" password "<password>"
+nmcli device wifi rescan ifname "$iface"
+nmcli -f IN-USE,BSSID,SSID,SIGNAL,SECURITY device wifi list ifname "$iface"
+
+# Normal case: connect by SSID.
+nmcli device wifi connect "$ssid" password "<password>" ifname "$iface"
+
+# If the SSID is listed but `connect "$ssid"` says it cannot find it, target
+# the exact access point from the BSSID column. `connect` still takes the SSID;
+# BSSID is a separate option.
+nmcli device wifi connect "$ssid" bssid "$bssid" password "<password>" ifname "$iface"
+
 ping -c 3 1.1.1.1                       # sanity check
+
+# If it gets stuck at "connecting (configuring)", association worked but IP
+# configuration is stuck. Reset the transient profile, pin the real interface
+# MAC for the connection, and retry DHCP-only IPv4.
+nmcli device disconnect "$iface"
+nmcli connection delete "$ssid" || true
+nmcli device wifi connect "$ssid" bssid "$bssid" password "<password>" ifname "$iface"
+nmcli connection modify "$ssid" \
+  802-11-wireless.cloned-mac-address permanent \
+  ipv4.method auto \
+  ipv6.method disabled
+nmcli connection up "$ssid" ifname "$iface"
+nmcli device show "$iface" | grep -E 'IP4|GENERAL.STATE'
 ```
 
 The declarative static-ethernet profile in `hosts/mini/default.nix` only
