@@ -158,36 +158,36 @@ $ msg: echo ""
 # gpu -> git push -u origin main
 gpu
 
-% aliases, git-nu
+% aliases, git-shortcuts
 
-; Nushell-only: from fj0r/git.nu, sourced via shortcut.nu.
-; Available commands: gs, gl, gb, gp, ga, gc, gd, gm, gr (see `help gs` etc.)
+; Nushell-only: local wrappers defined in home/shared/shells/core/nushell.nix.
+; Available commands: gs, gl, gb, gp, ga, gc, gd, gm, gr.
 
-# git status (nushell git.nu)
+# git status
 gs
 
-# git log (nushell git.nu)
+# git log --oneline --decorate --graph
 gl
 
-# git branch (nushell git.nu)
+# git branch
 gb
 
-# git push (nushell git.nu)
+# git push
 gp
 
-# git add (nushell git.nu)
+# git add
 ga
 
-# git commit (nushell git.nu)
+# git commit -v
 gc
 
-# git diff (nushell git.nu)
+# git diff
 gd
 
-# git merge (nushell git.nu)
+# git merge
 gm
 
-# git remote (nushell git.nu)
+# git remote -v
 gr
 
 % aliases, misc

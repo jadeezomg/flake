@@ -39,8 +39,9 @@ Refactor scope:
   - Kernel: when `server.enable`, switch from
     `pkgs.cachyosKernels.linuxPackages-cachyos-latest-zen4` to
     `pkgs.cachyosKernels.linuxPackages-cachyos-server`
-  - Lanzaboote / SecureBoot: **kept on** — works headless via AMT KVM for
-    one-time `sbctl` enrollment
+  - Lanzaboote / SecureBoot: gated by `host.secureBoot`; mini starts with
+    `secureBoot = false` for first install, then flips true after sbctl keys
+    exist
 - `modules/nixos/networking.nix`
   - GUI tools (`networkmanagerapplet`, `firewalld-gui`, `proton-vpn`,
     `wireguard-ui`) gated `lib.mkIf (!server.enable)`
@@ -193,17 +194,19 @@ sudo nix --extra-experimental-features 'nix-command flakes' run \
   github:nix-community/disko -- --mode disko --flake .#mini
 
 # Install
-sudo nixos-install --flake .#mini --no-root-password
+sudo nixos-install --flake .#mini --no-root-password --max-jobs 1 --cores 4
 
-# Reboot, then enroll lanzaboote keys (see §4.5)
+# Reboot, create sbctl keys, flip secureBoot true, then enroll (see §4.5)
 ```
 
 ### 4.5 Lanzaboote enrollment (post-install, one-time)
 
-See `mini-install.md` §5.6 — **switch before enroll-keys**. Summary:
+See `mini-install.md` §5.6 — **create keys, enable lanzaboote, switch, verify,
+then enroll keys**. Summary:
 
 ```bash
 sudo sbctl create-keys
+# Flip hosts/mini/host.nix: secureBoot = false; -> secureBoot = true;
 just switch
 sudo sbctl verify
 sudo sbctl enroll-keys -m    # -m = --microsoft; required for fwupd capsules

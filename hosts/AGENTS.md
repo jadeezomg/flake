@@ -18,6 +18,7 @@ Non-obvious fields:
     monitorScalingFactor = "1.0";
   };
   extraUsers = [ ... ];      # optional guest users — HM configs auto-created for these
+  secureBoot = true;         # optional; false uses systemd-boot instead of lanzaboote
 }
 ```
 

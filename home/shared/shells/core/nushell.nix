@@ -8,20 +8,8 @@
 
   configRel = builtins.replaceStrings ["$HOME/"] [""] paths.config;
   downloadsRel = builtins.replaceStrings ["$HOME/"] [""] paths.downloads;
-
-  gitNu = pkgs.fetchFromGitHub {
-    owner = "fj0r";
-    repo = "git.nu";
-    rev = "main";
-    sha256 = "sha256-7twPTScOXW8RqgDAKx0mzwYVeQrmj3cP9dFO9PBRclA=";
-  };
-
-  bashEnvNu = pkgs.fetchFromGitHub {
-    owner = "tesujimath";
-    repo = "bash-env-nushell";
-    rev = "main";
-    sha256 = "sha256-iNskiGPB4PANxlnCMzAxqkkwfsukWR5AFW5o86g/oP8=";
-  };
+  # Local git shortcuts. Keep these boring: shell conveniences should not pull
+  # mutable upstream source into the system closure.
 in {
   programs.nushell = {
     enable = true;
@@ -55,10 +43,21 @@ in {
     };
 
     extraConfig = ''
-      use ${gitNu}/git/mod.nu *
-      use ${gitNu}/git/shortcut.nu *
-      use ${bashEnvNu}/bash-env.nu *
-
+      def gs [...args: string] { ^git status ...$args }
+      def gl [...args: string] { ^git log --oneline --decorate --graph ...$args }
+      def gb [...args: string] { ^git branch ...$args }
+      def gp [...args: string] { ^git push ...$args }
+      def ga [...args: string] { ^git add ...$args }
+      def gc [...args: string] { ^git commit -v ...$args }
+      def gd [...args: string] { ^git diff ...$args }
+      def gm [...args: string] { ^git merge ...$args }
+      def gr [...args: string] {
+        if ($args | is-empty) {
+          ^git remote -v
+        } else {
+          ^git remote ...$args
+        }
+      }
       def --env zz [] { cd ''$env.HOME }
       def --env zc [] { cd $"(''$env.HOME)/${configRel}" }
       def --env zd [] { cd $"(''$env.HOME)/${downloadsRel}" }
@@ -73,6 +72,4 @@ in {
       }
     '';
   };
-
-  home.packages = [pkgs.bash-env-json];
 }
