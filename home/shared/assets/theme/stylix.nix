@@ -1,4 +1,10 @@
-{pkgs, ...}: let
+{
+  host,
+  isDarwin,
+  lib,
+  pkgs,
+  ...
+}: let
   # Import our custom theme colors
   themeColors = import ./theme.nix;
 
@@ -87,7 +93,9 @@ in {
       };
       # gnome.enable = false;
       # qt.enable = false;
-      gtk = {};
+      # GTK/dconf theming requires a user dconf service (graphical session). Skip
+      # on headless NixOS (mini); Darwin keeps GTK even without `mainMonitor`.
+      gtk.enable = lib.mkDefault (isDarwin || (host ? mainMonitor));
     };
   };
 }
