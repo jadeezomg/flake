@@ -12,7 +12,7 @@
   # ("changeme") and the sops secret is skipped. After §5.4 in
   # docs/hosts/mini-install.md (host key bootstrapped, `.sops.yaml` updated,
   # secrets rekeyed), flip to `false`, commit, `just switch`.
-  bootstrap = true;
+  bootstrap = false;
 in {
   imports = [
     ./hardware-configuration.nix
@@ -50,7 +50,7 @@ in {
     ipv4 = {
       method = "manual";
       # Format: <address>/<prefix>,<gateway>
-      address1 = "192.168.1.10/24,192.168.1.1";
+      address1 = "192.168.178.54/24,192.168.178.255";
       dns = "1.1.1.1;9.9.9.9";
     };
     ipv6.method = "auto";
