@@ -22,7 +22,7 @@ keys:
     - &framework age1nkadhmd3f5y7zeme8tjftkdjxsgyz8rwu2nqcrl5tu4t9enj0q0sp7n42u
     - &desktop age1y9h34vax2fkhlluxadltze4djctcsszznldq24d66pmj3r7kfuzss9h083
     - &caya age1yrt6l02984f5gemerpzlf5v4ymakdmf45qhu3ecy2qtjwuzn43tqh755nz
-    # - &mini age1...
+    - &mini age1dftlzwuka6xamn2a2d0ed79qz9sdz0m05gu9vn52hqgkwezlkchsul69gg
 
 creation_rules:
     - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
@@ -32,4 +32,4 @@ creation_rules:
                 - *framework
                 - *desktop
                 - *caya
-                # - *mini
+                - *mini
