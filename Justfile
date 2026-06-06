@@ -20,9 +20,9 @@ export ICON_ERROR := THEME_RED + "▼" + THEME_RESET
 export ICON_INFO := THEME_CYAN + "▪" + THEME_RESET
 
 
-[doc('Interactive picker: fzf with group + doc (see scripts/shell/just-choose.bash)')]
+[doc('Recipe picker: `tv just-recipes` (cable TOML only). Run a recipe with F5.')]
 default:
-    @bash "$FLAKE/scripts/shell/just-choose.bash"
+    tv --cable-dir "$FLAKE/scripts/shell/television-cable" just-recipes "$FLAKE"
 
 
 [doc('Build / home-manager build for .flake-host')]
@@ -554,7 +554,9 @@ nix-update-pkg:
       mapfile -t pkg_attrs < <(nix eval --impure --accept-flake-config \
         --expr "builtins.attrNames (builtins.getFlake \"$PWD\").packages.\${builtins.currentSystem}" \
         --json | jq -r '.[]' | sort -u)
-      if command -v fzf >/dev/null 2>&1; then
+      if command -v tv >/dev/null 2>&1; then
+        attr="$(printf '%s\n' "${pkg_attrs[@]}" | tv --no-preview --no-remote --no-sort --input-prompt 'nix-update> ' --height 20 2>/dev/null || true)"
+      elif command -v fzf >/dev/null 2>&1; then
         attr="$(printf '%s\n' "${pkg_attrs[@]}" | fzf --prompt='nix-update> ' --height=40% --preview-window=hidden)"
       else
         echo "attrs: ${pkg_attrs[*]}"
