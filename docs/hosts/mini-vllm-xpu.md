@@ -7,7 +7,7 @@ This mirrors the **Brutus** host setup under `~/.dotfiles/examples/dotfiles`:
 
 While **`miniBootstrap = true`** (first install), the flake skips `vllm-xpu-nix` and `./vllm-xpu.nix` so evaluators without `ca-derivations` still work. After §5.4 in `mini-install.md`, set **`miniBootstrap = false`**.
 
-**`miniLlmHosting`** in `hosts/mini/host.nix` gates `vllm-xpu-nix`, `./vllm-xpu.nix`, and `dotfiles.profiles.devenv.llm.hosting` (`hosts/mini/profiles.nix`). It defaults **`false`** (off); set **`true`** when you want Intel vLLM-XPU again (requires `ca-derivations` on the evaluating Nix — see `modules/shared/environment.nix` and `lib/nix-experimental-features.nix` / Home Manager on Linux).
+**`miniLlmHosting`** in `hosts/mini/host.nix` gates `vllm-xpu-nix`, `./vllm-xpu.nix`, and `dotfiles.profiles.devenv.llm.hosting` (`hosts/mini/profiles.nix`). Set **`true`** for Intel vLLM-XPU (requires **`ca-derivations`** on the evaluating Nix — see `modules/shared/environment.nix` and `lib/nix-experimental-features.nix` / Home Manager on Linux). Set **`false`** to drop the stack and skip CA-heavy evaluation.
 
 ## Hardware notes
 
@@ -16,7 +16,7 @@ While **`miniBootstrap = true`** (first install), the flake skips `vllm-xpu-nix`
 
 ## llama-cpp vs vLLM
 
-With **`miniLlmHosting` true**, `./vllm-xpu.nix` **`mkForce`s `devenv.llm.hosting` off** so Vulkan **`llama-cpp`** is not installed alongside vLLM-XPU. With **`miniLlmHosting` false**, hosting stays off too (`profiles.nix`). Use llama-cpp instead of vLLM by keeping `miniLlmHosting` false and setting `devenv.llm.hosting.enable` as you prefer (override the `mkForce` in `profiles.nix` if needed).
+With **`miniLlmHosting` true**, `./vllm-xpu.nix` **`mkForce`s `devenv.llm.hosting` off** so Vulkan **`llama-cpp`** is not installed alongside vLLM-XPU. With **`miniLlmHosting` false**, `profiles.nix` **`mkForce`s hosting off** too. Use llama-cpp instead of vLLM by keeping **`miniLlmHosting` false** and adjusting `profiles.nix` if you want hosting on without vLLM.
 
 ## Troubleshooting
 
