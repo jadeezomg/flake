@@ -21,6 +21,7 @@ in {
     ../../modules/nixos
     ./profiles.nix
     ./hermes.nix
+    ./vllm-xpu.nix
     # Nightly cachix pipeline — disabled until the host is up and the cache is
     # bootstrapped. Re-enable after following docs/hosts/mini-install.md §6.
     # ./flake-cache-warm.nix
@@ -56,7 +57,7 @@ in {
     ipv6.method = "auto";
   };
 
-  # Intel discrete GPU (Arc B-series, etc.) — Mesa + Vulkan for `llama-cpp` hosting.
+  # Intel GPU: Vulkan for generic compute; vLLM-XPU stack + media runtimes live in ./vllm-xpu.nix.
   hardware.graphics.enable = true;
 
   # AMT / vPro — non-root /dev/mei access for amtterm / openwsman.

@@ -29,6 +29,7 @@ in {
 
       # --- Code metrics & analysis ---
       tokei
+      diffnav
 
       # --- Package managers ---
       uv

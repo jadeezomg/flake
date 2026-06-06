@@ -88,6 +88,13 @@
       url = "github:mattpocock/skills";
       flake = false;
     };
+
+    # Intel XPU vLLM (torch+xpu, vllm-xpu-kernels) + NixOS `services.vllm-xpu.*`.
+    # Mirrors ~/.dotfiles/examples/dotfiles hosts/brutus (see hosts/mini/vllm-xpu.nix).
+    vllm-xpu-nix = {
+      url = "github:jasonboukheir/vllm-xpu-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {flake-parts, ...}: let
