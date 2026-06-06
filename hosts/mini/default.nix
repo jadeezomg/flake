@@ -74,6 +74,11 @@ in {
 
   # Intel CSME firmware updates over LVFS — critical for AMT CVE patching.
   services.fwupd.enable = true;
+  # `fwupd-refresh.service` runs during switch; it often races a restarting
+  # `fwupd.service` or LVFS (client/daemon mismatch, nixpkgs#288598) and exits 1,
+  # which makes switch-to-configuration return 4. Treat those as non-fatal;
+  # run `fwupdmgr refresh` / `fwupdmgr update` when you care about metadata.
+  systemd.services.fwupd-refresh.serviceConfig.SuccessExitStatus = lib.mkForce [1 2];
 
   # AMT controller tools (also useful here for SOL-from-localhost debugging).
   environment.systemPackages = with pkgs; [
