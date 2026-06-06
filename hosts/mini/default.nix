@@ -27,7 +27,7 @@ in {
       # Nightly cachix pipeline — disabled until the host is up (mini-install.md §6).
       # ./flake-cache-warm.nix
     ]
-    ++ lib.optionals (!bootstrap) [./vllm-xpu.nix];
+    ++ lib.optionals (!bootstrap && (host.miniLlmHosting or false)) [./vllm-xpu.nix];
   # NOPASSWD wheel — quality-of-life over SSH on a key-only headless host.
   # Desktop/framework keep password-required sudo (gated by hostKey == "mini"
   # is unnecessary because this file only loads for the mini host).

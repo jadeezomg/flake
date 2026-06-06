@@ -1525,11 +1525,13 @@
         "ref": "refs/heads/main",
         "rev": "b4d1a427f48eb47acd6cee248122637e35192390",
         "revCount": 263,
+        "shallow": false,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/jasonboukheir/vllm-xpu-kernels.git"
       },
       "original": {
+        "shallow": false,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/jasonboukheir/vllm-xpu-kernels.git"
