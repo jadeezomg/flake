@@ -6,6 +6,10 @@ in
     hostname = "mini";
     description = "Mini — Minisforum MS-01 headless server";
     user = sharedNixOSUser;
+    # First `nixos-install`: set `true` — skips sops password file + vLLM-XPU
+    # (no `vllm-xpu-nix` module / `./vllm-xpu.nix`, so evaluators without
+    # `ca-derivations` still build). Flip to `false` after docs/hosts/mini-install.md §5.4.
+    miniBootstrap = false;
     # No guest accounts on a headless server.
     extraUsers = [];
     # 24 GiB RAM: keep local builds conservative. The installer has no disk

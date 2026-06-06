@@ -93,7 +93,7 @@ Search `git grep -n TODO` for the canonical list. As of writing:
 | `modules/shared/environment.nix:43` | paste the real `jadee-flake.cachix.org-1:<pubkey>=` (only after `cachix create jadee-flake` — see §6; OK to defer) |
 | `hosts/mini/disko.nix` (both `device =`) | real `/dev/disk/by-id/nvme-…` paths from the live ISO (§4.2) |
 | `hosts/mini/default.nix` (`mini-lan` profile) | real static IP, gateway, DNS, and `interface-name` (see §1.5) |
-| `hosts/mini/default.nix` (`bootstrap`) | leave `true` for the first `nixos-install`; flip to `false` after §5.4 |
+| `hosts/mini/host.nix` (`miniBootstrap`) | leave `true` for the first `nixos-install`; flip to `false` after §5.4 (skips vLLM-XPU + `vllm-xpu-nix` until then — no `ca-derivations` on evaluator) |
 
 ### 1.4 Network values — commit on workstation **or** edit on the installer
 
@@ -125,7 +125,7 @@ Mini-relevant entries (quick reference):
 
 | Sops path | When to add |
 |---|---|
-| `users/jadee/password_mini` | **before §5.5** — required in secrets before `bootstrap = false` (see §5.4 checklist) |
+| `users/jadee/password_mini` | **before §5.5** — required in secrets before `miniBootstrap = false` (see §5.4 checklist) |
 | `mini/amt/password` | §5.7 (after MEBx is set up) |
 | `mini/git/deploy-key` | §6 (cache-warm bootstrap, deferred) |
 | `cachix/auth-token` | §6 (cache-warm bootstrap, deferred) |
@@ -314,7 +314,7 @@ This formats both disks, creates a 1GiB ESP + btrfs system root (including
 
 ### 4.4 nixos-install (bootstrap mode)
 
-`hosts/mini/default.nix` has `bootstrap = true` set (see §1.2). In this
+`hosts/mini/host.nix` has `miniBootstrap = true` set (see §1.2). In this
 mode jadee is created with `initialPassword = "changeme"` and the
 sops-managed `hashedPasswordFile` is *not* declared — this avoids the
 chicken-and-egg where sops-nix can't decrypt before mini's age host key
@@ -339,8 +339,8 @@ uses the live installer's Nix daemon while building the closure.
 override the user password prompt here; the declarative `initialPassword`
 will be applied at first boot.
 
-After §5.4 succeeds, flip `bootstrap = true` → `false` in
-`hosts/mini/default.nix`, commit, and run `just switch` (§5.5) to swap to
+After §5.4 succeeds, flip `miniBootstrap = true` → `false` in
+`hosts/mini/host.nix`, commit, and run `just switch` (§5.5) to swap to
 the sops-managed password.
 
 ### 4.5 Reboot
@@ -465,14 +465,14 @@ sops secrets/secrets.yaml
 
 ### 5.5 Switch on mini (post-bootstrap)
 
-**Do not flip `bootstrap = false` until the §5.4 checklist is complete.**
+**Do not flip `miniBootstrap` to `false` until the §5.4 checklist is complete.**
 
-Flip the bootstrap flag in `hosts/mini/default.nix` (see §4.4) so the
+Flip `miniBootstrap` in `hosts/mini/host.nix` (see §4.4) so the
 sops-managed password takes over, then switch:
 
 ```bash
 # On workstation
-$EDITOR hosts/mini/default.nix    # bootstrap = true  →  bootstrap = false
+$EDITOR hosts/mini/host.nix    # miniBootstrap = true  →  miniBootstrap = false
 git commit -am "feat(mini): exit bootstrap mode"
 git push
 ```

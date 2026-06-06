@@ -5,7 +5,9 @@ This mirrors the **Brutus** host setup under `~/.dotfiles/examples/dotfiles`:
 - Flake input [`vllm-xpu-nix`](https://github.com/jasonboukheir/vllm-xpu-nix) (NixOS module `services.vllm-xpu.*`).
 - `hosts/mini/vllm-xpu.nix` — same kernel package / instance layout as `examples/dotfiles/hosts/brutus/services/vllm-xpu.nix`, without the examples repo’s `homelab.ports` (ports are fixed `8000` / `8001` / `8002`).
 
-Nix is configured with **`ca-derivations`** and **`dynamic-derivations`** (see `modules/shared/environment.nix`) so the vllm-xpu closure can evaluate, matching the note in `examples/dotfiles/modules/nixos/configuration.nix`.
+While **`miniBootstrap = true`** in `hosts/mini/host.nix` (first install), the flake **does not** import `vllm-xpu-nix` or this file — so workstations can build the mini closure without `ca-derivations` on the evaluator. After §5.4 in `mini-install.md`, set `miniBootstrap = false` and switch to enable the stack below.
+
+Nix is configured with **`ca-derivations`** and **`dynamic-derivations`** on Linux (see `modules/shared/environment.nix`) so the vllm-xpu closure can evaluate once enabled.
 
 ## Hardware notes
 

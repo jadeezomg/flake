@@ -2,31 +2,32 @@
   config,
   lib,
   pkgs,
+  host,
   ...
 }: let
-  # Bootstrap toggle — breaks the sops host-age-key chicken-and-egg.
+  # Single source: `hosts/mini/host.nix` → `miniBootstrap`. Breaks the sops
+  # host-age-key chicken-and-egg and skips vllm-xpu-nix until the host is stable.
   #
   # On a fresh install `/var/lib/private/sops/age/keys.txt` does not exist yet,
   # so sops-nix can't decrypt `users/jadee/password_mini` during activation.
-  # Set `true` for the very first `nixos-install`; jadee gets `initialPassword`
-  # ("changeme") and the sops secret is skipped. After §5.4 in
-  # docs/hosts/mini-install.md (host key bootstrapped, `.sops.yaml` updated,
-  # secrets rekeyed), flip to `false`, commit, `just switch`.
-  bootstrap = false;
+  # Set `miniBootstrap = true` in `host.nix` for the very first `nixos-install`;
+  # jadee gets `initialPassword` ("changeme") and the sops secret is skipped.
+  # After §5.4 in docs/hosts/mini-install.md, flip `miniBootstrap` to `false`,
+  # commit, `just switch`.
+  bootstrap = host.miniBootstrap or false;
 in {
-  imports = [
-    ./hardware-configuration.nix
-    ./disko.nix
-    ../../modules/shared
-    ../../modules/nixos
-    ./profiles.nix
-    ./hermes.nix
-    ./vllm-xpu.nix
-    # Nightly cachix pipeline — disabled until the host is up and the cache is
-    # bootstrapped. Re-enable after following docs/hosts/mini-install.md §6.
-    # ./flake-cache-warm.nix
-  ];
-
+  imports =
+    [
+      ./hardware-configuration.nix
+      ./disko.nix
+      ../../modules/shared
+      ../../modules/nixos
+      ./profiles.nix
+      ./hermes.nix
+      # Nightly cachix pipeline — disabled until the host is up (mini-install.md §6).
+      # ./flake-cache-warm.nix
+    ]
+    ++ lib.optionals (!bootstrap) [./vllm-xpu.nix];
   # NOPASSWD wheel — quality-of-life over SSH on a key-only headless host.
   # Desktop/framework keep password-required sudo (gated by hostKey == "mini"
   # is unnecessary because this file only loads for the mini host).
