@@ -10,6 +10,9 @@ in
     # (no `vllm-xpu-nix` module / `./vllm-xpu.nix`, so evaluators without
     # `ca-derivations` still build). Flip to `false` after docs/hosts/mini-install.md §5.4.
     miniBootstrap = false;
+    # Gates `vllm-xpu-nix` + `./vllm-xpu.nix` and mirrors `devenv.llm.hosting` on this
+    # host (`profiles.nix`). Temporary off — set `true` to re-enable Intel vLLM-XPU.
+    miniLlmHosting = false;
     # No guest accounts on a headless server.
     extraUsers = [];
     # 24 GiB RAM: keep local builds conservative. The installer has no disk

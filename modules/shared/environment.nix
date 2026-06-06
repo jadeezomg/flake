@@ -7,6 +7,10 @@
 }: let
   buildCores = host.buildCores or 6;
   isDarwin = lib.hasSuffix "-darwin" (host.system or "");
+  nixExperimentalFeatures = import ../../lib/nix-experimental-features.nix {
+    inherit lib;
+    inherit isDarwin;
+  };
 in {
   # Cross-platform nix.settings + cargo env vars + `/etc/current-system-packages`.
   # Automatic GC lives in `modules/nixos/gc.nix`
@@ -45,23 +49,10 @@ in {
       # "jadee-flake.cachix.org-1:REPLACE_ME="
     ];
     # CA / dynamic derivations (Linux only — mini vllm-xpu, etc.). Not enabled on
-    # Darwin (Determinate / unused). These apply after `switch`; the *evaluating*
-    # Nix must already allow them or the first build fails. One-shot (replace HOST):
-    #   Bash:
-    #     NIX_CONFIG='extra-experimental-features = nix-command flakes pipe-operators ca-derivations dynamic-derivations' nh os build '.#HOST'
-    #   Nushell:
-    #     with-env { NIX_CONFIG: "extra-experimental-features = nix-command flakes pipe-operators ca-derivations dynamic-derivations" } { nh os build '.#HOST' }
-    # (or add the same `extra-experimental-features = …` once to /etc/nix/nix.conf).
-    experimental-features =
-      [
-        "nix-command"
-        "flakes"
-        "pipe-operators"
-      ]
-      ++ lib.optionals (!isDarwin) [
-        "ca-derivations"
-        "dynamic-derivations"
-      ];
+    # Darwin (Determinate / unused). NixOS applies these after `switch`; the
+    # *evaluating* client also needs them — see `lib/nix-experimental-features.nix`
+    # and Home Manager `nix.settings` on Linux.
+    experimental-features = nixExperimentalFeatures;
 
     trusted-users = [
       "jadee"

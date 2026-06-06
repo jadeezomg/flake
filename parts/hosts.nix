@@ -120,7 +120,11 @@
           inputs.disko.nixosModules.disko
           inputs.hermes-agent.nixosModules.default
         ]
-        ++ lib.optional ((hostKey == "mini") && (!(host.miniBootstrap or false)))
+        ++ lib.optional (
+          (hostKey == "mini")
+          && (!(host.miniBootstrap or false))
+          && (host.miniLlmHosting or false)
+        )
         inputs.vllm-xpu-nix.nixosModules.default
         ++ [
           (./. + "/../hosts/${hostKey}")
