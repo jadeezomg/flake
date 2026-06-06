@@ -14,9 +14,9 @@
     gaming.enable = false;
     work.enable = false;
     devenv.languages.swift.enable = false;
-    # Same knob as `host.miniLlmHosting` (see `hosts/mini/host.nix`): when false,
-    # no Vulkan llama-cpp; when true, `./vllm-xpu.nix` still forces this off to
-    # avoid two GPU LLM stacks (vLLM-XPU replaces hosting packages).
-    devenv.llm.hosting.enable = lib.mkForce (host.miniLlmHosting or false);
+    # When `miniLlmHosting` is false: force hosting off (no Vulkan llama-cpp).
+    # When true: do not set here — `./vllm-xpu.nix` `mkForce`s hosting off vs vLLM-XPU;
+    # two `mkForce`s on the same option would conflict.
+    devenv.llm.hosting.enable = lib.mkIf (!(host.miniLlmHosting or false)) (lib.mkForce false);
   };
 }

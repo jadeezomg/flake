@@ -11,8 +11,8 @@ in
     # `ca-derivations` still build). Flip to `false` after docs/hosts/mini-install.md §5.4.
     miniBootstrap = false;
     # Gates `vllm-xpu-nix` + `./vllm-xpu.nix` and mirrors `devenv.llm.hosting` on this
-    # host (`profiles.nix`). Temporary off — set `true` to re-enable Intel vLLM-XPU.
-    miniLlmHosting = false;
+    # host (`profiles.nix`). `./vllm-xpu.nix` still `mkForce`s hosting off vs Vulkan llama-cpp.
+    miniLlmHosting = true;
     # No guest accounts on a headless server.
     extraUsers = [];
     # 24 GiB RAM: keep local builds conservative. The installer has no disk
