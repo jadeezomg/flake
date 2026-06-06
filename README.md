@@ -43,7 +43,7 @@ just gc-days         # nh clean, keep store paths newer than N days
 just health          # git status, disk, nh os info
 ```
 
-`just` alone runs an `fzf` recipe picker (`scripts/shell/just-choose.bash`). `just list` lists every recipe; `just info` shows `nix flake metadata`.
+`just` alone runs a **television** (`tv`) recipe picker when installed (`just-flake` cable + cwd fix + `just-choose.bash`), else **fzf**. `just list` lists every recipe; `just info` shows `nix flake metadata`.
 
 ## Justfile groups
 

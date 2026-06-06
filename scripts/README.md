@@ -4,7 +4,7 @@
 
 | Path | Purpose |
 |------|---------|
-| **`shell/`** | Bash helpers: `common.sh` (sourced by the repo `Justfile`), `just-choose.bash` (fzf recipe picker). |
+| **`shell/`** | Bash helpers: `common.sh`, `just-choose.bash` (`tv` / `fzf`), `television-cable/` (`just-flake.toml` + `just-flake-source.bash`), `just-choose-tv-preview.bash`. |
 | **`pyproject.toml`** | uv / Hatch project **`flake-scripts`** (console scripts below). |
 | **`src/flake_scripts/`** | Python package. |
 | **`lib/`** | `common.py` (flake paths, Rich consoles), `palette.py` (hex mirror of `home/shared/assets/theme/theme.nix`). |

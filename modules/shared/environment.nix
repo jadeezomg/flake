@@ -2,9 +2,11 @@
   config,
   pkgs,
   host ? {},
+  lib,
   ...
 }: let
   buildCores = host.buildCores or 6;
+  isDarwin = lib.hasSuffix "-darwin" (host.system or "");
 in {
   # Cross-platform nix.settings + cargo env vars + `/etc/current-system-packages`.
   # Automatic GC lives in `modules/nixos/gc.nix`
@@ -42,11 +44,17 @@ in {
       # TODO: replace with the real public key after running `cachix create jadee-flake`
       # "jadee-flake.cachix.org-1:REPLACE_ME="
     ];
-    experimental-features = [
-      "nix-command"
-      "flakes"
-      "pipe-operators"
-    ];
+    experimental-features =
+      [
+        "nix-command"
+        "flakes"
+        "pipe-operators"
+      ]
+      # vllm-xpu-nix (mini) uses CA derivations; keep off Darwin (Determinate / unused).
+      ++ lib.optionals (!isDarwin) [
+        "ca-derivations"
+        "dynamic-derivations"
+      ];
 
     trusted-users = [
       "jadee"

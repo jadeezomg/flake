@@ -118,6 +118,7 @@
         inputs.dms.nixosModules.greeter
         inputs.disko.nixosModules.disko
         inputs.hermes-agent.nixosModules.default
+        inputs.vllm-xpu-nix.nixosModules.default
         (./. + "/../hosts/${hostKey}")
         sops-nix.nixosModules.sops
         determinate.nixosModules.default

@@ -4,6 +4,7 @@ with pkgs; [
   ripgrep
   fd
   fzf
+  television
   zoxide
   broot
 
