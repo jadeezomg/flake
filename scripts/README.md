@@ -4,7 +4,7 @@
 
 | Path | Purpose |
 |------|---------|
-| **`shell/`** | Bash helpers: `common.sh`, `just-choose.bash` (`tv` / `fzf`), `television-cable/` (`just-flake.toml` + `just-flake-source.bash`), `just-choose-tv-preview.bash`. |
+| **`shell/`** | Bash helpers: `common.sh`, `television-cable/` (`just-recipes.toml` — root `Justfile` `default` runs `tv … just-recipes`). |
 | **`pyproject.toml`** | uv / Hatch project **`flake-scripts`** (console scripts below). |
 | **`src/flake_scripts/`** | Python package. |
 | **`lib/`** | `common.py` (flake paths, Rich consoles), `palette.py` (hex mirror of `home/shared/assets/theme/theme.nix`). |
@@ -20,7 +20,7 @@ uv run --project scripts symlink-check all
 uv run --project scripts zen-session extract --nix
 ```
 
-The root **`Justfile`** uses `scripts/shell/common.sh` and `scripts/shell/just-choose.bash`.
+The root **`Justfile`** `default` recipe runs `tv` with the `just-recipes` cable; other recipes use `scripts/shell/common.sh`.
 
 ## Justfile integration
 

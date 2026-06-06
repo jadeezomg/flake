@@ -1,0 +1,47 @@
+# Aligned with upstream Television community channel "just-recipes":
+# https://alexpasmantier.github.io/television/community/channels-unix/#just-recipes
+# Invoke: `tv --cable-dir …/television-cable just-recipes <cwd>`
+# (`cwd` = flake root). `JUSTFILE` / `FLAKE` must be set (root `Justfile` exports them).
+# Run a recipe from the picker: **F5** (execute in tv). No wrapper script.
+
+[metadata]
+name = "just-recipes"
+description = "Select recipes from a Justfile"
+requirements = ["just", "bash"]
+
+[source]
+command = [
+    "bash -lc 'just --justfile \"${JUSTFILE}\" --summary 2>/dev/null | tr \"[:blank:]\" \"\\n\"'",
+]
+no_sort = true
+frecency = false
+
+[preview]
+command = "bash -lc 'just --justfile \"${JUSTFILE}\" -s \"{}\" 2>/dev/null'"
+
+[ui]
+input_prompt = "recipe › "JUSTFILE
+
+layout = "landscape"
+input_bar_position = "bottom"
+input_header = "Just · F5 = run recipe · Tab = multi-select"
+[ui.preview_panel]
+size = 46
+border_type = "rounded"
+
+[ui.results_panel]
+border_type = "rounded"
+
+[ui.input_bar]
+border_type = "rounded"
+
+[ui.remote_control]
+disabled = true
+
+[keybindings]
+f5 = "actions:execute-recipe"
+
+[actions.execute-recipe]
+description = "Execute a justfile recipe"
+command = "bash -lc 'cd \"${FLAKE}\" && exec just {}'"
+mode = "execute"
