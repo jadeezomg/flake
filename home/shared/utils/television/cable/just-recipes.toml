@@ -1,8 +1,8 @@
 # Aligned with upstream Television community channel "just-recipes":
 # https://alexpasmantier.github.io/television/community/channels-unix/#just-recipes
-# Invoke: `tv --cable-dir …/television-cable just-recipes <cwd>`
-# (`cwd` = flake root). `JUSTFILE` / `FLAKE` must be set (root `Justfile` exports them).
-# Run a recipe from the picker: **F5** (execute in tv). No wrapper script.
+# Cable sources live under `home/shared/utils/television/cable/` (like navi cheats).
+# Invoke: `tv --cable-dir …/cable just-recipes <cwd>` or bare `tv just-recipes` after HM
+# links this file to ~/.config/television/cable/. `JUSTFILE` / `FLAKE` from root `Justfile`.
 
 [metadata]
 name = "just-recipes"
@@ -11,7 +11,7 @@ requirements = ["just", "bash"]
 
 [source]
 command = [
-    "bash -lc 'just --justfile \"${JUSTFILE}\" --summary 2>/dev/null | tr \"[:blank:]\" \"\\n\"'",
+  "bash -lc 'just --justfile \"${JUSTFILE}\" --summary 2>/dev/null | tr \"[:blank:]\" \"\\n\"'",
 ]
 no_sort = true
 frecency = false
@@ -20,11 +20,11 @@ frecency = false
 command = "bash -lc 'just --justfile \"${JUSTFILE}\" -s \"{}\" 2>/dev/null'"
 
 [ui]
-input_prompt = "recipe › "JUSTFILE
-
 layout = "landscape"
 input_bar_position = "bottom"
 input_header = "Just · F5 = run recipe · Tab = multi-select"
+input_prompt = "recipe › "
+
 [ui.preview_panel]
 size = 46
 border_type = "rounded"

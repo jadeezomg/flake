@@ -4,7 +4,8 @@
 
 | Path | Purpose |
 |------|---------|
-| **`shell/`** | Bash helpers: `common.sh`, `television-cable/` (`just-recipes.toml` — root `Justfile` `default` runs `tv … just-recipes`). |
+| **`shell/`** | Bash helpers (`common.sh`). |
+| **HM `home/shared/utils/television/`** | Cable TOMLs under `cable/` (like navi `cheats/`); `default.nix` symlinks into `~/.config/television/cable/`. Root `Justfile` `default` runs `tv … just-recipes`. |
 | **`pyproject.toml`** | uv / Hatch project **`flake-scripts`** (console scripts below). |
 | **`src/flake_scripts/`** | Python package. |
 | **`lib/`** | `common.py` (flake paths, Rich consoles), `palette.py` (hex mirror of `home/shared/assets/theme/theme.nix`). |

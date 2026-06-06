@@ -3,6 +3,7 @@
     ./core.nix
     ./text.nix
     ./navi
+    ./television
     ./yazi
   ];
   home.packages = with pkgs; [
