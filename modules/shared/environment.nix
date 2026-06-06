@@ -44,14 +44,20 @@ in {
       # TODO: replace with the real public key after running `cachix create jadee-flake`
       # "jadee-flake.cachix.org-1:REPLACE_ME="
     ];
+    # CA / dynamic derivations (Linux only — mini vllm-xpu, etc.). Not enabled on
+    # Darwin (Determinate / unused). These apply after `switch`; the *evaluating*
+    # Nix must already allow them or the first build fails. One-shot (replace HOST):
+    #   Bash:
+    #     NIX_CONFIG='extra-experimental-features = nix-command flakes pipe-operators ca-derivations dynamic-derivations' nh os build '.#HOST'
+    #   Nushell:
+    #     with-env { NIX_CONFIG: "extra-experimental-features = nix-command flakes pipe-operators ca-derivations dynamic-derivations" } { nh os build '.#HOST' }
+    # (or add the same `extra-experimental-features = …` once to /etc/nix/nix.conf).
     experimental-features =
       [
         "nix-command"
         "flakes"
         "pipe-operators"
-        "ca-derivations"
       ]
-      # vllm-xpu-nix (mini) uses CA derivations; keep off Darwin (Determinate / unused).
       ++ lib.optionals (!isDarwin) [
         "ca-derivations"
         "dynamic-derivations"

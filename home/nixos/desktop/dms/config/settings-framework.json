@@ -279,7 +279,7 @@
 	"spotlightBarShowModeChips": false,
 	"useAutoLocation": true,
 	"weatherEnabled": true,
-	"networkPreference": "auto",
+	"networkPreference": "wifi",
 	"iconTheme": "System Default",
 	"cursorSettings": {
 		"theme": "phinger-cursors-dark",
@@ -563,6 +563,10 @@
 					"id": "cpuUsage",
 					"enabled": true,
 					"minimumWidth": true
+				},
+				{
+					"id": "network_speed_monitor",
+					"enabled": true
 				}
 			],
 			"centerWidgets": [

@@ -112,20 +112,24 @@
             system
             ;
         };
-      modules = [
-        inputs.stylix.nixosModules.stylix
-        inputs.dms.nixosModules.dank-material-shell
-        inputs.dms.nixosModules.greeter
-        inputs.disko.nixosModules.disko
-        inputs.hermes-agent.nixosModules.default
+      modules =
+        [
+          inputs.stylix.nixosModules.stylix
+          inputs.dms.nixosModules.dank-material-shell
+          inputs.dms.nixosModules.greeter
+          inputs.disko.nixosModules.disko
+          inputs.hermes-agent.nixosModules.default
+        ]
+        ++ lib.optional ((hostKey == "mini") && (!(host.miniBootstrap or false)))
         inputs.vllm-xpu-nix.nixosModules.default
-        (./. + "/../hosts/${hostKey}")
-        sops-nix.nixosModules.sops
-        determinate.nixosModules.default
-        lanzaboote.nixosModules.lanzaboote
-        home-manager.nixosModules.home-manager
-        (mkHomeManagerModule {inherit hostKey user system;})
-      ];
+        ++ [
+          (./. + "/../hosts/${hostKey}")
+          sops-nix.nixosModules.sops
+          determinate.nixosModules.default
+          lanzaboote.nixosModules.lanzaboote
+          home-manager.nixosModules.home-manager
+          (mkHomeManagerModule {inherit hostKey user system;})
+        ];
     };
   in {
     nixosConfigurations = lib.optionalAttrs (!isDarwin) {${hostname} = nixosConfig;};

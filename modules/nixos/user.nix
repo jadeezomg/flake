@@ -37,7 +37,8 @@
 in {
   users.mutableUsers = false;
 
-  # Per-host password hash. mini's bootstrap toggle in `hosts/mini/default.nix`
+  # Per-host password hash. mini's bootstrap toggle is `miniBootstrap` in
+  # `hosts/mini/host.nix` (see `hosts/mini/default.nix`).
   # gates its own declaration, so we opt it out here to avoid a double-decl.
   sops.secrets.${passwordSecretKey} = lib.mkIf (hostKey != "mini") {
     neededForUsers = true;
