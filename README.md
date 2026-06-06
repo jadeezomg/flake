@@ -43,7 +43,7 @@ just gc-days         # nh clean, keep store paths newer than N days
 just health          # git status, disk, nh os info
 ```
 
-`just` alone runs **`tv just-recipes`** (Television cable under `scripts/shell/television-cable/`). **F5** runs the highlighted recipe (`just` in execute mode). Install the `television` package so `tv` is on `PATH`, or run `just --choose` yourself. `just list` lists every recipe; `just info` shows `nix flake metadata`.
+`just` alone runs **`tv just-recipes`** (cable TOML in `home/shared/utils/television/cable/`; Home Manager links it to **`~/.config/television/cable/`** like navi cheats). **F5** runs the highlighted recipe (`just` in execute mode). Install the `television` package so `tv` is on `PATH`, or run `just --choose` yourself. `just list` lists every recipe; `just info` shows `nix flake metadata`.
 
 ## Justfile groups
 

@@ -22,7 +22,7 @@ export ICON_INFO := THEME_CYAN + "▪" + THEME_RESET
 
 [doc('Recipe picker: `tv just-recipes` (cable TOML only). Run a recipe with F5.')]
 default:
-    tv --cable-dir "$FLAKE/scripts/shell/television-cable" just-recipes "$FLAKE"
+    tv --cable-dir "$FLAKE/home/shared/utils/television/cable" just-recipes "$FLAKE"
 
 
 [doc('Build / home-manager build for .flake-host')]

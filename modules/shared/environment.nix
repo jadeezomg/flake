@@ -49,6 +49,7 @@ in {
         "nix-command"
         "flakes"
         "pipe-operators"
+        "ca-derivations"
       ]
       # vllm-xpu-nix (mini) uses CA derivations; keep off Darwin (Determinate / unused).
       ++ lib.optionals (!isDarwin) [
