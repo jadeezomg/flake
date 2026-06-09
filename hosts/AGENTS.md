@@ -19,6 +19,9 @@ Non-obvious fields:
   };
   extraUsers = [ ... ];      # optional guest users — HM configs auto-created for these
   secureBoot = true;         # optional; false uses systemd-boot instead of lanzaboote
+  nixpkgsConfig = {
+    rocmSupport = true;      # host-specific nixpkgs import config; only when pkgs needs it at creation time
+  };
 }
 ```
 

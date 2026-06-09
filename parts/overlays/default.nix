@@ -15,7 +15,6 @@ in
     (import ./direnv-skip-check-darwin.nix {inherit system;})
     (import ./nono-skip-check-darwin.nix {inherit system;})
     (import ./python-package-fixes.nix)
-    (import ./pending-nixpkgs-fixes.nix)
   ]
   ++ (
     if isX86_64Linux

@@ -5,8 +5,9 @@ Shared Nix helpers used across the flake.
 ## pkgs.nix
 
 ```nix
-getPkgs system extraOverlays   # nixpkgs with allowUnfree + all overlays + extraOverlays
-getPkgsStable system           # nixpkgs 25.11, allowUnfree, NO overlays
+getPkgs system extraOverlays                         # nixpkgs with allowUnfree + all overlays + extraOverlays
+getPkgsWithConfig system extraOverlays extraConfig   # same, plus host-specific nixpkgs config (e.g. rocmSupport)
+getPkgsStable system                                 # nixpkgs 25.11, allowUnfree, NO overlays
 ```
 
 Imported in `parts/hosts.nix`; passed as `pkgs` / `pkgs-stable` to all modules.
