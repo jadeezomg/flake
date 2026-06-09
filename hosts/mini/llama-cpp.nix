@@ -16,7 +16,7 @@
   host = "127.0.0.1";
   contextSize = 32768;
   gpuLayers = 999;
-  hfHome = "/var/cache/huggingface";
+  hfHome = "${stateDir}/huggingface";
   stateDir = "/var/lib/llama-cpp";
 
   serveArgs = [
@@ -58,7 +58,7 @@ in {
 
   systemd.tmpfiles.rules = [
     "d ${stateDir} 0750 llama llama - -"
-    "d ${hfHome} 2775 llama llama - -"
+    "d ${hfHome} 0750 llama llama - -"
   ];
 
   systemd.services.llama-cpp-gemma = {
@@ -90,10 +90,7 @@ in {
       ProtectSystem = "strict";
       ProtectHome = true;
       NoNewPrivileges = true;
-      ReadWritePaths = [
-        stateDir
-        hfHome
-      ];
+      ReadWritePaths = [stateDir];
     };
   };
 }
