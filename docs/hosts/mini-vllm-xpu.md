@@ -7,31 +7,23 @@ This mirrors the **Brutus** host setup under `~/.dotfiles/examples/dotfiles`:
 
 While **`miniBootstrap = true`** (first install), the flake skips `vllm-xpu-nix` and `./vllm-xpu.nix` so evaluators without `ca-derivations` still work. After §5.4 in `mini-install.md`, set **`miniBootstrap = false`**.
 
-**`miniLlmHosting`** in `hosts/mini/host.nix` gates `vllm-xpu-nix`, `./vllm-xpu.nix`, `./llama-cpp.nix`, and `dotfiles.profiles.devenv.llm.hosting` (`hosts/mini/profiles.nix`). Set **`true`** for Intel vLLM-XPU + llama.cpp GGUF (requires **`ca-derivations`** on the evaluating Nix — see `modules/shared/environment.nix` and `lib/nix-experimental-features.nix` / Home Manager on Linux). Set **`false`** to drop both stacks and skip CA-heavy evaluation.
+**`miniLlmHosting`** in `hosts/mini/host.nix` gates `vllm-xpu-nix`, `./vllm-xpu.nix`, optional `./llama-cpp.nix` (via **`miniLlamaCppGemma`**), and `dotfiles.profiles.devenv.llm.hosting` (`hosts/mini/profiles.nix`). Set **`true`** for Intel vLLM-XPU (requires **`ca-derivations`** on the evaluating Nix — see `modules/shared/environment.nix` and `lib/nix-experimental-features.nix` / Home Manager on Linux). Set **`false`** to drop the stack and skip CA-heavy evaluation.
 
 ## Hardware notes
 
 - **`boot.kernelParams = ["xe.force_probe=e223"]`** matches Brutus (Intel Arc Battlemage–class dGPU). If mini has **only** integrated UHD and no discrete Arc card, remove that line or adjust the PCI ID after checking `lspci -nn`.
 - **`intel-gpu-tools`** is installed for debugging (`intel_gpu_top`, etc.).
-- **VRAM:** `Qwen3.6-27B-int4` needs **~17 GiB** for weights alone. Brutus tunes for a **32 GiB** Arc Pro B70; mini's card may be smaller — `hosts/mini/vllm-xpu.nix` uses a tighter chat profile (no MTP, 32k ctx, higher `gpuMemoryUtilization`) than the Brutus copy.
+- **VRAM:** Chat uses **Gemma 4 12B** QAT **W4A16** compressed-tensors (`google/gemma-4-12B-it-qat-w4a16-ct`); tune **`maxModelLen`**, **`gpuMemoryUtilization`**, and **`maxNumSeqs`** in `hosts/mini/vllm-xpu.nix` if KV init OOMs.
 
 ## Operating models
 
-After `nixos-rebuild switch`:
+Day-to-day **status, journalctl, curl, SSH tunnels, and start/stop** commands for vLLM + llama.cpp are in **`docs/hosts/mini-llm-hosting.md`** (single cheat sheet). After config changes on mini, use **`just switch`** (see `mini-install.md`).
 
-```bash
-sudo systemctl status vllm-xpu-chat vllm-xpu-embedding
-sudo journalctl -fu vllm-xpu-chat   # first start: HF download + compile can take a while
-curl -s http://127.0.0.1:8000/v1/models | jq
-```
+Use **`servedName`** in requests (`gemma-4-12b-it`, `jina-embeddings-v5-nano`), not necessarily the HF repo id.
 
-APIs bind **`127.0.0.1` only** (ports `8000` chat, `8001` embeddings). From another machine: `ssh -L 8000:127.0.0.1:8000 -L 8001:127.0.0.1:8001 jadee@<mini-ip>`.
+## llama.cpp GGUF (optional)
 
-Use **`servedName`** in requests (`qwen3.6-27b`, `jina-embeddings-v5-nano`), not necessarily the HF repo id.
-
-## llama.cpp GGUF (additive)
-
-**[unsloth/gemma-4-12b-it-GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF)** is served by **`llama-cpp-gemma`** on port **8010** (`hosts/mini/llama-cpp.nix`). This is **in addition to** vLLM-XPU, not a replacement. See **`docs/hosts/mini-llm-hosting.md`** for the combined port map and VRAM notes.
+**[unsloth/gemma-4-12b-it-GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF)** can be served by **`llama-cpp-gemma`** on **8010** when **`miniLlamaCppGemma = true`** in `hosts/mini/host.nix` (`hosts/mini/llama-cpp.nix`). Default mini keeps it **off** while **`vllm-xpu-chat`** serves Gemma on **8000**. See **`docs/hosts/mini-llm-hosting.md`**.
 
 With **`miniLlmHosting` true**, `./vllm-xpu.nix` **`mkForce`s `devenv.llm.hosting` off** so the generic devenv llama-cpp profile does not fight `./llama-cpp.nix`. With **`miniLlmHosting` false**, `profiles.nix` **`mkForce`s hosting off** too.
 
