@@ -1,6 +1,6 @@
 # Intel XPU vLLM — ported from ~/.dotfiles/examples/dotfiles hosts/brutus/services/vllm-xpu.nix
 # (Brutus: Arc B50-class + vllm-xpu-nix). See docs/hosts/mini-vllm-xpu.md.
-# GGUF chat (Gemma) lives in ./llama-cpp.nix on port 8010 — not a replacement for this stack.
+# Optional GGUF on 8010: `./llama-cpp.nix` when `host.miniLlamaCppGemma` (see `host.nix`).
 {
   config,
   lib,
@@ -20,10 +20,11 @@
   };
 
   models = {
+    # Gemma 4 12B IT — official QAT W4A16 compressed-tensors (Google; aimed at vLLM).
+    # If this revision fails on Intel XPU (unsupported arch in pinned vllm-xpu), try
+    # ISTA-DASLab/gemma-3-12b-it-GPTQ-4b-128g (Gemma 3) until upstream catches up.
     chat = {
-      repo = "Lorbus/Qwen3.6-27B-int4-AutoRound";
-      rev = "c3aea2d531678621989e5e2db034e32b22536e79";
-      hash = "sha256-zV62kIKjIDOWpQ6I6z0ll5n0+QIJEEMTrDP/rhml+1Y=";
+      repo = "google/gemma-4-12B-it-qat-w4a16-ct";
     };
     embedding = {
       repo = "jinaai/jina-embeddings-v5-text-nano-retrieval";
@@ -35,9 +36,9 @@
     };
   };
 
-  # Qwen chat OOMs on mini's VRAM today — use llama-cpp-gemma (8010) for chat.
-  # Flip to true after tuning or a larger GPU (see mini-vllm-xpu.md).
-  vllm-chat-enable = false;
+  # Gemma 4 12B QAT on XPU — set `miniLlamaCppGemma = false` in host.nix so 8010 llama.cpp
+  # is off (same GPU as vLLM chat + embedding).
+  vllm-chat-enable = true;
   vllm-embedding-enable = true;
 in {
   # Brutus graphics stack: OpenCL/L0 + media — needed for Intel discrete Arc / Xe compute.
@@ -84,28 +85,27 @@ in {
       host = "127.0.0.1";
 
       model = models.chat.repo;
-      servedName = "qwen3.6-27b";
+      servedName = "gemma-4-12b-it";
       dtype = "bfloat16";
-      quantization = "inc";
+      # Weights use `quantization_config.quant_method = compressed-tensors` in the repo;
+      # omit `--quantization` so vLLM follows the checkpoint.
+      quantization = null;
       kvCacheDtype = "fp8";
-      # Mini dGPU often has less headroom than Brutus' 32 GiB Arc Pro B70.
-      maxModelLen = 32768;
-      maxNumSeqs = 4;
-      gpuMemoryUtilization = 0.92;
-      speculativeConfig = {
-        method = "mtp";
-        num_speculative_tokens = 2;
-      };
+      maxModelLen = 16384;
+      maxNumSeqs = 8;
+      gpuMemoryUtilization = 0.88;
+      speculativeConfig = null;
       enforceEager = false;
       enableXpuGraph = true;
       cudagraphCaptureSizes = [
         3
         6
       ];
-      reasoningParser = "qwen3";
-      enableAutoToolChoice = true;
-      toolCallParser = "qwen3_xml";
+      reasoningParser = null;
+      enableAutoToolChoice = false;
+      toolCallParser = null;
       languageModelOnly = true;
+      extraArgs = ["--trust-remote-code"];
     };
 
     instances.embedding = {

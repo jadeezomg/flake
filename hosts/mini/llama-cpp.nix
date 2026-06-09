@@ -1,6 +1,6 @@
 # llama.cpp Vulkan — OpenAI-compatible GGUF API (additive to vLLM-XPU in ./vllm-xpu.nix).
-# Model: https://huggingface.co/unsloth/gemma-4-12b-it-GGUF
-# See docs/hosts/mini-llm-hosting.md.
+# Imported only when `host.miniLlamaCppGemma` (see `hosts/mini/default.nix`).
+# Model: https://huggingface.co/unsloth/gemma-4-12b-it-GGUF — see docs/hosts/mini-llm-hosting.md.
 {
   lib,
   pkgs,

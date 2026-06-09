@@ -22,6 +22,8 @@ Non-obvious fields:
   nixpkgsConfig = {
     rocmSupport = true;      # host-specific nixpkgs import config; only when pkgs needs it at creation time
   };
+  miniLlmHosting = true;     # mini: Intel vLLM-XPU + optional llama.cpp (requires ca-derivations)
+  miniLlamaCppGemma = false; # mini: import ./llama-cpp.nix (8010); false when chat is vLLM-only on 8000
 }
 ```
 

@@ -13,6 +13,9 @@ in
     # Gates `vllm-xpu-nix`, `./vllm-xpu.nix`, `./llama-cpp.nix`, and `devenv.llm.hosting`
     # (`profiles.nix`). `./vllm-xpu.nix` still `mkForce`s devenv hosting off vs ./llama-cpp.nix.
     miniLlmHosting = true;
+    # When false, skip `./llama-cpp.nix` — use when Gemma chat is served by vLLM on 8000
+    # instead of llama.cpp on 8010 (same GPU; both on will OOM).
+    miniLlamaCppGemma = false;
     # No guest accounts on a headless server.
     extraUsers = [];
     # 24 GiB RAM: keep local builds conservative. The installer has no disk
