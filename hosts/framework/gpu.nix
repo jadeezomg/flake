@@ -1,4 +1,8 @@
-{pkgs, ...}: {
-  services.xserver.videoDrivers = ["amdgpu"];
-  environment.systemPackages = with pkgs; [nvtopPackages.amd];
+{ pkgs, ... }:
+{
+  services = {
+    xserver.videoDrivers = [ "amdgpu" ];
+    lact.enable = true;
+  };
+  environment.systemPackages = with pkgs; [ nvtopPackages.amd ];
 }

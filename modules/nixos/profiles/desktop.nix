@@ -104,7 +104,7 @@ in {
       # Niri auto-spawns xwayland-satellite for X11 apps when it's in PATH.
       # See: https://github.com/YaLTeR/niri/wiki/Xwayland
       xwayland-satellite
-      pkgs.handy
+      handy
     ];
   };
 }

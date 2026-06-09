@@ -11,7 +11,7 @@
     ;
 
   pkgsFuncs = import ../lib/pkgs.nix {inherit inputs;};
-  inherit (pkgsFuncs) getPkgs getPkgsStable;
+  inherit (pkgsFuncs) getPkgs getPkgsStable getPkgsWithConfig;
 
   hostData = import ../hosts/hosts.nix;
 
@@ -63,7 +63,7 @@
         hostKey
         isDarwin
         ;
-      pkgs = getPkgs system [];
+      pkgs = getPkgsWithConfig system [] (host.nixpkgsConfig or {});
       pkgs-stable = getPkgsStable system;
     };
     users =
@@ -95,7 +95,7 @@
     isDarwin = lib.elem system darwinSystems;
     user = host.username;
     hostname = host.hostname;
-    pkgs = getPkgs system [];
+    pkgs = getPkgsWithConfig system [] (host.nixpkgsConfig or {});
     nixosConfig = lib.nixosSystem {
       system = null;
       pkgs = pkgs;

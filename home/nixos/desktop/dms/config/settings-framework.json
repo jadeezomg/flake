@@ -155,6 +155,11 @@
 			"width": 50
 		},
 		{
+			"id": "builtin_tailscale",
+			"enabled": true,
+			"width": 50
+		},
+		{
 			"id": "doNotDisturb",
 			"enabled": true,
 			"width": 50
@@ -173,11 +178,6 @@
 		},
 		{
 			"id": "colorPicker",
-			"enabled": true,
-			"width": 50
-		},
-		{
-			"id": "nightMode",
 			"enabled": true,
 			"width": 50
 		}
@@ -541,20 +541,6 @@
 					"enabled": true
 				},
 				{
-					"id": "claudeCodeUsage",
-					"enabled": true
-				},
-				{
-					"id": "keyboard_layout_name",
-					"enabled": true,
-					"keyboardLayoutNameCompactMode": true
-				},
-				{
-					"id": "memUsage",
-					"enabled": true,
-					"minimumWidth": true
-				},
-				{
 					"id": "cpuTemp",
 					"enabled": true,
 					"minimumWidth": true
@@ -567,6 +553,12 @@
 				{
 					"id": "network_speed_monitor",
 					"enabled": true
+				},
+				{
+					"id": "keyboard_layout_name",
+					"enabled": true,
+					"keyboardLayoutNameCompactMode": true,
+					"keyboardLayoutNameShowIcon": true
 				}
 			],
 			"centerWidgets": [
@@ -590,7 +582,8 @@
 				{
 					"id": "focusedWindow",
 					"enabled": true,
-					"focusedWindowCompactMode": true
+					"focusedWindowCompactMode": true,
+					"focusedWindowSize": 0
 				}
 			],
 			"rightWidgets": [
@@ -600,11 +593,19 @@
 				},
 				{
 					"id": "systemTray",
-					"enabled": true
+					"enabled": true,
+					"trayUseInlineExpansion": true
 				},
 				{
 					"id": "controlCenterButton",
-					"enabled": true
+					"enabled": true,
+					"showAudioPercent": false,
+					"showBrightnessIcon": false,
+					"showBrightnessPercent": false,
+					"showBatteryIcon": true,
+					"showPrinterIcon": false,
+					"showIdleInhibitorIcon": true,
+					"showDoNotDisturbIcon": true
 				},
 				{
 					"id": "notificationButton",
@@ -616,7 +617,8 @@
 				},
 				{
 					"id": "clock",
-					"enabled": true
+					"enabled": true,
+					"clockCompactMode": false
 				}
 			],
 			"spacing": 7,

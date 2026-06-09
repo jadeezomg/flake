@@ -20,6 +20,32 @@ With **`miniLlmHosting` true**, `./vllm-xpu.nix` **`mkForce`s `devenv.llm.hostin
 
 ## Troubleshooting
 
+### `ccache: error: Permission denied` (kernel builds, e.g. `attn-kernels-xe-2`)
+
+`vllm-xpu-nix` wraps `icpx` with **ccache** and writes to `/var/cache/ccache`. The Nix build sandbox blocks that path unless the host exposes it.
+
+`hosts/mini/vllm-xpu.nix` configures:
+
+- `systemd.tmpfiles.rules` — create `/var/cache/ccache` (`0770`, group `nixbld`)
+- `nix.settings.extra-sandbox-paths` — let sandboxed builds write the cache
+
+**Before the first switch that includes this config**, bootstrap the directory and pass the sandbox path once (chicken-and-egg: the option is in the closure you are building):
+
+```bash
+sudo install -d -m 0770 -o root -g nixbld /var/cache/ccache
+sudo nixos-rebuild switch --flake /path/to/flake#mini --option extra-sandbox-paths /var/cache/ccache
+```
+
+After switch, later rebuilds pick up `extra-sandbox-paths` from `/etc/nix/nix.conf` automatically.
+
+To skip ccache for a one-off package build (CI / no cache dir):
+
+```bash
+nix build 'github:jasonboukheir/vllm-xpu-nix#attn-kernels-xe-2.withCcache false'
+```
+
+Inspect cache use: `ccache --show-stats --dir /var/cache/ccache`
+
 ### `warning: rejected … because shallow roots are not allowed to be updated`
 
 This came from Nix’s **shallow** git fetch of `vllm-xpu-kernels-unstable-src` before widening to a full clone. The flake pins that input with **`shallow = false`** (see `flake.nix` under `vllm-xpu-nix.inputs`) so the fetch is non-shallow from the start.

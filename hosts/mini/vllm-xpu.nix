@@ -49,6 +49,14 @@ in {
   # Battlemage-class discrete GPU: same probe as examples/brutus. Remove if you have no dGPU.
   boot.kernelParams = ["xe.force_probe=e223"];
 
+  # vllm-xpu-kernels compile through ccache by default (upstream useCcache = true).
+  # Without a sandbox-visible, nixbld-writable cache dir, icpx fails with
+  # "ccache: error: Permission denied". See vllm-xpu-nix docs/build.md.
+  systemd.tmpfiles.rules = [
+    "d /var/cache/ccache 0770 root nixbld - -"
+  ];
+  nix.settings.extra-sandbox-paths = lib.mkAfter ["/var/cache/ccache"];
+
   services.vllm-xpu = {
     package = (pkgs.vllm-xpu-unstable.withTorchvision true).withKernelConfig {
       chunkPrefill = "chunk_prefill_default";
