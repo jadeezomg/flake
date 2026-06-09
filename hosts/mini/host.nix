@@ -6,12 +6,12 @@ in
     hostname = "mini";
     description = "Mini — Minisforum MS-01 headless server";
     user = sharedNixOSUser;
-    # First `nixos-install`: set `true` — skips sops password file + vLLM-XPU
-    # (no `vllm-xpu-nix` module / `./vllm-xpu.nix`, so evaluators without
+    # First `nixos-install`: set `true` — skips sops password file + vLLM-XPU / llama.cpp.
+    # (no `vllm-xpu-nix` module / `./vllm-xpu.nix` + `./llama-cpp.nix`, so evaluators without
     # `ca-derivations` still build). Flip to `false` after docs/hosts/mini-install.md §5.4.
     miniBootstrap = false;
-    # Gates `vllm-xpu-nix` + `./vllm-xpu.nix` and mirrors `devenv.llm.hosting` on this
-    # host (`profiles.nix`). `./vllm-xpu.nix` still `mkForce`s hosting off vs Vulkan llama-cpp.
+    # Gates `vllm-xpu-nix`, `./vllm-xpu.nix`, `./llama-cpp.nix`, and `devenv.llm.hosting`
+    # (`profiles.nix`). `./vllm-xpu.nix` still `mkForce`s devenv hosting off vs ./llama-cpp.nix.
     miniLlmHosting = true;
     # No guest accounts on a headless server.
     extraUsers = [];

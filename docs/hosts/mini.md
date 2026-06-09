@@ -16,7 +16,7 @@ marked **[OPEN]** in §11 are deferred follow-ups, not blockers for first boot.
 | RAM | 24 GB |
 | Storage | 1× 256 GB NVMe system SSD + 1× 2 TB NVMe application-storage SSD (3 NVMe slots total — 1 free) |
 | NICs | 2× SFP+ 10G (Intel X710), 2× 2.5G (Intel I226-V) — only one 2.5G NIC used initially |
-| GPU | Intel UHD (iGPU) on MS-01; **optional** discrete Intel Arc (e.g. B50-class) for [`vllm-xpu-nix`](./mini-vllm-xpu.md) on the same host |
+| GPU | Intel UHD (iGPU) on MS-01; **optional** discrete Intel Arc (e.g. B50-class) for [llama.cpp GGUF hosting](./mini-llm-hosting.md) on the same host |
 | Out-of-band mgmt | Intel AMT 16.x (vPro) |
 | System | `x86_64-linux` |
 

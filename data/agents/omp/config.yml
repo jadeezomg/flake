@@ -53,15 +53,15 @@ mcp:
   enableProjectConfig: true
   notifications: true
 plan: 
-  enabled: false
+  enabled: true
 task: 
   isolation: 
     mode: none
     merge: patch
-    commits: ai
-  simple: default
-  maxConcurrency: 4
-  eager: true
+    commits: generic
+  simple: schema-free
+  maxConcurrency: 8
+  eager: false
 commands: 
   enableOpencodeUser: false
   enableOpencodeProject: false
@@ -93,6 +93,7 @@ browser:
 tools: 
   intentTracing: true
   discoveryMode: mcp-only
+  approvalMode: yolo
 autocompleteMaxVisible: 15
 dev: 
   autoqa: 

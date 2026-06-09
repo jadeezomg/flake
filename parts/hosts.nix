@@ -11,7 +11,7 @@
     ;
 
   pkgsFuncs = import ../lib/pkgs.nix {inherit inputs;};
-  inherit (pkgsFuncs) getPkgs getPkgsStable getPkgsWithConfig;
+  inherit (pkgsFuncs) getPkgsStable getPkgsWithConfig;
 
   hostData = import ../hosts/hosts.nix;
 

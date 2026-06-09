@@ -1,5 +1,6 @@
 # Intel XPU vLLM — ported from ~/.dotfiles/examples/dotfiles hosts/brutus/services/vllm-xpu.nix
 # (Brutus: Arc B50-class + vllm-xpu-nix). See docs/hosts/mini-vllm-xpu.md.
+# GGUF chat (Gemma) lives in ./llama-cpp.nix on port 8010 — not a replacement for this stack.
 {
   config,
   lib,
@@ -34,7 +35,10 @@
     };
   };
 
-  vllm-enable = true;
+  # Qwen chat OOMs on mini's VRAM today — use llama-cpp-gemma (8010) for chat.
+  # Flip to true after tuning or a larger GPU (see mini-vllm-xpu.md).
+  vllm-chat-enable = false;
+  vllm-embedding-enable = true;
 in {
   # Brutus graphics stack: OpenCL/L0 + media — needed for Intel discrete Arc / Xe compute.
   hardware.graphics.extraPackages = with pkgs; [
@@ -75,7 +79,7 @@ in {
     };
 
     instances.chat = {
-      enable = vllm-enable;
+      enable = vllm-chat-enable;
       port = lib.mkIf chat.enable ports.local-llm;
       host = "127.0.0.1";
 
@@ -84,16 +88,20 @@ in {
       dtype = "bfloat16";
       quantization = "inc";
       kvCacheDtype = "fp8";
-      maxModelLen = 65536;
-      maxNumSeqs = 8;
-      gpuMemoryUtilization = 0.85;
+      # Mini dGPU often has less headroom than Brutus' 32 GiB Arc Pro B70.
+      maxModelLen = 32768;
+      maxNumSeqs = 4;
+      gpuMemoryUtilization = 0.92;
       speculativeConfig = {
         method = "mtp";
         num_speculative_tokens = 2;
       };
       enforceEager = false;
       enableXpuGraph = true;
-      cudagraphCaptureSizes = [3 6];
+      cudagraphCaptureSizes = [
+        3
+        6
+      ];
       reasoningParser = "qwen3";
       enableAutoToolChoice = true;
       toolCallParser = "qwen3_xml";
@@ -101,7 +109,7 @@ in {
     };
 
     instances.embedding = {
-      enable = vllm-enable;
+      enable = vllm-embedding-enable;
       port = lib.mkIf embedding.enable ports.local-embedding;
       host = "127.0.0.1";
 
@@ -125,7 +133,9 @@ in {
       dtype = "bfloat16";
       maxModelLen = 448;
       maxNumSeqs = 32;
-      limitMmPerPrompt = {audio = 1;};
+      limitMmPerPrompt = {
+        audio = 1;
+      };
       kvCacheDtype = "fp8";
       gpuMemoryUtilization = 0.05;
       enforceEager = true;
@@ -133,6 +143,12 @@ in {
     };
   };
 
-  # Avoid two Vulkan LLM stacks fighting the same GPU (devenv llm hosting = llama-cpp).
+  # Let chat claim VRAM before the embedder starts profiling (when chat is enabled).
+  systemd.services.vllm-xpu-embedding = {
+    after = ["vllm-xpu-chat.service"];
+    wants = ["vllm-xpu-chat.service"];
+  };
+
+  # Avoid devenv's generic llama-cpp hosting profile — mini uses ./llama-cpp.nix instead.
   dotfiles.profiles.devenv.llm.hosting.enable = lib.mkForce false;
 }
