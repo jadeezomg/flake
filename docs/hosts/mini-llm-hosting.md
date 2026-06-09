@@ -58,7 +58,7 @@ ssh -L 8010:127.0.0.1:8010 -L 8001:127.0.0.1:8001 jadee@<mini-ip>
 
 ## VRAM / coexistence
 
-Both stacks share the **same Intel GPU** and **`/var/cache/huggingface`**. Running Qwen (vLLM chat) and Gemma (llama.cpp) **at the same time** usually exceeds VRAM on mini.
+Both stacks share the **same Intel GPU**. Gemma’s Hugging Face cache lives under **`/var/lib/llama-cpp/huggingface`** (owned by the `llama` user; avoids permission issues with `/var/cache`). Running Qwen (vLLM chat) and Gemma (llama.cpp) **at the same time** usually exceeds VRAM on mini.
 
 - Use **Gemma on 8010** for chat (default).
 - Keep **vLLM embedding on 8001** alongside Gemma.
