@@ -20,11 +20,10 @@
   };
 
   models = {
-    # Gemma 4 12B IT — official QAT W4A16 compressed-tensors (Google; aimed at vLLM).
-    # If this revision fails on Intel XPU (unsupported arch in pinned vllm-xpu), try
-    # ISTA-DASLab/gemma-3-12b-it-GPTQ-4b-128g (Gemma 3) until upstream catches up.
+    # Qwen3.6 MoE (~3B active / 35B total), native FP8 weights — model card:
+    # https://huggingface.co/Qwen/Qwen3.6-35B-A3B-FP8
     chat = {
-      repo = "google/gemma-4-12B-it-qat-w4a16-ct";
+      repo = "Qwen/Qwen3.6-35B-A3B-FP8";
     };
     embedding = {
       repo = "jinaai/jina-embeddings-v5-text-nano-retrieval";
@@ -36,7 +35,7 @@
     };
   };
 
-  # Gemma 4 12B QAT on XPU — set `miniLlamaCppGemma = false` in host.nix so 8010 llama.cpp
+  # Qwen3.6 chat on XPU — set `miniLlamaCppGemma = false` in host.nix so 8010 llama.cpp
   # is off (same GPU as vLLM chat + embedding).
   vllm-chat-enable = true;
   vllm-embedding-enable = true;
@@ -85,15 +84,15 @@ in {
       host = "127.0.0.1";
 
       model = models.chat.repo;
-      servedName = "gemma-4-12b-it";
-      dtype = "bfloat16";
-      # Weights use `quantization_config.quant_method = compressed-tensors` in the repo;
-      # omit `--quantization` so vLLM follows the checkpoint.
+      servedName = "qwen3.6-35b-a3b";
+      # Native FP8 checkpoint — let vLLM pick compute dtype (`--dtype auto`).
+      dtype = "auto";
       quantization = null;
       kvCacheDtype = "fp8";
+      # MoE + vision encoder + embedding on one GPU: conservative caps; raise after stable load.
       maxModelLen = 16384;
-      maxNumSeqs = 8;
-      gpuMemoryUtilization = 0.88;
+      maxNumSeqs = 3;
+      gpuMemoryUtilization = 0.85;
       speculativeConfig = null;
       enforceEager = false;
       enableXpuGraph = true;
@@ -101,10 +100,16 @@ in {
         3
         6
       ];
-      reasoningParser = null;
+      reasoningParser = "qwen3";
       enableAutoToolChoice = false;
       toolCallParser = null;
-      languageModelOnly = true;
+      # Vision + text (Qwen3.6 VL). `withTorchvision true` on `vllm-xpu` package is required for image/video.
+      languageModelOnly = false;
+      # Caps worst-case multimodal profiling (see vllm-xpu-nix `limitMmPerPrompt`). Tune if OOM at startup.
+      limitMmPerPrompt = {
+        image = 8;
+        video = 1;
+      };
       extraArgs = ["--trust-remote-code"];
     };
 
