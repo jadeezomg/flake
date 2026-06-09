@@ -5,12 +5,12 @@
 }: let
   unwrapped = pkgs.buildNpmPackage rec {
     pname = "pi-coding-agent-unwrapped";
-    version = "0.78.1";
+    version = "0.79.0";
 
     # Published bundle (includes dist/). Upstream moved from @mariozechner to @earendil-works.
     src = pkgs.fetchurl {
-      url = "https://registry.npmjs.org/@earendil-works/pi-coding-agent/-/pi-coding-agent-0.78.1.tgz";
-      hash = "sha256-72mCHDg9kv0n59mtvcseN2IUQelMUjSOR6KQHqnX3Qw=";
+      url = "https://registry.npmjs.org/@earendil-works/pi-coding-agent/-/pi-coding-agent-0.79.0.tgz";
+      hash = "sha256-ZUJ5bjTyzbNhfSlsPKTpI1cs9OAHOlm+Rc+aDA+bcmM=";
     };
 
     # Generated: unpack tgz, cd package, npm install --package-lock-only
@@ -21,7 +21,7 @@
       cp ${./package-lock.json} npm-shrinkwrap.json
     '';
 
-    npmDepsHash = "sha256-UQgzKdmIX1mLctNtF/BTYLasYYt8bvfa3elIZjE9uGI=";
+    npmDepsHash = "sha256-7og2QLXqjhSwptCoPzlDtW02nfPOrA0Ml40Mkg5+bTE=";
 
     dontNpmBuild = true;
 

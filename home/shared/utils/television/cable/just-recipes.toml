@@ -22,7 +22,7 @@ command = "bash -lc 'just --justfile \"${JUSTFILE}\" -s \"{}\" 2>/dev/null'"
 [ui]
 layout = "landscape"
 input_bar_position = "bottom"
-input_header = "Just · F5 = run recipe · Tab = multi-select"
+input_header = "Just · Enter/F5 = run recipe · Tab = multi-select"
 input_prompt = "recipe › "
 
 [ui.preview_panel]
@@ -39,9 +39,10 @@ border_type = "rounded"
 disabled = true
 
 [keybindings]
+enter = "actions:execute-recipe"
 f5 = "actions:execute-recipe"
 
 [actions.execute-recipe]
 description = "Execute a justfile recipe"
-command = "bash -lc 'cd \"${FLAKE}\" && exec just {}'"
+command = "bash -lc 'cd \"${FLAKE}\" && exec just --justfile \"${JUSTFILE}\" \"$1\"' -- '{}'"
 mode = "execute"
