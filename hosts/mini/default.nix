@@ -6,7 +6,7 @@
   ...
 }: let
   # Single source: `hosts/mini/host.nix` → `miniBootstrap`. Breaks the sops
-  # host-age-key chicken-and-egg and skips vllm-xpu-nix until the host is stable.
+  # host-age-key chicken-and-egg and skips vLLM-XPU + llama.cpp until the host is stable.
   #
   # On a fresh install `/var/lib/private/sops/age/keys.txt` does not exist yet,
   # so sops-nix can't decrypt `users/jadee/password_mini` during activation.
@@ -27,7 +27,10 @@ in {
       # Nightly cachix pipeline — disabled until the host is up (mini-install.md §6).
       # ./flake-cache-warm.nix
     ]
-    ++ lib.optionals (!bootstrap && (host.miniLlmHosting or false)) [./vllm-xpu.nix];
+    ++ lib.optionals (!bootstrap && (host.miniLlmHosting or false)) [
+      ./vllm-xpu.nix
+      ./llama-cpp.nix
+    ];
   # NOPASSWD wheel — quality-of-life over SSH on a key-only headless host.
   # Desktop/framework keep password-required sudo (gated by hostKey == "mini"
   # is unnecessary because this file only loads for the mini host).
@@ -46,19 +49,19 @@ in {
     connection = {
       id = "mini-lan";
       type = "ethernet";
-      interface-name = "enp2s0f0"; # adjust on first boot if naming differs
+      interface-name = "enp6s0f0np0";
       autoconnect = true;
     };
     ipv4 = {
       method = "manual";
       # Format: <address>/<prefix>,<gateway>
-      address1 = "192.168.178.54/24,192.168.178.255";
+      address1 = "192.168.178.100/24,192.168.178.255";
       dns = "1.1.1.1;9.9.9.9";
     };
     ipv6.method = "auto";
   };
 
-  # Intel GPU: Vulkan for generic compute; vLLM-XPU stack + media runtimes live in ./vllm-xpu.nix.
+  # Intel GPU: vLLM-XPU + Vulkan llama.cpp stacks live in ./vllm-xpu.nix and ./llama-cpp.nix.
   hardware.graphics.enable = true;
 
   # AMT / vPro — non-root /dev/mei access for amtterm / openwsman.

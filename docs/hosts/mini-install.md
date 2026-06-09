@@ -93,8 +93,8 @@ Search `git grep -n TODO` for the canonical list. As of writing:
 | `modules/shared/environment.nix:43` | paste the real `jadee-flake.cachix.org-1:<pubkey>=` (only after `cachix create jadee-flake` — see §6; OK to defer) |
 | `hosts/mini/disko.nix` (both `device =`) | real `/dev/disk/by-id/nvme-…` paths from the live ISO (§4.2) |
 | `hosts/mini/default.nix` (`mini-lan` profile) | real static IP, gateway, DNS, and `interface-name` (see §1.5) |
-| `hosts/mini/host.nix` (`miniBootstrap`) | leave `true` for the first `nixos-install`; flip to `false` after §5.4 (skips sops password + `vllm-xpu-nix` / `./vllm-xpu.nix` until then — no `ca-derivations` on evaluator) |
-| `hosts/mini/host.nix` (`miniLlmHosting`) | leave `false` until you want Intel vLLM-XPU; set `true` after bootstrap is off (see `docs/hosts/mini-vllm-xpu.md`) |
+| `hosts/mini/host.nix` (`miniBootstrap`) | leave `true` for the first `nixos-install`; flip to `false` after §5.4 (skips sops password + `./llama-cpp.nix` until then — no `ca-derivations` on evaluator) |
+| `hosts/mini/host.nix` (`miniLlmHosting`) | leave `false` until you want Intel vLLM-XPU; set `true` after bootstrap is off (see `docs/hosts/mini-llm-hosting.md`) |
 
 ### 1.4 Network values — commit on workstation **or** edit on the installer
 
