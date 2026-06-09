@@ -24,6 +24,8 @@ Non-obvious fields:
   };
   miniLlmHosting = true;     # mini: Intel vLLM-XPU + optional llama.cpp (requires ca-derivations)
   miniLlamaCppGemma = false; # mini: import ./llama-cpp.nix (8010); false when chat is vLLM-only on 8000
+  miniLlamaCppGgmlBackends = "vulkan"; # mini: "vulkan" | "vulkan-opencl" | "opencl" — see docs/hosts/mini-llm-hosting.md
+  miniLlamaCppDevice = null; # mini: optional LLAMA_ARG_DEVICE for llama-server; null = auto
 }
 ```
 
