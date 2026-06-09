@@ -11,7 +11,7 @@
       user = "jadee";
     };
     mini = {
-      hostName = "192.168.1.10";
+      hostName = "192.168.178.100";
       user = "jadee";
     };
     unraid = {
