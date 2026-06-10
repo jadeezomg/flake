@@ -8,9 +8,9 @@
 #   - `{ lib, rustPlatform, fetchFromGitHub, ... }:` (standard-nixpkgs
 #                              callPackage signature — e.g. framework-control).
 #
-# Per-package system gates live in `systemFilter` below — packages that
-# shouldn't be evaluated on every system (currently just framework-control)
-# get their condition checked here.
+# The name list (and per-package system gates, e.g. framework-control →
+# x86_64-linux only) comes from `packages/names.nix`, shared with
+# `parts/packages.nix` so the overlay and the flake output can't drift.
 {
   lib,
   system,
@@ -18,20 +18,7 @@
 }: final: _prev: let
   pkgRoot = ../../packages;
 
-  systemFilter = name:
-    if name == "framework-control"
-    then system == "x86_64-linux"
-    else true;
-
-  isLocalPkg = name: type:
-    type
-    == "directory"
-    && builtins.pathExists (pkgRoot + "/${name}/default.nix")
-    && systemFilter name;
-
-  pkgNames =
-    builtins.attrNames
-    (lib.filterAttrs isLocalPkg (builtins.readDir pkgRoot));
+  pkgNames = import (pkgRoot + "/names.nix") {inherit lib system;};
 
   importPkg = name: let
     path = pkgRoot + "/${name}";

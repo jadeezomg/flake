@@ -115,9 +115,10 @@ Bash under `scripts/shell/` backs the Justfile. Python is a uv project in `scrip
 | `nix-cachyos-kernel` | CachyOS kernel (x86_64-linux) |
 | `framework-control` | Framework laptop tools (separate nixpkgs) |
 | `google-workspace-cli` | `gws` in per-system `packages` |
-| `skills-mattpocock` | optional upstream skills sync via `just skills-upstream` |
+| `skills-mattpocock` | pinned upstream source for `just skills-upstream` (exposed as `lib.skillsUpstreamSrc`; updated via `just update`) |
+| `corecycler` | kept while disabled (upstream bug); not wired into any host |
 
-`perSystem.packages` in `flake.nix` also exposes: `iosevka-aile`, `iosevka-etoile`, `context7`, `kagi-ken`, `kagi-ken-cli`, `workato-platform-cli`, `gws`, `pi-coding-agent`.
+`packages.<system>` exposes every `packages/<name>` automatically (`parts/packages.nix` + `packages/names.nix`); `framework-control` is x86_64-linux-only.
 
 ## specialArgs
 

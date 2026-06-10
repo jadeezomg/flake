@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Diff data/agents/skills/ against ~/Git/skills (nested category structure).
+# Diff data/agents/skills/ against the pinned `skills-mattpocock` flake input
+# (nested category structure). The pin updates via `just update`.
 # Usage: just skills-upstream [--apply-all] [--import-new]
 #   --apply-all  copy upstream over local for every changed skill (no prompt)
 #   --import-new with --apply-all, import upstream-only skills too
@@ -8,7 +9,9 @@ set -euo pipefail
 source "${FLAKE:-${HOME}/.dotfiles/flake}/scripts/shell/common.sh"
 
 LOCAL_DIR="${FLAKE}/data/agents/skills"
-UPSTREAM_DIR="${HOME}/Git/skills/skills"
+# Store path of the `skills-mattpocock` input, exposed by parts/lib.nix.
+UPSTREAM_SRC="$(nix eval --raw "${FLAKE}#lib.skillsUpstreamSrc")"
+UPSTREAM_DIR="${UPSTREAM_SRC}/skills"
 IGNORE_FILE="${LOCAL_DIR}/.upstream-ignore"
 APPLY_ALL=0
 IMPORT_NEW=0
