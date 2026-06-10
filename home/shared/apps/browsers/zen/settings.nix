@@ -57,7 +57,6 @@
 
   # Zen mod (sameerasw) – sidebar/theme
   "mod.sameerasw.zen_bg_blur" = "3px";
-  # Nix userChrome owns chrome tint; mod bg color paints opaque #372725 over the window.
   "mod.sameerasw.zen_bg_color_enabled" = false;
   "mod.sameerasw.zen_bg_img_enabled" = false;
   "mod.sameerasw.zen_bg_img_not_fullscreen" = false;

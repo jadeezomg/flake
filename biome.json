@@ -21,19 +21,6 @@
 	},
 	"overrides": [
 		{
-			"includes": [
-				"home/shared/apps/browsers/zen/chrome/userChrome.css",
-				"home/shared/apps/browsers/zen/chrome/userContent.css"
-			],
-			"linter": {
-				"rules": {
-					"complexity": {
-						"noImportantStyles": "off"
-					}
-				}
-			}
-		},
-		{
 			"includes": ["data/files/pear-desktop.css"],
 			"linter": {
 				"rules": {

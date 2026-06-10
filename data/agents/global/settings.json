@@ -151,11 +151,12 @@
 		"typescript-lsp@claude-plugins-official": true
 	},
 	"extraKnownMarketplaces": {},
+	"effortLevel": "xhigh",
 	"skipDangerousModePermissionPrompt": true,
 	"theme": "dark-ansi",
 	"editorMode": "normal",
 	"preferredNotifChannel": "terminal_bell",
+	"remoteControlAtStartup": true,
 	"inputNeededNotifEnabled": true,
-	"agentPushNotifEnabled": true,
-	"remoteControlAtStartup": true
+	"agentPushNotifEnabled": true
 }

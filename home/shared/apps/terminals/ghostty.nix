@@ -42,7 +42,10 @@
       scrollback-limit = 10000;
 
       # Typography — driven by stylix
-      font-family = config.stylix.fonts.monospace.name;
+      font-family = [
+        config.stylix.fonts.monospace.name
+        config.stylix.fonts.emoji.name
+      ];
       font-size = 11;
 
       # Cursor
@@ -62,7 +65,7 @@
       window-padding-x = 20;
       window-padding-y = 10;
       window-padding-balance = true;
-      background-opacity = 0.8;
+      # background-opacity = 0.8;
       background-blur = true;
       mouse-hide-while-typing = true;
 

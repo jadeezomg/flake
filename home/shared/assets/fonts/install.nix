@@ -7,23 +7,9 @@
   fontDefinitions = import ./fonts.nix {inherit pkgs;};
   isFontEnabled = fontDef: fontDef ? enable && fontDef.enable == true;
 
-  getFontPackages = fontDef: let
-    mainPackage = lib.optional (fontDef.package != null) fontDef.package;
-    extraPackages = fontDef.extraPackages or [];
-  in
-    mainPackage ++ extraPackages;
-
-  collectEnabledFonts = categoryFonts:
-    lib.pipe categoryFonts [
-      (lib.filterAttrs (_: isFontEnabled))
-      (lib.mapAttrsToList (_: getFontPackages))
-      lib.flatten
-    ];
-
-  enabledFontPackages = lib.pipe fontDefinitions [
-    (lib.mapAttrsToList (_: collectEnabledFonts))
-    lib.flatten
-  ];
+  # Shared with modules/darwin/fonts.nix so both platforms install the
+  # same set of enabled fonts.
+  enabledFontPackages = import ./enabled-packages.nix {inherit lib pkgs;};
 in {
   # On Darwin, disable fontconfig and do not add font packages to home.packages.
   # Home Manager's Darwin font copy (Library/Fonts/HomeManager) builds a font env that
