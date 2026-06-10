@@ -50,13 +50,9 @@
       model = "Qwen/Qwen3.5-9B";
       servedName = "qwen3.5-9b";
       dtype = "bfloat16";
-      # Online FP8 weights (~13–14 GiB peak vs ~18 GiB bf16) — required on 16 GiB dGPU for KV headroom
-      # (see intel/llm-scaler#339). Pair with fp8 KV below.
       quantization = "fp8";
       kvCacheDtype = "fp8";
-      # vLLM loads Qwen3.5 as Qwen3_5ForConditionalGeneration; skip vision encoder cache / image profile.
       languageModelOnly = true;
-      # Long context after weights fit: raise if logs show positive KV memory (65536 → 131072).
       maxModelLen = 32768;
       maxNumSeqs = 1;
       gpuMemoryUtilization = 0.95;
@@ -76,13 +72,16 @@
 
       runner = "pooling";
       model = "jinaai/jina-embeddings-v5-text-nano-retrieval";
-      rev = "ac5d898c8d382b17167c33e5c8af644a3519b47d";
       servedName = "jina-embeddings-v5-nano";
       maxModelLen = 8192;
       maxNumSeqs = 8;
       gpuMemoryUtilization = 0.05;
       enforceEager = true;
-      extraArgs = ["--trust-remote-code"];
+      extraArgs = [
+        "--trust-remote-code"
+        "--revision"
+        "ac5d898c8d382b17167c33e5c8af644a3519b47d"
+      ];
     };
   };
 
