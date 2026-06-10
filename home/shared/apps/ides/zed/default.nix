@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: let
-  editorsEnabled = osConfig.dotfiles.profiles.apps.editors.enable or false;
+  editorsEnabled = osConfig.dotfiles.profiles.devgui.ides.enable or false;
 in {
   imports = [
     ./extensions.nix

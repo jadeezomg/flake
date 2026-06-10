@@ -1,3 +1,8 @@
+# Agents feature folder — agent CLI packages (system half) plus the HM
+# halves: skills install, nono profiles, pi/omp/claude MCP config. All HM
+# modules are pushed via sharedModules when the profile is on; the MCP files
+# keep their internal registry logic (./mcp-servers.nix is a helper they
+# import, not a module).
 {
   config,
   lib,
@@ -5,17 +10,27 @@
   pkgs-small,
   ...
 }: let
-  cfg = config.dotfiles.profiles.devenv.llm.agents;
+  cfg = config.dotfiles.profiles.devenv.agents;
   nonoAgents = import ../../../../lib/nono-profiles.nix {inherit pkgs pkgs-small;};
 in {
   config = lib.mkIf cfg.enable {
+    home-manager.sharedModules = [
+      ./skills.nix
+      ./agents-cli.nix
+      ./nono-profiles.nix
+      ./pi-packages.nix
+      ./pi-mcp.nix
+      ./omp-mcp.nix
+      ./claude-mcp.nix
+    ];
+
     environment.systemPackages =
       nonoAgents.agentPackages
       ++ (with pkgs; [
         goose-cli
         codex
         codex-acp
-        # Profiles installed by home/shared/development/tooling/nono-profiles.nix.
+        # Profiles installed by ./nono-profiles.nix (HM half).
         nono
 
         # Local flake packages from parts/overlays/local-packages.nix.

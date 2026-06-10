@@ -7,7 +7,6 @@
     ./network
     ./apps
     ./security.nix
-    ./development
     ./shells
     ./utils
   ];

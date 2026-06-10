@@ -7,6 +7,12 @@
   cfg = config.dotfiles.profiles.essentials;
 in {
   config = lib.mkIf cfg.enable {
+    # HM widgets: host-status service/timer + fastfetch config.
+    home-manager.sharedModules = [
+      ./host-status.nix
+      ./fastfetch.nix
+    ];
+
     environment.systemPackages = with pkgs; [
       # --- Text / docs polish ---
       ripgrep-all # ripgrep for archives, pdfs, etc.

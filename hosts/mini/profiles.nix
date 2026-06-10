@@ -1,8 +1,4 @@
-{
-  host,
-  lib,
-  ...
-}: {
+{...}: {
   dotfiles.profiles = {
     server.enable = true;
 
@@ -16,9 +12,7 @@
     gaming.enable = false;
     work.enable = false;
     devenv.languages.swift.enable = false;
-    # When `miniLlmHosting` is false: force hosting off (no Vulkan llama-cpp).
-    # When true: do not set here — `./vllm-xpu.nix` `mkForce`s hosting off vs vLLM-XPU;
-    # two `mkForce`s on the same option would conflict.
-    devenv.llm.hosting.enable = lib.mkIf (!(host.miniLlmHosting or false)) (lib.mkForce false);
+    # The generic LLM serving stack (dotfiles.profiles.llm) defaults off and
+    # stays off here — mini serves via ./vllm-xpu.nix / ./llama-cpp.nix.
   };
 }

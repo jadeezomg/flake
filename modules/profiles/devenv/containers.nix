@@ -8,12 +8,12 @@
   cfg = config.dotfiles.profiles.devenv.containers;
 in {
   config = lib.mkIf cfg.enable {
+    # CLI/TUI only — podman-desktop lives in devgui.containers.
     environment.systemPackages = with pkgs;
       [
         dockfmt
         dockerfile-language-server
         podman
-        podman-desktop
         podman-tui
         podman-compose
       ]

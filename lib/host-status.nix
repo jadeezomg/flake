@@ -1,7 +1,7 @@
 # Host status helpers emit one stdout line and exit 0 on probe failure so
 # fastfetch or shell startup never fails because an optional service/API is down.
 # Cache TTL is controlled by the Home Manager scheduler in
-# home/shared/development/tooling/host-status.nix.
+# modules/profiles/essentials/host-status.nix.
 {pkgs}: let
   inherit (pkgs) lib;
 

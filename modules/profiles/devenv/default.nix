@@ -1,3 +1,6 @@
+# devenv — the headless, SSH-safe dev core, separated by tool area.
+# GUI dev tooling lives in ../devgui (mirrored category names); the LLM
+# serving stack lives in ../llm.
 {
   config,
   lib,
@@ -24,26 +27,26 @@ in {
   imports = [
     ./tools.nix
     ./cloud.nix
-    ./llm
+    ./agents
     ./containers.nix
     ./databases.nix
     ./languages
   ];
 
   # Convenience: enabling devenv.enable turns on every sub-profile that
-  # ships with the workstation today. A future "server" host overrides
-  # individual flags (e.g. `apps.enable = false; devenv.containers.enable
-  # = false;`) without losing the meta-flag.
+  # ships with the workstation today. Hosts override individual flags
+  # (e.g. `devenv.languages.swift.enable = false;`) without losing the
+  # meta-flag.
   config = lib.mkIf cfg.enable {
+    # HM dev tooling without its own category (biome config).
+    home-manager.sharedModules = [./biome.nix];
+
     dotfiles.profiles.devenv = {
       tools.enable = lib.mkDefault true;
       cloud.enable = lib.mkDefault true;
+      agents.enable = lib.mkDefault true;
       containers.enable = lib.mkDefault true;
       databases.enable = lib.mkDefault true;
-      llm = {
-        agents.enable = lib.mkDefault true;
-        hosting.enable = lib.mkDefault true;
-      };
       languages = lib.genAttrs langs (_: {enable = lib.mkDefault true;});
     };
   };

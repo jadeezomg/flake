@@ -10,8 +10,8 @@ in
     # (no `vllm-xpu-nix` module / `./vllm-xpu.nix` + `./llama-cpp.nix`, so evaluators without
     # `ca-derivations` still build). Flip to `false` after docs/hosts/mini-install.md §5.4.
     miniBootstrap = false;
-    # Gates `vllm-xpu-nix`, `./vllm-xpu.nix`, `./llama-cpp.nix`, and `devenv.llm.hosting`
-    # (`profiles.nix`). `./vllm-xpu.nix` still `mkForce`s devenv hosting off vs ./llama-cpp.nix.
+    # Gates `vllm-xpu-nix`, `./vllm-xpu.nix`, and `./llama-cpp.nix`. The generic
+    # `dotfiles.profiles.llm` serving stack defaults off and is unused on mini.
     miniLlmHosting = true;
     # When false, skip `./llama-cpp.nix` — use when Gemma chat is served by vLLM on 8000
     # instead of llama.cpp on 8010 (same GPU; both on will OOM).
