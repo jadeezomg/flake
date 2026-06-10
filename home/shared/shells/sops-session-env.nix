@@ -38,7 +38,10 @@
   secrets = config.sops.secrets or {};
   secretNames = lib.attrNames secrets;
 
-  githubPatSecretAttrs = ["github-token" "gh-token"];
+  githubPatSecretAttrs = [
+    "github-token"
+    "gh-token"
+  ];
   hfTokenSecretAttrs = ["hf-token"];
 
   resolvePath = name: let
@@ -116,10 +119,29 @@
 
   linuxScript = lib.concatMapStrings emitLinux exports;
   darwinScript = lib.concatMapStrings emitDarwin exports;
+  darwinSecretPathArgs = lib.concatMapStringsSep " " (e: esc e.path) exports;
 
   darwinSetenvScript = pkgs.writeShellScript "sops-launchctl-setenv" ''
     set -u
     export PATH=${lib.makeBinPath [pkgs.coreutils]}:/bin:/usr/bin:$PATH
+
+    # LaunchAgents start concurrently at login; wait briefly for sops-nix to
+    # materialize decrypted secrets before exporting launchd env.
+    for _attempt in $(seq 1 60); do
+      _ready=1
+      for _path in ${darwinSecretPathArgs}; do
+        if [ ! -r "$_path" ]; then
+          _ready=0
+          break
+        fi
+      done
+      if [ "$_ready" = 1 ]; then
+        break
+      fi
+      sleep 0.5
+    done
+    unset _attempt _path _ready
+
     ${darwinScript}
   '';
 
@@ -140,15 +162,17 @@
     exports;
 
   nuBlock =
-    lib.concatMapStrings (e: let
-      pJson = builtins.toJSON e.path;
-      prefixJson = builtins.toJSON (prefixOf e);
-    in ''
-      if (${pJson} | path exists) {
-        $env.${e.var} = ${prefixJson} + (${pJson} | open | str trim)
-      }
+    lib.concatMapStrings (
+      e: let
+        pJson = builtins.toJSON e.path;
+        prefixJson = builtins.toJSON (prefixOf e);
+      in ''
+        if (${pJson} | path exists) {
+          $env.${e.var} = ${prefixJson} + (${pJson} | open | str trim)
+        }
 
-    '')
+      ''
+    )
     exports;
 in
   lib.mkMerge [
@@ -161,7 +185,12 @@ in
 
     (lib.mkIf (pkgs.stdenv.isLinux && exports != []) {
       home.activation.sopsSessionEnv = lib.hm.dag.entryAfter ["sops-nix"] ''
-        export PATH=${lib.makeBinPath [pkgs.coreutils pkgs.systemd]}:$PATH
+        export PATH=${
+          lib.makeBinPath [
+            pkgs.coreutils
+            pkgs.systemd
+          ]
+        }:$PATH
         envDir=${esc envDir}
         envFile=${esc envFile}
         mkdir -p "$envDir"

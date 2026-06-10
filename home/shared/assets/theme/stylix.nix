@@ -87,9 +87,9 @@ in {
         enable = true;
         fonts.enable = false;
       };
+      ghostty.fonts.enable = false;
       zen-browser = {
         profileNames = ["default"];
-        enableCss = false;
       };
       # gnome.enable = false;
       # qt.enable = false;
