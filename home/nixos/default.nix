@@ -6,7 +6,6 @@
   imports =
     [
       ./environment.nix
-      ./files.nix
       ./guest-password-reminder.nix
     ]
     # Desktop / niri / DMS HM config only makes sense on hosts that have a

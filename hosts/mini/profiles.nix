@@ -10,6 +10,7 @@
     desktop.enable = false;
     integrations.enable = false;
     apps.enable = false;
+    fonts.full.enable = false;
     devenv.enable = true;
     gaming.enable = false;
     work.enable = false;

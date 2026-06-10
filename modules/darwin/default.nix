@@ -21,10 +21,6 @@
     lib.concatStringsSep " && "
     (lib.mapAttrsToList (k: v: "launchctl setenv ${k} ${lib.escapeShellArg v}") xdgVars);
 in {
-  imports = [
-    ./fonts.nix
-  ];
-
   nix.enable = false;
   system.primaryUser = user;
   users.users.${user} = {

@@ -7,11 +7,6 @@
 }: let
   # Import our custom theme colors
   themeColors = import ./theme.nix;
-
-  # Import font definitions to reuse Iosevka variants
-  fontDefinitions = import ../fonts/fonts.nix {inherit pkgs;};
-  # iosevkaAile = fontDefinitions.monospace-pro.iosevka-aile.package;
-  iosevkaEtoile = fontDefinitions.monospace-pro.iosevka-etoile.package;
 in {
   stylix = {
     enable = true;
@@ -54,7 +49,8 @@ in {
         name = "Iosevka Nerd Font";
       };
       serif = {
-        package = iosevkaEtoile;
+        # Local package via the overlay (parts/overlays/local-packages.nix).
+        package = pkgs.iosevka-etoile;
         name = "Iosevka Etoile";
       };
       sansSerif = {

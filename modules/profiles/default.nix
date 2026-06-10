@@ -13,6 +13,7 @@
     [
       ./minimal.nix
       ./essentials.nix
+      ./fonts
       ./apps
       ./devenv
       ./work
@@ -37,6 +38,11 @@
 
     essentials = {
       enable = enableOn "the essentials profile (Starship prompt, HM widgets, system env, Nix workstation tooling)";
+    };
+
+    fonts = {
+      enable = enableOn "the fonts baseline (Stylix-referenced: Iosevka NF, Iosevka Etoile, Inter, Noto emoji)";
+      full.enable = enableOn "the full font catalogue (workstations; the server keeps the baseline only)";
     };
 
     apps = {
@@ -131,6 +137,10 @@
       {
         assertion = !(hostClass == "server" && cfg.work.enable);
         message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.work; disable it in hosts/${hostKey}/profiles.nix.";
+      }
+      {
+        assertion = !(hostClass == "server" && cfg.fonts.full.enable);
+        message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.fonts.full; disable it in hosts/${hostKey}/profiles.nix.";
       }
     ];
   };
