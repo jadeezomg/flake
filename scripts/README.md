@@ -8,7 +8,7 @@
 | **HM `home/shared/utils/television/`** | Cable TOMLs under `cable/` (like navi `cheats/`); `default.nix` symlinks into `~/.config/television/cable/`. Root `Justfile` `default` runs `tv … just-recipes`. |
 | **`pyproject.toml`** | uv / Hatch project **`flake-scripts`** (console scripts below). |
 | **`src/flake_scripts/`** | Python package. |
-| **`lib/`** | `common.py` (flake paths, Rich consoles), `palette.py` (hex mirror of `home/shared/assets/theme/theme.nix`). |
+| **`lib/`** | `common.py` (flake paths, Rich consoles), `palette.py` (hex mirror of `modules/profiles/theme/theme.nix`). |
 | **`zen/`** | Zen browser → flake: `zen_session.py` (CLI entry), `extract_pinned_tabs.py`, `sync_flake_profiles.py`. |
 | Package root | `symlinks.py`, `read_defaults.py` (other entry points). |
 

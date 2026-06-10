@@ -1,5 +1,5 @@
 # fastfetch banner on first interactive shell; $FASTFETCH_SHOWN prevents nested
-# shell re-renders. Colors track home/shared/assets/theme/theme.nix.
+# shell re-renders. Colors track modules/profiles/theme/theme.nix.
 # host-status command modules intentionally fall back to "?" so shell startup
 # survives optional service/API failures.
 {
@@ -7,7 +7,7 @@
   pkgs,
   ...
 }: let
-  theme = import ../../assets/theme/theme.nix;
+  theme = import ../../../../modules/profiles/theme/theme.nix;
 
   # Pin host-status to its Nix store path. fastfetch executes command modules
   # via a minimal subshell whose PATH does not include

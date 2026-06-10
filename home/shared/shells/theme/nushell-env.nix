@@ -4,7 +4,7 @@
   osConfig,
   ...
 }: let
-  themeColors = import ../../assets/theme/theme.nix;
+  themeColors = import ../../../../modules/profiles/theme/theme.nix;
 in
   lib.mkIf (osConfig.dotfiles.profiles.essentials.enable or true) {
     programs.nushell.extraEnv = ''

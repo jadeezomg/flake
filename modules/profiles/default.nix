@@ -14,6 +14,7 @@
       ./minimal.nix
       ./essentials.nix
       ./fonts
+      ./theme
       ./apps
       ./devenv
       ./work
@@ -43,6 +44,11 @@
     fonts = {
       enable = enableOn "the fonts baseline (Stylix-referenced: Iosevka NF, Iosevka Etoile, Inter, Noto emoji)";
       full.enable = enableOn "the full font catalogue (workstations; the server keeps the baseline only)";
+    };
+
+    theme = {
+      enable = enableOn "the theme baseline (Stylix + Birds-of-Paradise base16; CLI/shell theming everywhere)";
+      gui.enable = enableOn "the theme GUI payload (wallpaper, cursor, opacity, GTK/Qt, Pictures symlinks; the server keeps CLI theming only)";
     };
 
     apps = {
@@ -141,6 +147,10 @@
       {
         assertion = !(hostClass == "server" && cfg.fonts.full.enable);
         message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.fonts.full; disable it in hosts/${hostKey}/profiles.nix.";
+      }
+      {
+        assertion = !(hostClass == "server" && cfg.theme.gui.enable);
+        message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.theme.gui; disable it in hosts/${hostKey}/profiles.nix.";
       }
     ];
   };
