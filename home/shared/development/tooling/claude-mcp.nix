@@ -4,7 +4,7 @@
   config,
   lib,
   osConfig,
-  pkgs,
+  pkgs-small,
   ...
 }: let
   mcpRegistry = import ./mcp-servers.nix {inherit lib osConfig;};
@@ -26,7 +26,7 @@
 in
   lib.mkIf needsSharedServerMaintenance {
     home.activation.claudeMcpServers = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      export PATH=${lib.makeBinPath [pkgs.claude-code]}:$PATH
+      export PATH=${lib.makeBinPath [pkgs-small.claude-code]}:$PATH
       mkdir -p ${lib.escapeShellArg "${homeDir}/.claude"}
 
       existing=$(claude mcp list 2>/dev/null || true)
