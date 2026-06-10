@@ -11,7 +11,7 @@
     ;
 
   pkgsFuncs = import ../lib/pkgs.nix {inherit inputs;};
-  inherit (pkgsFuncs) getPkgsStable getPkgsWithConfig;
+  inherit (pkgsFuncs) getPkgsSmall getPkgsStable getPkgsWithConfig;
 
   hostData = import ../hosts/hosts.nix;
 
@@ -65,6 +65,7 @@
         ;
       pkgs = getPkgsWithConfig system [] (host.nixpkgsConfig or {});
       pkgs-stable = getPkgsStable system;
+      pkgs-small = getPkgsSmall system;
     };
     users =
       {
@@ -103,6 +104,7 @@
         commonSpecialArgs
         // {
           pkgs-stable = getPkgsStable system;
+          pkgs-small = getPkgsSmall system;
           host = host;
           inherit
             hostKey
@@ -156,6 +158,7 @@
                 inputs
                 ;
               pkgs-stable = getPkgsStable system;
+              pkgs-small = getPkgsSmall system;
             };
           modules = [
             sops-nix.darwinModules.sops

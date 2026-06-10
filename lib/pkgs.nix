@@ -1,5 +1,5 @@
 {inputs, ...}: let
-  inherit (inputs) nixpkgs nixpkgs-stable;
+  inherit (inputs) nixpkgs nixpkgs-small nixpkgs-stable;
 
   mkPkgs = system: extraOverlays: extraConfig: let
     baseOverlays = import ../parts/overlays/default.nix {inherit inputs system;};
@@ -28,6 +28,14 @@
         input-fonts.acceptLicense = true;
       };
     };
+  getPkgsSmall = system:
+    import nixpkgs-small {
+      inherit system;
+      config = {
+        allowUnfree = true;
+        input-fonts.acceptLicense = true;
+      };
+    };
 in {
-  inherit getPkgs getPkgsStable getPkgsWithConfig;
+  inherit getPkgs getPkgsSmall getPkgsStable getPkgsWithConfig;
 }
