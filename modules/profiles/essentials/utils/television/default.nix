@@ -2,12 +2,12 @@
 # so `tv <channel>` matches upstream layout — same idea as navi cheats under ./navi/cheats/.
 {config, ...}: let
   inherit
-    (import ../../../../lib/home/live-xdg-symlinks.nix {inherit config;})
+    (import ../../../../../lib/home/live-xdg-symlinks.nix {inherit config;})
     mkLiveSymlink
     ;
 
   flakeRoot = config.dotfiles.flakeRoot;
-  justRecipes = "${flakeRoot}/home/shared/utils/television/cable/just-recipes.toml";
+  justRecipes = "${flakeRoot}/modules/profiles/essentials/utils/television/cable/just-recipes.toml";
 in {
   xdg.configFile."television/cable/just-recipes.toml" = mkLiveSymlink justRecipes;
 }

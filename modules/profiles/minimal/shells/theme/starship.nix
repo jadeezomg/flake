@@ -3,7 +3,7 @@
   osConfig,
   ...
 }: let
-  themeColors = import ../../../../modules/profiles/theme/theme.nix;
+  themeColors = import ../../../theme/theme.nix;
 
   # Nix doesn't support \uXXXX escapes — use builtins.fromJSON to get real UTF-8.
   u = code: builtins.fromJSON ''"\u${code}"'';

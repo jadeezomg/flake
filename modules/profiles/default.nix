@@ -11,7 +11,7 @@
   # darwin. `isDarwin` comes from specialArgs, so this is legal in `imports`.
   imports =
     [
-      ./minimal.nix
+      ./minimal
       ./essentials
       ./fonts
       ./theme

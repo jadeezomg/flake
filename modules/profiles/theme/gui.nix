@@ -5,10 +5,10 @@
   pkgs,
   ...
 }: let
-  # Wallpaper/image data still lives under home/shared/assets (moving it is a
-  # Phase 7 tier-4 concern — the live symlinks below target the repo paths).
+  # Wallpaper/image data lives in ./wallpapers and ./images; the live
+  # symlinks below expose them under ~/Pictures.
   flakeRoot = config.dotfiles.flakeRoot;
-  assetsDir = "${flakeRoot}/home/shared/assets";
+  assetsDir = "${flakeRoot}/modules/profiles/theme";
 in {
   stylix = {
     opacity = {
@@ -24,7 +24,7 @@ in {
       size = 24;
     };
 
-    image = ../../../home/shared/assets/wallpapers/wallpaper.jpg;
+    image = ./wallpapers/wallpaper.jpg;
 
     targets = {
       gtk.enable = true;

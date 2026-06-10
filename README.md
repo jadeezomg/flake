@@ -43,7 +43,7 @@ just gc-days         # nh clean, keep store paths newer than N days
 just health          # git status, disk, nh os info
 ```
 
-`just` alone runs **`tv just-recipes`** (cable TOML in `home/shared/utils/television/cable/`; Home Manager links it to **`~/.config/television/cable/`** like navi cheats). **F5** runs the highlighted recipe (`just` in execute mode). Install the `television` package so `tv` is on `PATH`, or run `just --choose` yourself. `just list` lists every recipe; `just info` shows `nix flake metadata`.
+`just` alone runs **`tv just-recipes`** (cable TOML in `modules/profiles/essentials/utils/television/cable/`; Home Manager links it to **`~/.config/television/cable/`** like navi cheats). **F5** runs the highlighted recipe (`just` in execute mode). Install the `television` package so `tv` is on `PATH`, or run `just --choose` yourself. `just list` lists every recipe; `just info` shows `nix flake metadata`.
 
 ## Justfile groups
 
@@ -79,8 +79,7 @@ flake/
 │   └── overlays/             # local packages, niri, CachyOS kernel, …
 ├── data/                     # e.g. users/users.nix, static files
 ├── hosts/                    # hosts.nix + per-host NixOS/darwin config
-├── modules/                  # shared / nixos / darwin
-├── home/                     # shared, nixos, darwin (home-manager)
+├── modules/                  # profiles (features, system + HM halves) / platform base
 ├── packages/                 # custom packages; auto-registered as pkgs.<name> (see overlays)
 ├── data/agents/              # global AGENTS.md + copy-in agent skills (upstream ref: skills-mattpocock)
 ├── scripts/                  # Justfile helpers + uv Python package (flake-scripts)
@@ -128,7 +127,7 @@ Available in system/home modules (see [AGENTS.md](AGENTS.md) for the full list):
 
 `secrets/secrets.yaml` is encrypted with sops and age. See [docs/secrets/sops-age-keys.md](docs/secrets/sops-age-keys.md). Edit with `sops secrets/secrets.yaml`. Editor key: `just setup-age-editor` → `~/.config/sops/age/keys.txt`.
 
-Home-manager exports select secrets to the user session env via `home/shared/shells/sops-session-env.nix` (env.d + `systemctl --user set-environment` on Linux; LaunchAgent + `launchctl setenv` on Darwin), so every new shell — and GUI apps launched outside a terminal — inherit them.
+Home-manager exports select secrets to the user session env via `modules/profiles/minimal/shells/sops-session-env.nix` (env.d + `systemctl --user set-environment` on Linux; LaunchAgent + `launchctl setenv` on Darwin), so every new shell — and GUI apps launched outside a terminal — inherit them.
 
 ## Where to add things
 
@@ -140,7 +139,7 @@ Home-manager exports select secrets to the user session env via `home/shared/she
 | System packages (profile-gated) | `modules/profiles/<profile>.nix` (platform extras inline) |
 | System packages (unconditional base) | `modules/shared/`, `modules/nixos/`, `modules/darwin/` |
 | One host only | `hosts/<name>/` |
-| User packages (home-manager) | `home/shared/…` or `home/nixos` / `home/darwin` |
+| User (HM) config | the owning profile's feature folder in `modules/profiles/` (pushed via `home-manager.sharedModules`) |
 | NixOS services | `modules/nixos/` |
 | Desktop / Wayland | `modules/profiles/desktop/` (system + DMS/niri HM + data) |
 | Custom package | `packages/<name>/` + `update.json` when you want `just update-packages` to handle bumps |

@@ -16,22 +16,15 @@
   hostData = import ../hosts/hosts.nix;
 
   darwinSystems = ["aarch64-darwin"];
-  homeModules = isDarwin:
-    [
-      inputs.sops-nix.homeModules.sops
-      inputs.stylix.homeModules.stylix
-    ]
-    ++ (
-      if isDarwin
-      then [
-        ../home/shared
-        ../home/darwin
-      ]
-      else [
-        ../home/shared
-        ../home/nixos
-      ]
-    );
+
+  # User config arrives via `home-manager.sharedModules` pushed by the
+  # profiles (modules/profiles/*); only external input modules and the
+  # flakeRoot option plumbing are imported unconditionally here.
+  homeModules = [
+    inputs.sops-nix.homeModules.sops
+    inputs.stylix.homeModules.stylix
+    ../lib/home/dotfiles.nix
+  ];
 
   commonSpecialArgs = {inherit inputs hostData;};
 
@@ -44,10 +37,9 @@
     ...
   }: let
     host = hostData.hosts.${hostKey};
-    hmImports = homeModules isDarwin;
     guestHmUsers = builtins.filter (u: (u.manageHome or true)) (host.extraUsers or []);
     mkUserCfg = {
-      imports = hmImports;
+      imports = homeModules;
       home.stateVersion = host.stateVersion;
     };
   in {
