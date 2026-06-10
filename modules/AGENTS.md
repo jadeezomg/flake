@@ -5,14 +5,14 @@ System-level NixOS/Darwin configuration.
 ## Special Args Available in All Modules
 
 ```nix
-{ pkgs, lib, config, inputs, hostData, hostKey, host, user, isDarwin, system, pkgs-stable }
+{ pkgs, lib, config, inputs, hostData, hostKey, host, user, isDarwin, system, pkgs-small, pkgs-stable }
 ```
 
 - `hostKey` — `"desktop"`, `"framework"`, or `"caya"` (use for host conditionals)
 - `host` — full host record from `hosts/<hostKey>/host.nix` (includes `mainMonitor.*`, `buildCores`, `dmsSettingsFile`, `niriOutputsFile`, …)
 - `isDarwin` — `true` on macOS
+- `pkgs-small` — nixpkgs-unstable-small (pinned, no local overlays)
 - `pkgs-stable` — nixpkgs 25.11 (pinned, no local overlays)
-
 ## Common Patterns
 
 ```nix

@@ -6,7 +6,10 @@
 #
 # Architecture decisions: docs/adr/0001-nono-as-single-sandboxing-system.md.
 #
-{pkgs}: let
+{
+  pkgs,
+  pkgs-small ? pkgs,
+}: let
   inherit (pkgs) lib;
 
   # Per-platform credential-key resolution.
@@ -105,12 +108,15 @@
       # Hosts our custom_credentials inject auth for. Listed so `nono why`
       # static analysis matches runtime — without this, `nono why` reports
       # DENIED for these even though the broker rewrites them at runtime.
-      allow_domain =
-        ["context7.com"]
-        ++ lib.optional (extraCredentials ? openrouter) "openrouter.ai";
+      allow_domain = ["context7.com"] ++ lib.optional (extraCredentials ? openrouter) "openrouter.ai";
       open_port = loopbackPorts;
       custom_credentials = sharedCustomCredentials // extraCredentials;
-      credentials = ["context7" "github"] ++ extraServiceList;
+      credentials =
+        [
+          "context7"
+          "github"
+        ]
+        ++ extraServiceList;
     };
     filesystem = {
       allow = dotDirs;
@@ -134,7 +140,10 @@
       # nix_runtime: agent binary lives in /nix/store; without it the
       # wrapper's /nix/store/.../bin/env exec fails (directory not readable).
       # node_runtime: pi shells out to bun/npm.
-      extraGroups = ["nix_runtime" "node_runtime"];
+      extraGroups = [
+        "nix_runtime"
+        "node_runtime"
+      ];
       dotDirs = [
         "$HOME/.pi"
         "$HOME/.npm-global"
@@ -157,7 +166,10 @@
       name = "omp-flake";
       description = "oh-my-pi (omp) — OpenRouter broker, podman socket, loopback dev ports";
       baseProfiles = ["linux-host-compat"];
-      extraGroups = ["nix_runtime" "node_runtime"];
+      extraGroups = [
+        "nix_runtime"
+        "node_runtime"
+      ];
       # omp's plugin manager shells out to `bun install` against
       # ~/.omp/plugins/, so the npm dotdirs are kept in scope alongside ~/.omp.
       dotDirs = [
@@ -182,7 +194,7 @@
   metadata = {
     claude = {
       profileName = "claude-flake";
-      pkg = pkgs.claude-code;
+      pkg = pkgs-small.claude-code;
       bin = "claude";
       gitName = "claude-jadee";
       gitEmail = "claude@jadee.fyi";
@@ -190,7 +202,10 @@
       # prompts become friction. Per nono docs/cli/clients/claude-code.
       # Claude 2.x gates --dangerously-skip-permissions behind a separate
       # --allow-… opt-in; both flags are needed to launch without prompting.
-      extraArgs = ["--allow-dangerously-skip-permissions" "--dangerously-skip-permissions"];
+      extraArgs = [
+        "--allow-dangerously-skip-permissions"
+        "--dangerously-skip-permissions"
+      ];
     };
     pi = {
       profileName = "pi-flake";
@@ -226,8 +241,7 @@
   mkAgentProfileFile = agentName: let
     meta = metadata.${agentName};
   in
-    pkgs.writeText "${meta.profileName}.json"
-    (builtins.toJSON profiles.${meta.profileName});
+    pkgs.writeText "${meta.profileName}.json" (builtins.toJSON profiles.${meta.profileName});
 
   mkAgentInvocation = {
     agentName,
@@ -242,7 +256,10 @@
       then "${pkgs.nono}/bin/nono"
       else "nono";
     nonoArgs =
-      [nonoBin "run"]
+      [
+        nonoBin
+        "run"
+      ]
       ++ lib.optional detached "--detached"
       ++ [
         "--profile"
@@ -287,17 +304,23 @@
       name = "agent-${agentName}";
       runtimeInputs = [pkgs.nono];
       text = ''
-        exec ${mkAgentInvocation {
-          inherit agentName;
-          passArgs = true;
-        }}
+        exec ${
+          mkAgentInvocation {
+            inherit agentName;
+            passArgs = true;
+          }
+        }
       '';
     };
 
   agentNames = lib.attrNames metadata;
   agentBins = lib.genAttrs agentNames mkAgentBin;
 
-  credentialAccounts = ["openrouter_api_key" "context7_api_key" "github_token"];
+  credentialAccounts = [
+    "openrouter_api_key"
+    "context7_api_key"
+    "github_token"
+  ];
   profileNames = map (n: metadata.${n}.profileName) agentNames;
 
   linuxChecks =
@@ -393,7 +416,10 @@
 
   status = pkgs.writeShellApplication {
     name = "agent-status";
-    runtimeInputs = [pkgs.nono pkgs.jq];
+    runtimeInputs = [
+      pkgs.nono
+      pkgs.jq
+    ];
     text = ''
       json="$(nono --silent ps --json 2>/dev/null || echo '[]')"
       count="$(printf '%s' "$json" | jq 'length' 2>/dev/null || echo 0)"
@@ -408,14 +434,23 @@
 
   agent = pkgs.writeShellApplication {
     name = "agent";
-    runtimeInputs = lib.attrValues agentBins ++ [doctor status pkgs.nono];
+    runtimeInputs =
+      lib.attrValues agentBins
+      ++ [
+        doctor
+        status
+        pkgs.nono
+      ];
     text = ''
       usage() {
         cat <<HELP
       usage: agent <command> [args...]
 
       run an agent in its sandbox:
-        ${lib.concatMapStringsSep "\n  " (n: "${n} [args...]    invoke ${metadata.${n}.bin} via ${metadata.${n}.profileName}") agentNames}
+        ${lib.concatMapStringsSep "\n  " (
+          n: "${n} [args...]    invoke ${metadata.${n}.bin} via ${metadata.${n}.profileName}"
+        )
+        agentNames}
 
       session management (forwarded to nono):
         ps                list running / detached sandbox sessions
@@ -454,5 +489,18 @@
     '';
   };
 in {
-  inherit profiles metadata mkAgentProfileFile mkAgentInvocation mkAgentBin agentPackageAttrs agentPackages agentBins agent doctor status agentGitconfig;
+  inherit
+    profiles
+    metadata
+    mkAgentProfileFile
+    mkAgentInvocation
+    mkAgentBin
+    agentPackageAttrs
+    agentPackages
+    agentBins
+    agent
+    doctor
+    status
+    agentGitconfig
+    ;
 }
