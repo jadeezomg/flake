@@ -35,7 +35,7 @@ lanzaboote handles secure boot (`/var/lib/sbctl`); `systemd-boot` is force-disab
 
 ## Theme
 
-**Birds of Paradise** (dark brown/warm palette). Defined in `home/shared/assets/theme/theme.nix`. Python mirror at `scripts/src/flake_scripts/lib/palette.py` — keep both in sync when updating colors.
+**Birds of Paradise** (dark brown/warm palette). Defined in `modules/profiles/theme/theme.nix`. Python mirror at `scripts/src/flake_scripts/lib/palette.py` — keep both in sync when updating colors.
 
 Stylix enabled globally (`stylix.autoEnable = true`). VSCode, Firefox, and niri targets explicitly disabled. GTK gets custom CSS for 90% opacity.
 

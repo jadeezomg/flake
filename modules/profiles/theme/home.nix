@@ -1,22 +1,18 @@
+# Theme baseline (HM half) — Stylix with the Birds-of-Paradise base16 scheme
+# and CLI/terminal theming. Always pushed (the server keeps shell colors);
+# GUI payload (wallpaper, cursor, opacity, GTK, …) lives in ./gui.nix.
 {
-  host,
-  isDarwin,
   lib,
   pkgs,
   ...
 }: let
-  # Import our custom theme colors
+  # Palette single source: ./theme.nix (Python mirror:
+  # scripts/src/flake_scripts/lib/palette.py — keep both in sync).
   themeColors = import ./theme.nix;
 in {
   stylix = {
     enable = true;
     autoEnable = true;
-    opacity = {
-      applications = 0.9;
-      desktop = 0.9;
-      popups = 0.9;
-      terminal = 0.9;
-    };
     overlays.enable = false;
     polarity = "dark";
 
@@ -56,25 +52,11 @@ in {
       sansSerif = {
         name = "Inter Variable";
       };
-      # sansSerif = {
-      #   package = iosevkaAile;
-      #   name = "Iosevka Aile";
-      # };
       emoji = {
         package = pkgs.noto-fonts-color-emoji;
         name = "Noto Color Emoji";
       };
     };
-
-    # Cursor theme
-    cursor = {
-      package = pkgs.phinger-cursors;
-      name = "phinger-cursors-dark";
-      size = 24;
-    };
-
-    # Image/wallpaper
-    image = ../wallpapers/wallpaper.jpg;
 
     targets = {
       vscode.enable = false;
@@ -84,14 +66,9 @@ in {
         fonts.enable = false;
       };
       ghostty.fonts.enable = false;
-      zen-browser = {
-        profileNames = ["default"];
-      };
-      # gnome.enable = false;
-      # qt.enable = false;
-      # GTK/dconf theming requires a user dconf service (graphical session). Skip
-      # on headless NixOS (mini); Darwin keeps GTK even without `mainMonitor`.
-      gtk.enable = lib.mkDefault (isDarwin || (host ? mainMonitor));
+      # GTK/dconf theming needs a graphical session; ./gui.nix turns it on
+      # (plain priority beats this mkDefault) for theme.gui hosts.
+      gtk.enable = lib.mkDefault false;
     };
   };
 }
