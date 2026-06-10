@@ -64,8 +64,6 @@ in {
   services.vllm-xpu = {
     package = (pkgs.vllm-xpu-unstable.withTorchvision true).withKernelConfig {
       chunkPrefill = "chunk_prefill_default";
-      # Qwen3.6 VL multimodal profiling hits seq 96 + this flag mix — without it EngineCore
-      # falls back to PyTorch attention and can OOM (see journal "Chunk prefill kernel not compiled").
       chunkPrefillExtra = [
         "96,false,false,false,false,false"
         "256,true,true,false,false,false"
@@ -110,7 +108,13 @@ in {
         image = 8;
         video = 1;
       };
-      extraArgs = ["--trust-remote-code"];
+      # Native XPU FP8 MoE can hit `ptr_scales of fp8 must be 1D [num_experts]` with Qwen3.6-FP8;
+      # Triton FP8 MoE is the supported fallback on XPU for this quant layout (see vLLM fp8 oracle).
+      extraArgs = [
+        "--trust-remote-code"
+        "--moe-backend"
+        "triton"
+      ];
     };
 
     instances.embedding = {

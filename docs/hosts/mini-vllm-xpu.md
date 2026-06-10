@@ -118,6 +118,16 @@ Symptoms: **`Chunk prefill kernel not compiled for this configuration`**, sugges
 
 If it **still** OOMs: temporarily **`sudo systemctl stop vllm-xpu-embedding`**, lower **`maxModelLen`** / **`maxNumSeqs`**, or set **`languageModelOnly = true`** to drop multimodal serving until VRAM fits. Upstream context: [vllm-xpu-kernels#364](https://github.com/vllm-project/vllm-xpu-kernels/issues/364).
 
+### `ptr_scales of fp8 must be 1D [num_experts]` (after weights load / `torch.compile`)
+
+Symptoms: **`EngineCore failed to start`** during **`profile_run`** / **`_dummy_run`**, stack through **`xpu_moe.py`** / **`cutlass_grouped_gemm_interface`** / **`fused_moe_interface`**, ending in **`RuntimeError: ptr_scales of fp8 must be 1D [num_experts]`**.
+
+**Cause:** The **native XPU** FP8 grouped-GEMM MoE path expects **per-expert scale tensors** in a layout that **Qwen3.6-35B-A3B-FP8** does not provide (or vLLM reshapes them differently after **`torch.compile`**).
+
+**Fix in this flake:** **`instances.chat.extraArgs`** includes **`--moe-backend triton`** so FP8 MoE uses the **Triton** expert path on XPU (same class of workaround as upstream block-FP8 MoE on XPU — see vLLM PRs around FP8 MoE oracle / `VLLM_FP8_MOE_BACKEND`). Slower than a tuned native kernel, but should clear startup.
+
+If **`triton`** is rejected by your **`vllm-xpu`** build, try **`enforceEager = true`** and **`enableXpuGraph = false`** in `vllm-xpu.nix` to drop the inductor graph around MoE, or **bump `vllm-xpu-nix`**.
+
 ### `warning: rejected … because shallow roots are not allowed to be updated`
 
 This came from Nix’s **shallow** git fetch of `vllm-xpu-kernels-unstable-src` before widening to a full clone. The flake pins that input with **`shallow = false`** (see `flake.nix` under `vllm-xpu-nix.inputs`) so the fetch is non-shallow from the start.
