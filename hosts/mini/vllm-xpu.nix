@@ -1,46 +1,14 @@
-# Intel XPU vLLM — ported from ~/.dotfiles/examples/dotfiles hosts/brutus/services/vllm-xpu.nix
-# (Brutus: Arc B50-class + vllm-xpu-nix). See docs/hosts/mini-vllm-xpu.md.
+# Intel XPU vLLM — consumption matches upstream:
+# https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md
+# (`nixosModules.default` is imported for mini in `parts/hosts.nix` when `miniLlmHosting`.)
+# Host-specific tuning, ccache, and optional kernel overrides: `docs/hosts/mini-vllm-xpu.md`.
 # Optional GGUF on 8010: `./llama-cpp.nix` when `host.miniLlamaCppGemma` (see `host.nix`).
 {
   config,
   lib,
   pkgs,
   ...
-}: let
-  cfg = config.services.vllm-xpu;
-  chat = cfg.instances.chat;
-  embedding = cfg.instances.embedding;
-  stt = cfg.instances.stt;
-
-  # examples/dotfiles uses homelab.ports; this flake has no homelab module — fixed ports.
-  ports = {
-    local-llm = 8000;
-    local-embedding = 8001;
-    local-stt = 8002;
-  };
-
-  models = {
-    # Dense ~9B text (no HF "Qwen3.6-9B"). Model card:
-    # https://huggingface.co/Qwen/Qwen3.5-9B
-    # For image/video on 8000 use a VL checkpoint (e.g. Qwen/Qwen3-VL-8B-Instruct) instead.
-    chat = {
-      repo = "Qwen/Qwen3.5-9B";
-    };
-    embedding = {
-      repo = "jinaai/jina-embeddings-v5-text-nano-retrieval";
-      rev = "ac5d898c8d382b17167c33e5c8af644a3519b47d";
-    };
-    stt = {
-      repo = "distil-whisper/distil-large-v3.5";
-      rev = "728a7691f3ff1d3d971528d3203a6e9559165d41";
-    };
-  };
-
-  # Qwen3.5 chat on XPU — set `miniLlamaCppGemma = false` in host.nix so 8010 llama.cpp
-  # is off (same GPU as vLLM chat + embedding).
-  vllm-chat-enable = true;
-  vllm-embedding-enable = true;
-in {
+}: {
   # Brutus graphics stack: OpenCL/L0 + media — needed for Intel discrete Arc / Xe compute.
   hardware.graphics.extraPackages = with pkgs; [
     intel-compute-runtime
@@ -73,87 +41,48 @@ in {
   };
 
   services.vllm-xpu = {
-    package = (pkgs.vllm-xpu-unstable.withTorchvision true).withKernelConfig {
-      chunkPrefill = "chunk_prefill_default";
-      chunkPrefillExtra = [
-        "96,false,false,false,false,false"
-        "256,true,true,false,false,false"
-        "256,false,true,false,false,false"
-        "256,false,true,false,false,true"
-      ];
-      pagedDecode = "paged_decode_default";
-      pagedDecodeExtra = [
-        "8,256,16,true,false,false"
-        "8,256,32,true,false,false"
-        "8,256,64,true,false,false"
-        "8,256,64,false,false,false"
-      ];
-    };
+    package = pkgs.vllm-xpu-unstable;
 
     instances.chat = {
-      enable = vllm-chat-enable;
-      port = lib.mkIf chat.enable ports.local-llm;
-      host = "127.0.0.1";
+      enable = true;
       environmentFile = config.sops.templates."mini-llm-hf.env".path;
 
-      model = models.chat.repo;
+      model = "Qwen/Qwen3.5-9B";
       servedName = "qwen3.5-9b";
-      dtype = "auto";
-      quantization = null;
+      dtype = "bfloat16";
+      # Online FP8 weights (~13–14 GiB peak vs ~18 GiB bf16) — required on 16 GiB dGPU for KV headroom
+      # (see intel/llm-scaler#339). Pair with fp8 KV below.
+      quantization = "fp8";
       kvCacheDtype = "fp8";
-      # Text chat + embedding on one GPU: conservative caps; raise after stable load.
-      maxModelLen = 16384;
-      maxNumSeqs = 3;
-      gpuMemoryUtilization = 0.85;
+      # vLLM loads Qwen3.5 as Qwen3_5ForConditionalGeneration; skip vision encoder cache / image profile.
+      languageModelOnly = true;
+      # Long context after weights fit: raise if logs show positive KV memory (65536 → 131072).
+      maxModelLen = 32768;
+      maxNumSeqs = 1;
+      gpuMemoryUtilization = 0.95;
       speculativeConfig = null;
-      enforceEager = false;
-      enableXpuGraph = true;
-      cudagraphCaptureSizes = [
-        3
-        6
-      ];
-      # Qwen3.5 emits thinking blocks; `qwen3` maps them to `delta.reasoning` (vLLM).
+      enforceEager = true;
+      enableXpuGraph = false;
       reasoningParser = "qwen3";
       enableAutoToolChoice = false;
       toolCallParser = null;
-      languageModelOnly = false;
       extraArgs = ["--trust-remote-code"];
     };
 
     instances.embedding = {
-      enable = vllm-embedding-enable;
-      port = lib.mkIf embedding.enable ports.local-embedding;
-      host = "127.0.0.1";
+      enable = true;
+      port = 8001;
       environmentFile = config.sops.templates."mini-llm-hf.env".path;
 
       runner = "pooling";
-      model = models.embedding.repo;
+      model = "jinaai/jina-embeddings-v5-text-nano-retrieval";
+      rev = "ac5d898c8d382b17167c33e5c8af644a3519b47d";
       servedName = "jina-embeddings-v5-nano";
       maxModelLen = 8192;
       maxNumSeqs = 8;
       gpuMemoryUtilization = 0.05;
       enforceEager = true;
       extraArgs = ["--trust-remote-code"];
-    };
-
-    instances.stt = {
-      enable = false;
-      port = lib.mkIf stt.enable ports.local-stt;
-      host = "127.0.0.1";
-      environmentFile = config.sops.templates."mini-llm-hf.env".path;
-
-      model = models.stt.repo;
-      servedName = "distil-large-v3.5";
-      dtype = "bfloat16";
-      maxModelLen = 448;
-      maxNumSeqs = 32;
-      limitMmPerPrompt = {
-        audio = 1;
-      };
-      kvCacheDtype = "fp8";
-      gpuMemoryUtilization = 0.05;
-      enforceEager = true;
-      attentionBackend = "TRITON_ATTN";
     };
   };
 

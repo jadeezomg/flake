@@ -68,11 +68,10 @@ commands:
 secrets: 
   enabled: true
 providers: 
-  webSearch: anthropic
+  webSearch: auto
   image: auto
   kimiApiFormat: anthropic
   openaiWebsockets: auto
-  parallelFetch: true
 exa: 
   enabled: false
   enableSearch: false
@@ -118,3 +117,4 @@ treeFilterMode: all
 stt: 
   modelName: medium.en
 repeatToolDescriptions: false
+setupVersion: 1
