@@ -5,6 +5,7 @@
     inputs.framework-control.nixosModules.default
     ../../modules/shared
     ../../modules/nixos
+    ../../modules/profiles
     ./gpu.nix
     ./input.nix
     ./power.nix

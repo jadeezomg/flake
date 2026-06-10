@@ -1,6 +1,5 @@
 {...}: {
   imports = [
-    ./profiles
     ./environment.nix
     ./fonts.nix
     ./security.nix

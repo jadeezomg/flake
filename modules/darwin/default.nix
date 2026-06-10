@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   pkgs,
   hostData,
@@ -8,7 +7,6 @@
   ...
 }: let
   host = hostData.hosts.${hostKey} or {};
-  workCfg = config.dotfiles.profiles.work;
   homeDir = host.homeDirectory or "/Users/${user}";
 
   xdgVars = {
@@ -64,61 +62,5 @@ in {
 
   services.tailscale.enable = true;
 
-  homebrew = lib.mkIf workCfg.enable {
-    enable = true;
-
-    onActivation = {
-      autoUpdate = true;
-      cleanup = "uninstall";
-      # Avoid upgrading the full brew graph during activation; transient
-      # network/CDN issues can fail the whole switch.
-      upgrade = true;
-    };
-
-    brews = [
-      "rbenv" # Ruby version manager
-      "ruby-build" # Ruby version installer for rbenv
-      "trash" # Send files to Finder Trash from CLI
-    ];
-
-    casks = [
-      # --- Productivity ---
-      "1password" # Password manager (Mac-specific GUI)
-      "1password-cli" # 1Password CLI
-      "raycast" # Spotlight replacement (Mac-specific)
-      "notion" # Notes and collaboration
-      "slack" # Team communication (simpler via Homebrew)
-      "claude" # Claude Desktop
-
-      # --- Browsers ---
-      "zen" # Daily-driver browser
-      "firefox"
-      "google-chrome"
-
-      # --- Utilities ---
-      "dockdoor" # alt-tab replacement
-      "middleclick" # Three-finger click utility (Mac-specific)
-      "notunes" # Disable iTunes/Music auto-launch (Mac-specific)
-      "linearmouse" # mouse options
-      "finetune" # Per-app volume control
-      "xykong/tap/flux-markdown" # md for peek
-      "hyperkey" # rebind keys
-      "handy" # Offline speech-to-text desktop app
-      "shottr" # screenshot tool
-
-      # --- Fonts (not in nixpkgs) ---
-      "font-sf-mono"
-      "font-sf-pro"
-
-      # --- Design Resources ---
-      "sf-symbols" # Apple SF Symbols
-    ];
-
-    masApps = {
-      # Add Mac App Store apps here by ID (find via: mas search "App Name")
-      # Example: "Xcode" = 497799835;
-    };
-
-    taps = builtins.attrNames (config.nix-homebrew.taps or {});
-  };
+  # Homebrew (work profile) lives in modules/profiles/work/darwin.nix.
 }

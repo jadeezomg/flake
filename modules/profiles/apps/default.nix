@@ -1,16 +1,23 @@
 {
   config,
+  isDarwin ? false,
   lib,
   ...
 }: let
   cfg = config.dotfiles.profiles.apps;
 in {
-  # Sub-category options are declared in ../default.nix and consumed directly
-  # by Home Manager / nixos modules / darwin homebrew. Only categories that
-  # ship cross-platform *system* packages need a file here (currently: notes).
-  imports = [
-    ./notes.nix
-  ];
+  # Sub-category options are declared in ../default.nix. Each category file
+  # holds its system packages with platform extras inline; media.nix is a
+  # Linux-only leaf because `programs.obs-studio` doesn't exist on darwin.
+  imports =
+    [
+      ./comms.nix
+      ./editors.nix
+      ./files.nix
+      ./notes.nix
+      ./terminals.nix
+    ]
+    ++ lib.optionals (!isDarwin) [./media.nix];
 
   # Convenience: enabling apps.enable activates every category the current
   # workstation hosts ship today. Slimmer hosts (work laptop, server) should

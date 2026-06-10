@@ -9,7 +9,7 @@ Home-manager configuration for all users.
 | User packages (cross-platform) | `home/shared/apps/` or `home/shared/development/` |
 | User packages (Linux-only) | `home/nixos/` |
 | User packages (macOS-only) | `home/darwin/` |
-| macOS Homebrew casks/brews | `modules/darwin/default.nix` |
+| macOS Homebrew casks/brews | `modules/profiles/work/darwin.nix` |
 | Theme / fonts | `home/shared/assets/` |
 | Desktop / Wayland config | `home/nixos/desktop/` |
 

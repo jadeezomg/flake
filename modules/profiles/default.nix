@@ -2,17 +2,27 @@
   config,
   host ? {},
   hostKey ? "unknown",
+  isDarwin ? false,
   lib,
   ...
 }: {
-  imports = [
-    ./minimal.nix
-    ./essentials.nix
-    ./apps
-    ./devenv
-    ./work.nix
-    ./server.nix
-  ];
+  # Linux-only leaves are gated at import level (not mkIf) because their
+  # option namespaces (programs.steam, services.flatpak, …) don't exist on
+  # darwin. `isDarwin` comes from specialArgs, so this is legal in `imports`.
+  imports =
+    [
+      ./minimal.nix
+      ./essentials.nix
+      ./apps
+      ./devenv
+      ./work
+      ./server.nix
+    ]
+    ++ lib.optionals (!isDarwin) [
+      ./desktop.nix
+      ./gaming.nix
+      ./integrations.nix
+    ];
 
   options.dotfiles.profiles = let
     inherit (lib) mkEnableOption mkOption types;
@@ -58,7 +68,7 @@
         description = ''
           Per-language opt-ins. Each entry maps a language name to a small
           submodule with a single `enable` flag; the corresponding file in
-          `modules/shared/profiles/devenv/languages/<name>.nix` wires the
+          `modules/profiles/devenv/languages/<name>.nix` wires the
           actual package set behind `lib.mkIf cfg.enable`.
 
           When `devenv.enable = true` every currently-active language is
@@ -75,9 +85,9 @@
     server.enable = mkEnableOption "the server profile (parked: postgresql, redis — no host imports yet, see Q9)";
 
     # Linux-only profiles — options declared here so every profile toggle lives
-    # in one place; the implementing modules (modules/nixos/profiles/{desktop,
-    # integrations}.nix) are only evaluated on NixOS, so setting these on
-    # darwin has no effect.
+    # in one place; the implementing leaves (./desktop.nix, ./gaming.nix,
+    # ./integrations.nix) are imported only when !isDarwin, so setting these
+    # on darwin has no effect.
     desktop.enable = enableOn "the desktop profile (niri + DMS + GNOME fallback; Linux only)";
 
     desktop.loginManager = mkOption {
