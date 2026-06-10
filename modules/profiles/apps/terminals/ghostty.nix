@@ -1,19 +1,12 @@
 {
   pkgs,
-  lib,
   config,
-  osConfig,
   isDarwin,
   ...
 }: {
-  # Unified ghostty HM config (P9e).
-  # Previously the package/systemd bits lived in platform overlays:
-  #   home/nixos/apps/terminals.nix  → pkgs.ghostty + systemd.enable
-  #   home/darwin/apps/terminals.nix → pkgs.ghostty-bin
-  # Both overlays were single-line package swaps, so they're folded in here
-  # via `isDarwin` — the only thing left in home/{nixos,darwin}/apps/ for
-  # ghostty would have been import-forwarding.
-  programs.ghostty = lib.mkIf (osConfig.dotfiles.profiles.apps.terminals.enable or false) {
+  # Unified ghostty HM config: package/systemd bits branch on `isDarwin`
+  # (Linux builds from source + systemd unit; macOS uses the prebuilt bin).
+  programs.ghostty = {
     enable = true;
     enableBashIntegration = true;
     enableFishIntegration = true;

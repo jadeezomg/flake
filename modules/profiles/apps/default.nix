@@ -12,10 +12,10 @@ in {
   imports =
     [
       ./comms.nix
-      ./editors.nix
-      ./files.nix
+      ./editors
+      ./files
       ./notes
-      ./terminals.nix
+      ./terminals
     ]
     ++ lib.optionals (!isDarwin) [./media.nix];
 

@@ -1,7 +1,6 @@
 {...}: {
   imports = [
     ./environment.nix
-    ./fonts.nix
     ./security.nix
     ./shells.nix
   ];

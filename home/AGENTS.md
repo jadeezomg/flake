@@ -10,7 +10,8 @@ Home-manager configuration for all users.
 | User packages (Linux-only) | `home/nixos/` |
 | User packages (macOS-only) | `home/darwin/` |
 | macOS Homebrew casks/brews | `modules/profiles/work/darwin.nix` |
-| Theme / fonts | `home/shared/assets/` |
+| Theme | `home/shared/assets/theme/` |
+| Fonts | `modules/profiles/fonts/` |
 | Desktop / Wayland config | `home/nixos/desktop/` |
 
 ## Desktop Stack (Linux)

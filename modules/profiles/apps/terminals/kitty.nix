@@ -1,10 +1,9 @@
 {
   pkgs,
   lib,
-  osConfig,
   ...
 }: {
-  programs.kitty = lib.mkIf (osConfig.dotfiles.profiles.apps.terminals.enable or false) {
+  programs.kitty = {
     enable = true;
 
     font = {
