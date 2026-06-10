@@ -25,9 +25,10 @@
 # (Zed, terminals, etc.) after a switch.
 #
 # Each sops secret expands to one or more `exports` (var, path, optional
-# valuePrefix). The default mapping is `foo-bar` → `FOO_BAR`. The GitHub PAT
-# is the only fan-out: one file → `GITHUB_TOKEN`, `GITHUB_PAT`,
-# `GITHUB_PERSONAL_ACCESS_TOKEN`, and `NIX_CONFIG=access-tokens = github.com=…`.
+# `valuePrefix`). The default mapping is `foo-bar` → `FOO_BAR`. Fan-outs:
+# - GitHub PAT → `GITHUB_TOKEN`, `GITHUB_PAT`, `GITHUB_PERSONAL_ACCESS_TOKEN`,
+#   and `NIX_CONFIG=access-tokens = github.com=…`.
+# - Hugging Face (`hf-token`) → `HF_TOKEN` and `HUGGING_FACE_HUB_TOKEN`.
 {
   config,
   lib,
@@ -38,6 +39,7 @@
   secretNames = lib.attrNames secrets;
 
   githubPatSecretAttrs = ["github-token" "gh-token"];
+  hfTokenSecretAttrs = ["hf-token"];
 
   resolvePath = name: let
     raw = secrets.${name}.path;
@@ -69,6 +71,17 @@
         inherit path;
         var = "NIX_CONFIG";
         valuePrefix = "access-tokens = github.com=";
+      }
+    ]
+    else if lib.elem name hfTokenSecretAttrs
+    then [
+      {
+        inherit path;
+        var = "HF_TOKEN";
+      }
+      {
+        inherit path;
+        var = "HUGGING_FACE_HUB_TOKEN";
       }
     ]
     else [
