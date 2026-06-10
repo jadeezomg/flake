@@ -1,5 +1,5 @@
 {lib, ...}: let
-  sshDestinations = (import ../../../data/network/ssh-destinations.nix).destinations;
+  sshDestinations = (import ../../../../data/network/ssh-destinations.nix).destinations;
   hostBlocks =
     lib.mapAttrs (_alias: {
       hostName,

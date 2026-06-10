@@ -8,7 +8,7 @@ Removed from this repo:
 - forced transparent workspace themes in synced `spaces.nix`
 
 Current wiring:
-- `home/shared/assets/theme/stylix.nix` sets `stylix.targets.zen-browser.profileNames = ["default"]`
+- `modules/profiles/theme/gui.nix` sets `stylix.targets.zen-browser.profileNames = ["default"]`
 - `modules/profiles/apps/browsers/zen/default.nix` declares the managed Zen mod UUIDs; the upstream `zen-browser` Home Manager module installs mods and regenerates `zen-themes.css`
 - Linux keeps `"zen.widget.linux.transparency" = true` in `profiles/default/default.nix`; Stylix does not set browser runtime prefs
 - the Transparent Zen mod prefs in `settings.nix` remain intentional runtime settings

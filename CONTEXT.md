@@ -36,7 +36,7 @@ A named secret in the platform keystore — libsecret on Linux, 1Password vault 
 _Avoid_: "key", "token" (those refer to the value; credential refers to the named entry)
 
 **Dispatcher**:
-The `agent` shell binary on PATH. Subcommands: `agent <name>` runs an agent; `agent ps` / `agent attach` / `agent stop` forward to nono session management; `agent doctor` runs setup health checks. Built once in `lib/nono-profiles.nix` and installed via `home/shared/development/tooling/agents-cli.nix`.
+The `agent` shell binary on PATH. Subcommands: `agent <name>` runs an agent; `agent ps` / `agent attach` / `agent stop` forward to nono session management; `agent doctor` runs setup health checks. Built once in `lib/nono-profiles.nix` and installed via `modules/profiles/devenv/agents/agents-cli.nix`.
 
 **Agent identity**:
 A per-agent git author/committer identity injected via `GIT_AUTHOR_*` / `GIT_COMMITTER_*` env vars in the sandbox. Today: `claude-jadee <claude@jadee.fyi>` and `pi-jadee <pi@jadee.fyi>`. Distinct from the **co-author trailer**.

@@ -13,7 +13,7 @@ Skills and agent config are **managed in this flake** and installed into `$HOME`
 | Claude settings | `data/agents/global/settings.json` | `~/.claude/settings.json` |
 | Oh-my-posh agent config | `data/agents/omp/` | `~/.omp/agent/` |
 
-Wiring lives in `home/shared/agents.nix` (global files) and `home/shared/development/tooling/llm.nix` (skill install). After edits, run `flake switch`.
+Wiring lives in `modules/profiles/devenv/agents/global-config.nix` (global files) and `modules/profiles/devenv/agents/skills.nix` (skill install). After edits, run `flake switch`.
 
 ## Structure
 

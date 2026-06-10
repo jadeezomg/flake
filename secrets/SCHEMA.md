@@ -18,7 +18,7 @@ Every entry below lists:
 ## Conventions
 
 - Flat keys (`github_token`) auto-export to the user session env as
-  `GITHUB_TOKEN` via `home/shared/shells/sops-session-env.nix`. Use this form
+  `GITHUB_TOKEN` via `modules/profiles/minimal/shells/sops-session-env.nix`. Use this form
   for any secret that needs to be visible to interactive shells.
 - Nested paths (`users/jadee/password_<hostKey>`, `mini/git/deploy-key`) are
   referenced explicitly by `sops.secrets.<path>` declarations in Nix modules

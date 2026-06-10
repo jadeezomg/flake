@@ -7,10 +7,12 @@
   cfg = config.dotfiles.profiles.essentials;
 in {
   config = lib.mkIf cfg.enable {
-    # HM widgets: host-status service/timer + fastfetch config.
+    # HM widgets: host-status service/timer, fastfetch config, CLI utils
+    # (television cable, navi cheats, yazi, …).
     home-manager.sharedModules = [
       ./host-status.nix
       ./fastfetch.nix
+      ./utils
     ];
 
     environment.systemPackages = with pkgs; [

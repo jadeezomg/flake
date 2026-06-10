@@ -16,6 +16,7 @@ in {
   config = lib.mkIf cfg.enable {
     home-manager.sharedModules = [
       ./skills.nix
+      ./global-config.nix
       ./agents-cli.nix
       ./nono-profiles.nix
       ./pi-packages.nix

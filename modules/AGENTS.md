@@ -53,7 +53,7 @@ dotfiles.profiles.devenv.languages.swift.enable = false;
 | Profile config using Linux-only options (steam, flatpak, …) | Linux-only leaf in `modules/profiles/` (imported when `!isDarwin`, see `default.nix`) |
 | macOS Homebrew casks/brews | `modules/profiles/work/darwin.nix` |
 | Unconditional platform base (boot, networking, sops, …) | `modules/nixos/`, `modules/darwin/`, `modules/shared/` |
-| Desktop / Wayland config | `modules/profiles/desktop.nix` |
+| Desktop / Wayland config | `modules/profiles/desktop/` |
 | Language tooling | `modules/profiles/devenv/languages/<lang>.nix` |
 | LLM agent tooling | `modules/profiles/devenv/agents/` |
 
@@ -61,3 +61,12 @@ dotfiles.profiles.devenv.languages.swift.enable = false;
 
 - **Conditional imports need a `default.nix` entry** — files not imported are silently ignored
 - **Darwin: No nixpkgs Nix Daemon** — `modules/darwin/default.nix` sets `nix.enable = false`; Determinate installer manages the daemon; don't re-enable it
+
+## Live Symlink Convention (HM halves)
+
+For mutable app config that should live in git but remain writable by the app, store the file in the owning profile's folder and expose it with an out-of-store Home Manager symlink:
+
+- Use `config.dotfiles.flakeRoot` for the repo path (option defined in `lib/home/dotfiles.nix`), never a hardcoded `/home/...` path.
+- Use `mkLiveSymlink` from `lib/home/live-xdg-symlinks.nix` for both `home.file` and `xdg.configFile` entries. It sets `mkOutOfStoreSymlink` plus `force = true`.
+- Do not use this for secrets, databases, logs, caches, or generated state.
+- DMS/niri desktop config lives in `modules/profiles/desktop/{dms,niri}/` — edits take effect without a switch; verify with `just symlink-check`.

@@ -28,7 +28,7 @@ VAULT="Employee"
 
 # 1Password item title → on-disk sops secret name (under ~/.config/sops-nix/secrets/)
 # sops-nix on Darwin writes secrets to its canonical dir regardless of the
-# per-secret `path = ...` override in home/shared/security.nix, so we read
+# per-secret `path = ...` override in modules/profiles/minimal/security.nix, so we read
 # from there directly to avoid stale `/run/secrets/...` symlinks.
 SECRETS_DIR="${HOME}/.config/sops-nix/secrets"
 ITEMS=(

@@ -7,6 +7,9 @@
 }: let
   cfg = config.dotfiles.profiles.work;
 in {
+  # HM configs for apps installed by the casks below (alt-tab, notunes, …).
+  home-manager.sharedModules = lib.mkIf cfg.enable [./brew-casks];
+
   homebrew = lib.mkIf cfg.enable {
     enable = true;
 

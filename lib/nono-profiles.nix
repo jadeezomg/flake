@@ -57,7 +57,7 @@
   ];
 
   # Broker credential routes read keystore accounts populated by
-  # home/shared/shells/sops-keyring.nix at HM activation.
+  # modules/profiles/minimal/shells/sops-keyring.nix at HM activation.
   # `env_var` is required by nono when `credential_key` is a URI manager
   # reference (op://, apple-password://, file://). It names the SDK env var
   # the broker exposes as a phantom token inside the sandbox. Set on every
