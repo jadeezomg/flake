@@ -8,11 +8,14 @@
 in {
   config = lib.mkIf cfg.enable {
     # HM widgets: host-status service/timer, fastfetch config, CLI utils
-    # (television cable, navi cheats, yazi, …).
+    # (television cable, navi cheats, yazi), prompt/shell theming, and the
+    # workstation env exports (FLAKE, PATH, flake helpers).
     home-manager.sharedModules = [
       ./host-status.nix
       ./fastfetch.nix
       ./utils
+      ./shell-theme
+      ./shell-system-env.nix
     ];
 
     environment.systemPackages = with pkgs; [

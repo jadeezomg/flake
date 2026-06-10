@@ -10,13 +10,4 @@
     age
     sops
   ];
-
-  # User-facing secrets (paths under $HOME) and session env exports live in
-  # home-manager: `home/shared/security.nix` + `sops-session-env.nix`.
-  #
-  # When you need activation-time or root-owned keys, add them here with the
-  # flake's `sops-nix` NixOS/Darwin module, e.g.:
-  #   sops.defaultSopsFile = ../../secrets/secrets.yaml;
-  #   sops.age.keyFile = "…";
-  #   sops.secrets.my-key = { … };
 }

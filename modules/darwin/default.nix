@@ -57,6 +57,4 @@ in {
   '';
 
   services.tailscale.enable = true;
-
-  # Homebrew (work profile) lives in modules/profiles/work/darwin.nix.
 }

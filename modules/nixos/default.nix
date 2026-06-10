@@ -8,6 +8,7 @@
     ./nix-ld.nix
     ./openssh.nix
     ./security.nix
+    ./shells.nix
     ./sops.nix
     ./usrbinenv.nix
     ./user.nix

@@ -28,17 +28,21 @@ host.mainMonitor.monitorScalingFactor
 
 All profile content lives in `modules/profiles/` (one tree, platform differences inside). Toggles are declared in `modules/profiles/default.nix`; enable per-host in `hosts/<name>/profiles.nix`.
 
-**Profile → implementation file index:** [`docs/profiles.md`](../docs/profiles.md) (paths and one-line scope; package lists stay in the `.nix` sources).
+**Profiles overview:** [`docs/profiles.md`](../docs/profiles.md) (structure + conventions; the tree is its own index).
 
 ```nix
 dotfiles.profiles = {
-  devenv.enable = true;        # enables all sub-profiles via lib.mkDefault
+  devenv.enable = true;        # headless dev core (tools, agents, podman CLI, languages)
+  devgui.enable = true;        # GUI dev tooling (cursor/zed, podman-desktop)
   apps.enable = true;
   gaming.enable = true;        # Steam stack (Linux only)
   work.enable = true;          # Workato, Postman, browsers on Darwin
+  llm.enable = true;           # serving stack (llama.cpp + unsloth); default off
   desktop.enable = true;       # niri + DMS + GNOME fallback (Linux only; default: true)
 };
 ```
+
+Always-on baselines (`enableOn`, the server opts out of the GUI halves): `minimal`, `essentials`, `fonts`(+`.full`), `theme`(+`.gui`).
 
 Override selectively after `devenv.enable = true`:
 ```nix

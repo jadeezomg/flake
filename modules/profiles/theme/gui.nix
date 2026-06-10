@@ -5,10 +5,14 @@
   pkgs,
   ...
 }: let
+  inherit
+    (import ../../../lib/home/live-xdg-symlinks.nix {inherit config;})
+    mkLiveSymlink
+    ;
+
   # Wallpaper/image data lives in ./wallpapers and ./images; the live
   # symlinks below expose them under ~/Pictures.
-  flakeRoot = config.dotfiles.flakeRoot;
-  assetsDir = "${flakeRoot}/modules/profiles/theme";
+  assetsDir = "${config.dotfiles.flakeRoot}/modules/profiles/theme";
 in {
   stylix = {
     opacity = {
@@ -35,14 +39,7 @@ in {
   };
 
   home.file = {
-    "Pictures/Images" = {
-      source = config.lib.file.mkOutOfStoreSymlink "${assetsDir}/images";
-      force = true;
-    };
-
-    "Pictures/Wallpapers" = {
-      source = config.lib.file.mkOutOfStoreSymlink "${assetsDir}/wallpapers";
-      force = true;
-    };
+    "Pictures/Images" = mkLiveSymlink "${assetsDir}/images";
+    "Pictures/Wallpapers" = mkLiveSymlink "${assetsDir}/wallpapers";
   };
 }

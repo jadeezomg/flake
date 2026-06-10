@@ -12,20 +12,11 @@
     inherit isDarwin;
   };
 in {
-  # Cross-platform nix.settings + cargo env vars + `/etc/current-system-packages`.
-  # Automatic GC lives in `modules/nixos/gc.nix`
-  # since Darwin (Determinate Nix) manages its own GC and uses a different
-  # option shape (`nix.gc.interval`).
-
   nix.settings = {
     auto-optimise-store = true;
     download-buffer-size = 524288000; # 500 MiB
     max-jobs = 1;
     cores = buildCores;
-
-    # if build failes because of public keys
-    # cd /home/jadee/.dotfiles/flake && sudo NIX_CONFIG='substituters = https://cache.nixos.org/ trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=' nix build '.#nixosConfigurations.desktop.config.system.build.toplevel'
-    # sudo nixos-rebuild switch --flake /home/jadee/.dotfiles/flake#desktop
 
     extra-substituters = [
       "https://zed.cachix.org"

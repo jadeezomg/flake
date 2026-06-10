@@ -115,7 +115,7 @@
     server.enable = mkEnableOption "the server profile (parked: postgresql, redis — no host imports yet, see Q9)";
 
     # Linux-only profiles — options declared here so every profile toggle lives
-    # in one place; the implementing leaves (./desktop.nix, ./gaming.nix,
+    # in one place; the implementing leaves (./desktop, ./gaming.nix,
     # ./integrations.nix) are imported only when !isDarwin, so setting these
     # on darwin has no effect.
     desktop.enable = enableOn "the desktop profile (niri + DMS + GNOME fallback; Linux only)";

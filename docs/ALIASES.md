@@ -15,7 +15,7 @@ This document lists all aliases and commands available across different shells i
 
 ## Directory Listing (eza) (Bash, Fish, Nushell, Zsh)
 
-Source: `home/shared/shells/core/data/aliases.nix` (same `shellAliases` map for every shell).
+Source: `modules/profiles/minimal/shells/core/data/aliases.nix` (same `shellAliases` map for every shell).
 
 | Alias | Command | Description |
 |-------|---------|-------------|
@@ -87,16 +87,16 @@ Source: `home/shared/shells/core/data/aliases.nix` (same `shellAliases` map for 
 | `zc` | Navigate to config | `$HOME/.config` |
 | `zd` | Navigate to downloads | `$HOME/Downloads` |
 
-Implemented per shell in `home/shared/shells/core/bash.nix`, `core/fish.nix`, `core/zsh.nix`, and `core/nushell.nix` (same behavior; Nushell uses `def --env`).
+Implemented per shell in `modules/profiles/minimal/shells/core/bash.nix`, `core/fish.nix`, `core/zsh.nix`, and `core/nushell.nix` (same behavior; Nushell uses `def --env`).
 
 ## Dotfiles & flake helpers (Bash, Fish, Nushell, Zsh)
 
-All defined in `home/shared/shells/env/system.nix` (imported via `home/shared/shells/env/default.nix`), together with `FLAKE`, `NH_FLAKE`, and workstation `PATH` bits. Intended to apply when the **essentials** system profile is enabled; see the `lib.mkIf` in that file for the exact condition.
+All defined in `modules/profiles/essentials/shell-system-env.nix` (pushed by the essentials profile), together with `FLAKE`, `NH_FLAKE`, and workstation `PATH` bits. Intended to apply when the **essentials** system profile is enabled; see the `lib.mkIf` in that file for the exact condition.
 
 | Function | Description |
 |----------|-------------|
 | `zf` | `cd` to `dotfiles.flakeRoot` (default `$HOME/.dotfiles/flake`) |
-| `flake` | `just --justfile $FLAKE/Justfile` — no args → **`tv … just-recipes`** (cable in `home/shared/utils/television/cable/`). With extra args on `build`/`switch`/`generation`/`gc`/`fmt`/`backups`/`init`/`read-defaults`, forwards to private `_…` recipes, e.g. `flake build --dry`, `flake init myhost`. |
+| `flake` | `just --justfile $FLAKE/Justfile` — no args → **`tv … just-recipes`** (cable in `modules/profiles/essentials/utils/television/cable/`). With extra args on `build`/`switch`/`generation`/`gc`/`fmt`/`backups`/`init`/`read-defaults`, forwards to private `_…` recipes, e.g. `flake build --dry`, `flake init myhost`. |
 | `nuflake` | `nu $FLAKE/build/flake.nu` |
 
 Requires **`just`** on PATH. **`FLAKE`** / **`NH_FLAKE`** follow **`dotfiles.flakeRoot`** (default `~/.dotfiles/flake`).
@@ -167,11 +167,11 @@ These commands are provided by [git.nu](https://github.com/fj0r/git.nu) and are 
 
 ## Notes
 
-- **Shared aliases** (`cat`, `find`, `grep`, `ls`, eza shortcuts, git one-liners, `search*`, etc.) live in `home/shared/shells/core/data/aliases.nix` and are wired as `shellAliases` from `home/shared/shells/core/{bash,fish,zsh,nushell}.nix`.
+- **Shared aliases** (`cat`, `find`, `grep`, `ls`, eza shortcuts, git one-liners, `search*`, etc.) live in `modules/profiles/minimal/shells/core/data/aliases.nix` and are wired as `shellAliases` from `modules/profiles/minimal/shells/core/{bash,fish,zsh,nushell}.nix`.
 - **`zz` / `zc` / `zd`** and **`p`** are small functions in those same `core/*.nix` files (not separate alias modules). `p <question...>` wraps `pi -p "<question...>"` while preserving piped stdin.
-- **`zf` / `flake` / `nuflake`** and workstation env (`FLAKE`, extra `PATH`) come from `home/shared/shells/env/system.nix`; entry point is `home/shared/shells/env/default.nix`.
-- **Navi cheat** for quick lookup: `home/shared/utils/navi/cheats/aliases.cheat` (points at the paths above).
-- **git.nu** commands are loaded in `home/shared/shells/core/nushell.nix` from the upstream `git.nu` flake input fetch; **Nushell only**. Some names overlap bash-style `gst` / `gad` aliases but implement different flows — see [git.nu](https://github.com/fj0r/git.nu).
+- **`zf` / `flake` / `nuflake`** and workstation env (`FLAKE`, extra `PATH`) come from `modules/profiles/essentials/shell-system-env.nix`.
+- **Navi cheat** for quick lookup: `modules/profiles/essentials/utils/navi/cheats/aliases.cheat` (points at the paths above).
+- **git.nu** commands are loaded in `modules/profiles/minimal/shells/core/nushell.nix` from the upstream `git.nu` flake input fetch; **Nushell only**. Some names overlap bash-style `gst` / `gad` aliases but implement different flows — see [git.nu](https://github.com/fj0r/git.nu).
 
 ---
 

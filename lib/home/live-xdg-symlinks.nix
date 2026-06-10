@@ -1,7 +1,7 @@
 # Reusable helpers for xdg.configFile (or home.file) entries that symlink into a
 # live checkout via mkOutOfStoreSymlink, so edits apply without a switch.
 #
-# Prefer `config.dotfiles.flakeRoot` (home/shared/dotfiles.nix) for the repo
+# Prefer `config.dotfiles.flakeRoot` (lib/home/dotfiles.nix) for the repo
 # root; pass paths like "''${config.dotfiles.flakeRoot}/path/in/repo" as liveDirAbs.
 {config}: let
   inherit (config.lib.file) mkOutOfStoreSymlink;
