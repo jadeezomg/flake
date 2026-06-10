@@ -34,7 +34,7 @@ Adding a new entry point: add `name = "module.path:main"` to `[project.scripts]`
 
 `lib/`:
 - `common.py` — flake paths, Rich consoles
-- `palette.py` — **hex mirror of `modules/profiles/theme/theme.nix`**; update both when changing colors
+- `palette.py` — **hex mirror of `lib/theme-palette.nix`**; update both when changing colors
 
 `zen/` — Zen browser session extraction → flake config (`zen-session` entry point).
 

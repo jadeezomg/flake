@@ -2,6 +2,10 @@
 
 Shared Nix helpers used across the flake.
 
+## default.nix (`dotfilesLib`)
+
+The named channel for cross-tree data/helpers — passed to every system and HM module via specialArgs/extraSpecialArgs in `parts/hosts.nix`. Modules use `dotfilesLib.<name>` instead of `../../` imports (enforced by `just lint`). Exposes: `palette` (theme-palette.nix; Python mirror `scripts/src/flake_scripts/lib/palette.py`), `shellEnvData`/`shellPaths`, `nonoProfiles`, `hostStatus`, `mcpServers`, `minimalPackages`, `nixExperimentalFeatures`, `sshDestinations`, `agentSkillsDir`, `sopsFile`.
+
 ## pkgs.nix
 
 ```nix

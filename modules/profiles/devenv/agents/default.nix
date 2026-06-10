@@ -4,6 +4,7 @@
 # keep their internal registry logic (./mcp-servers.nix is a helper they
 # import, not a module).
 {
+  dotfilesLib,
   config,
   lib,
   pkgs,
@@ -11,7 +12,7 @@
   ...
 }: let
   cfg = config.dotfiles.profiles.devenv.agents;
-  nonoAgents = import ../../../../lib/nono-profiles.nix {inherit pkgs pkgs-small;};
+  nonoAgents = dotfilesLib.nonoProfiles {inherit pkgs pkgs-small;};
 in {
   config = lib.mkIf cfg.enable {
     home-manager.sharedModules = [

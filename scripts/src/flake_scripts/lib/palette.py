@@ -1,4 +1,4 @@
-"""Birds of Paradise hex values — mirror modules/profiles/theme/theme.nix.
+"""Birds of Paradise hex values — mirror lib/theme-palette.nix.
 
 Update this file when the Nix palette changes so CLI tools stay on-brand.
 """

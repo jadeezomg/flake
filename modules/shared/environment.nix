@@ -1,4 +1,5 @@
 {
+  dotfilesLib,
   config,
   pkgs,
   host ? {},
@@ -7,7 +8,7 @@
 }: let
   buildCores = host.buildCores or 6;
   isDarwin = lib.hasSuffix "-darwin" (host.system or "");
-  nixExperimentalFeatures = import ../../lib/nix-experimental-features.nix {
+  nixExperimentalFeatures = dotfilesLib.nixExperimentalFeatures {
     inherit lib;
     inherit isDarwin;
   };

@@ -1,10 +1,11 @@
 {
+  dotfilesLib,
   pkgs,
   lib,
   ...
 }: let
   aliases = (import ./data/aliases.nix).commonAliases;
-  paths = (import ./data/paths.nix).commonPaths;
+  paths = dotfilesLib.shellPaths.commonPaths;
 
   configRel = builtins.replaceStrings ["$HOME/"] [""] paths.config;
   downloadsRel = builtins.replaceStrings ["$HOME/"] [""] paths.downloads;

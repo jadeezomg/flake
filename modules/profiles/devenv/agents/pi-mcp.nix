@@ -1,6 +1,7 @@
 # Claude Code MCP registration is separate; ~/.claude.json contains auth/state
 # that must not be managed by symlink/merge.
 {
+  dotfilesLib,
   config,
   lib,
   osConfig,
@@ -9,7 +10,7 @@
 }: let
   homeDir = config.home.homeDirectory;
 
-  mcpRegistry = import ./mcp-servers.nix {inherit lib osConfig;};
+  mcpRegistry = dotfilesLib.mcpServers {inherit lib osConfig;};
 
   mcpDir = "${homeDir}/.pi/agent";
   mcpFile = "${mcpDir}/mcp.json";

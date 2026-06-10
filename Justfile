@@ -245,6 +245,12 @@ lint:
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     print_header "LINT"
+    # No cross-tree import climbs in modules/ — use `dotfilesLib` (specialArg)
+    # or `config.lib.dotfiles` (HM) instead; see modules/AGENTS.md.
+    if rg -n 'import \.\./\.\./\.\.' "$FLAKE/modules" --glob '*.nix'; then
+        print_error "deep relative import (3+ levels) in modules/ — use dotfilesLib / config.lib.dotfiles"
+        exit 1
+    fi
     deadnix "$FLAKE"
     statix check "$FLAKE"
     print_header "END"

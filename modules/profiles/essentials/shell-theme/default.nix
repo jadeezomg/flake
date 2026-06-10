@@ -1,5 +1,5 @@
 # Prompt + shell theming (starship, nushell palette) — pushed by the
-# essentials profile; palette source is ../../theme/theme.nix.
+# essentials profile; palette comes from dotfilesLib.palette (lib/theme-palette.nix).
 {...}: {
   imports = [
     ./starship.nix

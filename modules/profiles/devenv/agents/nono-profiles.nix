@@ -1,11 +1,12 @@
 # Profile data lives in lib/nono-profiles.nix; installed under ~/.config/nono/profiles.
 {
+  dotfilesLib,
   lib,
   pkgs,
   pkgs-small,
   ...
 }: let
-  profiles = (import ../../../../lib/nono-profiles.nix {inherit pkgs pkgs-small;}).profiles;
+  profiles = (dotfilesLib.nonoProfiles {inherit pkgs pkgs-small;}).profiles;
 
   mkProfileFile = name: data: {
     name = "nono/profiles/${name}.json";

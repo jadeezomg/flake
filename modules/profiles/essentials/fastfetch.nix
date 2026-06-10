@@ -1,19 +1,20 @@
 # fastfetch banner on first interactive shell; $FASTFETCH_SHOWN prevents nested
-# shell re-renders. Colors track modules/profiles/theme/theme.nix.
+# shell re-renders. Colors track lib/theme-palette.nix (dotfilesLib.palette).
 # host-status command modules intentionally fall back to "?" so shell startup
 # survives optional service/API failures.
 {
+  dotfilesLib,
   lib,
   pkgs,
   ...
 }: let
-  theme = import ../theme/theme.nix;
+  theme = dotfilesLib.palette;
 
   # Pin host-status to its Nix store path. fastfetch executes command modules
   # via a minimal subshell whose PATH does not include
   # /etc/profiles/per-user/<user>/bin on Darwin, so an unqualified `host-status`
   # falls through to the `|| echo '?'` fallback.
-  hs = "${(import ../../../lib/host-status.nix {inherit pkgs;}).hostStatus}/bin/host-status";
+  hs = "${(dotfilesLib.hostStatus {inherit pkgs;}).hostStatus}/bin/host-status";
 
   # Edit one accent here to recolor its section.
   systemAccent = theme."accent-yellow";

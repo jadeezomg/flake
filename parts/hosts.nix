@@ -15,6 +15,10 @@
 
   hostData = import ../hosts/hosts.nix;
 
+  # Named channel for cross-tree data/helpers (lib/default.nix) — passed to
+  # every system and HM module so they never climb with ../../ imports.
+  dotfilesLib = import ../lib;
+
   darwinSystems = ["aarch64-darwin"];
 
   # User config arrives via `home-manager.sharedModules` pushed by the
@@ -26,7 +30,7 @@
     ../lib/home/dotfiles.nix
   ];
 
-  commonSpecialArgs = {inherit inputs hostData;};
+  commonSpecialArgs = {inherit inputs hostData dotfilesLib;};
 
   homeManagerConfig = {
     user,
@@ -54,6 +58,7 @@
         hostData
         hostKey
         isDarwin
+        dotfilesLib
         ;
       pkgs = getPkgsWithConfig system [] (host.nixpkgsConfig or {});
       pkgs-stable = getPkgsStable system;
