@@ -16,8 +16,8 @@ in {
     onActivation = {
       autoUpdate = true;
       cleanup = "uninstall";
-      # Avoid upgrading the full brew graph during activation; transient
-      # network/CDN issues can fail the whole switch.
+      # Upgrades run during activation; transient network/CDN issues can
+      # fail the switch — set to false if that bites.
       upgrade = true;
     };
 

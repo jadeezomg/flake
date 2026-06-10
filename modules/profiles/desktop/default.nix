@@ -27,8 +27,9 @@
   });
 in {
   config = lib.mkIf cfg.enable {
-    # HM halves: DMS/niri live-symlink wiring (./dms) + GDM session glue.
-    home-manager.sharedModules = [./dms ./gdm-session.nix];
+    # HM halves: DMS/niri live-symlink wiring (./dms), dconf user settings,
+    # and GDM session glue.
+    home-manager.sharedModules = [./dms ./dconf.nix ./gdm-session.nix];
 
     # --- Login manager: set dotfiles.profiles.desktop.loginManager per host ---
     programs.dank-material-shell.greeter = {

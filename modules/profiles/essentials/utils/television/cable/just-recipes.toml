@@ -1,6 +1,6 @@
 # Aligned with upstream Television community channel "just-recipes":
 # https://alexpasmantier.github.io/television/community/channels-unix/#just-recipes
-# Cable sources live under `home/shared/utils/television/cable/` (like navi cheats).
+# Cable sources live under `modules/profiles/essentials/utils/television/cable/` (like navi cheats).
 # Invoke: `tv --cable-dir …/cable just-recipes <cwd>` or bare `tv just-recipes` after HM
 # links this file to ~/.config/television/cable/. `JUSTFILE` / `FLAKE` from root `Justfile`.
 

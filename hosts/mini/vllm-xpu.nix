@@ -1,6 +1,6 @@
 # Intel XPU vLLM — consumption matches upstream:
 # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md
-# (`nixosModules.default` is imported for mini in `parts/hosts.nix` when `miniLlmHosting`.)
+# (`nixosModules.default` is imported in `hosts/mini/default.nix` when `miniLlmHosting`.)
 # Host-specific tuning, ccache, and optional kernel overrides: `docs/hosts/mini-vllm-xpu.md`.
 # Optional GGUF on 8010: `./llama-cpp.nix` when `host.miniLlamaCppGemma` (see `host.nix`).
 {

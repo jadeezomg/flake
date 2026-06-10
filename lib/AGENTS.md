@@ -17,3 +17,7 @@ Imported in `parts/hosts.nix`; passed as `pkgs` / `pkgs-small` / `pkgs-stable` t
 
 Helper for creating live (out-of-store) symlinks to XDG config directories. Used by desktop config so niri/DMS edits take effect without a switch.
 
+## home/dotfiles.nix
+
+HM module defining `dotfiles.flakeRoot` (path to the live checkout; defaults to `~/.dotfiles/flake`). Imported unconditionally for every user via `parts/hosts.nix` `homeModules` — every `mkOutOfStoreSymlink`/live-symlink target builds on it.
+

@@ -56,14 +56,14 @@ filled in** before `nixos-install`.
 | File | Change |
 |---|---|
 | `flake.nix` | new inputs: `disko` (`github:nix-community/disko`), `hermes-agent` (`github:NousResearch/hermes-agent`) — both with `nixpkgs.follows` |
-| `parts/hosts.nix` | wired `inputs.disko.nixosModules.disko` and `inputs.hermes-agent.nixosModules.default` into the NixOS module list |
+| `hosts/mini/default.nix` | imports `inputs.disko.nixosModules.disko` and `inputs.hermes-agent.nixosModules.default` (moved out of the generic factory) |
 | `modules/nixos/boot.nix` | kernel branches on `server.enable` (cachyos-server vs cachyos-latest-zen4); plymouth gated `lib.mkIf (!server.enable)`; lanzaboote unchanged |
 | `modules/nixos/networking.nix` | NixOS `networking.firewall` activated when `server.enable` (drops firewalld/firewalld-gui/proton-vpn/wireguard-ui/networkmanagerapplet from systemPackages on server hosts) |
 | `modules/profiles/server.nix` | body emptied — `server.enable` is a steering toggle, gating happens inline in `boot.nix`/`networking.nix` |
 | `data/users/users.nix` | `jadee.sshKeys` → `authorizedKeys` on all NixOS hosts (verify your desktop key is listed) |
 | `modules/nixos/user.nix` | consumes `userConfig.sshKeys` → `users.users.${user}.openssh.authorizedKeys.keys` |
 | `modules/shared/environment.nix` | added `https://jadee-flake.cachix.org` substituter + TODO marker for the trusted public key |
-| `home/nixos/default.nix` | gates `./desktop` HM tree on `host ? mainMonitor` — headless hosts skip niri/DMS/dconf-desktop |
+| `modules/profiles/desktop/` | desktop HM tree (niri/DMS/dconf) pushed only when `desktop.enable` — headless hosts skip it |
 | `hosts/hosts.nix` | registered `mini = import ./mini/host.nix` |
 | `hosts/mini/*` | full new host: `host.nix`, `profiles.nix`, `default.nix`, `hardware-configuration.nix`, `disko.nix`, `hermes.nix`, `flake-cache-warm.nix` |
 | `flake.lock` | locked disko + hermes-agent |

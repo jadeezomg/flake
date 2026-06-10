@@ -1,11 +1,11 @@
 {
   config,
   lib,
-  osConfig,
   ...
 }: let
-  envData = import ./data.nix;
-  paths = import ../core/data/paths.nix;
+  # Pure data shared with minimal's shells tree.
+  envData = import ../minimal/shells/env/data.nix;
+  paths = import ../minimal/shells/core/data/paths.nix;
 
   flakeRoot = config.dotfiles.flakeRoot;
 
@@ -73,44 +73,43 @@
       ^just --justfile $"($env.FLAKE)/Justfile" ...$rest
     }
   '';
-in
-  lib.mkIf (osConfig.dotfiles.profiles.essentials.enable or true) {
-    programs.bash.initExtra = lib.mkAfter ''
-      ${exportLines}
-      export PATH="${systemPathColon}:$PATH"
+in {
+  programs.bash.initExtra = lib.mkAfter ''
+    ${exportLines}
+    export PATH="${systemPathColon}:$PATH"
 
-      if command -v rbenv >/dev/null 2>&1; then
-        eval "$(rbenv init - bash)"
-      fi
+    if command -v rbenv >/dev/null 2>&1; then
+      eval "$(rbenv init - bash)"
+    fi
 
-      ${bashFlakeFn}
-    '';
+    ${bashFlakeFn}
+  '';
 
-    programs.zsh.sessionVariables = systemEnv;
-    programs.zsh.initContent = lib.mkAfter ''
-      export PATH="${systemPathColon}:$PATH"
+  programs.zsh.sessionVariables = systemEnv;
+  programs.zsh.initContent = lib.mkAfter ''
+    export PATH="${systemPathColon}:$PATH"
 
-      if command -v rbenv >/dev/null 2>&1; then
-        eval "$(rbenv init - zsh)"
-      fi
+    if command -v rbenv >/dev/null 2>&1; then
+      eval "$(rbenv init - zsh)"
+    fi
 
-      ${zshFlakeFn}
-    '';
-    programs.zsh.profileExtra = lib.mkAfter ''
-      export PATH="${systemPathColon}:$PATH"
-    '';
+    ${zshFlakeFn}
+  '';
+  programs.zsh.profileExtra = lib.mkAfter ''
+    export PATH="${systemPathColon}:$PATH"
+  '';
 
-    programs.fish.interactiveShellInit = lib.mkAfter ''
-      ${fishSetLines}
-      fish_add_path --append --global ${lib.concatStringsSep " " systemPathList}
-      ${fishFlakeFn}
-    '';
+  programs.fish.interactiveShellInit = lib.mkAfter ''
+    ${fishSetLines}
+    fish_add_path --append --global ${lib.concatStringsSep " " systemPathList}
+    ${fishFlakeFn}
+  '';
 
-    programs.nushell.environmentVariables = systemEnv;
-    programs.nushell.extraEnv = lib.mkAfter ''
-      $env.PATH = ($env.PATH | split row (char esep) | append [
-        ${lib.concatMapStringsSep "\n        " (p: "\"${p}\"") systemPathList}
-      ])
-    '';
-    programs.nushell.extraConfig = lib.mkAfter nushellFlakeFn;
-  }
+  programs.nushell.environmentVariables = systemEnv;
+  programs.nushell.extraEnv = lib.mkAfter ''
+    $env.PATH = ($env.PATH | split row (char esep) | append [
+      ${lib.concatMapStringsSep "\n        " (p: "\"${p}\"") systemPathList}
+    ])
+  '';
+  programs.nushell.extraConfig = lib.mkAfter nushellFlakeFn;
+}

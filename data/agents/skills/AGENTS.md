@@ -1,6 +1,6 @@
 # AGENT SKILLS
 
-Skills and agent config are **managed in this flake** and installed into `$HOME` by Home Manager when `devenv.llm.agents.enable = true`.
+Skills and agent config are **managed in this flake** and installed into `$HOME` by Home Manager when `devenv.agents.enable = true`.
 
 ## Source of truth — edit in the flake only
 
@@ -17,7 +17,7 @@ Wiring lives in `modules/profiles/devenv/agents/global-config.nix` (global files
 
 ## Structure
 
-Nested categories mirroring `~/Git/skills/skills/`:
+Nested categories mirroring the pinned `skills-mattpocock` input (`just skills-upstream`):
 - `engineering/`, `misc/`, `personal/`, `productivity/` — active skills
 - `deprecated/` — kept for reference, not installed
 - `local/` — dotfiles-specific skills not in upstream

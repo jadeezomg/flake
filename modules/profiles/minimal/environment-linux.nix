@@ -1,11 +1,4 @@
-{
-  host,
-  lib,
-  osConfig,
-  ...
-}: let
-  inherit (lib.hm.gvariant) mkTuple;
-
+{lib, ...}: let
   userEditor = "dev.zed.Zed";
   userBrowser = "zen-beta";
   audio = "org.gnome.Music";
@@ -16,39 +9,11 @@
 in {
   gtk.gtk4.theme = lib.mkForce null;
 
-  # dconf activation talks to the user dconf D-Bus service (ca.desrt.dconf).
-  # Headless hosts (e.g. mini) omit `mainMonitor` and skip the desktop HM tree;
-  # they have no graphical session, so dconf must stay off — otherwise
-  # home-manager-jadee.service fails at "Activating dconfSettings".
-  dconf.enable = host ? mainMonitor;
-  dconf.settings = lib.mkIf (host ? mainMonitor) {
-    "org/gnome/desktop/input-sources" = {
-      sources = [
-        (mkTuple ["xkb" "us+intl"])
-        (mkTuple ["xkb" "de"])
-      ];
-      xkb-options = ["compose:ralt"];
-    };
-
-    "org/gnome/mutter" = {
-      experimental-features = ["scale-monitor-framebuffer"];
-    };
-
-    # Reduce GTK decoration font size
-    "org/gnome/desktop/wm/preferences" = {
-      titlebar-font = "Iosevka Nerd Font 10";
-    };
-  };
-
-  xdg.desktopEntries."pear-desktop" = lib.mkIf (osConfig.dotfiles.profiles.apps.media.enable or false) {
-    name = "Pear Desktop";
-    genericName = "YouTube Music Desktop";
-    exec = "pear-desktop";
-    icon = "pear-desktop";
-    terminal = false;
-    categories = ["Audio" "Music" "Player"];
-    comment = "YouTube Music Desktop Client";
-  };
+  # dconf needs the user dconf D-Bus service (graphical session); on headless
+  # hosts HM activation would touch it for nothing. Off by default — the
+  # desktop profile (../desktop/dconf.nix) turns it on with its settings.
+  # The pear-desktop entry lives in apps/media.
+  dconf.enable = lib.mkDefault false;
 
   xdg.mimeApps = {
     enable = true;
