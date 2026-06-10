@@ -1,9 +1,10 @@
 # Mini — Intel XPU vLLM (vllm-xpu-nix)
 
-This mirrors the **Brutus** host setup under `~/.dotfiles/examples/dotfiles`:
+This mirrors the **Brutus** host setup under `~/.dotfiles/examples/dotfiles`, wired like upstream [Using on a NixOS server](https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md):
 
-- Flake input [`vllm-xpu-nix`](https://github.com/jasonboukheir/vllm-xpu-nix) (NixOS module `services.vllm-xpu.*`).
-- `hosts/mini/vllm-xpu.nix` — same kernel package / instance layout as `examples/dotfiles/hosts/brutus/services/vllm-xpu.nix`, without the examples repo’s `homelab.ports` (ports are fixed `8000` / `8001` / `8002`).
+- Flake input [`vllm-xpu-nix`](https://github.com/jasonboukheir/vllm-xpu-nix) with `inputs.nixpkgs.follows = "nixpkgs"` (see `flake.nix`).
+- For **mini** with **`miniLlmHosting`**, `parts/hosts.nix` adds **`inputs.vllm-xpu-nix.nixosModules.default`** (overlay + `services.vllm-xpu` options — same as the doc’s “import the NixOS module” step).
+- `hosts/mini/vllm-xpu.nix` — **`services.vllm-xpu`** instance block, Intel graphics / **`xe.force_probe`**, **ccache** sandbox paths, **sops** HF token, and **systemd** ordering so embedding starts after chat. Chat uses default **port 8000**; embedding sets **`port = 8001`** like the upstream example.
 
 While **`miniBootstrap = true`** (first install), the flake skips `vllm-xpu-nix` and `./vllm-xpu.nix` so evaluators without `ca-derivations` still work. After §5.4 in `mini-install.md`, set **`miniBootstrap = false`**.
 
@@ -13,7 +14,7 @@ While **`miniBootstrap = true`** (first install), the flake skips `vllm-xpu-nix`
 
 - **`boot.kernelParams = ["xe.force_probe=e223"]`** matches Brutus (Intel Arc Battlemage–class dGPU). If mini has **only** integrated UHD and no discrete Arc card, remove that line or adjust the PCI ID after checking `lspci -nn`.
 - **`intel-gpu-tools`** is installed for debugging (`intel_gpu_top`, etc.).
-- **VRAM:** Chat is **[Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B)** (**text-only**; **`reasoningParser = qwen3`** for thinking-style output). This fits **~16 GiB** dGPU + embeddings better than **Qwen3.6-35B-A3B-FP8** (KV went negative) or heavy VL. For **image/video**, use a **VL** repo (e.g. **Qwen3-VL-8B-Instruct**) and multimodal **`instances.chat`** settings instead. Tune **`maxModelLen`**, **`gpuMemoryUtilization`**, **`maxNumSeqs`** after **`journalctl -u vllm-xpu-chat`**. For **Gemma 4** again, see **§ Gemma 4 12B unified** and [vLLM recipe](https://recipes.vllm.ai/Google/gemma-4-12B-it) — **`gemma4_unified`** needs a new enough **Transformers** in **`vllm-xpu-nix`**.
+- **VRAM / context:** Chat is **[Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B)** with **`quantization = fp8`** (online weight quant), **`kvCacheDtype = fp8`**, **`languageModelOnly = true`**, **`enforceEager = true`**. BF16 weights alone are **~18 GiB** — they do not fit **16 GiB** dGPU + KV (logs: **`Model loading took 17.66 GiB`**, **`Available KV cache memory: -0.99 GiB`**). FP8 weight quant drops peak to **~13–14 GiB** ([intel/llm-scaler#339](https://github.com/intel/llm-scaler/issues/339)). Default **`maxModelLen = 32768`**; raise only when KV memory is **positive** after load. For **image/video**, switch to a **VL** repo and set **`languageModelOnly = false`** + **`limitMmPerPrompt`** (needs more VRAM or a smaller VL).
 
 ## Operating models
 
@@ -44,7 +45,7 @@ This is the **real blocker**: the **`google/gemma-4-12B-it-qat-w4a16-ct`** (and 
 
 1. **Bump `inputs.vllm-xpu-nix`** (and let it pull newer `vllm-xpu-unstable` / `transformers`) until `nixos-rebuild` / `just switch` gets a vLLM that loads Gemma 4 — watch [vllm-xpu-nix](https://github.com/jasonboukheir/vllm-xpu-nix) and upstream [vllm](https://github.com/vllm-project/vllm) / recipe PR references.
 2. **Optional VRAM experiment (only after (1)):** set `models.chat.repo` to **`google/gemma-4-12B-it`** to mirror the recipe’s BF16 quick start — still requires a build that **recognizes** `gemma4_unified`; expect **much higher** memory than QAT CT.
-3. **Interim chat model:** **`ISTA-DASLab/gemma-3-12b-it-GPTQ-4b-128g`** with `servedName = "gemma-3-12b-it"` (see `hosts/mini/vllm-xpu.nix` comments) — **Gemma 3**, known to load on older stacks.
+3. **Interim chat model:** **`ISTA-DASLab/gemma-3-12b-it-GPTQ-4b-128g`** with `servedName = "gemma-3-12b-it"` in **`hosts/mini/vllm-xpu.nix`** — **Gemma 3**, known to load on older stacks.
 4. **Gemma 4 without vLLM on XPU:** enable **`miniLlamaCppGemma`** and serve **[unsloth GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF)** via **`llama-cpp-gemma`** on **8010** (Vulkan path), at the cost of not using the vLLM OpenAI server on **8000** for that family.
 
 ### `UnicodeDecodeError` in `torch.library` / `_clear_torch_ops_cache`
@@ -99,12 +100,15 @@ sudo journalctl -fu vllm-xpu-chat
 
 | Knob | Effect |
 |------|--------|
-| Drop `speculativeConfig` (MTP) | Saves drafter + verify-pass VRAM |
-| Lower `maxModelLen` (e.g. `32768` → `16384`) | Shrinks KV pool reservation |
-| Lower `maxNumSeqs` | Less concurrent activation memory |
-| Raise `gpuMemoryUtilization` (e.g. `0.92`) | More of total VRAM for vLLM |
-| `enforceEager = true` / drop `enableXpuGraph` | Skips graph-capture buffers |
-| Smaller chat model | Only fix if weights alone exceed VRAM |
+| **`quantization = fp8`** (default on mini chat) | Online FP8 **weights** — required on **16 GiB** for Qwen3.5-9B + KV |
+| **`languageModelOnly = true`** | Skips vision encoder cache / multimodal startup on Qwen3.5 |
+| **`enforceEager = true`** | Skips XPU graph capture buffers (recommended with fp8 quant on Arc) |
+| Raise `maxModelLen` (default **32768**) | Larger context cap when **`Available KV cache memory` > 0** |
+| Lower `maxModelLen` (e.g. **16384**, **8192**) | Shrinks KV pool if startup reports negative KV memory |
+| Lower `maxNumSeqs` (default **1**) | More KV budget per active conversation |
+| Raise `gpuMemoryUtilization` (default **0.95**) | More of total VRAM for vLLM |
+| `sudo systemctl stop vllm-xpu-embedding` | Frees GPU share for chat KV during tuning |
+| Smaller chat model | Only fix if weights alone exceed VRAM even with fp8 quant |
 
 Check GPU memory: `intel_gpu_top` (while the service starts).
 
@@ -112,9 +116,9 @@ Check GPU memory: `intel_gpu_top` (while the service starts).
 
 Symptoms: **`Chunk prefill kernel not compiled for this configuration`**, suggestion to add **`96,false,false,false,false,false`** to **`chunk_prefill_default`**, then **`RuntimeError`** / **`torch.OutOfMemoryError`** (often huge “tried to allocate … GiB”) during **`embed_multimodal`** / vision encoder profiling — **`vllm-xpu-chat`** enters a **restart loop**.
 
-**Cause:** **`vllm-xpu-kernels`** was built with a **fixed set** of chunk-prefill shapes (`withKernelConfig` in `hosts/mini/vllm-xpu.nix`). **Multimodal** (e.g. **Qwen3-VL**) startup profiling uses a combo that was **not** in that set, so vLLM **falls back** to a PyTorch attention path that can **explode memory** on a **~16 GiB** dGPU.
+**Cause:** **`vllm-xpu-kernels`** ships a **fixed set** of chunk-prefill shapes. With the **default** `pkgs.vllm-xpu-unstable` package (no custom **`withKernelConfig`**), **multimodal** (e.g. **Qwen3-VL**) startup profiling can request a shape **not** in that set, so vLLM **falls back** to a PyTorch attention path that can **explode memory** on a **~16 GiB** dGPU.
 
-**Fix in this flake:** `chunkPrefillExtra` includes **`"96,false,false,false,false,false"`** (see `hosts/mini/vllm-xpu.nix`). After changing **`withKernelConfig`**, **`just switch`** **rebuilds** the XPU kernel package (can take a long time; needs **`/var/cache/ccache`** per § ccache above).
+**Fix (optional custom kernel build):** set **`services.vllm-xpu.package`** to **`(pkgs.vllm-xpu-unstable.withTorchvision true).withKernelConfig { ... }`** and add **`chunkPrefillExtra`** entries (historically **`"96,false,false,false,false,false"`** for Qwen3.6 VL — see past revisions of `hosts/mini/vllm-xpu.nix` or [vllm-xpu-kernels#364](https://github.com/vllm-project/vllm-xpu-kernels/issues/364)). After **`withKernelConfig`**, **`just switch`** **rebuilds** the XPU kernel package (can take a long time; needs **`/var/cache/ccache`** per § ccache above).
 
 If it **still** OOMs: temporarily **`sudo systemctl stop vllm-xpu-embedding`**, lower **`maxModelLen`** / **`maxNumSeqs`**, or set **`languageModelOnly = true`** to drop multimodal serving until VRAM fits. Upstream context: [vllm-xpu-kernels#364](https://github.com/vllm-project/vllm-xpu-kernels/issues/364).
 

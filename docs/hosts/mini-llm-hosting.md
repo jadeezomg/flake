@@ -1,17 +1,17 @@
 # Mini — LLM hosting (vLLM-XPU + optional llama.cpp)
 
-Mini runs **vLLM-XPU** when **`miniLlmHosting = true`**. **Chat** on **`8000`** is **[Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B)** (dense **text** chat) via **`vllm-xpu-chat`** (see `hosts/mini/vllm-xpu.nix`). For **image/video** inputs, switch **`models.chat.repo`** to a VL checkpoint (e.g. **[Qwen/Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct)**) and set **`languageModelOnly = false`** plus **`limitMmPerPrompt`**. Optional **GGUF** on **`8010`** is **`./llama-cpp.nix`**, gated by **`miniLlamaCppGemma`** in `hosts/mini/host.nix` (off by default so the same GPU is not double-booked).
+Mini runs **vLLM-XPU** when **`miniLlmHosting = true`**. **Chat** on **`8000`** is **[Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B)** (dense **text** chat) via **`vllm-xpu-chat`** (see `hosts/mini/vllm-xpu.nix`). Wiring follows upstream [nixos-overlay.md](https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md) (`parts/hosts.nix` imports **`nixosModules.default`**). For **image/video** inputs, change **`services.vllm-xpu.instances.chat.model`** to a VL checkpoint (e.g. **[Qwen/Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct)**) and set **`languageModelOnly = false`** plus **`limitMmPerPrompt`**. Optional **GGUF** on **`8010`** is **`./llama-cpp.nix`**, gated by **`miniLlamaCppGemma`** in `hosts/mini/host.nix` (off by default so the same GPU is not double-booked).
 
 | Stack | File | Port | Model | Role |
 |-------|------|------|-------|------|
-| **vLLM-XPU** | `hosts/mini/vllm-xpu.nix` | **`8000`** chat, `8001` embed, `8002` STT | [Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) (text), Jina embeddings | Intel XPU / IPEX path |
+| **vLLM-XPU** | `hosts/mini/vllm-xpu.nix` | **`8000`** chat, **`8001`** embed | [Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) (text), Jina embeddings | Intel XPU / IPEX path |
 | **llama.cpp** (optional) | `hosts/mini/llama-cpp.nix` | **`8010`** | [unsloth/gemma-4-12b-it-GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF) `Q4_K_M` | GGUF chat (Vulkan) when `miniLlamaCppGemma = true` |
 
-**Chat (`8000`):** **`dtype = auto`**, **`kvCacheDtype = fp8`**, **`reasoningParser = qwen3`** (thinking blocks → **`delta.reasoning`**), **`languageModelOnly = false`** (default for this **text-only** checkpoint — no vision tower). See the [model card](https://huggingface.co/Qwen/Qwen3.5-9B). To disable thinking in clients, use **`chat_template_kwargs`** / **`enable_thinking: false`** per upstream Qwen3.5 docs. Use STT on **`8002`** when enabled for audio.
+**Chat (`8000`):** **`quantization = fp8`** (online weight quant — ~13 GiB peak vs ~18 GiB bf16), **`kvCacheDtype = fp8`**, **`languageModelOnly = true`** (Qwen3.5 is loaded as multimodal in vLLM; this skips vision encoder profiling), **`enforceEager = true`**, **`reasoningParser = qwen3`**. Default **`maxModelLen = 32768`**, **`maxNumSeqs = 1`**, **`gpuMemoryUtilization = 0.95`**. If **`journalctl`** shows **`Available KV cache memory: X GiB`** with **X > 0**, raise **`maxModelLen`** (65536, 131072). If **X < 0**, lower **`maxModelLen`** or **`sudo systemctl stop vllm-xpu-embedding`**. See [model card](https://huggingface.co/Qwen/Qwen3.5-9B).
 
-Tune **`maxModelLen`**, **`maxNumSeqs`**, and **`gpuMemoryUtilization`** in `vllm-xpu.nix` if you hit KV or startup OOM.
+Tune **`maxModelLen`** after a successful boot using **`Available KV cache memory`** in **`journalctl -u vllm-xpu-chat`**. There is **no** vLLM **STT** instance in the default `vllm-xpu.nix`; add **`instances.stt`** if you want **`8002`**.
 
-**Other vLLM chat checkpoints:** Edit **`models.chat.repo`** and **`instances.chat.*`** (e.g. Gemma 4 QAT, Gemma 3 GPTQ) — see **`docs/hosts/mini-vllm-xpu.md`** for Gemma 4 **`gemma4_unified`** / Transformers pitfalls.
+**Other vLLM chat checkpoints:** Edit **`services.vllm-xpu.instances.chat.*`** in `hosts/mini/vllm-xpu.nix` (e.g. Gemma 4 QAT, Gemma 3 GPTQ) — see **`docs/hosts/mini-vllm-xpu.md`** for Gemma 4 **`gemma4_unified`** / Transformers pitfalls.
 
 While **`miniBootstrap = true`** (first install), the flake skips `vllm-xpu-nix`, `./vllm-xpu.nix`, and `./llama-cpp.nix`. After §5.4 in `mini-install.md`, set **`miniBootstrap = false`**.
 
@@ -43,7 +43,7 @@ From the flake repo on mini (or over SSH), use **`just switch`** after editing N
 ### systemd — status, logs, control
 
 ```bash
-# List vLLM-related units (names include chat / embedding / stt when enabled)
+# List vLLM-related units (names include chat / embedding when enabled)
 systemctl list-units 'vllm-xpu-*' --all
 ```
 

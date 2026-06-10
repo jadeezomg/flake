@@ -125,6 +125,8 @@
           && (!(host.miniBootstrap or false))
           && (host.miniLlmHosting or false)
         )
+        # vllm-xpu-nix: `nixosModules.default` = overlay + `services.vllm-xpu` (see upstream
+        # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
         inputs.vllm-xpu-nix.nixosModules.default
         ++ [
           (./. + "/../hosts/${hostKey}")

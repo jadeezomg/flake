@@ -89,8 +89,9 @@
       flake = false;
     };
 
-    # Intel XPU vLLM (torch+xpu, vllm-xpu-kernels) + NixOS `services.vllm-xpu.*`.
-    # Mirrors ~/.dotfiles/examples/dotfiles hosts/brutus (see hosts/mini/vllm-xpu.nix).
+    # Intel XPU vLLM — add `nixosModules.default` + overlay (see upstream
+    # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
+    # `hosts/mini/vllm-xpu.nix` holds mini-only `services.vllm-xpu` + hardware/ccache/sops.
     vllm-xpu-nix = {
       url = "github:jasonboukheir/vllm-xpu-nix";
       inputs = {
