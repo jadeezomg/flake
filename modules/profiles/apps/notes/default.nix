@@ -1,3 +1,6 @@
+# Notes feature folder — system half here, Home Manager half in ./home.nix
+# (pushed to every user via sharedModules when the profile is enabled, so the
+# HM side needs no osConfig gate).
 {
   config,
   isDarwin,
@@ -7,9 +10,9 @@
 }: let
   cfg = config.dotfiles.profiles.apps.notes;
 in {
-  # The obsidian package + vault config is owned by Home Manager
-  # (home/shared/apps/notes) via programs.obsidian, gated on the same flag.
   config = lib.mkIf cfg.enable {
+    home-manager.sharedModules = [./home.nix];
+
     environment.systemPackages = lib.optionals (!isDarwin) (with pkgs; [
       libreoffice
     ]);
