@@ -105,7 +105,7 @@ async:
 checkpoint: 
   enabled: true
 defaultThinkingLevel: high
-hideThinkingBlock: false
+hideThinkingBlock: true
 serviceTier: auto
 retry: 
   fallbackRevertPolicy: cooldown-expiry
