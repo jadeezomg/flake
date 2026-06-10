@@ -19,7 +19,7 @@ Every phase below is net-deletion or net-consolidation. No new frameworks; only 
 - Keep `hosts/hosts.nix` as the source of host metadata; keep `parts/hosts.nix` generating host outputs.
 - Keep `dotfiles.profiles.*` as the host-facing feature API; option declarations stay centralized in one `default.nix`.
 - **Split by platform only at the leaf where an option namespace forces it; everything else splits by feature.**
-- Keep rich GUI / session HM config (Zed, Zen, niri, DMS) under `home/` — it is not profile-shaped.
+- `home/` is the third parallel tree (shared/nixos/darwin split, ~105 files) and dissolves into profile feature folders over time (Phase 7) — small profile-gated apps first, rich config worlds (Zed, Zen, niri/DMS) last, never big-bang.
 - Prefer eval-only checks over VM tests; prefer deleting a parallel path over abstracting it.
 - `git mv` for every relocation — preserve history.
 
@@ -103,6 +103,7 @@ Conventions:
 - Workstation-flavored profiles use `enableOn` (default true); the server opts out explicitly in `hosts/mini/profiles.nix`, matching its existing "headless: opt out of every desktop-flavoured profile" style.
 - The server-class assertion list in `default.nix` grows to cover every workstation-flavored toggle: today's `desktop`, `apps`, `integrations`, `gaming`, `work` plus the new `fonts.full`, `theme.gui`, and `devgui`.
 - A profile that needs an HM half owns it as a `home.nix` pushed through `home-manager.sharedModules` — no `osConfig` lookups from `home/`.
+- End state for `home/`: dissolved into the feature folders above (Phase 7, tiered); HM config reaches users exclusively via `sharedModules`, and the `home/shared`/`home/nixos`/`home/darwin` platform split disappears the same way the modules one did.
 
 ## Phase 1 — Thin `flake.nix`, dedupe packages, input hygiene, de-leak the host factory
 
@@ -200,7 +201,7 @@ modules/profiles/apps/notes/
 
 `git mv` the HM file from `home/shared/apps/notes/`; delete its entry from the `home/` import chain. Guest users (`extraUsers`) already receive the same HM modules, so `sharedModules` is behavior-preserving.
 
-Decision gate: live with it for a while. If it reads better, follow-up candidates are the other small profile-gated apps (`terminals`, `comms`, `media`, `files`, `editors/helix`) — one PR each, no big-bang. If it doesn't, revert the pilot and stop; Phase 2 already removed most of the pain. Zed, Zen, niri/DMS session configs stay under `home/` regardless.
+Decision gate: live with it for a while. If it reads better, the pilot pattern becomes the vehicle for dissolving `home/` (Phase 7, tiered). If it doesn't, revert the pilot and stop; Phase 2 already removed most of the pain.
 
 Acceptance:
 
@@ -305,6 +306,27 @@ Acceptance:
 - All four hosts' package sets are otherwise unchanged except deliberate `llm` decisions, recorded in the commit message.
 - `hosts/framework/profiles.nix` contains no negations.
 
+## Phase 7 — Dissolve `home/` into the profile tree (tiered)
+
+Problem: `home/` is the third parallel tree, with the same shape disease the modules merge cured — a `shared`/`nixos`/`darwin` platform split (~105 nix files) and `osConfig.dotfiles.profiles.*` gates pointing back at the profiles that conceptually own the config. End state: every profile owns its HM half as `home.nix`/`home/` inside its feature folder (pushed via `home-manager.sharedModules`), the `home/` directory is gone, and `parts/hosts.nix` no longer assembles per-platform `homeModules` lists.
+
+One coupling makes this incremental by necessity: **7 files use `config.dotfiles.flakeRoot` live symlinks** (`mkOutOfStoreSymlink`) whose runtime targets point into `home/...` paths in the repo (`nixos/desktop/dms`, `shared/assets/files.nix`, `shared/agents.nix`, `shared/compat.nix`, `shared/dotfiles.nix`, `shared/shells/env/system.nix`, `shared/utils/television`). Moving those directories changes symlink targets on deployed machines — each such move needs the path updated, `just symlink-check` run, and any Justfile/script references chased. Hence tiers, each independently verified, rich worlds last.
+
+Tiers (each gated on the previous one feeling right):
+
+1. **Already planned elsewhere**: notes pilot (Phase 3a), fonts catalogue + dead icons (Phase 4), theme + wallpaper symlinks (Phase 5), IDE gating (Phase 6 `devgui.ides`).
+2. **Small profile-gated apps** — HM configs of `terminals` (ghostty, kitty), `editors` (helix), `comms`, `media`, `files` move into their `modules/profiles/apps/<name>/home.nix`. One PR each. The `osConfig` gate disappears with each move (the profile pushes `home.nix` under `mkIf cfg.enable`).
+3. **Dev tooling** — `home/shared/development/` (mcp-servers, agents-cli, nono-profiles HM side, …) becomes the home half of `devenv`/`devenv.agents`; pairs naturally with the Phase 6 split. `host-status`/`fastfetch` widgets go to `essentials`.
+4. **Rich config worlds** — Zen → `apps/browsers/`, cursor/zed configs → `devgui/ides/`, `home/nixos/desktop` (niri/DMS session) → `desktop/`. This tier carries the live-symlink path updates (DMS settings, niri kdl) and the `data/`-vs-config decision for big non-nix assets.
+5. **User baseline** — `home/shared/shells/` (18 files), `utils/`, `network/`, `security.nix`, `environment.nix` become home halves of `minimal`/`essentials`/`theme`; `home/darwin/` and `home/nixos/` leftovers dissolve into platform leaves of their owning profiles. `parts/hosts.nix` `homeModules` shrinks to nothing — HM config arrives exclusively via `sharedModules`. Guest users (`extraUsers`) receive `sharedModules` identically, so behavior is preserved.
+
+Acceptance per tier:
+
+- The moved app/config behaves identically (HM activation diff or targeted `nix eval` on the HM option).
+- No `osConfig` reference remains for moved features; no `home/` path remains in live-symlink targets that moved.
+- `just symlink-check` is clean after tiers that touch `flakeRoot` symlinks.
+- After the final tier, `home/` does not exist and `homeManagerConfig` in `parts/hosts.nix` carries no platform-specific import lists.
+
 ## Keep as-is
 
 - `hosts/hosts.nix` registry and validation; `parts/hosts.nix` host-output generation (post-Phase-1, host-agnostic).
@@ -312,7 +334,7 @@ Acceptance:
 - `lib/pkgs.nix` as the pkgs import policy.
 - `packages/` with overlay auto-registration.
 - Justfile and `scripts/` as the operator interface.
-- `home/` for rich GUI / session config; `data/agents/` assets.
+- `data/agents/` assets; Justfile symlink tooling (`just symlink-check`).
 
 ## Appendix — demoted ideas and their re-entry conditions
 
@@ -329,7 +351,7 @@ Carried over from the first draft; each was complexity-positive against this pla
 
 - No rewrite toward the example repository's layout.
 - No wrapper framework, no partitions, no VM test harness (see appendix).
-- No restructuring of `home/` rich GUI configs (Zed, Zen, niri, DMS).
+- No big-bang `home/` migration — it dissolves tier by tier (Phase 7), each tier independently verified; rich config worlds move last.
 - No removal of the Justfile workflow.
 - No hand-written host output list.
 - No test that locks current defaults instead of behavior.

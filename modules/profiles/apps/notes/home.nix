@@ -1,10 +1,5 @@
-{
-  lib,
-  osConfig,
-  pkgs,
-  ...
-}: {
-  programs.obsidian = lib.mkIf (osConfig.dotfiles.profiles.apps.notes.enable or false) {
+{pkgs, ...}: {
+  programs.obsidian = {
     enable = true;
     package = pkgs.obsidian;
 

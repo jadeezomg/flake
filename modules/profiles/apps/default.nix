@@ -14,7 +14,7 @@ in {
       ./comms.nix
       ./editors.nix
       ./files.nix
-      ./notes.nix
+      ./notes
       ./terminals.nix
     ]
     ++ lib.optionals (!isDarwin) [./media.nix];
