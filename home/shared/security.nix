@@ -2,9 +2,11 @@
   # Sops *attribute* name for the GitHub PAT file. Must be one of `githubPatSecretAttrs` in
   # `home/shared/shells/sops-session-env.nix` (e.g. "github-token" or "gh-token").
   githubPatSecretAttrName = "github-token";
+  home = config.home.homeDirectory;
+  secretDir = "${home}/.config/sops-secrets";
   githubPatSecret = {
     key = "github_token";
-    path = ".config/nix/github-token";
+    path = "${secretDir}/github-token";
   };
 in {
   sops = {
@@ -21,29 +23,29 @@ in {
         ${githubPatSecretAttrName} = githubPatSecret;
         "agent-pat" = {
           key = "agent_pat";
-          path = ".config/nix/agent-pat";
+          path = "${secretDir}/agent-pat";
         };
       }
       // {
         "context7-api-key" = {
           key = "context7_api_key";
-          path = ".config/context7/api-key";
+          path = "${home}/.config/context7/api-key";
         };
         "inception-api-key" = {
           key = "inception_api_key";
-          path = ".config/nix/inception-api-key";
+          path = "${secretDir}/inception-api-key";
         };
         "kagi-session-token" = {
           key = "kagi_session_token";
-          path = ".kagi_session_token";
+          path = "${home}/.kagi_session_token";
         };
         "openrouter-api-key" = {
           key = "openrouter_api_key";
-          path = ".config/nix/openrouter-api-key";
+          path = "${secretDir}/openrouter-api-key";
         };
         "hf-token" = {
           key = "hf_token";
-          path = ".config/nix/hf-token";
+          path = "${secretDir}/hf-token";
         };
       };
   };
