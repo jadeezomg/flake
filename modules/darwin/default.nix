@@ -23,6 +23,10 @@
     lib.concatStringsSep " && "
     (lib.mapAttrsToList (k: v: "launchctl setenv ${k} ${lib.escapeShellArg v}") xdgVars);
 in {
+  imports = [
+    ./fonts.nix
+  ];
+
   nix.enable = false;
   system.primaryUser = user;
   users.users.${user} = {
@@ -101,6 +105,7 @@ in {
       "hyperkey" # rebind keys
       "handy" # Offline speech-to-text desktop app
       "shottr" # screenshot tool
+      "codexbar" # macOS status bar for llm usage
 
       # --- Fonts (not in nixpkgs) ---
       "font-sf-mono"
