@@ -3,6 +3,7 @@
     ./hardware-configuration.nix
     ../../modules/shared
     ../../modules/nixos
+    ../../modules/profiles
     ./gpu.nix
     ./display.nix
     ./profiles.nix

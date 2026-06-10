@@ -24,6 +24,7 @@ in {
       ./disko.nix
       ../../modules/shared
       ../../modules/nixos
+      ../../modules/profiles
       ./profiles.nix
       inputs.hermes-agent.nixosModules.default
       ./hermes.nix

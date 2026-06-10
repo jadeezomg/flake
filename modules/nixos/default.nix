@@ -1,6 +1,5 @@
 {...}: {
   imports = [
-    ./profiles
     ./boot.nix
     ./gc.nix
     ./guest-users.nix

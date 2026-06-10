@@ -50,7 +50,7 @@ Refactor scope:
 - `parts/hosts.nix`
   - `dms`/`niri`/`stylix` modules left wired (inert when `desktop.enable = false`,
     verify during impl)
-- `modules/shared/profiles/server.nix`
+- `modules/profiles/server.nix`
   - Replace existing `postgresql + redis` body with the headless-config
     `mkForce` overrides (`desktop.enable = false`, `integrations.enable = false`,
     etc.)

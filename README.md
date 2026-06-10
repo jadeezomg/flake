@@ -134,11 +134,11 @@ Home-manager exports select secrets to the user session env via `home/shared/she
 
 | Goal | Where |
 | ---- | ---- |
-| Profile toggles | `dotfiles.profiles` in `modules/shared/profiles/`; enable per host in `hosts/<name>/` |
-| **Profile → file index** | [`docs/profiles.md`](docs/profiles.md) (paths + scope; not a full package list) |
+| Profile toggles | `dotfiles.profiles` in `modules/profiles/`; enable per host in `hosts/<name>/` |
+| **Profiles overview** | [`docs/profiles.md`](docs/profiles.md) (structure + conventions; the tree is its own index) |
 | Flake streamline plan | [`docs/flake-streamline-plan.md`](docs/flake-streamline-plan.md) |
-| System packages (all Linux) | `modules/nixos/` or shared profiles |
-| System packages (all hosts) | `modules/shared/profiles/` |
+| System packages (profile-gated) | `modules/profiles/<profile>.nix` (platform extras inline) |
+| System packages (unconditional base) | `modules/shared/`, `modules/nixos/`, `modules/darwin/` |
 | One host only | `hosts/<name>/` |
 | User packages (home-manager) | `home/shared/…` or `home/nixos` / `home/darwin` |
 | NixOS services | `modules/nixos/` |

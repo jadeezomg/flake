@@ -6,6 +6,7 @@
   imports = [
     ../../modules/shared
     ../../modules/darwin
+    ../../modules/profiles
     ./profiles.nix
   ];
 

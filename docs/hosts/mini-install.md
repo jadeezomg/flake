@@ -59,7 +59,7 @@ filled in** before `nixos-install`.
 | `parts/hosts.nix` | wired `inputs.disko.nixosModules.disko` and `inputs.hermes-agent.nixosModules.default` into the NixOS module list |
 | `modules/nixos/boot.nix` | kernel branches on `server.enable` (cachyos-server vs cachyos-latest-zen4); plymouth gated `lib.mkIf (!server.enable)`; lanzaboote unchanged |
 | `modules/nixos/networking.nix` | NixOS `networking.firewall` activated when `server.enable` (drops firewalld/firewalld-gui/proton-vpn/wireguard-ui/networkmanagerapplet from systemPackages on server hosts) |
-| `modules/shared/profiles/server.nix` | body emptied — `server.enable` is a steering toggle, gating happens inline in `boot.nix`/`networking.nix` |
+| `modules/profiles/server.nix` | body emptied — `server.enable` is a steering toggle, gating happens inline in `boot.nix`/`networking.nix` |
 | `data/users/users.nix` | `jadee.sshKeys` → `authorizedKeys` on all NixOS hosts (verify your desktop key is listed) |
 | `modules/nixos/user.nix` | consumes `userConfig.sshKeys` → `users.users.${user}.openssh.authorizedKeys.keys` |
 | `modules/shared/environment.nix` | added `https://jadee-flake.cachix.org` substituter + TODO marker for the trusted public key |

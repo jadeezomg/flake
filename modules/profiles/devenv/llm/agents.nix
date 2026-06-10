@@ -6,7 +6,7 @@
   ...
 }: let
   cfg = config.dotfiles.profiles.devenv.llm.agents;
-  nonoAgents = import ../../../../../lib/nono-profiles.nix {inherit pkgs pkgs-small;};
+  nonoAgents = import ../../../../lib/nono-profiles.nix {inherit pkgs pkgs-small;};
 in {
   config = lib.mkIf cfg.enable {
     environment.systemPackages =

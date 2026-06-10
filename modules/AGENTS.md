@@ -8,7 +8,7 @@ System-level NixOS/Darwin configuration.
 { pkgs, lib, config, inputs, hostData, hostKey, host, user, isDarwin, system, pkgs-small, pkgs-stable }
 ```
 
-- `hostKey` — `"desktop"`, `"framework"`, or `"caya"` (use for host conditionals)
+- `hostKey` — `"desktop"`, `"framework"`, `"caya"`, or `"mini"` (use for host conditionals)
 - `host` — full host record from `hosts/<hostKey>/host.nix` (includes `mainMonitor.*`, `buildCores`, `dmsSettingsFile`, `niriOutputsFile`, …)
 - `isDarwin` — `true` on macOS
 - `pkgs-small` — nixpkgs-unstable-small (pinned, no local overlays)
@@ -26,7 +26,7 @@ host.mainMonitor.monitorScalingFactor
 
 ## Profile System
 
-All toggles live in `modules/shared/profiles/default.nix`. Enable per-host in `hosts/<name>/profiles.nix`.
+All profile content lives in `modules/profiles/` (one tree, platform differences inside). Toggles are declared in `modules/profiles/default.nix`; enable per-host in `hosts/<name>/profiles.nix`.
 
 **Profile → implementation file index:** [`docs/profiles.md`](../docs/profiles.md) (paths and one-line scope; package lists stay in the `.nix` sources).
 
@@ -50,13 +50,13 @@ dotfiles.profiles.devenv.languages.swift.enable = false;
 
 | What | Where |
 |------|-------|
-| System packages (all hosts) | `modules/shared/profiles/<profile>.nix` |
-| System packages (all NixOS) | `modules/nixos/profiles/<profile>.nix` |
-| System packages (all Darwin) | `modules/darwin/default.nix` (e.g. Homebrew when `work.enable`) |
-| NixOS services / daemons | `modules/nixos/` |
-| Desktop / Wayland config | `modules/nixos/profiles/desktop.nix` |
-| Language tooling | `modules/shared/profiles/devenv/languages/<lang>.nix` |
-| LLM agent tooling | `modules/shared/profiles/devenv/llm/agents.nix` |
+| Profile system packages (any platform) | `modules/profiles/<profile>.nix` — Linux/darwin extras inline via `lib.optionals (!isDarwin) [...]` |
+| Profile config using Linux-only options (steam, flatpak, …) | Linux-only leaf in `modules/profiles/` (imported when `!isDarwin`, see `default.nix`) |
+| macOS Homebrew casks/brews | `modules/profiles/work/darwin.nix` |
+| Unconditional platform base (boot, networking, sops, …) | `modules/nixos/`, `modules/darwin/`, `modules/shared/` |
+| Desktop / Wayland config | `modules/profiles/desktop.nix` |
+| Language tooling | `modules/profiles/devenv/languages/<lang>.nix` |
+| LLM agent tooling | `modules/profiles/devenv/llm/agents.nix` |
 
 ## Gotchas
 
