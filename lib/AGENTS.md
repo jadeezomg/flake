@@ -7,10 +7,11 @@ Shared Nix helpers used across the flake.
 ```nix
 getPkgs system extraOverlays                         # nixpkgs with allowUnfree + all overlays + extraOverlays
 getPkgsWithConfig system extraOverlays extraConfig   # same, plus host-specific nixpkgs config (e.g. rocmSupport)
+getPkgsSmall system                                  # nixpkgs-unstable-small, allowUnfree, NO overlays
 getPkgsStable system                                 # nixpkgs 25.11, allowUnfree, NO overlays
 ```
 
-Imported in `parts/hosts.nix`; passed as `pkgs` / `pkgs-stable` to all modules.
+Imported in `parts/hosts.nix`; passed as `pkgs` / `pkgs-small` / `pkgs-stable` to all modules.
 
 ## home/live-xdg-symlinks.nix
 
