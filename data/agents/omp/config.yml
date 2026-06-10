@@ -1,5 +1,5 @@
 modelRoles: 
-  default: cursor/composer-2.5
+  default: openai-codex/gpt-5.5:xhigh
 theme: 
   dark: birds-of-paradise
   light: light-gruvbox
