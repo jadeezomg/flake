@@ -25,6 +25,17 @@ While **`miniBootstrap = true`** (first install), the flake skips `vllm-xpu-nix`
 | `vllm-xpu-embedding` | **yes** | Jina embeddings on **8001** |
 | `llama-cpp-gemma` | **if** `miniLlamaCppGemma` | GGUF on **8010** — set **`true`** in `host.nix` only when chat is **not** also on vLLM |
 
+## Clients and frontends
+
+This flake does **not** ship a browser UI for vLLM on mini — only the **OpenAI-compatible HTTP API** (`vllm serve` behind systemd).
+
+| What | Base URL (on mini, or via SSH tunnel) |
+|------|----------------------------------------|
+| Chat / completions | **`http://127.0.0.1:8000/v1`** — model id = **`servedName`** (e.g. **`qwen3.6-35b-a3b`**) |
+| Embeddings | **`http://127.0.0.1:8001/v1`** — model **`jina-embeddings-v5-nano`** |
+
+**Ways to talk to it:** **`xh`** / **`curl`** (§ APIs below); **IDEs and agents** (Cursor, Continue, Aider, …) with **OpenAI-compatible** base URL set to that host/port (usually after **§ SSH tunnels**); scripts using any OpenAI SDK with `base_url`. For a **local web chat**, run something like **[Open WebUI](https://github.com/open-webui/open-webui)** or **[LibreChat](https://github.com/danny-avila/LibreChat)** yourself (container or separate service) and point it at **`http://127.0.0.1:8000`** (same tunnel story if the UI runs off-mini). Binding vLLM to **`0.0.0.0`** for a remote UI would need an explicit **`host`** change in **`vllm-xpu.nix`** plus firewall — not the default.
+
 ## Command reference
 
 From the flake repo on mini (or over SSH), use **`just switch`** after editing Nix (see `docs/hosts/mini-install.md`). For flakes, **`git add`** tracked files before eval-only commands if your workflow requires it.
@@ -67,6 +78,26 @@ sudo systemctl disable --now llama-cpp-gemma
 sudo systemctl enable --now llama-cpp-gemma
 ```
 
+### SSH — watch what vLLM is doing
+
+**Interactive:** `ssh jadee@<mini-ip>`, then on mini use **`journalctl`** (below) and **`intel_gpu_top`** (installed on mini) to see logs vs GPU load.
+
+**One-shot from your laptop** (no login shell — you get a stream until Ctrl+C):
+
+```bash
+ssh -t jadee@<mini-ip> 'sudo journalctl -fu vllm-xpu-chat'
+# second terminal for the embedder (starts after chat per unit ordering):
+ssh -t jadee@<mini-ip> 'sudo journalctl -fu vllm-xpu-embedding'
+```
+
+**GPU only** (whether vLLM is exercising the dGPU):
+
+```bash
+ssh -t jadee@<mini-ip> 'sudo intel_gpu_top'
+```
+
+vLLM’s OpenAI server does **not** expose a built-in “dashboard” over HTTP by default in this flake; **logs + GPU top** are the practical live views over SSH.
+
 ### APIs — list models
 
 ```bash
@@ -79,14 +110,17 @@ Use each stack’s **`servedName`** in API calls: **`qwen3.6-35b-a3b`** (vLLM ch
 
 ### APIs — chat (Qwen3.6 FP8, vLLM on 8000)
 
+Use **`"stream": false`** for a **single JSON** response (easier for **`jq`**). The first completion after startup can take **a long time** (model + GPU); see **§ APIs — troubleshooting** if nothing appears.
+
 ```bash
-curl -s http://127.0.0.1:8000/v1/chat/completions \
+curl -sS --max-time 600 http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{
     "model": "qwen3.6-35b-a3b",
     "messages": [{"role": "user", "content": "Hello"}],
-    "max_tokens": 64
-  }' | jq
+    "max_tokens": 64,
+    "stream": false
+  }' | jq .
 ```
 
 ### APIs — chat with image (Qwen3.6 VL on 8000)
@@ -94,7 +128,7 @@ curl -s http://127.0.0.1:8000/v1/chat/completions \
 Up to **8 images** and **1 video** per prompt (see **`limitMmPerPrompt`** in `hosts/mini/vllm-xpu.nix`). Replace the URL with any **HTTPS** image link reachable from mini.
 
 ```bash
-curl -s http://127.0.0.1:8000/v1/chat/completions \
+curl -sS --max-time 600 http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{
     "model": "qwen3.6-35b-a3b",
@@ -105,8 +139,9 @@ curl -s http://127.0.0.1:8000/v1/chat/completions \
         {"type": "image_url", "image_url": {"url": "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/beignets-task-guide.png"}}
       ]
     }],
-    "max_tokens": 128
-  }' | jq
+    "max_tokens": 128,
+    "stream": false
+  }' | jq .
 ```
 
 ### APIs — chat (GGUF on 8010, when `miniLlamaCppGemma`)
@@ -130,6 +165,24 @@ curl -s http://127.0.0.1:8001/v1/embeddings \
     "model": "jina-embeddings-v5-nano",
     "input": "hello"
   }' | jq
+```
+
+### APIs — troubleshooting (no output, hangs, `jq`)
+
+| Symptom | What to try |
+|---------|-------------|
+| **No output for a long time** | **Normal** until the first token: MoE + vision is heavy. Wait **minutes** on first hit, or run **`sudo journalctl -fu vllm-xpu-chat`** in another terminal. Use **`curl --max-time 600`** (or higher) so `curl` does not give up early. |
+| **`jq` prints nothing** | Drop **`| jq`** and remove **`-s`** from `curl` to see **raw body** and **errors**. **`curl -sS`** keeps quiet progress but still errors on HTTP failures. If the server returns **SSE** (streaming), **`jq`** on the whole response will not work — force **`"stream": false`** in JSON. |
+| **HTTP / TLS errors** | **`curl -v`** once. Confirm **`/v1/models`** works first (§ list models). |
+| **Empty `choices[0].message.content`** | With **`reasoningParser = qwen3`**, some traffic puts **thinking** in a separate field; inspect full JSON with **`jq .`** (not **`jq -r .choices[0].message.content`** until you know the shape). |
+
+```bash
+# Minimal debug: no jq, show HTTP code, 10 min cap
+curl -sS --max-time 600 -o /tmp/vllm-out.json -w 'http_code=%{http_code}\n' \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"qwen3.6-35b-a3b","messages":[{"role":"user","content":"hi"}],"max_tokens":32,"stream":false}' \
+  http://127.0.0.1:8000/v1/chat/completions
+cat /tmp/vllm-out.json | jq . 2>/dev/null || cat /tmp/vllm-out.json
 ```
 
 ### SSH tunnels (APIs bind `127.0.0.1` only)
