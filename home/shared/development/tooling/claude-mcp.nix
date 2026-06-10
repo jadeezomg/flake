@@ -8,13 +8,12 @@
   ...
 }: let
   mcpRegistry = import ./mcp-servers.nix {inherit lib osConfig;};
-  inherit (mcpRegistry) agentsEnabled;
+  inherit (mcpRegistry) needsSharedServerMaintenance mkClaudeObsoleteRemovalActivation;
   mcpServers = mcpRegistry.sharedServers;
   homeDir = config.home.homeDirectory;
 
-  registerScript =
-    lib.concatMapStringsSep "\n"
-    (name: let
+  registerScript = lib.concatMapStringsSep "\n" (
+    name: let
       payload = builtins.toJSON mcpServers.${name};
     in ''
       if ! printf '%s\n' "$existing" | grep -q "^${name}:"; then
@@ -22,14 +21,16 @@
         claude mcp add-json --scope user ${lib.escapeShellArg name} ${lib.escapeShellArg payload} 2>&1 | sed 's/^/  /' || \
           echo "claude-mcp: failed to register ${name} (will retry next switch)"
       fi
-    '')
-    (lib.attrNames mcpServers);
+    ''
+  ) (lib.attrNames mcpServers);
 in
-  lib.mkIf (agentsEnabled && mcpServers != {}) {
+  lib.mkIf needsSharedServerMaintenance {
     home.activation.claudeMcpServers = lib.hm.dag.entryAfter ["writeBoundary"] ''
       export PATH=${lib.makeBinPath [pkgs.claude-code]}:$PATH
       mkdir -p ${lib.escapeShellArg "${homeDir}/.claude"}
 
+      existing=$(claude mcp list 2>/dev/null || true)
+      ${mkClaudeObsoleteRemovalActivation}
       existing=$(claude mcp list 2>/dev/null || true)
       ${registerScript}
     '';

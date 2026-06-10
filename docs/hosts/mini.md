@@ -1,7 +1,8 @@
 # Mini — Headless Server Host (design doc)
 
-Working doc for the new `mini` NixOS host. Decisions captured here are agreed
-but not yet implemented. Sections marked **[OPEN]** still need grilling.
+Design doc for the `mini` NixOS host. **Implemented on `main`** — follow
+[`mini-install.md`](./mini-install.md) for the install walkthrough. Sections
+marked **[OPEN]** in §11 are deferred follow-ups, not blockers for first boot.
 
 ---
 
@@ -15,7 +16,7 @@ but not yet implemented. Sections marked **[OPEN]** still need grilling.
 | RAM | 24 GB |
 | Storage | 1× 256 GB NVMe system SSD + 1× 2 TB NVMe application-storage SSD (3 NVMe slots total — 1 free) |
 | NICs | 2× SFP+ 10G (Intel X710), 2× 2.5G (Intel I226-V) — only one 2.5G NIC used initially |
-| GPU | Intel UHD (iGPU) |
+| GPU | Intel UHD (iGPU) on MS-01; **optional** discrete Intel Arc (e.g. B50-class) for [llama.cpp GGUF hosting](./mini-llm-hosting.md) on the same host |
 | Out-of-band mgmt | Intel AMT 16.x (vPro) |
 | System | `x86_64-linux` |
 
@@ -38,8 +39,9 @@ Refactor scope:
   - Kernel: when `server.enable`, switch from
     `pkgs.cachyosKernels.linuxPackages-cachyos-latest-zen4` to
     `pkgs.cachyosKernels.linuxPackages-cachyos-server`
-  - Lanzaboote / SecureBoot: **kept on** — works headless via AMT KVM for
-    one-time `sbctl` enrollment
+  - Lanzaboote / SecureBoot: gated by `host.secureBoot`; mini starts with
+    `secureBoot = false` for first install, then flips true after sbctl keys
+    exist
 - `modules/nixos/networking.nix`
   - GUI tools (`networkmanagerapplet`, `firewalld-gui`, `proton-vpn`,
     `wireguard-ui`) gated `lib.mkIf (!server.enable)`
@@ -192,21 +194,23 @@ sudo nix --extra-experimental-features 'nix-command flakes' run \
   github:nix-community/disko -- --mode disko --flake .#mini
 
 # Install
-sudo nixos-install --flake .#mini --no-root-password
+sudo nixos-install --flake .#mini --no-root-password --max-jobs 1 --cores 4
 
-# Reboot, then enroll lanzaboote keys (see §4.5)
+# Reboot, create sbctl keys, flip secureBoot true, then enroll (see §4.5)
 ```
 
 ### 4.5 Lanzaboote enrollment (post-install, one-time)
 
-Order: AMT first, then SecureBoot enrollment via AMT KVM.
+See `mini-install.md` §5.6 — **create keys, enable lanzaboote, switch, verify,
+then enroll keys**. Summary:
 
 ```bash
-# In firmware: disable SecureBoot, boot NixOS once
 sudo sbctl create-keys
-sudo sbctl enroll-keys --microsoft   # --microsoft preserves OEM/fwupd capsule signing
-sudo nixos-rebuild switch --flake .#mini
-# Reboot into firmware → re-enable SecureBoot → boot
+# Flip hosts/mini/host.nix: secureBoot = false; -> secureBoot = true;
+just switch
+sudo sbctl verify
+sudo sbctl enroll-keys -m    # -m = --microsoft; required for fwupd capsules
+# Reboot → firmware Setup Mode if needed → enable SecureBoot
 ```
 
 ---
@@ -266,9 +270,10 @@ On mini:
 - udev rule: `KERNEL=="mei*", GROUP="amt"`
 - `users.users.jadee.extraGroups += [ "amt" ];`
 
-On desktop / framework (controller side) — new toggle:
+On desktop / framework (controller side) — **planned, not yet wired:**
 - `dotfiles.profiles.devenv.amt.enable` (default true on Linux desktops, false on Darwin)
-- Adds `amtterm` and a VNC client compatible with AMT's KVM redirection (`tigervnc`/`remmina`) when enabled
+- Would add `amtterm` and a VNC client for AMT KVM (`tigervnc`/`remmina`)
+- Until then: `nix shell nixpkgs#amtterm` from the workstation (see `mini-install.md` §2)
 
 ### 6.3 Security posture
 
@@ -407,7 +412,12 @@ Native systemd service (default) over OCI container — simpler, fewer moving pa
 
 ## 10. Profile interaction
 
-Mini opts out manually in `hosts/mini/profiles.nix`:
+Mini opts out of desktop-style profiles in `hosts/mini/profiles.nix` but keeps
+**`devenv.enable = true`** so Hermes and shells get the full devenv stack:
+**tools**, **cloud**, **containers**, **databases**, **LLM agents + hosting**
+(`llama-cpp` with Vulkan), and **language stacks**. Only **`languages.swift`**
+stays off (Apple-centric; useless on this Linux host). **`hardware.graphics`**
+and **`render`** (+ **`amt`**) live in `hosts/mini/default.nix` for the Intel dGPU.
 
 ```nix
 { ... }: {
@@ -416,9 +426,11 @@ Mini opts out manually in `hosts/mini/profiles.nix`:
     desktop.enable = false;
     integrations.enable = false;
     apps.enable = false;
-    devenv.enable = false;
     gaming.enable = false;
     work.enable = false;
+
+    devenv.enable = true;
+    devenv.languages.swift.enable = false;
   };
 }
 ```

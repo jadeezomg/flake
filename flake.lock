@@ -446,7 +446,7 @@
     },
     "flake-utils": {
       "inputs": {
-        "systems": "systems"
+        "systems": "systems_2"
       },
       "locked": {
         "lastModified": 1731533236,
@@ -603,43 +603,6 @@
         "owner": "GNOME",
         "repo": "gnome-shell",
         "rev": "ef02db02bf0ff342734d525b5767814770d85b49",
-        "type": "github"
-      }
-    },
-    "google-workspace-cli": {
-      "inputs": {
-        "flake-utils": "flake-utils",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1774983075,
-        "narHash": "sha256-YyNIHbyZrLlXYtWxZY8Um19MsnLharmS+nWGWO89fsA=",
-        "owner": "googleworkspace",
-        "repo": "cli",
-        "rev": "a3768d0e82ad83cca2da97724e46bea4ff0e6dbd",
-        "type": "github"
-      },
-      "original": {
-        "owner": "googleworkspace",
-        "repo": "cli",
-        "type": "github"
-      }
-    },
-    "handy": {
-      "locked": {
-        "lastModified": 1779809972,
-        "narHash": "sha256-sBNTO3FjDdxeBol/4ldFsIz4wlSVDlNfQz1vw1gbNEc=",
-        "owner": "philocalyst",
-        "repo": "nixpkgs",
-        "rev": "10d9c5372a0a29b50ff19d9776af4ee93795c6ec",
-        "type": "github"
-      },
-      "original": {
-        "owner": "philocalyst",
-        "ref": "handy",
-        "repo": "nixpkgs",
         "type": "github"
       }
     },
@@ -1016,7 +979,7 @@
         "type": "github"
       }
     },
-    "nixpkgs-stable": {
+    "nixpkgs-small": {
       "locked": {
         "lastModified": 1780952837,
         "narHash": "sha256-Fwd1+spDtQ0hDyBwme6ufG3n4mY0UrjjFdYHv+G/Hds=",
@@ -1048,7 +1011,7 @@
         "type": "github"
       }
     },
-    "nixpkgs-zed": {
+    "nixpkgs-stable": {
       "locked": {
         "lastModified": 1781074563,
         "narHash": "sha256-md8WlXOlfnIeHeOScMTTHFyf2d6iaTwPl2apR5EQ3P4=",
@@ -1059,7 +1022,7 @@
       },
       "original": {
         "owner": "NixOS",
-        "ref": "nixos-unstable-small",
+        "ref": "nixos-26.05",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -1338,8 +1301,6 @@
         "dms": "dms",
         "flake-parts": "flake-parts_2",
         "framework-control": "framework-control",
-        "google-workspace-cli": "google-workspace-cli",
-        "handy": "handy",
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager",
         "homebrew-bundle": "homebrew-bundle",
@@ -1347,7 +1308,6 @@
         "homebrew-core": "homebrew-core",
         "homebrew-xykong-tap": "homebrew-xykong-tap",
         "lanzaboote": "lanzaboote",
-        "niri": "niri",
         "nix-cachyos-kernel": "nix-cachyos-kernel",
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
@@ -1359,6 +1319,7 @@
         "skills-mattpocock": "skills-mattpocock",
         "sops-nix": "sops-nix",
         "stylix": "stylix",
+        "vllm-xpu-nix": "vllm-xpu-nix",
         "zen-browser": "zen-browser"
       }
     },
@@ -1432,7 +1393,7 @@
           "nixpkgs"
         ],
         "nur": "nur",
-        "systems": "systems_2",
+        "systems": "systems",
         "tinted-kitty": "tinted-kitty",
         "tinted-schemes": "tinted-schemes",
         "tinted-tmux": "tinted-tmux",
@@ -1449,6 +1410,23 @@
       "original": {
         "owner": "danth",
         "repo": "stylix",
+        "type": "github"
+      }
+    },
+    "sycl-tla-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1773801054,
+        "narHash": "sha256-F69uPgmeQ1fpkCMYZujq0JG2uhmIgf3L+BK29//gxig=",
+        "owner": "intel",
+        "repo": "sycl-tla",
+        "rev": "cd763790ad2f74d7294435ecf77682bac0062c3a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "intel",
+        "repo": "sycl-tla",
+        "rev": "cd763790ad2f74d7294435ecf77682bac0062c3a",
         "type": "github"
       }
     },
@@ -1595,37 +1573,102 @@
         "type": "github"
       }
     },
-    "xwayland-satellite-stable": {
+    "vllm-xpu-kernels-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1755491097,
-        "narHash": "sha256-m+9tUfsmBeF2Gn4HWa6vSITZ4Gz1eA1F5Kh62B0N4oE=",
-        "owner": "Supreeeme",
-        "repo": "xwayland-satellite",
-        "rev": "388d291e82ffbc73be18169d39470f340707edaa",
+        "lastModified": 1779945648,
+        "narHash": "sha256-tIXZqPtXDOKvOr6UkiV6A5TVISz1z/LQ7yPnQBkdFk8=",
+        "ref": "release/v0.1.9.1",
+        "rev": "98fc9b0f864f6554ca939425d95089532f501a01",
+        "revCount": 256,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/vllm-project/vllm-xpu-kernels.git"
+      },
+      "original": {
+        "ref": "release/v0.1.9.1",
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/vllm-project/vllm-xpu-kernels.git"
+      }
+    },
+    "vllm-xpu-kernels-unstable-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1780701952,
+        "narHash": "sha256-tfHdELy9uv5a99fOSmsVgkuTDdK3HlC5mkx4zeMyplc=",
+        "ref": "refs/heads/main",
+        "rev": "b4d1a427f48eb47acd6cee248122637e35192390",
+        "revCount": 263,
+        "shallow": false,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/jasonboukheir/vllm-xpu-kernels.git"
+      },
+      "original": {
+        "shallow": false,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/jasonboukheir/vllm-xpu-kernels.git"
+      }
+    },
+    "vllm-xpu-nix": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "sycl-tla-src": "sycl-tla-src",
+        "vllm-xpu-kernels-src": "vllm-xpu-kernels-src",
+        "vllm-xpu-kernels-unstable-src": "vllm-xpu-kernels-unstable-src",
+        "vllm-xpu-src": "vllm-xpu-src",
+        "vllm-xpu-unstable-src": "vllm-xpu-unstable-src"
+      },
+      "locked": {
+        "lastModified": 1780958057,
+        "narHash": "sha256-TX2c0RO9diUsvDlqD3FGKdE28X4HagZorCCNmVFsxe0=",
+        "owner": "jasonboukheir",
+        "repo": "vllm-xpu-nix",
+        "rev": "16d88b1fafd9c58328fd89a0b2e7a3ce87f68b29",
         "type": "github"
       },
       "original": {
-        "owner": "Supreeeme",
-        "ref": "v0.7",
-        "repo": "xwayland-satellite",
+        "owner": "jasonboukheir",
+        "repo": "vllm-xpu-nix",
         "type": "github"
       }
     },
-    "xwayland-satellite-unstable": {
+    "vllm-xpu-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1779745227,
-        "narHash": "sha256-yqY7RtEJGJiENzR0GwL6q69tSAy6xAAmAcLuIhLjPf8=",
-        "owner": "Supreeeme",
-        "repo": "xwayland-satellite",
-        "rev": "5d1efbc9dc3ab1c10160b656e0247f3325daf0f2",
-        "type": "github"
+        "lastModified": 1780046923,
+        "narHash": "sha256-BiaC6inRc5GJVSZMplhQYT8/RLyvFydpDAD6YZPMXTo=",
+        "ref": "refs/heads/releases/v0.22.0",
+        "rev": "0b3ba88f165976e77ca5e6a7a3f5bba4562b80af",
+        "revCount": 16958,
+        "type": "git",
+        "url": "https://github.com/vllm-project/vllm.git"
       },
       "original": {
-        "owner": "Supreeeme",
-        "repo": "xwayland-satellite",
-        "type": "github"
+        "ref": "refs/heads/releases/v0.22.0",
+        "type": "git",
+        "url": "https://github.com/vllm-project/vllm.git"
+      }
+    },
+    "vllm-xpu-unstable-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1780957542,
+        "narHash": "sha256-U+0sPaTw6dTjiOobsxaycuzruNf63J2dm+rVD7JWPPI=",
+        "ref": "refs/heads/main",
+        "rev": "574621019318161ff8139ea5464f07987a3b9d2f",
+        "revCount": 17381,
+        "type": "git",
+        "url": "https://github.com/jasonboukheir/vllm.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://github.com/jasonboukheir/vllm.git"
       }
     },
     "zen-browser": {

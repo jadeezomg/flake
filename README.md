@@ -43,7 +43,7 @@ just gc-days         # nh clean, keep store paths newer than N days
 just health          # git status, disk, nh os info
 ```
 
-`just` alone runs an `fzf` recipe picker (`scripts/shell/just-choose.bash`). `just list` lists every recipe; `just info` shows `nix flake metadata`.
+`just` alone runs **`tv just-recipes`** (cable TOML in `home/shared/utils/television/cable/`; Home Manager links it to **`~/.config/television/cable/`** like navi cheats). **F5** runs the highlighted recipe (`just` in execute mode). Install the `television` package so `tv` is on `PATH`, or run `just --choose` yourself. `just list` lists every recipe; `just info` shows `nix flake metadata`.
 
 ## Justfile groups
 
@@ -125,7 +125,7 @@ Available in system/home modules (see [AGENTS.md](AGENTS.md) for the full list):
 
 ## Secrets
 
-`secrets/secrets.yaml` is encrypted with sops and age. Edit with `sops secrets/secrets.yaml`. Age keys: `~/.config/sops/age/keys.txt` (macOS bootstrap: `just setup-age-darwin`).
+`secrets/secrets.yaml` is encrypted with sops and age. See [docs/secrets/sops-age-keys.md](docs/secrets/sops-age-keys.md). Edit with `sops secrets/secrets.yaml`. Editor key: `just setup-age-editor` → `~/.config/sops/age/keys.txt`.
 
 Home-manager exports select secrets to the user session env via `home/shared/shells/sops-session-env.nix` (env.d + `systemctl --user set-environment` on Linux; LaunchAgent + `launchctl setenv` on Darwin), so every new shell — and GUI apps launched outside a terminal — inherit them.
 
@@ -134,6 +134,7 @@ Home-manager exports select secrets to the user session env via `home/shared/she
 | Goal | Where |
 | ---- | ---- |
 | Profile toggles | `dotfiles.profiles` in `modules/shared/profiles/`; enable per host in `hosts/<name>/` |
+| **Profile → file index** | [`docs/profiles.md`](docs/profiles.md) (paths + scope; not a full package list) |
 | System packages (all Linux) | `modules/nixos/` or shared profiles |
 | System packages (all hosts) | `modules/shared/profiles/` |
 | One host only | `hosts/<name>/` |

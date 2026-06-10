@@ -28,6 +28,8 @@ host.mainMonitor.monitorScalingFactor
 
 All toggles live in `modules/shared/profiles/default.nix`. Enable per-host in `hosts/<name>/profiles.nix`.
 
+**Profile → implementation file index:** [`docs/profiles.md`](../docs/profiles.md) (paths and one-line scope; package lists stay in the `.nix` sources).
+
 ```nix
 dotfiles.profiles = {
   devenv.enable = true;        # enables all sub-profiles via lib.mkDefault
@@ -50,7 +52,7 @@ dotfiles.profiles.devenv.languages.swift.enable = false;
 |------|-------|
 | System packages (all hosts) | `modules/shared/profiles/<profile>.nix` |
 | System packages (all NixOS) | `modules/nixos/profiles/<profile>.nix` |
-| System packages (all Darwin) | `modules/darwin/profiles/<profile>.nix` |
+| System packages (all Darwin) | `modules/darwin/default.nix` (e.g. Homebrew when `work.enable`) |
 | NixOS services / daemons | `modules/nixos/` |
 | Desktop / Wayland config | `modules/nixos/profiles/desktop.nix` |
 | Language tooling | `modules/shared/profiles/devenv/languages/<lang>.nix` |

@@ -10,16 +10,20 @@
   homeDir = config.home.homeDirectory;
 
   mcpRegistry = import ./mcp-servers.nix {inherit lib osConfig;};
-  mcpServers = mcpRegistry.sharedServers;
 
   mcpDir = "${homeDir}/.omp/agent";
   mcpFile = "${mcpDir}/mcp.json";
 
-  agentsEnabled = mcpRegistry.agentsEnabled;
+  inherit (mcpRegistry) needsSharedServerMaintenance;
 in
-  lib.mkIf (agentsEnabled && mcpServers != {}) {
+  lib.mkIf needsSharedServerMaintenance {
     home.activation.ompMcp = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      export PATH=${lib.makeBinPath [pkgs.jq pkgs.coreutils]}:$PATH
+      export PATH=${
+        lib.makeBinPath [
+          pkgs.jq
+          pkgs.coreutils
+        ]
+      }:$PATH
       ${mcpRegistry.mkMcpJsonMergeActivation {inherit mcpDir mcpFile;}}
     '';
   }

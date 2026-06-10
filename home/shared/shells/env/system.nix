@@ -49,63 +49,18 @@
       systemEnv);
 
   zshFlakeFn = ''
-    flake() {
-      local j="''${FLAKE:?}/Justfile" c
-      case "$1" in
-        build|switch|generation|gc|fmt|backups)
-          [[ $# -le 1 ]] || { c="$1"; shift; command just --justfile "$j" "_$c" "$@"; return }
-          ;;
-        init)
-          [[ $# -le 1 ]] || { shift; command just --justfile "$j" _init "$@"; return }
-          ;;
-        read-defaults)
-          [[ $# -le 1 ]] || { shift; command just --justfile "$j" _read-defaults "$@"; return }
-          ;;
-      esac
-      command just --justfile "$j" "$@"
-    }
+    flake() { command just --justfile "''${FLAKE:?}/Justfile" "$@"; }
     zf() { cd ${flakeRoot}; }
   '';
 
   bashFlakeFn = ''
-    flake() {
-      local j="${flakeRoot}/Justfile" c
-      case "$1" in
-        build|switch|generation|gc|fmt|backups)
-          [[ $# -le 1 ]] || { c="$1"; shift; just --justfile "$j" "_$c" "$@"; return; }
-          ;;
-        init)
-          [[ $# -le 1 ]] || { shift; just --justfile "$j" _init "$@"; return; }
-          ;;
-        read-defaults)
-          [[ $# -le 1 ]] || { shift; just --justfile "$j" _read-defaults "$@"; return; }
-          ;;
-      esac
-      just --justfile "$j" "$@"
-    }
+    flake() { just --justfile "${flakeRoot}/Justfile" "$@"; }
     zf() { cd ${flakeRoot}; }
   '';
 
   fishFlakeFn = ''
     function flake
-      set -l j "${flakeRoot}/Justfile"
-      if test (count $argv) -gt 1
-        set -l sub $argv[1]
-        if contains $sub build switch generation gc fmt backups
-          set -e argv[1]
-          just --justfile $j _$sub $argv
-          return
-        else if test "$sub" = init
-          set -e argv[1]
-          just --justfile $j _init $argv
-          return
-        else if test "$sub" = read-defaults
-          set -e argv[1]
-          just --justfile $j _read-defaults $argv
-          return
-        end
-      end
-      just --justfile $j $argv
+      just --justfile "${flakeRoot}/Justfile" $argv
     end
     function zf
       cd ${flakeRoot}

@@ -1,5 +1,5 @@
 modelRoles: 
-  default: openai-codex/gpt-5.5:high
+  default: cursor/composer-2.5
 theme: 
   dark: birds-of-paradise
   light: light-gruvbox
@@ -22,7 +22,7 @@ compaction:
   handoffSaveToDisk: true
   idleEnabled: true
 memory: 
-  backend: hindsight
+  backend: local
 edit: 
   mode: hashline
   streamingAbort: true
@@ -53,26 +53,25 @@ mcp:
   enableProjectConfig: true
   notifications: true
 plan: 
-  enabled: false
+  enabled: true
 task: 
   isolation: 
     mode: none
     merge: patch
-    commits: ai
-  simple: default
-  maxConcurrency: 4
-  eager: true
+    commits: generic
+  simple: schema-free
+  maxConcurrency: 8
+  eager: false
 commands: 
   enableOpencodeUser: false
   enableOpencodeProject: false
 secrets: 
   enabled: true
 providers: 
-  webSearch: anthropic
+  webSearch: auto
   image: auto
   kimiApiFormat: anthropic
   openaiWebsockets: auto
-  parallelFetch: true
 exa: 
   enabled: false
   enableSearch: false
@@ -93,6 +92,7 @@ browser:
 tools: 
   intentTracing: true
   discoveryMode: mcp-only
+  approvalMode: yolo
 autocompleteMaxVisible: 15
 dev: 
   autoqa: 
@@ -116,3 +116,5 @@ doubleEscapeAction: tree
 treeFilterMode: all
 stt: 
   modelName: medium.en
+repeatToolDescriptions: false
+setupVersion: 1

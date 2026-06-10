@@ -14,4 +14,9 @@
     enable = true;
     package = pkgs.helix;
   };
+
+  # Wayland clipboard for `:clipboard-yank` / external paste (Linux only).
+  home.packages = lib.mkIf (osConfig.dotfiles.profiles.apps.editors.enable or false) (
+    lib.optionals pkgs.stdenv.isLinux [pkgs.wl-clipboard]
+  );
 }

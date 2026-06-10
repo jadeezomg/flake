@@ -2,9 +2,15 @@
   config,
   pkgs,
   host ? {},
+  lib,
   ...
 }: let
   buildCores = host.buildCores or 6;
+  isDarwin = lib.hasSuffix "-darwin" (host.system or "");
+  nixExperimentalFeatures = import ../../lib/nix-experimental-features.nix {
+    inherit lib;
+    inherit isDarwin;
+  };
 in {
   # Cross-platform nix.settings + cargo env vars + `/etc/current-system-packages`.
   # Automatic GC lives in `modules/nixos/gc.nix`
@@ -42,11 +48,11 @@ in {
       # TODO: replace with the real public key after running `cachix create jadee-flake`
       # "jadee-flake.cachix.org-1:REPLACE_ME="
     ];
-    experimental-features = [
-      "nix-command"
-      "flakes"
-      "pipe-operators"
-    ];
+    # CA / dynamic derivations (Linux only — mini vllm-xpu, etc.). Not enabled on
+    # Darwin (Determinate / unused). NixOS applies these after `switch`; the
+    # *evaluating* client also needs them — see `lib/nix-experimental-features.nix`
+    # and Home Manager `nix.settings` on Linux.
+    experimental-features = nixExperimentalFeatures;
 
     trusted-users = [
       "jadee"

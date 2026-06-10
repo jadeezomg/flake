@@ -14,12 +14,10 @@
         "video"
         "wheel"
       ];
-      # Authorized SSH public keys for this user across all hosts.
-      # Wired into `users.users.${user}.openssh.authorizedKeys.keys` by
-      # `modules/nixos/user.nix`. Populate with keys from each host that should
-      # be able to SSH-in without password.
+      # Authorized SSH public keys for jadee on all NixOS hosts (see modules/nixos/openssh.nix).
       sshKeys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA+aciat7EcEICxtjz/xNiJ1sLsOT9w2GxKUPSL3bG1t"
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAbIeHyzeI6Z5sD/Enn11dzBSobwFrDbPK/K56jw8R6F"
       ];
       packages = [];
     };
