@@ -114,30 +114,20 @@
             system
             ;
         };
-      modules =
-        [
-          inputs.stylix.nixosModules.stylix
-          inputs.dms.nixosModules.dank-material-shell
-          inputs.dms.nixosModules.greeter
-          inputs.disko.nixosModules.disko
-          inputs.hermes-agent.nixosModules.default
-        ]
-        ++ lib.optional (
-          (hostKey == "mini")
-          && (!(host.miniBootstrap or false))
-          && (host.miniLlmHosting or false)
-        )
-        # vllm-xpu-nix: `nixosModules.default` = overlay + `services.vllm-xpu` (see upstream
-        # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
-        inputs.vllm-xpu-nix.nixosModules.default
-        ++ [
-          (./. + "/../hosts/${hostKey}")
-          sops-nix.nixosModules.sops
-          determinate.nixosModules.default
-          lanzaboote.nixosModules.lanzaboote
-          home-manager.nixosModules.home-manager
-          (mkHomeManagerModule {inherit hostKey user system;})
-        ];
+      # Only modules common to every Linux host belong here; single-host
+      # modules (disko, hermes-agent, vllm-xpu, …) are imported by the
+      # host's own `hosts/<name>/default.nix`.
+      modules = [
+        inputs.stylix.nixosModules.stylix
+        inputs.dms.nixosModules.dank-material-shell
+        inputs.dms.nixosModules.greeter
+        (./. + "/../hosts/${hostKey}")
+        sops-nix.nixosModules.sops
+        determinate.nixosModules.default
+        lanzaboote.nixosModules.lanzaboote
+        home-manager.nixosModules.home-manager
+        (mkHomeManagerModule {inherit hostKey user system;})
+      ];
     };
   in {
     nixosConfigurations = lib.optionalAttrs (!isDarwin) {${hostname} = nixosConfig;};

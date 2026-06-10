@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   host,
@@ -19,15 +20,22 @@ in {
   imports =
     [
       ./hardware-configuration.nix
+      inputs.disko.nixosModules.disko
       ./disko.nix
       ../../modules/shared
       ../../modules/nixos
       ./profiles.nix
+      inputs.hermes-agent.nixosModules.default
       ./hermes.nix
       # Nightly cachix pipeline — disabled until the host is up (mini-install.md §6).
       # ./flake-cache-warm.nix
     ]
-    ++ lib.optionals (!bootstrap && (host.miniLlmHosting or false)) [./vllm-xpu.nix]
+    ++ lib.optionals (!bootstrap && (host.miniLlmHosting or false)) [
+      # vllm-xpu-nix: `nixosModules.default` = overlay + `services.vllm-xpu` (see upstream
+      # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
+      inputs.vllm-xpu-nix.nixosModules.default
+      ./vllm-xpu.nix
+    ]
     ++ lib.optionals (
       !bootstrap
       && (host.miniLlmHosting or false)

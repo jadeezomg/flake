@@ -109,14 +109,14 @@
     };
   };
 
-  outputs = inputs @ {flake-parts, ...}: let
-    pkgsFuncs = import ./lib/pkgs.nix {inherit inputs;};
-    inherit (pkgsFuncs) getPkgs;
-  in
+  outputs = inputs @ {flake-parts, ...}:
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         ./parts/hosts.nix
         ./parts/shells.nix
+        ./parts/packages.nix
+        ./parts/checks.nix
+        ./parts/lib.nix
       ];
 
       systems = [
@@ -124,50 +124,5 @@
         # "aarch64-linux"
         "aarch64-darwin"
       ];
-
-      perSystem = {
-        pkgs,
-        system,
-        ...
-      }: {
-        _module.args.pkgs = getPkgs system [];
-
-        packages = {
-          iosevka-aile = import ./packages/iosevka-aile/default.nix {
-            inherit pkgs;
-            lib = pkgs.lib;
-          };
-          iosevka-etoile = import ./packages/iosevka-etoile/default.nix {
-            inherit pkgs;
-            lib = pkgs.lib;
-          };
-          context7 = import ./packages/context7/default.nix {
-            inherit pkgs;
-            lib = pkgs.lib;
-          };
-          kagi-cli = import ./packages/kagi-cli/default.nix {
-            inherit pkgs;
-            lib = pkgs.lib;
-          };
-          workato-platform-cli = import ./packages/workato-platform-cli/default.nix {
-            inherit pkgs;
-            lib = pkgs.lib;
-          };
-          pi-coding-agent = import ./packages/pi-coding-agent/default.nix {
-            inherit pkgs;
-            lib = pkgs.lib;
-          };
-        };
-
-        checks.mcp-servers = let
-          testPassed = import ./tests/mcp-servers.nix {lib = pkgs.lib;};
-        in
-          assert testPassed;
-            pkgs.runCommand "mcp-servers-tests" {} ''
-              touch "$out"
-            '';
-
-        formatter = pkgs.alejandra;
-      };
     };
 }
