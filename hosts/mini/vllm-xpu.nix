@@ -64,7 +64,10 @@ in {
   services.vllm-xpu = {
     package = (pkgs.vllm-xpu-unstable.withTorchvision true).withKernelConfig {
       chunkPrefill = "chunk_prefill_default";
+      # Qwen3.6 VL multimodal profiling hits seq 96 + this flag mix — without it EngineCore
+      # falls back to PyTorch attention and can OOM (see journal "Chunk prefill kernel not compiled").
       chunkPrefillExtra = [
+        "96,false,false,false,false,false"
         "256,true,true,false,false,false"
         "256,false,true,false,false,false"
         "256,false,true,false,false,true"
@@ -85,7 +88,6 @@ in {
 
       model = models.chat.repo;
       servedName = "qwen3.6-35b-a3b";
-      # Native FP8 checkpoint — let vLLM pick compute dtype (`--dtype auto`).
       dtype = "auto";
       quantization = null;
       kvCacheDtype = "fp8";
@@ -103,9 +105,7 @@ in {
       reasoningParser = "qwen3";
       enableAutoToolChoice = false;
       toolCallParser = null;
-      # Vision + text (Qwen3.6 VL). `withTorchvision true` on `vllm-xpu` package is required for image/video.
       languageModelOnly = false;
-      # Caps worst-case multimodal profiling (see vllm-xpu-nix `limitMmPerPrompt`). Tune if OOM at startup.
       limitMmPerPrompt = {
         image = 8;
         video = 1;

@@ -108,6 +108,16 @@ sudo journalctl -fu vllm-xpu-chat
 
 Check GPU memory: `intel_gpu_top` (while the service starts).
 
+### `Chunk prefill kernel not compiled` / `EngineCore failed to start` / XPU OOM during vision `profile_run`
+
+Symptoms: **`Chunk prefill kernel not compiled for this configuration`**, suggestion to add **`96,false,false,false,false,false`** to **`chunk_prefill_default`**, then **`RuntimeError`** / **`torch.OutOfMemoryError`** (often huge “tried to allocate … GiB”) during **`embed_multimodal`** / vision encoder profiling — **`vllm-xpu-chat`** enters a **restart loop**.
+
+**Cause:** **`vllm-xpu-kernels`** was built with a **fixed set** of chunk-prefill shapes (`withKernelConfig` in `hosts/mini/vllm-xpu.nix`). **Qwen3.6 VL**’s startup multimodal profile uses a combo that was **not** in that set, so vLLM **falls back** to a PyTorch attention path that can **explode memory** on a **~16 GiB** dGPU.
+
+**Fix in this flake:** `chunkPrefillExtra` includes **`"96,false,false,false,false,false"`** (see `hosts/mini/vllm-xpu.nix`). After changing **`withKernelConfig`**, **`just switch`** **rebuilds** the XPU kernel package (can take a long time; needs **`/var/cache/ccache`** per § ccache above).
+
+If it **still** OOMs: temporarily **`sudo systemctl stop vllm-xpu-embedding`**, lower **`maxModelLen`** / **`maxNumSeqs`**, or set **`languageModelOnly = true`** to drop multimodal serving until VRAM fits. Upstream context: [vllm-xpu-kernels#364](https://github.com/vllm-project/vllm-xpu-kernels/issues/364).
+
 ### `warning: rejected … because shallow roots are not allowed to be updated`
 
 This came from Nix’s **shallow** git fetch of `vllm-xpu-kernels-unstable-src` before widening to a full clone. The flake pins that input with **`shallow = false`** (see `flake.nix` under `vllm-xpu-nix.inputs`) so the fetch is non-shallow from the start.
