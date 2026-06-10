@@ -1,15 +1,15 @@
 # Mini — LLM hosting (vLLM-XPU + optional llama.cpp)
 
-Mini runs **vLLM-XPU** when **`miniLlmHosting = true`**. **Chat** on **`8000`** is **[Qwen/Qwen3.6-35B-A3B-FP8](https://huggingface.co/Qwen/Qwen3.6-35B-A3B-FP8)** via **`vllm-xpu-chat`** (see `hosts/mini/vllm-xpu.nix`). Optional **GGUF** on **`8010`** is **`./llama-cpp.nix`**, gated by **`miniLlamaCppGemma`** in `hosts/mini/host.nix` (off by default so the same GPU is not double-booked).
+Mini runs **vLLM-XPU** when **`miniLlmHosting = true`**. **Chat** on **`8000`** is **[Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B)** (dense **text** chat) via **`vllm-xpu-chat`** (see `hosts/mini/vllm-xpu.nix`). For **image/video** inputs, switch **`models.chat.repo`** to a VL checkpoint (e.g. **[Qwen/Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct)**) and set **`languageModelOnly = false`** plus **`limitMmPerPrompt`**. Optional **GGUF** on **`8010`** is **`./llama-cpp.nix`**, gated by **`miniLlamaCppGemma`** in `hosts/mini/host.nix` (off by default so the same GPU is not double-booked).
 
 | Stack | File | Port | Model | Role |
 |-------|------|------|-------|------|
-| **vLLM-XPU** | `hosts/mini/vllm-xpu.nix` | **`8000`** chat, `8001` embed, `8002` STT | [Qwen/Qwen3.6-35B-A3B-FP8](https://huggingface.co/Qwen/Qwen3.6-35B-A3B-FP8) (text + image + video), Jina embeddings | Intel XPU / IPEX path |
+| **vLLM-XPU** | `hosts/mini/vllm-xpu.nix` | **`8000`** chat, `8001` embed, `8002` STT | [Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) (text), Jina embeddings | Intel XPU / IPEX path |
 | **llama.cpp** (optional) | `hosts/mini/llama-cpp.nix` | **`8010`** | [unsloth/gemma-4-12b-it-GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF) `Q4_K_M` | GGUF chat (Vulkan) when `miniLlamaCppGemma = true` |
 
-**Chat (`8000`):** **`dtype = auto`**, **`kvCacheDtype = fp8`**, **`reasoningParser = qwen3`**, **`languageModelOnly = false`** so **image + video** inputs work (see [model card](https://huggingface.co/Qwen/Qwen3.6-35B-A3B)). **`limitMmPerPrompt`** caps **`image`** / **`video`** items per prompt (defaults in `vllm-xpu.nix`: 8 images, 1 video) to bound VRAM and engine profiling on a shared GPU with embeddings. **Audio-in** for this checkpoint is not Omni-style; use STT on **`8002`** when enabled.
+**Chat (`8000`):** **`dtype = auto`**, **`kvCacheDtype = fp8`**, **`reasoningParser = qwen3`** (thinking blocks → **`delta.reasoning`**), **`languageModelOnly = false`** (default for this **text-only** checkpoint — no vision tower). See the [model card](https://huggingface.co/Qwen/Qwen3.5-9B). To disable thinking in clients, use **`chat_template_kwargs`** / **`enable_thinking: false`** per upstream Qwen3.5 docs. Use STT on **`8002`** when enabled for audio.
 
-Tune **`maxModelLen`**, **`maxNumSeqs`**, **`gpuMemoryUtilization`**, and **`limitMmPerPrompt`** in `vllm-xpu.nix` if you hit KV or startup OOM.
+Tune **`maxModelLen`**, **`maxNumSeqs`**, and **`gpuMemoryUtilization`** in `vllm-xpu.nix` if you hit KV or startup OOM.
 
 **Other vLLM chat checkpoints:** Edit **`models.chat.repo`** and **`instances.chat.*`** (e.g. Gemma 4 QAT, Gemma 3 GPTQ) — see **`docs/hosts/mini-vllm-xpu.md`** for Gemma 4 **`gemma4_unified`** / Transformers pitfalls.
 
@@ -21,7 +21,7 @@ While **`miniBootstrap = true`** (first install), the flake skips `vllm-xpu-nix`
 
 | Service | Enabled | Notes |
 |---------|---------|-------|
-| `vllm-xpu-chat` | **yes** | Qwen3.6 35B-A3B **FP8** VL on **8000** — `servedName` **`qwen3.6-35b-a3b`** |
+| `vllm-xpu-chat` | **yes** | **Qwen3.5-9B** on **8000** — `servedName` **`qwen3.5-9b`** |
 | `vllm-xpu-embedding` | **yes** | Jina embeddings on **8001** |
 | `llama-cpp-gemma` | **if** `miniLlamaCppGemma` | GGUF on **8010** — set **`true`** in `host.nix` only when chat is **not** also on vLLM |
 
@@ -31,7 +31,7 @@ This flake does **not** ship a browser UI for vLLM on mini — only the **OpenAI
 
 | What | Base URL (on mini, or via SSH tunnel) |
 |------|----------------------------------------|
-| Chat / completions | **`http://127.0.0.1:8000/v1`** — model id = **`servedName`** (e.g. **`qwen3.6-35b-a3b`**) |
+| Chat / completions | **`http://127.0.0.1:8000/v1`** — model id = **`servedName`** (e.g. **`qwen3.5-9b`**) |
 | Embeddings | **`http://127.0.0.1:8001/v1`** — model **`jina-embeddings-v5-nano`** |
 
 **Ways to talk to it:** **`xh`** / **`curl`** (§ APIs below); **IDEs and agents** (Cursor, Continue, Aider, …) with **OpenAI-compatible** base URL set to that host/port (usually after **§ SSH tunnels**); scripts using any OpenAI SDK with `base_url`. For a **local web chat**, run something like **[Open WebUI](https://github.com/open-webui/open-webui)** or **[LibreChat](https://github.com/danny-avila/LibreChat)** yourself (container or separate service) and point it at **`http://127.0.0.1:8000`** (same tunnel story if the UI runs off-mini). Binding vLLM to **`0.0.0.0`** for a remote UI would need an explicit **`host`** change in **`vllm-xpu.nix`** plus firewall — not the default.
@@ -101,14 +101,14 @@ vLLM’s OpenAI server does **not** expose a built-in “dashboard” over HTTP 
 ### APIs — list models
 
 ```bash
-curl -s http://127.0.0.1:8000/v1/models | jq   # Qwen3.6 FP8 (vLLM chat)
+curl -s http://127.0.0.1:8000/v1/models | jq   # Qwen3.5-9B (vLLM chat)
 curl -s http://127.0.0.1:8001/v1/models | jq   # Jina embeddings (vLLM)
 curl -s http://127.0.0.1:8010/v1/models | jq   # GGUF (llama.cpp) — only if enabled
 ```
 
-Use each stack’s **`servedName`** in API calls: **`qwen3.6-35b-a3b`** (vLLM chat on **8000**), **`jina-embeddings-v5-nano`** (embeddings). If you enable optional llama.cpp, give it a **different** `--alias` than **`qwen3.6-35b-a3b`** so clients never see duplicate model ids.
+Use each stack’s **`servedName`** in API calls: **`qwen3.5-9b`** (vLLM chat on **8000**), **`jina-embeddings-v5-nano`** (embeddings). If you enable optional llama.cpp, give it a **different** `--alias` than **`qwen3.5-9b`** so clients never see duplicate model ids.
 
-### APIs — chat (Qwen3.6 FP8, vLLM on 8000)
+### APIs — chat (Qwen3.5-9B, vLLM on 8000)
 
 Use **`"stream": false`** for a **single JSON** response (easier for **`jq`**). The first completion after startup can take **a long time** (model + GPU); see **§ APIs — troubleshooting** if nothing appears.
 
@@ -116,22 +116,22 @@ Use **`"stream": false`** for a **single JSON** response (easier for **`jq`**). 
 curl -sS --max-time 600 http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{
-    "model": "qwen3.6-35b-a3b",
+    "model": "qwen3.5-9b",
     "messages": [{"role": "user", "content": "Hello"}],
     "max_tokens": 64,
     "stream": false
   }' | jq .
 ```
 
-### APIs — chat with image (Qwen3.6 VL on 8000)
+### APIs — chat with image (VL checkpoint only)
 
-Up to **8 images** and **1 video** per prompt (see **`limitMmPerPrompt`** in `hosts/mini/vllm-xpu.nix`). Replace the URL with any **HTTPS** image link reachable from mini.
+The default **`Qwen/Qwen3.5-9B`** chat model is **text-only**. For **image** / **video** in **`/v1/chat/completions`**, change **`hosts/mini/vllm-xpu.nix`** to a **VL** repo (e.g. **`Qwen/Qwen3-VL-8B-Instruct`**), set **`languageModelOnly = false`**, and add **`limitMmPerPrompt`** (see **`docs/hosts/mini-vllm-xpu.md`**). Example shape (after that switch):
 
 ```bash
 curl -sS --max-time 600 http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{
-    "model": "qwen3.6-35b-a3b",
+    "model": "<your-vl-servedName>",
     "messages": [{
       "role": "user",
       "content": [
@@ -171,16 +171,16 @@ curl -s http://127.0.0.1:8001/v1/embeddings \
 
 | Symptom | What to try |
 |---------|-------------|
-| **No output for a long time** | **Normal** until the first token: MoE + vision is heavy. Wait **minutes** on first hit, or run **`sudo journalctl -fu vllm-xpu-chat`** in another terminal. Use **`curl --max-time 600`** (or higher) so `curl` does not give up early. |
+| **No output for a long time** | **Normal** until the first token: first load + compile can take **minutes**. Run **`sudo journalctl -fu vllm-xpu-chat`** in another terminal. Use **`curl --max-time 600`** (or higher) so `curl` does not give up early. |
 | **`jq` prints nothing** | Drop **`| jq`** and remove **`-s`** from `curl` to see **raw body** and **errors**. **`curl -sS`** keeps quiet progress but still errors on HTTP failures. If the server returns **SSE** (streaming), **`jq`** on the whole response will not work — force **`"stream": false`** in JSON. |
 | **HTTP / TLS errors** | **`curl -v`** once. Confirm **`/v1/models`** works first (§ list models). |
-| **Empty `choices[0].message.content`** | With **`reasoningParser = qwen3`**, some traffic puts **thinking** in a separate field; inspect full JSON with **`jq .`** (not **`jq -r .choices[0].message.content`** until you know the shape). |
+| **Empty `choices[0].message.content`** | With **`reasoningParser = qwen3`**, **thinking** may appear under **`delta.reasoning`** / structured fields; inspect full JSON with **`jq .`**. Disable thinking in the client via **`chat_template_kwargs`** if you want answers only in **`message.content`** (see [Qwen3.5 model card](https://huggingface.co/Qwen/Qwen3.5-9B)). |
 
 ```bash
 # Minimal debug: no jq, show HTTP code, 10 min cap
 curl -sS --max-time 600 -o /tmp/vllm-out.json -w 'http_code=%{http_code}\n' \
   -H 'Content-Type: application/json' \
-  -d '{"model":"qwen3.6-35b-a3b","messages":[{"role":"user","content":"hi"}],"max_tokens":32,"stream":false}' \
+  -d '{"model":"qwen3.5-9b","messages":[{"role":"user","content":"hi"}],"max_tokens":32,"stream":false}' \
   http://127.0.0.1:8000/v1/chat/completions
 cat /tmp/vllm-out.json | jq . 2>/dev/null || cat /tmp/vllm-out.json
 ```
@@ -203,7 +203,7 @@ intel_gpu_top
 
 ## VRAM / coexistence
 
-All services share the **same Intel GPU**. Do **not** run **`vllm-xpu-chat`** (Qwen3.6 MoE + FP8 + **vision**) and **`llama-cpp-gemma`** together unless you know VRAM fits — keep **`miniLlamaCppGemma = false`** when using vLLM chat (default in `host.nix`). If you ever enable both stacks, give them **different** `--alias` / `servedName` values so OpenAI clients do not see two models with the same id.
+All services share the **same Intel GPU**. Do **not** run **`vllm-xpu-chat`** and **`llama-cpp-gemma`** together unless you know VRAM fits — keep **`miniLlamaCppGemma = false`** when using vLLM chat (default in `host.nix`). If you ever enable both stacks, give them **different** `--alias` / `servedName` values so OpenAI clients do not see two models with the same id.
 
 Optional llama.cpp’s Hugging Face cache lives under **`/var/lib/llama-cpp/huggingface`** when that module is enabled.
 

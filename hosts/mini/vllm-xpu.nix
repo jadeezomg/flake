@@ -20,10 +20,11 @@
   };
 
   models = {
-    # Qwen3.6 MoE (~3B active / 35B total), native FP8 weights — model card:
-    # https://huggingface.co/Qwen/Qwen3.6-35B-A3B-FP8
+    # Dense ~9B text (no HF "Qwen3.6-9B"). Model card:
+    # https://huggingface.co/Qwen/Qwen3.5-9B
+    # For image/video on 8000 use a VL checkpoint (e.g. Qwen/Qwen3-VL-8B-Instruct) instead.
     chat = {
-      repo = "Qwen/Qwen3.6-35B-A3B-FP8";
+      repo = "Qwen/Qwen3.5-9B";
     };
     embedding = {
       repo = "jinaai/jina-embeddings-v5-text-nano-retrieval";
@@ -35,7 +36,7 @@
     };
   };
 
-  # Qwen3.6 chat on XPU — set `miniLlamaCppGemma = false` in host.nix so 8010 llama.cpp
+  # Qwen3.5 chat on XPU — set `miniLlamaCppGemma = false` in host.nix so 8010 llama.cpp
   # is off (same GPU as vLLM chat + embedding).
   vllm-chat-enable = true;
   vllm-embedding-enable = true;
@@ -61,6 +62,16 @@ in {
   ];
   nix.settings.extra-sandbox-paths = lib.mkAfter ["/var/cache/ccache"];
 
+  # Hugging Face Hub auth (`secrets/secrets.yaml` → `hf_token`): rate limits + downloads.
+  sops.secrets.hf_token = {};
+  sops.templates."mini-llm-hf.env" = {
+    mode = "0400";
+    content = ''
+      HF_TOKEN=${config.sops.placeholder.hf_token}
+      HUGGING_FACE_HUB_TOKEN=${config.sops.placeholder.hf_token}
+    '';
+  };
+
   services.vllm-xpu = {
     package = (pkgs.vllm-xpu-unstable.withTorchvision true).withKernelConfig {
       chunkPrefill = "chunk_prefill_default";
@@ -83,13 +94,14 @@ in {
       enable = vllm-chat-enable;
       port = lib.mkIf chat.enable ports.local-llm;
       host = "127.0.0.1";
+      environmentFile = config.sops.templates."mini-llm-hf.env".path;
 
       model = models.chat.repo;
-      servedName = "qwen3.6-35b-a3b";
+      servedName = "qwen3.5-9b";
       dtype = "auto";
       quantization = null;
       kvCacheDtype = "fp8";
-      # MoE + vision encoder + embedding on one GPU: conservative caps; raise after stable load.
+      # Text chat + embedding on one GPU: conservative caps; raise after stable load.
       maxModelLen = 16384;
       maxNumSeqs = 3;
       gpuMemoryUtilization = 0.85;
@@ -100,27 +112,19 @@ in {
         3
         6
       ];
+      # Qwen3.5 emits thinking blocks; `qwen3` maps them to `delta.reasoning` (vLLM).
       reasoningParser = "qwen3";
       enableAutoToolChoice = false;
       toolCallParser = null;
       languageModelOnly = false;
-      limitMmPerPrompt = {
-        image = 8;
-        video = 1;
-      };
-      # Native XPU FP8 MoE can hit `ptr_scales of fp8 must be 1D [num_experts]` with Qwen3.6-FP8;
-      # Triton FP8 MoE is the supported fallback on XPU for this quant layout (see vLLM fp8 oracle).
-      extraArgs = [
-        "--trust-remote-code"
-        "--moe-backend"
-        "triton"
-      ];
+      extraArgs = ["--trust-remote-code"];
     };
 
     instances.embedding = {
       enable = vllm-embedding-enable;
       port = lib.mkIf embedding.enable ports.local-embedding;
       host = "127.0.0.1";
+      environmentFile = config.sops.templates."mini-llm-hf.env".path;
 
       runner = "pooling";
       model = models.embedding.repo;
@@ -136,6 +140,7 @@ in {
       enable = false;
       port = lib.mkIf stt.enable ports.local-stt;
       host = "127.0.0.1";
+      environmentFile = config.sops.templates."mini-llm-hf.env".path;
 
       model = models.stt.repo;
       servedName = "distil-large-v3.5";

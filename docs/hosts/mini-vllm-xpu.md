@@ -13,17 +13,17 @@ While **`miniBootstrap = true`** (first install), the flake skips `vllm-xpu-nix`
 
 - **`boot.kernelParams = ["xe.force_probe=e223"]`** matches Brutus (Intel Arc Battlemage–class dGPU). If mini has **only** integrated UHD and no discrete Arc card, remove that line or adjust the PCI ID after checking `lspci -nn`.
 - **`intel-gpu-tools`** is installed for debugging (`intel_gpu_top`, etc.).
-- **VRAM:** Chat is **[Qwen/Qwen3.6-35B-A3B-FP8](https://huggingface.co/Qwen/Qwen3.6-35B-A3B-FP8)** with **vision enabled** (`languageModelOnly = false`, **`limitMmPerPrompt`** for image/video caps). Tune **`maxModelLen`**, **`gpuMemoryUtilization`**, **`maxNumSeqs`**, and mm limits after **`journalctl -u vllm-xpu-chat`**. For **Gemma 4** again, see **§ Gemma 4 12B unified** and [vLLM recipe](https://recipes.vllm.ai/Google/gemma-4-12B-it) — **`gemma4_unified`** needs a new enough **Transformers** in **`vllm-xpu-nix`**.
+- **VRAM:** Chat is **[Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B)** (**text-only**; **`reasoningParser = qwen3`** for thinking-style output). This fits **~16 GiB** dGPU + embeddings better than **Qwen3.6-35B-A3B-FP8** (KV went negative) or heavy VL. For **image/video**, use a **VL** repo (e.g. **Qwen3-VL-8B-Instruct**) and multimodal **`instances.chat`** settings instead. Tune **`maxModelLen`**, **`gpuMemoryUtilization`**, **`maxNumSeqs`** after **`journalctl -u vllm-xpu-chat`**. For **Gemma 4** again, see **§ Gemma 4 12B unified** and [vLLM recipe](https://recipes.vllm.ai/Google/gemma-4-12B-it) — **`gemma4_unified`** needs a new enough **Transformers** in **`vllm-xpu-nix`**.
 
 ## Operating models
 
 Day-to-day **status, journalctl, curl, SSH tunnels, and start/stop** commands for vLLM + llama.cpp are in **`docs/hosts/mini-llm-hosting.md`** (single cheat sheet). After config changes on mini, use **`just switch`** (see `mini-install.md`).
 
-Use **`servedName`** in requests (`qwen3.6-35b-a3b`, `jina-embeddings-v5-nano`), not necessarily the HF repo id.
+Use **`servedName`** in requests (`qwen3.5-9b`, `jina-embeddings-v5-nano`), not necessarily the HF repo id.
 
 ## llama.cpp GGUF (optional)
 
-**[unsloth/gemma-4-12b-it-GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF)** can be served by **`llama-cpp-gemma`** on **8010** when **`miniLlamaCppGemma = true`** in `hosts/mini/host.nix` (`hosts/mini/llama-cpp.nix`). Default mini keeps it **off** while **`vllm-xpu-chat`** serves Qwen on **8000**. See **`docs/hosts/mini-llm-hosting.md`**.
+**[unsloth/gemma-4-12b-it-GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF)** can be served by **`llama-cpp-gemma`** on **8010** when **`miniLlamaCppGemma = true`** in `hosts/mini/host.nix` (`hosts/mini/llama-cpp.nix`). Default mini keeps it **off** while **`vllm-xpu-chat`** serves **Qwen3.5-9B** on **8000**. See **`docs/hosts/mini-llm-hosting.md`**.
 
 With **`miniLlmHosting` true**, `./vllm-xpu.nix` **`mkForce`s `devenv.llm.hosting` off** so the generic devenv llama-cpp profile does not fight `./llama-cpp.nix`. With **`miniLlmHosting` false**, `profiles.nix` **`mkForce`s hosting off** too.
 
@@ -112,7 +112,7 @@ Check GPU memory: `intel_gpu_top` (while the service starts).
 
 Symptoms: **`Chunk prefill kernel not compiled for this configuration`**, suggestion to add **`96,false,false,false,false,false`** to **`chunk_prefill_default`**, then **`RuntimeError`** / **`torch.OutOfMemoryError`** (often huge “tried to allocate … GiB”) during **`embed_multimodal`** / vision encoder profiling — **`vllm-xpu-chat`** enters a **restart loop**.
 
-**Cause:** **`vllm-xpu-kernels`** was built with a **fixed set** of chunk-prefill shapes (`withKernelConfig` in `hosts/mini/vllm-xpu.nix`). **Qwen3.6 VL**’s startup multimodal profile uses a combo that was **not** in that set, so vLLM **falls back** to a PyTorch attention path that can **explode memory** on a **~16 GiB** dGPU.
+**Cause:** **`vllm-xpu-kernels`** was built with a **fixed set** of chunk-prefill shapes (`withKernelConfig` in `hosts/mini/vllm-xpu.nix`). **Multimodal** (e.g. **Qwen3-VL**) startup profiling uses a combo that was **not** in that set, so vLLM **falls back** to a PyTorch attention path that can **explode memory** on a **~16 GiB** dGPU.
 
 **Fix in this flake:** `chunkPrefillExtra` includes **`"96,false,false,false,false,false"`** (see `hosts/mini/vllm-xpu.nix`). After changing **`withKernelConfig`**, **`just switch`** **rebuilds** the XPU kernel package (can take a long time; needs **`/var/cache/ccache`** per § ccache above).
 
@@ -122,11 +122,11 @@ If it **still** OOMs: temporarily **`sudo systemctl stop vllm-xpu-embedding`**, 
 
 Symptoms: **`EngineCore failed to start`** during **`profile_run`** / **`_dummy_run`**, stack through **`xpu_moe.py`** / **`cutlass_grouped_gemm_interface`** / **`fused_moe_interface`**, ending in **`RuntimeError: ptr_scales of fp8 must be 1D [num_experts]`**.
 
-**Cause:** The **native XPU** FP8 grouped-GEMM MoE path expects **per-expert scale tensors** in a layout that **Qwen3.6-35B-A3B-FP8** does not provide (or vLLM reshapes them differently after **`torch.compile`**).
+**Cause:** The **native XPU** FP8 grouped-GEMM MoE path expects **per-expert scale tensors** in a layout some **FP8 MoE** checkpoints (e.g. **Qwen3.6-35B-A3B-FP8**) do not provide (or vLLM reshapes them differently after **`torch.compile`**).
 
-**Fix in this flake:** **`instances.chat.extraArgs`** includes **`--moe-backend triton`** so FP8 MoE uses the **Triton** expert path on XPU (same class of workaround as upstream block-FP8 MoE on XPU — see vLLM PRs around FP8 MoE oracle / `VLLM_FP8_MOE_BACKEND`). Slower than a tuned native kernel, but should clear startup.
+**Fix:** For **MoE FP8** on XPU, add **`--moe-backend triton`** to **`instances.chat.extraArgs`** so FP8 MoE uses the **Triton** expert path (slower than a tuned native kernel, but clears startup). The default mini chat (**Qwen3.5-9B**, dense text) does **not** need this.
 
-If **`triton`** is rejected by your **`vllm-xpu`** build, try **`enforceEager = true`** and **`enableXpuGraph = false`** in `vllm-xpu.nix` to drop the inductor graph around MoE, or **bump `vllm-xpu-nix`**.
+If **`triton`** is rejected by your **`vllm-xpu`** build, try **`enforceEager = true`** and **`enableXpuGraph = false`** in `vllm-xpu.nix`, or **bump `vllm-xpu-nix`**.
 
 ### `warning: rejected … because shallow roots are not allowed to be updated`
 

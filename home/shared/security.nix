@@ -41,6 +41,10 @@ in {
           key = "openrouter_api_key";
           path = ".config/nix/openrouter-api-key";
         };
+        "hf-token" = {
+          key = "hf_token";
+          path = ".config/nix/hf-token";
+        };
       };
   };
 }

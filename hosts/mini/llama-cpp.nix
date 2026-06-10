@@ -2,6 +2,7 @@
 # Imported only when `host.miniLlamaCppGemma` (see `hosts/mini/default.nix`).
 # Model: https://huggingface.co/unsloth/gemma-4-12b-it-GGUF — see docs/hosts/mini-llm-hosting.md.
 {
+  config,
   lib,
   pkgs,
   ...
@@ -91,6 +92,9 @@ in {
       ProtectHome = true;
       NoNewPrivileges = true;
       ReadWritePaths = [stateDir];
+
+      # Same HF token as vLLM (`hosts/mini/vllm-xpu.nix` → `sops.templates.mini-llm-hf.env`).
+      EnvironmentFile = config.sops.templates."mini-llm-hf.env".path;
     };
   };
 }
