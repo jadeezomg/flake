@@ -29,6 +29,12 @@
     cascadia-code
     nerd-fonts.caskaydia-cove
 
+    # Maple Mono
+    maple-mono.NF
+    maple-mono.variable
+    maple-mono.Normal-NF
+    maple-mono.Normal-Variable
+
     # Iosevka Family
     iosevka-bin
     nerd-fonts.iosevka

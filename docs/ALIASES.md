@@ -96,7 +96,7 @@ All defined in `home/shared/shells/env/system.nix` (imported via `home/shared/sh
 | Function | Description |
 |----------|-------------|
 | `zf` | `cd` to `dotfiles.flakeRoot` (default `$HOME/.dotfiles/flake`) |
-| `flake` | `just --justfile $FLAKE/Justfile` — no args → **`just --choose`**. With extra args on `build`/`switch`/`generation`/`gc`/`fmt`/`backups`/`init`/`read-defaults`, forwards to private `_…` recipes, e.g. `flake build --dry`, `flake init myhost`. |
+| `flake` | `just --justfile $FLAKE/Justfile` — no args → **`tv … just-recipes`** (cable in `home/shared/utils/television/cable/`). With extra args on `build`/`switch`/`generation`/`gc`/`fmt`/`backups`/`init`/`read-defaults`, forwards to private `_…` recipes, e.g. `flake build --dry`, `flake init myhost`. |
 | `nuflake` | `nu $FLAKE/build/flake.nu` |
 
 Requires **`just`** on PATH. **`FLAKE`** / **`NH_FLAKE`** follow **`dotfiles.flakeRoot`** (default `~/.dotfiles/flake`).
@@ -192,7 +192,7 @@ These commands are provided by [git.nu](https://github.com/fj0r/git.nu) and are 
 - `gd` - View diff
 
 **System:**
-- `flake` / `nuflake` - Flake (`just --choose` when no args) vs legacy Nu
+- `flake` / `nuflake` - Flake (`tv`/`fzf` chooser when no args) vs legacy Nu
 - `cl` - Clear terminal
 - `p <question...>` - Ask Pi a one-shot question, including piped stdin
 

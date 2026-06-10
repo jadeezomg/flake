@@ -53,10 +53,12 @@
 
   # Transparency
   "browser.tabs.allow_transparent_browser" = true;
+  "zen.themes.disable-all" = true;
 
   # Zen mod (sameerasw) – sidebar/theme
   "mod.sameerasw.zen_bg_blur" = "3px";
-  "mod.sameerasw.zen_bg_color_enabled" = true;
+  # Nix userChrome owns chrome tint; mod bg color paints opaque #372725 over the window.
+  "mod.sameerasw.zen_bg_color_enabled" = false;
   "mod.sameerasw.zen_bg_img_enabled" = false;
   "mod.sameerasw.zen_bg_img_not_fullscreen" = false;
   "mod.sameerasw.zen_bg_opacity" = 0.8;

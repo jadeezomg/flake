@@ -23,9 +23,11 @@
 	"hyprlandLayoutGapsOverride": -1,
 	"hyprlandLayoutRadiusOverride": -1,
 	"hyprlandLayoutBorderSize": -1,
+	"hyprlandResizeOnBorder": false,
 	"mangoLayoutGapsOverride": -1,
 	"mangoLayoutRadiusOverride": -1,
 	"mangoLayoutBorderSize": -1,
+	"mangoTrackpadNaturalScrolling": true,
 	"firstDayOfWeek": -1,
 	"showWeekNumber": false,
 	"use24HourClock": true,
@@ -95,6 +97,8 @@
 	"controlCenterShowBatteryIcon": true,
 	"controlCenterShowPrinterIcon": false,
 	"controlCenterShowScreenSharingIcon": true,
+	"controlCenterShowIdleInhibitorIcon": false,
+	"controlCenterShowDoNotDisturbIcon": false,
 	"showPrivacyButton": true,
 	"privacyShowMicIcon": false,
 	"privacyShowCameraIcon": false,
@@ -151,6 +155,11 @@
 			"width": 50
 		},
 		{
+			"id": "builtin_tailscale",
+			"enabled": true,
+			"width": 50
+		},
+		{
 			"id": "doNotDisturb",
 			"enabled": true,
 			"width": 50
@@ -171,11 +180,6 @@
 			"id": "colorPicker",
 			"enabled": true,
 			"width": 50
-		},
-		{
-			"id": "nightMode",
-			"enabled": true,
-			"width": 50
 		}
 	],
 	"showWorkspaceIndex": false,
@@ -187,6 +191,7 @@
 	"maxWorkspaceIcons": 5,
 	"workspaceAppIconSizeOffset": 0,
 	"groupWorkspaceApps": true,
+	"groupActiveWorkspaceApps": false,
 	"workspaceFollowFocus": false,
 	"showOccupiedWorkspacesOnly": true,
 	"reverseScrolling": false,
@@ -220,6 +225,7 @@
 	"appsDockEnlargePercentage": 125,
 	"appsDockIconSizePercentage": 100,
 	"keyboardLayoutNameCompactMode": false,
+	"keyboardLayoutNameShowIcon": false,
 	"runningAppsCurrentWorkspace": false,
 	"runningAppsGroupByApp": false,
 	"runningAppsCurrentMonitor": false,
@@ -235,6 +241,7 @@
 	"lockDateFormat": "",
 	"greeterRememberLastSession": true,
 	"greeterRememberLastUser": true,
+	"greeterAutoLogin": false,
 	"greeterEnableFprint": false,
 	"greeterEnableU2f": false,
 	"greeterWallpaperPath": "",
@@ -272,7 +279,7 @@
 	"spotlightBarShowModeChips": false,
 	"useAutoLocation": true,
 	"weatherEnabled": true,
-	"networkPreference": "auto",
+	"networkPreference": "wifi",
 	"iconTheme": "System Default",
 	"cursorSettings": {
 		"theme": "phinger-cursors-dark",
@@ -504,8 +511,10 @@
 	"niriOutputSettings": {},
 	"hyprlandOutputSettings": {},
 	"displayProfiles": {},
-	"activeDisplayProfile": {},
-	"displayProfileAutoSelect": false,
+	"activeDisplayProfile": {
+		"niri": "auto_5af6115"
+	},
+	"displayProfileAutoSelect": true,
 	"displayShowDisconnected": false,
 	"displaySnapToEdge": true,
 	"connectedFrameBarStyleBackups": {},
@@ -532,20 +541,6 @@
 					"enabled": true
 				},
 				{
-					"id": "claudeCodeUsage",
-					"enabled": true
-				},
-				{
-					"id": "keyboard_layout_name",
-					"enabled": true,
-					"keyboardLayoutNameCompactMode": true
-				},
-				{
-					"id": "memUsage",
-					"enabled": true,
-					"minimumWidth": true
-				},
-				{
 					"id": "cpuTemp",
 					"enabled": true,
 					"minimumWidth": true
@@ -554,6 +549,16 @@
 					"id": "cpuUsage",
 					"enabled": true,
 					"minimumWidth": true
+				},
+				{
+					"id": "network_speed_monitor",
+					"enabled": true
+				},
+				{
+					"id": "keyboard_layout_name",
+					"enabled": true,
+					"keyboardLayoutNameCompactMode": true,
+					"keyboardLayoutNameShowIcon": true
 				}
 			],
 			"centerWidgets": [
@@ -577,7 +582,8 @@
 				{
 					"id": "focusedWindow",
 					"enabled": true,
-					"focusedWindowCompactMode": true
+					"focusedWindowCompactMode": true,
+					"focusedWindowSize": 0
 				}
 			],
 			"rightWidgets": [
@@ -587,11 +593,19 @@
 				},
 				{
 					"id": "systemTray",
-					"enabled": true
+					"enabled": true,
+					"trayUseInlineExpansion": true
 				},
 				{
 					"id": "controlCenterButton",
-					"enabled": true
+					"enabled": true,
+					"showAudioPercent": false,
+					"showBrightnessIcon": false,
+					"showBrightnessPercent": false,
+					"showBatteryIcon": true,
+					"showPrinterIcon": false,
+					"showIdleInhibitorIcon": true,
+					"showDoNotDisturbIcon": true
 				},
 				{
 					"id": "notificationButton",
@@ -603,7 +617,8 @@
 				},
 				{
 					"id": "clock",
-					"enabled": true
+					"enabled": true,
+					"clockCompactMode": false
 				}
 			],
 			"spacing": 7,

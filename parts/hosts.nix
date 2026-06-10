@@ -11,7 +11,7 @@
     ;
 
   pkgsFuncs = import ../lib/pkgs.nix {inherit inputs;};
-  inherit (pkgsFuncs) getPkgs getPkgsStable;
+  inherit (pkgsFuncs) getPkgsStable getPkgsWithConfig;
 
   hostData = import ../hosts/hosts.nix;
 
@@ -63,7 +63,7 @@
         hostKey
         isDarwin
         ;
-      pkgs = getPkgs system [];
+      pkgs = getPkgsWithConfig system [] (host.nixpkgsConfig or {});
       pkgs-stable = getPkgsStable system;
     };
     users =
@@ -95,7 +95,7 @@
     isDarwin = lib.elem system darwinSystems;
     user = host.username;
     hostname = host.hostname;
-    pkgs = getPkgs system [];
+    pkgs = getPkgsWithConfig system [] (host.nixpkgsConfig or {});
     nixosConfig = lib.nixosSystem {
       system = null;
       pkgs = pkgs;
@@ -112,19 +112,30 @@
             system
             ;
         };
-      modules = [
-        inputs.stylix.nixosModules.stylix
-        inputs.dms.nixosModules.dank-material-shell
-        inputs.dms.nixosModules.greeter
-        inputs.disko.nixosModules.disko
-        inputs.hermes-agent.nixosModules.default
-        (./. + "/../hosts/${hostKey}")
-        sops-nix.nixosModules.sops
-        determinate.nixosModules.default
-        lanzaboote.nixosModules.lanzaboote
-        home-manager.nixosModules.home-manager
-        (mkHomeManagerModule {inherit hostKey user system;})
-      ];
+      modules =
+        [
+          inputs.stylix.nixosModules.stylix
+          inputs.dms.nixosModules.dank-material-shell
+          inputs.dms.nixosModules.greeter
+          inputs.disko.nixosModules.disko
+          inputs.hermes-agent.nixosModules.default
+        ]
+        ++ lib.optional (
+          (hostKey == "mini")
+          && (!(host.miniBootstrap or false))
+          && (host.miniLlmHosting or false)
+        )
+        # vllm-xpu-nix: `nixosModules.default` = overlay + `services.vllm-xpu` (see upstream
+        # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
+        inputs.vllm-xpu-nix.nixosModules.default
+        ++ [
+          (./. + "/../hosts/${hostKey}")
+          sops-nix.nixosModules.sops
+          determinate.nixosModules.default
+          lanzaboote.nixosModules.lanzaboote
+          home-manager.nixosModules.home-manager
+          (mkHomeManagerModule {inherit hostKey user system;})
+        ];
     };
   in {
     nixosConfigurations = lib.optionalAttrs (!isDarwin) {${hostname} = nixosConfig;};

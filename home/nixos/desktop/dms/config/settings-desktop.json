@@ -23,6 +23,7 @@
 	"hyprlandLayoutGapsOverride": -1,
 	"hyprlandLayoutRadiusOverride": -1,
 	"hyprlandLayoutBorderSize": -1,
+	"hyprlandResizeOnBorder": false,
 	"mangoLayoutGapsOverride": -1,
 	"mangoLayoutRadiusOverride": -1,
 	"mangoLayoutBorderSize": -1,
@@ -95,6 +96,8 @@
 	"controlCenterShowBatteryIcon": true,
 	"controlCenterShowPrinterIcon": false,
 	"controlCenterShowScreenSharingIcon": true,
+	"controlCenterShowIdleInhibitorIcon": false,
+	"controlCenterShowDoNotDisturbIcon": false,
 	"showPrivacyButton": true,
 	"privacyShowMicIcon": false,
 	"privacyShowCameraIcon": false,
@@ -187,6 +190,7 @@
 	"maxWorkspaceIcons": 5,
 	"workspaceAppIconSizeOffset": 0,
 	"groupWorkspaceApps": true,
+	"groupActiveWorkspaceApps": false,
 	"workspaceFollowFocus": false,
 	"showOccupiedWorkspacesOnly": true,
 	"reverseScrolling": false,
@@ -220,6 +224,7 @@
 	"appsDockEnlargePercentage": 125,
 	"appsDockIconSizePercentage": 100,
 	"keyboardLayoutNameCompactMode": false,
+	"keyboardLayoutNameShowIcon": false,
 	"runningAppsCurrentWorkspace": false,
 	"runningAppsGroupByApp": false,
 	"runningAppsCurrentMonitor": false,
@@ -235,6 +240,7 @@
 	"lockDateFormat": "",
 	"greeterRememberLastSession": true,
 	"greeterRememberLastUser": true,
+	"greeterAutoLogin": false,
 	"greeterEnableFprint": false,
 	"greeterEnableU2f": false,
 	"greeterWallpaperPath": "",
@@ -507,7 +513,22 @@
 	},
 	"niriOutputSettings": {
 		"DP-2": {
-			"focusAtStartup": true
+			"focusAtStartup": true,
+			"layout": null
+		},
+		"HDMI-A-2": {
+			"layout": {
+				"presetColumnWidths": [
+					{
+						"type": "proportion",
+						"value": 0.5
+					},
+					{
+						"type": "proportion",
+						"value": 1
+					}
+				]
+			}
 		}
 	},
 	"hyprlandOutputSettings": {},
@@ -553,6 +574,10 @@
 				},
 				{
 					"id": "claudeCodeUsage",
+					"enabled": true
+				},
+				{
+					"id": "dmsScreenshot",
 					"enabled": true
 				}
 			],

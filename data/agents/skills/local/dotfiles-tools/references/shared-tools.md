@@ -8,7 +8,8 @@
 | ripgrep | `rg <pattern>` | Faster grep; `--smart-case`, `-l` for file names only |
 | fd | `fd <name>` | Fast find; `--type f/d`, `-e ext` for extension |
 | sd | `sd 'old' 'new' file` | Sed replacement; simpler syntax |
-| fzf | `fzf` | Fuzzy finder; pipe anything in |
+| fzf | `fzf` | Fuzzy finder; pipe anything in (still used for HM `programs.fzf` widgets) |
+| television | `tv` | `just` / `flake` with no args run `tv … just-recipes` (cable TOML only; **F5** runs a recipe) |
 | jq | `jq '.key'` | JSON processor; `-r` for raw output |
 | yq | `yq '.key'` | YAML/JSON/XML/TOML processor |
 

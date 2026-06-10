@@ -61,6 +61,10 @@
       repaint_delay = 10;
       input_delay = 3;
       sync_to_monitor = true;
+
+      # HM-managed config: apply after `home-manager switch` (restart kitty or
+      # Ctrl+Shift+F5). Disables kitten __watch_conf__ and its inotify use.
+      auto_reload_config = -1;
     };
   };
 }

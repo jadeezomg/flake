@@ -64,7 +64,7 @@ just generation-bootloader
 # Quick health snapshot (git + disk + nh info)
 just health
 
-# Interactive fzf recipe picker
+# Interactive recipe picker (television `tv`, else fzf)
 just
 
 # List every recipe with docs

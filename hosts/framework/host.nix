@@ -5,6 +5,9 @@ in
   // {
     hostname = "framework";
     description = "Jadee Framework NixOS Host";
+    nixpkgsConfig = {
+      rocmSupport = true;
+    };
     user = sharedNixOSUser;
     dmsSettingsFile = "settings-framework.json";
     niriOutputsFile = "outputs-framework.kdl";

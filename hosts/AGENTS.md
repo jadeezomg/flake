@@ -18,6 +18,14 @@ Non-obvious fields:
     monitorScalingFactor = "1.0";
   };
   extraUsers = [ ... ];      # optional guest users — HM configs auto-created for these
+  secureBoot = true;         # optional; false uses systemd-boot instead of lanzaboote
+  nixpkgsConfig = {
+    rocmSupport = true;      # host-specific nixpkgs import config; only when pkgs needs it at creation time
+  };
+  miniLlmHosting = true;     # mini: Intel vLLM-XPU + optional llama.cpp (requires ca-derivations)
+  miniLlamaCppGemma = false; # mini: import ./llama-cpp.nix (8010); false when chat is vLLM-only on 8000
+  miniLlamaCppGgmlBackends = "vulkan"; # mini: "vulkan" | "vulkan-opencl" | "opencl" — see docs/hosts/mini-llm-hosting.md
+  miniLlamaCppDevice = null; # mini: optional LLAMA_ARG_DEVICE for llama-server; null = auto
 }
 ```
 
