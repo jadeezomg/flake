@@ -5,7 +5,6 @@
     ./compat.nix
     ./agents.nix
     ./network
-    ./apps
     ./security.nix
     ./shells
     ./utils

@@ -6,17 +6,17 @@ Home-manager configuration for all users.
 
 | What | Where |
 |------|-------|
-| User packages (cross-platform) | `home/shared/apps/` or `home/shared/development/` |
+| Profile-gated apps + dev tooling | feature folders in `modules/profiles/` (apps/, devenv/, devgui/) |
 | User packages (Linux-only) | `home/nixos/` |
 | User packages (macOS-only) | `home/darwin/` |
 | macOS Homebrew casks/brews | `modules/profiles/work/darwin.nix` |
 | Theme | `home/shared/assets/theme/` |
 | Fonts | `modules/profiles/fonts/` |
-| Desktop / Wayland config | `home/nixos/desktop/` |
+| Desktop / Wayland config | `modules/profiles/desktop/` |
 
 ## Desktop Stack (Linux)
 
-Config lives in `home/nixos/desktop/`. `home/nixos/desktop/dms/default.nix` uses `mkOutOfStoreSymlink` — edits take effect without a switch:
+Config lives in `modules/profiles/desktop/`. `modules/profiles/desktop/dms/default.nix` uses `mkOutOfStoreSymlink` — edits take effect without a switch:
 - All DMS config files except `settings-*.json` are auto-symlinked
 - `settings.json` → host-specific `settings-{framework,desktop}.json`
 - `niri/host.kdl` → host-specific `outputs-{framework,desktop}.kdl`

@@ -27,6 +27,9 @@
   });
 in {
   config = lib.mkIf cfg.enable {
+    # HM halves: DMS/niri live-symlink wiring (./dms) + GDM session glue.
+    home-manager.sharedModules = [./dms ./gdm-session.nix];
+
     # --- Login manager: set dotfiles.profiles.desktop.loginManager per host ---
     programs.dank-material-shell.greeter = {
       enable = useDmsGreeter;
@@ -38,7 +41,7 @@ in {
     programs.niri.enable = true;
 
     # --- DankMaterialShell (DMS) ---
-    # xdg.configFile is handled in home/nixos/desktop/dms.nix (Home Manager).
+    # xdg.configFile is handled in ./dms (Home Manager half).
     programs.dank-material-shell = {
       enable = true;
       package = dmsShell;

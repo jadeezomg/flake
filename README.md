@@ -142,7 +142,7 @@ Home-manager exports select secrets to the user session env via `home/shared/she
 | One host only | `hosts/<name>/` |
 | User packages (home-manager) | `home/shared/…` or `home/nixos` / `home/darwin` |
 | NixOS services | `modules/nixos/` |
-| Desktop / Wayland | `modules/nixos/` and `home/nixos/desktop/` |
+| Desktop / Wayland | `modules/profiles/desktop/` (system + DMS/niri HM + data) |
 | Custom package | `packages/<name>/` + `update.json` when you want `just update-packages` to handle bumps |
 | New secret | sops file + declarations (see `modules/shared/security/` / encryption) |
 

@@ -2,7 +2,6 @@
   inputs,
   lib,
   pkgs,
-  osConfig,
   ...
 }: let
   extensions = import ./extensions.nix {inherit pkgs lib;};
@@ -28,7 +27,7 @@ in {
     inputs.zen-browser.homeModules.beta
   ];
 
-  programs.zen-browser = lib.mkIf (osConfig.dotfiles.profiles.apps.browsers.enable or false) {
+  programs.zen-browser = {
     enable = true;
     nativeMessagingHosts = lib.optionals pkgs.stdenv.isLinux [pkgs.firefoxpwa];
     darwinDefaultsId = lib.mkIf (!pkgs.stdenv.isLinux) "com.zen.browser";

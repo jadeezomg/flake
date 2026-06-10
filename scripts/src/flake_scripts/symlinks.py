@@ -39,18 +39,18 @@ def cmd_all(flake: Path) -> int:
     _single_symlink_audit(qs)
 
     C.rule("Summary")
-    C.dim(f"Expected: {dms}/* → {flake}/home/nixos/desktop/dms/config/*")
-    C.dim(f"Expected: {niri}/* → {flake}/home/nixos/desktop/niri/*")
-    C.dim(f"Expected: {qs} → {flake}/home/nixos/desktop/dms/config/config.kdl")
+    C.dim(f"Expected: {dms}/* → {flake}/modules/profiles/desktop/dms/config/*")
+    C.dim(f"Expected: {niri}/* → {flake}/modules/profiles/desktop/niri/*")
+    C.dim(f"Expected: {qs} → {flake}/modules/profiles/desktop/dms/config/config.kdl")
     C.info(
-        f"Edit under {flake}/home/nixos/desktop/dms/config/ and confirm ~/.config/DankMaterialShell/ sees it."
+        f"Edit under {flake}/modules/profiles/desktop/dms/config/ and confirm ~/.config/DankMaterialShell/ sees it."
     )
     return 0
 
 
 def cmd_dms_settings(flake: Path) -> int:
     dms_file = C.xdg_config_home() / "DankMaterialShell" / "settings.json"
-    dms_config_dir = (flake / "home/nixos/desktop/dms/config").resolve()
+    dms_config_dir = (flake / "modules/profiles/desktop/dms/config").resolve()
 
     C.rule("DMS settings.json")
     if not dms_file.exists():
