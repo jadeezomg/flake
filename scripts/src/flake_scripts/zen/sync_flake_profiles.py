@@ -32,7 +32,7 @@ from flake_scripts.zen.extract_pinned_tabs import (
 
 _FLAKE_ROOT = resolve_flake_root(anchor=Path(__file__))
 
-# Subdirs of home/shared/apps/browsers/zen/profiles/ (see zen/default.nix).
+# Subdirs of modules/profiles/apps/browsers/zen/profiles/ (see zen/default.nix).
 _FLAKE_ZEN_PROFILE_PRIMARY = "default"
 _FLAKE_ZEN_PROFILE_ALTERNATE = "caya"
 
@@ -71,8 +71,8 @@ def _resolved_flake_profile_dirname():
 
 _TARGET_PROFILE_DIR = (
     _FLAKE_ROOT
-    / "home"
-    / "shared"
+    / "modules"
+    / "profiles"
     / "apps"
     / "browsers"
     / "zen"

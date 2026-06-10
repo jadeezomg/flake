@@ -1,11 +1,4 @@
-{
-  lib,
-  osConfig,
-  pkgs,
-  ...
-}: let
-  editorsEnabled = osConfig.dotfiles.profiles.devgui.ides.enable or false;
-in {
+{pkgs, ...}: {
   imports = [
     ./extensions.nix
     ./keybinds.nix
@@ -15,7 +8,7 @@ in {
     ./theme.nix
   ];
 
-  programs.zed-editor = lib.mkIf editorsEnabled {
+  programs.zed-editor = {
     enable = true;
     package = pkgs.zed-editor;
   };

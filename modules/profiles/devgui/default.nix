@@ -10,7 +10,7 @@
 in {
   imports = [
     ./containers.nix
-    ./ides.nix
+    ./ides
   ];
 
   config = lib.mkIf cfg.enable {

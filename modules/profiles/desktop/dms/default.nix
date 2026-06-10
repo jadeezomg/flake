@@ -13,8 +13,8 @@
     ;
 
   flakeRoot = config.dotfiles.flakeRoot;
-  dmsConfigDir = "${flakeRoot}/home/nixos/desktop/dms/config";
-  niriDir = "${flakeRoot}/home/nixos/desktop/niri";
+  dmsConfigDir = "${flakeRoot}/modules/profiles/desktop/dms/config";
+  niriDir = "${flakeRoot}/modules/profiles/desktop/niri";
 
   hostSettingsFile = host.dmsSettingsFile or "settings-desktop.json";
   settingsBasenames = lib.unique (

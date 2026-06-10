@@ -23,7 +23,7 @@
       ./server.nix
     ]
     ++ lib.optionals (!isDarwin) [
-      ./desktop.nix
+      ./desktop
       ./gaming.nix
       ./integrations.nix
     ];

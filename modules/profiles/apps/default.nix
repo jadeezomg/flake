@@ -11,6 +11,7 @@ in {
   # Linux-only leaf because `programs.obs-studio` doesn't exist on darwin.
   imports =
     [
+      ./browsers
       ./comms.nix
       ./editors
       ./files
