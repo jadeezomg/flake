@@ -135,6 +135,7 @@ Home-manager exports select secrets to the user session env via `home/shared/she
 | ---- | ---- |
 | Profile toggles | `dotfiles.profiles` in `modules/shared/profiles/`; enable per host in `hosts/<name>/` |
 | **Profile → file index** | [`docs/profiles.md`](docs/profiles.md) (paths + scope; not a full package list) |
+| Flake streamline plan | [`docs/flake-streamline-plan.md`](docs/flake-streamline-plan.md) |
 | System packages (all Linux) | `modules/nixos/` or shared profiles |
 | System packages (all hosts) | `modules/shared/profiles/` |
 | One host only | `hosts/<name>/` |
