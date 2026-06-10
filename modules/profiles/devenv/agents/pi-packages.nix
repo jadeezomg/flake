@@ -16,7 +16,6 @@
 {
   config,
   lib,
-  osConfig,
   pkgs,
   ...
 }: let
@@ -34,21 +33,20 @@
   settingsPath = "${settingsDir}/settings.json";
 
   esc = lib.escapeShellArg;
-in
-  lib.mkIf (osConfig.dotfiles.profiles.devenv.llm.agents.enable or false) {
-    home.activation.piPackages = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      export PATH=${
-        lib.makeBinPath [
-          pkgs.jq
-          pkgs.coreutils
-        ]
-      }:$PATH
-      mkdir -p ${esc settingsDir}
-      if ! jq -e . ${esc settingsPath} >/dev/null 2>&1; then
-        printf '%s\n' '{}' >${esc settingsPath}
-      fi
-      tmp=$(mktemp)
-      jq --argjson pkgs ${esc (builtins.toJSON packages)} \
-        '.packages = $pkgs' ${esc settingsPath} >"$tmp" && mv "$tmp" ${esc settingsPath}
-    '';
-  }
+in {
+  home.activation.piPackages = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    export PATH=${
+      lib.makeBinPath [
+        pkgs.jq
+        pkgs.coreutils
+      ]
+    }:$PATH
+    mkdir -p ${esc settingsDir}
+    if ! jq -e . ${esc settingsPath} >/dev/null 2>&1; then
+      printf '%s\n' '{}' >${esc settingsPath}
+    fi
+    tmp=$(mktemp)
+    jq --argjson pkgs ${esc (builtins.toJSON packages)} \
+      '.packages = $pkgs' ${esc settingsPath} >"$tmp" && mv "$tmp" ${esc settingsPath}
+  '';
+}

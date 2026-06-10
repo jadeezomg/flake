@@ -42,7 +42,6 @@ dotfiles.profiles = {
 
 Override selectively after `devenv.enable = true`:
 ```nix
-dotfiles.profiles.devenv.llm.hosting.enable = false;
 dotfiles.profiles.devenv.languages.swift.enable = false;
 ```
 
@@ -56,7 +55,7 @@ dotfiles.profiles.devenv.languages.swift.enable = false;
 | Unconditional platform base (boot, networking, sops, …) | `modules/nixos/`, `modules/darwin/`, `modules/shared/` |
 | Desktop / Wayland config | `modules/profiles/desktop.nix` |
 | Language tooling | `modules/profiles/devenv/languages/<lang>.nix` |
-| LLM agent tooling | `modules/profiles/devenv/llm/agents.nix` |
+| LLM agent tooling | `modules/profiles/devenv/agents/` |
 
 ## Gotchas
 

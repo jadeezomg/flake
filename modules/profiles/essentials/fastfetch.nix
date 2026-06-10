@@ -7,13 +7,13 @@
   pkgs,
   ...
 }: let
-  theme = import ../../../../modules/profiles/theme/theme.nix;
+  theme = import ../theme/theme.nix;
 
   # Pin host-status to its Nix store path. fastfetch executes command modules
   # via a minimal subshell whose PATH does not include
   # /etc/profiles/per-user/<user>/bin on Darwin, so an unqualified `host-status`
   # falls through to the `|| echo '?'` fallback.
-  hs = "${(import ../../../../lib/host-status.nix {inherit pkgs;}).hostStatus}/bin/host-status";
+  hs = "${(import ../../../lib/host-status.nix {inherit pkgs;}).hostStatus}/bin/host-status";
 
   # Edit one accent here to recolor its section.
   systemAccent = theme."accent-yellow";

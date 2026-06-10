@@ -1,42 +1,6 @@
-{
-  pkgs,
-  lib,
-  osConfig,
-  ...
-}: let
-  agentsCfg = osConfig.dotfiles.profiles.devenv.llm.agents;
-  agentsEnabled = agentsCfg.enable or false;
-  hostingEnabled = osConfig.dotfiles.profiles.devenv.llm.hosting.enable or false;
-  agentSkillsDir = ../../../../data/agents/skills;
-  agentSkillInstallPrefixes = [
-    ".claude/skills"
-    ".agents/skills"
-  ];
-  agentSkillCategories =
-    lib.attrNames
-    (lib.filterAttrs (_: type: type == "directory") (builtins.readDir agentSkillsDir));
-  agentSkillEntries = lib.concatLists (map (category:
-    lib.optionals (category != "deprecated")
-    (map (skillName: {
-        name = skillName;
-        path = "${agentSkillsDir}/${category}/${skillName}";
-      })
-      (lib.attrNames
-        (lib.filterAttrs (_: type: type == "directory")
-          (builtins.readDir "${agentSkillsDir}/${category}")))))
-  agentSkillCategories);
-
-  agentSkillFiles = lib.listToAttrs (lib.concatMap (skill:
-    map (prefix: {
-      name = "${prefix}/${skill.name}";
-      value = {
-        source = skill.path;
-        recursive = true;
-      };
-    })
-    agentSkillInstallPrefixes)
-  agentSkillEntries);
-
+# Unsloth Studio podman container as a user service. Agent skills install
+# moved to ../devenv/agents/skills.nix.
+{pkgs, ...}: let
   unslothDefaults = {
     containerName = "unsloth-studio";
     jupyterPassword = "unsloth";
@@ -91,27 +55,20 @@
       "''${gpu_args[@]}" \
       unsloth/unsloth
   '';
-in
-  lib.mkMerge [
-    (lib.mkIf agentsEnabled {
-      home.file = agentSkillFiles;
-    })
-
-    (lib.mkIf hostingEnabled {
-      systemd.user.services.unsloth-studio = {
-        Unit = {
-          Description = "Unsloth Studio container (Podman)";
-          After = ["network-online.target"];
-          Wants = ["network-online.target"];
-        };
-        Service = {
-          Type = "simple";
-          Environment = unslothServiceEnvironment;
-          ExecStart = "${unslothServiceScript}";
-          ExecStop = "${pkgs.podman}/bin/podman stop -t 15 ${unslothDefaults.containerName}";
-          Restart = "on-failure";
-          RestartSec = 5;
-        };
-      };
-    })
-  ]
+in {
+  systemd.user.services.unsloth-studio = {
+    Unit = {
+      Description = "Unsloth Studio container (Podman)";
+      After = ["network-online.target"];
+      Wants = ["network-online.target"];
+    };
+    Service = {
+      Type = "simple";
+      Environment = unslothServiceEnvironment;
+      ExecStart = "${unslothServiceScript}";
+      ExecStop = "${pkgs.podman}/bin/podman stop -t 15 ${unslothDefaults.containerName}";
+      Restart = "on-failure";
+      RestartSec = 5;
+    };
+  };
+}

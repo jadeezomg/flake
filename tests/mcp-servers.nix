@@ -1,9 +1,9 @@
 {lib}: let
-  registry = import ../home/shared/development/tooling/mcp-servers.nix {inherit lib;};
+  registry = import ../modules/profiles/devenv/agents/mcp-servers.nix {inherit lib;};
 
-  disabledRegistry = import ../home/shared/development/tooling/mcp-servers.nix {
+  disabledRegistry = import ../modules/profiles/devenv/agents/mcp-servers.nix {
     inherit lib;
-    osConfig.dotfiles.profiles.devenv.llm.agents.enable = false;
+    osConfig.dotfiles.profiles.devenv.agents.enable = false;
   };
 
   activation = registry.mkMcpJsonMergeActivation {

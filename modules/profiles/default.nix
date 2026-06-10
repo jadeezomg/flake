@@ -12,11 +12,13 @@
   imports =
     [
       ./minimal.nix
-      ./essentials.nix
+      ./essentials
       ./fonts
       ./theme
       ./apps
       ./devenv
+      ./devgui
+      ./llm
       ./work
       ./server.nix
     ]
@@ -55,7 +57,7 @@
       enable = mkEnableOption "the apps meta-profile";
       browsers.enable = mkEnableOption "apps.browsers (zen-browser; firefox/chrome live in work)";
       terminals.enable = mkEnableOption "apps.terminals (ghostty, kitty)";
-      editors.enable = mkEnableOption "apps.editors (helix; cursor/zed are HM-only large configs)";
+      editors.enable = mkEnableOption "apps.editors (helix; cursor/zed live in devgui.ides)";
       files.enable = mkEnableOption "apps.files (zathura via HM on NixOS; nautilus/filezilla in nixos modules)";
       comms.enable = mkEnableOption "apps.comms (protonmail-desktop, etc.)";
       notes.enable = mkEnableOption "apps.notes (obsidian)";
@@ -63,15 +65,12 @@
     };
 
     devenv = {
-      enable = mkEnableOption "the devenv meta-profile";
+      enable = mkEnableOption "the devenv meta-profile — headless, SSH-safe dev core";
       tools.enable = mkEnableOption "devenv.tools (git, just, gh, lazygit, delta, jujutsu, etc.)";
-      cloud.enable = mkEnableOption "devenv.cloud (awscli2, awslogs, gws)";
-      llm = {
-        agents.enable = mkEnableOption "devenv.llm.agents (opencode, claude-code, context7, kagi, ...) and the flake `data/agents/skills/` install";
-        hosting.enable = mkEnableOption "devenv.llm.hosting (vllm, lmstudio — Linux-only realistically)";
-      };
-      containers.enable = mkEnableOption "devenv.containers (podman, podman-desktop, dive)";
-      databases.enable = mkEnableOption "devenv.databases (rainfrog, dbeaver-bin)";
+      cloud.enable = mkEnableOption "devenv.cloud (awscli2, awslogs)";
+      agents.enable = mkEnableOption "devenv.agents (agent CLIs: claude-code, codex, context7, kagi, … plus MCP config and the flake `data/agents/skills/` install)";
+      containers.enable = mkEnableOption "devenv.containers (podman CLI/TUI/compose; GUI lives in devgui.containers)";
+      databases.enable = mkEnableOption "devenv.databases (rainfrog TUI)";
       languages = mkOption {
         type = types.attrsOf (types.submodule {
           options.enable = mkEnableOption "this language sub-profile";
@@ -86,6 +85,25 @@
           When `devenv.enable = true` every currently-active language is
           mkDefault-enabled; override per-host with
           `dotfiles.profiles.devenv.languages.<name>.enable = false;`.
+        '';
+      };
+    };
+
+    devgui = {
+      enable = mkEnableOption "the devgui meta-profile — GUI dev tooling; mirrors devenv's category names";
+      containers.enable = mkEnableOption "devgui.containers (podman-desktop)";
+      ides.enable = mkEnableOption "devgui.ides (cursor, zed — system packages on NixOS + HM configs)";
+    };
+
+    llm = {
+      enable = mkEnableOption "the LLM serving stack (llama.cpp server + unsloth-studio podman service); mini serves via its own vllm-xpu/llama-cpp host modules instead";
+      llamaCppBackend = mkOption {
+        type = types.enum ["vulkan" "cuda"];
+        default = "vulkan";
+        description = ''
+          GPU backend for the llama-cpp package. `vulkan` works on any Mesa
+          GPU and comes from the binary cache; `cuda` (NVIDIA) builds from
+          source locally — only worth it on the desktop.
         '';
       };
     };
@@ -151,6 +169,10 @@
       {
         assertion = !(hostClass == "server" && cfg.theme.gui.enable);
         message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.theme.gui; disable it in hosts/${hostKey}/profiles.nix.";
+      }
+      {
+        assertion = !(hostClass == "server" && cfg.devgui.enable);
+        message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.devgui; disable it in hosts/${hostKey}/profiles.nix.";
       }
     ];
   };

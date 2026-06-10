@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: {
-  programs.vscode = lib.mkIf (osConfig.dotfiles.profiles.apps.editors.enable or false) {
+  programs.vscode = lib.mkIf (osConfig.dotfiles.profiles.devgui.ides.enable or false) {
     enable = true;
     package = pkgs.code-cursor;
     mutableExtensionsDir = false;

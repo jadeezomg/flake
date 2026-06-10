@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: let
-  helpers = import ../../../../lib/host-status.nix {inherit pkgs;};
+  helpers = import ../../../lib/host-status.nix {inherit pkgs;};
   inherit (helpers) hostStatus credentialCacheSources openrouterRefresh claudeRefresh;
   refreshers = {
     openrouter = openrouterRefresh;

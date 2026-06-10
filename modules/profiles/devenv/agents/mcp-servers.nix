@@ -12,7 +12,7 @@
   agentsEnabled =
     if osConfig == null
     then true
-    else osConfig.dotfiles.profiles.devenv.llm.agents.enable or false;
+    else osConfig.dotfiles.profiles.devenv.agents.enable or false;
 
   esc = lib.escapeShellArg;
 

@@ -90,7 +90,4 @@
     after = ["vllm-xpu-chat.service"];
     wants = ["vllm-xpu-chat.service"];
   };
-
-  # Avoid devenv's generic llama-cpp hosting profile — mini uses ./llama-cpp.nix instead.
-  dotfiles.profiles.devenv.llm.hosting.enable = lib.mkForce false;
 }

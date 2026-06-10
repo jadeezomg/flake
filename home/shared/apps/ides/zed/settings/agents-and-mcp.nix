@@ -15,7 +15,7 @@
       then true
       else throw message;
   };
-  mcpRegistry = import ../../../../development/tooling/mcp-servers.nix {lib = registryLib;};
+  mcpRegistry = import ../../../../../../modules/profiles/devenv/agents/mcp-servers.nix {lib = registryLib;};
   extensionManagedMcpServers = {
     mcp-server-context7 = {
       settings = {};
