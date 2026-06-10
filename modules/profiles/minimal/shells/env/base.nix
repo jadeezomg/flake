@@ -1,6 +1,10 @@
-{lib, ...}: let
-  envData = import ./data.nix;
-  paths = import ../core/data/paths.nix;
+{
+  dotfilesLib,
+  lib,
+  ...
+}: let
+  envData = dotfilesLib.shellEnvData;
+  paths = dotfilesLib.shellPaths;
 
   # Sandbox-safe PATH prepend list (wrappers + nix + system + default profile).
   basePathList = [

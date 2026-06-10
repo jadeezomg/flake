@@ -1,4 +1,5 @@
 {
+  dotfilesLib,
   pkgs,
   lib,
   ...
@@ -8,7 +9,7 @@ lib.mkIf pkgs.stdenv.isLinux {
   # `modules/shared/environment.nix` before the next `switch` (needed to evaluate
   # mini + vllm-xpu, which use CA derivations). Darwin HM would require `nix.package`
   # to emit nix.conf; Determinate leaves Nix alone there.
-  nix.settings.experimental-features = import ../../../lib/nix-experimental-features.nix {
+  nix.settings.experimental-features = dotfilesLib.nixExperimentalFeatures {
     inherit lib;
     isDarwin = false;
   };

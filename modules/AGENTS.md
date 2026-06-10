@@ -5,7 +5,7 @@ System-level NixOS/Darwin configuration.
 ## Special Args Available in All Modules
 
 ```nix
-{ pkgs, lib, config, inputs, hostData, hostKey, host, user, isDarwin, system, pkgs-small, pkgs-stable }
+{ pkgs, lib, config, inputs, hostData, hostKey, host, user, isDarwin, system, pkgs-small, pkgs-stable, dotfilesLib }
 ```
 
 - `hostKey` — `"desktop"`, `"framework"`, `"caya"`, or `"mini"` (use for host conditionals)
@@ -13,6 +13,12 @@ System-level NixOS/Darwin configuration.
 - `isDarwin` — `true` on macOS
 - `pkgs-small` — nixpkgs-unstable-small (pinned, no local overlays)
 - `pkgs-stable` — nixpkgs 25.11 (pinned, no local overlays)
+- `dotfilesLib` — named channel for cross-tree data/helpers (`lib/default.nix`): `palette`, `shellEnvData`/`shellPaths`, `nonoProfiles`, `hostStatus`, `mcpServers`, `minimalPackages`, `nixExperimentalFeatures`, `sshDestinations`, `agentSkillsDir`, `sopsFile`
+
+## Import rules
+
+- **Never climb trees with `../../` imports** (`just lint` rejects 3+ levels under `modules/`). Pure data and unapplied functions come from `dotfilesLib`; HM helpers that need `config` (`mkLiveSymlink`, `xdgConfigDirSymlinks*`) come from `config.lib.dotfiles` (registered in `lib/home/dotfiles.nix`).
+- Relative imports are for *within* a feature folder only (`./home.nix`, `./config`, zen's profile extensions).
 ## Common Patterns
 
 ```nix

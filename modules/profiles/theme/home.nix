@@ -2,13 +2,13 @@
 # and CLI/terminal theming. Always pushed (the server keeps shell colors);
 # GUI payload (wallpaper, cursor, opacity, GTK, …) lives in ./gui.nix.
 {
+  dotfilesLib,
   lib,
   pkgs,
   ...
 }: let
-  # Palette single source: ./theme.nix (Python mirror:
-  # scripts/src/flake_scripts/lib/palette.py — keep both in sync).
-  themeColors = import ./theme.nix;
+  # Palette single source: lib/theme-palette.nix (via dotfilesLib).
+  themeColors = dotfilesLib.palette;
 in {
   stylix = {
     enable = true;
@@ -16,7 +16,7 @@ in {
     overlays.enable = false;
     polarity = "dark";
 
-    # Custom base16 scheme created from theme.nix colors
+    # Custom base16 scheme from the palette
     base16Scheme = {
       scheme = "Birds of Paradise";
       author = "Jeroen de Vries";

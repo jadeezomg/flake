@@ -1,4 +1,4 @@
-{}: let
+{dotfilesLib}: let
   registryLib = rec {
     attrNames = builtins.attrNames;
     concatStringsSep = builtins.concatStringsSep;
@@ -15,7 +15,7 @@
       then true
       else throw message;
   };
-  mcpRegistry = import ../../../../../../modules/profiles/devenv/agents/mcp-servers.nix {lib = registryLib;};
+  mcpRegistry = dotfilesLib.mcpServers {lib = registryLib;};
   extensionManagedMcpServers = {
     mcp-server-context7 = {
       settings = {};

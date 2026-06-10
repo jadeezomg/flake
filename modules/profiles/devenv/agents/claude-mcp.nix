@@ -1,13 +1,14 @@
 # Claude MCP registration must use `claude mcp add-json --scope user` so
 # activation does not overwrite auth/state in ~/.claude.json.
 {
+  dotfilesLib,
   config,
   lib,
   osConfig,
   pkgs-small,
   ...
 }: let
-  mcpRegistry = import ./mcp-servers.nix {inherit lib osConfig;};
+  mcpRegistry = dotfilesLib.mcpServers {inherit lib osConfig;};
   inherit (mcpRegistry) needsSharedServerMaintenance mkClaudeObsoleteRemovalActivation;
   mcpServers = mcpRegistry.sharedServers;
   homeDir = config.home.homeDirectory;

@@ -1,5 +1,9 @@
-{pkgs, ...}: let
-  themeColors = import ../../theme/theme.nix;
+{
+  dotfilesLib,
+  pkgs,
+  ...
+}: let
+  themeColors = dotfilesLib.palette;
 in {
   programs.nushell.extraEnv = ''
     $env.ENV_CONVERSIONS = {

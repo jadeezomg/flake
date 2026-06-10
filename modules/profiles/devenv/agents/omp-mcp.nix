@@ -1,6 +1,7 @@
 # omp uses the pi/oh-my-pi MCP config shape:
 # https://github.com/can1357/oh-my-pi/blob/main/docs/mcp-config.md
 {
+  dotfilesLib,
   config,
   lib,
   osConfig,
@@ -9,7 +10,7 @@
 }: let
   homeDir = config.home.homeDirectory;
 
-  mcpRegistry = import ./mcp-servers.nix {inherit lib osConfig;};
+  mcpRegistry = dotfilesLib.mcpServers {inherit lib osConfig;};
 
   mcpDir = "${homeDir}/.omp/agent";
   mcpFile = "${mcpDir}/mcp.json";

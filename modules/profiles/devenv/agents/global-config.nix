@@ -1,6 +1,6 @@
 {config, ...}: let
   inherit
-    (import ../../../../lib/home/live-xdg-symlinks.nix {inherit config;})
+    (config.lib.dotfiles)
     mkLiveSymlink
     ;
 

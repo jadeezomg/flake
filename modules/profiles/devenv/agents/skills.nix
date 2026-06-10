@@ -1,7 +1,11 @@
 # Installs the flake's agent skills (data/agents/skills/<category>/<skill>)
 # into each agent's skills dir (~/.claude/skills, ~/.agents/skills).
-{lib, ...}: let
-  agentSkillsDir = ../../../../data/agents/skills;
+{
+  dotfilesLib,
+  lib,
+  ...
+}: let
+  agentSkillsDir = dotfilesLib.agentSkillsDir;
   agentSkillInstallPrefixes = [
     ".claude/skills"
     ".agents/skills"

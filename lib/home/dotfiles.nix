@@ -17,5 +17,10 @@
 
   config = {
     dotfiles.flakeRoot = lib.mkDefault "${config.home.homeDirectory}/.dotfiles/flake";
+
+    # HM-native helper channel: any HM module can use
+    # `config.lib.dotfiles.mkLiveSymlink` & friends without path imports
+    # (same mechanism as config.lib.file.mkOutOfStoreSymlink).
+    lib.dotfiles = import ./live-xdg-symlinks.nix {inherit config;};
   };
 }

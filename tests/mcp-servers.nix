@@ -1,7 +1,7 @@
 {lib}: let
-  registry = import ../modules/profiles/devenv/agents/mcp-servers.nix {inherit lib;};
+  registry = import ../lib/mcp-servers.nix {inherit lib;};
 
-  disabledRegistry = import ../modules/profiles/devenv/agents/mcp-servers.nix {
+  disabledRegistry = import ../lib/mcp-servers.nix {
     inherit lib;
     osConfig.dotfiles.profiles.devenv.agents.enable = false;
   };

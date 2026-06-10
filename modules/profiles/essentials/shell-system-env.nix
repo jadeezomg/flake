@@ -1,11 +1,11 @@
 {
+  dotfilesLib,
   config,
   lib,
   ...
 }: let
-  # Pure data shared with minimal's shells tree.
-  envData = import ../minimal/shells/env/data.nix;
-  paths = import ../minimal/shells/core/data/paths.nix;
+  envData = dotfilesLib.shellEnvData;
+  paths = dotfilesLib.shellPaths;
 
   flakeRoot = config.dotfiles.flakeRoot;
 

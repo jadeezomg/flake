@@ -1,5 +1,9 @@
-{lib, ...}: let
-  themeColors = import ../../theme/theme.nix;
+{
+  dotfilesLib,
+  lib,
+  ...
+}: let
+  themeColors = dotfilesLib.palette;
 
   # Nix doesn't support \uXXXX escapes — use builtins.fromJSON to get real UTF-8.
   u = code: builtins.fromJSON ''"\u${code}"'';

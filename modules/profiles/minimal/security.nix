@@ -1,4 +1,8 @@
-{config, ...}: let
+{
+  dotfilesLib,
+  config,
+  ...
+}: let
   # Sops *attribute* name for the GitHub PAT file. Must be one of `githubPatSecretAttrs` in
   # `modules/profiles/minimal/shells/sops-session-env.nix` (e.g. "github-token" or "gh-token").
   githubPatSecretAttrName = "github-token";
@@ -10,7 +14,7 @@
   };
 in {
   sops = {
-    defaultSopsFile = ../../../secrets/secrets.yaml;
+    defaultSopsFile = dotfilesLib.sopsFile;
     age = {
       # age key auto-imported from ~/.config/sops/age/keys.txt.
       # Generate: `age-keygen -o ~/.config/sops/age/keys.txt`

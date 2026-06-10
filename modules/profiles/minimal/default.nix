@@ -1,6 +1,7 @@
 # minimal — system core + the user baseline HM halves (shells, ssh, sops
 # plumbing, nix client settings). Always on, including the server.
 {
+  dotfilesLib,
   config,
   isDarwin,
   lib,
@@ -8,7 +9,7 @@
   ...
 }: let
   cfg = config.dotfiles.profiles.minimal;
-  minimalPackages = import ../../../lib/packages/minimal.nix pkgs;
+  minimalPackages = dotfilesLib.minimalPackages pkgs;
 in {
   config = lib.mkIf cfg.enable {
     home-manager.sharedModules =
