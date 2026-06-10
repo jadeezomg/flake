@@ -105,7 +105,6 @@ in {
       "hyperkey" # rebind keys
       "handy" # Offline speech-to-text desktop app
       "shottr" # screenshot tool
-      "codexbar" # macOS status bar for llm usage
 
       # --- Fonts (not in nixpkgs) ---
       "font-sf-mono"
