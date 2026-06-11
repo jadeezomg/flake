@@ -37,7 +37,7 @@
       auto-format = true;
       auto-info = true;
       bufferline = "always";
-      clipboard-provider = "wayland";
+      # clipboard-provider is set per platform/session in ../helix.nix.
       completion-trigger-len = 1;
       cursorcolumn = false;
       cursorline = true;

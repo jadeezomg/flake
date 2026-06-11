@@ -18,6 +18,8 @@ confirm "msg"           # y/N prompt, exit 0 on yes
 command_exists <bin>
 print_success/pending/error/info "msg"
 print_header "TITLE"
+clipboard_copy             # stdin → pbcopy / wl-copy / xclip (returns 1 if none)
+run_logged <title> <cmd…>  # stream + capture; on failure: cleaned log tail → clipboard
 ```
 
 Theme vars (`THEME_*`, `ICON_*`) come from Justfile env when invoked via `just`; `common.sh` falls back to inline ANSI when sourced directly.
