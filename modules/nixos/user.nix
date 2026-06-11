@@ -37,10 +37,11 @@
 in {
   users.mutableUsers = false;
 
-  # Per-host password hash. mini's bootstrap toggle is `miniBootstrap` in
-  # `hosts/mini/host.nix` (see `hosts/mini/default.nix`).
-  # gates its own declaration, so we opt it out here to avoid a double-decl.
-  sops.secrets.${passwordSecretKey} = lib.mkIf (hostKey != "mini") {
+  # Per-host password hash via sops (decrypted early; requires the host age
+  # key at /var/lib/private/sops/age/keys.txt — on a FRESH install that key
+  # doesn't exist yet, so a new host needs a temporary bootstrap exception
+  # (see docs/hosts/mini-install.md §4.4/§5.5 for the pattern).
+  sops.secrets.${passwordSecretKey} = {
     neededForUsers = true;
   };
 
@@ -51,7 +52,7 @@ in {
     shell = pkgs.nushell;
     packages = userConfig.packages or [];
     openssh.authorizedKeys.keys = userConfig.sshKeys or [];
-    hashedPasswordFile = lib.mkIf (hostKey != "mini") config.sops.secrets.${passwordSecretKey}.path;
+    hashedPasswordFile = config.sops.secrets.${passwordSecretKey}.path;
   };
 
   time.timeZone = localeConfig.timeZone;

@@ -13,6 +13,7 @@ System-level NixOS/Darwin configuration.
 - `isDarwin` — `true` on macOS
 - `pkgs-small` — nixpkgs-unstable-small (pinned, no local overlays)
 - `pkgs-stable` — nixpkgs 25.11 (pinned, no local overlays)
+- `dotfiles.hardware.*` — hardware traits (wireless wifi+BT combo, gpu enum nvidia/amd/intel, cpu.zen4/x3d); declared in `modules/profiles/default.nix`, implemented in `modules/profiles/hardware/`
 - `dotfilesLib` — named channel for cross-tree data/helpers (`lib/default.nix`): `palette`, `shellEnvData`/`shellPaths`, `nonoProfiles`, `hostStatus`, `mcpServers`, `minimalPackages`, `nixExperimentalFeatures`, `sshDestinations`, `agentSkillsDir`, `sopsFile`
 
 ## Import rules

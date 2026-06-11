@@ -26,6 +26,7 @@
       ./desktop
       ./gaming.nix
       ./integrations.nix
+      ./hardware
     ];
 
   options.dotfiles.profiles = let
@@ -134,6 +135,24 @@
       enable = enableOn "the integrations meta-profile (AppImage + Flatpak; Linux only)";
       appimage.enable = enableOn "integrations.appimage (AppImage binfmt support)";
       flatpak.enable = enableOn "integrations.flatpak (flatpak daemon + Flathub remote)";
+    };
+  };
+
+  # Hardware traits — what a machine IS (radio, GPU vendor, CPU family), as
+  # opposed to profiles (what it's FOR). Implemented in ./hardware (Linux
+  # only); set per host in hosts/<name>/profiles.nix.
+  options.dotfiles.hardware = let
+    inherit (lib) mkEnableOption mkOption types;
+  in {
+    wireless.enable = mkEnableOption "wireless radios — wifi tooling + bluetooth/blueman (combo trait; radio modules almost always carry both)";
+    gpu = mkOption {
+      type = types.enum ["nvidia" "amd" "intel" "none"];
+      default = "none";
+      description = "Primary GPU vendor — selects driver + tooling leaf (./hardware/gpu-*.nix).";
+    };
+    cpu = {
+      zen4.enable = mkEnableOption "Zen4 CPU (cachyos zen4-tuned kernel on non-server hosts)";
+      x3d.enable = mkEnableOption "AMD X3D CPU (gamemode core-parking hints in the gaming profile)";
     };
   };
 

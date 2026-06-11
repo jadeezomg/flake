@@ -1,4 +1,11 @@
 {...}: {
+  dotfiles.hardware = {
+    # No radio module in the desktop (wired ethernet only).
+    gpu = "nvidia";
+    cpu.zen4.enable = true;
+    cpu.x3d.enable = true;
+  };
+
   dotfiles.profiles = {
     devenv.enable = true;
     devgui.enable = true;

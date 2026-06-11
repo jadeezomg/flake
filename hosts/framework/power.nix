@@ -1,6 +1,6 @@
 {pkgs, ...}: {
+  # bluetooth lives in dotfiles.hardware.bluetooth (profiles.nix).
   hardware = {
-    bluetooth.enable = true;
     fw-fanctrl = {
       enable = true;
       config = {
@@ -18,6 +18,5 @@
     };
     power-profiles-daemon.enable = true;
     fwupd.enable = true;
-    blueman.enable = true;
   };
 }
