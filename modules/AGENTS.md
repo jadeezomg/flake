@@ -61,7 +61,7 @@ dotfiles.profiles.devenv.languages.swift.enable = false;
 |------|-------|
 | Profile system packages (any platform) | `modules/profiles/<profile>.nix` — Linux/darwin extras inline via `lib.optionals (!isDarwin) [...]` |
 | Profile config using Linux-only options (steam, flatpak, …) | Linux-only leaf in `modules/profiles/` (imported when `!isDarwin`, see `default.nix`) |
-| macOS Homebrew casks/brews | `modules/profiles/work/darwin.nix` |
+| macOS Homebrew casks/brews | `modules/profiles/work/darwin/` |
 | Unconditional platform base (boot, networking, sops, …) | `modules/nixos/`, `modules/darwin/`, `modules/shared/` |
 | Desktop / Wayland config | `modules/profiles/desktop/` |
 | Language tooling | `modules/profiles/devenv/languages/<lang>.nix` |
