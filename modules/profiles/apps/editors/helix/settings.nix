@@ -1,48 +1,16 @@
 {lib, ...}: {
   programs.helix.settings = {
-    # Let Stylix pick the theme when enabled.
     theme = lib.mkDefault "chiaroscuro";
-
-    keys.normal = {
-      D = [
-        "extend_to_line_bounds"
-        "delete_selection"
-      ];
-      "space" = {
-        space = [
-          "save_selection"
-          "select_all"
-          "yank_main_selection_to_clipboard"
-          "jump_backward"
-        ];
-      };
-    };
-
-    # keys.select = {
-    #   "d" = [ "delete_selection" "normal_mode" ];
-    #   "i" = {
-    #     w = "select_textobject_inner";
-    #   };
-    #   "a" = {
-    #     w = "select_textobject_around";
-    #   };
-    #   G = "goto_file_end";
-    #   g = {
-    #     g = "goto_file_start";
-    #   };
-    # };
 
     editor = {
       auto-completion = true;
       auto-format = true;
       auto-info = true;
       bufferline = "always";
-      # clipboard-provider is set per platform/session in ../helix.nix.
       completion-trigger-len = 1;
       cursorcolumn = false;
       cursorline = true;
       default-yank-register = "+";
-      # evil = true; # NOTE: Disable evil to remove vim bindings altogether
       idle-timeout = 250;
       indent-heuristic = "hybrid";
       insert-final-newline = true;
