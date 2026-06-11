@@ -26,7 +26,7 @@ For new nixpkgs names, run `nix search nixpkgs <name>` first; check [Hydra](http
 
 ```bash
 # build / switch
-just switch          # flake check; runs `just git` first (optional commit) + nh switch
+just switch          # flake check → build → commit on success → activate; errors → clipboard
 just switch-fast     # nh switch only
 just switch-check    # nix flake check only
 just build-dry       # dry run (nh darwin build --dry / nh os test)

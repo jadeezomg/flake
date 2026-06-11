@@ -83,6 +83,48 @@ print_pending() { echo -e "${ICON_PENDING} $*"; }
 print_error() { echo -e "${ICON_ERROR} $*"; }
 print_info() { echo -e "${ICON_INFO} $*"; }
 
+# Pipe stdin to the system clipboard: pbcopy on macOS, the DMS clipboard
+# manager (`dms cl copy`, https://danklinux.com/docs/dankmaterialshell/cli-clipboard)
+# on our Wayland desktops, wl-copy/xclip as fallbacks. Returns 1 when no
+# clipboard tool exists.
+clipboard_copy() {
+  if command -v pbcopy >/dev/null 2>&1; then
+    pbcopy
+  elif command -v dms >/dev/null 2>&1; then
+    dms cl copy
+  elif command -v wl-copy >/dev/null 2>&1; then
+    wl-copy
+  elif command -v xclip >/dev/null 2>&1; then
+    xclip -selection clipboard
+  else
+    return 1
+  fi
+}
+
+# run_logged <title> <cmd...> — stream the command's output while capturing
+# it to a temp log. On failure, copy the cleaned log tail (ANSI/CR stripped)
+# to the clipboard for easy pasting, print the log path, and return the
+# command's exit code.
+run_logged() {
+  local title="$1"
+  shift
+  local log rc=0
+  log="$(mktemp -t flake-log.XXXXXX)"
+  "$@" 2>&1 | tee "$log" || rc=$?
+  if [[ $rc -ne 0 ]]; then
+    local clean='cat'
+    command -v sd >/dev/null 2>&1 && clean="sd '\x1b\[[0-9;?]*[a-zA-Z]' '' | sd '\r' ''"
+    if bash -c "$clean" <"$log" | tail -n 150 | clipboard_copy; then
+      print_error "${title} failed — last 150 log lines copied to clipboard (full log: ${log})"
+    else
+      print_error "${title} failed — no clipboard tool found (full log: ${log})"
+    fi
+    notify "$title" "FAILED — log copied to clipboard" "error"
+    return "$rc"
+  fi
+  return 0
+}
+
 detect_host_from_hostname() {
   local h
   h="$(get_hostname_lc)"

@@ -34,7 +34,7 @@ build:
     print_header "BUILD"; h="$(get_host "")"
     is_darwin && sc="nh darwin build '${FLAKE}#${h}'" || sc="nh os build '${FLAKE}#${h}'"
     notify "Flake Build" "Building $h..." "pending"
-    print_info "-> $sc"; bash -c "$sc"
+    print_info "-> $sc"; run_logged "Flake Build" bash -c "$sc"
     notify "Flake Build" "OK" "success"; print_header "END"
 
 [doc('Stage generation for next boot (nh boot)')]
@@ -46,7 +46,7 @@ build-boot:
     print_header "BUILD"; h="$(get_host "")"
     is_darwin && sc="nh darwin build '${FLAKE}#${h}'" || sc="nh os boot '${FLAKE}#${h}'"
     notify "Flake Build" "Boot $h..." "pending"
-    print_info "-> $sc"; bash -c "$sc"
+    print_info "-> $sc"; run_logged "Flake Build" bash -c "$sc"
     notify "Flake Build" "Next reboot" "success"; print_header "END"
 
 [doc('Dry-run eval/build (no switch)')]
@@ -58,7 +58,7 @@ build-dry:
     print_header "BUILD"; h="$(get_host "")"
     is_darwin && sc="nh darwin build --dry '${FLAKE}#${h}'" || sc="nh os test '${FLAKE}#${h}'"
     notify "Flake Build" "Dry $h..." "pending"
-    print_info "-> $sc"; bash -c "$sc"; print_header "END"
+    print_info "-> $sc"; run_logged "Flake Build" bash -c "$sc"; print_header "END"
 
 [doc('Build with extra trace (dev / debug)')]
 [group('build')]
@@ -69,26 +69,35 @@ build-dev:
     print_header "BUILD"; h="$(get_host "")"
     is_darwin && sc="nh darwin switch --show-trace '${FLAKE}#${h}'" || sc="nh os switch --show-trace '${FLAKE}#${h}'"
     notify "Flake Build" "Trace $h..." "pending"
-    print_info "-> $sc"; bash -c "$sc"; print_header "END"
+    print_info "-> $sc"; run_logged "Flake Build" bash -c "$sc"; print_header "END"
 
 
-[doc('flake check + nh switch (full path)')]
+[doc('flake check + build, commit on success, then activate; errors land in the clipboard')]
 [group('switch')]
 switch:
     #!/usr/bin/env bash
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     print_header "SWITCH"
-    command -v just >/dev/null && just --justfile "$JUSTFILE" git || true; echo ""
     notify "Flake Switch" "Pre-flight..." "pending"
     bash -lc "nix flake check --all-systems $FLAKE --no-write-lock-file" \
       && notify "Flake Switch" "OK" "success" \
       || notify "Flake Switch" "Check failed [continue]" "pending"
     echo ""
     h="$(get_host "")"
-    is_darwin && sc="nh darwin switch '${FLAKE}#${h}'" || sc="nh os switch '${FLAKE}#${h}'"
+    is_darwin && nhp="nh darwin" || nhp="nh os"
+    # 1) Build first — nothing gets committed unless the build succeeds.
+    notify "Flake Switch" "Building $h..." "pending"
+    print_info "-> $nhp build"
+    run_logged "Flake Build" bash -lc "$nhp build '${FLAKE}#${h}'"
+    echo ""
+    # 2) Tree is known-good: optional commit + push.
+    command -v just >/dev/null && just --justfile "$JUSTFILE" git || true; echo ""
+    # 3) Activate (everything is cached from step 1).
     notify "Flake Switch" "Switching $h..." "pending"
-    print_info "-> $sc"; bash -lc "$sc"; echo ""
+    print_info "-> $nhp switch"
+    run_logged "Flake Switch" bash -lc "$nhp switch '${FLAKE}#${h}'"
+    echo ""
     hm_vars="/etc/profiles/per-user/${USER}/etc/profile.d/hm-session-vars.sh"
     [[ -f "$hm_vars" ]] && bash -lc "source '$hm_vars'" || true
     print_header "END"
@@ -104,7 +113,7 @@ switch-fast:
     h="$(get_host "")"
     is_darwin && sc="nh darwin switch '${FLAKE}#${h}'" || sc="nh os switch '${FLAKE}#${h}'"
     notify "Flake Switch" "Switching $h..." "pending"
-    print_info "-> $sc"; bash -lc "$sc"; print_header "END"
+    print_info "-> $sc"; run_logged "Flake Switch" bash -lc "$sc"; print_header "END"
 
 [doc('nix flake check only (no switch)')]
 [group('switch')]
