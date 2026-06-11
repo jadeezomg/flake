@@ -17,14 +17,10 @@ in {
         ./shells
         ./network
         ./nix-client.nix
-        ./compat.nix
         ./security.nix
       ]
-      ++ lib.optionals (!isDarwin) [
-        ./environment-linux.nix
-        ./guest-password-reminder.nix
-      ]
-      ++ lib.optionals isDarwin [./darwin-home.nix];
+      ++ lib.optionals (!isDarwin) [./linux]
+      ++ lib.optionals isDarwin [./darwin];
 
     environment.systemPackages = minimalPackages;
   };
