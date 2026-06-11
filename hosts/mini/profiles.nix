@@ -1,4 +1,11 @@
 {...}: {
+  dotfiles.hardware = {
+    # Intel iGPU + Arc Pro B50 dGPU (vLLM-XPU / llama.cpp stacks are host
+    # modules: ./vllm-xpu.nix, ./llama-cpp.nix).
+    gpu = "intel";
+    wireless.enable = true;
+  };
+
   dotfiles.profiles = {
     server.enable = true;
 

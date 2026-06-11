@@ -6,7 +6,6 @@
     ../../modules/shared
     ../../modules/nixos
     ../../modules/profiles
-    ./gpu.nix
     ./input.nix
     ./power.nix
     ./profiles.nix

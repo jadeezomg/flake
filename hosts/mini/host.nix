@@ -6,10 +6,6 @@ in
     hostname = "mini";
     description = "Mini — Minisforum MS-01 headless server";
     user = sharedNixOSUser;
-    # First `nixos-install`: set `true` — skips sops password file + vLLM-XPU / llama.cpp.
-    # (no `vllm-xpu-nix` module / `./vllm-xpu.nix` + `./llama-cpp.nix`, so evaluators without
-    # `ca-derivations` still build). Flip to `false` after docs/hosts/mini-install.md §5.4.
-    miniBootstrap = false;
     # Gates `vllm-xpu-nix`, `./vllm-xpu.nix`, and `./llama-cpp.nix`. The generic
     # `dotfiles.profiles.llm` serving stack defaults off and is unused on mini.
     miniLlmHosting = true;

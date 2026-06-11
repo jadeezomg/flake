@@ -7,6 +7,7 @@
 }: let
   secureBoot = host.secureBoot or true;
   serverProfile = config.dotfiles.profiles.server.enable;
+  zen4 = config.dotfiles.hardware.cpu.zen4.enable;
 in {
   boot = {
     loader = {
@@ -17,16 +18,18 @@ in {
       };
     };
 
-    # Server hosts run the cachyos server-tuned kernel (no zen4 LTO desktop tuning);
-    # desktop hosts get the zen4 latest. Falls back to mainline on aarch64 / when
-    # the cachyos overlay is absent.
+    # Server hosts run the cachyos server-tuned kernel; Zen4 workstations
+    # (dotfiles.hardware.cpu.zen4) get the zen4-LTO latest. Falls back to
+    # mainline for other CPUs / aarch64 / when the cachyos overlay is absent.
     kernelPackages =
       if pkgs ? cachyosKernels
       then
         (
           if serverProfile
           then pkgs.cachyosKernels.linuxPackages-cachyos-server
-          else pkgs.cachyosKernels.linuxPackages-cachyos-latest-zen4
+          else if zen4
+          then pkgs.cachyosKernels.linuxPackages-cachyos-latest-zen4
+          else pkgs.linuxPackages_latest
         )
       else pkgs.linuxPackages_latest;
 

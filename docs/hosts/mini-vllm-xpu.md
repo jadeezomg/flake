@@ -6,7 +6,7 @@ This mirrors the **Brutus** host setup under `~/.dotfiles/examples/dotfiles`, wi
 - For **mini** with **`miniLlmHosting`**, `parts/hosts.nix` adds **`inputs.vllm-xpu-nix.nixosModules.default`** (overlay + `services.vllm-xpu` options — same as the doc’s “import the NixOS module” step).
 - `hosts/mini/vllm-xpu.nix` — **`services.vllm-xpu`** instance block, Intel graphics / **`xe.force_probe`**, **ccache** sandbox paths, **sops** HF token, and **systemd** ordering so embedding starts after chat. Chat uses default **port 8000**; embedding sets **`port = 8001`** like the upstream example.
 
-While **`miniBootstrap = true`** (first install), the flake skips `vllm-xpu-nix` and `./vllm-xpu.nix` so evaluators without `ca-derivations` still work. After §5.4 in `mini-install.md`, set **`miniBootstrap = false`**.
+> **Note:** the `miniBootstrap` toggle was removed after mini was bootstrapped — the stack is now gated only by `miniLlmHosting`. For a fresh reinstall, re-introduce a bootstrap exception (see `mini-install.md` §4.4/§5.5).
 
 **`miniLlmHosting`** in `hosts/mini/host.nix` gates `vllm-xpu-nix`, `./vllm-xpu.nix`, optional `./llama-cpp.nix` (via **`miniLlamaCppGemma`**). Set **`true`** for Intel vLLM-XPU (requires **`ca-derivations`** on the evaluating Nix — see `modules/shared/environment.nix` and `lib/nix-experimental-features.nix` / Home Manager on Linux). Set **`false`** to drop the stack and skip CA-heavy evaluation.
 

@@ -34,8 +34,7 @@ in {
       # --- VPN clients ---
       wireguard-tools
 
-      # --- Wireless ---
-      wirelesstools
+      # (wireless tooling lives in modules/profiles/hardware/wireless.nix)
 
       # --- Network filesystems ---
       nfs-utils

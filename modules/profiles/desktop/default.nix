@@ -26,6 +26,8 @@
       '';
   });
 in {
+  imports = [./peripherals.nix];
+
   config = lib.mkIf cfg.enable {
     # HM halves: DMS/niri live-symlink wiring (./dms), dconf user settings,
     # and GDM session glue.

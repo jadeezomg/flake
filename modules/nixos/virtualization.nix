@@ -6,14 +6,10 @@
   ...
 }: {
   config = lib.mkMerge [
-    # --- Podman (devenv.containers only) ---
     (lib.mkIf config.dotfiles.profiles.devenv.containers.enable {
       virtualisation.podman = {
         enable = true;
-        # `docker` → `podman` for scripts that invoke the docker binary.
         dockerCompat = true;
-        # Expose Podman where Docker clients expect the socket (members
-        # need the `podman` group).
         dockerSocket.enable = true;
       };
 
@@ -24,13 +20,10 @@
       users.users.${user}.linger = true;
     })
 
-    # --- `nixos-rebuild build-vm` variant ---
-    # Applied only when the vmVariant is evaluated (not in regular system
-    # activation). Defines a throwaway test user + display-manager autologin.
     {
       virtualisation.vmVariant = {
         virtualisation = {
-          memorySize = 8192; # 8 GiB RAM
+          memorySize = 8192;
           cores = 4;
           graphics = true;
         };
