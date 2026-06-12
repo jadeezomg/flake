@@ -28,9 +28,9 @@ in {
       isEssential = true;
       position = 104;
     };
-    "(216) Discord | #poe2-builds | Rentner mit Keyboard" = {
+    "Discord - Group Chat That’s All Fun & Games" = {
       id = "5fb91047-d89a-47fd-8a68-0eb8f1ac0f9e";
-      url = "https://discord.com/channels/1143944016535228419/1311062719453069324";
+      url = "https://discord.com/";
       isEssential = true;
       position = 105;
     };
@@ -253,15 +253,15 @@ in {
       position = 223;
     };
     "JDownloader 2" = {
-      id = "0502f069-bb8a-42ba-90b5-80e18e1a3d5b";
-      url = "http://192.168.178.62:7807/";
+      id = "35fc4c71-64dc-4b9c-8f70-bab9cbaa2f79";
+      url = "http://jadee-server:7807/";
       workspace = spaces."Downloads".id;
       isEssential = false;
       position = 224;
     };
-    "178" = {
-      id = "3ba97525-29d8-4c3f-8728-c6a8c2d0c160";
-      url = "http://192.168.178.62:8080/";
+    "Tab" = {
+      id = "1186b229-dd77-4773-bed4-588fedc1f240";
+      url = "https://jadee-server:8080/";
       workspace = spaces."Downloads".id;
       isEssential = false;
       position = 225;
