@@ -6,11 +6,6 @@
 #   - `{ pkgs, lib, ... }:`   (most local packages — short-circuit and pass
 #                              `pkgs = final`).
 #   - `{ lib, rustPlatform, fetchFromGitHub, ... }:` (standard-nixpkgs
-#                              callPackage signature — e.g. framework-control).
-#
-# The name list (and per-package system gates, e.g. framework-control →
-# x86_64-linux only) comes from `packages/names.nix`, shared with
-# `parts/packages.nix` so the overlay and the flake output can't drift.
 {
   lib,
   system,

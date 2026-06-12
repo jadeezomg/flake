@@ -107,7 +107,7 @@ Conventions:
 
 ## Phase 1 — Thin `flake.nix`, dedupe packages, input hygiene, de-leak the host factory
 
-Problem: `flake.nix` hand-imports 6 of the 8 `packages/*` that `parts/overlays/local-packages.nix` already auto-registers (and inconsistently omits `oh-my-pi` and `framework-control`). `parts/hosts.nix` carries mini-only logic (`hostKey == "mini"` gating for vllm-xpu) and imports `hermes-agent` and `disko` modules for every Linux host although only mini uses them. One input is wired to nothing it should be (`skills-mattpocock`), one looks dead but isn't (`corecycler`).
+Problem: `flake.nix` hand-imports 6 of the 8 `packages/*` that `parts/overlays/local-packages.nix` already auto-registers (and inconsistently omits `oh-my-pi`). `parts/hosts.nix` carries mini-only logic (`hostKey == "mini"` gating for vllm-xpu) and imports `hermes-agent` and `disko` modules for every Linux host although only mini uses them. One input is wired to nothing it should be (`skills-mattpocock`), one looks dead but isn't (`corecycler`).
 
 Plan:
 

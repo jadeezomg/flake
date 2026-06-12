@@ -732,6 +732,7 @@
 		}
 	},
 	"clipboardEnterToPaste": false,
+	"clipboardVisibleEntryActions": ["pin", "edit", "delete"],
 	"launcherPluginVisibility": {},
 	"launcherPluginOrder": [],
 	"frameEnabled": false,
