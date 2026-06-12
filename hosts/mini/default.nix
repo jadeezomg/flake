@@ -34,15 +34,11 @@
   # is unnecessary because this file only loads for the mini host).
   security.sudo.wheelNeedsPassword = false;
 
-  # Cache-warming host: nightly multi-closure builds still churn through /nix.
-  # Keep GC conservative on the 256 GB system SSD; Cachix holds canonical artefacts.
   maintenance.garbageCollection = {
     schedule = "daily";
     deleteOlderThan = "3d";
   };
 
-  # Static IP via NetworkManager, matching router-side reservation.
-  # TODO: fill in the real address1 / dns / interface name during install.
   networking.networkmanager.ensureProfiles.profiles."mini-lan" = {
     connection = {
       id = "mini-lan";

@@ -76,7 +76,6 @@
 
     # --- hardware ---
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
-    framework-control.url = "github:ozturkkl/framework-control";
     corecycler.url = "github:Daaboulex/linux-corecycler";
 
     # --- AI / agents ---

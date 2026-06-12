@@ -27,4 +27,3 @@ Builds `nixosConfigurations` and `darwinConfigurations`. Key functions:
 
 - **Configurations keyed by `hostname`** — `nixosConfigurations.desktop`, `darwinConfigurations.caya`; fallback to `hostKey` if `hostname` unset
 - **`nixpkgs-zed` is pinned** — does not follow `nixpkgs`; don't upgrade accidentally
-- **`framework-control` has its own nixpkgs** — bundled fork; system-gated to `x86_64-linux`
