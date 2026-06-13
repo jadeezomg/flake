@@ -110,17 +110,18 @@ Use each stack’s **`servedName`** in API calls: **`qwen3.5-9b`** (vLLM chat on
 
 ### APIs — chat (Qwen3.5-9B, vLLM on 8000)
 
-Use **`"stream": false`** for a **single JSON** response (easier for **`jq`**). The first completion after startup can take **a long time** (model + GPU); see **§ APIs — troubleshooting** if nothing appears.
+For smoke tests, keep generation tiny and disable Qwen thinking. Long prompts with thinking enabled can look stuck on mini even while logs show low generation throughput.
 
 ```bash
-curl -sS --max-time 600 http://127.0.0.1:8000/v1/chat/completions \
+curl -sS --max-time 120 -N http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{
     "model": "qwen3.5-9b",
-    "messages": [{"role": "user", "content": "Hello"}],
-    "max_tokens": 64,
-    "stream": false
-  }' | jq .
+    "messages": [{"role": "user", "content": "Reply with exactly: ok"}],
+    "max_tokens": 8,
+    "stream": true,
+    "chat_template_kwargs": {"enable_thinking": false}
+  }'
 ```
 
 ### APIs — chat with image (VL checkpoint only)
@@ -171,18 +172,17 @@ curl -s http://127.0.0.1:8001/v1/embeddings \
 
 | Symptom | What to try |
 |---------|-------------|
-| **No output for a long time** | **Normal** until the first token: first load + compile can take **minutes**. Run **`sudo journalctl -fu vllm-xpu-chat`** in another terminal. Use **`curl --max-time 600`** (or higher) so `curl` does not give up early. |
-| **`jq` prints nothing** | Drop **`| jq`** and remove **`-s`** from `curl` to see **raw body** and **errors**. **`curl -sS`** keeps quiet progress but still errors on HTTP failures. If the server returns **SSE** (streaming), **`jq`** on the whole response will not work — force **`"stream": false`** in JSON. |
-| **HTTP / TLS errors** | **`curl -v`** once. Confirm **`/v1/models`** works first (§ list models). |
-| **Empty `choices[0].message.content`** | With **`reasoningParser = qwen3`**, **thinking** may appear under **`delta.reasoning`** / structured fields; inspect full JSON with **`jq .`**. Disable thinking in the client via **`chat_template_kwargs`** if you want answers only in **`message.content`** (see [Qwen3.5 model card](https://huggingface.co/Qwen/Qwen3.5-9B)). |
+| **No output for a long time** | If logs show **`Running: 1 reqs`** and very low generation throughput, the request is alive but too slow. For smoke tests use **`max_tokens: 8`** plus **`chat_template_kwargs: {"enable_thinking": false}`**. Stop the client with Ctrl-C; if the unit keeps generating, run **`just mini-llm-restart chat`**. |
+| **`jq` prints nothing** | Do not pipe SSE streaming responses into `jq`; use raw/streaming output. For one complete JSON response, force **`"stream": false`** and wait for completion. |
+| **HTTP / TLS errors** | Confirm **`/v1/models`** works first (§ list models), then inspect logs with **`just mini-llm-logs chat`**. |
+| **Empty `choices[0].message.content`** | With **`reasoningParser = qwen3`**, thinking may appear under **`delta.reasoning`** / structured fields; inspect raw JSON/SSE. Disable thinking in the client via **`chat_template_kwargs`** if you want answers only in **`message.content`** (see [Qwen3.5 model card](https://huggingface.co/Qwen/Qwen3.5-9B)). |
 
 ```bash
-# Minimal debug: no jq, show HTTP code, 10 min cap
-curl -sS --max-time 600 -o /tmp/vllm-out.json -w 'http_code=%{http_code}\n' \
+# Minimal debug: no jq; stream raw SSE
+curl -sS --max-time 120 -N \
   -H 'Content-Type: application/json' \
-  -d '{"model":"qwen3.5-9b","messages":[{"role":"user","content":"hi"}],"max_tokens":32,"stream":false}' \
+  -d '{"model":"qwen3.5-9b","messages":[{"role":"user","content":"Reply with exactly: ok"}],"max_tokens":8,"stream":true,"chat_template_kwargs":{"enable_thinking":false}}' \
   http://127.0.0.1:8000/v1/chat/completions
-cat /tmp/vllm-out.json | jq . 2>/dev/null || cat /tmp/vllm-out.json
 ```
 
 ### SSH tunnels (APIs bind `127.0.0.1` only)
