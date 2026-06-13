@@ -46,7 +46,7 @@ in {
       isEssential = true;
       position = 107;
     };
-    "Le Chat" = {
+    "Vibe" = {
       id = "f34e2ae1-20bc-4cd3-9ceb-f9b633fd67e2";
       url = "https://chat.mistral.ai/chat";
       isEssential = true;
@@ -253,15 +253,15 @@ in {
       position = 223;
     };
     "JDownloader 2" = {
-      id = "35fc4c71-64dc-4b9c-8f70-bab9cbaa2f79";
+      id = "71c66a44-3f74-4149-9714-fb2a5b5af39b";
       url = "http://jadee-server:7807/";
       workspace = spaces."Downloads".id;
       isEssential = false;
       position = 224;
     };
     "Tab" = {
-      id = "1186b229-dd77-4773-bed4-588fedc1f240";
-      url = "https://jadee-server:8080/";
+      id = "4d625060-e07c-4486-a418-3a6ec5f88bc6";
+      url = "http://jadee-server:8080/";
       workspace = spaces."Downloads".id;
       isEssential = false;
       position = 225;
