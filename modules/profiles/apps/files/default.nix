@@ -9,7 +9,7 @@
 in {
   config = lib.mkIf cfg.enable {
     # HM half (zathura) was Linux-only under home/nixos — keep that scope.
-    home-manager.sharedModules = lib.optionals (!isDarwin) [./home.nix];
+    home-manager.sharedModules = lib.optionals (!isDarwin) [./zathura.nix];
 
     environment.systemPackages = lib.optionals (!isDarwin) (
       with pkgs; [

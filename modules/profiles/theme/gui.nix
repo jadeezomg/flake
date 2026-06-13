@@ -1,5 +1,5 @@
 # Theme GUI payload (HM half) — pushed only when theme.gui is enabled; the
-# headless server keeps the ./home.nix baseline without any of this.
+# headless server keeps the ./stylix.nix baseline without any of this.
 {
   config,
   isDarwin ? false,

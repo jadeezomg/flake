@@ -7,7 +7,7 @@
   ...
 }: let
   cfg = config.dotfiles.profiles.apps.notes;
-  typoraTheme = import ./typora-theme.nix {
+  typoraTheme = import ./theme.nix {
     inherit (dotfilesLib) palette;
   };
 in {

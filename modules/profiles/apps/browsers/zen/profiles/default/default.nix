@@ -1,12 +1,11 @@
 # NixOS default profile: composed from shared settings/search/extensions and spaces/pins.
 # Regenerate spaces.nix / pins.nix from the live session: zen_session.py sync (scripts/zen-session).
 {
-  pkgs,
   extensions,
+  sharedSearch,
+  sharedSettings,
   ...
 }: let
-  sharedSettings = import ../../settings.nix;
-  sharedSearch = import ../../search.nix {inherit pkgs;};
   spaces = import ./spaces.nix {};
   pinsModule = import ./pins.nix {};
 in

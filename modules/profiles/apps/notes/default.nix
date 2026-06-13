@@ -11,7 +11,7 @@
 in {
   imports = [
     ./obsidian.nix
-    ./typora.nix
+    ./typora
   ];
 
   config = lib.mkIf cfg.enable {

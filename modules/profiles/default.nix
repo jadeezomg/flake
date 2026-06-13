@@ -61,7 +61,7 @@
       editors.enable = mkEnableOption "apps.editors (helix; cursor/zed live in devgui.ides)";
       files.enable = mkEnableOption "apps.files (zathura via HM on NixOS; nautilus/filezilla in nixos modules)";
       comms.enable = mkEnableOption "apps.comms (protonmail-desktop, etc.)";
-      notes.enable = mkEnableOption "apps.notes (obsidian)";
+      notes.enable = mkEnableOption "apps.notes (obsidian, typora, libreoffice)";
       media.enable = mkEnableOption "apps.media (pear-desktop, future media players)";
     };
 
@@ -73,9 +73,11 @@
       containers.enable = mkEnableOption "devenv.containers (podman CLI/TUI/compose; GUI lives in devgui.containers)";
       databases.enable = mkEnableOption "devenv.databases (rainfrog TUI)";
       languages = mkOption {
-        type = types.attrsOf (types.submodule {
-          options.enable = mkEnableOption "this language sub-profile";
-        });
+        type = types.attrsOf (
+          types.submodule {
+            options.enable = mkEnableOption "this language sub-profile";
+          }
+        );
         default = {};
         description = ''
           Per-language opt-ins. Each entry maps a language name to a small
@@ -99,7 +101,10 @@
     llm = {
       enable = mkEnableOption "the LLM serving stack (llama.cpp server + unsloth-studio podman service); mini serves via its own vllm-xpu/llama-cpp host modules instead";
       llamaCppBackend = mkOption {
-        type = types.enum ["vulkan" "cuda"];
+        type = types.enum [
+          "vulkan"
+          "cuda"
+        ];
         default = "vulkan";
         description = ''
           GPU backend for the llama-cpp package. `vulkan` works on any Mesa
@@ -122,7 +127,10 @@
     desktop.enable = enableOn "the desktop profile (niri + DMS + GNOME fallback; Linux only)";
 
     desktop.loginManager = mkOption {
-      type = types.enum ["gdm" "dms-greeter"];
+      type = types.enum [
+        "gdm"
+        "dms-greeter"
+      ];
       default = "dms-greeter";
       description = ''
         Login screen for the desktop profile.
@@ -146,7 +154,12 @@
   in {
     wireless.enable = mkEnableOption "wireless radios — wifi tooling + bluetooth/blueman (combo trait; radio modules almost always carry both)";
     gpu = mkOption {
-      type = types.enum ["nvidia" "amd" "intel" "none"];
+      type = types.enum [
+        "nvidia"
+        "amd"
+        "intel"
+        "none"
+      ];
       default = "none";
       description = "Primary GPU vendor — selects driver + tooling leaf (./hardware/gpu-*.nix).";
     };

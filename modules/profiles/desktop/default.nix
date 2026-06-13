@@ -1,9 +1,9 @@
 {
   config,
   inputs,
+  host,
   lib,
   pkgs,
-  user,
   ...
 }: let
   cfg = config.dotfiles.profiles.desktop;
@@ -41,8 +41,8 @@ in {
     programs.dank-material-shell.greeter = {
       enable = useDmsGreeter;
       compositor.name = "niri";
-      configHome = "/home/${user}";
-      configFiles = ["/home/${user}/.config/DankMaterialShell/settings.json"];
+      configHome = host.homeDirectory;
+      configFiles = ["${host.homeDirectory}/.config/DankMaterialShell/settings.json"];
     };
 
     programs.niri.enable = true;

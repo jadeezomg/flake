@@ -1,8 +1,8 @@
 {
   config,
+  host,
   lib,
   pkgs,
-  user,
   ...
 }: let
   cfg = config.dotfiles.profiles.gaming;
@@ -55,7 +55,7 @@ in {
     ];
 
     environment.sessionVariables = {
-      STEAM_EXTRA_COMPAT_TOOLS_PATH = "/home/${user}/.steam/root/compatibilitytools.d";
+      STEAM_EXTRA_COMPAT_TOOLS_PATH = "${host.homeDirectory}/.steam/root/compatibilitytools.d";
       WINEPREFIX = "/mnt/storage/Games";
     };
   };

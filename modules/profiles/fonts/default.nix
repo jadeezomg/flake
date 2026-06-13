@@ -23,6 +23,6 @@ in {
     # User-level fontconfig integration — previously enabled by the deleted
     # HM font installer (home/shared/assets/fonts/install.nix) on Linux; HM
     # still installs fonts of its own (e.g. Stylix's), so keep it.
-    home-manager.sharedModules = lib.optionals (!isDarwin) [./home.nix];
+    home-manager.sharedModules = lib.optionals (!isDarwin) [./fontconfig.nix];
   };
 }
