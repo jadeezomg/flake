@@ -628,114 +628,54 @@ zen-extract *ARGS:
 
 
 
+[doc('Mini: LLM dashboard (status + model probes); safe default from picker')]
+[group('mini')]
+mini-llm:
+    @bash "$FLAKE/scripts/shell/mini-llm.bash" overview
+
 [doc('Mini: LLM service status (vLLM-XPU chat/embed + optional llama.cpp)')]
 [group('mini')]
 mini-llm-status:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    source "$FLAKE/scripts/shell/common.sh"
-    print_header "MINI LLM STATUS"
-    systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager
-    print_header "UNIT STATUS"
-    systemctl --no-pager status vllm-xpu-chat vllm-xpu-embedding llama-cpp-gemma || true
+    @bash "$FLAKE/scripts/shell/mini-llm.bash" status
 
 [doc('Mini: follow LLM logs; unit = all|chat|embedding|llama')]
 [group('mini')]
 [positional-arguments]
 mini-llm-logs:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    source "$FLAKE/scripts/shell/common.sh"
-    unit="${1:-all}"
-    case "$unit" in
-      all) units=(-u vllm-xpu-chat -u vllm-xpu-embedding -u llama-cpp-gemma) ;;
-      chat) units=(-u vllm-xpu-chat) ;;
-      embedding) units=(-u vllm-xpu-embedding) ;;
-      llama) units=(-u llama-cpp-gemma) ;;
-      *) print_error "Usage: just mini-llm-logs [all|chat|embedding|llama]"; exit 2 ;;
-    esac
-    journalctl --no-pager -f "${units[@]}"
+    @bash "$FLAKE/scripts/shell/mini-llm.bash" logs "$@"
 
 [doc('Mini: restart LLM units; unit = all|chat|embedding|llama')]
 [group('mini')]
 [positional-arguments]
 mini-llm-restart:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    source "$FLAKE/scripts/shell/common.sh"
-    unit="${1:-all}"
-    case "$unit" in
-      all) units=(vllm-xpu-chat vllm-xpu-embedding) ;;
-      chat) units=(vllm-xpu-chat) ;;
-      embedding) units=(vllm-xpu-embedding) ;;
-      llama) units=(llama-cpp-gemma) ;;
-      *) print_error "Usage: just mini-llm-restart [all|chat|embedding|llama]"; exit 2 ;;
-    esac
-    sudo systemctl restart "${units[@]}"
-    systemctl --no-pager status "${units[@]}" || true
+    @bash "$FLAKE/scripts/shell/mini-llm.bash" restart "$@"
 
 [doc('Mini: list OpenAI-compatible models on 8000/8001/8010')]
 [group('mini')]
 mini-llm-models:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    source "$FLAKE/scripts/shell/common.sh"
-    probe() {
-      local label="$1" url="$2"
-      print_header "$label"
-      xh --ignore-stdin --timeout=10 GET "$url" || print_pending "$label unavailable"
-    }
-    probe "vLLM chat :8000" "http://127.0.0.1:8000/v1/models"
-    probe "vLLM embeddings :8001" "http://127.0.0.1:8001/v1/models"
-    probe "llama.cpp :8010" "http://127.0.0.1:8010/v1/models"
+    @bash "$FLAKE/scripts/shell/mini-llm.bash" models
 
-[doc('Mini: smoke-test vLLM chat on 8000')]
+[doc('Mini: smoke-test vLLM chat on 8000; requires vllm-xpu-chat listening')]
 [group('mini')]
 [positional-arguments]
 mini-llm-chat:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    prompt="${1:-Hello}"
-    jq -n --arg prompt "$prompt" \
-      '{model:"qwen3.5-9b",messages:[{role:"user",content:$prompt}],max_tokens:64,stream:false}' \
-      | xh --timeout=600 POST http://127.0.0.1:8000/v1/chat/completions Content-Type:application/json
+    @bash "$FLAKE/scripts/shell/mini-llm.bash" chat "$@"
 
-[doc('Mini: smoke-test vLLM embeddings on 8001')]
+[doc('Mini: smoke-test vLLM embeddings on 8001; requires vllm-xpu-embedding listening')]
 [group('mini')]
 [positional-arguments]
 mini-llm-embedding:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    text="${1:-hello}"
-    jq -n --arg text "$text" \
-      '{model:"jina-embeddings-v5-nano",input:$text}' \
-      | xh --timeout=120 POST http://127.0.0.1:8001/v1/embeddings Content-Type:application/json
+    @bash "$FLAKE/scripts/shell/mini-llm.bash" embedding "$@"
 
 [doc('Mini: live Intel GPU utilization')]
 [group('mini')]
 mini-llm-gpu:
-    sudo intel_gpu_top
+    @bash "$FLAKE/scripts/shell/mini-llm.bash" gpu
 
 [doc('Mini: LLM troubleshooting snapshot')]
 [group('mini')]
 mini-llm-troubleshoot:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    source "$FLAKE/scripts/shell/common.sh"
-    print_header "FAILED UNITS"
-    systemctl --no-pager --failed || true
-    print_header "LLM UNITS"
-    systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager
-    print_header "CACHE PATHS"
-    for path in /var/cache/ccache /var/lib/llama-cpp /var/lib/private/sops/age; do
-      if [[ -e "$path" ]]; then
-        stat -c '%A %U:%G %n' "$path"
-      else
-        print_pending "missing $path"
-      fi
-    done
-    print_header "RECENT LOGS"
-    journalctl --no-pager -u vllm-xpu-chat -u vllm-xpu-embedding -u llama-cpp-gemma -n 120 || true
+    @bash "$FLAKE/scripts/shell/mini-llm.bash" troubleshoot
 
 [doc('Start declarative Unsloth Studio user service')]
 [group('llm')]
