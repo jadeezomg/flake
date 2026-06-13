@@ -108,14 +108,14 @@ models)
   probe "llama.cpp :8010" "http://127.0.0.1:8010/v1/models"
   ;;
 chat)
-  prompt="${1:-Hello}"
+  prompt="${1:-Reply with exactly: ok}"
   require_endpoint "vLLM chat :8000" "http://127.0.0.1:8000/v1/models" "vllm-xpu-chat"
   print_header "vLLM chat request"
-  print_pending "POST /v1/chat/completions model=qwen3.5-9b max_tokens=64 stream=true"
-  print_info "First token can take minutes while vLLM loads/compiles; watch logs with: just mini-llm-logs chat"
+  print_pending "POST /v1/chat/completions model=qwen3.5-9b max_tokens=8 stream=true enable_thinking=false"
+  print_info "This is a smoke test: short output, Qwen thinking disabled. If it still crawls, watch: just mini-llm-logs chat"
   jq -n --arg prompt "$prompt" \
-    '{model:"qwen3.5-9b",messages:[{role:"user",content:$prompt}],max_tokens:64,stream:true}' |
-    xh --stream --timeout=600 POST http://127.0.0.1:8000/v1/chat/completions Content-Type:application/json
+    '{model:"qwen3.5-9b",messages:[{role:"user",content:$prompt}],max_tokens:8,stream:true,chat_template_kwargs:{enable_thinking:false}}' |
+    xh --stream --timeout=120 POST http://127.0.0.1:8000/v1/chat/completions Content-Type:application/json
   ;;
 embedding)
   text="${1:-hello}"
