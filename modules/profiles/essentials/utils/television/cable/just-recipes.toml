@@ -11,7 +11,7 @@ requirements = ["just", "bash"]
 
 [source]
 command = [
-  "bash -lc 'just --justfile \"${JUSTFILE}\" --summary 2>/dev/null | tr \"[:blank:]\" \"\\n\"'",
+  "bash -lc 'bash \"${FLAKE}/scripts/shell/just-recipes.bash\" \"${FLAKE}\"'",
 ]
 no_sort = true
 frecency = false
