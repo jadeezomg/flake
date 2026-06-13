@@ -105,9 +105,9 @@ shift || true
 case "$command_name" in
 overview)
   print_header "MINI LLM STATUS"
-  systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager
+  systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager --full
   print_header "UNIT STATUS"
-  systemctl --no-pager status vllm-xpu-chat vllm-xpu-embedding llama-cpp-gemma || true
+  systemctl --no-pager --full --lines=80 status vllm-xpu-chat vllm-xpu-embedding llama-cpp-gemma || true
   show_chat_runtime_config
   probe "vLLM chat :8000" "http://127.0.0.1:8000/v1/models"
   probe "vLLM embeddings :8001" "http://127.0.0.1:8001/v1/models"
@@ -115,9 +115,9 @@ overview)
   ;;
 status)
   print_header "MINI LLM STATUS"
-  systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager
+  systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager --full
   print_header "UNIT STATUS"
-  systemctl --no-pager status vllm-xpu-chat vllm-xpu-embedding llama-cpp-gemma || true
+  systemctl --no-pager --full --lines=80 status vllm-xpu-chat vllm-xpu-embedding llama-cpp-gemma || true
   show_chat_runtime_config
   ;;
 logs)
@@ -161,7 +161,7 @@ troubleshoot)
   print_header "FAILED UNITS"
   systemctl --no-pager --failed || true
   print_header "LLM UNITS"
-  systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager
+  systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager --full
   show_chat_runtime_config
   print_header "CACHE PATHS"
   for path in /var/cache/ccache /var/lib/llama-cpp /var/lib/private/sops/age; do
