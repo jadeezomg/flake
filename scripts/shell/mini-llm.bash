@@ -110,13 +110,19 @@ models)
 chat)
   prompt="${1:-Hello}"
   require_endpoint "vLLM chat :8000" "http://127.0.0.1:8000/v1/models" "vllm-xpu-chat"
+  print_header "vLLM chat request"
+  print_pending "POST /v1/chat/completions model=qwen3.5-9b max_tokens=64 stream=true"
+  print_info "First token can take minutes while vLLM loads/compiles; watch logs with: just mini-llm-logs chat"
   jq -n --arg prompt "$prompt" \
-    '{model:"qwen3.5-9b",messages:[{role:"user",content:$prompt}],max_tokens:64,stream:false}' |
-    xh --timeout=600 POST http://127.0.0.1:8000/v1/chat/completions Content-Type:application/json
+    '{model:"qwen3.5-9b",messages:[{role:"user",content:$prompt}],max_tokens:64,stream:true}' |
+    xh --stream --timeout=600 POST http://127.0.0.1:8000/v1/chat/completions Content-Type:application/json
   ;;
 embedding)
   text="${1:-hello}"
   require_endpoint "vLLM embeddings :8001" "http://127.0.0.1:8001/v1/models" "vllm-xpu-embedding"
+  print_header "vLLM embedding request"
+  print_pending "POST /v1/embeddings model=jina-embeddings-v5-nano"
+  print_info "If this waits, watch logs with: just mini-llm-logs embedding"
   jq -n --arg text "$text" \
     '{model:"jina-embeddings-v5-nano",input:$text}' |
     xh --timeout=120 POST http://127.0.0.1:8001/v1/embeddings Content-Type:application/json
