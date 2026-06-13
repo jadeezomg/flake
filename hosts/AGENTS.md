@@ -1,44 +1,18 @@
 # HOSTS
 
-Per-machine configuration. Each host has three files:
-- `host.nix` — facts (hostname, hardware, monitor info)
-- `profiles.nix` — profile toggles (`dotfiles.profiles.*`)
-- `default.nix` — imports and host-specific system overrides
+## Purpose
 
-## Host Record Fields (`host.nix`)
+Per-machine configuration: host facts, profile toggles, and host-specific system overrides.
 
-Linux hosts use `sharedNixOSHost // { ... }` from `lib.nix`. Darwin defines fields directly.
+## Use skills
 
-Non-obvious fields:
-```nix
-{
-  hostname = "desktop";      # system hostname (== hostKey; sets networking.hostName)
-  mainMonitor = {
-    monitorID = "DP-2";      # used in niri/display config
-    monitorScalingFactor = "1.0";
-  };
-  extraUsers = [ ... ];      # optional guest users — HM configs auto-created for these
-  secureBoot = true;         # optional; false uses systemd-boot instead of lanzaboote
-  nixpkgsConfig = {
-    rocmSupport = true;      # host-specific nixpkgs import config; only when pkgs needs it at creation time
-  };
-  miniLlmHosting = true;     # mini: Intel vLLM-XPU + optional llama.cpp (requires ca-derivations)
-  miniLlamaCppGemma = false; # mini: import ./llama-cpp.nix (8010); false when chat is vLLM-only on 8000
-  miniLlamaCppGgmlBackends = "vulkan"; # mini: "vulkan" | "vulkan-opencl" | "opencl" — see docs/hosts/mini-llm-hosting.md
-  miniLlamaCppDevice = null; # mini: optional LLAMA_ARG_DEVICE for llama-server; null = auto
-}
-```
+- `flake-structure` — host folder ownership and top-level flake wiring.
+- `module-structure` — profile toggles and profile/module interactions.
+- `secrets-structure` — host runtime age keys and host-specific secrets.
 
-## Where to Put Things
+## Local hazards
 
-| What | Where |
-|------|-------|
-| Host facts (hostname, monitors, `buildCores`, DMS/niri names, …) | `hosts/<name>/host.nix` |
-| Profile toggles (`dotfiles.profiles`) | `hosts/<name>/profiles.nix` |
-| Host-specific system packages / overrides | `hosts/<name>/default.nix` |
-
-## Gotchas
-
-- **`.flake-host`** — created by `just init`; stores the active host key; never commit it; all `nh`-based recipes read it
-- **`stateVersion` is per-host** — bumping it gates default-value changes in NixOS/HM modules. Audit the release notes' "State Version Changes" section before raising it on an existing host; never lower it
-- **Guest users** — `homeManagerConfig` in `parts/hosts.nix` also creates HM configs for `extraUsers`
+- Each host folder uses `host.nix` for facts, `profiles.nix` for `dotfiles.profiles.*`, and `default.nix` for host-specific system overrides.
+- `.flake-host` selects the active host and must not be committed.
+- `stateVersion` is per-host; never bump it without auditing release notes, and never lower it.
+- `extraUsers` also receive Home Manager configs through `parts/hosts.nix`.
