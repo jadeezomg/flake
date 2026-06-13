@@ -74,6 +74,31 @@ probe() {
   fi
 }
 
+show_chat_runtime_config() {
+  local exec_start
+  exec_start="$(systemctl show vllm-xpu-chat.service --property=ExecStart --value 2>/dev/null || true)"
+  print_header "CHAT RUNTIME FLAGS"
+  if [[ -z "$exec_start" ]]; then
+    print_pending "vllm-xpu-chat ExecStart unavailable"
+    return
+  fi
+  printf '%s\n' "$exec_start"
+
+  local missing=()
+  case "$exec_start" in *"--quantization fp8"*) ;; *) missing+=("--quantization fp8") ;; esac
+  case "$exec_start" in *"--kv-cache-dtype fp8"*) ;; *) missing+=("--kv-cache-dtype fp8") ;; esac
+  case "$exec_start" in *"--language-model-only"*) ;; *) missing+=("--language-model-only") ;; esac
+  case "$exec_start" in *"--enforce-eager"*) ;; *) missing+=("--enforce-eager") ;; esac
+  case "$exec_start" in *"--max-num-seqs 1"*) ;; *) missing+=("--max-num-seqs 1") ;; esac
+
+  if ((${#missing[@]})); then
+    print_error "Running chat unit is missing expected mini tuning: ${missing[*]}"
+    print_info "Run from this repo on mini: git add -A && just switch"
+  else
+    print_success "Running chat unit has expected mini tuning flags"
+  fi
+}
+
 command_name="${1:-}"
 shift || true
 
@@ -83,6 +108,7 @@ overview)
   systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager
   print_header "UNIT STATUS"
   systemctl --no-pager status vllm-xpu-chat vllm-xpu-embedding llama-cpp-gemma || true
+  show_chat_runtime_config
   probe "vLLM chat :8000" "http://127.0.0.1:8000/v1/models"
   probe "vLLM embeddings :8001" "http://127.0.0.1:8001/v1/models"
   probe "llama.cpp :8010" "http://127.0.0.1:8010/v1/models"
@@ -92,6 +118,7 @@ status)
   systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager
   print_header "UNIT STATUS"
   systemctl --no-pager status vllm-xpu-chat vllm-xpu-embedding llama-cpp-gemma || true
+  show_chat_runtime_config
   ;;
 logs)
   mapfile -d '' -t args < <(journal_unit_args "${1:-all}")
@@ -135,6 +162,7 @@ troubleshoot)
   systemctl --no-pager --failed || true
   print_header "LLM UNITS"
   systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager
+  show_chat_runtime_config
   print_header "CACHE PATHS"
   for path in /var/cache/ccache /var/lib/llama-cpp /var/lib/private/sops/age; do
     if [[ -e "$path" ]]; then
