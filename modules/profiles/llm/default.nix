@@ -18,9 +18,9 @@
     else pkgs.llama-cpp.override {vulkanSupport = true;};
 in {
   config = lib.mkIf cfg.enable {
-    # Unsloth Studio user service (podman). The systemd unit only runs on
-    # Linux; on darwin the `just unsloth*` recipes drive podman directly.
-    home-manager.sharedModules = [./home.nix];
+    # Unsloth Studio user service (podman). Darwin has no systemd user service;
+    # `just unsloth*` recipes drive podman there directly.
+    home-manager.sharedModules = lib.optionals (!isDarwin) [./unsloth.nix];
 
     environment.systemPackages =
       lib.optionals (!isDarwin) [llamaCpp]

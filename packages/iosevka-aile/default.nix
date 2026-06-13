@@ -17,7 +17,7 @@ in
   pkgs.stdenv.mkDerivation {
     inherit pname version;
 
-    src = src;
+    inherit src;
 
     installPhase = ''
       runHook preInstall

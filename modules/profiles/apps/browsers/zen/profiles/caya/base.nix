@@ -1,17 +1,18 @@
 # Base Caya profile: settings, search, extensions, containers.
 # Not overwritten by the session sync script.
 {
-  pkgs,
   extensions,
+  sharedSearch,
+  sharedSettings,
   ...
 }: {
   settings =
-    (import ../../settings.nix)
+    sharedSettings
     // {
       "zen.workspaces.natural-scroll" = false;
     };
 
-  search = import ../../search.nix {inherit pkgs;};
+  search = sharedSearch;
 
   profileExtensions = {
     "{d634138d-c276-4fc8-924b-40a0ea21d284}" = extensions.mkExtensionEntry {

@@ -5,8 +5,25 @@
   ...
 }: let
   extensions = import ./extensions.nix {inherit pkgs lib;};
-  defaultProfile = import ./profiles/default {inherit pkgs extensions;};
-  cayaProfile = import ./profiles/caya {inherit pkgs extensions lib;};
+  sharedSettings = import ./settings.nix;
+  sharedSearch = import ./search.nix {inherit pkgs;};
+  defaultProfile = import ./profiles/default {
+    inherit
+      pkgs
+      extensions
+      sharedSettings
+      sharedSearch
+      ;
+  };
+  cayaProfile = import ./profiles/caya {
+    inherit
+      pkgs
+      extensions
+      lib
+      sharedSettings
+      sharedSearch
+      ;
+  };
   defaultProfileData =
     if pkgs.stdenv.isLinux
     then defaultProfile
