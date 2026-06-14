@@ -46,15 +46,18 @@ From the flake repo on mini (or over SSH), use **`just switch`** after editing N
 Author and **commit + push** flake changes on your dev host, then drive mini over SSH — these `just` recipes `git pull --ff-only` on mini and build **there** (run from any host that can `ssh mini`; off-LAN use `MINI_SSH=mini.quokka-qilin.ts.net`):
 
 ```bash
-just mini-pull          # git pull --ff-only on mini (no build)
-just mini-deploy        # pull + nh switch (the usual remote deploy)
-just mini-deploy-dry    # pull + build-dry (preview, no activation)
-just mini-deploy-boot   # pull + stage for next reboot (kernel/bootloader changes)
-just mini-ssh           # interactive shell on mini
-just mini-reboot        # reboot the host
+just mini pull           # git pull --ff-only on mini (no build)
+just mini deploy         # pull + nh switch (the usual remote deploy)
+just mini deploy-dry     # pull + build-dry (preview, no activation)
+just mini deploy-boot    # pull + stage for next reboot (kernel/bootloader changes)
+just mini ssh            # interactive shell on mini
+just mini reboot         # reboot the host
+just mini llm bench      # rigorous llama-benchy run against http://mini:8000/v1
 ```
 
-`mini-deploy` uses `switch-fast` (no flake check / no commit on mini, since you authored upstream); run `mini-deploy-dry` first if you want a pre-flight build. The `vllm-xpu-kernels` rebuild caveat (`NIX_CONFIG='cores = 2'`, see `mini-vllm-xpu.md`) still applies to the build that runs on mini.
+> **Structure:** mini commands are a `just` **module** (`just/mini.just` + `just/mini-llm.just`, wired via `mod mini` in the root `Justfile`). Host ops are `just mini <cmd>`; LLM service ops are nested under `just mini llm <cmd>`. Because module recipes appear as `mini::…` in `just --summary`, the recipe picker's host-scoping (which only matched the old `mini-*` flat names) no longer hides them — so they show on **every** host. Run `just --list mini` / `just --list mini llm` to see them. The LLM ops still operate the services *on mini* (systemctl/journals/`127.0.0.1`); `deploy*`/`pull`/`ssh`/`reboot`/`llm bench` target mini over the network.
+
+`deploy` uses `switch-fast` (no flake check / no commit on mini, since you authored upstream); run `deploy-dry` first if you want a pre-flight build. The `vllm-xpu-kernels` rebuild caveat (`NIX_CONFIG='cores = 2'`, see `mini-vllm-xpu.md`) still applies to the build that runs on mini.
 
 ### systemd — status, logs, control
 
@@ -181,9 +184,9 @@ Embeddings are disabled for now so **Qwen3.5-9B** gets the full XPU memory budge
 
 | Symptom | What to try |
 |---------|-------------|
-| **No output for a long time** | If logs show **`Running: 1 reqs`** and very low generation throughput, the request is alive but too slow. `just mini-llm-chat` now waits up to **300s** for `/v1/models` before sending the smoke request; override with **`MINI_LLM_WAIT_SECONDS=<seconds>`**. First run **`just mini-llm-status`** and confirm the runtime flags include **`--language-model-only`**, **`--enforce-eager`**, and **`--max-num-seqs 1`**. If not, the host is not running this repo's mini tuning — `git add -A && just switch`, then restart chat. For smoke tests use **`max_tokens: 8`** plus **`chat_template_kwargs: {"enable_thinking": false}`**. Stop the client with Ctrl-C; if the unit keeps generating, run **`just mini-llm-restart chat`**. |
+| **No output for a long time** | If logs show **`Running: 1 reqs`** and very low generation throughput, the request is alive but too slow. `just mini llm chat` waits up to **300s** for `/v1/models` before sending the smoke request; override with **`MINI_LLM_WAIT_SECONDS=<seconds>`**. First run **`just mini llm status`** and confirm the runtime flags include **`--language-model-only`**, **`--enforce-eager`**, and **`--max-num-seqs 8`**. If not, the host is not running this repo's mini tuning — `git add -A && just switch`, then restart chat. For smoke tests use **`max_tokens: 8`** plus **`chat_template_kwargs: {"enable_thinking": false}`**. Stop the client with Ctrl-C; if the unit keeps generating, run **`just mini llm restart chat`**. |
 | **`jq` prints nothing** | Do not pipe SSE streaming responses into `jq`; use raw/streaming output. For one complete JSON response, force **`"stream": false`** and wait for completion. |
-| **HTTP / TLS errors** | Confirm **`/v1/models`** works first (§ list models), then inspect logs with **`just mini-llm-logs chat`**. |
+| **HTTP / TLS errors** | Confirm **`/v1/models`** works first (§ list models), then inspect logs with **`just mini llm logs chat`**. |
 | **Empty `choices[0].message.content`** | With **`reasoningParser = qwen3`**, thinking may appear under **`delta.reasoning`** / structured fields; inspect raw JSON/SSE. Disable thinking in the client via **`chat_template_kwargs`** if you want answers only in **`message.content`** (see [Qwen3.5 model card](https://huggingface.co/Qwen/Qwen3.5-9B)). |
 
 ```bash
