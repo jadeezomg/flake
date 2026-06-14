@@ -698,7 +698,7 @@ journalctl -fu hermes-agent.service
 ```
 
 If the service starts cleanly, hermes is live. Iterate on
-`hosts/mini/hermes.nix`'s `settings = { ... }` block per the hermes-agent
+`hosts/mini/services/hermes.nix`'s `settings = { ... }` block per the hermes-agent
 README to configure model/provider/skills.
 
 ---

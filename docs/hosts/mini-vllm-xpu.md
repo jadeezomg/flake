@@ -4,7 +4,7 @@ This mirrors the **Brutus** host setup under `~/.dotfiles/examples/dotfiles`, wi
 
 - Flake input [`vllm-xpu-nix`](https://github.com/jasonboukheir/vllm-xpu-nix) with `inputs.nixpkgs.follows = "nixpkgs"` (see `flake.nix`).
 - For **mini** with **`miniLlmHosting`**, `parts/hosts.nix` adds **`inputs.vllm-xpu-nix.nixosModules.default`** (overlay + `services.vllm-xpu` options — same as the doc’s “import the NixOS module” step).
-- `hosts/mini/vllm-xpu.nix` — **`services.vllm-xpu`** instance block, Intel graphics / **`xe.force_probe`**, **ccache** sandbox paths, and **sops** HF token. Chat uses **`pkgs.vllm-xpu-unstable.withTorchvision true`** and default **port 8000**. Embedding is defined but disabled so chat gets the full XPU memory budget.
+- `hosts/mini/services/vllm-xpu.nix` — **`services.vllm-xpu`** instance block, Intel graphics / **`xe.force_probe`**, **ccache** sandbox paths, and **sops** HF token. Chat uses **`pkgs.vllm-xpu-unstable.withTorchvision true`** and default **port 8000**. Embedding is defined but disabled so chat gets the full XPU memory budget.
 
 > **Note:** the `miniBootstrap` toggle was removed after mini was bootstrapped — the stack is now gated only by `miniLlmHosting`. For a fresh reinstall, re-introduce a bootstrap exception (see `mini-install.md` §4.4/§5.5).
 
@@ -26,7 +26,7 @@ Use **`servedName`** in requests (`qwen3.5-9b`, `jina-embeddings-v5-nano`), not 
 
 ## llama.cpp GGUF (optional)
 
-**[unsloth/gemma-4-12b-it-GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF)** can be served by **`llama-cpp-gemma`** on **8010** when **`miniLlamaCppGemma = true`** in `hosts/mini/host.nix` (`hosts/mini/llama-cpp.nix`). Default mini keeps it **off** while **`vllm-xpu-chat`** serves **Qwen3.5-9B** on **8000**. See **`docs/hosts/mini-llm-hosting.md`**.
+**[unsloth/gemma-4-12b-it-GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF)** can be served by **`llama-cpp-gemma`** on **8010** when **`miniLlamaCppGemma = true`** in `hosts/mini/host.nix` (`hosts/mini/services/llama-cpp.nix`). Default mini keeps it **off** while **`vllm-xpu-chat`** serves **Qwen3.5-9B** on **8000**. See **`docs/hosts/mini-llm-hosting.md`**.
 
 The generic serving stack (`dotfiles.profiles.llm`) defaults off and stays off on mini — `./vllm-xpu.nix` / `./llama-cpp.nix` own LLM serving here.
 
@@ -47,7 +47,7 @@ This is the **real blocker**: the **`google/gemma-4-12B-it-qat-w4a16-ct`** (and 
 
 1. **Bump `inputs.vllm-xpu-nix`** (and let it pull newer `vllm-xpu-unstable` / `transformers`) until `nixos-rebuild` / `just switch` gets a vLLM that loads Gemma 4 — watch [vllm-xpu-nix](https://github.com/jasonboukheir/vllm-xpu-nix) and upstream [vllm](https://github.com/vllm-project/vllm) / recipe PR references.
 2. **Optional VRAM experiment (only after (1)):** set `models.chat.repo` to **`google/gemma-4-12B-it`** to mirror the recipe’s BF16 quick start — still requires a build that **recognizes** `gemma4_unified`; expect **much higher** memory than QAT CT.
-3. **Interim chat model:** **`ISTA-DASLab/gemma-3-12b-it-GPTQ-4b-128g`** with `servedName = "gemma-3-12b-it"` in **`hosts/mini/vllm-xpu.nix`** — **Gemma 3**, known to load on older stacks.
+3. **Interim chat model:** **`ISTA-DASLab/gemma-3-12b-it-GPTQ-4b-128g`** with `servedName = "gemma-3-12b-it"` in **`hosts/mini/services/vllm-xpu.nix`** — **Gemma 3**, known to load on older stacks.
 4. **Gemma 4 without vLLM on XPU:** enable **`miniLlamaCppGemma`** and serve **[unsloth GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF)** via **`llama-cpp-gemma`** on **8010** (Vulkan path), at the cost of not using the vLLM OpenAI server on **8000** for that family.
 
 ### `UnicodeDecodeError` in `torch.library` / `_clear_torch_ops_cache`
@@ -64,7 +64,7 @@ Torch XPU probing message during startup; unrelated to the Gemma 4 config valida
 
 `vllm-xpu-nix` wraps `icpx` with **ccache** and writes to `/var/cache/ccache`. The Nix build sandbox blocks that path unless the host exposes it.
 
-`hosts/mini/vllm-xpu.nix` configures:
+`hosts/mini/services/vllm-xpu.nix` configures:
 
 - `systemd.tmpfiles.rules` — create `/var/cache/ccache` (`0770`, group `nixbld`)
 - `nix.settings.extra-sandbox-paths` — let sandboxed builds write the cache
@@ -98,7 +98,7 @@ sudo systemctl restart vllm-xpu-chat
 sudo journalctl -fu vllm-xpu-chat
 ```
 
-**Tuning levers** (in `hosts/mini/vllm-xpu.nix` `instances.chat`):
+**Tuning levers** (in `hosts/mini/services/vllm-xpu.nix` `instances.chat`):
 
 | Knob | Effect |
 |------|--------|
@@ -133,7 +133,7 @@ Symptoms: **`Chunk prefill kernel not compiled for this configuration`**, sugges
 
 **Cause:** **`vllm-xpu-kernels`** ships a **fixed set** of chunk-prefill shapes. With the **default** `pkgs.vllm-xpu-unstable` package (no custom **`withKernelConfig`**), **multimodal** (e.g. **Qwen3-VL**) startup profiling can request a shape **not** in that set, so vLLM **falls back** to a PyTorch attention path that can **explode memory** on a **~16 GiB** dGPU.
 
-**Fix (optional custom kernel build):** set **`services.vllm-xpu.package`** to **`(pkgs.vllm-xpu-unstable.withTorchvision true).withKernelConfig { ... }`** and add **`chunkPrefillExtra`** entries (historically **`"96,false,false,false,false,false"`** for Qwen3.6 VL — see past revisions of `hosts/mini/vllm-xpu.nix` or [vllm-xpu-kernels#364](https://github.com/vllm-project/vllm-xpu-kernels/issues/364)). After **`withKernelConfig`**, **`just switch`** **rebuilds** the XPU kernel package (can take a long time; needs **`/var/cache/ccache`** per § ccache above).
+**Fix (optional custom kernel build):** set **`services.vllm-xpu.package`** to **`(pkgs.vllm-xpu-unstable.withTorchvision true).withKernelConfig { ... }`** and add **`chunkPrefillExtra`** entries (historically **`"96,false,false,false,false,false"`** for Qwen3.6 VL — see past revisions of `hosts/mini/services/vllm-xpu.nix` or [vllm-xpu-kernels#364](https://github.com/vllm-project/vllm-xpu-kernels/issues/364)). After **`withKernelConfig`**, **`just switch`** **rebuilds** the XPU kernel package (can take a long time; needs **`/var/cache/ccache`** per § ccache above).
 
 If it **still** OOMs: temporarily **`sudo systemctl stop vllm-xpu-embedding`**, lower **`maxModelLen`** / **`maxNumSeqs`**, or set **`languageModelOnly = true`** to drop multimodal serving until VRAM fits. Upstream context: [vllm-xpu-kernels#364](https://github.com/vllm-project/vllm-xpu-kernels/issues/364).
 
