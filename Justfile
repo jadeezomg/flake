@@ -683,6 +683,41 @@ mini-llm-gpu:
 mini-llm-troubleshoot:
     @bash "$FLAKE/scripts/shell/mini-llm.bash" troubleshoot
 
+# --- Mini: remote host management (run from any host that can `ssh mini`) ---
+# Push/commit your flake changes first; these pull origin/main on mini and build
+# there. Override the target off-LAN with MINI_SSH=mini.quokka-qilin.ts.net.
+mini_ssh := env_var_or_default('MINI_SSH', 'mini')
+
+[doc('Mini: git pull --ff-only the flake on mini (no build)')]
+[group('mini')]
+mini-pull:
+    ssh {{mini_ssh}} 'bash -lc "git -C ~/.dotfiles/flake pull --ff-only"'
+
+[doc('Mini: remote deploy — pull newest flake on mini, then nh switch')]
+[group('mini')]
+mini-deploy:
+    ssh -t {{mini_ssh}} 'bash -lc "set -e; cd ~/.dotfiles/flake && git pull --ff-only && just switch-fast"'
+
+[doc('Mini: remote dry-run — pull newest flake on mini, then build-dry (no activation)')]
+[group('mini')]
+mini-deploy-dry:
+    ssh -t {{mini_ssh}} 'bash -lc "set -e; cd ~/.dotfiles/flake && git pull --ff-only && just build-dry"'
+
+[doc('Mini: remote boot-stage — pull newest flake on mini, stage for next reboot')]
+[group('mini')]
+mini-deploy-boot:
+    ssh -t {{mini_ssh}} 'bash -lc "set -e; cd ~/.dotfiles/flake && git pull --ff-only && just build-boot"'
+
+[doc('Mini: open an interactive ssh shell on the host')]
+[group('mini')]
+mini-ssh:
+    ssh -t {{mini_ssh}}
+
+[doc('Mini: reboot the host (e.g. after mini-deploy-boot)')]
+[group('mini')]
+mini-reboot:
+    ssh {{mini_ssh}} 'bash -lc "sudo systemctl reboot"'
+
 [doc('Start declarative Unsloth Studio user service')]
 [group('llm')]
 unsloth:

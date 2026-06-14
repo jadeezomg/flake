@@ -41,6 +41,21 @@ mini ships a **browser UI** ([Open WebUI](https://github.com/open-webui/open-web
 
 From the flake repo on mini (or over SSH), use **`just switch`** after editing Nix (see `docs/hosts/mini-install.md`). For flakes, **`git add`** tracked files before eval-only commands if your workflow requires it.
 
+### Remote management (from any other host)
+
+Author and **commit + push** flake changes on your dev host, then drive mini over SSH — these `just` recipes `git pull --ff-only` on mini and build **there** (run from any host that can `ssh mini`; off-LAN use `MINI_SSH=mini.quokka-qilin.ts.net`):
+
+```bash
+just mini-pull          # git pull --ff-only on mini (no build)
+just mini-deploy        # pull + nh switch (the usual remote deploy)
+just mini-deploy-dry    # pull + build-dry (preview, no activation)
+just mini-deploy-boot   # pull + stage for next reboot (kernel/bootloader changes)
+just mini-ssh           # interactive shell on mini
+just mini-reboot        # reboot the host
+```
+
+`mini-deploy` uses `switch-fast` (no flake check / no commit on mini, since you authored upstream); run `mini-deploy-dry` first if you want a pre-flight build. The `vllm-xpu-kernels` rebuild caveat (`NIX_CONFIG='cores = 2'`, see `mini-vllm-xpu.md`) still applies to the build that runs on mini.
+
 ### systemd — status, logs, control
 
 ```bash

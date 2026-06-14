@@ -9,10 +9,7 @@
 #   (modules/nixos/networking.nix); only :22 is public.
 #
 # open-webui is unfree ("Open WebUI License") — allowed flake-wide in lib/pkgs.nix.
-{
-  config,
-  ...
-}: let
+{config, ...}: let
   webuiPort = 8080;
   tsName = "mini.quokka-qilin.ts.net";
   tailscale = config.services.tailscale.package;
