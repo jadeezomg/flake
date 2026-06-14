@@ -15,7 +15,8 @@ commands:
   logs [all|chat|embedding|llama]
   restart [all|chat|embedding|llama]
   models                 list enabled OpenAI-compatible models on 8000/8010
-  chat [prompt]          smoke-test vLLM chat on 8000
+  chat [prompt]          smoke-test vLLM chat on 8000 (short reply)
+  perf [prompt]          throughput probe: complex prompt, reports TTFT + tok/s
   embedding [text]       disabled for now; chat gets the whole XPU budget
   gpu                    live Intel GPU utilization
   troubleshoot           failed units, cache paths, recent logs
@@ -101,6 +102,54 @@ probe() {
   fi
 }
 
+perf_probe() {
+  # Second, heavier check: a complex prompt that forces sustained generation, so
+  # the numbers reflect real decode throughput rather than the 8-token smoke test.
+  local prompt max_tokens body line payload start first end
+  local prompt_tokens="" completion_tokens=""
+  prompt="${1:-Explain in depth how a modern out-of-order CPU executes a stream of instructions: fetch, decode, register renaming, reservation stations, execution ports, the reorder buffer, and retirement. Give concrete examples and explain why each stage exists.}"
+  max_tokens="${MINI_LLM_PERF_TOKENS:-256}"
+
+  print_header "vLLM throughput probe (complex prompt)"
+  print_pending "POST /v1/chat/completions model=qwen3.5-9b max_tokens=$max_tokens stream=true (TTFT + decode tok/s)"
+
+  body="$(jq -n --arg prompt "$prompt" --argjson max "$max_tokens" \
+    '{model:"qwen3.5-9b",messages:[{role:"user",content:$prompt}],max_tokens:$max,stream:true,stream_options:{include_usage:true},chat_template_kwargs:{enable_thinking:false}}')"
+
+  start="$(date +%s.%N)"
+  while IFS= read -r line; do
+    [[ "$line" == data:* ]] || continue
+    payload="${line#data: }"
+    payload="${payload# }"
+    [[ "$payload" == "[DONE]" ]] && continue
+    # Stamp first-token time off a cheap glob (no jq) so TTFT excludes parse cost.
+    if [[ -z "$first" && "$payload" == *'"content":"'* && "$payload" != *'"content":""'* ]]; then
+      first="$(date +%s.%N)"
+    fi
+    # The include_usage final chunk carries exact server-side token counts.
+    if [[ "$payload" == *'"usage"'* && "$payload" == *'completion_tokens'* ]]; then
+      completion_tokens="$(jq -r '.usage.completion_tokens // empty' <<<"$payload" 2>/dev/null)"
+      prompt_tokens="$(jq -r '.usage.prompt_tokens // empty' <<<"$payload" 2>/dev/null)"
+    fi
+  done < <(printf '%s' "$body" | xh --stream --timeout=180 POST http://127.0.0.1:8000/v1/chat/completions Content-Type:application/json)
+  end="$(date +%s.%N)"
+
+  if [[ -z "$completion_tokens" || -z "$first" ]]; then
+    print_error "Throughput probe did not complete (no tokens or no usage chunk)."
+    print_info "Inspect: just mini-llm-logs chat"
+    return 1
+  fi
+
+  awk -v s="$start" -v f="$first" -v e="$end" -v ct="$completion_tokens" -v pt="${prompt_tokens:-0}" 'BEGIN{
+    ttft=f-s; dec=e-f; tot=e-s;
+    printf "  prompt tokens : %s\n", pt;
+    printf "  output tokens : %s\n", ct;
+    printf "  TTFT (prefill): %.3f s\n", ttft;
+    if (dec>0 && ct>1) printf "  decode speed  : %.1f tok/s\n", (ct-1)/dec;
+    if (tot>0)         printf "  end-to-end    : %.1f tok/s over %.2f s\n", ct/tot, tot;
+  }'
+}
+
 show_chat_runtime_config() {
   local exec_start expected_exec_start
   exec_start="$(systemctl show vllm-xpu-chat.service --property=ExecStart --value 2>/dev/null || true)"
@@ -145,6 +194,9 @@ overview)
   show_chat_runtime_config
   probe "vLLM chat :8000" "http://127.0.0.1:8000/v1/models"
   probe "llama.cpp :8010" "http://127.0.0.1:8010/v1/models"
+  if [[ "$(systemctl is-active vllm-xpu-chat.service 2>/dev/null || true)" == "active" ]]; then
+    perf_probe || true
+  fi
   ;;
 status)
   print_header "MINI LLM STATUS"
@@ -175,6 +227,10 @@ chat)
   jq -n --arg prompt "$prompt" \
     '{model:"qwen3.5-9b",messages:[{role:"user",content:$prompt}],max_tokens:8,stream:true,chat_template_kwargs:{enable_thinking:false}}' |
     xh --stream --timeout=120 POST http://127.0.0.1:8000/v1/chat/completions Content-Type:application/json
+  ;;
+perf)
+  require_endpoint "vLLM chat :8000" "http://127.0.0.1:8000/v1/models" "vllm-xpu-chat"
+  perf_probe "${1:-}"
   ;;
 embedding)
   print_error "vLLM embeddings are disabled on mini so chat can use the full XPU memory budget."
