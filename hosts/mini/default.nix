@@ -24,6 +24,7 @@
       # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
       inputs.vllm-xpu-nix.nixosModules.default
       ./vllm-xpu.nix
+      ./open-webui.nix
     ]
     ++ lib.optionals (
       (host.miniLlmHosting or false)
