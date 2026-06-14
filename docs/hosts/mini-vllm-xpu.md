@@ -14,7 +14,7 @@ This mirrors the **Brutus** host setup under `~/.dotfiles/examples/dotfiles`, wi
 
 - **`boot.kernelParams = ["xe.force_probe=e223"]`** matches Brutus (Intel Arc Battlemage–class dGPU). If mini has **only** integrated UHD and no discrete Arc card, remove that line or adjust the PCI ID after checking `lspci -nn`.
 - **`intel-gpu-tools`** is installed for debugging (`intel_gpu_top`, etc.).
-- **VRAM / context:** Chat is **[Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B)** with **`pkgs.vllm-xpu-unstable.withTorchvision true`** (Qwen3.5 imports Qwen VL image-processing code during vLLM inspection), **`quantization = null`** (vLLM's FP8 W8A8 quantization is not supported on Intel GPU/XPU), **`kvCacheDtype = fp8`**, **`languageModelOnly = true`**, **`enforceEager = true`**. Embedding is disabled so chat can use the whole XPU memory budget. BF16 weights alone are **~18 GiB** and leave little room for KV; default **`maxModelLen = 16384`**. Raise only when KV memory is **positive** after load. For **image/video**, switch to a **VL** repo and set **`languageModelOnly = false`** + **`limitMmPerPrompt`** (needs more VRAM or a smaller VL).
+- **VRAM / context:** Chat is **[Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B)** with **`pkgs.vllm-xpu-unstable.withTorchvision true`** (Qwen3.5 imports Qwen VL image-processing code during vLLM inspection), **`quantization = null`** (vLLM's FP8 W8A8 quantization is not supported on Intel GPU/XPU), **`kvCacheDtype = null`** while stabilising boot, **`languageModelOnly = true`**, **`enforceEager = true`**. Embedding is disabled so chat can use the whole XPU memory budget. BF16 weights alone are **~18 GiB** and leave little room for KV; default **`maxModelLen = 8192`**. Raise only when KV memory is **positive** after load. For **image/video**, switch to a **VL** repo and set **`languageModelOnly = false`** + **`limitMmPerPrompt`** (needs more VRAM or a smaller VL).
 
 ## Operating models
 
@@ -101,11 +101,11 @@ sudo journalctl -fu vllm-xpu-chat
 | Knob | Effect |
 |------|--------|
 | **`quantization = null`** (default on mini chat) | Avoids vLLM FP8 W8A8 weight quantization, which is unsupported on Intel GPU/XPU |
-| **`kvCacheDtype = fp8`** | Keeps KV memory smaller while leaving weights unquantized |
+| **`kvCacheDtype = null`** while stabilising boot | Avoids the quantized KV path until the model starts reliably |
 | **`languageModelOnly = true`** | Skips vision encoder cache / multimodal startup on Qwen3.5 |
 | **`enforceEager = true`** | Skips XPU graph capture buffers |
-| Raise `maxModelLen` (default **16384**) | Larger context cap when **`Available KV cache memory` > 0** |
-| Lower `maxModelLen` (e.g. **8192**) | Shrinks KV pool if startup reports negative KV memory |
+| Raise `maxModelLen` (default **8192**) | Larger context cap when **`Available KV cache memory` > 0** |
+| Lower `maxModelLen` | Shrinks KV pool if startup reports negative KV memory |
 | Lower `maxNumSeqs` (default **1**) | More KV budget per active conversation |
 | Raise `gpuMemoryUtilization` (default **0.95**) | More of total VRAM for vLLM |
 | Keep `instances.embedding.enable = false` | Gives chat the whole XPU memory budget |
@@ -113,11 +113,11 @@ sudo journalctl -fu vllm-xpu-chat
 
 Check GPU memory: `intel_gpu_top` (while the service starts).
 
-### `EngineCore failed to start` right after XCCL init with `quantization=fp8`
+### `EngineCore failed to start` right after XCCL init with FP8 enabled
 
-**Cause:** vLLM's FP8 W8A8 weight quantization path is not supported on Intel GPU/XPU in the upstream hardware matrix. The outer error is usually just **`EngineCore failed to start`** after model inspection and XCCL setup.
+**Cause:** The crash has occurred with both **`quantization = "fp8"`** and later with **`kvCacheDtype = "fp8"`** in the mini setup. vLLM's FP8 W8A8 weight quantization is not supported on Intel GPU/XPU in the upstream hardware matrix; the KV path may also hit XPU backend bugs before weight loading.
 
-**Fix:** keep **`quantization = null`** for Qwen3.5 on mini. Use **`kvCacheDtype = fp8`** for KV memory savings, and lower **`maxModelLen`** if BF16 weights leave too little KV headroom.
+**Fix:** keep both **`quantization = null`** and **`kvCacheDtype = null`** while stabilising Qwen3.5 on mini. Re-enable **only one** FP8 path after a clean boot, starting with KV cache and checking full logs.
 
 ### `ModuleNotFoundError: No module named 'torchvision'` during Qwen3.5 inspection
 

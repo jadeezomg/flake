@@ -121,7 +121,6 @@ show_chat_runtime_config() {
   fi
 
   local missing=()
-  case "$exec_start" in *"--kv-cache-dtype fp8"*) ;; *) missing+=("--kv-cache-dtype fp8") ;; esac
   case "$exec_start" in *"--language-model-only"*) ;; *) missing+=("--language-model-only") ;; esac
   case "$exec_start" in *"--enforce-eager"*) ;; *) missing+=("--enforce-eager") ;; esac
   case "$exec_start" in *"--max-num-seqs 1"*) ;; *) missing+=("--max-num-seqs 1") ;; esac

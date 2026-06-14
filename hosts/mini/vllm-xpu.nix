@@ -54,9 +54,9 @@
       servedName = "qwen3.5-9b";
       dtype = "bfloat16";
       quantization = null;
-      kvCacheDtype = "fp8";
+      kvCacheDtype = null;
       languageModelOnly = true;
-      maxModelLen = 16384;
+      maxModelLen = 8192;
       maxNumSeqs = 1;
       gpuMemoryUtilization = 0.95;
       speculativeConfig = null;
