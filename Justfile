@@ -661,6 +661,12 @@ mini-llm-models:
 mini-llm-chat:
     @bash "$FLAKE/scripts/shell/mini-llm.bash" chat "$@"
 
+[doc('Mini: throughput probe on 8000; complex prompt, reports TTFT + tok/s')]
+[group('mini')]
+[positional-arguments]
+mini-llm-perf:
+    @bash "$FLAKE/scripts/shell/mini-llm.bash" perf "$@"
+
 [doc('Mini: smoke-test vLLM embeddings on 8001; requires vllm-xpu-embedding listening')]
 [group('mini')]
 [positional-arguments]
