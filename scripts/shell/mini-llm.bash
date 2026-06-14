@@ -102,8 +102,10 @@ probe() {
 }
 
 show_chat_runtime_config() {
-  local exec_start
+  local exec_start expected_exec_start
   exec_start="$(systemctl show vllm-xpu-chat.service --property=ExecStart --value 2>/dev/null || true)"
+  expected_exec_start="$(nix eval --raw "$root#nixosConfigurations.mini.config.systemd.services.vllm-xpu-chat.serviceConfig.ExecStart" 2>/dev/null || true)"
+
   print_header "CHAT RUNTIME FLAGS"
   if [[ -z "$exec_start" ]]; then
     print_pending "vllm-xpu-chat ExecStart unavailable"
@@ -111,8 +113,14 @@ show_chat_runtime_config() {
   fi
   printf '%s\n' "$exec_start"
 
+  if [[ -n "$expected_exec_start" && "$exec_start" != *"$expected_exec_start"* ]]; then
+    print_error "Running chat unit does not match the current flake output."
+    print_info "This usually means the switch did not apply, or systemd is still using an older unit."
+    print_info "Run on mini: NIX_CONFIG='cores = 1' just switch-fast && sudo systemctl daemon-reload && sudo systemctl restart vllm-xpu-chat"
+    print_pending "expected ExecStart: $expected_exec_start"
+  fi
+
   local missing=()
-  case "$exec_start" in *"--quantization fp8"*) ;; *) missing+=("--quantization fp8") ;; esac
   case "$exec_start" in *"--kv-cache-dtype fp8"*) ;; *) missing+=("--kv-cache-dtype fp8") ;; esac
   case "$exec_start" in *"--language-model-only"*) ;; *) missing+=("--language-model-only") ;; esac
   case "$exec_start" in *"--enforce-eager"*) ;; *) missing+=("--enforce-eager") ;; esac
