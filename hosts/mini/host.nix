@@ -20,9 +20,10 @@ in
     miniLlamaCppDevice = null;
     # No guest accounts on a headless server.
     extraUsers = [];
-    # 24 GiB RAM: keep local builds conservative. The installer has no disk
-    # swap and large Rust/Node derivations can OOM at higher parallelism.
-    buildCores = 4;
+    # 24 GiB RAM: vllm-xpu kernel TUs can peak around 7 GiB RSS each, and
+    # upstream builds them with ninja -j$NIX_BUILD_CORES. Keep this at 2 so
+    # `attn-kernels-xe-2` does not OOM-kill icpx during local rebuilds.
+    buildCores = 2;
     # Disabled until sbctl keys exist on the installed host. Flip to true in git
     # after `sudo sbctl create-keys`, then switch to let lanzaboote sign /boot.
     secureBoot = false;

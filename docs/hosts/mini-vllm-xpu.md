@@ -146,6 +146,30 @@ From this repo’s directory, **`nix store verify --repair` alone** fails: Nix t
 
 Harmless evaluator noise from options-doc / Home Manager manual generation (often louder on Determinate Nix). It does not block the mini build.
 
+### `icpx: error: unable to execute command: Killed` while building `attn-kernels-xe-2`
+
+This is a host RAM OOM during local XPU kernel compilation, not a vLLM runtime
+error. Upstream notes the worst translation units are about **7 GiB RSS** and
+`ninja` runs at **`-j$NIX_BUILD_CORES`**. On mini's 24 GiB RAM, `buildCores = 4`
+can launch enough `icpx` jobs to OOM-kill one compiler process.
+
+`hosts/mini/host.nix` caps **`buildCores = 2`** for steady state. If the failing
+build is the **first** switch that lowers that setting, the current Nix daemon may
+still be using the old core count. Bootstrap that one build with an explicit cap:
+
+```bash
+NIX_CONFIG='cores = 2' just switch-fast
+```
+
+If you build the derivation directly, use upstream's equivalent one-shot flag:
+
+```bash
+nix build --cores 2 '.#nixosConfigurations.mini.config.system.build.toplevel'
+```
+
+The repeated `nix-output-monitor error: DerivationParseError "string"` lines are
+secondary log-parser noise; the root failure is the killed `icpx` process.
+
 ## Further reading
 
 - **[Google/gemma-4-12B-it — vLLM Recipes](https://recipes.vllm.ai/Google/gemma-4-12B-it)** (nightly / CUDA Docker paths; compare to mini’s **XPU** stack in § Gemma 4 above).
