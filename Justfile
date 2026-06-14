@@ -683,10 +683,35 @@ mini-llm-gpu:
 mini-llm-troubleshoot:
     @bash "$FLAKE/scripts/shell/mini-llm.bash" troubleshoot
 
+[doc('Mini: rigorous benchmark via llama-benchy (pp/tg at context depths + concurrency)')]
+[group('mini')]
+[positional-arguments]
+mini-llm-bench *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # uv's downloaded standalone Python bypasses the nix-ld loader, so PyPI
+    # numpy/tokenizers wheels can't find libstdc++. nix-ld already populates the
+    # needed libs (declared in modules/nixos/nix-ld.nix), so just point the loader
+    # path at that dir for this run.
+    export LD_LIBRARY_PATH="/run/current-system/sw/share/nix-ld/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+    # Targets the tailnet API by default; override with MINI_API=http://127.0.0.1:8000/v1
+    # to run on mini itself (no network jitter).
+    base_url="${MINI_API:-http://mini:8000/v1}"
+    # Default sweep if the caller passes nothing; any args override it.
+    if [[ $# -eq 0 ]]; then
+      set -- --pp 2048 --tg 128 --depth 0 4096 16384 32768 \
+             --concurrency 1 8 --latency-mode generation --exact-tg
+    fi
+    exec uvx llama-benchy \
+      --base-url "$base_url" \
+      --model Intel/Qwen3.5-9B-int4-AutoRound \
+      --served-model-name qwen3.5-9b \
+      "$@"
+
 # --- Mini: remote host management (run from any host that can `ssh mini`) ---
 # Push/commit your flake changes first; these pull origin/main on mini and build
 # there. Override the target off-LAN with MINI_SSH=mini.quokka-qilin.ts.net.
-mini_ssh := env_var_or_default('MINI_SSH', 'mini')
+mini_ssh := env('MINI_SSH', 'mini')
 
 [doc('Mini: git pull --ff-only the flake on mini (no build)')]
 [group('mini')]
