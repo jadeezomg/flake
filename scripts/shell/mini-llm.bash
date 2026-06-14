@@ -105,8 +105,8 @@ probe() {
 perf_probe() {
   # Second, heavier check: a complex prompt that forces sustained generation, so
   # the numbers reflect real decode throughput rather than the 8-token smoke test.
-  local prompt max_tokens body line payload start first end
-  local prompt_tokens="" completion_tokens=""
+  local prompt max_tokens body line payload start end
+  local first="" prompt_tokens="" completion_tokens=""
   prompt="${1:-Explain in depth how a modern out-of-order CPU executes a stream of instructions: fetch, decode, register renaming, reservation stations, execution ports, the reorder buffer, and retirement. Give concrete examples and explain why each stage exists.}"
   max_tokens="${MINI_LLM_PERF_TOKENS:-256}"
 
