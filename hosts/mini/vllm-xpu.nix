@@ -50,6 +50,12 @@
       enable = true;
       environmentFile = config.sops.templates."mini-llm-hf.env".path;
 
+      # Bind the tailnet so other hosts can use the raw OpenAI API at
+      # http://mini:8000/v1. No auth on vLLM, but the firewall trusts only
+      # tailscale0 (modules/nixos/networking.nix), so it is tailnet-only, never
+      # public. Open-WebUI on mini still reaches it over loopback.
+      host = "0.0.0.0";
+
       # Arc Pro B50 has only ~15 GiB: unquantized Qwen3.5-9B (bf16 ~18 GiB) cannot
       # fit at any gpuMemoryUtilization. Use Intel's int4 AutoRound build (~5 GiB
       # weights) — same pattern as the reference brutus `Intel/...-int4-AutoRound`.

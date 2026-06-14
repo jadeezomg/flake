@@ -27,14 +27,15 @@ While **`miniBootstrap = true`** (first install), the flake skips `vllm-xpu-nix`
 
 ## Clients and frontends
 
-This flake does **not** ship a browser UI for vLLM on mini — only the **OpenAI-compatible HTTP API** (`vllm serve` behind systemd).
+mini ships a **browser UI** ([Open WebUI](https://github.com/open-webui/open-webui), `hosts/mini/open-webui.nix`) **and** the raw **OpenAI-compatible HTTP API**. Both are exposed on the **Tailscale tailnet** (`mini.quokka-qilin.ts.net`) and firewalled off the public internet — `modules/nixos/networking.nix` trusts only `tailscale0`, so the only public port is `:22`.
 
-| What | Base URL (on mini, or via SSH tunnel) |
-|------|----------------------------------------|
-| Chat / completions | **`http://127.0.0.1:8000/v1`** — model id = **`servedName`** (e.g. **`qwen3.5-9b`**) |
-| Embeddings | **`http://127.0.0.1:8001/v1`** — model **`jina-embeddings-v5-nano`** |
+| What | URL |
+|------|-----|
+| **Web chat (Open WebUI)** | **`https://mini.quokka-qilin.ts.net`** — from any tailnet host's browser. HTTPS via `tailscale serve` (auto-renewed cert); first account created becomes admin |
+| Chat / completions API | **`http://mini:8000/v1`** (tailnet) or **`http://127.0.0.1:8000/v1`** (on mini) — model id = **`servedName`** (e.g. **`qwen3.5-9b`**) |
+| Embeddings | **`http://mini:8001/v1`** — model **`jina-embeddings-v5-nano`** (when enabled) |
 
-**Ways to talk to it:** **`xh`** / **`curl`** (§ APIs below); **IDEs and agents** (Cursor, Continue, Aider, …) with **OpenAI-compatible** base URL set to that host/port (usually after **§ SSH tunnels**); scripts using any OpenAI SDK with `base_url`. For a **local web chat**, run something like **[Open WebUI](https://github.com/open-webui/open-webui)** or **[LibreChat](https://github.com/danny-avila/LibreChat)** yourself (container or separate service) and point it at **`http://127.0.0.1:8000`** (same tunnel story if the UI runs off-mini). Binding vLLM to **`0.0.0.0`** for a remote UI would need an explicit **`host`** change in **`vllm-xpu.nix`** plus firewall — not the default.
+**How it fits together:** vLLM binds **`0.0.0.0`** (`instances.chat.host` in `vllm-xpu.nix`) so other hosts can use the raw API directly — **no auth** on vLLM, but tailnet-only. Open-WebUI listens on **loopback `:8080`**; `tailscale serve` (the `tailscale-serve-open-webui` oneshot) terminates TLS at the MagicDNS name and proxies to it. **IDEs and agents** (Cursor, Continue, Aider, …) point their OpenAI base URL at `http://mini:8000/v1` from any tailnet host — no SSH tunnel needed. Open-WebUI also re-exports an OpenAI-compatible API at `https://mini.quokka-qilin.ts.net/api` gated by per-user keys, if you prefer authenticated access. The **§ SSH tunnels** below are now only needed from hosts **not** on the tailnet.
 
 ## Command reference
 
