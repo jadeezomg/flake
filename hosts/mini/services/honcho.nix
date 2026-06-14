@@ -28,6 +28,7 @@
   ...
 }: let
   network = "honcho";
+  subnet = "10.89.0.0/24";
   apiPort = 8100; # 8000 = vLLM, 8080 = open-webui
   image = "ghcr.io/plastic-labs/honcho:latest"; # TODO: pin to a digest once a boot is confirmed
   tailscale = config.services.tailscale.package;
@@ -65,6 +66,18 @@ in {
   virtualisation.podman.enable = true;
   virtualisation.oci-containers.backend = "podman";
 
+  # honcho's api/deriver containers reach the host's vLLM (:8000) across the
+  # podman bridge (host.containers.internal). The host firewall only trusts
+  # tailscale0, so without this the connection times out. Allow just the honcho
+  # subnet → :8000. iptables backend (nftables is inactive on mini), so this uses
+  # extraCommands rather than the nftables-only extraInputRules.
+  networking.firewall.extraCommands = ''
+    iptables -I nixos-fw -s ${subnet} -p tcp --dport 8000 -j nixos-fw-accept
+  '';
+  networking.firewall.extraStopCommands = ''
+    iptables -D nixos-fw -s ${subnet} -p tcp --dport 8000 -j nixos-fw-accept || true
+  '';
+
   # User-defined podman network so containers resolve each other by name
   # (the default bridge has no DNS). `--ignore` makes this idempotent.
   systemd.services.honcho-network = {
@@ -73,7 +86,8 @@ in {
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = "${config.virtualisation.podman.package}/bin/podman network create --ignore ${network}";
+      # Pin the subnet so the firewall allow below has a stable CIDR to match.
+      ExecStart = "${config.virtualisation.podman.package}/bin/podman network create --ignore --subnet ${subnet} ${network}";
     };
   };
 
