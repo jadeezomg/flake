@@ -70,7 +70,10 @@
       kvCacheDtype = "fp8";
       languageModelOnly = true;
       maxModelLen = 131072;
-      maxNumSeqs = 1;
+      # Continuous batching: serve up to 8 requests concurrently. KV is cheap here
+      # (int4 weights + fp8 KV -> ~398k-token pool, ~3x concurrency headroom), so a
+      # single long generation no longer head-of-line-blocks everything behind it.
+      maxNumSeqs = 8;
       # B50 is headless (display is on the Iris Xe iGPU), so vLLM can claim more of
       # the card than the reference's 0.85. 0.95 failed the startup free-memory
       # pre-check (needed 15.13 of 15.01 free); 0.90 leaves margin.
