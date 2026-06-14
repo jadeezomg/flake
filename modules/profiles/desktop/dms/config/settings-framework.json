@@ -555,11 +555,11 @@
 				},
 				{
 					"id": "network_speed_monitor",
-					"enabled": true
+					"enabled": false
 				},
 				{
 					"id": "keyboard_layout_name",
-					"enabled": true,
+					"enabled": false,
 					"keyboardLayoutNameCompactMode": true,
 					"keyboardLayoutNameShowIcon": true
 				}

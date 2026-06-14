@@ -4,7 +4,7 @@ This mirrors the **Brutus** host setup under `~/.dotfiles/examples/dotfiles`, wi
 
 - Flake input [`vllm-xpu-nix`](https://github.com/jasonboukheir/vllm-xpu-nix) with `inputs.nixpkgs.follows = "nixpkgs"` (see `flake.nix`).
 - For **mini** with **`miniLlmHosting`**, `parts/hosts.nix` adds **`inputs.vllm-xpu-nix.nixosModules.default`** (overlay + `services.vllm-xpu` options — same as the doc’s “import the NixOS module” step).
-- `hosts/mini/vllm-xpu.nix` — **`services.vllm-xpu`** instance block, Intel graphics / **`xe.force_probe`**, **ccache** sandbox paths, **sops** HF token, and **systemd** ordering so embedding starts after chat. Chat uses default **port 8000**; embedding sets **`port = 8001`** like the upstream example.
+- `hosts/mini/vllm-xpu.nix` — **`services.vllm-xpu`** instance block, Intel graphics / **`xe.force_probe`**, **ccache** sandbox paths, and **sops** HF token. Chat uses **`pkgs.vllm-xpu-unstable.withTorchvision true`** and default **port 8000**. Embedding is defined but disabled so chat gets the full XPU memory budget.
 
 > **Note:** the `miniBootstrap` toggle was removed after mini was bootstrapped — the stack is now gated only by `miniLlmHosting`. For a fresh reinstall, re-introduce a bootstrap exception (see `mini-install.md` §4.4/§5.5).
 
@@ -14,7 +14,7 @@ This mirrors the **Brutus** host setup under `~/.dotfiles/examples/dotfiles`, wi
 
 - **`boot.kernelParams = ["xe.force_probe=e223"]`** matches Brutus (Intel Arc Battlemage–class dGPU). If mini has **only** integrated UHD and no discrete Arc card, remove that line or adjust the PCI ID after checking `lspci -nn`.
 - **`intel-gpu-tools`** is installed for debugging (`intel_gpu_top`, etc.).
-- **VRAM / context:** Chat is **[Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B)** with **`quantization = fp8`** (online weight quant), **`kvCacheDtype = fp8`**, **`languageModelOnly = true`**, **`enforceEager = true`**. BF16 weights alone are **~18 GiB** — they do not fit **16 GiB** dGPU + KV (logs: **`Model loading took 17.66 GiB`**, **`Available KV cache memory: -0.99 GiB`**). FP8 weight quant drops peak to **~13–14 GiB** ([intel/llm-scaler#339](https://github.com/intel/llm-scaler/issues/339)). Default **`maxModelLen = 32768`**; raise only when KV memory is **positive** after load. For **image/video**, switch to a **VL** repo and set **`languageModelOnly = false`** + **`limitMmPerPrompt`** (needs more VRAM or a smaller VL).
+- **VRAM / context:** Chat is **[Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B)** with **`pkgs.vllm-xpu-unstable.withTorchvision true`** (Qwen3.5 imports Qwen VL image-processing code during vLLM inspection), **`quantization = fp8`** (online weight quant), **`kvCacheDtype = fp8`**, **`languageModelOnly = true`**, **`enforceEager = true`**. Embedding is disabled so chat can use the whole XPU memory budget. BF16 weights alone are **~18 GiB** — they do not fit **16 GiB** dGPU + KV (logs: **`Model loading took 17.66 GiB`**, **`Available KV cache memory: -0.99 GiB`**). FP8 weight quant drops peak to **~13–14 GiB** ([intel/llm-scaler#339](https://github.com/intel/llm-scaler/issues/339)). Default **`maxModelLen = 32768`**; raise only when KV memory is **positive** after load. For **image/video**, switch to a **VL** repo and set **`languageModelOnly = false`** + **`limitMmPerPrompt`** (needs more VRAM or a smaller VL).
 
 ## Operating models
 
@@ -86,9 +86,9 @@ Inspect cache use: `ccache --show-stats --dir /var/cache/ccache`
 
 ### `Available KV cache memory: -X GiB` / `No available memory for the cache blocks`
 
-Weights loaded, but **KV cache init ran out of VRAM**. Common on mini when the Brutus-tuned stack (27B + MTP + 64k context + XPU graphs + co-resident embedding) exceeds the card.
+Weights loaded, but **KV cache init ran out of VRAM**. Common on mini when the context window is too large or another GPU service is co-resident.
 
-**Quick test (no rebuild):**
+Embedding is disabled by default while tuning chat. If you re-enable it later, first isolate chat with:
 
 ```bash
 sudo systemctl stop vllm-xpu-embedding
@@ -107,10 +107,16 @@ sudo journalctl -fu vllm-xpu-chat
 | Lower `maxModelLen` (e.g. **16384**, **8192**) | Shrinks KV pool if startup reports negative KV memory |
 | Lower `maxNumSeqs` (default **1**) | More KV budget per active conversation |
 | Raise `gpuMemoryUtilization` (default **0.95**) | More of total VRAM for vLLM |
-| `sudo systemctl stop vllm-xpu-embedding` | Frees GPU share for chat KV during tuning |
+| Keep `instances.embedding.enable = false` | Gives chat the whole XPU memory budget |
 | Smaller chat model | Only fix if weights alone exceed VRAM even with fp8 quant |
 
 Check GPU memory: `intel_gpu_top` (while the service starts).
+
+### `ModuleNotFoundError: No module named 'torchvision'` during Qwen3.5 inspection
+
+**Cause:** vLLM imports `vllm.model_executor.models.qwen3_5`, which imports `qwen3_vl`; Transformers then imports `torchvision.transforms.v2` even when mini serves text-only Qwen3.5 with **`languageModelOnly = true`**. The service fails before binding **`:8000`**.
+
+**Fix:** keep chat on **`pkgs.vllm-xpu-unstable.withTorchvision true`**. This only adds the XPU torchvision wheel to the vLLM Python closure; it does not enable multimodal profiling while **`languageModelOnly = true`**.
 
 ### `Chunk prefill kernel not compiled` / `EngineCore failed to start` / XPU OOM during vision `profile_run`
 

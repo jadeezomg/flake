@@ -14,9 +14,9 @@ commands:
   status                 service status for vLLM-XPU and llama.cpp
   logs [all|chat|embedding|llama]
   restart [all|chat|embedding|llama]
-  models                 list OpenAI-compatible models on 8000/8001/8010
+  models                 list enabled OpenAI-compatible models on 8000/8010
   chat [prompt]          smoke-test vLLM chat on 8000
-  embedding [text]       smoke-test vLLM embeddings on 8001
+  embedding [text]       disabled for now; chat gets the whole XPU budget
   gpu                    live Intel GPU utilization
   troubleshoot           failed units, cache paths, recent logs
 USAGE
@@ -25,7 +25,7 @@ USAGE
 unit_args() {
   local unit="${1:-all}"
   case "$unit" in
-  all) printf '%s\0' vllm-xpu-chat vllm-xpu-embedding llama-cpp-gemma ;;
+  all) printf '%s\0' vllm-xpu-chat llama-cpp-gemma ;;
   chat) printf '%s\0' vllm-xpu-chat ;;
   embedding) printf '%s\0' vllm-xpu-embedding ;;
   llama) printf '%s\0' llama-cpp-gemma ;;
@@ -39,7 +39,7 @@ unit_args() {
 journal_unit_args() {
   local unit="${1:-all}"
   case "$unit" in
-  all) printf '%s\0%s\0%s\0%s\0%s\0%s\0' -u vllm-xpu-chat -u vllm-xpu-embedding -u llama-cpp-gemma ;;
+  all) printf '%s\0%s\0%s\0%s\0' -u vllm-xpu-chat -u llama-cpp-gemma ;;
   chat) printf '%s\0%s\0' -u vllm-xpu-chat ;;
   embedding) printf '%s\0%s\0' -u vllm-xpu-embedding ;;
   llama) printf '%s\0%s\0' -u llama-cpp-gemma ;;
@@ -52,15 +52,42 @@ journal_unit_args() {
 
 require_endpoint() {
   local label="$1" url="$2" unit="$3"
-  local out
-  if ! out="$(xh --ignore-stdin --timeout=5 GET "$url" 2>&1)"; then
-    print_error "$label is not reachable."
-    print_info "The HTTP API is not listening yet; check the systemd unit before running the smoke test."
-    print_info "Try: just mini-llm-status"
-    print_info "Try: just mini-llm-logs ${unit#vllm-xpu-}"
-    print_pending "$out"
-    exit 1
-  fi
+  local timeout="${MINI_LLM_WAIT_SECONDS:-300}"
+  local started="$SECONDS"
+  local out state elapsed
+
+  while true; do
+    if out="$(xh --ignore-stdin --timeout=5 GET "$url" 2>&1)"; then
+      return
+    fi
+
+    elapsed=$((SECONDS - started))
+    if ((elapsed >= timeout)); then
+      print_error "$label is not reachable after ${timeout}s."
+      print_info "The HTTP API is still not listening; inspect the systemd unit before running the smoke test."
+      print_info "Try: just mini-llm-status"
+      print_info "Try: just mini-llm-logs ${unit#vllm-xpu-}"
+      print_pending "$out"
+      print_header "${unit}.service status"
+      systemctl --no-pager --full --lines=80 status "${unit}.service" || true
+      print_header "${unit}.service recent logs"
+      journalctl --no-pager -u "${unit}.service" -n 80 || true
+      exit 1
+    fi
+
+    state="$(systemctl is-active "${unit}.service" 2>/dev/null || true)"
+    if [[ "$state" != "active" && "$state" != "activating" ]]; then
+      print_error "$label cannot start because ${unit}.service is ${state:-unknown}."
+      print_header "${unit}.service status"
+      systemctl --no-pager --full --lines=80 status "${unit}.service" || true
+      print_header "${unit}.service recent logs"
+      journalctl --no-pager -u "${unit}.service" -n 80 || true
+      exit 1
+    fi
+
+    print_pending "$label not ready yet (${elapsed}s/${timeout}s); ${unit}.service is $state"
+    sleep 5
+  done
 }
 
 probe() {
@@ -107,17 +134,16 @@ overview)
   print_header "MINI LLM STATUS"
   systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager --full
   print_header "UNIT STATUS"
-  systemctl --no-pager --full --lines=80 status vllm-xpu-chat vllm-xpu-embedding llama-cpp-gemma || true
+  systemctl --no-pager --full --lines=80 status vllm-xpu-chat llama-cpp-gemma || true
   show_chat_runtime_config
   probe "vLLM chat :8000" "http://127.0.0.1:8000/v1/models"
-  probe "vLLM embeddings :8001" "http://127.0.0.1:8001/v1/models"
   probe "llama.cpp :8010" "http://127.0.0.1:8010/v1/models"
   ;;
 status)
   print_header "MINI LLM STATUS"
   systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager --full
   print_header "UNIT STATUS"
-  systemctl --no-pager --full --lines=80 status vllm-xpu-chat vllm-xpu-embedding llama-cpp-gemma || true
+  systemctl --no-pager --full --lines=80 status vllm-xpu-chat llama-cpp-gemma || true
   show_chat_runtime_config
   ;;
 logs)
@@ -131,7 +157,6 @@ restart)
   ;;
 models)
   probe "vLLM chat :8000" "http://127.0.0.1:8000/v1/models"
-  probe "vLLM embeddings :8001" "http://127.0.0.1:8001/v1/models"
   probe "llama.cpp :8010" "http://127.0.0.1:8010/v1/models"
   ;;
 chat)
@@ -145,14 +170,9 @@ chat)
     xh --stream --timeout=120 POST http://127.0.0.1:8000/v1/chat/completions Content-Type:application/json
   ;;
 embedding)
-  text="${1:-hello}"
-  require_endpoint "vLLM embeddings :8001" "http://127.0.0.1:8001/v1/models" "vllm-xpu-embedding"
-  print_header "vLLM embedding request"
-  print_pending "POST /v1/embeddings model=jina-embeddings-v5-nano"
-  print_info "If this waits, watch logs with: just mini-llm-logs embedding"
-  jq -n --arg text "$text" \
-    '{model:"jina-embeddings-v5-nano",input:$text}' |
-    xh --timeout=120 POST http://127.0.0.1:8001/v1/embeddings Content-Type:application/json
+  print_error "vLLM embeddings are disabled on mini so chat can use the full XPU memory budget."
+  print_info "Re-enable services.vllm-xpu.instances.embedding in hosts/mini/vllm-xpu.nix if you need :8001 again."
+  exit 1
   ;;
 gpu)
   sudo intel_gpu_top
@@ -172,7 +192,7 @@ troubleshoot)
     fi
   done
   print_header "RECENT LOGS"
-  journalctl --no-pager -u vllm-xpu-chat -u vllm-xpu-embedding -u llama-cpp-gemma -n 120 || true
+  journalctl --no-pager -u vllm-xpu-chat -u llama-cpp-gemma -n 120 || true
   ;;
 -h | --help | help | "")
   usage
