@@ -50,22 +50,30 @@
       enable = true;
       environmentFile = config.sops.templates."mini-llm-hf.env".path;
 
-      model = "Qwen/Qwen3.5-9B";
+      # Arc Pro B50 has only ~15 GiB: unquantized Qwen3.5-9B (bf16 ~18 GiB) cannot
+      # fit at any gpuMemoryUtilization. Use Intel's int4 AutoRound build (~5 GiB
+      # weights) — same pattern as the reference brutus `Intel/...-int4-AutoRound`.
+      # Packs as `auto_round:auto_gptq`, so it loads via the gptq path.
+      model = "Intel/Qwen3.5-9B-int4-AutoRound";
       servedName = "qwen3.5-9b";
       dtype = "bfloat16";
-      quantization = null;
+      quantization = "gptq";
       kvCacheDtype = null;
       languageModelOnly = true;
       maxModelLen = 8192;
       maxNumSeqs = 1;
-      gpuMemoryUtilization = 0.95;
+      gpuMemoryUtilization = 0.85;
       speculativeConfig = null;
       enforceEager = true;
       enableXpuGraph = false;
       reasoningParser = "qwen3";
       enableAutoToolChoice = false;
       toolCallParser = null;
-      extraArgs = ["--trust-remote-code"];
+      extraArgs = [
+        "--trust-remote-code"
+        "--revision"
+        "29688b8959bebb6d019ddd8f174a5b4bfd670456"
+      ];
     };
 
     # Disabled while tuning chat: Qwen3.5 gets the whole XPU memory budget.

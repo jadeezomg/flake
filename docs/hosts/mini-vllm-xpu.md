@@ -14,7 +14,7 @@ This mirrors the **Brutus** host setup under `~/.dotfiles/examples/dotfiles`, wi
 
 - **`boot.kernelParams = ["xe.force_probe=e223"]`** matches Brutus (Intel Arc Battlemage–class dGPU). If mini has **only** integrated UHD and no discrete Arc card, remove that line or adjust the PCI ID after checking `lspci -nn`.
 - **`intel-gpu-tools`** is installed for debugging (`intel_gpu_top`, etc.).
-- **VRAM / context:** Chat is **[Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B)** with **`pkgs.vllm-xpu-unstable.withTorchvision true`** (Qwen3.5 imports Qwen VL image-processing code during vLLM inspection), **`quantization = null`** (vLLM's FP8 W8A8 quantization is not supported on Intel GPU/XPU), **`kvCacheDtype = null`** while stabilising boot, **`languageModelOnly = true`**, **`enforceEager = true`**. Embedding is disabled so chat can use the whole XPU memory budget. BF16 weights alone are **~18 GiB** and leave little room for KV; default **`maxModelLen = 8192`**. Raise only when KV memory is **positive** after load. For **image/video**, switch to a **VL** repo and set **`languageModelOnly = false`** + **`limitMmPerPrompt`** (needs more VRAM or a smaller VL).
+- **VRAM / context:** mini's GPU is an **Intel Arc Pro B50** with only **~15 GiB**. Unquantized **Qwen3.5-9B** (bf16 **~18 GiB** of weights) does **not** fit — it fails vLLM's startup memory pre-check (`Free memory on device xpu:0 … less than desired GPU memory utilization`) regardless of `gpuMemoryUtilization`, and lowering that knob only moves the failure to an OOM during weight load. Chat therefore runs **[Intel/Qwen3.5-9B-int4-AutoRound](https://huggingface.co/Intel/Qwen3.5-9B-int4-AutoRound)** (int4 AutoRound, **~5 GiB** weights — same pattern as the reference brutus `Intel/…-int4-AutoRound`). It packs as `auto_round:auto_gptq`, so it loads via **`quantization = "gptq"`**. Other settings: **`pkgs.vllm-xpu-unstable.withTorchvision true`** (Qwen3.5 imports Qwen VL image-processing code during vLLM inspection), **`kvCacheDtype = null`** while stabilising boot, **`languageModelOnly = true`**, **`enforceEager = true`**, **`gpuMemoryUtilization = 0.85`**, pinned **`--revision`**. Embedding is disabled so chat gets the whole budget. int4 leaves **~8 GiB** for KV; default **`maxModelLen = 8192`** can be raised when KV memory is **positive** after load. For **image/video**, switch to a **VL** repo and set **`languageModelOnly = false`** + **`limitMmPerPrompt`**.
 
 ## Operating models
 
@@ -107,7 +107,7 @@ sudo journalctl -fu vllm-xpu-chat
 | Raise `maxModelLen` (default **8192**) | Larger context cap when **`Available KV cache memory` > 0** |
 | Lower `maxModelLen` | Shrinks KV pool if startup reports negative KV memory |
 | Lower `maxNumSeqs` (default **1**) | More KV budget per active conversation |
-| Raise `gpuMemoryUtilization` (default **0.95**) | More of total VRAM for vLLM |
+| Raise `gpuMemoryUtilization` (default **0.85**) | More of total VRAM for vLLM (the **0.95** pre-check failure showed too little headroom on the B50) |
 | Keep `instances.embedding.enable = false` | Gives chat the whole XPU memory budget |
 | Smaller or supported quantized chat model | Only fix if unquantized weights alone exceed VRAM |
 
