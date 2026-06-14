@@ -52,7 +52,7 @@ in {
   };
 
   environment.variables = {
-    CARGO_BUILD_JOBS = toString (buildCores / 2);
+    CARGO_BUILD_JOBS = toString (lib.max 1 (buildCores / 2));
     CARGO_NET_GIT_FETCH_WITH_CLI = "true";
   };
 

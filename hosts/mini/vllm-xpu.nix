@@ -41,7 +41,10 @@
   };
 
   services.vllm-xpu = {
-    package = pkgs.vllm-xpu-unstable;
+    # Qwen3.5 text import still loads qwen3_vl -> transformers qwen2_vl image
+    # processing at model-inspection time; keep torchvision in the closure even
+    # with `languageModelOnly = true`.
+    package = pkgs.vllm-xpu-unstable.withTorchvision true;
 
     instances.chat = {
       enable = true;
@@ -65,8 +68,9 @@
       extraArgs = ["--trust-remote-code"];
     };
 
+    # Disabled while tuning chat: Qwen3.5 gets the whole XPU memory budget.
     instances.embedding = {
-      enable = true;
+      enable = false;
       port = 8001;
       environmentFile = config.sops.templates."mini-llm-hf.env".path;
 
@@ -83,11 +87,5 @@
         "ac5d898c8d382b17167c33e5c8af644a3519b47d"
       ];
     };
-  };
-
-  # Let chat claim VRAM before the embedder starts profiling (when chat is enabled).
-  systemd.services.vllm-xpu-embedding = {
-    after = ["vllm-xpu-chat.service"];
-    wants = ["vllm-xpu-chat.service"];
   };
 }
