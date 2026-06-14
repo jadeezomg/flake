@@ -15,7 +15,7 @@
       ../../modules/profiles
       ./profiles.nix
       inputs.hermes-agent.nixosModules.default
-      ./hermes.nix
+      ./services/hermes.nix
       # Nightly cachix pipeline — disabled until the host is up (mini-install.md §6).
       # ./flake-cache-warm.nix
     ]
@@ -23,13 +23,13 @@
       # vllm-xpu-nix: `nixosModules.default` = overlay + `services.vllm-xpu` (see upstream
       # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
       inputs.vllm-xpu-nix.nixosModules.default
-      ./vllm-xpu.nix
-      ./open-webui.nix
+      ./services/vllm-xpu.nix
+      ./services/open-webui.nix
     ]
     ++ lib.optionals (
       (host.miniLlmHosting or false)
       && (host.miniLlamaCppGemma or true)
-    ) [./llama-cpp.nix];
+    ) [./services/llama-cpp.nix];
   # NOPASSWD wheel — quality-of-life over SSH on a key-only headless host.
   # Desktop/framework keep password-required sudo (gated by hostKey == "mini"
   # is unnecessary because this file only loads for the mini host).
