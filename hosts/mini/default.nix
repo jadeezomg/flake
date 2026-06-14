@@ -29,7 +29,11 @@
     ++ lib.optionals (
       (host.miniLlmHosting or false)
       && (host.miniLlamaCppGemma or true)
-    ) [./services/llama-cpp.nix];
+    ) [./services/llama-cpp.nix]
+    ++ lib.optionals (
+      (host.miniLlmHosting or false)
+      && (host.miniMemoryHosting or false)
+    ) [./services/honcho.nix];
   # NOPASSWD wheel — quality-of-life over SSH on a key-only headless host.
   # Desktop/framework keep password-required sudo (gated by hostKey == "mini"
   # is unnecessary because this file only loads for the mini host).
