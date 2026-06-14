@@ -58,11 +58,17 @@
       servedName = "qwen3.5-9b";
       dtype = "bfloat16";
       quantization = "gptq";
-      kvCacheDtype = null;
+      # Qwen3.5 is hybrid linear-attention: only 8 of 32 layers are full attention,
+      # so KV is cheap (16 KiB/token at fp8). fp8 KV fits the model's full 262k ctx
+      # in ~4 GiB. See docs/hosts/mini-vllm-xpu.md if fp8 KV destabilises boot on XPU.
+      kvCacheDtype = "fp8";
       languageModelOnly = true;
-      maxModelLen = 8192;
+      maxModelLen = 131072;
       maxNumSeqs = 1;
-      gpuMemoryUtilization = 0.85;
+      # B50 is headless (display is on the Iris Xe iGPU), so vLLM can claim more of
+      # the card than the reference's 0.85. 0.95 failed the startup free-memory
+      # pre-check (needed 15.13 of 15.01 free); 0.90 leaves margin.
+      gpuMemoryUtilization = 0.9;
       speculativeConfig = null;
       enforceEager = true;
       enableXpuGraph = false;
