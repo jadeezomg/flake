@@ -66,8 +66,8 @@ require_endpoint() {
     if ((elapsed >= timeout)); then
       print_error "$label is not reachable after ${timeout}s."
       print_info "The HTTP API is still not listening; inspect the systemd unit before running the smoke test."
-      print_info "Try: just mini-llm-status"
-      print_info "Try: just mini-llm-logs ${unit#vllm-xpu-}"
+      print_info "Try: just mini llm status"
+      print_info "Try: just mini llm logs ${unit#vllm-xpu-}"
       print_pending "$out"
       print_header "${unit}.service status"
       systemctl --no-pager --full --lines=80 status "${unit}.service" || true
@@ -136,7 +136,7 @@ perf_probe() {
 
   if [[ -z "$completion_tokens" || -z "$first" ]]; then
     print_error "Throughput probe did not complete (no tokens or no usage chunk)."
-    print_info "Inspect: just mini-llm-logs chat"
+    print_info "Inspect: just mini llm logs chat"
     return 1
   fi
 
@@ -172,7 +172,7 @@ show_chat_runtime_config() {
   local missing=()
   case "$exec_start" in *"--language-model-only"*) ;; *) missing+=("--language-model-only") ;; esac
   case "$exec_start" in *"--enforce-eager"*) ;; *) missing+=("--enforce-eager") ;; esac
-  case "$exec_start" in *"--max-num-seqs 1"*) ;; *) missing+=("--max-num-seqs 1") ;; esac
+  case "$exec_start" in *"--max-num-seqs 8"*) ;; *) missing+=("--max-num-seqs 8") ;; esac
 
   if ((${#missing[@]})); then
     print_error "Running chat unit is missing expected mini tuning: ${missing[*]}"
@@ -223,7 +223,7 @@ chat)
   require_endpoint "vLLM chat :8000" "http://127.0.0.1:8000/v1/models" "vllm-xpu-chat"
   print_header "vLLM chat request"
   print_pending "POST /v1/chat/completions model=qwen3.5-9b max_tokens=8 stream=true enable_thinking=false"
-  print_info "This is a smoke test: short output, Qwen thinking disabled. If it still crawls, watch: just mini-llm-logs chat"
+  print_info "This is a smoke test: short output, Qwen thinking disabled. If it still crawls, watch: just mini llm logs chat"
   jq -n --arg prompt "$prompt" \
     '{model:"qwen3.5-9b",messages:[{role:"user",content:$prompt}],max_tokens:8,stream:true,chat_template_kwargs:{enable_thinking:false}}' |
     xh --stream --timeout=120 POST http://127.0.0.1:8000/v1/chat/completions Content-Type:application/json
