@@ -18,7 +18,7 @@
   host,
   ...
 }: let
-  backend = host.miniLlmBackend or "vllm";
+  backend = host.miniLlmBackend or "llamacpp";
 in {
   imports =
     [./open-webui.nix]
