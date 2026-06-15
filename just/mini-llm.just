@@ -22,7 +22,7 @@ logs *args:
 restart *args:
     @bash "$FLAKE/scripts/shell/mini-llm.bash" restart "$@"
 
-[doc('List OpenAI-compatible models on 8000/8001/8010')]
+[doc('List OpenAI-compatible models on 8000 (active backend)')]
 models:
     @bash "$FLAKE/scripts/shell/mini-llm.bash" models
 
@@ -70,5 +70,5 @@ bench *args:
     exec uvx llama-benchy \
       --base-url "$base_url" \
       --model Intel/Qwen3.5-9B-int4-AutoRound \
-      --served-model-name qwen3.5-9b \
+      --served-model-name local-chat \
       "$@"

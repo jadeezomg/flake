@@ -11,7 +11,8 @@
 # hosts' agents set HONCHO_URL there. Nothing is published on the public internet.
 #
 # Model routing (see the plan doc): the deriver is a *background* task, so it uses
-# the *local* vLLM tier (http://host.containers.internal:8000/v1, qwen3.5-9b).
+# the *local* chat tier (http://host.containers.internal:<miniLlmPort>/v1, served name
+# `miniLlmServedName` — see host.nix; same whether vllm or llamacpp is active).
 # OpenRouter is reserved for the complex/interactive tier (hermes, Phase 2).
 #
 # FIRST-RUN ITERATION: honcho sets LLM endpoints *per feature* via
@@ -25,11 +26,15 @@
 {
   config,
   lib,
+  host,
   ...
 }: let
   network = "honcho";
   subnet = "10.89.0.0/24";
-  apiPort = 8100; # 8000 = vLLM, 8080 = open-webui
+  apiPort = 8100; # 8000 = local LLM chat, 8080 = open-webui
+  # Local chat contract (host.nix) — same regardless of vllm/llamacpp backend.
+  llmPort = host.miniLlmPort;
+  llmModel = host.miniLlmServedName;
   image = "ghcr.io/plastic-labs/honcho:latest"; # TODO: pin to a digest once a boot is confirmed
   tailscale = config.services.tailscale.package;
 
@@ -43,13 +48,14 @@
     LOG_LEVEL = "INFO";
     EMBED_MESSAGES = "false"; # see FIRST-RUN note
 
-    # Deriver → local vLLM (background tier). vLLM runs no auth, so the key is a
-    # placeholder honcho's openai transport simply forwards.
+    # Deriver → local chat server (background tier). It runs no auth, so the key is
+    # a placeholder honcho's openai transport simply forwards. Model + port come from
+    # the shared contract (host.nix), so the active backend (vllm/llamacpp) is invisible.
     LLM_OPENAI_API_KEY = "sk-no-auth";
     DERIVER_ENABLED = "true";
     DERIVER_MODEL_CONFIG__TRANSPORT = "openai";
-    DERIVER_MODEL_CONFIG__MODEL = "qwen3.5-9b";
-    DERIVER_MODEL_CONFIG__OVERRIDES__BASE_URL = "http://host.containers.internal:8000/v1";
+    DERIVER_MODEL_CONFIG__MODEL = llmModel;
+    DERIVER_MODEL_CONFIG__OVERRIDES__BASE_URL = "http://host.containers.internal:${toString llmPort}/v1";
   };
 
   containerCommon = {
@@ -66,16 +72,16 @@ in {
   virtualisation.podman.enable = true;
   virtualisation.oci-containers.backend = "podman";
 
-  # honcho's api/deriver containers reach the host's vLLM (:8000) across the
-  # podman bridge (host.containers.internal). The host firewall only trusts
+  # honcho's api/deriver containers reach the host's local chat server (:${toString llmPort})
+  # across the podman bridge (host.containers.internal). The host firewall only trusts
   # tailscale0, so without this the connection times out. Allow just the honcho
-  # subnet → :8000. iptables backend (nftables is inactive on mini), so this uses
-  # extraCommands rather than the nftables-only extraInputRules.
+  # subnet → the chat port. iptables backend (nftables is inactive on mini), so this
+  # uses extraCommands rather than the nftables-only extraInputRules.
   networking.firewall.extraCommands = ''
-    iptables -I nixos-fw -s ${subnet} -p tcp --dport 8000 -j nixos-fw-accept
+    iptables -I nixos-fw -s ${subnet} -p tcp --dport ${toString llmPort} -j nixos-fw-accept
   '';
   networking.firewall.extraStopCommands = ''
-    iptables -D nixos-fw -s ${subnet} -p tcp --dport 8000 -j nixos-fw-accept || true
+    iptables -D nixos-fw -s ${subnet} -p tcp --dport ${toString llmPort} -j nixos-fw-accept || true
   '';
 
   # User-defined podman network so containers resolve each other by name

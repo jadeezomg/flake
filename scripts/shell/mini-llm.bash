@@ -14,7 +14,7 @@ commands:
   status                 service status for vLLM-XPU and llama.cpp
   logs [all|chat|embedding|llama]
   restart [all|chat|embedding|llama]
-  models                 list enabled OpenAI-compatible models on 8000/8010
+  models                 list OpenAI-compatible models on 8000 (active backend)
   chat [prompt]          smoke-test vLLM chat on 8000 (short reply)
   perf [prompt]          throughput probe: complex prompt, reports TTFT + tok/s
   embedding [text]       disabled for now; chat gets the whole XPU budget
@@ -111,10 +111,10 @@ perf_probe() {
   max_tokens="${MINI_LLM_PERF_TOKENS:-256}"
 
   print_header "vLLM throughput probe (complex prompt)"
-  print_pending "POST /v1/chat/completions model=qwen3.5-9b max_tokens=$max_tokens stream=true (TTFT + decode tok/s)"
+  print_pending "POST /v1/chat/completions model=local-chat max_tokens=$max_tokens stream=true (TTFT + decode tok/s)"
 
   body="$(jq -n --arg prompt "$prompt" --argjson max "$max_tokens" \
-    '{model:"qwen3.5-9b",messages:[{role:"user",content:$prompt}],max_tokens:$max,stream:true,stream_options:{include_usage:true},chat_template_kwargs:{enable_thinking:false}}')"
+    '{model:"local-chat",messages:[{role:"user",content:$prompt}],max_tokens:$max,stream:true,stream_options:{include_usage:true},chat_template_kwargs:{enable_thinking:false}}')"
 
   start="$(date +%s.%N)"
   while IFS= read -r line; do
@@ -192,8 +192,8 @@ overview)
   print_header "UNIT STATUS"
   systemctl --no-pager --full --lines=80 status vllm-xpu-chat llama-cpp-gemma || true
   show_chat_runtime_config
-  probe "vLLM chat :8000" "http://127.0.0.1:8000/v1/models"
-  probe "llama.cpp :8010" "http://127.0.0.1:8010/v1/models"
+  # Both backends serve the shared contract on :8000; only one is active at a time.
+  probe "local chat :8000" "http://127.0.0.1:8000/v1/models"
   if [[ "$(systemctl is-active vllm-xpu-chat.service 2>/dev/null || true)" == "active" ]]; then
     perf_probe || true
   fi
@@ -215,17 +215,16 @@ restart)
   systemctl --no-pager status "${units[@]}" || true
   ;;
 models)
-  probe "vLLM chat :8000" "http://127.0.0.1:8000/v1/models"
-  probe "llama.cpp :8010" "http://127.0.0.1:8010/v1/models"
+  probe "local chat :8000" "http://127.0.0.1:8000/v1/models"
   ;;
 chat)
   prompt="${1:-Reply with exactly: ok}"
   require_endpoint "vLLM chat :8000" "http://127.0.0.1:8000/v1/models" "vllm-xpu-chat"
   print_header "vLLM chat request"
-  print_pending "POST /v1/chat/completions model=qwen3.5-9b max_tokens=8 stream=true enable_thinking=false"
+  print_pending "POST /v1/chat/completions model=local-chat max_tokens=8 stream=true enable_thinking=false"
   print_info "This is a smoke test: short output, Qwen thinking disabled. If it still crawls, watch: just mini llm logs chat"
   jq -n --arg prompt "$prompt" \
-    '{model:"qwen3.5-9b",messages:[{role:"user",content:$prompt}],max_tokens:8,stream:true,chat_template_kwargs:{enable_thinking:false}}' |
+    '{model:"local-chat",messages:[{role:"user",content:$prompt}],max_tokens:8,stream:true,chat_template_kwargs:{enable_thinking:false}}' |
     xh --stream --timeout=120 POST http://127.0.0.1:8000/v1/chat/completions Content-Type:application/json
   ;;
 perf)

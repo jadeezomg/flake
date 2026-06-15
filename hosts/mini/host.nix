@@ -6,12 +6,24 @@ in
     hostname = "mini";
     description = "Mini — Minisforum MS-01 headless server";
     user = sharedNixOSUser;
-    # Gates `vllm-xpu-nix`, `./vllm-xpu.nix`, and `./llama-cpp.nix`. The generic
+    # Gates the local LLM chat stack: the shared base (`./services/llm-base.nix`),
+    # the selected backend below, and `./services/open-webui.nix`. The generic
     # `dotfiles.profiles.llm` serving stack defaults off and is unused on mini.
     miniLlmHosting = true;
-    # When false, skip `./llama-cpp.nix` — use when Gemma chat is served by vLLM on 8000
-    # instead of llama.cpp on 8010 (same GPU; both on will OOM).
-    miniLlamaCppGemma = false;
+    # Which backend serves local chat. Exactly one runs (shared GPU; both on will
+    # OOM). Both expose the SAME contract (`miniLlm{ServedName,Port,Host}` below),
+    # so consumers (open-webui, honcho) can't tell them apart — switching backends
+    # is transparent.
+    #   "vllm"     → ./services/vllm-xpu.nix   (Intel XPU, Qwen3.5-9B int4 AutoRound)
+    #   "llamacpp" → ./services/llama-cpp.nix  (Vulkan, Gemma-4-12B GGUF)
+    miniLlmBackend = "vllm";
+    # Shared serving contract — identical across backends. Consumers read these;
+    # the served name is backend/model-neutral so it never changes on a switch.
+    miniLlmServedName = "local-chat";
+    miniLlmPort = 8000;
+    # Tailnet bind: the firewall trusts only tailscale0 (modules/nixos/networking.nix),
+    # so this is tailnet-only, never public. Loopback consumers still reach it.
+    miniLlmHost = "0.0.0.0";
     # Honcho shared-memory server (./services/honcho.nix). Needs `miniLlmHosting`
     # since its deriver uses the local vLLM model. See docs/hosts/mini-agent-memory-plan.md.
     miniMemoryHosting = true;

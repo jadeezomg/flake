@@ -12,7 +12,7 @@ Status: **Phase 1 in progress.** Phases 2–4 are designed but not built.
 ```
                     mini  (tailnet hub — services firewalled to tailscale0 only)
   ┌──────────────────────────────────────────────────────────────────────┐
-  │ vLLM-XPU :8000        local model backend (Qwen3.5-9B int4, OpenAI API)│
+  │ chat stack :8000      local model backend (`local-chat`, OpenAI API)   │
   │ open-webui :8080      chat UI (HTTPS via `tailscale serve`)            │
   │ honcho  :8100   NEW   shared memory (FastAPI + Postgres); deriver→local│
   │ hermes-agent          autonomous agent: model→routed, memory→honcho    │
@@ -35,12 +35,12 @@ Two tiers, chosen per task by cost/latency/quality:
 
 | Tier | Backend | Use for |
 |------|---------|---------|
-| **Local** | mini vLLM (`http://mini:8000/v1`, Qwen3.5-9B int4) | Simple, high-volume, background, latency-tolerant: honcho's background deriver, summarization, classification, routine agent steps, anything that should be **free and private**. |
+| **Local** | mini chat stack (`http://mini:8000/v1`, model `local-chat` — vLLM or llama.cpp backend) | Simple, high-volume, background, latency-tolerant: honcho's background deriver, summarization, classification, routine agent steps, anything that should be **free and private**. |
 | **Remote** | **OpenRouter** (`https://openrouter.ai/api/v1`, strong models) | Complex reasoning, long-horizon agentic work, code, tool-use that needs a frontier model. |
 
 Principles:
 - **Background and bulk work runs local** — the GPU is already paid for and the
-  data stays on the tailnet. honcho's deriver points at the local vLLM.
+  data stays on the tailnet. honcho's deriver points at the local chat stack.
 - **Complex/interactive work routes to OpenRouter** — hermes (and any agent that
   supports model switching) picks an OpenRouter model for hard tasks.
 - `OPENROUTER_API_KEY` lives in **sops** (per the broker/keyring preference), fed
@@ -54,8 +54,9 @@ Principles:
   the existing podman setup) against a **native `services.postgresql`** so NixOS
   owns the database and backups.
 - Listen on **`:8100`** (8000/8080 are taken), tailnet-only via `trustedInterfaces`.
-- **Deriver LLM = local vLLM** (background task → local tier). Honcho's
-  `LLM_*`/provider env points at `http://127.0.0.1:8000/v1`, model `qwen3.5-9b`.
+- **Deriver LLM = local chat stack** (background task → local tier). Honcho's
+  `LLM_*`/provider env points at `http://host.containers.internal:8000/v1`, model
+  `local-chat` (the shared served id — unchanged whichever backend is active).
 - Secrets (any provider keys, DB URL) via **sops** `environmentFile`.
 - Optional later: `tailscale serve` HTTPS for the honcho dashboard.
 

@@ -19,17 +19,24 @@
       # Nightly cachix pipeline — disabled until the host is up (mini-install.md §6).
       # ./flake-cache-warm.nix
     ]
-    ++ lib.optionals (host.miniLlmHosting or false) [
-      # vllm-xpu-nix: `nixosModules.default` = overlay + `services.vllm-xpu` (see upstream
-      # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
-      inputs.vllm-xpu-nix.nixosModules.default
-      ./services/vllm-xpu.nix
-      ./services/open-webui.nix
-    ]
-    ++ lib.optionals (
-      (host.miniLlmHosting or false)
-      && (host.miniLlamaCppGemma or true)
-    ) [./services/llama-cpp.nix]
+    ++ lib.optionals (host.miniLlmHosting or false) (
+      [
+        # Shared GPU stack + HF token; the contract lives in host.nix. Always present.
+        ./services/llm-base.nix
+        ./services/open-webui.nix
+      ]
+      # Exactly one chat backend (shared GPU). Both honour the same contract, so
+      # open-webui/honcho are unaffected by which one is selected.
+      ++ lib.optionals ((host.miniLlmBackend or "vllm") == "vllm") [
+        # vllm-xpu-nix: `nixosModules.default` = overlay + `services.vllm-xpu` (see upstream
+        # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
+        inputs.vllm-xpu-nix.nixosModules.default
+        ./services/vllm-xpu.nix
+      ]
+      ++ lib.optionals ((host.miniLlmBackend or "vllm") == "llamacpp") [
+        ./services/llama-cpp.nix
+      ]
+    )
     ++ lib.optionals (
       (host.miniLlmHosting or false)
       && (host.miniMemoryHosting or false)

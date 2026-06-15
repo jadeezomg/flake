@@ -17,7 +17,12 @@
 #        printf '%s' "$key" | sudo tee /var/lib/beszel-agent/hub_key.pub
 #   The agent unit has ConditionPathExists on that file, so it stays inactive
 #   (not failed) until the key is present — a switch before onboarding won't error.
-{config, ...}: let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   hubPort = 8090; # 8000 vLLM, 8080 webui, 8100 honcho
   agentDir = "/var/lib/beszel-agent";
   tailscale = config.services.tailscale.package;
@@ -32,6 +37,10 @@ in {
     enable = true;
     # Disk SMART monitoring (adds the agent to the disk group).
     smartmon.enable = true;
+    # GPU monitoring: the Arc Pro B50 uses the `xe` driver, which does NOT expose
+    # the i915 PMU that `intel_gpu_top` needs ("Failed to detect engines"). nvtop
+    # reads xe GPUs via fdinfo/sysfs, so use it as the collector instead.
+    extraPath = [pkgs.nvtopPackages.intel];
     environment = {
       # Hub + agent are co-located on mini, so use the classic SSH path: the agent
       # listens on :45876 and the hub (registered system 127.0.0.1:45876) connects
@@ -40,8 +49,17 @@ in {
       # Monitor podman containers via the docker-compat socket (enabled by the
       # devenv containers profile). Harmless if the socket is absent.
       DOCKER_HOST = "unix:///run/podman/podman.sock";
+      # Force the nvtop collector (auto-detect would pick the broken intel_gpu_top).
+      GPU_COLLECTOR = "nvtop";
     };
   };
+
+  # nvtop needs to read /dev/dri/card0 (the B50, root:video 0660). The agent runs
+  # as a dynamic user in `podman disk` (set by the module for container + SMART
+  # monitoring); add `video`+`render` so it can open the GPU nodes. mkForce keeps
+  # the full set since the same serviceConfig key is set by the module.
+  systemd.services.beszel-agent.serviceConfig.SupplementaryGroups =
+    lib.mkForce ["podman" "disk" "video" "render"];
 
   # Skip the agent until onboarding has dropped the hub pubkey, so a deploy before
   # onboarding leaves the unit inactive (condition unmet) rather than failed —

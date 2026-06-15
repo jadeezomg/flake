@@ -1,15 +1,22 @@
-# Open-WebUI chat frontend for the local vLLM-XPU server, exposed over Tailscale.
+# Open-WebUI chat frontend for the local chat server, exposed over Tailscale.
+# Backend-agnostic: it talks to the shared contract (host.miniLlm{Port,Host}) and
+# auto-discovers the model via /v1/models, so it is unaffected by whether vllm or
+# llamacpp is the active backend.
 #
 # - Open-WebUI listens on loopback only; `tailscale serve` terminates TLS at the
 #   tailnet MagicDNS name and proxies to it, so the UI is reachable at
 #   https://mini.quokka-qilin.ts.net (tailnet-only, valid auto-renewed cert).
-# - vLLM itself is bound to the tailnet too (see `./vllm-xpu.nix`, host = "0.0.0.0"),
-#   so other hosts can hit the raw OpenAI API at http://mini:8000/v1 directly.
+# - The chat server is bound to the tailnet too (host.miniLlmHost = "0.0.0.0"),
+#   so other hosts can hit the raw OpenAI API at http://mini:<port>/v1 directly.
 #   The firewall keeps both off the public internet via trustedInterfaces=tailscale0
 #   (modules/nixos/networking.nix); only :22 is public.
 #
 # open-webui is unfree ("Open WebUI License") — allowed flake-wide in lib/pkgs.nix.
-{config, ...}: let
+{
+  config,
+  host,
+  ...
+}: let
   webuiPort = 8080;
   tsName = "mini.quokka-qilin.ts.net";
   tailscale = config.services.tailscale.package;
@@ -20,9 +27,10 @@ in {
     host = "127.0.0.1";
     port = webuiPort;
     environment = {
-      # Local vLLM OpenAI-compatible backend; vLLM runs no auth, so the key is a
-      # placeholder open-webui simply forwards.
-      OPENAI_API_BASE_URL = "http://127.0.0.1:8000/v1";
+      # Local OpenAI-compatible chat backend (shared contract, host.nix); it runs no
+      # auth, so the key is a placeholder open-webui simply forwards. Loopback reaches
+      # it whether bound to 0.0.0.0 or 127.0.0.1.
+      OPENAI_API_BASE_URL = "http://127.0.0.1:${toString host.miniLlmPort}/v1";
       OPENAI_API_KEY = "sk-no-auth";
       # No Ollama backend on this host — stop open-webui probing :11434.
       ENABLE_OLLAMA_API = "False";
