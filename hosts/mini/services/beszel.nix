@@ -9,20 +9,15 @@
 #
 # FIRST-RUN ONBOARDING (one-time; PocketBase always needs an admin):
 #   1. Open https://mini.quokka-qilin.ts.net:8090 and create the superuser.
-#   2. Populate the agent's key + token from the hub API (or use `just`/ssh):
-#        token=$(curl -H "Authorization: <admin-jwt>" \
-#          http://127.0.0.1:8090/api/beszel/universal-token | jq -r .token)
-#        key=$(curl   -H "Authorization: <admin-jwt>" \
-#          http://127.0.0.1:8090/api/beszel/getkey        | jq -r .key)
-#        printf '%s' "$key"   | sudo tee ${agentDir}/hub_key.pub
-#        printf '%s' "$token" | sudo tee ${agentDir}/token
-#        sudo chown beszel-agent: ${agentDir}/{hub_key.pub,token}
-#      then add the system (host 127.0.0.1, port 45876) in the hub UI.
-#   Until those files exist the agent simply retries connecting (no crash loop).
-{
-  config,
-  ...
-}: let
+#   2. Write the hub's pubkey to KEY_FILE and add the system in the UI
+#      (host 127.0.0.1, port 45876). Either do it in the UI's "Add System" dialog
+#      (copy the key), or via the API:
+#        key=$(curl -H "Authorization: <admin-jwt>" \
+#          http://127.0.0.1:8090/api/beszel/getkey | jq -r .key)
+#        printf '%s' "$key" | sudo tee /var/lib/beszel-agent/hub_key.pub
+#   The agent unit has ConditionPathExists on that file, so it stays inactive
+#   (not failed) until the key is present — a switch before onboarding won't error.
+{config, ...}: let
   hubPort = 8090; # 8000 vLLM, 8080 webui, 8100 honcho
   agentDir = "/var/lib/beszel-agent";
   tailscale = config.services.tailscale.package;
@@ -38,18 +33,23 @@ in {
     # Disk SMART monitoring (adds the agent to the disk group).
     smartmon.enable = true;
     environment = {
-      # Outbound connection to the local hub; no inbound port needed.
-      HUB_URL = "http://127.0.0.1:${toString hubPort}";
+      # Hub + agent are co-located on mini, so use the classic SSH path: the agent
+      # listens on :45876 and the hub (registered system 127.0.0.1:45876) connects
+      # in, authenticated by the hub's pubkey in KEY_FILE.
       KEY_FILE = "${agentDir}/hub_key.pub";
-      TOKEN_FILE = "${agentDir}/token";
       # Monitor podman containers via the docker-compat socket (enabled by the
       # devenv containers profile). Harmless if the socket is absent.
       DOCKER_HOST = "unix:///run/podman/podman.sock";
     };
   };
 
+  # Skip the agent until onboarding has dropped the hub pubkey, so a deploy before
+  # onboarding leaves the unit inactive (condition unmet) rather than failed —
+  # which previously made `switch` exit non-zero.
+  systemd.services.beszel-agent.unitConfig.ConditionPathExists = "${agentDir}/hub_key.pub";
+
   # The agent's StateDirectory (${agentDir}) is created by its systemd unit with
-  # the right ownership; onboarding drops hub_key.pub + token there.
+  # the right ownership; onboarding drops hub_key.pub there.
 
   # HTTPS dashboard on the tailnet at :8090 (same pattern as open-webui/honcho).
   systemd.services.tailscale-serve-beszel = {
