@@ -15,6 +15,8 @@ in
     # Honcho shared-memory server (./services/honcho.nix). Needs `miniLlmHosting`
     # since its deriver uses the local vLLM model. See docs/hosts/mini-agent-memory-plan.md.
     miniMemoryHosting = true;
+    # Beszel hub + agent (./services/beszel.nix): server/service/container monitoring.
+    miniMonitoring = true;
     # GGML backends for nixpkgs `llama-cpp` (Vulkan + CLBlast/OpenCL only — not SYCL/OpenVINO).
     # Use `vulkan-opencl` to compile both, then pick GPU at runtime via `LLAMA_ARG_DEVICE` or
     # `systemctl edit llama-cpp-gemma` (see docs/hosts/mini-llm-hosting.md).
