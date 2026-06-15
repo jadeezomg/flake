@@ -3,7 +3,9 @@
 # `./vllm-xpu.nix`). Exactly one backend runs at a time, and both bind the SAME
 # contract (`host.miniLlm{ServedName,Port,Host}`) so consumers can't tell them apart.
 # Shared GPU stack + HF token: `./default.nix`.
-# Model: https://huggingface.co/unsloth/gemma-4-12b-it-GGUF — see docs/hosts/mini-llm-hosting.md.
+# Model: https://huggingface.co/unsloth/gemma-4-12b-it-GGUF (image-text-to-text) — Gemma is
+# multimodal and the repo ships an mmproj; image input is enabled via `--mmproj-auto`
+# below (see docs/hosts/mini-llm-hosting.md).
 {
   config,
   lib,
@@ -29,6 +31,11 @@
     "${llamaCpp}/bin/llama-server"
     "--hf-repo"
     "${modelRepo}:${modelQuant}"
+    # Vision: Gemma is multimodal. `-hf`/`--hf-repo` auto-downloads the repo's
+    # multimodal projector (mmproj-*.gguf) and loads it; `--mmproj-auto` makes that
+    # intent explicit (it is the default in this llama.cpp build). Use `--no-mmproj`
+    # to serve text-only. The projector is cached under HF_HOME like the weights.
+    "--mmproj-auto"
     "--alias"
     servedName
     "--host"
