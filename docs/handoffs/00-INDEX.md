@@ -21,7 +21,7 @@ Context for all tasks below. Read this first, then the per-task file.
 - Secrets: sops; user strongly prefers broker/keyring over env. `environmentFile` pattern (declare `sops.secrets."x" = {}` + `lib.optional (config.sops.secrets ? "x")`).
 
 ## Tasks (one file each)
-1. `01-beszel-gpu-deploy.md` — deploy + verify the staged nvtop GPU change.
+1. ~~`01-beszel-gpu-deploy.md` — deploy + verify the staged nvtop GPU change.~~ **Done** (deployed + verified on mini; doc removed). Also added `cap_perfmon` wrappers for `btop`/`gputop` in `gpu-intel.nix`.
 2. `02-honcho-llm-finalize.md` — per-feature LLM endpoints + embeddings.
 3. `03-hermes-phase2.md` — hermes-agent: local↔OpenRouter routing + honcho memory.
 4. `04-shared-honcho-mcp-phase3.md` — honcho MCP across hosts + migrate MEMORY.md.
