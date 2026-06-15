@@ -148,16 +148,31 @@
 		]
 	},
 	"enabledPlugins": {
-		"typescript-lsp@claude-plugins-official": true
+		"typescript-lsp@claude-plugins-official": true,
+		"honcho@honcho": true
 	},
-	"extraKnownMarketplaces": {},
+	"env": {
+		"HONCHO_ENDPOINT": "https://mini.quokka-qilin.ts.net:8100",
+		"HONCHO_API_KEY": "sk-no-auth",
+		"HONCHO_WORKSPACE": "jadee",
+		"HONCHO_PEER_NAME": "jadee",
+		"HONCHO_AI_PEER": "claude"
+	},
+	"extraKnownMarketplaces": {
+		"honcho": {
+			"source": {
+				"source": "github",
+				"repo": "plastic-labs/claude-honcho"
+			}
+		}
+	},
 	"effortLevel": "xhigh",
+	"tui": "fullscreen",
 	"skipDangerousModePermissionPrompt": true,
 	"theme": "dark-ansi",
 	"editorMode": "normal",
 	"preferredNotifChannel": "terminal_bell",
 	"remoteControlAtStartup": true,
 	"inputNeededNotifEnabled": true,
-	"agentPushNotifEnabled": true,
-	"tui": "fullscreen"
+	"agentPushNotifEnabled": true
 }
