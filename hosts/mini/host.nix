@@ -16,10 +16,9 @@ in
     # is transparent.
     #   "vllm"     → ./services/llm/vllm-xpu.nix   (Intel XPU, Qwen3.5-9B int4 AutoRound)
     #   "llamacpp" → ./services/llm/llama-cpp.nix  (Vulkan, Gemma-4-12B GGUF)
-    miniLlmBackend = "vllm";
-    # Shared serving contract — identical across backends. Consumers read these;
-    # the served name is backend/model-neutral so it never changes on a switch.
+    miniLlmBackend = "llamacpp";
     miniLlmServedName = "local-chat";
+    miniLlmEmbedServedName = "local-embed";
     miniLlmPort = 8000;
     # Tailnet bind: the firewall trusts only tailscale0 (modules/nixos/networking.nix),
     # so this is tailnet-only, never public. Loopback consumers still reach it.
