@@ -1,27 +1,17 @@
-# Intel XPU vLLM — consumption matches upstream:
+# Intel XPU vLLM — the "vllm" backend of the local chat stack (selected via
+# `host.miniLlmBackend = "vllm"` in `host.nix`; the "llamacpp" alternative is
+# `./llama-cpp.nix`). Both serve the SAME contract (`host.miniLlm{ServedName,Port,Host}`)
+# so consumers can't tell them apart. Shared GPU stack + HF token: `./llm-base.nix`.
+# Consumption matches upstream:
 # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md
-# (`nixosModules.default` is imported in `hosts/mini/default.nix` when `miniLlmHosting`.)
 # Host-specific tuning, ccache, and optional kernel overrides: `docs/hosts/mini-vllm-xpu.md`.
-# Optional GGUF on 8010: `./llama-cpp.nix` when `host.miniLlamaCppGemma` (see `host.nix`).
 {
   config,
   lib,
   pkgs,
+  host,
   ...
 }: {
-  # Brutus graphics stack: OpenCL/L0 + media — needed for Intel discrete Arc / Xe compute.
-  hardware.graphics.extraPackages = with pkgs; [
-    intel-compute-runtime
-    intel-compute-runtime.drivers
-    intel-media-driver
-    vpl-gpu-rt
-  ];
-
-  environment.systemPackages = [pkgs.intel-gpu-tools];
-
-  # Battlemage-class discrete GPU: same probe as examples/brutus. Remove if you have no dGPU.
-  boot.kernelParams = ["xe.force_probe=e223"];
-
   # vllm-xpu-kernels compile through ccache by default (upstream useCcache = true).
   # Without a sandbox-visible, nixbld-writable cache dir, icpx fails with
   # "ccache: error: Permission denied". See vllm-xpu-nix docs/build.md.
@@ -29,16 +19,6 @@
     "d /var/cache/ccache 0770 root nixbld - -"
   ];
   nix.settings.extra-sandbox-paths = lib.mkAfter ["/var/cache/ccache"];
-
-  # Hugging Face Hub auth (`secrets/secrets.yaml` → `hf_token`): rate limits + downloads.
-  sops.secrets.hf_token = {};
-  sops.templates."mini-llm-hf.env" = {
-    mode = "0400";
-    content = ''
-      HF_TOKEN=${config.sops.placeholder.hf_token}
-      HUGGING_FACE_HUB_TOKEN=${config.sops.placeholder.hf_token}
-    '';
-  };
 
   services.vllm-xpu = {
     # Qwen3.5 text import still loads qwen3_vl -> transformers qwen2_vl image
@@ -50,18 +30,19 @@
       enable = true;
       environmentFile = config.sops.templates."mini-llm-hf.env".path;
 
-      # Bind the tailnet so other hosts can use the raw OpenAI API at
-      # http://mini:8000/v1. No auth on vLLM, but the firewall trusts only
-      # tailscale0 (modules/nixos/networking.nix), so it is tailnet-only, never
-      # public. Open-WebUI on mini still reaches it over loopback.
-      host = "0.0.0.0";
+      # Shared serving contract (host.nix) — identical to the llama.cpp backend so
+      # consumers (open-webui, honcho) never change. host = tailnet bind; the firewall
+      # trusts only tailscale0 (modules/nixos/networking.nix), so it is tailnet-only,
+      # never public. Open-WebUI on mini still reaches it over loopback.
+      host = host.miniLlmHost;
+      port = host.miniLlmPort;
+      servedName = host.miniLlmServedName;
 
       # Arc Pro B50 has only ~15 GiB: unquantized Qwen3.5-9B (bf16 ~18 GiB) cannot
       # fit at any gpuMemoryUtilization. Use Intel's int4 AutoRound build (~5 GiB
       # weights) — same pattern as the reference brutus `Intel/...-int4-AutoRound`.
       # Packs as `auto_round:auto_gptq`, so it loads via the gptq path.
       model = "Intel/Qwen3.5-9B-int4-AutoRound";
-      servedName = "qwen3.5-9b";
       dtype = "bfloat16";
       quantization = "gptq";
       # Qwen3.5 is hybrid linear-attention: only 8 of 32 layers are full attention,

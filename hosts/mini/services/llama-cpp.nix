@@ -1,20 +1,25 @@
-# llama.cpp Vulkan — OpenAI-compatible GGUF API (additive to vLLM-XPU in ./vllm-xpu.nix).
-# Imported only when `host.miniLlamaCppGemma` (see `hosts/mini/default.nix`).
+# llama.cpp Vulkan — the "llamacpp" backend of the local chat stack (selected via
+# `host.miniLlmBackend = "llamacpp"` in `host.nix`; the "vllm" alternative is
+# `./vllm-xpu.nix`). Exactly one backend runs at a time, and both bind the SAME
+# contract (`host.miniLlm{ServedName,Port,Host}`) so consumers can't tell them apart.
+# Shared GPU stack + HF token: `./llm-base.nix`.
 # Model: https://huggingface.co/unsloth/gemma-4-12b-it-GGUF — see docs/hosts/mini-llm-hosting.md.
 {
   config,
   lib,
   pkgs,
+  host,
   ...
 }: let
   llamaCpp = pkgs.llama-cpp.override {vulkanSupport = true;};
 
   modelRepo = "unsloth/gemma-4-12b-it-GGUF";
   modelQuant = "Q4_K_M";
-  servedName = "gemma-4-12b-it";
-  # 8000/8001/8002 are reserved for vLLM-XPU (./vllm-xpu.nix).
-  port = 8010;
-  host = "127.0.0.1";
+  # Shared serving contract (host.nix) — identical to the vLLM backend so consumers
+  # (open-webui, honcho) never change. The served name is model-neutral on purpose.
+  servedName = host.miniLlmServedName;
+  port = host.miniLlmPort;
+  listenHost = host.miniLlmHost;
   contextSize = 32768;
   gpuLayers = 999;
   hfHome = "${stateDir}/huggingface";
@@ -27,7 +32,7 @@
     "--alias"
     servedName
     "--host"
-    host
+    listenHost
     "--port"
     (toString port)
     "--ctx-size"
