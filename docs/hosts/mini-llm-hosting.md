@@ -15,16 +15,16 @@ miniLlmBackend = "vllm";      # default — Intel XPU vLLM
 # miniLlmBackend = "llamacpp"; # alternative — GGUF via llama.cpp (Vulkan)
 ```
 
-**Exactly one backend runs at a time** — they share the Intel GPU and running both would OOM. The two backends are interchangeable at the **API level** (same model id, port, host); only the underlying model differs (a deliberate choice — the API surface is unified, not the model). Wiring follows upstream [nixos-overlay.md](https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md) (`hosts/mini/default.nix` imports **`nixosModules.default`** when the vLLM backend is active). For **image/video** inputs on the vLLM backend, change **`services.vllm-xpu.instances.chat.model`** to a VL checkpoint (e.g. **[Qwen/Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct)**) and set **`languageModelOnly = false`** plus **`limitMmPerPrompt`**.
+**Exactly one backend runs at a time** — they share the Intel GPU and running both would OOM. The two backends are interchangeable at the **API level** (same model id, port, host); only the underlying model differs (a deliberate choice — the API surface is unified, not the model). Wiring follows upstream [nixos-overlay.md](https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md) (`hosts/mini/default.nix` imports **`nixosModules.default`** when the vLLM backend is active). **Image input is ON by default on BOTH backends** — the existing chat models are natively multimodal, so **no repo swap is needed**. Send images via standard OpenAI **`image_url`** content parts to **`/v1/chat/completions`**; the served id stays **`local-chat`**. Per-backend: the vLLM backend serves the SAME **`Intel/Qwen3.5-9B-int4-AutoRound`** with vision un-suppressed (**`languageModelOnly = false`**, **`limitMmPerPrompt = { image = 1; video = 0; }`**, **`maxNumSeqs`** lowered to **4** for vision-encoder headroom); the llama.cpp backend serves the SAME **`unsloth/gemma-4-12b-it-GGUF`** with its shipped **`mmproj-*.gguf`** projector (**`--mmproj-auto`**). Text-only fallback: **`languageModelOnly = true`** (vLLM) or **`--no-mmproj`** (llama.cpp). The vLLM XPU path is the **risky** one for first-boot-with-images — see the cross-reference in **§ APIs — chat with image** below and the OOM caveat in **`docs/hosts/mini-vllm-xpu.md`**.
 
-| Backend | `miniLlmBackend` | File | Unit | Model (advertised as `local-chat`) | Role |
-|---------|------------------|------|------|------------------------------------|------|
-| **vLLM-XPU** | `"vllm"` (default) | `hosts/mini/services/llm/vllm-xpu.nix` | `vllm-xpu-chat` | [Intel/Qwen3.5-9B-int4-AutoRound](https://huggingface.co/Intel/Qwen3.5-9B-int4-AutoRound) (text) | Intel XPU / IPEX path |
-| **llama.cpp** | `"llamacpp"` | `hosts/mini/services/llm/llama-cpp.nix` | `llama-cpp-gemma` | [unsloth/gemma-4-12b-it-GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF) `Q4_K_M` | GGUF chat (Vulkan) |
+| Backend | `miniLlmBackend` | File | Unit | Model (advertised as `local-chat`) | Image input | Role |
+|---------|------------------|------|------|------------------------------------|-------------|------|
+| **vLLM-XPU** | `"vllm"` (default) | `hosts/mini/services/llm/vllm-xpu.nix` | `vllm-xpu-chat` | [Intel/Qwen3.5-9B-int4-AutoRound](https://huggingface.co/Intel/Qwen3.5-9B-int4-AutoRound) (text + image) | **yes** (`languageModelOnly = false`, vision tower retained at bf16) | Intel XPU / IPEX path |
+| **llama.cpp** | `"llamacpp"` | `hosts/mini/services/llm/llama-cpp.nix` | `llama-cpp-gemma` | [unsloth/gemma-4-12b-it-GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF) `Q4_K_M` (text + image) | **yes** (`--mmproj-auto`, ships `mmproj-*.gguf`) | GGUF chat (Vulkan) |
 
 **Shared module:** whichever backend is active, the stack aggregator **`hosts/mini/services/llm/default.nix`** is always imported when **`miniLlmHosting`** (`hosts/mini/default.nix` imports the single **`./services/llm`** folder, which resolves to it). It carries the shared base both backends need — the Intel GPU stack, the **`xe.force_probe`** kernel param, and the **`mini-llm-hf.env`** Hugging Face token sops template. (These previously lived inside `llm/vllm-xpu.nix`.) `hosts/mini/services/llm/open-webui.nix` is always imported by it too.
 
-**Chat (`8000`):** **`package = pkgs.vllm-xpu-unstable.withTorchvision true`** because Qwen3.5's vLLM class imports Qwen VL image-processing code during inspection, **`quantization = null`** because vLLM's FP8 W8A8 path is not supported on Intel GPU/XPU, **`kvCacheDtype = null`** while stabilising boot, **`languageModelOnly = true`** (skips vision encoder profiling), **`enforceEager = true`**, **`reasoningParser = qwen3`**. Default **`maxModelLen = 8192`**, **`maxNumSeqs = 1`**, **`gpuMemoryUtilization = 0.95`**. If **`journalctl`** shows **`Available KV cache memory: X GiB`** with **X > 0**, raise **`maxModelLen`**. If **X < 0**, lower **`maxModelLen`**. See [model card](https://huggingface.co/Qwen/Qwen3.5-9B).
+**Chat (`8000`):** **`package = pkgs.vllm-xpu-unstable.withTorchvision true`** because Qwen3.5's vLLM class imports Qwen VL image-processing code during inspection (now also genuinely needed — vision is enabled), **`quantization = null`** because vLLM's FP8 W8A8 path is not supported on Intel GPU/XPU, **`kvCacheDtype = null`** while stabilising boot, **`languageModelOnly = false`** (vision encoder profiling enabled — `Intel/Qwen3.5-9B-int4-AutoRound` is multimodal and its bf16 vision tower is retained, since AutoRound quantizes only `model.language_model.layers`), **`limitMmPerPrompt = { image = 1; video = 0; }`**, **`enforceEager = true`**, **`reasoningParser = qwen3`**. **`maxNumSeqs`** is lowered to **4** (from 8) to leave vision-encoder activation / image-embedding headroom on the ~15 GiB Arc Pro B50. If **`journalctl`** shows **`Available KV cache memory: X GiB`** with **X > 0**, raise **`maxModelLen`**. If **X < 0**, lower **`maxModelLen`**. Enabling vision on the XPU path is the **known-risky** scenario — if `vllm-xpu-chat` fails to boot with images (chunk-prefill kernel / vision `profile_run` OOM / restart loop), consult **`docs/hosts/mini-vllm-xpu.md`** § *Chunk prefill kernel not compiled / vision profile_run OOM*; text-only fallback is **`languageModelOnly = true`**. See [model card](https://huggingface.co/Qwen/Qwen3.5-9B).
 
 Tune **`maxModelLen`** after a successful boot using **`Available KV cache memory`** in **`journalctl -u vllm-xpu-chat`**. There is **no** vLLM **STT** instance in the default `vllm-xpu.nix`; add **`instances.stt`** if you want **`8002`**.
 
@@ -40,8 +40,8 @@ The active chat unit depends on **`miniLlmBackend`** — exactly one of the two 
 
 | Service | Enabled | Notes |
 |---------|---------|-------|
-| `vllm-xpu-chat` | **when** `miniLlmBackend = "vllm"` (default) | Serves [Intel/Qwen3.5-9B-int4-AutoRound](https://huggingface.co/Intel/Qwen3.5-9B-int4-AutoRound) on **8000** — advertised as **`local-chat`** |
-| `llama-cpp-gemma` | **when** `miniLlmBackend = "llamacpp"` | Serves [unsloth/gemma-4-12b-it-GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF) on **8000** — advertised as **`local-chat`** |
+| `vllm-xpu-chat` | **when** `miniLlmBackend = "vllm"` (default) | Serves [Intel/Qwen3.5-9B-int4-AutoRound](https://huggingface.co/Intel/Qwen3.5-9B-int4-AutoRound) on **8000** — advertised as **`local-chat`**; **accepts image input** (`languageModelOnly = false`) |
+| `llama-cpp-gemma` | **when** `miniLlmBackend = "llamacpp"` | Serves [unsloth/gemma-4-12b-it-GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF) on **8000** — advertised as **`local-chat`**; **accepts image input** (`--mmproj-auto`) |
 | `vllm-xpu-embedding` | **no** | Disabled for now so chat gets the whole XPU memory budget; re-enable `instances.embedding` if `:8001` is needed (vLLM backend only) |
 
 ## Clients and frontends
@@ -165,26 +165,34 @@ curl -sS --max-time 120 -N http://127.0.0.1:8000/v1/chat/completions \
   }'
 ```
 
-### APIs — chat with image (VL checkpoint only)
+### APIs — chat with image (both backends)
 
-The default vLLM-backend chat model (**`Intel/Qwen3.5-9B-int4-AutoRound`**) is **text-only**. For **image** / **video** in **`/v1/chat/completions`**, change **`hosts/mini/services/llm/vllm-xpu.nix`** to a **VL** repo (e.g. **`Qwen/Qwen3-VL-8B-Instruct`**), set **`languageModelOnly = false`**, and add **`limitMmPerPrompt`** (see **`docs/hosts/mini-vllm-xpu.md`**). The served id stays **`local-chat`**. Example shape (after that switch):
+**Image input is ON by default on BOTH backends** with the existing chat models — **no repo swap needed**. The served id stays **`local-chat`** and images go in standard OpenAI **`image_url`** content parts (a public `https` image URL or a `data:` URL both work).
+
+- **vLLM backend** (default): the SAME **`Intel/Qwen3.5-9B-int4-AutoRound`** serves images. It is natively multimodal (`Qwen3_5ForConditionalGeneration`, `image_token_id` set); AutoRound quantizes only `model.language_model.layers`, so the **bf16 vision tower is retained** in the int4 checkpoint. Config: **`languageModelOnly = false`**, **`limitMmPerPrompt = { image = 1; video = 0; }`**, **`maxNumSeqs = 4`** (see `hosts/mini/services/llm/vllm-xpu.nix`). **Caveat:** enabling multimodal on the Intel **XPU** path is the known-risky scenario — on first boot with images vLLM's vision `profile_run` may request a chunk-prefill shape outside the compiled kernel set and fall back to a PyTorch path that OOMs the ~15 GiB GPU (restart loop). If image serving fails to boot, consult **`docs/hosts/mini-vllm-xpu.md`** § *Chunk prefill kernel not compiled / EngineCore failed to start / XPU OOM during vision `profile_run`* (mitigations: a custom **`withKernelConfig`** kernel build with **`chunkPrefillExtra`**, and/or lowering **`maxModelLen`** / **`maxNumSeqs`**). Text-only fallback: **`languageModelOnly = true`**.
+- **llama.cpp backend** (`miniLlmBackend = "llamacpp"`): the SAME **`unsloth/gemma-4-12b-it-GGUF`** (an `image-text-to-text` model) serves images. The repo ships **`mmproj-F16.gguf`**; the **`-hf`** flag auto-downloads and loads the repo's `mmproj-*.gguf`, and **`--mmproj-auto`** (added to `llama-server` args in `hosts/mini/services/llm/llama-cpp.nix`) makes that intent explicit (it is the default). The projector caches under `HF_HOME` alongside the weights. This Vulkan path is **reliable** — the low-risk way to get image input on mini. Text-only fallback: **`--no-mmproj`**.
 
 ```bash
-curl -sS --max-time 600 http://127.0.0.1:8000/v1/chat/completions \
+# image input — model id stays `local-chat`, works on whichever backend is active.
+# Run from a tailnet host (http://mini:8000) or on mini itself (http://127.0.0.1:8000).
+curl -sS --max-time 600 http://mini:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{
     "model": "local-chat",
     "messages": [{
       "role": "user",
       "content": [
-        {"type": "text", "text": "Describe the image briefly."},
+        {"type": "text", "text": "What'\''s in this image?"},
         {"type": "image_url", "image_url": {"url": "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/beignets-task-guide.png"}}
       ]
     }],
     "max_tokens": 128,
-    "stream": false
+    "stream": false,
+    "chat_template_kwargs": {"enable_thinking": false}
   }' | jq .
 ```
+
+A `data:` URL works too — replace the `url` value with e.g. `"data:image/png;base64,<BASE64>"`. The **`chat_template_kwargs: {"enable_thinking": false}`** line only applies to the **vLLM / Qwen** backend (it disables Qwen thinking); the **llama.cpp / Gemma** backend ignores it, so the same request body is byte-for-byte valid on either backend.
 
 ### APIs — chat (llama.cpp backend, `miniLlmBackend = "llamacpp"`)
 
@@ -208,7 +216,7 @@ Embeddings are part of the **vLLM backend** and are disabled for now so chat get
 
 | Symptom | What to try |
 |---------|-------------|
-| **No output for a long time** | If logs show **`Running: 1 reqs`** and very low generation throughput, the request is alive but too slow. `just mini llm chat` waits up to **300s** for `/v1/models` before sending the smoke request; override with **`MINI_LLM_WAIT_SECONDS=<seconds>`**. First run **`just mini llm status`** and confirm the runtime flags include **`--language-model-only`**, **`--enforce-eager`**, and **`--max-num-seqs 8`**. If not, the host is not running this repo's mini tuning — `git add -A && just switch`, then restart chat. For smoke tests use **`max_tokens: 8`** plus **`chat_template_kwargs: {"enable_thinking": false}`**. Stop the client with Ctrl-C; if the unit keeps generating, run **`just mini llm restart chat`**. |
+| **No output for a long time** | If logs show **`Running: 1 reqs`** and very low generation throughput, the request is alive but too slow. `just mini llm chat` waits up to **300s** for `/v1/models` before sending the smoke request; override with **`MINI_LLM_WAIT_SECONDS=<seconds>`**. First run **`just mini llm status`** and confirm the runtime flags include **`--enforce-eager`** and **`--max-num-seqs 4`** (and, with vision enabled, **`--limit-mm-per-prompt`** rather than **`--language-model-only`**). If not, the host is not running this repo's mini tuning — `git add -A && just switch`, then restart chat. For smoke tests use **`max_tokens: 8`** plus **`chat_template_kwargs: {"enable_thinking": false}`**. Stop the client with Ctrl-C; if the unit keeps generating, run **`just mini llm restart chat`**. |
 | **`jq` prints nothing** | Do not pipe SSE streaming responses into `jq`; use raw/streaming output. For one complete JSON response, force **`"stream": false`** and wait for completion. |
 | **HTTP / TLS errors** | Confirm **`/v1/models`** works first (§ list models), then inspect logs with **`just mini llm logs chat`**. |
 | **Empty `choices[0].message.content`** | With **`reasoningParser = qwen3`**, thinking may appear under **`delta.reasoning`** / structured fields; inspect raw JSON/SSE. Disable thinking in the client via **`chat_template_kwargs`** if you want answers only in **`message.content`** (see [Qwen3.5 model card](https://huggingface.co/Qwen/Qwen3.5-9B)). |
