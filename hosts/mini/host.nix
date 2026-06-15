@@ -6,16 +6,16 @@ in
     hostname = "mini";
     description = "Mini — Minisforum MS-01 headless server";
     user = sharedNixOSUser;
-    # Gates the local LLM chat stack: the shared base (`./services/llm-base.nix`),
-    # the selected backend below, and `./services/open-webui.nix`. The generic
-    # `dotfiles.profiles.llm` serving stack defaults off and is unused on mini.
+    # Gates the local LLM chat stack module (`./services/llm` — shared base +
+    # open-webui + the backend selected below). The generic `dotfiles.profiles.llm`
+    # serving stack defaults off and is unused on mini.
     miniLlmHosting = true;
     # Which backend serves local chat. Exactly one runs (shared GPU; both on will
     # OOM). Both expose the SAME contract (`miniLlm{ServedName,Port,Host}` below),
     # so consumers (open-webui, honcho) can't tell them apart — switching backends
     # is transparent.
-    #   "vllm"     → ./services/vllm-xpu.nix   (Intel XPU, Qwen3.5-9B int4 AutoRound)
-    #   "llamacpp" → ./services/llama-cpp.nix  (Vulkan, Gemma-4-12B GGUF)
+    #   "vllm"     → ./services/llm/vllm-xpu.nix   (Intel XPU, Qwen3.5-9B int4 AutoRound)
+    #   "llamacpp" → ./services/llm/llama-cpp.nix  (Vulkan, Gemma-4-12B GGUF)
     miniLlmBackend = "vllm";
     # Shared serving contract — identical across backends. Consumers read these;
     # the served name is backend/model-neutral so it never changes on a switch.

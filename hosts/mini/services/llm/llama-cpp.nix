@@ -2,7 +2,7 @@
 # `host.miniLlmBackend = "llamacpp"` in `host.nix`; the "vllm" alternative is
 # `./vllm-xpu.nix`). Exactly one backend runs at a time, and both bind the SAME
 # contract (`host.miniLlm{ServedName,Port,Host}`) so consumers can't tell them apart.
-# Shared GPU stack + HF token: `./llm-base.nix`.
+# Shared GPU stack + HF token: `./default.nix`.
 # Model: https://huggingface.co/unsloth/gemma-4-12b-it-GGUF — see docs/hosts/mini-llm-hosting.md.
 {
   config,

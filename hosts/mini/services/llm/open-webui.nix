@@ -45,16 +45,29 @@ in {
 
   # HTTPS on the tailnet. `tailscale serve --bg` persists in tailscaled state; this
   # oneshot (re)asserts the mapping after tailscaled and open-webui are up.
+  #
+  # Restart=on-failure is essential, not cosmetic — two transient failures otherwise
+  # leave this terminally dead (it's a no-retry oneshot):
+  #  - fresh boot: tailscaled is up as a process before the tailnet backend reaches
+  #    `Running`, so an early serve dies with `unexpected state: NoState`.
+  #  - on a switch this and the sibling serve units (honcho, beszel) write the SAME
+  #    tailscaled serve config concurrently and collide -> `etag mismatch`.
+  # Retrying rides out both windows; `serve --bg` is idempotent so re-asserting is safe.
+  # (on-failure is allowed for Type=oneshot; only always/on-success are refused.)
   systemd.services.tailscale-serve-open-webui = {
     description = "Tailscale Serve: HTTPS -> Open-WebUI";
     after = ["tailscaled.service" "open-webui.service"];
     wants = ["tailscaled.service"];
     wantedBy = ["multi-user.target"];
+    startLimitIntervalSec = 300;
+    startLimitBurst = 30;
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStart = "${tailscale}/bin/tailscale serve --bg --yes http://127.0.0.1:${toString webuiPort}";
       ExecStop = "${tailscale}/bin/tailscale serve reset";
+      Restart = "on-failure";
+      RestartSec = 5;
     };
   };
 }
