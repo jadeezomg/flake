@@ -62,10 +62,12 @@ bench *args:
     # to run on mini itself (no network jitter).
     base_url="${MINI_API:-http://mini:8000/v1}"
     # --served-model-name is the shared contract (local-chat); --model is only the HF
-    # id llama-benchy uses for tokenizer-based token counting, so it should match the
-    # active backend's underlying model. Defaults to the llama.cpp Gemma 4 QAT repo;
-    # override with MINI_BENCH_MODEL (e.g. Intel/Qwen3.5-9B-int4-AutoRound for vLLM).
-    bench_model="${MINI_BENCH_MODEL:-unsloth/gemma-4-12B-it-qat-GGUF}"
+    # repo llama-benchy loads a tokenizer from for prompt-token counting. GGUF repos ship
+    # NO HF tokenizer files, so point at the *source* (safetensors) repo with a
+    # tokenizer.json — same tokenizer as the served GGUF, just accurate counts instead of
+    # the gpt2 fallback. Defaults to the Gemma 4 source repo (ungated); override with
+    # MINI_BENCH_MODEL (e.g. Intel/Qwen3.5-9B-int4-AutoRound for the vLLM backend).
+    bench_model="${MINI_BENCH_MODEL:-unsloth/gemma-4-12b-it}"
     # Default sweep if the caller passes nothing; any args override it.
     # Concurrency tops out at the server's slot count — keep it in sync with
     # `chatSlots` / `--parallel` in hosts/mini/services/llm/llama-cpp.nix (2 today).
@@ -76,7 +78,10 @@ bench *args:
       set -- --pp 2048 --tg 128 --depth 0 4096 16384 32768 \
              --concurrency $concurrency --latency-mode generation --exact-tg
     fi
-    exec uvx llama-benchy \
+    # sentencepiece (+protobuf) is a fallback for model repos that ship only a slow
+    # tokenizer; with the tokenizer.json source repo above it builds a fast tokenizer
+    # directly. (torch is not needed for tokenizing — its "not found" warning is harmless.)
+    exec uvx --with sentencepiece --with protobuf llama-benchy \
       --base-url "$base_url" \
       --model "$bench_model" \
       --served-model-name local-chat \
