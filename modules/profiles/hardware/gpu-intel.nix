@@ -8,7 +8,7 @@
   config = lib.mkIf (config.dotfiles.hardware.gpu == "intel") {
     hardware.graphics = {
       enable = true;
-      enableRedistributableFirmware = true;
+      # enableRedistributableFirmware = true;
       extraPackages = with pkgs; [
         # Required for modern Intel GPUs (Xe iGPU and ARC)
         intel-media-driver # VA-API (iHD) userspace
