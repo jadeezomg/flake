@@ -22,3 +22,4 @@ Project-only skills for this repository.
 - `agent-structure` — root `skills/`, global `data/agents/`, and installed agent config.
 - `secrets-structure` — SOPS/age secret layout and wiring.
 - `theme-structure` — shared palette and app theme generation.
+- `llm-hosting` — mini's local LLM serving: backends, models, context/KV, embeddings, ops.
