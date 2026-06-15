@@ -67,9 +67,14 @@ bench *args:
     # override with MINI_BENCH_MODEL (e.g. Intel/Qwen3.5-9B-int4-AutoRound for vLLM).
     bench_model="${MINI_BENCH_MODEL:-unsloth/gemma-4-12B-it-qat-GGUF}"
     # Default sweep if the caller passes nothing; any args override it.
+    # Concurrency tops out at the server's slot count — keep it in sync with
+    # `chatSlots` / `--parallel` in hosts/mini/services/llm/llama-cpp.nix (2 today).
+    # Requests beyond the slot count just queue, so testing past it measures queueing,
+    # not throughput. Override per run with MINI_BENCH_CONCURRENCY (space-separated).
+    concurrency="${MINI_BENCH_CONCURRENCY:-1 2}"
     if [[ $# -eq 0 ]]; then
       set -- --pp 2048 --tg 128 --depth 0 4096 16384 32768 \
-             --concurrency 1 8 --latency-mode generation --exact-tg
+             --concurrency $concurrency --latency-mode generation --exact-tg
     fi
     exec uvx llama-benchy \
       --base-url "$base_url" \
