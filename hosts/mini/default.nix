@@ -19,24 +19,11 @@
       # Nightly cachix pipeline — disabled until the host is up (mini-install.md §6).
       # ./flake-cache-warm.nix
     ]
-    ++ lib.optionals (host.miniLlmHosting or false) (
-      [
-        # Shared GPU stack + HF token; the contract lives in host.nix. Always present.
-        ./services/llm-base.nix
-        ./services/open-webui.nix
-      ]
-      # Exactly one chat backend (shared GPU). Both honour the same contract, so
-      # open-webui/honcho are unaffected by which one is selected.
-      ++ lib.optionals ((host.miniLlmBackend or "vllm") == "vllm") [
-        # vllm-xpu-nix: `nixosModules.default` = overlay + `services.vllm-xpu` (see upstream
-        # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
-        inputs.vllm-xpu-nix.nixosModules.default
-        ./services/vllm-xpu.nix
-      ]
-      ++ lib.optionals ((host.miniLlmBackend or "vllm") == "llamacpp") [
-        ./services/llama-cpp.nix
-      ]
-    )
+    ++ lib.optionals (host.miniLlmHosting or false) [
+      # Self-contained chat stack: shared base + open-webui + the backend selected
+      # by host.miniLlmBackend (see hosts/mini/services/llm/default.nix).
+      ./services/llm
+    ]
     ++ lib.optionals (
       (host.miniLlmHosting or false)
       && (host.miniMemoryHosting or false)
@@ -69,7 +56,7 @@
   };
 
   # Intel GPU (graphics.enable via dotfiles.hardware.gpu = "intel"):
-  # vLLM-XPU + Vulkan llama.cpp stacks live in ./vllm-xpu.nix and ./llama-cpp.nix.
+  # vLLM-XPU + Vulkan llama.cpp stacks live under ./services/llm/.
 
   # AMT / vPro — non-root /dev/mei access for amtterm / openwsman.
   users.groups.amt = {};

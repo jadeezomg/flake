@@ -1,7 +1,7 @@
 # Intel XPU vLLM — the "vllm" backend of the local chat stack (selected via
 # `host.miniLlmBackend = "vllm"` in `host.nix`; the "llamacpp" alternative is
 # `./llama-cpp.nix`). Both serve the SAME contract (`host.miniLlm{ServedName,Port,Host}`)
-# so consumers can't tell them apart. Shared GPU stack + HF token: `./llm-base.nix`.
+# so consumers can't tell them apart. Shared GPU stack + HF token: `./default.nix`.
 # Consumption matches upstream:
 # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md
 # Host-specific tuning, ccache, and optional kernel overrides: `docs/hosts/mini-vllm-xpu.md`.

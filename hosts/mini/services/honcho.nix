@@ -141,17 +141,23 @@ in {
   systemd.services.podman-honcho-redis.after = ["honcho-network.service"];
   systemd.services.podman-honcho-redis.requires = ["honcho-network.service"];
 
-  # HTTPS on the tailnet at :8100 (mirrors the open-webui serve unit).
+  # HTTPS on the tailnet at :8100 (mirrors the open-webui serve unit, incl. the
+  # Restart=on-failure that rides out tailscaled NoState on boot and the etag race
+  # between sibling serve units on a switch — see open-webui.nix for the full why).
   systemd.services.tailscale-serve-honcho = {
     description = "Tailscale Serve: HTTPS -> Honcho";
     after = ["tailscaled.service" "podman-honcho-api.service"];
     wants = ["tailscaled.service"];
     wantedBy = ["multi-user.target"];
+    startLimitIntervalSec = 300;
+    startLimitBurst = 30;
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStart = "${tailscale}/bin/tailscale serve --bg --https=${toString apiPort} http://127.0.0.1:${toString apiPort}";
       ExecStop = "${tailscale}/bin/tailscale serve --https=${toString apiPort} off";
+      Restart = "on-failure";
+      RestartSec = 5;
     };
   };
 }

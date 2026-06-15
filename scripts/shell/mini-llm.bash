@@ -233,7 +233,7 @@ perf)
   ;;
 embedding)
   print_error "vLLM embeddings are disabled on mini so chat can use the full XPU memory budget."
-  print_info "Re-enable services.vllm-xpu.instances.embedding in hosts/mini/services/vllm-xpu.nix if you need :8001 again."
+  print_info "Re-enable services.vllm-xpu.instances.embedding in hosts/mini/services/llm/vllm-xpu.nix if you need :8001 again."
   exit 1
   ;;
 gpu)

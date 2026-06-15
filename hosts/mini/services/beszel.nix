@@ -69,17 +69,23 @@ in {
   # The agent's StateDirectory (${agentDir}) is created by its systemd unit with
   # the right ownership; onboarding drops hub_key.pub there.
 
-  # HTTPS dashboard on the tailnet at :8090 (same pattern as open-webui/honcho).
+  # HTTPS dashboard on the tailnet at :8090 (same pattern as open-webui/honcho,
+  # incl. the Restart=on-failure that rides out tailscaled NoState on boot and the
+  # etag race between sibling serve units on a switch — see open-webui.nix).
   systemd.services.tailscale-serve-beszel = {
     description = "Tailscale Serve: HTTPS -> Beszel hub";
     after = ["tailscaled.service" "beszel-hub.service"];
     wants = ["tailscaled.service"];
     wantedBy = ["multi-user.target"];
+    startLimitIntervalSec = 300;
+    startLimitBurst = 30;
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStart = "${tailscale}/bin/tailscale serve --bg --https=${toString hubPort} http://127.0.0.1:${toString hubPort}";
       ExecStop = "${tailscale}/bin/tailscale serve --https=${toString hubPort} off";
+      Restart = "on-failure";
+      RestartSec = 5;
     };
   };
 }
