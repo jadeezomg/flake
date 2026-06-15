@@ -5,49 +5,62 @@ script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 root="${FLAKE:-$(cd "$script_dir/../.." && pwd)}"
 source "$root/scripts/shell/common.sh"
 
+# mini serves local LLMs through one of two backends (host.miniLlmBackend), both on
+# :8000 behind the shared `local-chat` contract:
+#   llamacpp → systemd unit `llama-cpp-gemma`, llama-server ROUTER mode serving
+#              `local-chat` (Gemma 4 QAT + MTP + vision) and `local-embed` (F2LLM).
+#   vllm     → systemd unit `vllm-xpu-chat` (+ optional `vllm-xpu-embedding` on :8001).
+# These helpers detect the active backend from which unit is deployed, so the same
+# commands work whichever backend host.nix selects.
+
 usage() {
   cat <<'USAGE'
 usage: mini-llm.bash <command> [arg]
 
 commands:
-  overview               status plus model probes; safe default from picker
-  status                 service status for vLLM-XPU and llama.cpp
-  logs [all|chat|embedding|llama]
-  restart [all|chat|embedding|llama]
-  models                 list OpenAI-compatible models on 8000 (active backend)
-  chat [prompt]          smoke-test vLLM chat on 8000 (short reply)
+  overview               backend + unit status, runtime command, model probes
+  status                 service status for the active LLM backend
+  logs                   follow logs for the active backend's unit(s)
+  restart                restart the active backend's unit(s)
+  models                 list served models on :8000 (+ :8001 if vLLM embeddings)
+  chat [prompt]          smoke-test chat on :8000 (model local-chat)
   perf [prompt]          throughput probe: complex prompt, reports TTFT + tok/s
-  embedding [text]       disabled for now; chat gets the whole XPU budget
+  embedding [text]       smoke-test embeddings (local-embed on llama.cpp, or vLLM :8001)
   gpu                    live Intel GPU utilization
-  troubleshoot           failed units, cache paths, recent logs
+  troubleshoot           backend, failed units, cache paths, recent logs
 USAGE
 }
 
-unit_args() {
-  local unit="${1:-all}"
-  case "$unit" in
-  all) printf '%s\0' vllm-xpu-chat llama-cpp-gemma ;;
-  chat) printf '%s\0' vllm-xpu-chat ;;
-  embedding) printf '%s\0' vllm-xpu-embedding ;;
-  llama) printf '%s\0' llama-cpp-gemma ;;
-  *)
-    print_error "Usage: $0 ${2:-logs} [all|chat|embedding|llama]"
-    exit 2
-    ;;
+# Which backend is deployed right now (by which unit file exists), not what is running.
+active_backend() {
+  if systemctl cat llama-cpp-gemma.service >/dev/null 2>&1; then
+    echo llamacpp
+  elif systemctl cat vllm-xpu-chat.service >/dev/null 2>&1; then
+    echo vllm
+  else
+    echo none
+  fi
+}
+
+# The chat/primary unit for the active backend.
+primary_unit() {
+  case "$(active_backend)" in
+  llamacpp) echo llama-cpp-gemma ;;
+  vllm) echo vllm-xpu-chat ;;
+  *) echo "" ;;
   esac
 }
 
-journal_unit_args() {
-  local unit="${1:-all}"
-  case "$unit" in
-  all) printf '%s\0%s\0%s\0%s\0' -u vllm-xpu-chat -u llama-cpp-gemma ;;
-  chat) printf '%s\0%s\0' -u vllm-xpu-chat ;;
-  embedding) printf '%s\0%s\0' -u vllm-xpu-embedding ;;
-  llama) printf '%s\0%s\0' -u llama-cpp-gemma ;;
-  *)
-    print_error "Usage: $0 logs [all|chat|embedding|llama]"
-    exit 2
+# All units for the active backend (space-separated).
+backend_units() {
+  case "$(active_backend)" in
+  llamacpp) echo llama-cpp-gemma ;;
+  vllm)
+    local units=vllm-xpu-chat
+    systemctl cat vllm-xpu-embedding.service >/dev/null 2>&1 && units="$units vllm-xpu-embedding"
+    echo "$units"
     ;;
+  *) echo "" ;;
   esac
 }
 
@@ -67,7 +80,7 @@ require_endpoint() {
       print_error "$label is not reachable after ${timeout}s."
       print_info "The HTTP API is still not listening; inspect the systemd unit before running the smoke test."
       print_info "Try: just mini llm status"
-      print_info "Try: just mini llm logs ${unit#vllm-xpu-}"
+      print_info "Try: just mini llm logs"
       print_pending "$out"
       print_header "${unit}.service status"
       systemctl --no-pager --full --lines=80 status "${unit}.service" || true
@@ -103,14 +116,15 @@ probe() {
 }
 
 perf_probe() {
-  # Second, heavier check: a complex prompt that forces sustained generation, so
-  # the numbers reflect real decode throughput rather than the 8-token smoke test.
+  # Heavier check: a complex prompt that forces sustained generation, so the numbers
+  # reflect real decode throughput rather than the 8-token smoke test. Backend-agnostic
+  # (model = local-chat); on llama.cpp this also exercises the MTP speculative path.
   local prompt max_tokens body line payload start end
   local first="" prompt_tokens="" completion_tokens=""
   prompt="${1:-Explain in depth how a modern out-of-order CPU executes a stream of instructions: fetch, decode, register renaming, reservation stations, execution ports, the reorder buffer, and retirement. Give concrete examples and explain why each stage exists.}"
   max_tokens="${MINI_LLM_PERF_TOKENS:-256}"
 
-  print_header "vLLM throughput probe (complex prompt)"
+  print_header "throughput probe (complex prompt)"
   print_pending "POST /v1/chat/completions model=local-chat max_tokens=$max_tokens stream=true (TTFT + decode tok/s)"
 
   body="$(jq -n --arg prompt "$prompt" --argjson max "$max_tokens" \
@@ -136,7 +150,7 @@ perf_probe() {
 
   if [[ -z "$completion_tokens" || -z "$first" ]]; then
     print_error "Throughput probe did not complete (no tokens or no usage chunk)."
-    print_info "Inspect: just mini llm logs chat"
+    print_info "Inspect: just mini llm logs"
     return 1
   fi
 
@@ -150,35 +164,32 @@ perf_probe() {
   }'
 }
 
-show_chat_runtime_config() {
-  local exec_start expected_exec_start
-  exec_start="$(systemctl show vllm-xpu-chat.service --property=ExecStart --value 2>/dev/null || true)"
-  expected_exec_start="$(nix eval --raw "$root#nixosConfigurations.mini.config.systemd.services.vllm-xpu-chat.serviceConfig.ExecStart" 2>/dev/null || true)"
+# Show the active backend's running command and warn if it drifted from the flake
+# (switch not applied / stale unit). Backend-agnostic: just compares ExecStart.
+show_runtime_config() {
+  local unit exec_start expected
+  unit="$(primary_unit)"
+  if [[ -z "$unit" ]]; then
+    print_pending "no active LLM backend on this host"
+    return
+  fi
+  exec_start="$(systemctl show "${unit}.service" --property=ExecStart --value 2>/dev/null || true)"
+  expected="$(nix eval --raw "$root#nixosConfigurations.mini.config.systemd.services.${unit}.serviceConfig.ExecStart" 2>/dev/null || true)"
 
-  print_header "CHAT RUNTIME FLAGS"
+  print_header "RUNTIME COMMAND ($unit)"
   if [[ -z "$exec_start" ]]; then
-    print_pending "vllm-xpu-chat ExecStart unavailable"
+    print_pending "${unit} ExecStart unavailable"
     return
   fi
   printf '%s\n' "$exec_start"
 
-  if [[ -n "$expected_exec_start" && "$exec_start" != *"$expected_exec_start"* ]]; then
-    print_error "Running chat unit does not match the current flake output."
-    print_info "This usually means the switch did not apply, or systemd is still using an older unit."
-    print_info "Run on mini: NIX_CONFIG='cores = 1' just switch-fast && sudo systemctl daemon-reload && sudo systemctl restart vllm-xpu-chat"
-    print_pending "expected ExecStart: $expected_exec_start"
-  fi
-
-  local missing=()
-  case "$exec_start" in *"--language-model-only"*) ;; *) missing+=("--language-model-only") ;; esac
-  case "$exec_start" in *"--enforce-eager"*) ;; *) missing+=("--enforce-eager") ;; esac
-  case "$exec_start" in *"--max-num-seqs 8"*) ;; *) missing+=("--max-num-seqs 8") ;; esac
-
-  if ((${#missing[@]})); then
-    print_error "Running chat unit is missing expected mini tuning: ${missing[*]}"
-    print_info "Run from this repo on mini: git add -A && just switch"
+  if [[ -n "$expected" && "$exec_start" != *"$expected"* ]]; then
+    print_error "Running unit does not match the current flake output."
+    print_info "This usually means the switch did not apply, or systemd is using an older unit."
+    print_info "On mini: git add -A && just switch && sudo systemctl daemon-reload && sudo systemctl restart $unit"
+    print_pending "expected: $expected"
   else
-    print_success "Running chat unit has expected mini tuning flags"
+    print_success "Running unit matches the flake output."
   fi
 }
 
@@ -186,67 +197,109 @@ command_name="${1:-}"
 shift || true
 
 case "$command_name" in
-overview)
-  print_header "MINI LLM STATUS"
+overview | status)
+  be="$(active_backend)"
+  print_header "MINI LLM STATUS (backend: $be)"
   systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager --full
   print_header "UNIT STATUS"
-  systemctl --no-pager --full --lines=80 status vllm-xpu-chat llama-cpp-gemma || true
-  show_chat_runtime_config
-  # Both backends serve the shared contract on :8000; only one is active at a time.
-  probe "local chat :8000" "http://127.0.0.1:8000/v1/models"
-  if [[ "$(systemctl is-active vllm-xpu-chat.service 2>/dev/null || true)" == "active" ]]; then
-    perf_probe || true
+  mapfile -t units < <(backend_units | tr ' ' '\n' | grep -v '^$' || true)
+  if ((${#units[@]})); then
+    systemctl --no-pager --full --lines=80 status "${units[@]}" || true
+  fi
+  show_runtime_config
+  if [[ "$command_name" == "overview" ]]; then
+    probe "models :8000" "http://127.0.0.1:8000/v1/models"
+    if systemctl cat vllm-xpu-embedding.service >/dev/null 2>&1; then
+      probe "embeddings :8001" "http://127.0.0.1:8001/v1/models"
+    fi
+    unit="$(primary_unit)"
+    if [[ -n "$unit" && "$(systemctl is-active "${unit}.service" 2>/dev/null || true)" == "active" ]]; then
+      perf_probe || true
+    fi
   fi
   ;;
-status)
-  print_header "MINI LLM STATUS"
-  systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager --full
-  print_header "UNIT STATUS"
-  systemctl --no-pager --full --lines=80 status vllm-xpu-chat llama-cpp-gemma || true
-  show_chat_runtime_config
-  ;;
 logs)
-  mapfile -d '' -t args < <(journal_unit_args "${1:-all}")
+  mapfile -t units < <(backend_units | tr ' ' '\n' | grep -v '^$' || true)
+  if ((${#units[@]} == 0)); then
+    print_error "No LLM backend is active on this host."
+    exit 1
+  fi
+  args=()
+  for u in "${units[@]}"; do args+=(-u "$u"); done
   journalctl --no-pager -f "${args[@]}"
   ;;
 restart)
-  mapfile -d '' -t units < <(unit_args "${1:-all}" restart)
+  mapfile -t units < <(backend_units | tr ' ' '\n' | grep -v '^$' || true)
+  if ((${#units[@]} == 0)); then
+    print_error "No LLM backend is active on this host."
+    exit 1
+  fi
   sudo systemctl restart "${units[@]}"
   systemctl --no-pager status "${units[@]}" || true
   ;;
 models)
-  probe "local chat :8000" "http://127.0.0.1:8000/v1/models"
+  probe "models :8000" "http://127.0.0.1:8000/v1/models"
+  if systemctl cat vllm-xpu-embedding.service >/dev/null 2>&1; then
+    probe "embeddings :8001" "http://127.0.0.1:8001/v1/models"
+  fi
   ;;
 chat)
   prompt="${1:-Reply with exactly: ok}"
-  require_endpoint "vLLM chat :8000" "http://127.0.0.1:8000/v1/models" "vllm-xpu-chat"
-  print_header "vLLM chat request"
+  require_endpoint "chat :8000" "http://127.0.0.1:8000/v1/models" "$(primary_unit)"
+  print_header "chat request (local-chat)"
   print_pending "POST /v1/chat/completions model=local-chat max_tokens=8 stream=true enable_thinking=false"
-  print_info "This is a smoke test: short output, Qwen thinking disabled. If it still crawls, watch: just mini llm logs chat"
+  print_info "Smoke test: short output, thinking disabled. If it crawls, watch: just mini llm logs"
   jq -n --arg prompt "$prompt" \
     '{model:"local-chat",messages:[{role:"user",content:$prompt}],max_tokens:8,stream:true,chat_template_kwargs:{enable_thinking:false}}' |
     xh --stream --timeout=120 POST http://127.0.0.1:8000/v1/chat/completions Content-Type:application/json
   ;;
 perf)
-  require_endpoint "vLLM chat :8000" "http://127.0.0.1:8000/v1/models" "vllm-xpu-chat"
+  require_endpoint "chat :8000" "http://127.0.0.1:8000/v1/models" "$(primary_unit)"
   perf_probe "${1:-}"
   ;;
 embedding)
-  print_error "vLLM embeddings are disabled on mini so chat can use the full XPU memory budget."
-  print_info "Re-enable services.vllm-xpu.instances.embedding in hosts/mini/services/llm/vllm-xpu.nix if you need :8001 again."
-  exit 1
+  text="${1:-The quick brown fox jumps over the lazy dog.}"
+  case "$(active_backend)" in
+  llamacpp)
+    require_endpoint "embeddings :8000" "http://127.0.0.1:8000/v1/models" "llama-cpp-gemma"
+    print_header "embeddings request (local-embed)"
+    print_pending "POST /v1/embeddings model=local-embed"
+    jq -n --arg t "$text" '{model:"local-embed",input:$t}' |
+      xh --timeout=60 POST http://127.0.0.1:8000/v1/embeddings Content-Type:application/json |
+      jq '{model: .model, dims: (.data[0].embedding | length), usage: .usage}'
+    ;;
+  vllm)
+    if systemctl cat vllm-xpu-embedding.service >/dev/null 2>&1; then
+      require_endpoint "vLLM embeddings :8001" "http://127.0.0.1:8001/v1/models" "vllm-xpu-embedding"
+      print_header "embeddings request (jina-embeddings-v5-nano)"
+      jq -n --arg t "$text" '{model:"jina-embeddings-v5-nano",input:$t}' |
+        xh --timeout=60 POST http://127.0.0.1:8001/v1/embeddings Content-Type:application/json |
+        jq '{model: .model, dims: (.data[0].embedding | length)}'
+    else
+      print_error "The vLLM embedding instance is disabled (services.vllm-xpu.instances.embedding.enable = false)."
+      print_info "Embeddings are served by the llama.cpp backend (miniLlmBackend = \"llamacpp\") as local-embed on :8000."
+      exit 1
+    fi
+    ;;
+  *)
+    print_error "No LLM backend is active on this host."
+    exit 1
+    ;;
+  esac
   ;;
 gpu)
   sudo intel_gpu_top
   ;;
 troubleshoot)
+  print_header "ACTIVE BACKEND"
+  printf '%s\n' "$(active_backend)"
   print_header "FAILED UNITS"
   systemctl --no-pager --failed || true
   print_header "LLM UNITS"
   systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager --full
-  show_chat_runtime_config
+  show_runtime_config
   print_header "CACHE PATHS"
-  for path in /var/cache/ccache /var/lib/llama-cpp /var/lib/private/sops/age; do
+  for path in /var/cache/ccache /var/lib/llama-cpp /var/lib/llama-cpp/huggingface /var/lib/private/sops/age; do
     if [[ -e "$path" ]]; then
       stat -c '%A %U:%G %n' "$path"
     else
@@ -254,7 +307,12 @@ troubleshoot)
     fi
   done
   print_header "RECENT LOGS"
-  journalctl --no-pager -u vllm-xpu-chat -u llama-cpp-gemma -n 120 || true
+  mapfile -t units < <(backend_units | tr ' ' '\n' | grep -v '^$' || true)
+  if ((${#units[@]})); then
+    args=()
+    for u in "${units[@]}"; do args+=(-u "$u"); done
+    journalctl --no-pager "${args[@]}" -n 120 || true
+  fi
   ;;
 -h | --help | help | "")
   usage
