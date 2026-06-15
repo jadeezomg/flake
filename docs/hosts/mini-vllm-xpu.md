@@ -36,11 +36,16 @@ Images go in standard OpenAI **`image_url`** content parts to **`/v1/chat/comple
 
 Day-to-day **status, journalctl, curl, SSH tunnels, and start/stop** commands for both backends are in **`docs/hosts/mini-llm-hosting.md`** (single cheat sheet). After config changes on mini, use **`just switch`** (see `mini-install.md`).
 
-Use the shared served id **`local-chat`** in chat requests (and **`jina-embeddings-v5-nano`** for embeddings when re-enabled), not the HF repo id. The chat id is the same across backends.
+Use the shared served id **`local-chat`** in chat requests, not the HF repo id. The chat id is the same across backends. For **embeddings**, the live endpoint is **`local-embed`** on **8000** — served by the **llama.cpp** backend's router (`/v1/embeddings`), not vLLM. The vLLM `:8001` **`jina-embeddings-v5-nano`** instance is a separate concept and stays disabled.
 
-## llama.cpp GGUF (the other backend)
+## llama.cpp GGUF (the other backend) — router mode, chat + embeddings
 
-**[unsloth/gemma-4-12b-it-GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF)** is served by **`llama-cpp-gemma`** on the shared **port 8000** (as **`local-chat`**) when **`miniLlmBackend = "llamacpp"`** in `hosts/mini/host.nix` (`hosts/mini/services/llm/llama-cpp.nix`). It is the **mutually-exclusive alternative** to the default vLLM backend — selecting it stops vLLM from being imported, since both would OOM the shared GPU. See **`docs/hosts/mini-llm-hosting.md`**.
+When **`miniLlmBackend = "llamacpp"`** in `hosts/mini/host.nix`, **`llama-cpp-gemma`** runs **`llama-server` in router mode** (`--models-preset <generated INI> --models-max 2`, `hosts/mini/services/llm/llama-cpp.nix`) and serves **two** presets on the shared **port 8000** (each INI section name = its served model id):
+
+- **`local-chat`** — **[unsloth/gemma-4-12B-it-qat-GGUF](https://huggingface.co/unsloth/gemma-4-12B-it-qat-GGUF)** (`UD-Q4_K_XL`, Google's **QAT** Gemma 4 12B). The one repo bundles QAT weights + the **MTP** drafter + the **`mmproj-*.gguf`** vision projector, so chat runs with **MTP speculative decoding** (`spec-type = draft-mtp`, `spec-draft-n-max = 2`, ~1.5–2.2× faster generation; needs llama.cpp ≥ the 2026-06-07 build, mini's is build 9503) **and** vision (`mmproj-auto`). Chat context is **64K total** (32K per conversation, `cache-type-k/v = q8_0`), **trimmed from 96K** to co-reside with the embedder.
+- **`local-embed`** — **[mradermacher/F2LLM-v2-0.6B-GGUF](https://huggingface.co/mradermacher/F2LLM-v2-0.6B-GGUF)** (`Q8_0`, a Qwen3-architecture decoder embedding model, 1024-dim, last-token pooling, ~0.6 GB) with `embedding = true`, `pooling = last`, `ctx-size = 8192`. Reachable at **`/v1/embeddings`** — this is the **live embeddings endpoint on mini**, available only on the llama.cpp backend.
+
+**`--models-max 2`** keeps **both** models resident (the embedder adds only ~0.6 GB); **`--models-max 1`** swaps on demand instead (keeps chat at max context). The llama.cpp backend is the **mutually-exclusive alternative** to the default vLLM backend — selecting it stops vLLM from being imported, since both would OOM the shared GPU. The vLLM backend serves **chat only** (`local-chat`); it does **not** serve `local-embed`. See **`docs/hosts/mini-llm-hosting.md`**.
 
 The generic serving stack (`dotfiles.profiles.llm`) defaults off and stays off on mini — `./llm/vllm-xpu.nix` / `./llm/llama-cpp.nix` own LLM serving here.
 
@@ -62,7 +67,7 @@ This is the **real blocker**: the **`google/gemma-4-12B-it-qat-w4a16-ct`** (and 
 1. **Bump `inputs.vllm-xpu-nix`** (and let it pull newer `vllm-xpu-unstable` / `transformers`) until `nixos-rebuild` / `just switch` gets a vLLM that loads Gemma 4 — watch [vllm-xpu-nix](https://github.com/jasonboukheir/vllm-xpu-nix) and upstream [vllm](https://github.com/vllm-project/vllm) / recipe PR references.
 2. **Optional VRAM experiment (only after (1)):** set `models.chat.repo` to **`google/gemma-4-12B-it`** to mirror the recipe’s BF16 quick start — still requires a build that **recognizes** `gemma4_unified`; expect **much higher** memory than QAT CT.
 3. **Interim chat model:** **`ISTA-DASLab/gemma-3-12b-it-GPTQ-4b-128g`** as **`models.chat.repo`** in **`hosts/mini/services/llm/vllm-xpu.nix`** — **Gemma 3**, known to load on older stacks. (It is still advertised as **`local-chat`** — the served id is the shared contract, independent of the underlying repo.)
-4. **Gemma 4 without vLLM on XPU:** switch to the llama.cpp backend (**`miniLlmBackend = "llamacpp"`**) to serve **[unsloth GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF)** via **`llama-cpp-gemma`** on the shared **port 8000** (Vulkan path). This is a backend swap, not an additional server — vLLM is no longer imported while llama.cpp is the active backend.
+4. **Gemma 4 without vLLM on XPU:** switch to the llama.cpp backend (**`miniLlmBackend = "llamacpp"`**) to serve **[unsloth/gemma-4-12B-it-qat-GGUF](https://huggingface.co/unsloth/gemma-4-12B-it-qat-GGUF)** (`UD-Q4_K_XL` QAT, with **MTP** speculative decoding + vision) as **`local-chat`** via **`llama-cpp-gemma`** on the shared **port 8000** (Vulkan path). That backend runs in **router mode** and additionally serves **`local-embed`** (F2LLM-v2-0.6B embeddings) on the same port — see § *llama.cpp GGUF (the other backend)* above. This is a backend swap, not an additional server — vLLM is no longer imported while llama.cpp is the active backend.
 
 ### `UnicodeDecodeError` in `torch.library` / `_clear_torch_ops_cache`
 
