@@ -1,11 +1,4 @@
 {
-	"env": {
-		"HONCHO_ENDPOINT": "https://mini.quokka-qilin.ts.net:8100",
-		"HONCHO_API_KEY": "sk-no-auth",
-		"HONCHO_WORKSPACE": "jadee",
-		"HONCHO_PEER_NAME": "jadee",
-		"HONCHO_AI_PEER": "claude"
-	},
 	"permissions": {
 		"allow": [
 			"Bash(nix flake check *)",
@@ -309,7 +302,7 @@
 	},
 	"enabledPlugins": {
 		"typescript-lsp@claude-plugins-official": true,
-		"honcho@honcho": true
+		"honcho@honcho": false
 	},
 	"extraKnownMarketplaces": {
 		"honcho": {

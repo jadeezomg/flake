@@ -5,10 +5,13 @@
 # connects *outbound* to the local hub (HUB_URL) using the hub's ssh pubkey
 # (KEY_FILE) + a universal token (TOKEN_FILE) — the model from nixpkgs'
 # nixos/tests/beszel.nix. The hub dashboard is exposed on the tailnet via
-# `tailscale serve` (HTTPS), like the other mini UIs.
+# `tailscale serve` at a named subpath (HTTPS), not a bare port: it is mounted
+# at https://mini.quokka-qilin.ts.net/beszel. Tailscale's --set-path does NOT
+# strip the prefix, so the hub itself is told to serve under /beszel via APP_URL
+# (see https://beszel.dev/guide/serve-on-subpath); the two must stay in sync.
 #
 # FIRST-RUN ONBOARDING (one-time; PocketBase always needs an admin):
-#   1. Open https://mini.quokka-qilin.ts.net:8090 and create the superuser.
+#   1. Open https://mini.quokka-qilin.ts.net/beszel and create the superuser.
 #   2. Write the hub's pubkey to KEY_FILE and add the system in the UI
 #      (host 127.0.0.1, port 45876). Either do it in the UI's "Add System" dialog
 #      (copy the key), or via the API:
@@ -31,6 +34,10 @@ in {
     enable = true;
     host = "127.0.0.1"; # tailscale serve fronts it with TLS
     port = hubPort;
+    # Served under /beszel by `tailscale serve --set-path` (which does not strip
+    # the prefix), so the hub must generate its asset/route URLs under that
+    # subpath. https://beszel.dev/guide/serve-on-subpath
+    environment.APP_URL = "https://mini.quokka-qilin.ts.net/beszel";
   };
 
   services.beszel.agent = {
@@ -69,11 +76,13 @@ in {
   # The agent's StateDirectory (${agentDir}) is created by its systemd unit with
   # the right ownership; onboarding drops hub_key.pub there.
 
-  # HTTPS dashboard on the tailnet at :8090 (same pattern as open-webui/honcho,
-  # incl. the Restart=on-failure that rides out tailscaled NoState on boot and the
-  # etag race between sibling serve units on a switch — see open-webui.nix).
+  # HTTPS dashboard on the tailnet at /beszel on the node's 443 (same resilience
+  # pattern as open-webui/honcho: Restart=on-failure rides out tailscaled NoState
+  # on boot and the etag race between sibling serve units on a switch — see
+  # open-webui.nix). Unlike the others this mounts a named subpath instead of a
+  # dedicated port, so the URL is https://mini.quokka-qilin.ts.net/beszel.
   systemd.services.tailscale-serve-beszel = {
-    description = "Tailscale Serve: HTTPS -> Beszel hub";
+    description = "Tailscale Serve: HTTPS /beszel -> Beszel hub";
     after = ["tailscaled.service" "beszel-hub.service"];
     wants = ["tailscaled.service"];
     wantedBy = ["multi-user.target"];
@@ -82,8 +91,8 @@ in {
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = "${tailscale}/bin/tailscale serve --bg --https=${toString hubPort} http://127.0.0.1:${toString hubPort}";
-      ExecStop = "${tailscale}/bin/tailscale serve --https=${toString hubPort} off";
+      ExecStart = "${tailscale}/bin/tailscale serve --bg --https=443 --set-path=/beszel http://127.0.0.1:${toString hubPort}";
+      ExecStop = "${tailscale}/bin/tailscale serve --https=443 --set-path=/beszel off";
       Restart = "on-failure";
       RestartSec = 5;
     };

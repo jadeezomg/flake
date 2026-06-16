@@ -46,11 +46,29 @@ in {
       isEssential = true;
       position = 107;
     };
-    "Vibe" = {
+    "Le Chat" = {
       id = "f34e2ae1-20bc-4cd3-9ceb-f9b633fd67e2";
       url = "https://chat.mistral.ai/chat";
       isEssential = true;
       position = 108;
+    };
+    "Machines - Tailscale" = {
+      id = "02b17117-aeee-4c2a-a944-4bcc2c7f656d";
+      url = "https://login.tailscale.com/admin/machines";
+      isEssential = true;
+      position = 109;
+    };
+    "Open WebUI" = {
+      id = "3c10e17c-40f1-403e-bc48-75737817338d";
+      url = "https://mini.quokka-qilin.ts.net/";
+      isEssential = true;
+      position = 110;
+    };
+    "OpenRouter" = {
+      id = "c6796b44-ce0e-4301-80e9-4a7580b504ed";
+      url = "https://openrouter.ai/";
+      isEssential = true;
+      position = 111;
     };
     "Nix" = {
       id = "{1775769307141-35}";
