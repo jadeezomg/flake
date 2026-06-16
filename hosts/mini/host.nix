@@ -25,7 +25,8 @@ in
     miniLlmHost = "0.0.0.0";
     # Honcho shared-memory server (./services/honcho.nix). Needs `miniLlmHosting`
     # since its deriver uses the local vLLM model. See docs/hosts/mini-agent-memory-plan.md.
-    miniMemoryHosting = true;
+    # Disabled 2026-06-16 while evaluating alternatives — see docs/adr/0002-honcho-as-shared-agent-memory.md.
+    miniMemoryHosting = false;
     # Beszel hub + agent (./services/beszel.nix): server/service/container monitoring.
     miniMonitoring = true;
     # GGML backends for nixpkgs `llama-cpp` (Vulkan + CLBlast/OpenCL only — not SYCL/OpenVINO).
