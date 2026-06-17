@@ -4,7 +4,7 @@
 in {
   pinsForce = true;
   pins = {
-    "Caya GmbH Mail" = {
+    "Google Drive messaged you - Chat" = {
       id = "22b1fd3c-57f8-4984-9ef9-e8a26e396e4a";
       url = "https://mail.google.com/mail/u/0/#inbox";
       isEssential = true;
@@ -28,7 +28,7 @@ in {
       isEssential = true;
       position = 104;
     };
-    "Google Gemini" = {
+    "Regex: Make GmbH Mandatory - Google Gemini" = {
       id = "7b6cd970-509b-4b1a-87f8-6dcedda3ad92";
       url = "https://gemini.google.com/app";
       isEssential = true;
@@ -36,13 +36,13 @@ in {
     };
     "[Custom] Stacked Integration | Projects | Caya Document Automation" = {
       id = "7d00f1ba-b3d0-48a6-863d-dbadc14ef757";
-      url = "https://app.eu.workato.com/?fid=projects";
+      url = "https://app.eu.workato.com/recipes/2046104-live-n26-s3-upload-with-metadata?query&started_at=30.days&status=failed&prev=false&group_by_master_job=true&offset_job_id=j-AaWXtJwg-NsDYHX-CE#jobs";
       isEssential = true;
       position = 106;
     };
     "Optional messages for change by jadeezomg · Pull Request #28 · AMN-DATA/ops-postal-forwarding-bot" = {
       id = "21f63058-e806-4b07-a023-90a85314ffa8";
-      url = "https://github.com/AMN-DATA/ops-postal-forwarding-bot/pull/28/";
+      url = "https://github.com/AMN-DATA";
       isEssential = true;
       position = 107;
     };
@@ -293,7 +293,7 @@ in {
       isEssential = false;
       position = 210;
     };
-    "Caya" = {
+    "Caya_1" = {
       id = "32bb71b4-2bd6-4d44-bc56-285536a67965";
       url = "https://metabase.caya.com/dashboard/107-onboard";
       workspace = spaces."Work".id;
@@ -373,7 +373,7 @@ in {
       folderParentId = "{1772811910906-87}";
       container = 2;
     };
-    "My Drive - Google Drive" = {
+    "Google" = {
       id = "bf59c022-cb5a-4e26-8cd4-13780b769242";
       url = "https://drive.google.com/drive/my-drive";
       workspace = spaces."Work".id;
@@ -430,7 +430,7 @@ in {
       isEssential = false;
       position = 227;
     };
-    "Google" = {
+    "Google_1" = {
       id = "90112971-dd55-47ab-8b26-ed1c301277ea";
       url = "https://mail.google.com/mail/u/0/#inbox";
       workspace = spaces."Solutions".id;
@@ -491,7 +491,7 @@ in {
       position = 234;
       folderParentId = "{1772811910929-76}";
     };
-    "Caya_1" = {
+    "Caya_4" = {
       id = "8e254e3a-eb7b-441b-8969-e7de6da4c9e7";
       url = "https://metabase.caya.com/question/2844-active-documents-with-missing-automation-to-be-retriggered-inc-stacked-distribution?days=31";
       workspace = spaces."Solutions".id;
@@ -500,7 +500,7 @@ in {
       folderParentId = "{1772811910929-76}";
       container = 3;
     };
-    "Google_1" = {
+    "Google_1_1" = {
       id = "fe83278b-8709-4f97-88d8-eb5a3dce8c69";
       url = "https://docs.google.com/document/d/13qGBQ_yMl0y4H6BYgsIbm6jOL1EvFAp0_YTHmu3D00o/edit?tab=t.lsx0mf7ch6wy#heading=h.6ewrr9jlp0yl";
       workspace = spaces."Solutions".id;
@@ -668,9 +668,9 @@ in {
       position = 256;
       folderParentId = "{1774867666645-82}";
     };
-    "MODERN HOMES Immobilien" = {
+    "Globale E-Mails - casavi" = {
       id = "b6de9f51-8d90-4b31-8b72-ef72c6d1e7da";
-      url = "https://caya-testaccount.mycasavi.com/app/login?nextJump=%2Ftenants%2F13739%2Fmanage%2Femails%2Fglobal%2F971152%2F";
+      url = "https://caya-testaccount.mycasavi.com/tenants/13739/manage/emails/global/971152/";
       workspace = spaces."Development".id;
       isEssential = false;
       position = 257;
