@@ -384,7 +384,7 @@ inputs.hermes-agent.nixosModules.default
 
 ### 9.2 Service config
 
-Lives in `hosts/mini/hermes.nix` (new file, imported from `hosts/mini/default.nix`):
+Lives in `hosts/mini/services/hermes.nix` (new file, imported from `hosts/mini/default.nix`):
 
 ```nix
 { config, ... }: {

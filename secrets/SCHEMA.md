@@ -66,7 +66,7 @@ host doesn't invalidate the others' `/etc/shadow` on next switch.
 | `mini/amt/password` | the MEBx password set in `docs/hosts/mini-install.md` §3 | **reference only** — not consumed declaratively; stored for recovery | (reference) |
 | `mini/git/deploy-key` | `ssh-keygen -t ed25519 -N '' -C 'mini@flake-bot'` on mini; register `.pub` as a deploy key with write access on `github.com/jadeezomg/flake`. Paste the **private** key here. | `hosts/mini/flake-cache-warm.nix` → `systemd LoadCredential` → `GIT_SSH_COMMAND` | mini |
 | `cachix/auth-token` | `cachix authtoken --create-token --scope push --cache jadee-flake` | `hosts/mini/flake-cache-warm.nix` → `cachix push` | mini |
-| `hermes/env` | API keys + provider creds for `services.hermes-agent`. Format: multi-line `KEY=value`. Schema TBD on first hermes run. | `hosts/mini/hermes.nix` → `services.hermes-agent.environmentFiles` (currently optional) | mini |
+| `hermes/env` | API keys + provider creds for `services.hermes-agent`. Format: multi-line `KEY=value`. Schema TBD on first hermes run. | `hosts/mini/services/hermes.nix` → `services.hermes-agent.environmentFiles` (currently optional) | mini |
 
 ### Future / not yet wired
 

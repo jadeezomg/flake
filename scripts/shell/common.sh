@@ -3,10 +3,10 @@ set -euo pipefail
 
 # Theme: from env when invoked via `just` (Justfile exports), else inline fallback.
 if [[ -z "${THEME_RESET:-}" ]]; then
-  export THEME_GREEN='\033[32m'        THEME_GREEN_BOLD='\033[1;32m'
-  export THEME_YELLOW='\033[33m'       THEME_YELLOW_BOLD='\033[1;33m'
-  export THEME_RED='\033[31m'          THEME_RED_BOLD='\033[1;31m'
-  export THEME_CYAN='\033[36m'         THEME_CYAN_BOLD='\033[1;36m'
+  export THEME_GREEN='\033[32m' THEME_GREEN_BOLD='\033[1;32m'
+  export THEME_YELLOW='\033[33m' THEME_YELLOW_BOLD='\033[1;33m'
+  export THEME_RED='\033[31m' THEME_RED_BOLD='\033[1;31m'
+  export THEME_CYAN='\033[36m' THEME_CYAN_BOLD='\033[1;36m'
   export THEME_RESET='\033[0m'
   export ICON_SUCCESS="${THEME_GREEN}▲${THEME_RESET}"
   export ICON_PENDING="${THEME_YELLOW}❖${THEME_RESET}"
@@ -51,16 +51,16 @@ build_nh_cmd() {
   local prefix
   prefix="$(nh_prefix)"
   case "$action" in
-    switch) echo "${prefix} switch" ;;
-    build) echo "${prefix} build" ;;
-    boot)
-      if is_darwin; then echo "${prefix} build"; else echo "${prefix} boot"; fi
-      ;;
-    dry)
-      if is_darwin; then echo "${prefix} build --dry-run"; else echo "${prefix} test"; fi
-      ;;
-    dev) echo "${prefix} switch --show-trace" ;;
-    *) echo "${prefix} ${action}" ;;
+  switch) echo "${prefix} switch" ;;
+  build) echo "${prefix} build" ;;
+  boot)
+    if is_darwin; then echo "${prefix} build"; else echo "${prefix} boot"; fi
+    ;;
+  dry)
+    if is_darwin; then echo "${prefix} build --dry-run"; else echo "${prefix} test"; fi
+    ;;
+  dev) echo "${prefix} switch --show-trace" ;;
+  *) echo "${prefix} ${action}" ;;
   esac
 }
 
@@ -128,9 +128,14 @@ run_logged() {
 detect_host_from_hostname() {
   local h
   h="$(get_hostname_lc)"
-  if [[ "$h" == *framework* ]]; then echo framework
-  elif [[ "$h" == *desktop* ]]; then echo desktop
-  elif [[ "$h" == *caya* ]]; then echo caya
+  if [[ "$h" == *framework* ]]; then
+    echo framework
+  elif [[ "$h" == *desktop* ]]; then
+    echo desktop
+  elif [[ "$h" == *mini* ]]; then
+    echo mini
+  elif [[ "$h" == *caya* ]]; then
+    echo caya
   else echo ""; fi
 }
 
@@ -188,10 +193,22 @@ prompt_number() {
   fi
   read -r -p "${msg} ${default:+[default: $default] }: " input || true
   input="${input//[[:space:]]/}"
-  if [[ -z "$input" && -n "$default" ]]; then echo "$default"; return; fi
-  if [[ -z "$input" ]]; then echo ""; return 1; fi
-  if [[ "${input,,}" == "abort" ]]; then echo ""; return 1; fi
-  if [[ "$input" =~ ^[0-9]+$ ]]; then echo "$input"; return; fi
+  if [[ -z "$input" && -n "$default" ]]; then
+    echo "$default"
+    return
+  fi
+  if [[ -z "$input" ]]; then
+    echo ""
+    return 1
+  fi
+  if [[ "${input,,}" == "abort" ]]; then
+    echo ""
+    return 1
+  fi
+  if [[ "$input" =~ ^[0-9]+$ ]]; then
+    echo "$input"
+    return
+  fi
   print_error "Invalid number: $input"
   return 1
 }

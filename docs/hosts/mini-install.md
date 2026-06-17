@@ -94,7 +94,7 @@ Search `git grep -n TODO` for the canonical list. As of writing:
 | `hosts/mini/disko.nix` (both `device =`) | real `/dev/disk/by-id/nvme-…` paths from the live ISO (§4.2) |
 | `hosts/mini/default.nix` (`mini-lan` profile) | real static IP, gateway, DNS, and `interface-name` (see §1.5) |
 | `hosts/mini/host.nix` (`miniBootstrap`) | **removed post-bootstrap** — re-introduce the toggle (skip sops password + LLM stack) when reinstalling from scratch |
-| `hosts/mini/host.nix` (`miniLlmHosting`) | leave `false` until you want Intel vLLM-XPU; set `true` after bootstrap is off (see `docs/hosts/mini-llm-hosting.md`) |
+| `hosts/mini/host.nix` (`miniLlmHosting`) | leave `false` until you want the local chat stack; set `true` after bootstrap is off, then pick a backend with `miniLlmBackend` (`"vllm"` default, or `"llamacpp"`) — see `docs/hosts/mini-llm-hosting.md` |
 
 ### 1.4 Network values — commit on workstation **or** edit on the installer
 
@@ -698,7 +698,7 @@ journalctl -fu hermes-agent.service
 ```
 
 If the service starts cleanly, hermes is live. Iterate on
-`hosts/mini/hermes.nix`'s `settings = { ... }` block per the hermes-agent
+`hosts/mini/services/hermes.nix`'s `settings = { ... }` block per the hermes-agent
 README to configure model/provider/skills.
 
 ---

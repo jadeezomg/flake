@@ -1,4 +1,7 @@
 {lib, ...}: let
+  # Default desktop applications used by xdg.mimeApps below.
+  # Keep MIME ownership centralized here; feature profiles should install tools,
+  # and only use lib.mkForce overrides for intentionally profile-specific defaults.
   userEditor = "dev.zed.Zed";
   userBrowser = "zen-beta";
   audio = "org.gnome.Music";
@@ -6,6 +9,8 @@
   pdf = "org.pwmt.zathura";
   video = "org.gnome.Showtime";
   fileManager = "org.gnome.Nautilus";
+  archiveManager = "org.gnome.FileRoller";
+  markdownEditor = "typora";
 in {
   gtk.gtk4.theme = lib.mkForce null;
 
@@ -24,6 +29,22 @@ in {
       "application/x-nushell" = ["${userEditor}.desktop"];
       "application/pdf" = ["${pdf}.desktop"];
       "application/x-zerosize" = ["${userEditor}.desktop"];
+      # Archives
+      "application/zip" = ["${archiveManager}.desktop"];
+      "application/x-zip" = ["${archiveManager}.desktop"];
+      "application/x-zip-compressed" = ["${archiveManager}.desktop"];
+      "application/vnd.rar" = ["${archiveManager}.desktop"];
+      "application/x-rar" = ["${archiveManager}.desktop"];
+      "application/x-rar-compressed" = ["${archiveManager}.desktop"];
+      "application/x-7z-compressed" = ["${archiveManager}.desktop"];
+      "application/x-tar" = ["${archiveManager}.desktop"];
+      "application/x-compressed-tar" = ["${archiveManager}.desktop"];
+      "application/gzip" = ["${archiveManager}.desktop"];
+      "application/x-gzip" = ["${archiveManager}.desktop"];
+      "application/bzip2" = ["${archiveManager}.desktop"];
+      "application/x-bzip" = ["${archiveManager}.desktop"];
+      "application/x-xz" = ["${archiveManager}.desktop"];
+      "application/zstd" = ["${archiveManager}.desktop"];
 
       # Audio
       "audio/flac" = ["${audio}.desktop"];
@@ -135,8 +156,8 @@ in {
       "application/wasm" = ["${userEditor}.desktop"];
 
       # Documentation & Markup
-      "text/markdown" = ["${userEditor}.desktop"];
-      "text/x-markdown" = ["${userEditor}.desktop"];
+      "text/markdown" = ["${markdownEditor}.desktop"];
+      "text/x-markdown" = ["${markdownEditor}.desktop"];
       "text/x-rst" = ["${userEditor}.desktop"];
       "text/x-tex" = ["${userEditor}.desktop"];
       "text/x-latex" = ["${userEditor}.desktop"];

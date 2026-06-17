@@ -627,6 +627,11 @@ zen-extract *ARGS:
     @cd "$FLAKE" && uv run --project "$FLAKE/scripts" zen-session extract {{ ARGS }}
 
 
+
+# Mini host + LLM commands, grouped as a module: `just mini <cmd>` and
+# `just mini llm <cmd>`. Definitions live in just/mini.just + just/mini-llm.just.
+mod mini "just/mini.just"
+
 [doc('Start declarative Unsloth Studio user service')]
 [group('llm')]
 unsloth:

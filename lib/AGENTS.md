@@ -1,27 +1,18 @@
 # LIB
 
-Shared Nix helpers used across the flake.
+## Purpose
 
-## default.nix (`dotfilesLib`)
+Shared Nix data and helpers exposed to modules through `dotfilesLib` and Home Manager helper modules.
 
-The named channel for cross-tree data/helpers — passed to every system and HM module via specialArgs/extraSpecialArgs in `parts/hosts.nix`. Modules use `dotfilesLib.<name>` instead of `../../` imports (enforced by `just lint`). Exposes: `palette` (theme-palette.nix; Python mirror `scripts/src/flake_scripts/lib/palette.py`), `shellEnvData`/`shellPaths`, `nonoProfiles`, `hostStatus`, `mcpServers`, `minimalPackages`, `nixExperimentalFeatures`, `sshDestinations`, `agentSkillsDir`, `sopsFile`.
+## Use skills
 
-## pkgs.nix
+- `flake-structure` — what belongs in `lib/` and how it is exposed.
+- `module-structure` — consuming `dotfilesLib` from modules without cross-tree imports.
+- `theme-structure` — palette ownership and Python palette mirror.
 
-```nix
-getPkgs system extraOverlays                         # nixpkgs with allowUnfree + all overlays + extraOverlays
-getPkgsWithConfig system extraOverlays extraConfig   # same, plus host-specific nixpkgs config (e.g. rocmSupport)
-getPkgsSmall system                                  # nixpkgs-unstable-small, allowUnfree, NO overlays
-getPkgsStable system                                 # nixpkgs 25.11, allowUnfree, NO overlays
-```
+## Local hazards
 
-Imported in `parts/hosts.nix`; passed as `pkgs` / `pkgs-small` / `pkgs-stable` to all modules.
-
-## home/live-xdg-symlinks.nix
-
-Helper for creating live (out-of-store) symlinks to XDG config directories. Used by desktop config so niri/DMS edits take effect without a switch.
-
-## home/dotfiles.nix
-
-HM module defining `dotfiles.flakeRoot` (path to the live checkout; defaults to `~/.dotfiles/flake`). Imported unconditionally for every user via `parts/hosts.nix` `homeModules` — every `mkOutOfStoreSymlink`/live-symlink target builds on it.
-
+- Modules should use `dotfilesLib.<name>` instead of climbing with `../../` imports.
+- `pkgs.nix` owns nixpkgs import helpers; host-specific nixpkgs config is passed through `getPkgsWithConfig`.
+- `theme-palette.nix` and `scripts/src/flake_scripts/lib/palette.py` must stay in sync.
+- `home/dotfiles.nix` defines `dotfiles.flakeRoot`; live symlink targets should build on that, not hardcoded home paths.

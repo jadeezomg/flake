@@ -1,7 +1,7 @@
 {...}: {
   dotfiles.hardware = {
     # Intel iGPU + Arc Pro B50 dGPU (vLLM-XPU / llama.cpp stacks are host
-    # modules: ./vllm-xpu.nix, ./llama-cpp.nix).
+    # modules under ./services/llm/).
     gpu = "intel";
     wireless.enable = true;
   };
@@ -20,6 +20,6 @@
     work.enable = false;
     devenv.languages.swift.enable = false;
     # The generic LLM serving stack (dotfiles.profiles.llm) defaults off and
-    # stays off here — mini serves via ./vllm-xpu.nix / ./llama-cpp.nix.
+    # stays off here — mini serves via the ./services/llm/ host modules.
   };
 }

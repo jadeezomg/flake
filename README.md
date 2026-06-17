@@ -86,7 +86,7 @@ flake/
 └── secrets/secrets.yaml        # sops + age
 ```
 
-`packages/*` with a `default.nix` is picked up by `parts/overlays/local-packages.nix` (with a system filter for e.g. `framework-control`).
+`packages/*` with a `default.nix` is picked up by `parts/overlays/local-packages.nix`.
 
 ## Scripts
 
@@ -112,12 +112,11 @@ Bash under `scripts/shell/` backs the Justfile. Python is a uv project in `scrip
 | `nix-homebrew`, `homebrew-*` | Homebrew pins (non-flake fetches) |
 | `nixos-hardware` | hardware modules |
 | `nix-cachyos-kernel` | CachyOS kernel (x86_64-linux) |
-| `framework-control` | Framework laptop tools (separate nixpkgs) |
 | `google-workspace-cli` | `gws` in per-system `packages` |
 | `skills-mattpocock` | pinned upstream source for `just skills-upstream` (exposed as `lib.skillsUpstreamSrc`; updated via `just update`) |
 | `corecycler` | kept while disabled (upstream bug); not wired into any host |
 
-`packages.<system>` exposes every `packages/<name>` automatically (`parts/packages.nix` + `packages/names.nix`); `framework-control` is x86_64-linux-only.
+`packages.<system>` exposes every `packages/<name>` automatically (`parts/packages.nix` + `packages/names.nix`).
 
 ## specialArgs
 

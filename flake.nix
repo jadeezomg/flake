@@ -76,7 +76,6 @@
 
     # --- hardware ---
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
-    framework-control.url = "github:ozturkkl/framework-control";
     corecycler.url = "github:Daaboulex/linux-corecycler";
 
     # --- AI / agents ---
@@ -91,7 +90,7 @@
 
     # Intel XPU vLLM — add `nixosModules.default` + overlay (see upstream
     # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
-    # `hosts/mini/vllm-xpu.nix` holds mini-only `services.vllm-xpu` + hardware/ccache/sops.
+    # `hosts/mini/services/llm/` holds the mini-only chat stack (`services.vllm-xpu` + hardware/ccache/sops).
     vllm-xpu-nix = {
       url = "github:jasonboukheir/vllm-xpu-nix";
       inputs = {
