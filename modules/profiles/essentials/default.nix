@@ -29,6 +29,9 @@ in {
       ipfetch
       resterm
 
+      # --- Security / crypto ---
+      openssl
+
       # --- Nix workstation tooling ---
       cachix
       nixos-icons

@@ -15,7 +15,9 @@
       ../../modules/profiles
       ./profiles.nix
       inputs.hermes-agent.nixosModules.default
+      ./services/caddy.nix
       ./services/hermes.nix
+      ./services/matrix.nix
       # Nightly cachix pipeline — disabled until the host is up (mini-install.md §6).
       # ./flake-cache-warm.nix
     ]

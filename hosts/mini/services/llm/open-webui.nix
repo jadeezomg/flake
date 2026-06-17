@@ -3,27 +3,21 @@
 # auto-discovers the model via /v1/models, so it is unaffected by whether vllm or
 # llamacpp is the active backend.
 #
-# - Open-WebUI listens on loopback only; `tailscale serve` terminates TLS at the
-#   tailnet MagicDNS name and proxies to it, so the UI is reachable at
-#   https://mini.quokka-qilin.ts.net (tailnet-only, valid auto-renewed cert).
+# - Open-WebUI listens on loopback only; the shared Caddy tailnet-node proxy
+#   (services/caddy.nix) terminates TLS and serves it at https://chat.jadee.fyi
+#   (tailnet-only, Cloudflare DNS-01 cert).
 # - The chat server is bound to the tailnet too (host.miniLlmHost = "0.0.0.0"),
 #   so other hosts can hit the raw OpenAI API at http://mini:<port>/v1 directly.
 #   The firewall keeps both off the public internet via trustedInterfaces=tailscale0
 #   (modules/nixos/networking.nix); only :22 is public.
 #
 # open-webui is unfree ("Open WebUI License") — allowed flake-wide in lib/pkgs.nix.
-{
-  config,
-  host,
-  ...
-}: let
+{host, ...}: let
   webuiPort = 8080;
-  tsName = "mini.quokka-qilin.ts.net";
-  tailscale = config.services.tailscale.package;
 in {
   services.open-webui = {
     enable = true;
-    # Loopback only: tailscale serve fronts it with TLS; never opened publicly.
+    # Loopback only: Caddy (services/caddy.nix) fronts it with TLS; never public.
     host = "127.0.0.1";
     port = webuiPort;
     environment = {
@@ -35,7 +29,7 @@ in {
       # No Ollama backend on this host — stop open-webui probing :11434.
       ENABLE_OLLAMA_API = "False";
       # Public URL behind the proxy, so generated links/redirects are correct.
-      WEBUI_URL = "https://${tsName}";
+      WEBUI_URL = "https://chat.jadee.fyi";
       # Don't phone home.
       ANONYMIZED_TELEMETRY = "False";
       DO_NOT_TRACK = "True";
@@ -43,31 +37,9 @@ in {
     };
   };
 
-  # HTTPS on the tailnet. `tailscale serve --bg` persists in tailscaled state; this
-  # oneshot (re)asserts the mapping after tailscaled and open-webui are up.
-  #
-  # Restart=on-failure is essential, not cosmetic — two transient failures otherwise
-  # leave this terminally dead (it's a no-retry oneshot):
-  #  - fresh boot: tailscaled is up as a process before the tailnet backend reaches
-  #    `Running`, so an early serve dies with `unexpected state: NoState`.
-  #  - on a switch this and the sibling serve units (honcho, beszel) write the SAME
-  #    tailscaled serve config concurrently and collide -> `etag mismatch`.
-  # Retrying rides out both windows; `serve --bg` is idempotent so re-asserting is safe.
-  # (on-failure is allowed for Type=oneshot; only always/on-success are refused.)
-  systemd.services.tailscale-serve-open-webui = {
-    description = "Tailscale Serve: HTTPS -> Open-WebUI";
-    after = ["tailscaled.service" "open-webui.service"];
-    wants = ["tailscaled.service"];
-    wantedBy = ["multi-user.target"];
-    startLimitIntervalSec = 300;
-    startLimitBurst = 30;
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStart = "${tailscale}/bin/tailscale serve --bg --yes http://127.0.0.1:${toString webuiPort}";
-      ExecStop = "${tailscale}/bin/tailscale serve reset";
-      Restart = "on-failure";
-      RestartSec = 5;
-    };
-  };
+  # Fronted by the shared Caddy tailnet-node proxy (services/caddy.nix).
+  services.caddy.virtualHosts."chat.jadee.fyi".extraConfig = ''
+    import tsnet
+    reverse_proxy 127.0.0.1:${toString webuiPort}
+  '';
 }
