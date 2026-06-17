@@ -1,6 +1,5 @@
-# Notes feature folder — system half here, Home Manager half in ./home.nix
-# (pushed to every user via sharedModules when the profile is enabled, so the
-# HM side needs no osConfig gate).
+# Notes feature folder. App-specific packages and Home Manager settings live in
+# sibling modules so Obsidian and Typora config stay grouped with their apps.
 {
   config,
   isDarwin,
@@ -10,11 +9,12 @@
 }: let
   cfg = config.dotfiles.profiles.apps.notes;
 in {
-  config = lib.mkIf cfg.enable {
-    home-manager.sharedModules = [./home.nix];
+  imports = [
+    ./obsidian.nix
+    ./typora
+  ];
 
-    environment.systemPackages = lib.optionals (!isDarwin) (with pkgs; [
-      libreoffice
-    ]);
+  config = lib.mkIf cfg.enable {
+    environment.systemPackages = lib.optionals (!isDarwin) [pkgs.libreoffice];
   };
 }

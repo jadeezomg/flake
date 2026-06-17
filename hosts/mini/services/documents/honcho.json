@@ -1,0 +1,17 @@
+{
+	"baseUrl": "http://127.0.0.1:8100",
+	"workspace": "jadee",
+	"peerName": "jadee",
+	"pinUserPeer": true,
+	"hosts": {
+		"hermes": {
+			"enabled": true,
+			"aiPeer": "hermes",
+			"recallMode": "hybrid",
+			"sessionStrategy": "per-repo",
+			"writeFrequency": "async",
+			"dialecticReasoningLevel": "low",
+			"dialecticDepth": 1
+		}
+	}
+}

@@ -1,72 +1,130 @@
-# Mini — LLM hosting (vLLM-XPU + optional llama.cpp)
+# Mini — LLM hosting (one chat stack, two interchangeable backends)
 
-Mini runs **vLLM-XPU** when **`miniLlmHosting = true`**. **Chat** on **`8000`** is **[Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B)** (dense **text** chat) via **`vllm-xpu-chat`** (see `hosts/mini/vllm-xpu.nix`). Wiring follows upstream [nixos-overlay.md](https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md) (`parts/hosts.nix` imports **`nixosModules.default`**). For **image/video** inputs, change **`services.vllm-xpu.instances.chat.model`** to a VL checkpoint (e.g. **[Qwen/Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct)**) and set **`languageModelOnly = false`** plus **`limitMmPerPrompt`**. Optional **GGUF** on **`8010`** is **`./llama-cpp.nix`**, gated by **`miniLlamaCppGemma`** in `hosts/mini/host.nix` (off by default so the same GPU is not double-booked).
+Mini runs **one local chat stack** when **`miniLlmHosting = true`**, served on a **single shared contract** no matter which backend is active (the **llama.cpp** backend additionally serves **embeddings** — see below). The contract lives in `hosts/mini/host.nix` and is read by both backends **and** every consumer:
 
-| Stack | File | Port | Model | Role |
-|-------|------|------|-------|------|
-| **vLLM-XPU** | `hosts/mini/vllm-xpu.nix` | **`8000`** chat, **`8001`** embed | [Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) (text), Jina embeddings | Intel XPU / IPEX path |
-| **llama.cpp** (optional) | `hosts/mini/llama-cpp.nix` | **`8010`** | [unsloth/gemma-4-12b-it-GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF) `Q4_K_M` | GGUF chat (Vulkan) when `miniLlamaCppGemma = true` |
+| Contract value | `host.nix` | Meaning |
+|----------------|------------|---------|
+| **served model id** | `miniLlmServedName = "local-chat"` | the OpenAI model id clients request — **model-neutral on purpose** so consumers do not change when you switch backends |
+| **embed model id** | `miniLlmEmbedServedName = "local-embed"` | the embeddings model id — served **only by the llama.cpp backend** (router mode), reachable at `/v1/embeddings` on **8000** |
+| **port** | `miniLlmPort = 8000` | **both** backends serve here |
+| **bind** | `miniLlmHost = "0.0.0.0"` | tailnet bind (both backends) |
 
-**Chat (`8000`):** **`quantization = fp8`** (online weight quant — ~13 GiB peak vs ~18 GiB bf16), **`kvCacheDtype = fp8`**, **`languageModelOnly = true`** (Qwen3.5 is loaded as multimodal in vLLM; this skips vision encoder profiling), **`enforceEager = true`**, **`reasoningParser = qwen3`**. Default **`maxModelLen = 32768`**, **`maxNumSeqs = 1`**, **`gpuMemoryUtilization = 0.95`**. If **`journalctl`** shows **`Available KV cache memory: X GiB`** with **X > 0**, raise **`maxModelLen`** (65536, 131072). If **X < 0**, lower **`maxModelLen`** or **`sudo systemctl stop vllm-xpu-embedding`**. See [model card](https://huggingface.co/Qwen/Qwen3.5-9B).
+> The **llama.cpp** backend additionally runs in **router mode** and serves a second model — **`local-embed`** (embeddings) — alongside **`local-chat`** on the same port **8000**. The **vLLM** backend serves chat only (`local-chat`); its embedding instance stays disabled. See **§ llama.cpp backend — router mode** below.
+
+The active backend is chosen by **one toggle** in `hosts/mini/host.nix`:
+
+```nix
+miniLlmBackend = "vllm";      # default — Intel XPU vLLM
+# miniLlmBackend = "llamacpp"; # alternative — GGUF via llama.cpp (Vulkan)
+```
+
+**Exactly one backend runs at a time** — they share the Intel GPU and running both would OOM. The two backends are interchangeable at the **API level** (same model id, port, host); only the underlying model differs (a deliberate choice — the API surface is unified, not the model). Wiring follows upstream [nixos-overlay.md](https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md) (`hosts/mini/default.nix` imports **`nixosModules.default`** when the vLLM backend is active). **Image input is ON by default on BOTH backends** — the existing chat models are natively multimodal, so **no repo swap is needed**. Send images via standard OpenAI **`image_url`** content parts to **`/v1/chat/completions`**; the served id stays **`local-chat`**. Per-backend: the vLLM backend serves the SAME **`Intel/Qwen3.5-9B-int4-AutoRound`** with vision un-suppressed (**`languageModelOnly = false`**, **`limitMmPerPrompt = { image = 1; video = 0; }`**, **`maxNumSeqs`** lowered to **4** for vision-encoder headroom); the llama.cpp backend serves the SAME **`unsloth/gemma-4-12B-it-qat-GGUF`** (QAT, `UD-Q4_K_XL`) with its shipped **`mmproj-*.gguf`** projector (**`--mmproj-auto`**) on; **MTP speculative decoding** is **wired but currently disabled** (`chatMtp = false`) pending llama.cpp `gemma4-assistant` arch support — see **§ Change GGUF models / MTP tuning** below. Text-only fallback: **`languageModelOnly = true`** (vLLM) or **`--no-mmproj`** (llama.cpp). The vLLM XPU path is the **risky** one for first-boot-with-images — see the cross-reference in **§ APIs — chat with image** below and the OOM caveat in **`docs/hosts/mini-vllm-xpu.md`**.
+
+| Backend | `miniLlmBackend` | File | Unit | Model (advertised as `local-chat`) | Image input | Role |
+|---------|------------------|------|------|------------------------------------|-------------|------|
+| **vLLM-XPU** | `"vllm"` (default) | `hosts/mini/services/llm/vllm-xpu.nix` | `vllm-xpu-chat` | [Intel/Qwen3.5-9B-int4-AutoRound](https://huggingface.co/Intel/Qwen3.5-9B-int4-AutoRound) (text + image) | **yes** (`languageModelOnly = false`, vision tower retained at bf16) | Intel XPU / IPEX path |
+| **llama.cpp** | `"llamacpp"` | `hosts/mini/services/llm/llama-cpp.nix` | `llama-cpp-gemma` | [unsloth/gemma-4-12B-it-qat-GGUF](https://huggingface.co/unsloth/gemma-4-12B-it-qat-GGUF) `UD-Q4_K_XL` (QAT, text + image; **MTP** speculative decoding **off** pending llama.cpp `gemma4-assistant` arch support — `chatMtp = false`) **+** [mradermacher/F2LLM-v2-0.6B-GGUF](https://huggingface.co/mradermacher/F2LLM-v2-0.6B-GGUF) `Q8_0` (embeddings, served as **`local-embed`**) | **yes** (`--mmproj-auto`, ships `mmproj-*.gguf`) | GGUF **router** (Vulkan) — chat **+** embeddings |
+
+**llama.cpp backend — router mode (two presets):** the llama.cpp backend runs **`llama-server` in router mode** (**`--models-preset <generated INI> --models-max 2`**), not a single-model server. The generated INI defines **two presets**; each preset's **section name is the OpenAI model id** served on **8000**:
+
+- **`[local-chat]`** — **[unsloth/gemma-4-12B-it-qat-GGUF](https://huggingface.co/unsloth/gemma-4-12B-it-qat-GGUF)** at **`UD-Q4_K_XL`** with **vision** (`mmproj-auto`) **on**. **MTP** speculative decoding (`spec-type = draft-mtp`, `spec-draft-n-max = 2`) is **wired but currently disabled** (`chatMtp = false`) — when off, the generated preset omits the `spec-type` / `spec-draft-n-max` lines; see **§ Change GGUF models / MTP tuning** below. The shared **`local-chat`** chat contract (`host.miniLlmServedName`), unchanged across backends. **Chat context is now 64K total** (`ctx-size = 65536`, `parallel = 2` → **32K per conversation**, `cache-type-k/v = q8_0`), **trimmed from the previous 96K** to leave room for the co-resident embedder.
+- **`[local-embed]`** — **[mradermacher/F2LLM-v2-0.6B-GGUF](https://huggingface.co/mradermacher/F2LLM-v2-0.6B-GGUF)** at **`Q8_0`** (F2LLM-v2-0.6B, a Qwen3-architecture decoder embedding model, **1024-dim**, last-token pooling, **~0.6 GB**) with **`embedding = true`**, **`pooling = last`**, **`ctx-size = 8192`**. Served as the new id **`local-embed`** (`host.miniLlmEmbedServedName` in `hosts/mini/host.nix`), reachable at **`/v1/embeddings`**. This is a **llama.cpp-backend-only** capability — the vLLM backend does **not** serve `local-embed` (its embedding instance stays disabled).
+
+**`--models-max 2`** keeps **both** models **resident** (no swap latency); the embedder adds only **~0.6 GB**. If you would rather keep chat at maximum context, set **`--models-max 1`** (swap on demand — only the requested model is loaded at a time, at the cost of a load on each switch). Router/preset mechanics: section name = served model id; INI keys are long-form `llama-server` args minus `--`; presets use **`hf-repo`** so the router **auto-downloads** each model (and chat's sibling **`mmproj`**; the repo's **MTP** drafter is only fetched/loaded when MTP is enabled, currently `chatMtp = false`). Local preset files allow the full arg set (the remote-HF security allowlist applies only to remote presets). Reference: llama.cpp `docs/preset.md` (PR#17859) + `tools/server/README.md`.
+
+**llama.cpp chat model — QAT + vision (MTP wired but off):** the **`local-chat`** preset serves **[unsloth/gemma-4-12B-it-qat-GGUF](https://huggingface.co/unsloth/gemma-4-12B-it-qat-GGUF)** at **`UD-Q4_K_XL`** — Google's **quantization-aware-trained** (QAT) Gemma 4 12B, and **`UD-Q4_K_XL`** (unsloth's dynamic 4-bit) is the **only** quant they ship for it (higher precisions degrade QAT accuracy, so there is nothing to "upgrade" to). At **~6.72 GB** of weights it delivers **near-bf16** quality. This **one repo bundles all three** pieces: the QAT weights, the **MTP** drafter (`mtp-gemma-4-12B-it.gguf` at the repo root), and the **`mmproj-*.gguf`** vision projector. First boot downloads **~10 GB** into **`/var/lib/llama-cpp/huggingface`** (plus the ~0.6 GB embedder) — though with MTP off the ~2 GB drafter is **not** fetched/loaded.
+
+**MTP** (Multi-Token Prediction) is **speculative decoding** that would yield roughly **1.5–2.2×** faster generation when enabled (`spec-type = draft-mtp` + `spec-draft-n-max = 2`), but it is **currently disabled** on this backend. `hosts/mini/services/llm/llama-cpp.nix` carries a **`chatMtp = false`** toggle; when false the generated `local-chat` preset **omits** the `spec-type` / `spec-draft-n-max` lines, so the MTP drafter is never loaded. **Why off:** mini's deployed nixpkgs llama.cpp (**build 9503**, commit `e3ba22d`) ships the **`--spec-type draft-mtp` flag** (the enum value came from an earlier generic/Qwen MTP PR and is in `--help`) but does **not** include the Gemma-specific **`gemma4-assistant`** draft-model **architecture loader**. That arch landed upstream in PR [ggml-org/llama.cpp#23398](https://github.com/ggml-org/llama.cpp/pull/23398) (**2026-06-07**) but is **not** in build 9503, so loading the MTP drafter fails with `llama_model_load: error loading model: unknown model architecture: 'gemma4-assistant'` and the whole `llama-cpp-gemma` server exits ("failed to load draft model"). The **main QAT chat model loads fine** — only the MTP drafter is the problem. **Re-enable** with a one-line flip to **`chatMtp = true`** **once the packaged llama.cpp is new enough to load the `gemma4-assistant` arch**. When re-enabled, the **`hf-repo`** preset key **auto-discovers** the repo's root MTP drafter (no `--model-draft` needed), the drafter **shares the target's KV cache**, and **`spec-draft-n-max`** is the tuning lever (range **1–6**, hardware-dependent; unsloth's QAT README uses 4, their general guidance is to start at 2).
+
+Gemma 4's recommended sampling (**`--temp 1.0 --top-p 0.95 --top-k 64`**) is set as server defaults; clients override per request. On the 15 GiB Arc B50 the budget **with MTP off** (current state) is chat **~9.7 GB** (QAT 6.7 + mmproj 1 + 64K q8 KV ~2) + embed ~0.6 GB ≈ **10.3 GB** — both fit resident with headroom (e.g. to raise `chatCtx`); **enabling MTP** adds the **~2 GB** drafter on top. Vision stays on via **`mmproj-auto`** (the qat repo also ships `mmproj-*.gguf`).
+
+**Shared module:** whichever backend is active, the stack aggregator **`hosts/mini/services/llm/default.nix`** is always imported when **`miniLlmHosting`** (`hosts/mini/default.nix` imports the single **`./services/llm`** folder, which resolves to it). It carries the shared base both backends need — the Intel GPU stack, the **`xe.force_probe`** kernel param, and the **`mini-llm-hf.env`** Hugging Face token sops template. (These previously lived inside `llm/vllm-xpu.nix`.) `hosts/mini/services/llm/open-webui.nix` is always imported by it too.
+
+**Chat (`8000`):** **`package = pkgs.vllm-xpu-unstable.withTorchvision true`** because Qwen3.5's vLLM class imports Qwen VL image-processing code during inspection (now also genuinely needed — vision is enabled), **`quantization = null`** because vLLM's FP8 W8A8 path is not supported on Intel GPU/XPU, **`kvCacheDtype = null`** while stabilising boot, **`languageModelOnly = false`** (vision encoder profiling enabled — `Intel/Qwen3.5-9B-int4-AutoRound` is multimodal and its bf16 vision tower is retained, since AutoRound quantizes only `model.language_model.layers`), **`limitMmPerPrompt = { image = 1; video = 0; }`**, **`enforceEager = true`**, **`reasoningParser = qwen3`**. **`maxNumSeqs`** is lowered to **4** (from 8) to leave vision-encoder activation / image-embedding headroom on the ~15 GiB Arc Pro B50. If **`journalctl`** shows **`Available KV cache memory: X GiB`** with **X > 0**, raise **`maxModelLen`**. If **X < 0**, lower **`maxModelLen`**. Enabling vision on the XPU path is the **known-risky** scenario — if `vllm-xpu-chat` fails to boot with images (chunk-prefill kernel / vision `profile_run` OOM / restart loop), consult **`docs/hosts/mini-vllm-xpu.md`** § *Chunk prefill kernel not compiled / vision profile_run OOM*; text-only fallback is **`languageModelOnly = true`**. See [model card](https://huggingface.co/Qwen/Qwen3.5-9B).
 
 Tune **`maxModelLen`** after a successful boot using **`Available KV cache memory`** in **`journalctl -u vllm-xpu-chat`**. There is **no** vLLM **STT** instance in the default `vllm-xpu.nix`; add **`instances.stt`** if you want **`8002`**.
 
-**Other vLLM chat checkpoints:** Edit **`services.vllm-xpu.instances.chat.*`** in `hosts/mini/vllm-xpu.nix` (e.g. Gemma 4 QAT, Gemma 3 GPTQ) — see **`docs/hosts/mini-vllm-xpu.md`** for Gemma 4 **`gemma4_unified`** / Transformers pitfalls.
+**Other vLLM chat checkpoints:** Edit **`services.vllm-xpu.instances.chat.*`** in `hosts/mini/services/llm/vllm-xpu.nix` (e.g. Gemma 4 QAT, Gemma 3 GPTQ) — see **`docs/hosts/mini-vllm-xpu.md`** for Gemma 4 **`gemma4_unified`** / Transformers pitfalls.
 
-While **`miniBootstrap = true`** (first install), the flake skips `vllm-xpu-nix`, `./vllm-xpu.nix`, and `./llama-cpp.nix`. After §5.4 in `mini-install.md`, set **`miniBootstrap = false`**.
+While **`miniBootstrap = true`** (first install), the flake skips the whole `./services/llm` folder (`llm/default.nix` and its shared base), `vllm-xpu-nix`, `./llm/vllm-xpu.nix`, and `./llm/llama-cpp.nix`. After §5.4 in `mini-install.md`, set **`miniBootstrap = false`**.
 
-**`miniLlmHosting`** in `hosts/mini/host.nix` gates vLLM + optional llama and requires **`ca-derivations`** on the evaluating Nix (see `docs/hosts/mini-vllm-xpu.md`).
+**`miniLlmHosting`** in `hosts/mini/host.nix` gates the whole chat stack. The **vLLM** backend additionally requires **`ca-derivations`** on the evaluating Nix (see `docs/hosts/mini-vllm-xpu.md`); the **llama.cpp** backend does not.
 
 ## Default services on mini
 
+The active chat unit depends on **`miniLlmBackend`** — exactly one of the two chat units runs.
+
 | Service | Enabled | Notes |
 |---------|---------|-------|
-| `vllm-xpu-chat` | **yes** | **Qwen3.5-9B** on **8000** — `servedName` **`qwen3.5-9b`** |
-| `vllm-xpu-embedding` | **yes** | Jina embeddings on **8001** |
-| `llama-cpp-gemma` | **if** `miniLlamaCppGemma` | GGUF on **8010** — set **`true`** in `host.nix` only when chat is **not** also on vLLM |
+| `vllm-xpu-chat` | **when** `miniLlmBackend = "vllm"` (default) | Serves [Intel/Qwen3.5-9B-int4-AutoRound](https://huggingface.co/Intel/Qwen3.5-9B-int4-AutoRound) on **8000** — advertised as **`local-chat`**; **accepts image input** (`languageModelOnly = false`) |
+| `llama-cpp-gemma` | **when** `miniLlmBackend = "llamacpp"` | **Router mode** (`--models-preset … --models-max 2`) serving **two** presets on **8000**: **`local-chat`** = [unsloth/gemma-4-12B-it-qat-GGUF](https://huggingface.co/unsloth/gemma-4-12B-it-qat-GGUF) `UD-Q4_K_XL` (QAT, 64K ctx, **accepts image input** via `--mmproj-auto`; **MTP** wired but **off** — `chatMtp = false`) **and** **`local-embed`** = [mradermacher/F2LLM-v2-0.6B-GGUF](https://huggingface.co/mradermacher/F2LLM-v2-0.6B-GGUF) `Q8_0` (embeddings at `/v1/embeddings`). Both models stay **resident** (`--models-max 2`) |
+| `vllm-xpu-embedding` | **no** | Disabled for now so chat gets the whole XPU memory budget; re-enable `instances.embedding` if `:8001` is needed (vLLM backend only). Note: when the **llama.cpp** backend is active, embeddings are served by **`local-embed`** on **8000** instead — no separate unit |
 
 ## Clients and frontends
 
-This flake does **not** ship a browser UI for vLLM on mini — only the **OpenAI-compatible HTTP API** (`vllm serve` behind systemd).
+mini ships a **browser UI** ([Open WebUI](https://github.com/open-webui/open-webui), `hosts/mini/services/llm/open-webui.nix`) **and** the raw **OpenAI-compatible HTTP API**. Both are exposed on the **Tailscale tailnet** (`mini.quokka-qilin.ts.net`) and firewalled off the public internet — `modules/nixos/networking.nix` trusts only `tailscale0`, so the only public port is `:22`.
 
-| What | Base URL (on mini, or via SSH tunnel) |
-|------|----------------------------------------|
-| Chat / completions | **`http://127.0.0.1:8000/v1`** — model id = **`servedName`** (e.g. **`qwen3.5-9b`**) |
-| Embeddings | **`http://127.0.0.1:8001/v1`** — model **`jina-embeddings-v5-nano`** |
+| What | URL |
+|------|-----|
+| **Web chat (Open WebUI)** | **`https://mini.quokka-qilin.ts.net`** — from any tailnet host's browser. HTTPS via `tailscale serve` (auto-renewed cert); first account created becomes admin |
+| Chat / completions API | **`http://mini:8000/v1`** (tailnet) or **`http://127.0.0.1:8000/v1`** (on mini) — model id = **`local-chat`** regardless of backend |
+| Embeddings | **`http://mini:8000/v1/embeddings`** — model **`local-embed`** ([F2LLM-v2-0.6B](https://huggingface.co/mradermacher/F2LLM-v2-0.6B-GGUF), 1024-dim), **llama.cpp backend only** (router mode keeps it resident alongside `local-chat`). On the **vLLM** backend there is no local embeddings endpoint (the `:8001` `jina-embeddings-v5-nano` instance stays disabled) |
 
-**Ways to talk to it:** **`xh`** / **`curl`** (§ APIs below); **IDEs and agents** (Cursor, Continue, Aider, …) with **OpenAI-compatible** base URL set to that host/port (usually after **§ SSH tunnels**); scripts using any OpenAI SDK with `base_url`. For a **local web chat**, run something like **[Open WebUI](https://github.com/open-webui/open-webui)** or **[LibreChat](https://github.com/danny-avila/LibreChat)** yourself (container or separate service) and point it at **`http://127.0.0.1:8000`** (same tunnel story if the UI runs off-mini). Binding vLLM to **`0.0.0.0`** for a remote UI would need an explicit **`host`** change in **`vllm-xpu.nix`** plus firewall — not the default.
+**How it fits together:** whichever backend is active binds **`0.0.0.0`** on **8000** (`miniLlmHost` / `miniLlmPort` from the shared contract) so other hosts can use the raw API directly — **no auth** on the chat server, but tailnet-only. Open-WebUI listens on **loopback `:8080`**; `tailscale serve` (the `tailscale-serve-open-webui` oneshot) terminates TLS at the MagicDNS name and proxies to it. **IDEs and agents** (Cursor, Continue, Aider, …) point their OpenAI base URL at `http://mini:8000/v1` from any tailnet host — no SSH tunnel needed. Open-WebUI also re-exports an OpenAI-compatible API at `https://mini.quokka-qilin.ts.net/api` gated by per-user keys, if you prefer authenticated access. The **§ SSH tunnels** below are now only needed from hosts **not** on the tailnet.
 
 ## Command reference
 
 From the flake repo on mini (or over SSH), use **`just switch`** after editing Nix (see `docs/hosts/mini-install.md`). For flakes, **`git add`** tracked files before eval-only commands if your workflow requires it.
 
-### systemd — status, logs, control
+### Remote management (from any other host)
+
+Author and **commit + push** flake changes on your dev host, then drive mini over SSH — these `just` recipes `git pull --ff-only` on mini and build **there** (run from any host that can `ssh mini`; off-LAN use `MINI_SSH=mini.quokka-qilin.ts.net`):
 
 ```bash
-# List vLLM-related units (names include chat / embedding when enabled)
-systemctl list-units 'vllm-xpu-*' --all
+just mini pull           # git pull --ff-only on mini (no build)
+just mini deploy         # pull + nh switch (the usual remote deploy)
+just mini deploy-dry     # pull + build-dry (preview, no activation)
+just mini deploy-boot    # pull + stage for next reboot (kernel/bootloader changes)
+just mini ssh            # interactive shell on mini
+just mini reboot         # reboot the host
+just mini llm bench      # rigorous llama-benchy run against http://mini:8000/v1
+```
+
+> **Structure:** mini commands are a `just` **module** (`just/mini.just` + `just/mini-llm.just`, wired via `mod mini` in the root `Justfile`). Host ops are `just mini <cmd>`; LLM service ops are nested under `just mini llm <cmd>`. Because module recipes appear as `mini::…` in `just --summary`, the recipe picker's host-scoping (which only matched the old `mini-*` flat names) no longer hides them — so they show on **every** host. Run `just --list mini` / `just --list mini llm` to see them. The LLM ops still operate the services *on mini* (systemctl/journals/`127.0.0.1`); `deploy*`/`pull`/`ssh`/`reboot`/`llm bench` target mini over the network.
+
+`deploy` uses `switch-fast` (no flake check / no commit on mini, since you authored upstream); run `deploy-dry` first if you want a pre-flight build. The `vllm-xpu-kernels` rebuild caveat (`NIX_CONFIG='cores = 2'`, see `mini-vllm-xpu.md`) still applies to the build that runs on mini.
+
+### systemd — status, logs, control
+
+The chat unit name depends on **`miniLlmBackend`**: **`vllm-xpu-chat`** for `"vllm"`, **`llama-cpp-gemma`** for `"llamacpp"`. Only the active backend's unit exists.
+
+```bash
+# List units for whichever backend is active
+systemctl list-units 'vllm-xpu-*' --all     # vLLM backend (chat / embedding)
+systemctl status llama-cpp-gemma            # llama.cpp backend
 ```
 
 ```bash
+# vLLM backend
 sudo systemctl status vllm-xpu-chat vllm-xpu-embedding
-# When llama.cpp is enabled:
-sudo systemctl status vllm-xpu-chat vllm-xpu-embedding llama-cpp-gemma
+# llama.cpp backend
+sudo systemctl status llama-cpp-gemma
 
 # Follow logs
 sudo journalctl -fu vllm-xpu-chat           # first start: HF download + compile
-sudo journalctl -fu vllm-xpu-embedding
-sudo journalctl -fu llama-cpp-gemma         # only if unit exists
+sudo journalctl -fu vllm-xpu-embedding      # vLLM backend, when embeddings enabled
+sudo journalctl -fu llama-cpp-gemma         # llama.cpp backend
 
 sudo journalctl -u vllm-xpu-chat -u vllm-xpu-embedding -e --no-pager
 ```
 
-**`Unit vllm-xpu-chat.service not found`:** **`instances.chat.enable`** follows **`vllm-chat-enable`** in `hosts/mini/vllm-xpu.nix`. If **`false`**, no unit is generated — set **`true`** and **`just switch`**.
+**`Unit vllm-xpu-chat.service not found`:** the vLLM backend is not active (or `instances.chat.enable` / **`vllm-chat-enable`** is **`false`** in `hosts/mini/services/llm/vllm-xpu.nix`). Set **`miniLlmBackend = "vllm"`** (and `vllm-chat-enable = true`), then **`just switch`**. If you wanted GGUF, look for **`llama-cpp-gemma`** instead.
 
 ```bash
-# Start / stop / restart
+# Start / stop / restart (use the unit for your active backend)
 sudo systemctl restart vllm-xpu-chat
-sudo systemctl restart vllm-xpu-embedding
-sudo systemctl restart llama-cpp-gemma    # only if imported
+sudo systemctl restart vllm-xpu-embedding   # vLLM backend, when enabled
+sudo systemctl restart llama-cpp-gemma
 
 sudo systemctl stop vllm-xpu-chat
 sudo systemctl start vllm-xpu-chat
@@ -101,98 +159,114 @@ vLLM’s OpenAI server does **not** expose a built-in “dashboard” over HTTP 
 ### APIs — list models
 
 ```bash
-curl -s http://127.0.0.1:8000/v1/models | jq   # Qwen3.5-9B (vLLM chat)
-curl -s http://127.0.0.1:8001/v1/models | jq   # Jina embeddings (vLLM)
-curl -s http://127.0.0.1:8010/v1/models | jq   # GGUF (llama.cpp) — only if enabled
+curl -s http://127.0.0.1:8000/v1/models | jq   # active chat backend — always advertises `local-chat`
+#                                               # on the llama.cpp backend (router mode) this ALSO lists `local-embed`
+# curl -s http://127.0.0.1:8001/v1/models | jq # vLLM `:8001` embeddings disabled for chat VRAM (vLLM backend only)
 ```
 
-Use each stack’s **`servedName`** in API calls: **`qwen3.5-9b`** (vLLM chat on **8000**), **`jina-embeddings-v5-nano`** (embeddings). If you enable optional llama.cpp, give it a **different** `--alias` than **`qwen3.5-9b`** so clients never see duplicate model ids.
+Use the shared served id **`local-chat`** in all chat API calls — it is the same whether the active backend is vLLM or llama.cpp, so consumers never change when you switch backends. On the **llama.cpp** backend, **`/v1/models`** also lists **`local-embed`** (its router serves both presets on **8000**); use that id for **`/v1/embeddings`**. The vLLM backend serves chat only.
 
-### APIs — chat (Qwen3.5-9B, vLLM on 8000)
+### APIs — chat (`local-chat` on 8000)
 
-Use **`"stream": false`** for a **single JSON** response (easier for **`jq`**). The first completion after startup can take **a long time** (model + GPU); see **§ APIs — troubleshooting** if nothing appears.
+For smoke tests, keep generation tiny and disable Qwen thinking. Long prompts with thinking enabled can look stuck on mini even while logs show low generation throughput. (Thinking-control flags below apply to the vLLM/Qwen backend; the llama.cpp/Gemma backend ignores them.)
 
 ```bash
-curl -sS --max-time 600 http://127.0.0.1:8000/v1/chat/completions \
+curl -sS --max-time 120 -N http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{
-    "model": "qwen3.5-9b",
-    "messages": [{"role": "user", "content": "Hello"}],
-    "max_tokens": 64,
-    "stream": false
-  }' | jq .
+    "model": "local-chat",
+    "messages": [{"role": "user", "content": "Reply with exactly: ok"}],
+    "max_tokens": 8,
+    "stream": true,
+    "chat_template_kwargs": {"enable_thinking": false}
+  }'
 ```
 
-### APIs — chat with image (VL checkpoint only)
+### APIs — chat with image (both backends)
 
-The default **`Qwen/Qwen3.5-9B`** chat model is **text-only**. For **image** / **video** in **`/v1/chat/completions`**, change **`hosts/mini/vllm-xpu.nix`** to a **VL** repo (e.g. **`Qwen/Qwen3-VL-8B-Instruct`**), set **`languageModelOnly = false`**, and add **`limitMmPerPrompt`** (see **`docs/hosts/mini-vllm-xpu.md`**). Example shape (after that switch):
+**Image input is ON by default on BOTH backends** with the existing chat models — **no repo swap needed**. The served id stays **`local-chat`** and images go in standard OpenAI **`image_url`** content parts (a public `https` image URL or a `data:` URL both work).
+
+- **vLLM backend** (default): the SAME **`Intel/Qwen3.5-9B-int4-AutoRound`** serves images. It is natively multimodal (`Qwen3_5ForConditionalGeneration`, `image_token_id` set); AutoRound quantizes only `model.language_model.layers`, so the **bf16 vision tower is retained** in the int4 checkpoint. Config: **`languageModelOnly = false`**, **`limitMmPerPrompt = { image = 1; video = 0; }`**, **`maxNumSeqs = 4`** (see `hosts/mini/services/llm/vllm-xpu.nix`). **Caveat:** enabling multimodal on the Intel **XPU** path is the known-risky scenario — on first boot with images vLLM's vision `profile_run` may request a chunk-prefill shape outside the compiled kernel set and fall back to a PyTorch path that OOMs the ~15 GiB GPU (restart loop). If image serving fails to boot, consult **`docs/hosts/mini-vllm-xpu.md`** § *Chunk prefill kernel not compiled / EngineCore failed to start / XPU OOM during vision `profile_run`* (mitigations: a custom **`withKernelConfig`** kernel build with **`chunkPrefillExtra`**, and/or lowering **`maxModelLen`** / **`maxNumSeqs`**). Text-only fallback: **`languageModelOnly = true`**.
+- **llama.cpp backend** (`miniLlmBackend = "llamacpp"`): the SAME **`unsloth/gemma-4-12B-it-qat-GGUF`** (`UD-Q4_K_XL` QAT, an `image-text-to-text` model) serves images. The repo ships **`mmproj-*.gguf`**; the **`-hf`** flag auto-downloads and loads it, and **`--mmproj-auto`** (in the `llama-server` args in `hosts/mini/services/llm/llama-cpp.nix`) makes that intent explicit (it is the default). The same repo also bundles the **MTP** drafter for speculative decoding, but **MTP is currently disabled** (`chatMtp = false`, pending llama.cpp `gemma4-assistant` arch support — see § *Change GGUF models / MTP tuning*), so the drafter is not loaded and only the projector matters here. The projector caches under `HF_HOME` alongside the weights. This Vulkan path is **reliable** — the low-risk way to get image input on mini. Text-only fallback: **`--no-mmproj`**.
 
 ```bash
-curl -sS --max-time 600 http://127.0.0.1:8000/v1/chat/completions \
+# image input — model id stays `local-chat`, works on whichever backend is active.
+# Run from a tailnet host (http://mini:8000) or on mini itself (http://127.0.0.1:8000).
+curl -sS --max-time 600 http://mini:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{
-    "model": "<your-vl-servedName>",
+    "model": "local-chat",
     "messages": [{
       "role": "user",
       "content": [
-        {"type": "text", "text": "Describe the image briefly."},
+        {"type": "text", "text": "What'\''s in this image?"},
         {"type": "image_url", "image_url": {"url": "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/beignets-task-guide.png"}}
       ]
     }],
     "max_tokens": 128,
-    "stream": false
+    "stream": false,
+    "chat_template_kwargs": {"enable_thinking": false}
   }' | jq .
 ```
 
-### APIs — chat (GGUF on 8010, when `miniLlamaCppGemma`)
+A `data:` URL works too — replace the `url` value with e.g. `"data:image/png;base64,<BASE64>"`. The **`chat_template_kwargs: {"enable_thinking": false}`** line only applies to the **vLLM / Qwen** backend (it disables Qwen thinking); the **llama.cpp / Gemma** backend ignores it, so the same request body is byte-for-byte valid on either backend.
+
+### APIs — chat (llama.cpp backend, `miniLlmBackend = "llamacpp"`)
+
+When the llama.cpp backend is active it serves on the **same** port **8000** and the **same** served id **`local-chat`** — the request is byte-for-byte identical to the vLLM backend, so consumers do not change:
 
 ```bash
-curl -s http://127.0.0.1:8010/v1/chat/completions \
+curl -s http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{
-    "model": "gemma-4-12b-it",
+    "model": "local-chat",
     "messages": [{"role": "user", "content": "Hello"}],
     "max_tokens": 64
   }' | jq
 ```
 
-### APIs — embeddings (Jina)
+### APIs — embeddings (`local-embed` on 8000, llama.cpp backend)
+
+Embeddings are now served by the **llama.cpp backend** via its **router**: the **`local-embed`** preset ([F2LLM-v2-0.6B](https://huggingface.co/mradermacher/F2LLM-v2-0.6B-GGUF) `Q8_0`, 1024-dim, last-token pooling) sits resident alongside **`local-chat`** on **8000** (`--models-max 2`) and answers at **`/v1/embeddings`**. Requires **`miniLlmBackend = "llamacpp"`** — the vLLM backend does **not** serve `local-embed`.
 
 ```bash
-curl -s http://127.0.0.1:8001/v1/embeddings \
+# embeddings — llama.cpp backend (router mode), model id `local-embed`.
+# Run from a tailnet host (http://mini:8000) or on mini itself (http://127.0.0.1:8000).
+curl -sS --max-time 120 http://127.0.0.1:8000/v1/embeddings \
   -H 'Content-Type: application/json' \
   -d '{
-    "model": "jina-embeddings-v5-nano",
-    "input": "hello"
-  }' | jq
+    "model": "local-embed",
+    "input": "The quick brown fox jumps over the lazy dog."
+  }' | jq '.data[0].embedding | length'   # -> 1024
 ```
+
+> **vLLM backend (`:8001`, `jina-embeddings-v5-nano`):** that path is a separate concept and stays **disabled** so chat gets the full XPU memory budget. To restore it (vLLM backend only), set **`services.vllm-xpu.instances.embedding.enable = true`** in `hosts/mini/services/llm/vllm-xpu.nix` (with `miniLlmBackend = "vllm"`), then switch. On mini today, the live embeddings endpoint is **`local-embed`** above, available whenever the llama.cpp backend is active.
 
 ### APIs — troubleshooting (no output, hangs, `jq`)
 
 | Symptom | What to try |
 |---------|-------------|
-| **No output for a long time** | **Normal** until the first token: first load + compile can take **minutes**. Run **`sudo journalctl -fu vllm-xpu-chat`** in another terminal. Use **`curl --max-time 600`** (or higher) so `curl` does not give up early. |
-| **`jq` prints nothing** | Drop **`| jq`** and remove **`-s`** from `curl` to see **raw body** and **errors**. **`curl -sS`** keeps quiet progress but still errors on HTTP failures. If the server returns **SSE** (streaming), **`jq`** on the whole response will not work — force **`"stream": false`** in JSON. |
-| **HTTP / TLS errors** | **`curl -v`** once. Confirm **`/v1/models`** works first (§ list models). |
-| **Empty `choices[0].message.content`** | With **`reasoningParser = qwen3`**, **thinking** may appear under **`delta.reasoning`** / structured fields; inspect full JSON with **`jq .`**. Disable thinking in the client via **`chat_template_kwargs`** if you want answers only in **`message.content`** (see [Qwen3.5 model card](https://huggingface.co/Qwen/Qwen3.5-9B)). |
+| **No output for a long time** | If logs show **`Running: 1 reqs`** and very low generation throughput, the request is alive but too slow. `just mini llm chat` waits up to **300s** for `/v1/models` before sending the smoke request; override with **`MINI_LLM_WAIT_SECONDS=<seconds>`**. First run **`just mini llm status`**, which prints the active backend's running command and flags any drift from the flake. If it has drifted, the host is not running this repo's config — `git add -A && just switch`, then restart the backend. For smoke tests use **`max_tokens: 8`** plus **`chat_template_kwargs: {"enable_thinking": false}`**. Stop the client with Ctrl-C; if the unit keeps generating, run **`just mini llm restart`**. |
+| **`jq` prints nothing** | Do not pipe SSE streaming responses into `jq`; use raw/streaming output. For one complete JSON response, force **`"stream": false`** and wait for completion. |
+| **HTTP / TLS errors** | Confirm **`/v1/models`** works first (§ list models), then inspect logs with **`just mini llm logs`**. |
+| **Empty `choices[0].message.content`** | With **`reasoningParser = qwen3`**, thinking may appear under **`delta.reasoning`** / structured fields; inspect raw JSON/SSE. Disable thinking in the client via **`chat_template_kwargs`** if you want answers only in **`message.content`** (see [Qwen3.5 model card](https://huggingface.co/Qwen/Qwen3.5-9B)). |
 
 ```bash
-# Minimal debug: no jq, show HTTP code, 10 min cap
-curl -sS --max-time 600 -o /tmp/vllm-out.json -w 'http_code=%{http_code}\n' \
+# Minimal debug: no jq; stream raw SSE
+curl -sS --max-time 120 -N \
   -H 'Content-Type: application/json' \
-  -d '{"model":"qwen3.5-9b","messages":[{"role":"user","content":"hi"}],"max_tokens":32,"stream":false}' \
+  -d '{"model":"local-chat","messages":[{"role":"user","content":"Reply with exactly: ok"}],"max_tokens":8,"stream":true,"chat_template_kwargs":{"enable_thinking":false}}' \
   http://127.0.0.1:8000/v1/chat/completions
-cat /tmp/vllm-out.json | jq . 2>/dev/null || cat /tmp/vllm-out.json
 ```
 
-### SSH tunnels (APIs bind `127.0.0.1` only)
+### SSH tunnels (only needed from non-tailnet hosts)
+
+The chat API binds **`0.0.0.0`** on the tailnet, so any tailnet peer can hit **`http://mini:8000/v1`** directly — no tunnel needed. From a host that is **not** on the tailnet, forward the ports over SSH:
 
 ```bash
-# vLLM chat + embeddings (default mini)
+# chat + (on the llama.cpp backend) embeddings both live on 8000;
+# the 8001 forward is only for the vLLM `jina` embedder when that is enabled.
 ssh -L 8000:127.0.0.1:8000 -L 8001:127.0.0.1:8001 jadee@<mini-ip>
-
-# Add GGUF on 8010 when llama.cpp is enabled
-ssh -L 8000:127.0.0.1:8000 -L 8001:127.0.0.1:8001 -L 8010:127.0.0.1:8010 jadee@<mini-ip>
 ```
 
 ### GPU memory (shared Intel dGPU)
@@ -203,24 +277,36 @@ intel_gpu_top
 
 ## VRAM / coexistence
 
-All services share the **same Intel GPU**. Do **not** run **`vllm-xpu-chat`** and **`llama-cpp-gemma`** together unless you know VRAM fits — keep **`miniLlamaCppGemma = false`** when using vLLM chat (default in `host.nix`). If you ever enable both stacks, give them **different** `--alias` / `servedName` values so OpenAI clients do not see two models with the same id.
+All services share the **same Intel GPU**. The two chat backends are **mutually exclusive** — **`miniLlmBackend`** picks exactly one, so **`vllm-xpu-chat`** and **`llama-cpp-gemma`** are never imported together (running both would OOM the shared GPU). There is no longer an "additive optional llama.cpp" stack; switching backend means swapping which single chat unit owns the GPU.
 
-Optional llama.cpp’s Hugging Face cache lives under **`/var/lib/llama-cpp/huggingface`** when that module is enabled.
+The llama.cpp backend's Hugging Face cache lives under **`/var/lib/llama-cpp/huggingface`** when that backend is active.
+
+**llama.cpp router co-residence (chat + embed):** the llama.cpp backend now hosts **two** models on the one GPU via **router mode** (`--models-max 2`, both resident — no swap latency). To make room for the embedder, **chat context was trimmed from 96K to 64K total** (`ctx-size = 65536`, `parallel = 2` → **32K per conversation**, `cache-type-k/v = q8_0`). Budget on the 15 GiB Arc B50 **with MTP off** (current state — `chatMtp = false`): chat **~9.7 GB** (QAT 6.7 + mmproj 1 + 64K q8 KV ~2) + embed ~0.6 GB ≈ **10.3 GB**; **enabling MTP** would add the **~2 GB** drafter. If you would rather keep chat at maximum context, set **`--models-max 1`** — only the requested model is loaded at a time (swap on demand), trading a per-switch load for headroom.
+
+`vllm-xpu-embedding` (the separate vLLM `jina-embeddings-v5-nano` instance) is currently disabled so chat can claim the full XPU memory
+budget. If you re-enable it, order it after `vllm-xpu-chat` and bind it to chat
+so it cannot keep an XPU allocation while chat reloads the larger model. (On the **llama.cpp** backend you do not need it — embeddings come from the resident **`local-embed`** preset on **8000**.)
 
 ## Switching chat backend
 
-| Goal | `hosts/mini/host.nix` | `hosts/mini/vllm-xpu.nix` |
-|------|------------------------|---------------------------|
-| **vLLM chat on 8000** (default) | `miniLlamaCppGemma = false` | `vllm-chat-enable = true`, `models.chat.repo` / `instances.chat.*` as desired |
-| **GGUF Gemma on 8010** only | `miniLlamaCppGemma = true` | `vllm-chat-enable = false` |
+One toggle in `hosts/mini/host.nix` selects the backend. Both serve **`local-chat`** on **8000** bound to **`0.0.0.0`** — consumers do not change.
 
-Then **`just switch`**.
+| Goal | `hosts/mini/host.nix` | Per-backend tuning |
+|------|------------------------|--------------------|
+| **vLLM chat** (default) | `miniLlmBackend = "vllm"` | `hosts/mini/services/llm/vllm-xpu.nix`: `vllm-chat-enable = true`, `models.chat.repo` / `instances.chat.*` as desired |
+| **GGUF Gemma via llama.cpp** | `miniLlmBackend = "llamacpp"` | `hosts/mini/services/llm/llama-cpp.nix`: **router mode** (`--models-preset … --models-max 2`) serving **`local-chat`** = **`unsloth/gemma-4-12B-it-qat-GGUF`** `UD-Q4_K_XL` (QAT + vision, 64K ctx; **MTP** wired but **off** — `chatMtp = false`) **and** **`local-embed`** = **`mradermacher/F2LLM-v2-0.6B-GGUF`** `Q8_0` (embeddings); tune `ctx-size`, `gpuLayers`, the MTP toggle **`chatMtp`** (and, once enabled, the **`spec-draft-n-max`** drafter depth), and **`--models-max`** (2 = both resident, 1 = swap on demand) as desired |
 
-## Change GGUF quant (llama.cpp only)
+Then **`just switch`**. The shared contract (`miniLlmServedName` / `miniLlmPort` / `miniLlmHost`) is unchanged across the switch.
 
-Edit `hosts/mini/llama-cpp.nix` (`modelQuant`, `contextSize`, `gpuLayers`), ensure **`miniLlamaCppGemma = true`**, then **`just switch`**.
+## Change GGUF models / MTP tuning (llama.cpp backend, router mode)
 
-Other quants: `Q3_K_M` (~5.4 GiB), `Q5_K_M` (~8 GiB), `IQ4_XS` (~6 GiB).
+The llama.cpp backend runs **router mode** (`--models-preset <generated INI> --models-max 2`) with **two** presets — **`[local-chat]`** (Gemma 4 QAT + vision, **64K** ctx / **32K** per conversation; **MTP wired but currently off**) and **`[local-embed]`** (F2LLM-v2-0.6B embeddings). Edit `hosts/mini/services/llm/llama-cpp.nix` (preset `ctx-size`, `gpuLayers`, the MTP toggle **`chatMtp`** and — once MTP is enabled — the **`spec-draft-n-max`** lever, and **`--models-max`** — 2 keeps both resident, 1 swaps on demand to keep chat at max context), ensure **`miniLlmBackend = "llamacpp"`**, then **`just switch`**. The served ids stay **`local-chat`** / **`local-embed`** (the INI section names = the served ids).
+
+**Quant:** the QAT repo ships **only** **`UD-Q4_K_XL`** — that is intentional, since higher-precision quants degrade Google's quantization-aware-trained weights, so there is no higher-precision variant to move up to. At **~6.72 GB** it already gives near-bf16 quality.
+
+**MTP — currently gated off (`chatMtp = false`):** MTP (Multi-Token Prediction speculative decoding) is **wired but disabled** on this backend. The deployed nixpkgs llama.cpp (**build 9503**, commit `e3ba22d`) has the **`--spec-type draft-mtp` flag** but **not** the Gemma-specific **`gemma4-assistant`** draft-architecture loader; the arch landed upstream in PR [ggml-org/llama.cpp#23398](https://github.com/ggml-org/llama.cpp/pull/23398) (**2026-06-07**) but is not in build 9503, so loading the MTP drafter fails with `unknown model architecture: 'gemma4-assistant'` and the server exits. While off, the generated `local-chat` preset omits the `spec-type` / `spec-draft-n-max` lines and the ~2 GB drafter is not loaded. **Re-enable** by flipping **`chatMtp = true`** in `hosts/mini/services/llm/llama-cpp.nix` **once the packaged llama.cpp is new enough to load the `gemma4-assistant` arch**, then **`just switch`**.
+
+**MTP tuning lever (applies once `chatMtp = true`):** **`--spec-draft-n-max`** (range **1–6**, hardware-dependent) controls how many tokens the MTP drafter proposes per step. unsloth's QAT README uses **4**; their general guidance is to **start at 2** (the wired default). If MTP later regresses throughput on this Vulkan/Arc GPU, set **`chatMtp = false`** to serve plain QAT instead.
 
 ## llama.cpp GGML backends (Vulkan vs OpenCL)
 
@@ -250,4 +336,4 @@ NixOS **`pkgs.llama-cpp`** in nixpkgs builds **Vulkan** and/or **OpenCL (CLBlast
 
 ## Change vLLM chat model
 
-Edit **`hosts/mini/vllm-xpu.nix`** (`models.chat.repo`, `instances.chat.*`), then **`just switch`**. Deep troubleshooting (KV OOM, ccache, kernel params) lives in **`docs/hosts/mini-vllm-xpu.md`**.
+Edit **`hosts/mini/services/llm/vllm-xpu.nix`** (`models.chat.repo`, `instances.chat.*`), then **`just switch`**. Deep troubleshooting (KV OOM, ccache, kernel params) lives in **`docs/hosts/mini-vllm-xpu.md`**.

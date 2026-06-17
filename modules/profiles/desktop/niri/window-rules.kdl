@@ -58,7 +58,8 @@ window-rule {
 // GNOME applications
 window-rule {
     match app-id=r#"^org.gnome."#
-    match app-id=r#"^gnome-"#
+    match app-id=r#"^gnome"#
+    exclude app-id=r#"org.gnome.Showtime"#
 
     clip-to-geometry true
     opacity 0.9
@@ -109,6 +110,11 @@ window-rule {
     }
 }
 
+
+// layout {
+//     background-color "00000020"
+// }
+
 window-rule {
     match app-id="zen"
     match app-id="zen-beta"
@@ -116,6 +122,8 @@ window-rule {
     match app-id="org.gnome"
     match app-id="dev.zed.Zed"
 
+
+    draw-border-with-background false
     background-effect {
         blur true
     }

@@ -28,9 +28,9 @@ in {
       isEssential = true;
       position = 104;
     };
-    "(216) Discord | #poe2-builds | Rentner mit Keyboard" = {
+    "Discord - Group Chat That’s All Fun & Games" = {
       id = "5fb91047-d89a-47fd-8a68-0eb8f1ac0f9e";
-      url = "https://discord.com/channels/1143944016535228419/1311062719453069324";
+      url = "https://discord.com/";
       isEssential = true;
       position = 105;
     };
@@ -51,6 +51,24 @@ in {
       url = "https://chat.mistral.ai/chat";
       isEssential = true;
       position = 108;
+    };
+    "Machines - Tailscale" = {
+      id = "02b17117-aeee-4c2a-a944-4bcc2c7f656d";
+      url = "https://login.tailscale.com/admin/machines";
+      isEssential = true;
+      position = 109;
+    };
+    "Open WebUI" = {
+      id = "3c10e17c-40f1-403e-bc48-75737817338d";
+      url = "https://mini.quokka-qilin.ts.net/";
+      isEssential = true;
+      position = 110;
+    };
+    "OpenRouter" = {
+      id = "c6796b44-ce0e-4301-80e9-4a7580b504ed";
+      url = "https://openrouter.ai/";
+      isEssential = true;
+      position = 111;
     };
     "Nix" = {
       id = "{1775769307141-35}";
@@ -253,15 +271,15 @@ in {
       position = 223;
     };
     "JDownloader 2" = {
-      id = "0502f069-bb8a-42ba-90b5-80e18e1a3d5b";
-      url = "http://192.168.178.62:7807/";
+      id = "71c66a44-3f74-4149-9714-fb2a5b5af39b";
+      url = "http://jadee-server:7807/";
       workspace = spaces."Downloads".id;
       isEssential = false;
       position = 224;
     };
-    "178" = {
-      id = "3ba97525-29d8-4c3f-8728-c6a8c2d0c160";
-      url = "http://192.168.178.62:8080/";
+    "Tab" = {
+      id = "4d625060-e07c-4486-a418-3a6ec5f88bc6";
+      url = "http://jadee-server:8080/";
       workspace = spaces."Downloads".id;
       isEssential = false;
       position = 225;

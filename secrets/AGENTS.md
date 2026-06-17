@@ -1,28 +1,17 @@
 # SECRETS
 
-Encrypted with `sops` + `age`. Full guide: [docs/secrets/sops-age-keys.md](../docs/secrets/sops-age-keys.md).
+## Purpose
 
-## Key model
+Encrypted SOPS/age secret data, schema, and key-management rules.
 
-| Key | Path | `.sops.yaml` |
-|-----|------|--------------|
-| **Editor** (edit secrets) | `~/.config/sops/age/keys.txt` | `&editor` |
-| **NixOS host runtime** | `/var/lib/private/sops/age/keys.txt` | `&framework`, `&desktop`, `&mini` |
-| **Caya HM/runtime** | `~/.config/sops/age/keys.txt` on caya | `&caya` |
+## Use skills
 
-All recipients can decrypt the whole secrets file (see SCHEMA.md).
+- `secrets-structure` — secret layout, age key roles, schema updates, and wiring checks.
 
-```bash
-just setup-age-editor                  # editor key
-just setup-age-darwin                    # caya HM/runtime key (same path)
-just bootstrap-sops-host-key             # first install only (empty host path)
-just rotate-sops-host-key                # dedicated host key after Phase 1 copy
-just verify-sops-host-key framework      # post-rotation check
-sops updatekeys secrets/secrets.yaml     # after .sops.yaml changes
-```
+## Local hazards
 
-## Gotchas
-
-- Never commit `secrets.yaml` unencrypted or `.flake-host`
-- `bootstrap-sops-host-key` does **not** replace an existing host key — use `rotate-sops-host-key`
-- Do **not** put SSH login private keys or age host private keys in sops
+- Edit `secrets/secrets.yaml` only with `sops`; never expose secret values in terminal output.
+- Update `secrets/SCHEMA.md` whenever a secret key is added, renamed, or repurposed.
+- Never commit plaintext `secrets.yaml` or `.flake-host`.
+- Do not store SSH login private keys or host age private keys in SOPS.
+- `bootstrap-sops-host-key` is first-install only; use rotation commands for existing host keys.

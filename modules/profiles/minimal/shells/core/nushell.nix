@@ -16,6 +16,13 @@ in {
     enable = true;
     shellAliases =
       aliases
+      // {
+        # The sesh HM module's `enableAlias` emits `sesh connect $(...)`, which is
+        # valid POSIX command substitution for bash/fish but a parse error in
+        # nushell (it uses `(...)` subexpressions). `home.shellAliases` is fed into
+        # every shell via home-environment.nix, so override just the nushell form.
+        s = lib.mkForce "sesh connect (sesh list --icons | fzf --ansi)";
+      }
       // lib.optionalAttrs pkgs.stdenv.isLinux {
         trash = "gio trash";
       };

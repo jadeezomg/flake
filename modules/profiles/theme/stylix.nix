@@ -45,11 +45,11 @@ in {
         name = "Iosevka Nerd Font";
       };
       serif = {
-        # Local package via the overlay (parts/overlays/local-packages.nix).
         package = pkgs.iosevka-etoile;
         name = "Iosevka Etoile";
       };
       sansSerif = {
+        package = pkgs.inter;
         name = "Inter Variable";
       };
       emoji = {

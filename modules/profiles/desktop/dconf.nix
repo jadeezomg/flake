@@ -6,10 +6,20 @@
 in {
   dconf.enable = true;
   dconf.settings = {
+    "org/gnome/desktop/interface" = {
+      icon-theme = "Adwaita";
+    };
+
     "org/gnome/desktop/input-sources" = {
       sources = [
-        (mkTuple ["xkb" "us+intl"])
-        (mkTuple ["xkb" "de"])
+        (mkTuple [
+          "xkb"
+          "us+intl"
+        ])
+        (mkTuple [
+          "xkb"
+          "de"
+        ])
       ];
       xkb-options = ["compose:ralt"];
     };

@@ -1,30 +1,18 @@
 # PARTS
 
-flake-parts modules wiring the flake together.
+## Purpose
 
-## hosts.nix
+flake-parts modules that assemble hosts, Home Manager configs, packages, checks, lib outputs, and overlays.
 
-Builds `nixosConfigurations` and `darwinConfigurations`. Key functions:
+## Use skills
 
-- **`mkHostOutputs hostKey host`** — builds per-host outputs; keys configurations by `host.hostname` (= `hostKey`); imports only modules common to every host of a platform (single-host modules live in `hosts/<name>/default.nix`)
-- **`homeManagerConfig { user, hostKey, isDarwin, system, ... }`** — embedded HM config; passes `host`, `hostKey`, `isDarwin`, `pkgs`, `pkgs-small`, `pkgs-stable` as `extraSpecialArgs`
-- **`homeModules`** — flat unconditional base (sops + stylix HM modules + `lib/home/dotfiles.nix`); all other user config arrives via `home-manager.sharedModules` pushed by profiles
-- **`mkHomeManagerModule { hostKey, user, system, isDarwin }`** — wraps `homeManagerConfig` as a system module
+- `flake-structure` — flake-parts ownership, package exposure, checks, and overlays.
+- `agent-structure` — `skillsUpstreamSrc` and agent-related flake wiring.
 
-## packages.nix / checks.nix / lib.nix
+## Local hazards
 
-- `packages.nix` — exposes every local package as `packages.<system>.<name>` from `pkgs.<name>` (name list shared with the overlay via `packages/names.nix`); also pins `perSystem`'s `pkgs` to the overlay-laden import
-- `checks.nix` — `mcp-servers` (eval-asserted), `host-caya-eval` (darwin toplevel eval; flake check ignores darwinConfigurations), `host-mini-headless` (server stays headless); `formatter = alejandra`
-- `lib.nix` — `flake.lib.skillsUpstreamSrc` for `just skills-upstream`
-
-## overlays/
-
-- `default.nix` — central overlay list: local-packages + niri (x86_64-linux only) + cachyos kernel
-- `local-packages.nix` — auto-registers `packages/*` as `pkgs.<name>` via `callPackage` (name list from `packages/names.nix`)
-- `direnv-skip-check-darwin.nix` — patches direnv on Darwin
-
-## Gotchas
-
-- **Configurations keyed by `hostname`** — `nixosConfigurations.desktop`, `darwinConfigurations.caya`; fallback to `hostKey` if `hostname` unset
-- **`nixpkgs-zed` is pinned** — does not follow `nixpkgs`; don't upgrade accidentally
-- **`framework-control` has its own nixpkgs** — bundled fork; system-gated to `x86_64-linux`
+- `nixosConfigurations.*` and `darwinConfigurations.*` are keyed by host `hostname` with `hostKey` fallback.
+- Single-host modules belong in `hosts/<name>/default.nix`, not common platform imports.
+- `homeModules` is the flat unconditional HM base; profiles push user config through `home-manager.sharedModules`.
+- Local packages are auto-registered by `parts/overlays/local-packages.nix` from `packages/names.nix`; do not add a second registry.
+- `nixpkgs-zed` is pinned separately; do not make it follow `nixpkgs` accidentally.

@@ -1,24 +1,16 @@
 # PACKAGES
 
-Custom flake packages. All `packages/*/default.nix` files are auto-registered as `pkgs.<name>` via `parts/overlays/local-packages.nix` — no explicit import needed.
+## Purpose
 
-## Calling Conventions
+Custom flake packages auto-registered into overlays and flake package outputs.
 
-```nix
-{ pkgs, lib, ... }:                              # pkgs = final; injected automatically
-{ lib, rustPlatform, fetchFromGitHub, ... }:    # standard callPackage convention
-```
+## Use skills
 
-## update.json Types
+- `flake-structure` — package layout, update metadata, overlays, and package exposure.
 
-Every updatable package has an `update.json`:
+## Local hazards
 
-| Type | Behaviour |
-|------|-----------|
-| `nix-update` | delegates to `nix-update --flake <attr>` (most packages) |
-| `npm` | npm registry packages |
-| `github_npm` | GitHub releases + npm lock regeneration |
-| `binary_channel` | version URL + platform hash map |
-
-`.update-check.json` stores last-checked timestamp; 1h cooldown. Override with `UPDATE_FORCE=1`.
-
+- `packages/*/default.nix` files are auto-registered as `pkgs.<name>`; do not add explicit duplicate imports.
+- Updatable packages need `update.json`; `.update-check.json` is generated state with a cooldown.
+- Use standard `callPackage` signatures; only accept final `pkgs` when the derivation genuinely needs it.
+- Verify packages/dependencies with live nixpkgs tooling and cache availability before adding them.

@@ -1,0 +1,35 @@
+% tmux, sessions
+
+; tmux is enabled on every host. Sesh manages runtime sessions from active tmux
+; sessions, declarative config entries, and zoxide directories.
+
+# Pick or create a session with sesh
+s
+
+# Connect to a named/path session
+sesh connect <session>
+
+$ session: sesh list --icons
+
+# Pick a session without the alias
+sesh connect "$(sesh list --icons | fzf --ansi)"
+
+# Attach to tmux, or create a session when none exists
+ta
+
+# List active tmux sessions
+tl
+
+# Detach the current tmux client
+tmux detach-client
+
+# Switch to the last tmux session
+tmux switch-client -l
+
+# Open the sesh picker in a tmux popup
+tmux display-popup -E -w 80% -h 70% 'sesh picker --icons'
+
+# Kill a tmux session
+tmux kill-session -t <session>
+
+$ session: tmux list-sessions -F '#S'

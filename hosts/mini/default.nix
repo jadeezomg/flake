@@ -15,34 +15,30 @@
       ../../modules/profiles
       ./profiles.nix
       inputs.hermes-agent.nixosModules.default
-      ./hermes.nix
+      ./services/hermes.nix
       # Nightly cachix pipeline — disabled until the host is up (mini-install.md §6).
       # ./flake-cache-warm.nix
     ]
     ++ lib.optionals (host.miniLlmHosting or false) [
-      # vllm-xpu-nix: `nixosModules.default` = overlay + `services.vllm-xpu` (see upstream
-      # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
-      inputs.vllm-xpu-nix.nixosModules.default
-      ./vllm-xpu.nix
+      # Self-contained chat stack: shared base + open-webui + the backend selected
+      # by host.miniLlmBackend (see hosts/mini/services/llm/default.nix).
+      ./services/llm
     ]
     ++ lib.optionals (
       (host.miniLlmHosting or false)
-      && (host.miniLlamaCppGemma or true)
-    ) [./llama-cpp.nix];
+      && (host.miniMemoryHosting or false)
+    ) [./services/honcho.nix]
+    ++ lib.optionals (host.miniMonitoring or false) [./services/beszel.nix];
   # NOPASSWD wheel — quality-of-life over SSH on a key-only headless host.
   # Desktop/framework keep password-required sudo (gated by hostKey == "mini"
   # is unnecessary because this file only loads for the mini host).
   security.sudo.wheelNeedsPassword = false;
 
-  # Cache-warming host: nightly multi-closure builds still churn through /nix.
-  # Keep GC conservative on the 256 GB system SSD; Cachix holds canonical artefacts.
   maintenance.garbageCollection = {
     schedule = "daily";
     deleteOlderThan = "3d";
   };
 
-  # Static IP via NetworkManager, matching router-side reservation.
-  # TODO: fill in the real address1 / dns / interface name during install.
   networking.networkmanager.ensureProfiles.profiles."mini-lan" = {
     connection = {
       id = "mini-lan";
@@ -60,7 +56,7 @@
   };
 
   # Intel GPU (graphics.enable via dotfiles.hardware.gpu = "intel"):
-  # vLLM-XPU + Vulkan llama.cpp stacks live in ./vllm-xpu.nix and ./llama-cpp.nix.
+  # vLLM-XPU + Vulkan llama.cpp stacks live under ./services/llm/.
 
   # AMT / vPro — non-root /dev/mei access for amtterm / openwsman.
   users.groups.amt = {};

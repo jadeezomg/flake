@@ -1,8 +1,7 @@
-# Agents feature folder — agent CLI packages (system half) plus the HM
-# halves: skills install, nono profiles, pi/omp/claude MCP config. All HM
-# modules are pushed via sharedModules when the profile is on; the MCP files
-# keep their internal registry logic (./mcp-servers.nix is a helper they
-# import, not a module).
+# Agents feature folder — agent CLI packages (system half) plus the HM halves:
+# global config links, global skill install, nono profiles, pi/omp package
+# state, and pi/omp/claude MCP registration. Shared MCP registry logic lives in
+# `dotfilesLib.mcpServers`; nono profile data lives in `dotfilesLib.nonoProfiles`.
 {
   dotfilesLib,
   config,
@@ -18,7 +17,7 @@ in {
     home-manager.sharedModules = [
       ./skills.nix
       ./global-config.nix
-      ./agents-cli.nix
+      ./nono-agent.nix
       ./nono-profiles.nix
       ./pi-packages.nix
       ./pi-mcp.nix

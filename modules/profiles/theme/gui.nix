@@ -1,7 +1,9 @@
 # Theme GUI payload (HM half) — pushed only when theme.gui is enabled; the
-# headless server keeps the ./home.nix baseline without any of this.
+# headless server keeps the ./stylix.nix baseline without any of this.
 {
   config,
+  isDarwin ? false,
+  lib,
   pkgs,
   ...
 }: let
@@ -16,10 +18,10 @@
 in {
   stylix = {
     opacity = {
-      applications = 0.9;
-      desktop = 0.9;
-      popups = 0.9;
-      terminal = 0.9;
+      applications = 0.7;
+      desktop = 0.8;
+      popups = 0.8;
+      terminal = 0.8;
     };
 
     cursor = {
@@ -34,6 +36,7 @@ in {
       gtk.enable = true;
       zen-browser = {
         profileNames = ["default"];
+        # opacity.applications = 0.5;
       };
     };
   };
@@ -41,5 +44,11 @@ in {
   home.file = {
     "Pictures/Images" = mkLiveSymlink "${assetsDir}/images";
     "Pictures/Wallpapers" = mkLiveSymlink "${assetsDir}/wallpapers";
+  };
+  gtk = lib.mkIf (!isDarwin) {
+    iconTheme = {
+      name = "Adwaita";
+      package = pkgs.adwaita-icon-theme;
+    };
   };
 }

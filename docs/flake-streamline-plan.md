@@ -107,7 +107,7 @@ Conventions:
 
 ## Phase 1 — Thin `flake.nix`, dedupe packages, input hygiene, de-leak the host factory
 
-Problem: `flake.nix` hand-imports 6 of the 8 `packages/*` that `parts/overlays/local-packages.nix` already auto-registers (and inconsistently omits `oh-my-pi` and `framework-control`). `parts/hosts.nix` carries mini-only logic (`hostKey == "mini"` gating for vllm-xpu) and imports `hermes-agent` and `disko` modules for every Linux host although only mini uses them. One input is wired to nothing it should be (`skills-mattpocock`), one looks dead but isn't (`corecycler`).
+Problem: `flake.nix` hand-imports 6 of the 8 `packages/*` that `parts/overlays/local-packages.nix` already auto-registers (and inconsistently omits `oh-my-pi`). `parts/hosts.nix` carries mini-only logic (`hostKey == "mini"` gating for vllm-xpu) and imports `hermes-agent` and `disko` modules for every Linux host although only mini uses them. One input is wired to nothing it should be (`skills-mattpocock`), one looks dead but isn't (`corecycler`).
 
 Plan:
 
@@ -133,7 +133,7 @@ Plan:
 4. De-leak `parts/hosts.nix`: move the mini-only module imports into `hosts/mini/default.nix`, which already uses exactly this conditional-import pattern (`lib.optionals (!bootstrap && miniLlmHosting) [...]`):
    - `inputs.disko.nixosModules.disko` (disko is referenced only by mini),
    - `inputs.hermes-agent.nixosModules.default` (alongside the existing `./hermes.nix`),
-   - `inputs.vllm-xpu-nix.nixosModules.default` plus its `hostKey == "mini"` gate (merge into the existing `./vllm-xpu.nix` optional).
+   - `inputs.vllm-xpu-nix.nixosModules.default` plus its `hostKey == "mini"` gate (merge into the existing `./llm/vllm-xpu.nix` optional).
    The factory keeps only modules genuinely common to all hosts of a platform (stylix, dms, sops, determinate, lanzaboote, home-manager).
 
 Acceptance:
@@ -294,7 +294,7 @@ Plan — three top-level profiles:
 
 1. **`devenv`** — the headless core, still separated by tool area: `tools`, `cloud`, `containers` (CLI/TUI only), `databases` (TUI), `agents` (renamed from `devenv.llm.agents`; the `devenv.llm.*` group dissolves), `languages.<name>`. Category sub-enables stay and keep `mkDefault`-following `devenv.enable` — per-host config remains one line, fine-grained opt-outs stay available (mini's `languages.swift` survives unchanged).
 2. **`devgui`** — GUI dev tooling as its own top-level profile, mirroring devenv's category names so a tool area's GUI counterpart is always in the predictable place: `devgui.containers` (`podman-desktop` moves here), `devgui.ides` (cursor + zed HM configs re-gate here from `apps.editors`; helix is a terminal editor and stays in `apps.editors`). No files for categories without GUI members — no placeholders. Default off; workstations enable it; joins the server-class assertions.
-3. **`llm`** — the serving stack: `dotfiles.profiles.llm.enable`, **default off**. `hosts/framework/profiles.nix` deletes its negation; `hosts/mini/profiles.nix` and the `mkForce` in `hosts/mini/vllm-xpu.nix` switch to the new path; desktop/caya opt in only if a serving stack there is actually wanted (see the matrix footnote — today it's on via `mkDefault` without anyone asking).
+3. **`llm`** — the serving stack: `dotfiles.profiles.llm.enable`, **default off**. `hosts/framework/profiles.nix` deletes its negation; `hosts/mini/profiles.nix` and the `mkForce` in `hosts/mini/services/llm/vllm-xpu.nix` switch to the new path; desktop/caya opt in only if a serving stack there is actually wanted (see the matrix footnote — today it's on via `mkDefault` without anyone asking).
 4. Chase the ripples: `rg 'devenv\.(llm|tools|cloud|containers|databases)'` — known consumers include `modules/nixos/virtualization.nix` (`devenv.containers`, unchanged — the podman service is headless), `parts/shells.nix`, and several `home/shared/development/tooling/*` files gating on `devenv.llm.agents` → now `devenv.agents`. Fix stale option descriptions while there (e.g. `databases` mentions dbeaver-bin, which isn't installed; if it ever returns it's `devgui.databases`).
 
 Behavior-preservation note: workstations have both `apps` and `devenv` on, so moving IDE gating from `apps.editors` to `devgui.ides` changes nothing for them; mini already excluded the IDEs via `apps.enable = false`.
