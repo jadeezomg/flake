@@ -301,24 +301,11 @@
 		]
 	},
 	"enabledPlugins": {
-		"typescript-lsp@claude-plugins-official": true,
-		"honcho@honcho": false
+		"typescript-lsp@claude-plugins-official": true
 	},
-	"extraKnownMarketplaces": {
-		"honcho": {
-			"source": {
-				"source": "github",
-				"repo": "plastic-labs/claude-honcho"
-			}
-		}
-	},
-<<<<<<< HEAD
 	"extraKnownMarketplaces": {},
 	"effortLevel": "medium",
-=======
-	"effortLevel": "xhigh",
 	"tui": "fullscreen",
->>>>>>> 84c4a091f50c5e6bb8af7a4f76a9d96ae4676728
 	"skipDangerousModePermissionPrompt": true,
 	"theme": "dark-ansi",
 	"editorMode": "normal",
