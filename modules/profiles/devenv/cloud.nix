@@ -10,6 +10,7 @@ in {
     environment.systemPackages = with pkgs; [
       awscli2
       awslogs
+      flarectl
     ];
   };
 }

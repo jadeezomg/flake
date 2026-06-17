@@ -67,6 +67,19 @@ pointing at that one IP, **Proxy status = DNS only (grey cloud)**:
 > Proxy MUST be off — Cloudflare can't reach a private tailnet IP. The public
 > record only resolves the name; routing stays tailnet-only.
 
+Or do it from the CLI on mini (the token is already at `/run/secrets/...`):
+```bash
+IP=$(tailscale status --json | jq -r '.Peer[] | select(.HostName=="mini-proxy") | .TailscaleIPs[0]')
+export CF_API_TOKEN="$(sudo cat /run/secrets/cloudflare_dns_api_token)"
+for name in matrix chat beszel; do
+  nix shell nixpkgs#flarectl -c flarectl dns create \
+    --zone jadee.fyi --name "$name" --type A --content "$IP"   # no --proxy = DNS only
+done
+nix shell nixpkgs#flarectl -c flarectl dns list --zone jadee.fyi   # verify
+```
+The token needs **Zone:Read + DNS:Edit** (Cloudflare's "Edit zone DNS" template)
+so flarectl can resolve the zone name → id.
+
 Caddy gets each cert via the **DNS-01** challenge (independent of these A records,
 so cert issuance can happen before/while you add them). Watch it obtain certs:
 ```
