@@ -301,18 +301,10 @@
 		]
 	},
 	"enabledPlugins": {
-		"typescript-lsp@claude-plugins-official": true,
-		"honcho@honcho": false
+		"typescript-lsp@claude-plugins-official": true
 	},
-	"extraKnownMarketplaces": {
-		"honcho": {
-			"source": {
-				"source": "github",
-				"repo": "plastic-labs/claude-honcho"
-			}
-		}
-	},
-	"effortLevel": "xhigh",
+	"extraKnownMarketplaces": {},
+	"effortLevel": "medium",
 	"tui": "fullscreen",
 	"skipDangerousModePermissionPrompt": true,
 	"theme": "dark-ansi",
