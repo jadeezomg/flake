@@ -140,7 +140,6 @@
 		],
 		"defaultMode": "default"
 	},
-	"model": "claude-fable-5[1m]",
 	"hooks": {
 		"SessionStart": [
 			{
@@ -152,7 +151,7 @@
 		"typescript-lsp@claude-plugins-official": true
 	},
 	"extraKnownMarketplaces": {},
-	"effortLevel": "xhigh",
+	"effortLevel": "medium",
 	"skipDangerousModePermissionPrompt": true,
 	"theme": "dark-ansi",
 	"editorMode": "normal",
