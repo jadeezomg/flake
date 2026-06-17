@@ -60,7 +60,7 @@ in {
     };
     "Open WebUI" = {
       id = "3c10e17c-40f1-403e-bc48-75737817338d";
-      url = "https://mini.quokka-qilin.ts.net/";
+      url = "https://chat.jadee.fyi/";
       isEssential = true;
       position = 110;
     };
