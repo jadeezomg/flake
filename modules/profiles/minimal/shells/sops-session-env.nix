@@ -36,7 +36,16 @@
   ...
 }: let
   secrets = config.sops.secrets or {};
-  secretNames = lib.attrNames secrets;
+
+  # Secrets delivered to consumers by another mechanism (not the session env).
+  # `kagi-*` are rendered into ~/.kagi.toml by the sops template in
+  # modules/profiles/minimal/security.nix; exporting them here would shadow that
+  # file, since the kagi CLI reads env vars before its config.
+  sessionEnvExcludeAttrs = [
+    "kagi-api-key"
+    "kagi-session-token"
+  ];
+  secretNames = lib.filter (n: !lib.elem n sessionEnvExcludeAttrs) (lib.attrNames secrets);
 
   githubPatSecretAttrs = [
     "github-token"

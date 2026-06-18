@@ -52,12 +52,26 @@ host doesn't invalidate the others' `/etc/shadow` on next switch.
 | `github_token` | https://github.com/settings/tokens — fine-grained, read-only, `public_repo` | shell env `GITHUB_TOKEN` / `GITHUB_PAT`, plus `NIX_CONFIG` access-tokens for flake fetching | all hosts |
 | `agent_pat` | GitHub PAT with `repo` + `workflow` scope for AFK agents | shell env `AGENT_PAT` | desktop, framework, caya |
 | `openrouter_api_key` | https://openrouter.ai/keys | shell env `OPENROUTER_API_KEY` | all hosts |
-| `kagi_api_key` | https://kagi.com/settings/api | `kagi-ken-cli` via env `KAGI_API_KEY` | all hosts |
 | `context7_api_key` | https://context7.com/dashboard | `ctx7` CLI via env `CONTEXT7_API_KEY` | all hosts |
 | `inception_api_key` | (project-specific; document at point of use) | shell env `INCEPTION_API_KEY` | as needed |
 
 > Add new flat keys here in **lower_snake_case**; the session-env layer
 > uppercases and underscores them automatically.
+
+### kagi (nested group, rendered into ~/.kagi.toml)
+
+Grouped under a `kagi:` map in `secrets.yaml`. Wired in
+`modules/profiles/minimal/security.nix` via explicit `sops.secrets` attrs
+(`kagi-api-key`, `kagi-session-token`) that feed the `sops.templates."kagi.toml"`
+`[auth]` block. They are deliberately **excluded** from the session-env layer
+(`sops-session-env.nix`) so the config file is the active source — the `kagi`
+CLI reads env vars before `.kagi.toml`. On mini, `hosts/mini/services/hermes.nix`
+maps `kagi/session_token` into the hermes env file separately.
+
+| Path | Source | Consumed by | Consumed on |
+|---|---|---|---|
+| `kagi/api_key` | https://kagi.com/settings/api | `kagi` CLI via `~/.kagi.toml` `[auth] api_key` (sops attr `kagi-api-key`) | all hosts |
+| `kagi/session_token` | Kagi session link token (https://kagi.com/settings/user_details) | `kagi` CLI via `~/.kagi.toml` `[auth] session_token`; hermes env on mini | all hosts |
 
 ### mini host
 
@@ -87,8 +101,12 @@ See [docs/secrets/sops-age-keys.md](../docs/secrets/sops-age-keys.md).
 # Flat (session-env)
 github_token: ghp_xxx
 openrouter_api_key: sk-or-xxx
-kagi_api_key: xxx
 context7_api_key: ctx7sk-xxx
+
+# Nested group, session-env exported (see security.nix)
+kagi:
+  api_key: xxx
+  session_token: xxx
 
 # Per-user
 users:

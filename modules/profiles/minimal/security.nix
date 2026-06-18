@@ -39,8 +39,12 @@ in {
           key = "inception_api_key";
           path = "${secretDir}/inception-api-key";
         };
+        "kagi-api-key" = {
+          key = "kagi/api_key";
+          path = "${home}/.kagi_api_key";
+        };
         "kagi-session-token" = {
-          key = "kagi_session_token";
+          key = "kagi/session_token";
           path = "${home}/.kagi_session_token";
         };
         "openrouter-api-key" = {
@@ -52,5 +56,18 @@ in {
           path = "${secretDir}/hf-token";
         };
       };
+
+    # Render ~/.kagi.toml from the kagi secrets so the `kagi` CLI's default
+    # config carries credentials declaratively. Note: env vars exported by
+    # sops-session-env.nix still take precedence over this file.
+    templates."kagi.toml" = {
+      path = "${home}/.kagi.toml";
+      mode = "0600";
+      content = ''
+        [auth]
+        api_key = "${config.sops.placeholder."kagi-api-key"}"
+        session_token = "${config.sops.placeholder."kagi-session-token"}"
+      '';
+    };
   };
 }
