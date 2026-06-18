@@ -79,16 +79,11 @@ in {
   # `caddy validate`, `caddy fmt`. The service binary itself is set via package above.
   environment.systemPackages = [caddyWithPlugins];
 
-  # The module reloads caddy on config change, but `systemctl reload` does NOT
-  # re-read EnvironmentFile. When the env-var SET changes (e.g. adding
-  # HERMES_DASHBOARD_HASH), a reload leaves the running process without the new
-  # var → `{env.…}` resolves empty and the reload fails. Force a full restart
-  # whenever the env template's shape changes so the new vars are loaded.
   systemd.services.caddy.restartTriggers = [config.sops.templates."caddy.env".content];
 
   sops.secrets.cloudflare_dns_api_token = {};
   sops.secrets.tailscale_authkey = {};
-  # bcrypt hash gating the Hermes dashboard vhost (services/hermes-dashboard.nix).
+
   # Generate with: caddy hash-password --plaintext '<pw>'  → store the hash here.
   sops.secrets.hermes_dashboard_basic_auth_hash = {};
   sops.templates."caddy.env" = {
