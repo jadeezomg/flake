@@ -35,10 +35,12 @@ in {
     after = ["network-online.target" "hermes-agent.service"];
     wants = ["network-online.target"];
 
+    # NB: deliberately NOT setting HERMES_MANAGED — see the un-manage block in
+    # hermes.nix. With it unset (and the .managed marker removed), save_config()
+    # works, so dashboard config edits persist.
     environment = {
       HOME = cfg.stateDir;
       HERMES_HOME = "${cfg.stateDir}/.hermes";
-      HERMES_MANAGED = "true";
     };
 
     serviceConfig = {

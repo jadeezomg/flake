@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   inputs,
   ...
@@ -82,6 +83,25 @@ in {
       KAGI_SESSION_TOKEN=${config.sops.placeholder.kagi_session_token}
       CONTEXT7_API_KEY=${config.sops.placeholder.context7_api_key}
       MATRIX_PASSWORD=${config.sops.placeholder.matrix_hermes_password}
+    '';
+  };
+
+  # ── Un-manage: let the dashboard/CLI write config.yaml ──────────────────────
+  # hermes' save_config() no-ops when is_managed() — which is true if HERMES_MANAGED
+  # is truthy OR a `.managed` marker exists in HERMES_HOME. The upstream module sets
+  # both, making config read-only outside Nix. We deliberately turn that off so the
+  # dashboard can persist settings. The activation script still deep-merges the Nix
+  # `settings` above into config.yaml on every switch (Nix keys win, everything else
+  # is preserved) — so declared keys (model, …) stay declarative and the rest is
+  # dashboard-editable. Keep `settings` minimal to maximize what the UI can own.
+  systemd.services.hermes-agent.environment.HERMES_MANAGED = lib.mkForce "";
+
+  # Remove the marker the module re-touches each switch (runs after its setup).
+  system.activationScripts.hermes-unmanage = {
+    deps = ["hermes-agent-setup"];
+    text = ''
+      _m="${config.services.hermes-agent.stateDir}/.hermes/.managed"
+      [ -e "$_m" ] && ${pkgs.coreutils}/bin/unlink "$_m" || true
     '';
   };
 }
