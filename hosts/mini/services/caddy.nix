@@ -75,13 +75,21 @@ in {
     environmentFile = config.sops.templates."caddy.env".path;
   };
 
+  # Put the same (plugin) caddy on PATH for on-box ops: `caddy hash-password`,
+  # `caddy validate`, `caddy fmt`. The service binary itself is set via package above.
+  environment.systemPackages = [caddyWithPlugins];
+
   sops.secrets.cloudflare_dns_api_token = {};
   sops.secrets.tailscale_authkey = {};
+  # bcrypt hash gating the Hermes dashboard vhost (services/hermes-dashboard.nix).
+  # Generate with: caddy hash-password --plaintext '<pw>'  → store the hash here.
+  sops.secrets.hermes_dashboard_basic_auth_hash = {};
   sops.templates."caddy.env" = {
     mode = "0400";
     content = ''
       CF_API_TOKEN=${config.sops.placeholder.cloudflare_dns_api_token}
       TS_AUTHKEY=${config.sops.placeholder.tailscale_authkey}
+      HERMES_DASHBOARD_HASH=${config.sops.placeholder.hermes_dashboard_basic_auth_hash}
     '';
   };
 }
