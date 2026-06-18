@@ -17,7 +17,10 @@ in {
   services.caddy.virtualHosts."cinny.jadee.fyi".extraConfig = ''
     import tsnet
     root * ${cinny}
-    file_server
     encode gzip zstd
+    # SPA: Cinny uses HTML5 history routing (hashRouter off), so deep links like
+    # /home/ must fall back to index.html — real files (assets) are served as-is.
+    try_files {path} /index.html
+    file_server
   '';
 }
