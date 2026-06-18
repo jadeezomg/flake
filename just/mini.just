@@ -31,3 +31,7 @@ ssh:
 [doc('Reboot mini (e.g. after deploy-boot)')]
 reboot:
     ssh {{mini_ssh}} 'bash -lc "sudo systemctl reboot"'
+
+[doc('Reconcile Cloudflare DNS A records with the mini Caddy vhosts (create if missing). Runs locally.')]
+dns-sync:
+    bash "$FLAKE/scripts/shell/dns-sync.bash"

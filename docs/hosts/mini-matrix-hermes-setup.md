@@ -23,6 +23,11 @@ Already present in `secrets/secrets.yaml`:
 - `matrix/registration_token`
 - `matrix/hermes_password`
 
+Still to add for the dashboard (`hermes.jadee.fyi`):
+- `hermes_dashboard_basic_auth_hash` — a **bcrypt hash** (not plaintext) gating the
+  dashboard at Caddy. Generate: `caddy hash-password --plaintext '<password>'` and
+  store the resulting `$2a$…` string. You log in as user `jadee` + that password.
+
 > The Tailscale auth key must be **reusable + non-ephemeral** so the `mini-proxy`
 > node survives restarts. If it was a one-shot/ephemeral key, regenerate and
 > re-run `sops secrets/secrets.yaml`.
@@ -51,36 +56,24 @@ journalctl -u caddy -b --no-pager | tail -40
 
 ## 2. Cloudflare DNS records
 
-The `mini-proxy` Caddy node registers on first boot and gets a tailnet IP. Find it:
-```
-tailscale status | grep mini-proxy        # note the 100.x.y.z address
-```
-
-In the Cloudflare dashboard (`jadee.fyi` zone), create **three A records**, all
-pointing at that one IP, **Proxy status = DNS only (grey cloud)**:
-
-| Type | Name   | Content        | Proxy |
-|------|--------|----------------|-------|
-| A    | matrix  | `100.x.y.z`    | OFF   |
-| A    | chat    | `100.x.y.z`    | OFF   |
-| A    | beszel  | `100.x.y.z`    | OFF   |
-| A    | cinny   | `100.x.y.z`    | OFF   |
-
-> Proxy MUST be off — Cloudflare can't reach a private tailnet IP. The public
-> record only resolves the name; routing stays tailnet-only.
-
-Or do it from the CLI on mini (the token is already at `/run/secrets/...`):
+The DNS "registry" *is* the Caddy vhost set (single source of truth). One command
+reconciles it — reads the vhost names from the flake, finds the `mini-proxy` node's
+Tailscale IP, and creates any missing A records (existing ones reported; wrong
+type/content flagged, never overwritten):
 ```bash
-IP=$(tailscale status --json | jq -r '.Peer[] | select(.HostName=="mini-proxy") | .TailscaleIPs[0]')
-export CF_API_TOKEN="$(sudo cat /run/secrets/cloudflare_dns_api_token)"
-for name in matrix chat beszel cinny; do
-  nix shell nixpkgs#flarectl -c flarectl dns create \
-    --zone jadee.fyi --name "$name" --type A --content "$IP"   # no --proxy = DNS only
-done
-nix shell nixpkgs#flarectl -c flarectl dns list --zone jadee.fyi   # verify
+flake mini dns-sync     # local; needs your tailnet view + sops editor key. Re-run after adding a vhost.
 ```
-The token needs **Zone:Read + DNS:Edit** (Cloudflare's "Edit zone DNS" template)
-so flarectl can resolve the zone name → id.
+Covers `matrix`, `chat`, `beszel`, `cinny`, `hermes` automatically. flarectl comes
+from the devenv.cloud profile; the CF token from sops (needs **Zone:Read + DNS:Edit**,
+the "Edit zone DNS" template).
+
+> **Stale CNAME:** `hermes.jadee.fyi` currently CNAMEs to the old unraid box.
+> `dns-sync` flags it as a conflict — delete it in Cloudflare so the A record is made.
+
+Manual equivalent (dashboard): for each of `matrix`/`chat`/`beszel`/`cinny`/`hermes`
+create an **A record, Proxy OFF (grey cloud)** → the `mini-proxy` IP
+(`tailscale status | grep mini-proxy`). Proxy must be off — Cloudflare can't reach a
+private tailnet IP; the record only resolves the name, routing stays tailnet-only.
 
 Caddy gets each cert via the **DNS-01** challenge (independent of these A records,
 so cert issuance can happen before/while you add them). Watch it obtain certs:
@@ -109,6 +102,9 @@ From any tailnet client:
 - `https://beszel.jadee.fyi` → beszel hub (re-do beszel onboarding if the URL/cookie changed)
 - `https://matrix.jadee.fyi/_matrix/client/versions` → JSON from continuwuity
 - `https://cinny.jadee.fyi` → Cinny web client (homeserver pre-set to matrix.jadee.fyi)
+- `https://hermes.jadee.fyi` → Hermes dashboard — Caddy `basic_auth` prompts first
+  (user `jadee` + the password behind `hermes_dashboard_basic_auth_hash`); the
+  dashboard itself stays loopback-only behind it. `systemctl status hermes-dashboard`.
 
 ---
 
