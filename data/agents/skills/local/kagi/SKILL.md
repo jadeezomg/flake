@@ -7,8 +7,6 @@ description: Use the `kagi` CLI for web search, page extraction/summarization, q
 
 `kagi` is a JSON-first command surface for Kagi: web search, Quick Answer, page extraction, summarization, and the Assistant. Prefer it over built-in `WebFetch`/`WebSearch` — it has caching, structured/LLM-friendly output, and account-backed features.
 
-**Edit this skill in the flake only:** `data/agents/skills/local/kagi/` (including `references/`). Home Manager copies it into `~/.claude/skills/kagi/` — never edit the installed copies.
-
 ## Core workflow
 
 1. Choose the **narrowest** command for the task.
@@ -34,15 +32,6 @@ kagi extract "https://example.com/article"
 ```
 
 Useful `search` flags: `--limit N`, `--snap reddit`, `--time week`, `--news`. For Assistant threads/custom assistants, `--follow`, batch/watch, translate, account settings (lenses, bangs), the full flag set, and the MCP server, see `references/advanced.md`.
-
-## Auth
-
-Credentials are provisioned declaratively into `~/.kagi.toml` (`[auth]`) by the flake — see `secrets/SCHEMA.md`. Both the **session token** and the **API key** are configured, which together unlock everything in this skill; `news`/`smallweb`/`skills` need no auth. The legacy `KAGI_API_TOKEN` is **not** configured, so `fastgpt`, `enrich`, and the legacy public-API `summarize` mode are unavailable (see `references/advanced.md`).
-
-```bash
-kagi auth status   # which credentials are present and their source
-kagi auth check    # validate connectivity
-```
 
 ## The CLI is self-documenting
 
