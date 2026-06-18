@@ -159,3 +159,22 @@ journalctl -u hermes-agent -b --no-pager | grep -i matrix | tail -20
   vhost using the same `import tsnet` pattern instead of its own serve port.
 - **Verify Hermes tools:** confirm `kagi`, `ctx7`, GitHub (`agent_pat`), and HF
   access work from a Hermes session.
+
+## Hermes config management (hybrid)
+
+Hermes is deliberately run **un-managed** (`hermes.nix`: `HERMES_MANAGED=""` + the
+`.managed` marker is removed each switch) so the dashboard can persist config edits
+(`save_config()` no-ops in managed mode). The activation still deep-merges
+`services.hermes-agent.settings` into `config.yaml` every switch, so:
+- keys set in Nix `settings` (currently `model`) are declarative — **edits to them in
+  the dashboard revert on the next `flake switch`**;
+- every other key is **dashboard-editable and persists**.
+Keep `settings` minimal to maximise what the UI owns. To make `model` UI-editable too,
+remove it from `settings`.
+
+The live config (`/var/lib/hermes/.hermes/config.yaml`) is **dashboard-owned and not
+tracked in git** — edit freely in the UI. To make any setting declarative later,
+copy that key from the live `config.yaml` into `services.hermes-agent.settings` by
+hand (it then re-asserts on every switch). A live symlink to a repo file is NOT an
+option: Hermes writes atomically (`os.replace`), which would replace the symlink with
+a plain file on first save.
