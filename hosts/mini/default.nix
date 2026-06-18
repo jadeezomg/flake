@@ -18,6 +18,7 @@
       ./services/caddy.nix
       ./services/hermes.nix
       ./services/matrix.nix
+      ./services/cinny.nix
       # Nightly cachix pipeline — disabled until the host is up (mini-install.md §6).
       # ./flake-cache-warm.nix
     ]

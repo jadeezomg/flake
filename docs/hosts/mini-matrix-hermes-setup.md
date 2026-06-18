@@ -10,7 +10,8 @@ Relevant files:
 - `hosts/mini/services/llm/open-webui.nix`, `services/beszel.nix` — moved onto Caddy
 
 Subdomains (all on the `jadee.fyi` Cloudflare zone, all → the `mini-proxy` node):
-`matrix.jadee.fyi`, `chat.jadee.fyi` (open-webui), `beszel.jadee.fyi`.
+`matrix.jadee.fyi`, `chat.jadee.fyi` (open-webui), `beszel.jadee.fyi`,
+`cinny.jadee.fyi` (Matrix web client).
 
 ---
 
@@ -60,9 +61,10 @@ pointing at that one IP, **Proxy status = DNS only (grey cloud)**:
 
 | Type | Name   | Content        | Proxy |
 |------|--------|----------------|-------|
-| A    | matrix | `100.x.y.z`    | OFF   |
-| A    | chat   | `100.x.y.z`    | OFF   |
-| A    | beszel | `100.x.y.z`    | OFF   |
+| A    | matrix  | `100.x.y.z`    | OFF   |
+| A    | chat    | `100.x.y.z`    | OFF   |
+| A    | beszel  | `100.x.y.z`    | OFF   |
+| A    | cinny   | `100.x.y.z`    | OFF   |
 
 > Proxy MUST be off — Cloudflare can't reach a private tailnet IP. The public
 > record only resolves the name; routing stays tailnet-only.
@@ -71,7 +73,7 @@ Or do it from the CLI on mini (the token is already at `/run/secrets/...`):
 ```bash
 IP=$(tailscale status --json | jq -r '.Peer[] | select(.HostName=="mini-proxy") | .TailscaleIPs[0]')
 export CF_API_TOKEN="$(sudo cat /run/secrets/cloudflare_dns_api_token)"
-for name in matrix chat beszel; do
+for name in matrix chat beszel cinny; do
   nix shell nixpkgs#flarectl -c flarectl dns create \
     --zone jadee.fyi --name "$name" --type A --content "$IP"   # no --proxy = DNS only
 done
@@ -106,6 +108,7 @@ From any tailnet client:
 - `https://chat.jadee.fyi`   → open-webui
 - `https://beszel.jadee.fyi` → beszel hub (re-do beszel onboarding if the URL/cookie changed)
 - `https://matrix.jadee.fyi/_matrix/client/versions` → JSON from continuwuity
+- `https://cinny.jadee.fyi` → Cinny web client (homeserver pre-set to matrix.jadee.fyi)
 
 ---
 
@@ -125,7 +128,11 @@ curl -s http://127.0.0.1:6167/_matrix/client/v3/register \
        \"inhibit_login\":true}"
 
 # Your own account (pick your own username/password), same shape — or use
-# Element's "Create account" against matrix.jadee.fyi.
+# the "Register" flow in Cinny at https://cinny.jadee.fyi.
+#
+# NOTE: the FIRST account must use the *emergency* registration token printed in
+#   `journalctl -u continuwuity` (it rotates each restart) — the configured token
+#   is inert until one account exists, and that first user becomes server admin.
 ```
 
 Restart Hermes so it logs in as the bot now that the account exists:
@@ -138,7 +145,7 @@ journalctl -u hermes-agent -b --no-pager | grep -i matrix | tail -20
 
 ## 6. Connect a client
 
-1. Element → Sign in → Edit homeserver → `matrix.jadee.fyi` (auto-discovery works).
+1. Open `https://cinny.jadee.fyi` (homeserver is pre-set to matrix.jadee.fyi).
 2. Sign in with the account from step 5.
 3. Start a DM with `@hermes:matrix.jadee.fyi`. It auto-joins on invite; in rooms
    it only responds when `@`-mentioned (default).

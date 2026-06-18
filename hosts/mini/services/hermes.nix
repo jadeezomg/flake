@@ -58,7 +58,7 @@ in {
 
     # Pulls mautrix[encryption] so the bot can join E2EE rooms on the local
     # continuwuity homeserver (services/matrix.nix).
-    extraDependencyGroups = ["matrix"];
+    extraDependencyGroups = ["matrix" "web"];
 
     # Matrix bot, non-secret half. Connects over loopback (no TLS on-box) and
     # logs in by password (secret half in hermes.env below). MATRIX_DEVICE_ID is
