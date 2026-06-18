@@ -2,6 +2,16 @@
 
 Read this when the basic command set in `SKILL.md` isn't enough. The in-CLI `kagi agent` / `kagi skills get kagi` guide is always version-matched — consult it when a flag here looks stale.
 
+
+## Auth
+
+Credentials are provisioned declaratively into `~/.kagi.toml` (`[auth]`) by the flake — see `secrets/SCHEMA.md`. Both the **session token** and the **API key** are configured, which together unlock everything in this skill; `news`/`smallweb`/`skills` need no auth. The legacy `KAGI_API_TOKEN` is **not** configured, so `fastgpt`, `enrich`, and the legacy public-API `summarize` mode are unavailable (see `references/advanced.md`).
+
+```bash
+kagi auth status   # which credentials are present and their source
+kagi auth check    # validate connectivity
+```
+
 ## Credentials available here
 
 Provisioned into `~/.kagi.toml` by the flake (`secrets/SCHEMA.md`):
