@@ -71,7 +71,7 @@ in {
   sops.secrets.openrouter_api_key = {};
   sops.secrets.agent_pat = {};
   sops.secrets.hf_token = {};
-  sops.secrets.kagi_session_token = {};
+  sops.secrets.kagi_session_token.key = "kagi/session_token";
   sops.secrets.context7_api_key = {};
   sops.secrets.matrix_hermes_password.key = "matrix/hermes_password";
   sops.templates."hermes.env" = {

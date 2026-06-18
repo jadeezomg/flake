@@ -43,7 +43,7 @@ Gather evidence proportional to risk. For behavior/API/infra changes, trace exec
 
 These handle all web, docs, and retrieval needs. Reach for them before built-in `WebFetch` / `WebSearch` — built-ins are gated by user approval and lack the caching, summarization, and quotas that these provide.
 
-- **Search and URL summarization** → `kagi`. `kagi search "<query>"` for discovery; `kagi summarize <url>` (add `--subscriber` for the subscriber summarizer) for a *short* summary of a page — gist only, not full content. `kagi quick "<question>"` for a quick answer with references. When you need concrete details (exact flags, code snippets, version numbers, API signatures, quoted text), fetch the page itself instead (e.g. `xh <url>`).
+- **Web search, page content/summaries, referenced answers** → `kagi`. `kagi search "<query>"` for discovery; `kagi quick "<question>"` for a referenced answer; `kagi extract <url>` for full readable page content; `kagi summarize --subscriber --url <url>` for a gist; `kagi ask-page <url> "<q>"` for a question about one page. See the `kagi` skill for command routing, output formats, and auth; `kagi agent` is the version-matched in-CLI guide.
 - **Library / SDK / framework / API docs** → `ctx7`. `ctx7 library <name> "<question>"` to resolve, then `ctx7 docs <id> "<question>"`. Training data lags months; these don't.
 - **nixpkgs packages / NixOS, home-manager, darwin, nixvim options / flakes / channels / store paths** → the `mcp-nixos` MCP. Its `nix` tool covers search / info / stats / browse; `nix_versions` gives commit-accurate package history. Faster and more current than `nix search` or scraping search.nixos.org.
 
