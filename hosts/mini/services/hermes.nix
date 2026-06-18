@@ -40,13 +40,6 @@ in {
     enable = true;
     package = hermesAgentFixed;
 
-    settings = {
-      model = {
-        default = "deepseek/deepseek-v4-pro";
-        provider = "openrouter";
-      };
-    };
-
     addToSystemPackages = true;
     restart = "always";
     restartSec = 5;

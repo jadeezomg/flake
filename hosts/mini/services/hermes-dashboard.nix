@@ -61,7 +61,10 @@ in {
   };
 
   # Front door: tailnet TLS via the shared mini-proxy node, gated by basic_auth.
-  # Host→127.0.0.1 satisfies the dashboard's loopback Host guard.
+  # The dashboard trusts loopback and rejects non-loopback Host/Origin (DNS-rebinding
+  # + CORS guards), so we present the proxied request AS loopback: rewrite both Host
+  # and Origin to 127.0.0.1. flush_interval -1 disables buffering so the SSE event
+  # feed (/api/events) and the chat WebSockets (/api/ws, /api/pty) stream live.
   services.caddy.virtualHosts."hermes.jadee.fyi".extraConfig = ''
     import tsnet
     basic_auth {
@@ -69,6 +72,8 @@ in {
     }
     reverse_proxy 127.0.0.1:${toString port} {
       header_up Host 127.0.0.1
+      header_up Origin http://127.0.0.1
+      flush_interval -1
     }
   '';
 }
