@@ -50,9 +50,15 @@ in {
       pkgs.context7
     ];
 
-    # Pulls mautrix[encryption] so the bot can join E2EE rooms on the local
-    # continuwuity homeserver (services/matrix.nix).
-    extraDependencyGroups = ["matrix" "web"];
+    # - matrix: mautrix[encryption] so the bot can join E2EE rooms on the local
+    #   continuwuity homeserver (services/matrix.nix).
+    # - web: fastapi/uvicorn for the dashboard (services/hermes-dashboard.nix).
+    # - messaging: python-telegram-bot[webhooks] (+ discord/slack). Hermes
+    #   normally lazy-installs platform backends on first use, but the Nix store
+    #   is read-only so that fails silently ("Telegram: python-telegram-bot not
+    #   installed → No adapter available for telegram"). Declaring the group
+    #   builds the adapter in. Required for the Telegram connection to load.
+    extraDependencyGroups = ["matrix" "web" "messaging"];
 
     # Matrix bot, non-secret half. Connects over loopback (no TLS on-box) and
     # logs in by password (secret half in hermes.env below). MATRIX_DEVICE_ID is
