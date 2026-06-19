@@ -77,30 +77,6 @@ in {
       [ -e "$_m" ] && ${pkgs.coreutils}/bin/unlink "$_m" || true
     '';
   };
-
-  # ── Dashboard / gateway lifecycle: stop the crash-loop wedge ────────────────
-  # The dashboard runs as the same `hermes` user and, on connection changes /
-  # webhook+telegram onboarding / its restart button, shells out to
-  # `hermes gateway restart`. Hermes' restart only does the clean
-  # "SIGUSR1-and-let-the-supervisor-relaunch" dance when it RECOGNISES a systemd
-  # unit, found purely by file path: it looks for `${gatewayUnitName}.service`
-  # (hermes derives the name from $HERMES_HOME → "hermes-gateway"), NOT our
-  # module's `hermes-agent.service`. Not finding one, it falls through to
-  # spawning a *detached* `gateway run --replace` inside the dashboard's cgroup,
-  # which seizes the gateway lock and kills the systemd gateway — so the
-  # hermes-agent unit then crash-loops forever on "Gateway already running".
-  #
-  # Two-part fix:
-  # 1. Alias the unit to the name hermes looks for. Now `hermes gateway restart`
-  #    takes the systemd branch; since it's a SYSTEM unit and the dashboard is
-  #    non-root, hermes raises "requires root" and exits cleanly (see
-  #    `_require_root_for_system_service`) — it NEVER spawns. Wedge eliminated.
-  #    (Dashboard gateway start/stop/restart buttons therefore report a benign
-  #    "requires root" error; the gateway stays exclusively systemd-owned.)
-  # 2. A path unit applies what those buttons no longer can: when the dashboard
-  #    writes a new connection secret to `.env`, restart the one true gateway.
-  #    Safe from restart loops — the gateway only READS `.env` at startup, never
-  #    writes it (secrets are written only by dashboard/`hermes config set`).
   systemd.services.hermes-agent.aliases = ["hermes-gateway.service"];
 
   systemd.paths.hermes-agent-reload = {
