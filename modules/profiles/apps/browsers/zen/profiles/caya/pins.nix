@@ -4,15 +4,15 @@
 in {
   pinsForce = true;
   pins = {
-    "Google Drive messaged you - Chat" = {
+    "Caya GmbH Mail" = {
       id = "22b1fd3c-57f8-4984-9ef9-e8a26e396e4a";
-      url = "https://mail.google.com/mail/u/0/#inbox";
+      url = "https://mail.google.com/mail/u/0/#chat/home";
       isEssential = true;
       position = 101;
     };
-    "Caya GmbH - Calendar - Event details" = {
+    "Caya GmbH - Calendar - Week of June 15, 2026" = {
       id = "2fc017e6-0793-435b-a6b9-69fce452eb29";
-      url = "https://calendar.google.com/calendar/u/0/r";
+      url = "https://calendar.google.com/calendar/u/0/r/week/2026/6/15";
       isEssential = true;
       position = 102;
     };
@@ -24,23 +24,23 @@ in {
     };
     "PAM Dashboard · Dashboard · Metabase" = {
       id = "55d4921c-59db-4cec-ad03-cb21e5ae8ed5";
-      url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer&e-mail&id&tab=7-customer";
+      url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer=L%C3%BCbecker%20Hausverwaltung%20GmbH&e-mail&id&tab=7-customer";
       isEssential = true;
       position = 104;
     };
-    "Regex: Make GmbH Mandatory - Google Gemini" = {
+    "Google Gemini" = {
       id = "7b6cd970-509b-4b1a-87f8-6dcedda3ad92";
       url = "https://gemini.google.com/app";
       isEssential = true;
       position = 105;
     };
-    "[Custom] Stacked Integration | Projects | Caya Document Automation" = {
+    "[LIVE] Modified Email Upload - Jobs | Caya Document Automation" = {
       id = "7d00f1ba-b3d0-48a6-863d-dbadc14ef757";
-      url = "https://app.eu.workato.com/recipes/2046104-live-n26-s3-upload-with-metadata?query&started_at=30.days&status=failed&prev=false&group_by_master_job=true&offset_job_id=j-AaWXtJwg-NsDYHX-CE#jobs";
+      url = "https://app.eu.workato.com/recipes/1806621-live-modified-email-upload?query&started_at=30.days&prev=false&group_by_master_job=true#jobs";
       isEssential = true;
       position = 106;
     };
-    "Optional messages for change by jadeezomg · Pull Request #28 · AMN-DATA/ops-postal-forwarding-bot" = {
+    "Caya" = {
       id = "21f63058-e806-4b07-a023-90a85314ffa8";
       url = "https://github.com/AMN-DATA";
       isEssential = true;
@@ -64,9 +64,9 @@ in {
       isEssential = true;
       position = 110;
     };
-    "Appsmith" = {
+    "Applications | Appsmith" = {
       id = "c7fa1111-27e8-4c78-8872-ee645ce2a8a0";
-      url = "https://caya.appsmith.com/settings/provisioning";
+      url = "https://caya.appsmith.com/applications";
       isEssential = true;
       position = 111;
     };
@@ -375,7 +375,7 @@ in {
     };
     "Google" = {
       id = "bf59c022-cb5a-4e26-8cd4-13780b769242";
-      url = "https://drive.google.com/drive/my-drive";
+      url = "https://accounts.google.com/v3/signin/confirmidentifier?authuser=0&continue=https%3A%2F%2Fdrive.google.com%2Fdrive%2Fmy-drive&dsh=S-249093304%3A1781622623092133&followup=https%3A%2F%2Fdrive.google.com%2Fdrive%2Fmy-drive&osid=1&passive=1209600&service=wise&flowName=GlifWebSignIn&flowEntry=ServiceLogin&ifkv=AcDsRvywRu7s28LD1KkpWSGYDl4RULldNE5h6cea178U3pISleX6dQov6Pn5nJQ9ZMCkWB_VgpCs";
       workspace = spaces."Work".id;
       isEssential = false;
       position = 221;
