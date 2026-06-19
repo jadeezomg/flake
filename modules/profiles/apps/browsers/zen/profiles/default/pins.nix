@@ -10,7 +10,7 @@ in {
       isEssential = true;
       position = 101;
     };
-    "(2) YouTube" = {
+    "(9) YouTube" = {
       id = "9b78642f-0c6b-4caf-af02-9136b6363b5f";
       url = "https://www.youtube.com/";
       isEssential = true;
@@ -22,9 +22,9 @@ in {
       isEssential = true;
       position = 103;
     };
-    "jadee-server/Login" = {
-      id = "98dbc3e9-ee34-44a2-8d1a-5539fa7dea98";
-      url = "http://jadee-server/login";
+    "GitHub" = {
+      id = "3a024515-6733-42bc-b698-4982f30c2be6";
+      url = "https://github.com/";
       isEssential = true;
       position = 104;
     };
@@ -40,23 +40,35 @@ in {
       isEssential = true;
       position = 106;
     };
-    "GitHub" = {
-      id = "3a024515-6733-42bc-b698-4982f30c2be6";
-      url = "https://github.com/";
-      isEssential = true;
-      position = 107;
-    };
     "Le Chat" = {
       id = "f34e2ae1-20bc-4cd3-9ceb-f9b633fd67e2";
       url = "https://chat.mistral.ai/chat";
       isEssential = true;
+      position = 107;
+    };
+    "jadee-server/Login" = {
+      id = "98dbc3e9-ee34-44a2-8d1a-5539fa7dea98";
+      url = "http://jadee-server/login";
+      isEssential = true;
       position = 108;
     };
-    "Hermes Agent - Dashboard" = {
-      id = "45834ea5-0d12-4136-90cf-4c248b015bf5";
-      url = "https://hermes.jadee.fyi/sessions";
+    "Cinny | Site" = {
+      id = "acd60e5b-e366-4d3b-923e-f136240146d8";
+      url = "https://cinny.in/";
       isEssential = true;
       position = 109;
+    };
+    "Hermes Agent - Dashboard" = {
+      id = "05f3ae1b-e6d9-493c-9d96-82b6a9fdd8ee";
+      url = "https://hermes.jadee.fyi/sessions";
+      isEssential = true;
+      position = 110;
+    };
+    "All Systems / Beszel" = {
+      id = "37f38f75-dd77-4669-845d-016505050dd3";
+      url = "https://beszel.jadee.fyi/";
+      isEssential = true;
+      position = 111;
     };
     "Hosting" = {
       id = "{1781804380368-15}";
@@ -105,7 +117,7 @@ in {
       position = 202;
     };
     "Open WebUI" = {
-      id = "bc4fe8ff-155b-4cd2-a4c7-dd511340933d";
+      id = "7ed6893c-7d52-4493-b74a-81d1fccd40a5";
       url = "https://chat.jadee.fyi/";
       workspace = spaces."Development".id;
       isEssential = false;
@@ -128,7 +140,7 @@ in {
       folderParentId = "{1781804380368-15}";
     };
     "Cloudflare" = {
-      id = "3164013a-bfa2-4f51-aac3-538520e657b7";
+      id = "dea65fe2-aca7-43e6-80f3-66cb8c4d0700";
       url = "https://dash.cloudflare.com/?to=%2F%3Aaccount%2Fregistrar%2Fregister%2Fcheckout%2FeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb21haW4iOiJqYWRlZS5meWkiLCJpYXQiOjE3NDMyNjQxNzV9.Q3jeCws--S7Nu2MfntaX45NQ6M4f_ZSfSsh1R9eEW8s";
       workspace = spaces."Development".id;
       isEssential = false;
@@ -181,7 +193,7 @@ in {
       isEssential = false;
       position = 212;
     };
-    "hhv" = {
+    "HHV Clothing" = {
       id = "a173efd9-49cc-467d-938b-4f3a0d0a9328";
       url = "https://www.hhv.de/en-DE-EUR-us/clothing";
       workspace = spaces."Shopping".id;
@@ -290,7 +302,7 @@ in {
       isEssential = false;
       position = 226;
     };
-    "Github_1" = {
+    "Github" = {
       id = "ec56b7ed-f746-4f38-b62e-024f0656f39c";
       url = "https://github.com/AvengeMedia/DankMaterialShell?tab=readme-ov-file";
       workspace = spaces."Themes".id;
