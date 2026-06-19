@@ -56,10 +56,6 @@ in {
   sops.secrets.matrix_hermes_password.key = "matrix/hermes_password";
   sops.secrets.matrix_hermes_access_token.key = "matrix/hermes_access_token";
   sops.secrets.matrix_hermes_recovery_key.key = "matrix/hermes_recovery_key";
-  # Telegram connection secrets. These used to be written directly into .env by the
-  # dashboard/CLI on first connect, but `flake switch` regenerates .env from this template
-  # and wiped them ("[Telegram] No bot token configured" → telegram failed to connect).
-  # Sourcing them from sops here keeps the bot binding alive across switches.
   sops.secrets.telegram_bot_token.key = "telegram/bot_token";
   sops.secrets.telegram_allowed_users.key = "telegram/allowed_users";
   sops.secrets.telegram_home_channel.key = "telegram/home_channel";
