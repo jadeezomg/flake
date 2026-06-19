@@ -2,6 +2,7 @@
   inputs,
   lib,
   pkgs,
+  pkgs-stable,
   ...
 }: let
   extensions = import ./extensions.nix {inherit pkgs lib;};
@@ -46,7 +47,9 @@ in {
 
   programs.zen-browser = {
     enable = true;
-    nativeMessagingHosts = lib.optionals pkgs.stdenv.isLinux [pkgs.firefoxpwa];
+    # firefoxpwa embeds a full firefox runtime; pull it from stable so we
+    # substitute a cached firefox instead of building unstable's from source.
+    nativeMessagingHosts = lib.optionals pkgs.stdenv.isLinux [pkgs-stable.firefoxpwa];
     darwinDefaultsId = lib.mkIf (!pkgs.stdenv.isLinux) "com.zen.browser";
 
     inherit policies;
