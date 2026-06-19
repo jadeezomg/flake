@@ -5,18 +5,6 @@
   inputs,
   ...
 }: let
-  # ── hermes-agent npmDepsHash workaround ─────────────────────────────────
-  # Upstream hermes-agent ships a stale `npmDepsHash` in nix/lib.nix (verified
-  # against every rev incl. HEAD on 2026-06-18): it pins
-  #   sha256-m9cjbjzi4SaFCjODfdrawS5e+1ag+MpRn528/upSNqo=
-  # but `fetchNpmDeps` on the committed package-lock.json deterministically
-  # produces sha256-kbjJ… (invariant across 3 nixpkgs revs + 2 source revs).
-  # The bundled hermes-tui build therefore dies with a fixed-output hash
-  # mismatch. The hash is a hardcoded literal with no override seam, so we
-  # rebuild the package from a hash-patched source — mirroring upstream's own
-  # overlays.default (callPackage ./hermes-agent.nix wired with the flake's
-  # own inputs) with the single literal corrected. Drop this once upstream
-  # ships a correct hash (then `services.hermes-agent.package` can be removed).
   system = pkgs.stdenv.hostPlatform.system;
   hermesSrc = inputs.hermes-agent;
   haInputs = hermesSrc.inputs;
@@ -50,20 +38,8 @@ in {
       pkgs.context7
     ];
 
-    # - matrix: mautrix[encryption] so the bot can join E2EE rooms on the local
-    #   continuwuity homeserver (services/matrix.nix).
-    # - web: fastapi/uvicorn for the dashboard (services/hermes-dashboard.nix).
-    # - messaging: python-telegram-bot[webhooks] (+ discord/slack). Hermes
-    #   normally lazy-installs platform backends on first use, but the Nix store
-    #   is read-only so that fails silently ("Telegram: python-telegram-bot not
-    #   installed → No adapter available for telegram"). Declaring the group
-    #   builds the adapter in. Required for the Telegram connection to load.
-    extraDependencyGroups = ["matrix" "web" "messaging"];
+    extraDependencyGroups = ["matrix" "web" "messaging" "mcp" "honcho" "edge-tts"];
 
-    # Matrix bot, non-secret half. Connects over loopback (no TLS on-box) and
-    # logs in by password (secret half in hermes.env below). MATRIX_DEVICE_ID is
-    # fixed so E2EE keys persist across restarts. The @hermes account is a
-    # one-time bootstrap — see services/matrix.nix.
     environment = {
       MATRIX_HOMESERVER = "http://127.0.0.1:6167";
       MATRIX_USER_ID = "@hermes:matrix.jadee.fyi";
@@ -92,17 +68,7 @@ in {
     '';
   };
 
-  # ── Un-manage: let the dashboard/CLI write config.yaml ──────────────────────
-  # hermes' save_config() no-ops when is_managed() — which is true if HERMES_MANAGED
-  # is truthy OR a `.managed` marker exists in HERMES_HOME. The upstream module sets
-  # both, making config read-only outside Nix. We deliberately turn that off so the
-  # dashboard can persist settings. The activation script still deep-merges the Nix
-  # `settings` above into config.yaml on every switch (Nix keys win, everything else
-  # is preserved) — so declared keys (model, …) stay declarative and the rest is
-  # dashboard-editable. Keep `settings` minimal to maximize what the UI can own.
   systemd.services.hermes-agent.environment.HERMES_MANAGED = lib.mkForce "";
-
-  # Remove the marker the module re-touches each switch (runs after its setup).
   system.activationScripts.hermes-unmanage = {
     deps = ["hermes-agent-setup"];
     text = ''
