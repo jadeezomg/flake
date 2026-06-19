@@ -9,17 +9,7 @@
   hermesSrc = inputs.hermes-agent;
   haInputs = hermesSrc.inputs;
 
-  staleNpmDepsHash = "sha256-m9cjbjzi4SaFCjODfdrawS5e+1ag+MpRn528/upSNqo=";
-  realNpmDepsHash = "sha256-kbjJksq7limRIYqP3DwI+GNgCXkG96tXcsQqmuEedxo=";
-
-  hermesSrcPatched = pkgs.runCommand "hermes-agent-src-npmhash-fix" {} ''
-    cp -r ${hermesSrc} $out
-    chmod -R +w $out
-    substituteInPlace $out/nix/lib.nix \
-      --replace-fail '${staleNpmDepsHash}' '${realNpmDepsHash}'
-  '';
-
-  hermesAgentFixed = pkgs.callPackage "${hermesSrcPatched}/nix/hermes-agent.nix" {
+  hermesAgent = pkgs.callPackage "${hermesSrc}/nix/hermes-agent.nix" {
     inherit (haInputs) uv2nix pyproject-nix pyproject-build-systems;
     npm-lockfile-fix = haInputs.npm-lockfile-fix.packages.${system}.default;
     rev = hermesSrc.rev or null;
@@ -27,7 +17,7 @@
 in {
   services.hermes-agent = {
     enable = true;
-    package = hermesAgentFixed;
+    package = hermesAgent;
 
     addToSystemPackages = true;
     restart = "always";
