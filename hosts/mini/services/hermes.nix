@@ -30,6 +30,11 @@ in {
 
     extraDependencyGroups = ["matrix" "web" "messaging" "mcp" "honcho" "edge-tts"];
 
+    # Matrix bot, non-secret half (connects over loopback, no TLS on-box). Auth is by
+    # ACCESS TOKEN (MATRIX_ACCESS_TOKEN in hermes.env), not password: password login
+    # re-logs in on every restart and rotates the device's identity key, which breaks
+    # E2EE one-time keys and cross-signing. Token keeps the device stable. MATRIX_DEVICE_ID
+    # is pinned so the cross-signed device + E2EE crypto store persist across restarts.
     environment = {
       MATRIX_HOMESERVER = "http://127.0.0.1:6167";
       MATRIX_USER_ID = "@hermes:matrix.jadee.fyi";
@@ -45,7 +50,12 @@ in {
   sops.secrets.hf_token = {};
   sops.secrets.kagi_session_token.key = "kagi/session_token";
   sops.secrets.context7_api_key = {};
+  # Matrix auth is access-token based (see the `environment` note above). The password
+  # secret is kept declared (break-glass: used once to mint the token / re-bootstrap via
+  # docs/hosts/mini-matrix-hermes-setup.md) but is intentionally NOT put in the env.
   sops.secrets.matrix_hermes_password.key = "matrix/hermes_password";
+  sops.secrets.matrix_hermes_access_token.key = "matrix/hermes_access_token";
+  sops.secrets.matrix_hermes_recovery_key.key = "matrix/hermes_recovery_key";
   sops.templates."hermes.env" = {
     mode = "0400";
     content = ''
@@ -54,7 +64,8 @@ in {
       HF_TOKEN=${config.sops.placeholder.hf_token}
       KAGI_SESSION_TOKEN=${config.sops.placeholder.kagi_session_token}
       CONTEXT7_API_KEY=${config.sops.placeholder.context7_api_key}
-      MATRIX_PASSWORD=${config.sops.placeholder.matrix_hermes_password}
+      MATRIX_ACCESS_TOKEN=${config.sops.placeholder.matrix_hermes_access_token}
+      MATRIX_RECOVERY_KEY=${config.sops.placeholder.matrix_hermes_recovery_key}
     '';
   };
 
