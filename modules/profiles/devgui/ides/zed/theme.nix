@@ -1,8 +1,12 @@
 {
+  dotfilesLib,
   lib,
   pkgs,
   ...
-}: {
+}: let
+  # Comment color tracks the palette's line-highlight (lib/theme-palette.nix).
+  commentColor = dotfilesLib.palette.line-highlight;
+in {
   # Workarounds for zed + stylix:
   # - force unsupported `appearance: "unspecified"` to `"dark"` (stylix #2267)
   # - main background at d0 (slightly transparent), other surfaces at 50.
@@ -44,6 +48,7 @@
               | ."status_bar.background"     |= with_alpha("c0")
               | ."toolbar.background"        |= with_alpha("d0")
               | ."background.appearance"    = "blurred"
+              | .syntax.comment.color        = "${commentColor}"
 
             )
           else .
