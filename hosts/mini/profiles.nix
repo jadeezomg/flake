@@ -19,7 +19,5 @@
     gaming.enable = false;
     work.enable = false;
     devenv.languages.swift.enable = false;
-    # The generic LLM serving stack (dotfiles.profiles.llm) defaults off and
-    # stays off here — mini serves via the ./services/llm/ host modules.
   };
 }
