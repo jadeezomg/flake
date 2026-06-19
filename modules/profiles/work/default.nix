@@ -16,6 +16,7 @@ in {
       pkgs.postman
       pkgs.gws
       pkgs.workato-platform-cli
+      pkgs.mise
     ];
   };
 }
