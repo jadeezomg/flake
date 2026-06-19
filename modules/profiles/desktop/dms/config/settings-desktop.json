@@ -358,6 +358,13 @@
 	"batteryProfileName": "",
 	"batteryPostLockMonitorTimeout": 0,
 	"batteryChargeLimit": 100,
+	"batteryNotifyChargeLimit": false,
+	"batteryCriticalThreshold": 10,
+	"batteryNotifyCritical": true,
+	"batteryLowThreshold": 20,
+	"batteryNotifyLow": false,
+	"batteryNotificationType": 0,
+	"batteryAutoPowerSaver": false,
 	"lockBeforeSuspend": false,
 	"loginctlLockIntegration": true,
 	"fadeToLockEnabled": true,
@@ -537,7 +544,8 @@
 	"niriOutputSettings": {
 		"DP-2": {
 			"focusAtStartup": true,
-			"layout": null
+			"layout": null,
+			"vrrOnDemand": true
 		},
 		"HDMI-A-2": {
 			"layout": {
@@ -551,7 +559,8 @@
 						"value": 1
 					}
 				]
-			}
+			},
+			"vrrOnDemand": true
 		}
 	},
 	"hyprlandOutputSettings": {},
@@ -882,6 +891,8 @@
 		}
 	},
 	"clipboardEnterToPaste": true,
+	"clipboardRememberTypeFilter": false,
+	"clipboardTypeFilter": "all",
 	"clipboardVisibleEntryActions": ["pin", "edit", "delete"],
 	"launcherPluginVisibility": {},
 	"launcherPluginOrder": [],
