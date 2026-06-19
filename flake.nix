@@ -86,6 +86,13 @@
       url = "github:mattpocock/skills";
       flake = false;
     };
+    # TUI code-review tool for AI-generated diffs (not in nixpkgs). Surfaced as
+    # `pkgs.hunk` by parts/overlays/flake-packages.nix. Built via bun2nix; cached
+    # at nix-community.cachix.org (already a trusted substituter).
+    hunk = {
+      url = "github:modem-dev/hunk";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Intel XPU vLLM — add `nixosModules.default` + overlay (see upstream
     # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).

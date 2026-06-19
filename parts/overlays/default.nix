@@ -12,6 +12,8 @@ in
     # `{pkgs, lib}` and standard-nixpkgs `callPackage` signatures, with
     # per-package system gates inside the overlay).
     (import ./local-packages.nix {inherit lib system;})
+    # Surface external flake-input packages (e.g. `hunk`) as `pkgs.<name>`.
+    (import ./flake-packages.nix {inherit inputs system;})
     (import ./direnv-skip-check-darwin.nix {inherit system;})
     (import ./nono-skip-check-darwin.nix {inherit system;})
     (import ./python-package-fixes.nix)
