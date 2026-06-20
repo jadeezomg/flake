@@ -33,6 +33,38 @@ output "HDMI-A-2" {
     }
 }
 
+output "HDMI-A-1" {
+    // mode "3840x2160@60.000"
+    // scale 1.3
+    // transform "90"
+    // position x=0 y=0
+
+    layout {
+        preset-window-heights {
+            proportion 0.315
+            proportion 0.5
+            proportion 0.685
+        }
+        default-column-width {
+            proportion 1.0
+        }
+        preset-column-widths {
+            proportion 0.5
+            proportion 1.0
+        }
+        struts {
+            left 0
+            right 0
+            top 15
+            bottom 25
+        }
+    }
+    hot-corners {
+        top-right
+        top-left
+    }
+}
+
 output "DP-2" {
     // mode "2560x1440@165.000"
     // scale 1
