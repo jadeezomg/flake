@@ -7,8 +7,6 @@
 }: let
   cfg = config.dotfiles.profiles.work;
 in {
-  # HM configs for apps installed by the casks below (alt-tab, notunes, …),
-  # plus mise shell integration (mise is a brew, installed in default.nix).
   home-manager.sharedModules = lib.mkIf cfg.enable [
     ./brew-casks
     ./mise-shell.nix

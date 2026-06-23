@@ -17,7 +17,7 @@ pkgs.buildNpmPackage {
     cp ${./package-lock.json} package-lock.json
   '';
 
-  npmDepsHash = "sha256-gsgVHvk5u4+QroJSIPQMW7oHCxiVPN7lt6FtPrhJUzQ=";
+  npmDepsHash = "sha256-+Xgi8F8Tbo1e0YBWSpRO02qHOqxXZRCP3baonJZHJlw=";
 
   dontNpmBuild = true;
 
