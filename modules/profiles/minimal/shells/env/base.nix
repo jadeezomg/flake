@@ -1,5 +1,6 @@
 {
   dotfilesLib,
+  config,
   lib,
   ...
 }: let
@@ -16,6 +17,15 @@
   ];
 
   basePathColon = lib.concatStringsSep ":" basePathList;
+
+  # nushell doesn't expand `$HOME`/`$USER` in string literals (unlike the
+  # bash/zsh double-quoted exports and fish_add_path args below), so resolve the
+  # placeholders at eval time before they hit the nushell PATH list — otherwise
+  # entries like `/etc/profiles/per-user/$USER/bin` land verbatim and the real
+  # per-user profile (where e.g. atuin lives) is missing from a nushell launched
+  # without a zsh ancestor. Mirrors the `expand` in essentials/shell-system-env.nix.
+  expand = lib.replaceStrings ["$HOME" "$USER"] [config.home.homeDirectory config.home.username];
+  nushellBasePathList = map expand basePathList;
 
   exportLines =
     lib.concatStringsSep "\n"
@@ -53,7 +63,7 @@ in {
   programs.nushell.extraEnv = lib.mkBefore ''
     ${nushellSetLines}
     $env.PATH = ($env.PATH | split row (char esep) | prepend [
-      ${lib.concatMapStringsSep "\n      " (p: "\"${p}\"") basePathList}
+      ${lib.concatMapStringsSep "\n      " (p: "\"${p}\"") nushellBasePathList}
     ])
   '';
 }
