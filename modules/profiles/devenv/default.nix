@@ -38,8 +38,8 @@ in {
   # (e.g. `devenv.languages.swift.enable = false;`) without losing the
   # meta-flag.
   config = lib.mkIf cfg.enable {
-    # HM dev tooling without its own category (biome config).
-    home-manager.sharedModules = [./biome.nix];
+    # HM dev tooling without its own category (biome config, gh CLI config).
+    home-manager.sharedModules = [./biome.nix ./gh];
 
     dotfiles.profiles.devenv = {
       tools.enable = lib.mkDefault true;
