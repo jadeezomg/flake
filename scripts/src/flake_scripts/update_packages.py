@@ -2,8 +2,8 @@
 
 Custom handlers cover package sources `nix-update` cannot resolve directly:
 npm registry tarballs, GitHub releases with npm lock regeneration, and
-prebuilt binary release channels. `github_npm` may patch git+ssh lockfile
-entries so `buildNpmPackage` can resolve them in the Nix sandbox.
+platform-agnostic release zips (`fetchzip`), and prebuilt binary release channels.
+`github_npm` may patch git+ssh lockfile entries so `buildNpmPackage` can resolve them in the Nix sandbox.
 """
 
 import base64
@@ -14,6 +14,7 @@ import shutil
 import ssl
 import subprocess
 import sys
+import threading
 import time
 import tarfile
 import tempfile
@@ -38,6 +39,9 @@ from rich.progress import (
 from flake_scripts.lib.common import console, resolve_flake_root
 
 _SSL = ssl.create_default_context(cafile=certifi.where())
+
+# `nix-update --flake` evaluates the whole flake; parallel runs race on inputs/git.
+_NIX_UPDATE_LOCK = threading.Lock()
 
 # Skip registry/GitHub fetches if we checked this package recently (per-machine state).
 COOLDOWN_DEFAULT_SEC = 3600
@@ -236,6 +240,30 @@ def validate_update_metadata(
         _require_default_attr(
             pkg_name, nix_text, "npm_deps_hash_field", meta["npm_deps_hash_field"]
         )
+        return
+
+    if handler_type == "fetchzip":
+        _require_fields(pkg_name, meta, ["version_url", "url_template"])
+        for field in ["version_url", "url_template"]:
+            _require_text_field(pkg_name, meta, field)
+        if "{version}" not in meta["url_template"]:
+            raise ValueError(
+                f"{pkg_name}: update.json field 'url_template' must include {{version}}"
+            )
+        if "version_jsonpath" in meta:
+            _require_text_field(pkg_name, meta, "version_jsonpath")
+        if "version_strip_prefix" in meta and not isinstance(
+            meta["version_strip_prefix"], str
+        ):
+            raise ValueError(
+                f"{pkg_name}: update.json field 'version_strip_prefix' must be a string"
+            )
+        hash_field = meta.get("hash_field", "sha256")
+        if not isinstance(hash_field, str) or not hash_field:
+            raise ValueError(
+                f"{pkg_name}: update.json field 'hash_field' must be a non-empty string"
+            )
+        _require_default_attr(pkg_name, nix_text, "hash_field", hash_field)
         return
 
     if handler_type == "binary_channel":
@@ -546,18 +574,10 @@ def _prefetch_file_hash(url: str) -> str:
         return _file_sri(out)
 
 
-def _handle_binary_channel(
-    meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
-) -> tuple[str, dict]:
-    """Generic binary updater with version endpoint and URL template.
-
-    Short-circuits on matching versions so no-op runs do not re-download large
-    release assets just to rediscover unchanged hashes.
-    """
-    status("fetching latest version")
+def _resolve_latest_version(meta: dict[str, Any]) -> str:
     if "version_jsonpath" in meta:
         data = _fetch_json(meta["version_url"])
-        new_version = data
+        new_version: Any = data
         for segment in str(meta["version_jsonpath"]).split("."):
             new_version = new_version[segment]
         new_version = str(new_version)
@@ -567,7 +587,43 @@ def _handle_binary_channel(
     prefix = meta.get("version_strip_prefix")
     if prefix and new_version.startswith(prefix):
         new_version = new_version[len(prefix) :]
+    return new_version
 
+
+def _prefetch_fetchzip_hash(url: str) -> str:
+    proc = subprocess.run(
+        ["nix", "store", "prefetch-file", "--unpack", "--json", url],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return json.loads(proc.stdout)["hash"]
+
+
+def _handle_fetchzip(
+    meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
+) -> tuple[str, dict]:
+    status("fetching latest version")
+    new_version = _resolve_latest_version(meta)
+    if new_version == current_version:
+        return new_version, {}
+
+    hash_field = meta.get("hash_field", "sha256")
+    url = meta["url_template"].format(version=new_version)
+    status("prefetching release zip")
+    return new_version, {hash_field: _prefetch_fetchzip_hash(url)}
+
+
+def _handle_binary_channel(
+    meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
+) -> tuple[str, dict]:
+    """Generic binary updater with version endpoint and URL template.
+
+    Short-circuits on matching versions so no-op runs do not re-download large
+    release assets just to rediscover unchanged hashes.
+    """
+    status("fetching latest version")
+    new_version = _resolve_latest_version(meta)
     if new_version == current_version:
         return new_version, {}
 
@@ -582,6 +638,7 @@ def _handle_binary_channel(
 
 _HANDLERS = {
     "binary_channel": _handle_binary_channel,
+    "fetchzip": _handle_fetchzip,
     "npm": _handle_npm,
     "github_npm": _handle_github_npm,
 }
@@ -612,15 +669,16 @@ def _handle_nix_update_self(
 
     status("running nix-update")
     cmd = _nix_update_cmd(flake_root, ["--flake", *extra, attr])
-    proc = subprocess.run(
-        cmd,
-        cwd=flake_root,
-        capture_output=True,
-        text=True,
-    )
-    if proc.returncode != 0:
-        msg = proc.stderr.strip() or proc.stdout.strip() or "nix-update failed"
-        raise RuntimeError(msg)
+    with _NIX_UPDATE_LOCK:
+        proc = subprocess.run(
+            cmd,
+            cwd=flake_root,
+            capture_output=True,
+            text=True,
+        )
+        if proc.returncode != 0:
+            msg = proc.stderr.strip() or proc.stdout.strip() or "nix-update failed"
+            raise RuntimeError(msg)
 
     nix_text_after = (pkg_dir / "default.nix").read_text()
     new_version = _current_version(nix_text_after)
