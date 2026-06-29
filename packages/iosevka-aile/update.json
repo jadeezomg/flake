@@ -1,3 +1,8 @@
 {
-	"type": "nix-update"
+	"type": "fetchzip",
+	"version_url": "https://api.github.com/repos/be5invis/Iosevka/releases/latest",
+	"version_jsonpath": "tag_name",
+	"version_strip_prefix": "v",
+	"url_template": "https://github.com/be5invis/Iosevka/releases/download/v{version}/PkgTTC-IosevkaAile-{version}.zip",
+	"hash_field": "sha256"
 }
