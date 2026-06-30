@@ -16,6 +16,7 @@ in
     (import ./flake-packages.nix {inherit inputs system;})
     (import ./direnv-skip-check-darwin.nix {inherit system;})
     (import ./nono-skip-check-darwin.nix {inherit system;})
+    (import ./podman-platforms-darwin.nix {inherit system;})
     (import ./python-package-fixes.nix)
   ]
   ++ (
