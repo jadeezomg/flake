@@ -1,7 +1,6 @@
 {pkgs, ...}: {
-  programs.vscode = {
+  programs.cursor = {
     enable = true;
-    package = pkgs.code-cursor;
     mutableExtensionsDir = false;
     profiles.default = {
       extensions = with pkgs.vscode-extensions;
