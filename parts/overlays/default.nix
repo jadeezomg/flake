@@ -14,7 +14,6 @@ in
     (import ./local-packages.nix {inherit lib system;})
     # Surface external flake-input packages (e.g. `hunk`) as `pkgs.<name>`.
     (import ./flake-packages.nix {inherit inputs system;})
-    (import ./vscode-langservers-node-esm.nix)
     (import ./direnv-skip-check-darwin.nix {inherit system;})
     (import ./nono-skip-check-darwin.nix {inherit system;})
     (import ./python-package-fixes.nix)
