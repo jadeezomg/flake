@@ -1,4 +1,14 @@
-{...}: {
+{
+  lib,
+  pkgs,
+  ...
+}: let
+  vls = pkgs.vscode-langservers-extracted;
+  vscodeLangServer = name: {
+    binary.path = lib.getExe' vls name;
+    binary.arguments = ["--stdio"];
+  };
+in {
   programs.zed-editor = {
     userSettings = {
       languages = {
@@ -100,6 +110,11 @@
           binary.arguments = ["lsp-proxy"];
           settings = {};
         };
+
+        # Pin VSCodium-extracted servers from pkgs (avoid stale 4.x on PATH / in Zed).
+        "json-language-server" = vscodeLangServer "vscode-json-language-server";
+        "html-language-server" = vscodeLangServer "vscode-html-language-server";
+        "css-language-server" = vscodeLangServer "vscode-css-language-server";
       };
     };
   };
