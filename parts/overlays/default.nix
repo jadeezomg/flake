@@ -17,6 +17,7 @@ in
     (import ./vscode-langservers-node-esm.nix)
     (import ./direnv-skip-check-darwin.nix {inherit system;})
     (import ./nono-skip-check-darwin.nix {inherit system;})
+    (import ./podman-platforms-darwin.nix {inherit system;})
     (import ./python-package-fixes.nix)
   ]
   ++ (

@@ -120,6 +120,22 @@ def _npm_deps_hash(lock_file: Path) -> str:
     ).stdout.strip()
 
 
+# npm/github_npm handlers run in parallel; the first `nix run nixpkgs#...` per
+# machine must resolve + unpack the nixpkgs flake into the Git cache. Concurrent
+# cold-cache invocations race on that and fail. Warming the tool once serializes it.
+_NPM_HANDLER_TYPES = {"npm", "github_npm"}
+
+
+def _warm_prefetch_tool() -> None:
+    """Build nixpkgs#prefetch-npm-deps once so parallel handlers hit a warm cache."""
+    subprocess.run(
+        ["nix", "build", "--no-link", "nixpkgs#prefetch-npm-deps"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
 def _replace_attr_once(path: Path, field: str, value: str) -> None:
     """Set `field = "value"` on the first matching line (optional indent). Fails if not found."""
     text = path.read_text()
@@ -808,6 +824,15 @@ def main(args: list[str] | None = None) -> None:
 
     changed: list[str] = []
     failed = False
+
+    # Warm the npm prefetch tool before fanning out so concurrent cold-cache
+    # `nix run nixpkgs#prefetch-npm-deps` calls don't race on flake resolution.
+    if any(
+        json.loads((p / "update.json").read_text()).get("type") in _NPM_HANDLER_TYPES
+        for p in targets
+    ):
+        console.print("[dim]warming nixpkgs#prefetch-npm-deps…[/]")
+        _warm_prefetch_tool()
 
     with Progress(
         SpinnerColumn(finished_text=" "),
