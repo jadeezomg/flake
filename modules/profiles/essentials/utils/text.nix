@@ -8,14 +8,20 @@
         "--layout=reverse"
         "--border"
       ];
-      fileWidgetCommand = "fd --type f";
-      fileWidgetOptions = [
-        "--preview='bat --color=always --style=plain {}'"
-      ];
-      changeDirWidgetCommand = "fd --type d";
-      changeDirWidgetOptions = [
-        "--preview='tree -C {} | head -40'"
-      ];
+      fileWidget = {
+        command = "fd --type f";
+        options = [
+          "--preview='bat --color=always --style=plain {}'"
+        ];
+      };
+      changeDirWidget = {
+        command = "fd --type d";
+        options = [
+          "--preview='tree -C {} | head -40'"
+        ];
+      };
+      # Atuin owns Ctrl-R; silence HM conflict warning.
+      historyWidget.command = "";
     };
   };
   # https://discourse.nixos.org/t/slow-build-at-building-man-cache/52365/7
