@@ -516,6 +516,14 @@ update:
     #!/usr/bin/env bash
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
+    # nix's libgit2 tarball-cache opens many fds while fetching the input tree;
+    # macOS's default soft limit (256) triggers EMFILE on `nix flake update`.
+    # Raise soft fd limit to the per-process ceiling (macOS) or hard limit (Linux).
+    if maxfd=$(sysctl -n kern.maxfilesperproc 2>/dev/null); then
+      ulimit -Sn "$maxfd" 2>/dev/null || true
+    else
+      ulimit -Sn "$(ulimit -Hn)" 2>/dev/null || true
+    fi
     print_header "UPDATE"
     print_pending "update-packages  updating custom flake packages..."
     up=()
