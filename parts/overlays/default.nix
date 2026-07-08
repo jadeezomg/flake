@@ -16,6 +16,7 @@ in
     (import ./flake-packages.nix {inherit inputs system;})
     (import ./vscode-langservers-node-esm.nix)
     (import ./direnv-skip-check-darwin.nix {inherit system;})
+    (import ./zed-pinned-darwin.nix {inherit inputs system;})
     (import ./nono-skip-check-darwin.nix {inherit system;})
     (import ./podman-platforms-darwin.nix {inherit system;})
     (import ./python-package-fixes.nix)
