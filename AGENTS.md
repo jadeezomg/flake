@@ -17,6 +17,7 @@ Single-flake, multi-host NixOS/Darwin dotfiles for `desktop`, `framework`, `caya
 ## Local hazards
 
 - Use `flake` recipes; do not run bare `nixos-rebuild`, `home-manager switch`, or `nh` directly.
+- Never run build/switch commands yourself (`just build*`, `just switch`, or anything that evaluates/builds the system). Ask the user to run them and report back the output.
 - Verify packages with live nixpkgs tooling before adding them; check cache availability for costly packages.
 - Run `flake fmt` after editing `.nix` files.
 - Run `git add` before Nix eval/build; flakes only see tracked files.
