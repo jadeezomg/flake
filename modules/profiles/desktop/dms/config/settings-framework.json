@@ -594,7 +594,9 @@
 	"showOnLastDisplay": {
 		"osd": false
 	},
-	"niriOutputSettings": {},
+	"niriOutputSettings": {
+		"eDP-1": {}
+	},
 	"hyprlandOutputSettings": {},
 	"displayProfiles": {},
 	"activeDisplayProfile": {
