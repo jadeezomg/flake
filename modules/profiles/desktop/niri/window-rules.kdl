@@ -84,6 +84,7 @@ layer-rule {
     match namespace="^dms:"
     // match namespace="^dms:bar$"
     match namespace="^dms:app-launcher$"
+    match namespace="vicinae"
 
     background-effect {
         xray false
@@ -156,5 +157,9 @@ window-rule {
 window-rule {
     match app-id=r#"org.quickshell$"#
     match app-id=r#"com.danklinux.dms"#
+    match app-id=r#"vicinae"#
     open-floating true
+    background-effect {
+        xray false
+    }
 }
