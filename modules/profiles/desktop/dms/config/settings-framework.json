@@ -67,6 +67,8 @@
 	"wallpaperFillMode": "Fill",
 	"blurredWallpaperLayer": false,
 	"blurWallpaperOnOverview": false,
+	"wallpaperBackgroundColorMode": "black",
+	"wallpaperBackgroundCustomColor": "#000000",
 	"showLauncherButton": true,
 	"showWorkspaceSwitcher": true,
 	"showFocusedWindow": true,
@@ -86,6 +88,10 @@
 	"showClock": true,
 	"showNotificationButton": true,
 	"showBattery": true,
+	"showBatteryPercent": true,
+	"showBatteryPercentOnlyOnBattery": false,
+	"showBatteryTime": false,
+	"showBatteryTimeOnlyOnBattery": false,
 	"showControlCenterButton": true,
 	"showCapsLockIndicator": true,
 	"controlCenterShowNetworkIcon": true,
@@ -279,6 +285,7 @@
 	"appDrawerSectionViewModes": {},
 	"niriOverviewOverlayEnabled": true,
 	"dankLauncherV2Size": "compact",
+	"dankLauncherV2ShowSourceBadges": true,
 	"dankLauncherV2BorderEnabled": false,
 	"dankLauncherV2BorderThickness": 2,
 	"dankLauncherV2BorderColor": "primary",
@@ -293,7 +300,10 @@
 	"useAutoLocation": true,
 	"weatherEnabled": true,
 	"networkPreference": "wifi",
-	"iconTheme": "System Default",
+	"iconThemeDark": "System Default",
+	"iconThemeLight": "System Default",
+	"iconThemePerMode": false,
+	"lastAppliedIconTheme": "",
 	"cursorSettings": {
 		"theme": "phinger-cursors-dark",
 		"size": 24,
@@ -757,6 +767,7 @@
 			"trigger": "?"
 		}
 	},
+	"clipboardClickToPaste": false,
 	"clipboardEnterToPaste": false,
 	"clipboardRememberTypeFilter": false,
 	"clipboardTypeFilter": "all",
@@ -776,5 +787,8 @@
 	"frameLauncherEmergeSide": "top",
 	"frameLauncherArcExtender": false,
 	"frameMode": "connected",
+	"barInsetPaddingShared": -1,
+	"barInsetPaddingSyncAll": false,
+	"frameBarInsetPadding": -1,
 	"configVersion": 11
 }
