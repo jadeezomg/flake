@@ -34,4 +34,3 @@ output "eDP-1" {
     // automatically.
     position x=1440 y=0
 }
-

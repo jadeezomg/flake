@@ -4,7 +4,7 @@
     find = "fd";
     grep = "rg";
 
-    ls = "eza --icons -l --git";
+    ll = "eza --icons -l --git";
     l2 = "eza --icons -l -T -L=2";
     l3 = "eza --icons -l -T -L=3";
     llt = "eza --icons -T";
