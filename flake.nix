@@ -57,6 +57,7 @@
         home-manager.follows = "home-manager";
       };
     };
+    vicinae.url = "github:vicinaehq/vicinae";
 
     # --- macOS / Homebrew ---
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";

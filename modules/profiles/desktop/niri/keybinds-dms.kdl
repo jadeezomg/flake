@@ -3,10 +3,10 @@
 // They override conflicting keybinds from keybinds-overrides.kdl
 
 binds {
-    // DMS Application Launchers
-    // Mod+Space hotkey-overlay-title="Application Launcher" {
-    //     spawn "dms" "ipc" "call" "spotlight" "toggle";
-    // }
+    // Application launcher (overrides niri overview on Mod+Space)
+    Mod+Space repeat=false hotkey-overlay-title="Application Launcher" {
+        spawn "vicinae" "toggle";
+    }
     Mod+V hotkey-overlay-title="Clipboard Manager" {
         spawn "dms" "ipc" "call" "clipboard" "toggle";
     }
