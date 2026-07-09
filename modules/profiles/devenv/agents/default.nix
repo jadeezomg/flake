@@ -31,6 +31,8 @@ in {
         goose-cli
         codex
         codex-acp
+        cursor-cli
+
         # Profiles installed by ./nono-profiles.nix (HM half).
         nono
 
