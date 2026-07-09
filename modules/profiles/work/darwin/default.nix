@@ -34,7 +34,6 @@ in {
       # --- Productivity ---
       "1password" # Password manager (Mac-specific GUI)
       "1password-cli" # 1Password CLI
-      "raycast" # Spotlight replacement (Mac-specific)
       "notion" # Notes and collaboration
       "slack" # Team communication (simpler via Homebrew)
       "claude" # Claude Desktop

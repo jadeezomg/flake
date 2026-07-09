@@ -58,6 +58,13 @@
       };
     };
     vicinae.url = "github:vicinaehq/vicinae";
+    vicinae-extensions = {
+      url = "github:vicinaehq/extensions";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        vicinae.follows = "vicinae";
+      };
+    };
 
     # --- macOS / Homebrew ---
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
