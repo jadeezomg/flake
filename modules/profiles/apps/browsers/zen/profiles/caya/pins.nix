@@ -10,9 +10,9 @@ in {
       isEssential = true;
       position = 101;
     };
-    "Caya GmbH - Calendar - Week of June 15, 2026" = {
+    "Caya GmbH - Calendar - Week of July 6, 2026" = {
       id = "2fc017e6-0793-435b-a6b9-69fce452eb29";
-      url = "https://calendar.google.com/calendar/u/0/r/week";
+      url = "https://calendar.google.com/calendar/u/0/r";
       isEssential = true;
       position = 102;
     };
@@ -22,9 +22,9 @@ in {
       isEssential = true;
       position = 103;
     };
-    "1/2 loaded · Dashboard · Metabase" = {
+    "0/2 loaded · Dashboard · Metabase" = {
       id = "55d4921c-59db-4cec-ad03-cb21e5ae8ed5";
-      url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer=L%C3%BCbecker%20Hausverwaltung%20GmbH&e-mail&id&tab=7-customer";
+      url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer&e-mail&id&tab=7-customer";
       isEssential = true;
       position = 104;
     };
@@ -34,9 +34,9 @@ in {
       isEssential = true;
       position = 105;
     };
-    "[LIVE] [CE_REQUEST] CE Request - Jobs | Caya Document Automation" = {
+    "Projects | Caya Document Automation" = {
       id = "7d00f1ba-b3d0-48a6-863d-dbadc14ef757";
-      url = "https://app.eu.workato.com/recipes/1290302-live-ce_request-ce-request?query=Customer%20-%20Tenant%20%E2%86%92%20ID%20cm0gerjur3mmg0zw0h6uncq09&started_at=30.days&prev=false&group_by_master_job=true#jobs";
+      url = "https://app.eu.workato.com/?fid=projects";
       isEssential = true;
       position = 106;
     };
@@ -48,33 +48,21 @@ in {
     };
     "Sprints" = {
       id = "50467426-e9af-43bf-bde6-eb16140c65c8";
-      url = "https://one.zoho.eu/zohoone/cayagmbh/home/cxapp/sprints";
+      url = "https://one.zoho.eu/zohoone/cayagmbh/home/cxapp/sprints/workspace/cayagmbh?frameorigin=https%3A%2F%2Fone.zoho.eu#projects";
       isEssential = true;
       position = 108;
-    };
-    "All Stories | Stories | Shortcut" = {
-      id = "81d9f9d6-9b6c-4fad-af32-e8cc5d9a6bae";
-      url = "https://app.shortcut.com/caya/stories/space/27600?team_scope_id=v2%3At%3A5d791bf4-9f9e-4983-8373-85cf91fd476b%3A62bc5f61-b807-4e82-b5f1-5dbb2ce3f947";
-      isEssential = true;
-      position = 109;
     };
     "Attio" = {
       id = "943fb4f4-dfde-41be-b4d4-52e6b25a20bd";
       url = "https://app.attio.com/caya/settings/members-and-teams/members";
       isEssential = true;
-      position = 110;
-    };
-    "Appsmith" = {
-      id = "c7fa1111-27e8-4c78-8872-ee645ce2a8a0";
-      url = "https://caya.appsmith.com/settings/provisioning";
-      isEssential = true;
-      position = 111;
+      position = 109;
     };
     "Variables | Windmill" = {
       id = "94ccd96d-b854-467a-883a-8d646baf32a1";
       url = "https://app.windmill.dev/variables";
       isEssential = true;
-      position = 112;
+      position = 110;
     };
     "Dev Env" = {
       id = "{1772811911012-80}";
@@ -354,7 +342,7 @@ in {
       position = 217;
       folderParentId = "{1774867533295-57}";
     };
-    "Caya_2" = {
+    "GraphQL Playground" = {
       id = "3a459f36-4b12-46b2-abcc-07ab1899fdf8";
       url = "https://mailroom-api.caya.dev/";
       workspace = spaces."Work".id;
@@ -413,7 +401,7 @@ in {
       position = 224;
       folderParentId = "{1774866854440-80}";
     };
-    "Caya_2_1" = {
+    "Caya_2" = {
       id = "42ae8969-2192-40c7-b796-35c0428166b4";
       url = "https://metabase.caya.com/question/2001-check-pin-forward-renewing-active";
       workspace = spaces."Work".id;
@@ -480,7 +468,7 @@ in {
       position = 232;
       folderParentId = "{1772811910792-66}";
     };
-    "Caya Document Cockpit_2" = {
+    "Caya_2_1" = {
       id = "f502a956-0060-4f32-a998-9e89b168d828";
       url = "https://app.caya.com/login/magic";
       workspace = spaces."Solutions".id;
@@ -491,15 +479,15 @@ in {
     };
     "Daily Workato Recipe failures that requi" = {
       id = "3f1f0649-da2b-4e38-9c7d-f252bda95c8f";
-      url = "https://metabase.caya.com/question/3316-daily-workato-recipe-failures-that-requires-follow-ups?days=3";
+      url = "https://metabase.caya.com/question/3316-daily-workato-recipe-failures-that-requires-follow-ups?days=1";
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 234;
       folderParentId = "{1772811910929-76}";
     };
-    "Caya_4" = {
+    "Caya_3_1" = {
       id = "8e254e3a-eb7b-441b-8969-e7de6da4c9e7";
-      url = "https://metabase.caya.com/question/2844-active-documents-with-missing-automation-to-be-retriggered-inc-stacked-distribution?days=31";
+      url = "https://metabase.caya.com/auth/login?redirect=%2Fquestion%2F2844-active-documents-with-missing-automation-to-be-retriggered-inc-stacked-distribution%3Fdays%3D31";
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 235;
@@ -554,9 +542,9 @@ in {
       position = 241;
       folderParentId = "{1779976818694-25}";
     };
-    "Log in to Mandrill" = {
+    "Mandrillapp" = {
       id = "cb05bad0-c130-4f17-ba82-438a569ed06b";
-      url = "https://mandrillapp.com/login/";
+      url = "https://mandrillapp.com/";
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 242;
@@ -624,7 +612,7 @@ in {
       isEssential = false;
       position = 250;
     };
-    "Caya Document Cockpit_3" = {
+    "Caya Document Cockpit_2" = {
       id = "cb4c2b75-aea4-4747-8a65-efcadaaf79ac";
       url = "https://develop--appcayacom.netlify.app/app/folder/inbox";
       workspace = spaces."Development".id;
@@ -633,9 +621,9 @@ in {
       folderParentId = "{1772811911012-80}";
       container = 4;
     };
-    "Workato" = {
+    "Login to build your integrations, automa" = {
       id = "8a1df9ea-9c7b-41bd-b206-e6d43358c2cc";
-      url = "https://app.eu.workato.com/?fid=projects";
+      url = "https://app.eu.workato.com/users/sign_in";
       workspace = spaces."Development".id;
       isEssential = false;
       position = 252;

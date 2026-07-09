@@ -41,6 +41,8 @@ in {
     };
   };
 
+  home.pointerCursor.enable = true;
+
   home.file = {
     "Pictures/Images" = mkLiveSymlink "${assetsDir}/images";
     "Pictures/Wallpapers" = mkLiveSymlink "${assetsDir}/wallpapers";

@@ -127,6 +127,23 @@
       definedAliases = ["prt" "track"];
     };
 
+    # https://hydra.nixos.org/jobset/nixpkgs/unstable#tabs-jobs
+    "Nixpkgs Hydra Jobs" = {
+      urls = [
+        {
+          template = "https://hydra.nixos.org/jobset/nixpkgs/unstable/jobs-tab";
+          params = [
+            {
+              name = "filter";
+              value = "{searchTerms}";
+            }
+          ];
+        }
+      ];
+      icon = nixSnowflakeIcon;
+      definedAliases = ["hydra" "hy"];
+    };
+
     "Google Maps" = {
       urls = [
         {

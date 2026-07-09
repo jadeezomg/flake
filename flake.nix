@@ -6,6 +6,10 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-small.url = "github:NixOS/nixpkgs/nixos-unstable-small";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
+    # Pinned for zed-editor 1.8.2 on darwin: 1.9.0 fails to build on Hydra.
+    # Rev is from the last green aarch64-darwin build, hydra.nixos.org/build/333610316.
+    # Drop this (and parts/overlays/zed-pinned-darwin.nix) once zed-editor builds again.
+    nixpkgs-zed.url = "github:NixOS/nixpkgs/9c4c05a947a91dc14625265fab505fb695e93218";
 
     # --- core infrastructure ---
     flake-parts.url = "github:hercules-ci/flake-parts";
@@ -51,6 +55,14 @@
       inputs = {
         nixpkgs.follows = "nixpkgs";
         home-manager.follows = "home-manager";
+      };
+    };
+    vicinae.url = "github:vicinaehq/vicinae";
+    vicinae-extensions = {
+      url = "github:vicinaehq/extensions";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        vicinae.follows = "vicinae";
       };
     };
 

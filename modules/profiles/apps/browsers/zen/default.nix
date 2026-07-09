@@ -40,6 +40,19 @@
     "642854b5-88b4-4c40-b256-e035532109df" # Transparent Zen
     "a6335949-4465-4b71-926c-4a52d34bc9c0" # Better Find Bar
   ];
+
+  vicinaePkg = inputs.vicinae.packages.${pkgs.stdenv.hostPlatform.system}.default;
+  vicinaeNativeMessagingHost =
+    pkgs.writeTextDir "lib/mozilla/native-messaging-hosts/com.vicinae.vicinae.json"
+    (
+      builtins.toJSON {
+        name = "com.vicinae.vicinae";
+        description = "Vicinae Native Messaging Host";
+        path = "${vicinaePkg}/libexec/vicinae/vicinae-browser-link";
+        type = "stdio";
+        allowed_extensions = ["firefox@vicinae.com"];
+      }
+    );
 in {
   imports = [
     inputs.zen-browser.homeModules.beta
@@ -47,7 +60,9 @@ in {
 
   programs.zen-browser = {
     enable = true;
-    nativeMessagingHosts = lib.optionals pkgs.stdenv.isLinux [pkgs-stable.firefoxpwa];
+    nativeMessagingHosts =
+      (lib.optionals pkgs.stdenv.isLinux [pkgs-stable.firefoxpwa])
+      ++ [vicinaeNativeMessagingHost];
     darwinDefaultsId = lib.mkIf (!pkgs.stdenv.isLinux) "com.zen.browser";
 
     inherit policies;

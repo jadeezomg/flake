@@ -24,6 +24,8 @@ in {
   # workstation hosts ship today. Slimmer hosts (work laptop, server) should
   # set the unwanted sub-flags to `false` explicitly after enabling apps.
   config = lib.mkIf cfg.enable {
+    home-manager.sharedModules = [./vicinae.nix];
+
     dotfiles.profiles.apps = {
       browsers.enable = lib.mkDefault true;
       terminals.enable = lib.mkDefault true;
