@@ -13,7 +13,7 @@ binds {
     Mod+P hotkey-overlay-title="Proton Pass" { spawn "proton-pass"; }
     Mod+L hotkey-overlay-title="Lock the Screen: dms" { spawn "dms" "ipc" "call" "lock" "lock"; }
     Mod+D { spawn "dms" "ipc" "call" "plugins" "toggle" "aiAssistant"; }
-    Super+X hotkey-overlay-title="App Launcher: Toggle" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
+    // Super+X hotkey-overlay-title="App Launcher: Toggle" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
 
     Mod3+Space repeat=false hotkey-overlay-title="Handy: Toggle Transcription" {
         spawn "handy" "--toggle-transcription";
@@ -42,7 +42,7 @@ binds {
     // Open/close the Overview: a zoomed-out view of workspaces and windows.
     // You can also move the mouse into the top-left hot corner,
     // or do a four-finger swipe up on a touchpad.
-    Mod+Space repeat=false { toggle-overview; }
+    Mod+X repeat=false { toggle-overview; }
 
     Mod+Q repeat=false { close-window; }
 
