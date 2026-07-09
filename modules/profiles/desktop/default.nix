@@ -35,7 +35,6 @@ in {
       ./dms
       ./dconf.nix
       ./gdm-session.nix
-      ./vicinae.nix
     ];
 
     # --- Login manager: set dotfiles.profiles.desktop.loginManager per host ---
