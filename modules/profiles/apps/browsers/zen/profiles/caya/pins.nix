@@ -4,13 +4,13 @@
 in {
   pinsForce = true;
   pins = {
-    "Inbox - jonas.hippauf@getcaya.com - Caya GmbH Mail" = {
+    "Inbox (1) - jonas.hippauf@getcaya.com - Caya GmbH Mail" = {
       id = "22b1fd3c-57f8-4984-9ef9-e8a26e396e4a";
       url = "https://mail.google.com/mail/u/0/#inbox";
       isEssential = true;
       position = 101;
     };
-    "Caya GmbH - Calendar - Week of July 6, 2026" = {
+    "Caya GmbH - Calendar - Week of July 13, 2026" = {
       id = "2fc017e6-0793-435b-a6b9-69fce452eb29";
       url = "https://calendar.google.com/calendar/u/0/r";
       isEssential = true;
@@ -22,7 +22,7 @@ in {
       isEssential = true;
       position = 103;
     };
-    "0/2 loaded · Dashboard · Metabase" = {
+    "PAM Dashboard · Dashboard · Metabase" = {
       id = "55d4921c-59db-4cec-ad03-cb21e5ae8ed5";
       url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer&e-mail&id&tab=7-customer";
       isEssential = true;
@@ -468,7 +468,7 @@ in {
       position = 232;
       folderParentId = "{1772811910792-66}";
     };
-    "Caya_2_1" = {
+    "Caya Document Cockpit_2" = {
       id = "f502a956-0060-4f32-a998-9e89b168d828";
       url = "https://app.caya.com/login/magic";
       workspace = spaces."Solutions".id;
@@ -485,9 +485,9 @@ in {
       position = 234;
       folderParentId = "{1772811910929-76}";
     };
-    "Caya_3_1" = {
+    "Caya_4" = {
       id = "8e254e3a-eb7b-441b-8969-e7de6da4c9e7";
-      url = "https://metabase.caya.com/auth/login?redirect=%2Fquestion%2F2844-active-documents-with-missing-automation-to-be-retriggered-inc-stacked-distribution%3Fdays%3D31";
+      url = "https://metabase.caya.com/question/2844-active-documents-with-missing-automation-to-be-retriggered-inc-stacked-distribution?days=31";
       workspace = spaces."Solutions".id;
       isEssential = false;
       position = 235;
@@ -612,7 +612,7 @@ in {
       isEssential = false;
       position = 250;
     };
-    "Caya Document Cockpit_2" = {
+    "Caya Document Cockpit_2_1" = {
       id = "cb4c2b75-aea4-4747-8a65-efcadaaf79ac";
       url = "https://develop--appcayacom.netlify.app/app/folder/inbox";
       workspace = spaces."Development".id;
