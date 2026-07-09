@@ -41,7 +41,7 @@ in {
     };
   };
 
-  home.pointerCursor.enable = true;
+  home.pointerCursor.enable = lib.mkIf (!isDarwin) true;
 
   home.file = {
     "Pictures/Images" = mkLiveSymlink "${assetsDir}/images";
