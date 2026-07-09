@@ -27,6 +27,7 @@
   homeModules = [
     inputs.sops-nix.homeModules.sops
     inputs.stylix.homeModules.stylix
+    inputs.hunk.homeManagerModules.default
     ../lib/home/dotfiles.nix
   ];
 

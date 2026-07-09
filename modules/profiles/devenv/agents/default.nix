@@ -38,8 +38,6 @@ in {
         context7
         kagi-cli
         agent-browser
-        # External flake package from parts/overlays/flake-packages.nix.
-        hunk
       ])
       # mcp-nixos pulls python3.lupa → luajit_2_0, which nixpkgs 26.05 marks
       # unsupported on aarch64-darwin. Drop it on Darwin until fixed upstream.

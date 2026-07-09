@@ -16,6 +16,7 @@ in {
       [
         ./shells
         ./network
+        ./git.nix
         ./nix-client.nix
         ./security.nix
       ]
