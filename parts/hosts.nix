@@ -28,6 +28,7 @@
     inputs.sops-nix.homeModules.sops
     inputs.stylix.homeModules.stylix
     inputs.hunk.homeManagerModules.default
+    inputs.vicinae.homeManagerModules.default
     ../lib/home/dotfiles.nix
   ];
 
@@ -119,6 +120,7 @@
         inputs.stylix.nixosModules.stylix
         inputs.dms.nixosModules.dank-material-shell
         inputs.dms.nixosModules.greeter
+        inputs.vicinae.nixosModules.default
         (./. + "/../hosts/${hostKey}")
         sops-nix.nixosModules.sops
         determinate.nixosModules.default

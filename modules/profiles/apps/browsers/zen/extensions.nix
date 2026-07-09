@@ -40,5 +40,6 @@ in {
     # https://addons.mozilla.org/firefox/addon/kagi-search-for-firefox/
     "search@kagi.com" = "kagi-search-for-firefox";
     "{135c3428-66bc-4b5b-9503-282dc00802e7}" = "toxcancel";
+    "firefox@vicinae.com" = "vicinae";
   };
 }
