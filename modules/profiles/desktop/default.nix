@@ -62,7 +62,7 @@ in {
       enableVPN = true;
       enableDynamicTheming = true; # matugen
       enableAudioWavelength = true; # cava
-      enableCalendarEvents = true; # khal
+      enableCalendarEvents = false; # DMS calendar is unused; avoid khal/vdirsyncer
     };
 
     programs.dsearch = {
