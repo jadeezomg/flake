@@ -78,6 +78,20 @@ output "DP-2" {
     }
 }
 
+output "DP-1" {
+    mode "2560x1440@165.000"
+    scale 1
+    transform "normal"
+    variable-refresh-rate on-demand=true
+    focus-at-startup
+    position x=1665 y=700
+
+    hot-corners {
+        top-right
+    }
+}
+
+
 
 // Browser
 spawn-sh-at-startup "zen-beta || zen-twilight"
