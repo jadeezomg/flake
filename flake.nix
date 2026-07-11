@@ -6,6 +6,12 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-small.url = "github:NixOS/nixpkgs/nixos-unstable-small";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
+    # Shared by inputs that otherwise evaluate nix-systems/default, which still
+    # includes x86_64-darwin. nixpkgs 26.11 dropped Intel macOS support.
+    systems = {
+      url = "path:./lib/systems.nix";
+      flake = false;
+    };
     # Pinned for zed-editor 1.8.2 on darwin: 1.9.0 fails to build on Hydra.
     # Rev is from the last green aarch64-darwin build, hydra.nixos.org/build/333610316.
     # Drop this (and parts/overlays/zed-pinned-darwin.nix) once zed-editor builds again.
@@ -41,6 +47,7 @@
     stylix = {
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.systems.follows = "systems";
     };
     dms = {
       url = "github:AvengeMedia/DankMaterialShell";
@@ -104,6 +111,7 @@
     hunk = {
       url = "github:modem-dev/hunk";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.bun2nix.inputs.systems.follows = "systems";
     };
 
     # Intel XPU vLLM — add `nixosModules.default` + overlay (see upstream
@@ -126,7 +134,11 @@
     };
   };
 
-  outputs = inputs @ {flake-parts, ...}:
+  outputs = inputs @ {
+    flake-parts,
+    systems,
+    ...
+  }:
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         ./parts/hosts.nix
@@ -136,9 +148,6 @@
         ./parts/lib.nix
       ];
 
-      systems = [
-        "x86_64-linux"
-        "aarch64-darwin"
-      ];
+      systems = import systems;
     };
 }

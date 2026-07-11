@@ -15,7 +15,7 @@ in
       meta =
         old.meta
         // {
-          platforms = old.meta.platforms ++ ["aarch64-darwin" "x86_64-darwin"];
+          platforms = old.meta.platforms ++ ["aarch64-darwin"];
         };
     });
   }
