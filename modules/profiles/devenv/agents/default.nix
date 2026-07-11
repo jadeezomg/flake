@@ -27,16 +27,16 @@ in {
 
     environment.systemPackages =
       nonoAgents.agentPackages
-      ++ (with pkgs; [
+      ++ (with pkgs-small; [
         goose-cli
         codex
         codex-acp
         cursor-cli
-
-        # Profiles installed by ./nono-profiles.nix (HM half).
+      ])
+      # Local flake packages from parts/overlays/local-packages.nix.
+      ++ (with pkgs; [
         nono
 
-        # Local flake packages from parts/overlays/local-packages.nix.
         context7
         kagi-cli
         agent-browser
