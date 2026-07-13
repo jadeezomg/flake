@@ -34,7 +34,7 @@ just build-dev       # switch with --show-trace
 just rollback        # previous generation
 
 # format / lint
-just fmt             # alejandra + deadnix + ruff + ty + biome
+just fmt             # treefmt + deadnix + ruff + ty + biome
 just lint            # deadnix + statix
 
 # maintenance
@@ -69,7 +69,7 @@ just health          # git status, disk, nh os info
 
 ```text
 flake/
-├── flake.nix                 # inputs, per-system packages, formatter = alejandra
+├── flake.nix                 # inputs, per-system packages, formatter = nixfmt-tree
 ├── Justfile
 ├── .flake-host               # active host (local only)
 ├── lib/                      # getPkgs / getPkgsStable

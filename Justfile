@@ -226,9 +226,9 @@ fmt:
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     print_header "FMT"
-    print_pending "alejandra  formatting .nix files..."
-    alejandra --quiet "$FLAKE" 2>&1 | tail -n +2 || { print_error "alejandra  failed"; exit 1; }
-    print_success "alejandra  done"
+    print_pending "treefmt   formatting .nix files..."
+    treefmt -q "$FLAKE" || { print_error "treefmt   failed"; exit 1; }
+    print_success "treefmt   done"
     echo
     print_pending "deadnix    removing unused bindings..."
     deadnix --edit "$FLAKE"
@@ -264,10 +264,10 @@ lint:
     statix check "$FLAKE"
     print_header "END"
 
-[doc('Alejandra without banner output (e.g. for git hook)')]
+[doc('Quiet treefmt (e.g. for git hook)')]
 [group('format')]
 fmt-notree:
-    @alejandra --quiet "$FLAKE" >/dev/null
+    @treefmt -q "$FLAKE" >/dev/null
 
 
 [doc('List *.backup / *.bkp under ~/.config with sizes')]
@@ -553,7 +553,7 @@ git:
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     [[ -d "$FLAKE/.git" ]] || exit 1
-    alejandra --quiet "$FLAKE" >/dev/null 2>&1 || true
+    treefmt -q "$FLAKE" >/dev/null 2>&1 || true
     git -C "$FLAKE" status -sb; git -C "$FLAKE" log --oneline -n 5
     [[ -z "$(git -C "$FLAKE" status --porcelain)" ]] && exit 0
     read -r -p "Commit: " msg || true

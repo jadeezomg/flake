@@ -53,7 +53,8 @@
 |------|---------|-------|
 | nil | LSP | Nix language server |
 | nixd | LSP | Alternative Nix language server |
-| alejandra | `alejandra file.nix` | Opinionated Nix formatter |
+| treefmt | `treefmt -q .` | Nix formatter multiplexer (flake formatter via nixfmt-tree) |
+| nixfmt | `nixfmt file.nix` | Official Nix formatter (used by treefmt and editors) |
 | nh | `nh os switch` | Nix helper (use `just` instead) |
 | devenv | `devenv shell` | Dev environments |
 

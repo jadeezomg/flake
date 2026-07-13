@@ -29,7 +29,7 @@ The full shared tool list is in `references/shared-tools.md`.
 - `rustup` to manage toolchain versions
 
 ### Nix
-- Format with `flake fmt` (runs alejandra), never edit unformatted
+- Format with `flake fmt` (runs nixfmt-tree/treefmt), never edit unformatted
 - Use `flake switch` / `flake switch-fast` - never bare `nixos-rebuild`, `darwin-rebuild`, or `nh`
 - Verify packages with `nix search nixpkgs <name>` before adding
 

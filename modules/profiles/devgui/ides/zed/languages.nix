@@ -37,7 +37,7 @@ in {
         Nix = {
           language_servers = ["nil"];
           formatter.external = {
-            command = "alejandra";
+            command = "nixfmt";
             arguments = ["-"];
           };
           format_on_save = "on";
