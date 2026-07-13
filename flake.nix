@@ -134,12 +134,13 @@
     };
   };
 
-  outputs = inputs @ {
-    flake-parts,
-    systems,
-    ...
-  }:
-    flake-parts.lib.mkFlake {inherit inputs;} {
+  outputs =
+    inputs@{
+      flake-parts,
+      systems,
+      ...
+    }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         ./parts/hosts.nix
         ./parts/shells.nix

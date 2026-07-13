@@ -18,7 +18,8 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   homeDir = config.home.homeDirectory;
 
   packages = [
@@ -33,8 +34,9 @@
   settingsPath = "${settingsDir}/settings.json";
 
   esc = lib.escapeShellArg;
-in {
-  home.activation.piPackages = lib.hm.dag.entryAfter ["writeBoundary"] ''
+in
+{
+  home.activation.piPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     export PATH=${
       lib.makeBinPath [
         pkgs.jq

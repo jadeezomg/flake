@@ -2,7 +2,8 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   unwrapped = pkgs.buildNpmPackage rec {
     pname = "pi-coding-agent-unwrapped";
     version = "0.80.6";
@@ -33,23 +34,23 @@
     };
   };
 in
-  # Wrap pi so npm install -g (used by `pi install npm:…`) writes to
-  # ~/.npm-global instead of trying to mkdir in the read-only nix store.
-  #
-  # Also scrub `npm_*` / `npm_config_*` env vars inherited from ancestor
-  # processes (Zed and Claude Code launch their child shells inside an npm
-  # exec context, which sets `npm_config_prefix` / `npm_config_globalconfig`
-  # pointing at editor-managed paths). Those lowercase env vars take
-  # precedence over `NPM_CONFIG_PREFIX`, so without scrubbing them pi's
-  # `npm install -g` would silently write bin symlinks to the wrong prefix
-  # (or skip them entirely).
-  pkgs.symlinkJoin {
-    name = "pi-coding-agent";
-    paths = [unwrapped];
-    buildInputs = [pkgs.makeWrapper];
-    postBuild = ''
-      wrapProgram $out/bin/pi \
-        --run 'for _v in $(${pkgs.coreutils}/bin/env | ${pkgs.gnused}/bin/sed -n "s/^\(npm_[a-zA-Z_][a-zA-Z0-9_]*\)=.*/\1/p"); do unset "$_v"; done; export NPM_CONFIG_PREFIX="''${NPM_CONFIG_PREFIX:-$HOME/.npm-global}"'
-    '';
-    meta = unwrapped.meta;
-  }
+# Wrap pi so npm install -g (used by `pi install npm:…`) writes to
+# ~/.npm-global instead of trying to mkdir in the read-only nix store.
+#
+# Also scrub `npm_*` / `npm_config_*` env vars inherited from ancestor
+# processes (Zed and Claude Code launch their child shells inside an npm
+# exec context, which sets `npm_config_prefix` / `npm_config_globalconfig`
+# pointing at editor-managed paths). Those lowercase env vars take
+# precedence over `NPM_CONFIG_PREFIX`, so without scrubbing them pi's
+# `npm install -g` would silently write bin symlinks to the wrong prefix
+# (or skip them entirely).
+pkgs.symlinkJoin {
+  name = "pi-coding-agent";
+  paths = [ unwrapped ];
+  buildInputs = [ pkgs.makeWrapper ];
+  postBuild = ''
+    wrapProgram $out/bin/pi \
+      --run 'for _v in $(${pkgs.coreutils}/bin/env | ${pkgs.gnused}/bin/sed -n "s/^\(npm_[a-zA-Z_][a-zA-Z0-9_]*\)=.*/\1/p"); do unset "$_v"; done; export NPM_CONFIG_PREFIX="''${NPM_CONFIG_PREFIX:-$HOME/.npm-global}"'
+  '';
+  meta = unwrapped.meta;
+}

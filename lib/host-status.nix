@@ -2,7 +2,8 @@
 # fastfetch or shell startup never fails because an optional service/API is down.
 # Cache TTL is controlled by the Home Manager scheduler in
 # modules/profiles/essentials/host-status.nix.
-{pkgs}: let
+{ pkgs }:
+let
   inherit (pkgs) lib;
 
   cacheDir = "$HOME/.cache/host-status";
@@ -21,11 +22,17 @@
     };
   };
 
-  mkOpenRouterRefresh = source:
+  mkOpenRouterRefresh =
+    source:
     pkgs.writeShellApplication {
       name = source.refresherName;
-      runtimeInputs = with pkgs;
-        [coreutils curl jq]
+      runtimeInputs =
+        with pkgs;
+        [
+          coreutils
+          curl
+          jq
+        ]
         ++ lib.optional stdenv.isLinux libsecret
         ++ lib.optional stdenv.isDarwin _1password-cli;
       text = ''
@@ -54,10 +61,15 @@
       '';
     };
 
-  mkClaudeRefresh = source:
+  mkClaudeRefresh =
+    source:
     pkgs.writeShellApplication {
       name = source.refresherName;
-      runtimeInputs = with pkgs; [coreutils curl jq];
+      runtimeInputs = with pkgs; [
+        coreutils
+        curl
+        jq
+      ];
       text = ''
         mkdir -p "${cacheDir}"
         cache="${source.cachePath}"
@@ -284,8 +296,8 @@
         printf '%-12s %s\n' 'Agents'      "$(agents_status)"
         printf '%-12s %s\n' 'Claude'      "$(claude_status)"
         ${lib.optionalString (!pkgs.stdenv.isDarwin) ''
-        printf '%-12s %s\n' 'OpenRouter'  "$(openrouter_status)"
-      ''}
+          printf '%-12s %s\n' 'OpenRouter'  "$(openrouter_status)"
+        ''}
         printf '%-12s %s\n' 'Skills'      "$(skills_status)"
       }
 
@@ -333,6 +345,12 @@
       esac
     '';
   };
-in {
-  inherit hostStatus credentialCacheSources openrouterRefresh claudeRefresh;
+in
+{
+  inherit
+    hostStatus
+    credentialCacheSources
+    openrouterRefresh
+    claudeRefresh
+    ;
 }

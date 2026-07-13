@@ -1,4 +1,4 @@
-{}: {
+{ }: {
   telemetry = {
     diagnostics = false;
     metrics = false;
@@ -10,7 +10,7 @@
   minimap = {
     show = "auto";
   };
-  file_types = {};
+  file_types = { };
 
   # --- Gutter ---
   gutter = {

@@ -3,10 +3,12 @@
   osConfig,
   pkgs,
   ...
-}: let
+}:
+let
   # Value-read (not a profile gate): is this a DMS desktop host?
   hasDesktopSession = osConfig.dotfiles.profiles.desktop.enable or false;
-in {
+in
+{
   imports = [
     ./helix
   ];
@@ -24,26 +26,37 @@ in {
     # - headless / SSH: OSC 52 ("termcode") — the terminal forwards yanks to
     #   the *local* clipboard; pasting from outside uses terminal paste.
     settings.editor.clipboard-provider =
-      if isDarwin
-      then {
-        custom = {
-          yank = {command = "/usr/bin/pbcopy";};
-          paste = {command = "/usr/bin/pbpaste";};
-        };
-      }
-      else if hasDesktopSession
-      then {
-        custom = {
-          yank = {
-            command = "dms";
-            args = ["cl" "copy"];
+      if isDarwin then
+        {
+          custom = {
+            yank = {
+              command = "/usr/bin/pbcopy";
+            };
+            paste = {
+              command = "/usr/bin/pbpaste";
+            };
           };
-          paste = {
-            command = "dms";
-            args = ["cl" "paste"];
+        }
+      else if hasDesktopSession then
+        {
+          custom = {
+            yank = {
+              command = "dms";
+              args = [
+                "cl"
+                "copy"
+              ];
+            };
+            paste = {
+              command = "dms";
+              args = [
+                "cl"
+                "paste"
+              ];
+            };
           };
-        };
-      }
-      else "termcode";
+        }
+      else
+        "termcode";
   };
 }

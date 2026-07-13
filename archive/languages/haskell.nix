@@ -3,9 +3,11 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.rh.development.languages.haskell;
-in {
+in
+{
   options.rh.development.languages.haskell = {
     enable = lib.mkEnableOption "Enable Haskell Language";
   };

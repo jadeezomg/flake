@@ -3,9 +3,11 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.essentials;
-in {
+in
+{
   config = lib.mkIf cfg.enable {
     # HM widgets: host-status service/timer, fastfetch config, CLI utils
     # (television cable, navi cheats, yazi), prompt/shell theming, and the

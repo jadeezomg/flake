@@ -3,13 +3,15 @@
   osConfig,
   pkgs,
   ...
-}: let
+}:
+let
   # osConfig reads here are system *values* (login manager choice, the DMS
   # package), not profile gates — this module is only pushed when the
   # desktop profile is enabled.
   useGdm = (osConfig.dotfiles.profiles.desktop.loginManager or "dms-greeter") == "gdm";
   dmsPackage = osConfig.programs.dank-material-shell.package or pkgs.dms-shell;
-in {
+in
+{
   config = lib.mkIf useGdm {
     # NixOS installs dms/dsearch as system-wide user units; GDM greeter sessions
     # inherit graphical-session.target and break login. Scope to the HM user instead.
@@ -17,23 +19,23 @@ in {
       dms = {
         Unit = {
           Description = "DankMaterialShell";
-          After = ["graphical-session.target"];
-          PartOf = ["graphical-session.target"];
+          After = [ "graphical-session.target" ];
+          PartOf = [ "graphical-session.target" ];
         };
         Service = {
           ExecStart = "${dmsPackage}/bin/dms run --session";
           Restart = "on-failure";
         };
         Install = {
-          WantedBy = ["graphical-session.target"];
+          WantedBy = [ "graphical-session.target" ];
         };
       };
 
       dsearch = {
         Unit = {
           Description = "dsearch - Fast filesystem search service";
-          Documentation = ["https://github.com/AvengeMedia/dsearch"];
-          After = ["network.target"];
+          Documentation = [ "https://github.com/AvengeMedia/dsearch" ];
+          After = [ "network.target" ];
         };
         Service = {
           Type = "simple";
@@ -42,7 +44,7 @@ in {
           RestartSec = 5;
         };
         Install = {
-          WantedBy = ["default.target"];
+          WantedBy = [ "default.target" ];
         };
       };
     };

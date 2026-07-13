@@ -2,9 +2,11 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.maintenance.garbageCollection;
-in {
+in
+{
   options.maintenance.garbageCollection = {
     enable = lib.mkEnableOption "Automatic Nix store garbage collection";
 

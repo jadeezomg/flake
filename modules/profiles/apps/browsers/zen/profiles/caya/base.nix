@@ -5,12 +5,11 @@
   sharedSearch,
   sharedSettings,
   ...
-}: {
-  settings =
-    sharedSettings
-    // {
-      "zen.workspaces.natural-scroll" = false;
-    };
+}:
+{
+  settings = sharedSettings // {
+    "zen.workspaces.natural-scroll" = false;
+  };
 
   search = sharedSearch;
 

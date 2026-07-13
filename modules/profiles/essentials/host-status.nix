@@ -4,19 +4,26 @@
   lib,
   pkgs,
   ...
-}: let
-  helpers = dotfilesLib.hostStatus {inherit pkgs;};
-  inherit (helpers) hostStatus credentialCacheSources openrouterRefresh claudeRefresh;
+}:
+let
+  helpers = dotfilesLib.hostStatus { inherit pkgs; };
+  inherit (helpers)
+    hostStatus
+    credentialCacheSources
+    openrouterRefresh
+    claudeRefresh
+    ;
   refreshers = {
     openrouter = openrouterRefresh;
     claude = claudeRefresh;
   };
-  cacheSources = lib.mapAttrs (name: source:
+  cacheSources = lib.mapAttrs (
+    name: source:
     source
     // {
       refresher = refreshers.${name};
-    })
-  credentialCacheSources;
+    }
+  ) credentialCacheSources;
 
   mkLinuxTimer = name: source: {
     "host-status-${name}" = {
@@ -36,32 +43,35 @@
         OnUnitActiveSec = "${toString source.intervalSec}s";
         Unit = "host-status-${name}.service";
       };
-      Install.WantedBy = ["timers.target"];
+      Install.WantedBy = [ "timers.target" ];
     };
   };
 
   mkDarwinAgent = source: {
     enable = true;
     config = {
-      ProgramArguments = ["${source.refresher}/bin/${source.refresherName}"];
+      ProgramArguments = [ "${source.refresher}/bin/${source.refresherName}" ];
       StartInterval = source.intervalSec;
       RunAtLoad = true;
       KeepAlive = false;
     };
   };
-in {
-  home.packages = [hostStatus];
+in
+{
+  home.packages = [ hostStatus ];
 
   systemd.user.services = lib.mkIf pkgs.stdenv.isLinux (
-    lib.mapAttrs' (name: source:
-      lib.nameValuePair "host-status-${name}" ((mkLinuxTimer name source)."host-status-${name}"))
-    cacheSources
+    lib.mapAttrs' (
+      name: source:
+      lib.nameValuePair "host-status-${name}" ((mkLinuxTimer name source)."host-status-${name}")
+    ) cacheSources
   );
 
   systemd.user.timers = lib.mkIf pkgs.stdenv.isLinux (
-    lib.mapAttrs' (name: source:
-      lib.nameValuePair "host-status-${name}" ((mkLinuxTimerUnit name source)."host-status-${name}"))
-    cacheSources
+    lib.mapAttrs' (
+      name: source:
+      lib.nameValuePair "host-status-${name}" ((mkLinuxTimerUnit name source)."host-status-${name}")
+    ) cacheSources
   );
 
   # openrouter is gated out on Darwin: the refresher would call
@@ -69,8 +79,8 @@ in {
   # 1Password "exec is trying to access 1Password" prompt every 5 minutes.
   # OpenRouter usage tracking remains Linux-only.
   launchd.agents = lib.mkIf pkgs.stdenv.isDarwin (
-    lib.mapAttrs' (name: source:
-      lib.nameValuePair "host-status-${name}" (mkDarwinAgent source))
-    (lib.filterAttrs (name: _: name != "openrouter") cacheSources)
+    lib.mapAttrs' (name: source: lib.nameValuePair "host-status-${name}" (mkDarwinAgent source)) (
+      lib.filterAttrs (name: _: name != "openrouter") cacheSources
+    )
   );
 }

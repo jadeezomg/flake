@@ -1,4 +1,4 @@
-{...}: {
+{ ... }: {
   # Scroll Reverser - Reverse scroll direction independently for mouse and trackpad
   # https://pilotmoon.com/scrollreverser/
 

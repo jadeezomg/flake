@@ -28,7 +28,8 @@
   lib,
   host,
   ...
-}: let
+}:
+let
   network = "honcho";
   subnet = "10.89.0.0/24";
   apiPort = 8100; # 8000 = local LLM chat, 8080 = open-webui
@@ -62,13 +63,16 @@
     inherit image;
     environment = honchoEnv;
     # Optional secrets (OpenRouter key, real provider creds) once Phase 2 lands.
-    environmentFiles = lib.optional (config.sops.secrets ? "honcho/env") config.sops.secrets."honcho/env".path;
+    environmentFiles = lib.optional (
+      config.sops.secrets ? "honcho/env"
+    ) config.sops.secrets."honcho/env".path;
     extraOptions = [
       "--network=${network}"
       "--add-host=host.containers.internal:host-gateway"
     ];
   };
-in {
+in
+{
   virtualisation.podman.enable = true;
   virtualisation.oci-containers.backend = "podman";
 
@@ -88,7 +92,7 @@ in {
   # (the default bridge has no DNS). `--ignore` makes this idempotent.
   systemd.services.honcho-network = {
     description = "Create the honcho podman network";
-    after = ["network.target"];
+    after = [ "network.target" ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
@@ -105,50 +109,63 @@ in {
         POSTGRES_PASSWORD = "honcho"; # local-only on the podman network; not reachable off-host
         POSTGRES_DB = "honcho";
       };
-      volumes = ["honcho-pgdata:/var/lib/postgresql/data"];
-      cmd = ["postgres" "-c" "max_connections=200"];
-      extraOptions = ["--network=${network}"];
+      volumes = [ "honcho-pgdata:/var/lib/postgresql/data" ];
+      cmd = [
+        "postgres"
+        "-c"
+        "max_connections=200"
+      ];
+      extraOptions = [ "--network=${network}" ];
     };
 
     honcho-redis = {
       image = "docker.io/redis:7-alpine";
-      extraOptions = ["--network=${network}"];
+      extraOptions = [ "--network=${network}" ];
     };
 
-    honcho-api =
-      containerCommon
-      // {
-        entrypoint = "sh";
-        cmd = ["docker/entrypoint.sh"];
-        dependsOn = ["honcho-db" "honcho-redis"];
-        # Loopback only; tailscale serve fronts it with TLS on the tailnet.
-        ports = ["127.0.0.1:${toString apiPort}:8000"];
-      };
+    honcho-api = containerCommon // {
+      entrypoint = "sh";
+      cmd = [ "docker/entrypoint.sh" ];
+      dependsOn = [
+        "honcho-db"
+        "honcho-redis"
+      ];
+      # Loopback only; tailscale serve fronts it with TLS on the tailnet.
+      ports = [ "127.0.0.1:${toString apiPort}:8000" ];
+    };
 
-    honcho-deriver =
-      containerCommon
-      // {
-        # Runs the image's bundled venv python directly (matches upstream compose).
-        entrypoint = "/app/.venv/bin/python";
-        cmd = ["-m" "src.deriver"];
-        dependsOn = ["honcho-db" "honcho-redis" "honcho-api"];
-      };
+    honcho-deriver = containerCommon // {
+      # Runs the image's bundled venv python directly (matches upstream compose).
+      entrypoint = "/app/.venv/bin/python";
+      cmd = [
+        "-m"
+        "src.deriver"
+      ];
+      dependsOn = [
+        "honcho-db"
+        "honcho-redis"
+        "honcho-api"
+      ];
+    };
   };
 
   # Order the container units after the network exists.
-  systemd.services.podman-honcho-db.after = ["honcho-network.service"];
-  systemd.services.podman-honcho-db.requires = ["honcho-network.service"];
-  systemd.services.podman-honcho-redis.after = ["honcho-network.service"];
-  systemd.services.podman-honcho-redis.requires = ["honcho-network.service"];
+  systemd.services.podman-honcho-db.after = [ "honcho-network.service" ];
+  systemd.services.podman-honcho-db.requires = [ "honcho-network.service" ];
+  systemd.services.podman-honcho-redis.after = [ "honcho-network.service" ];
+  systemd.services.podman-honcho-redis.requires = [ "honcho-network.service" ];
 
   # HTTPS on the tailnet at :8100 (mirrors the open-webui serve unit, incl. the
   # Restart=on-failure that rides out tailscaled NoState on boot and the etag race
   # between sibling serve units on a switch — see open-webui.nix for the full why).
   systemd.services.tailscale-serve-honcho = {
     description = "Tailscale Serve: HTTPS -> Honcho";
-    after = ["tailscaled.service" "podman-honcho-api.service"];
-    wants = ["tailscaled.service"];
-    wantedBy = ["multi-user.target"];
+    after = [
+      "tailscaled.service"
+      "podman-honcho-api.service"
+    ];
+    wants = [ "tailscaled.service" ];
+    wantedBy = [ "multi-user.target" ];
     startLimitIntervalSec = 300;
     startLimitBurst = 30;
     serviceConfig = {

@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   home.packages = with pkgs; [
     # --- Ocaml ---
     ocamlPackages.ocaml-lsp

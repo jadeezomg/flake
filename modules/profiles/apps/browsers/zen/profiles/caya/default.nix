@@ -5,9 +5,10 @@
   sharedSearch,
   sharedSettings,
   ...
-}: let
-  base = import ./base.nix {inherit extensions sharedSettings sharedSearch;};
-  spaces = import ./spaces.nix {};
-  pinsModule = import ./pins.nix {};
+}:
+let
+  base = import ./base.nix { inherit extensions sharedSettings sharedSearch; };
+  spaces = import ./spaces.nix { };
+  pinsModule = import ./pins.nix { };
 in
-  base // spaces // pinsModule
+base // spaces // pinsModule

@@ -2,7 +2,8 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   version = "0.14.2";
 
   # update_packages.py rewrites these top-level attrs for each release asset.
@@ -23,35 +24,38 @@
   hostSystem = pkgs.stdenv.hostPlatform.system;
   info =
     platforms.${hostSystem}
-    or (throw "kagi-cli: unsupported system ${hostSystem} (only x86_64-linux + aarch64-darwin are packaged)");
+      or (throw "kagi-cli: unsupported system ${hostSystem} (only x86_64-linux + aarch64-darwin are packaged)");
 in
-  pkgs.stdenvNoCC.mkDerivation {
-    pname = "kagi-cli";
-    inherit version;
+pkgs.stdenvNoCC.mkDerivation {
+  pname = "kagi-cli";
+  inherit version;
 
-    src = pkgs.fetchurl {
-      url = "https://github.com/Microck/kagi-cli/releases/download/v${version}/${info.asset}";
-      hash = info.hash;
-    };
+  src = pkgs.fetchurl {
+    url = "https://github.com/Microck/kagi-cli/releases/download/v${version}/${info.asset}";
+    hash = info.hash;
+  };
 
-    # Tarball contains a single bare binary, not a subdirectory.
-    sourceRoot = ".";
+  # Tarball contains a single bare binary, not a subdirectory.
+  sourceRoot = ".";
 
-    nativeBuildInputs = lib.optionals pkgs.stdenv.isLinux [pkgs.autoPatchelfHook];
-    buildInputs = lib.optionals pkgs.stdenv.isLinux [pkgs.stdenv.cc.cc.lib];
+  nativeBuildInputs = lib.optionals pkgs.stdenv.isLinux [ pkgs.autoPatchelfHook ];
+  buildInputs = lib.optionals pkgs.stdenv.isLinux [ pkgs.stdenv.cc.cc.lib ];
 
-    installPhase = ''
-      runHook preInstall
-      install -Dm755 kagi $out/bin/kagi
-      runHook postInstall
-    '';
+  installPhase = ''
+    runHook preInstall
+    install -Dm755 kagi $out/bin/kagi
+    runHook postInstall
+  '';
 
-    meta = with lib; {
-      description = "Terminal CLI for Kagi — search, summarize, assistant, and more";
-      homepage = "https://github.com/Microck/kagi-cli";
-      license = licenses.mit;
-      mainProgram = "kagi";
-      platforms = ["x86_64-linux" "aarch64-darwin"];
-      sourceProvenance = with sourceTypes; [binaryNativeCode];
-    };
-  }
+  meta = with lib; {
+    description = "Terminal CLI for Kagi — search, summarize, assistant, and more";
+    homepage = "https://github.com/Microck/kagi-cli";
+    license = licenses.mit;
+    mainProgram = "kagi";
+    platforms = [
+      "x86_64-linux"
+      "aarch64-darwin"
+    ];
+    sourceProvenance = with sourceTypes; [ binaryNativeCode ];
+  };
+}

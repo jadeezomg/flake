@@ -6,15 +6,23 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.devgui.ides;
-in {
+in
+{
   config = lib.mkIf cfg.enable {
-    home-manager.sharedModules = [./cursor ./zed];
+    home-manager.sharedModules = [
+      ./cursor
+      ./zed
+    ];
 
-    environment.systemPackages = lib.optionals (!isDarwin) (with pkgs; [
-      code-cursor
-      zed-editor
-    ]);
+    environment.systemPackages = lib.optionals (!isDarwin) (
+      with pkgs;
+      [
+        code-cursor
+        zed-editor
+      ]
+    );
   };
 }

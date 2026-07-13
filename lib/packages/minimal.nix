@@ -1,5 +1,4 @@
-pkgs:
-with pkgs; [
+pkgs: with pkgs; [
   # --- Search, find, path memory ---
   ripgrep
   fd

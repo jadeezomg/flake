@@ -6,15 +6,17 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.apps.notes;
-in {
+in
+{
   imports = [
     ./obsidian.nix
     ./typora
   ];
 
   config = lib.mkIf cfg.enable {
-    environment.systemPackages = lib.optionals (!isDarwin) [pkgs.libreoffice];
+    environment.systemPackages = lib.optionals (!isDarwin) [ pkgs.libreoffice ];
   };
 }

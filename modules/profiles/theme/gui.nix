@@ -6,16 +6,17 @@
   lib,
   pkgs,
   ...
-}: let
-  inherit
-    (config.lib.dotfiles)
+}:
+let
+  inherit (config.lib.dotfiles)
     mkLiveSymlink
     ;
 
   # Wallpaper/image data lives in ./wallpapers and ./images; the live
   # symlinks below expose them under ~/Pictures.
   assetsDir = "${config.dotfiles.flakeRoot}/modules/profiles/theme";
-in {
+in
+{
   stylix = {
     opacity = {
       applications = 0.7;
@@ -35,7 +36,7 @@ in {
     targets = {
       gtk.enable = true;
       zen-browser = {
-        profileNames = ["default"];
+        profileNames = [ "default" ];
         # opacity.applications = 0.5;
       };
     };

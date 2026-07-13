@@ -4,7 +4,8 @@
   pkgs,
   inputs,
   ...
-}: let
+}:
+let
   system = pkgs.stdenv.hostPlatform.system;
   hermesSrc = inputs.hermes-agent;
   haInputs = hermesSrc.inputs;
@@ -14,7 +15,8 @@
     npm-lockfile-fix = haInputs.npm-lockfile-fix.packages.${system}.default;
     rev = hermesSrc.rev or null;
   };
-in {
+in
+{
   services.hermes-agent = {
     enable = true;
     package = hermesAgent;
@@ -28,7 +30,14 @@ in {
       pkgs.context7
     ];
 
-    extraDependencyGroups = ["matrix" "web" "messaging" "mcp" "honcho" "edge-tts"];
+    extraDependencyGroups = [
+      "matrix"
+      "web"
+      "messaging"
+      "mcp"
+      "honcho"
+      "edge-tts"
+    ];
 
     # Matrix bot, non-secret half (connects over loopback, no TLS on-box). Auth is by
     # ACCESS TOKEN (MATRIX_ACCESS_TOKEN in hermes.env), not password: password login
@@ -42,14 +51,14 @@ in {
       MATRIX_E2EE_MODE = "optional";
     };
 
-    environmentFiles = [config.sops.templates."hermes.env".path];
+    environmentFiles = [ config.sops.templates."hermes.env".path ];
   };
 
-  sops.secrets.openrouter_api_key = {};
-  sops.secrets.agent_pat = {};
-  sops.secrets.hf_token = {};
+  sops.secrets.openrouter_api_key = { };
+  sops.secrets.agent_pat = { };
+  sops.secrets.hf_token = { };
   sops.secrets.kagi_session_token.key = "kagi/session_token";
-  sops.secrets.context7_api_key = {};
+  sops.secrets.context7_api_key = { };
   # Matrix auth is access-token based (see the `environment` note above). The password
   # secret is kept declared (break-glass: used once to mint the token / re-bootstrap via
   # docs/hosts/mini-matrix-hermes-setup.md) but is intentionally NOT put in the env.
@@ -77,16 +86,16 @@ in {
 
   systemd.services.hermes-agent.environment.HERMES_MANAGED = lib.mkForce "";
   system.activationScripts.hermes-unmanage = {
-    deps = ["hermes-agent-setup"];
+    deps = [ "hermes-agent-setup" ];
     text = ''
       _m="${config.services.hermes-agent.stateDir}/.hermes/.managed"
       [ -e "$_m" ] && ${pkgs.coreutils}/bin/unlink "$_m" || true
     '';
   };
-  systemd.services.hermes-agent.aliases = ["hermes-gateway.service"];
+  systemd.services.hermes-agent.aliases = [ "hermes-gateway.service" ];
 
   systemd.paths.hermes-agent-reload = {
-    wantedBy = ["multi-user.target"];
+    wantedBy = [ "multi-user.target" ];
     pathConfig = {
       PathModified = "${config.services.hermes-agent.stateDir}/.hermes/.env";
       Unit = "hermes-agent-reload.service";

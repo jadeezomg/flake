@@ -1,4 +1,4 @@
-{palette}: ''
+{ palette }: ''
   /* Birds of Paradise Gruvbox for Typora
    * Layout and Markdown markers follow the upstream Gruvbox Typora theme.
    * Colors are sourced from lib/theme-palette.nix via dotfilesLib.palette.

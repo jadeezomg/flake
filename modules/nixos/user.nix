@@ -5,18 +5,17 @@
   hostKey,
   user,
   ...
-}: let
-  host = hostData.hosts.${hostKey} or {};
-  userConfig = host.user or {};
+}:
+let
+  host = hostData.hosts.${hostKey} or { };
+  userConfig = host.user or { };
   passwordSecretKey =
     {
       desktop = "users/jadee/password_desktop";
       framework = "users/jadee/password_framework";
       mini = "users/jadee/password_mini";
     }
-    .${
-      hostKey
-    };
+    .${hostKey};
   localeConfig =
     host.locale or {
       defaultLocale = "en_US.UTF-8";
@@ -33,7 +32,8 @@
         LC_TIME = "de_DE.UTF-8";
       };
     };
-in {
+in
+{
   users.mutableUsers = false;
 
   # Per-host password hash via sops (decrypted early; requires the host age
@@ -47,10 +47,10 @@ in {
   users.users.${user} = {
     isNormalUser = true;
     description = userConfig.description or "user account";
-    extraGroups = userConfig.extraGroups or ["wheel"];
+    extraGroups = userConfig.extraGroups or [ "wheel" ];
     shell = pkgs.nushell;
-    packages = userConfig.packages or [];
-    openssh.authorizedKeys.keys = userConfig.sshKeys or [];
+    packages = userConfig.packages or [ ];
+    openssh.authorizedKeys.keys = userConfig.sshKeys or [ ];
     hashedPasswordFile = config.sops.secrets.${passwordSecretKey}.path;
   };
 

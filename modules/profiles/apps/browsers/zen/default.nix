@@ -4,10 +4,11 @@
   pkgs,
   pkgs-stable,
   ...
-}: let
-  extensions = import ./extensions.nix {inherit pkgs lib;};
+}:
+let
+  extensions = import ./extensions.nix { inherit pkgs lib; };
   sharedSettings = import ./settings.nix;
-  sharedSearch = import ./search.nix {inherit pkgs;};
+  sharedSearch = import ./search.nix { inherit pkgs; };
   defaultProfile = import ./profiles/default {
     inherit
       pkgs
@@ -25,10 +26,7 @@
       sharedSearch
       ;
   };
-  defaultProfileData =
-    if pkgs.stdenv.isLinux
-    then defaultProfile
-    else cayaProfile;
+  defaultProfileData = if pkgs.stdenv.isLinux then defaultProfile else cayaProfile;
   activeProfileExtensions = defaultProfileData.profileExtensions;
   policies = import ./policies.nix {
     inherit pkgs lib extensions;
@@ -44,35 +42,34 @@
   vicinaePkg = inputs.vicinae.packages.${pkgs.stdenv.hostPlatform.system}.default;
   vicinaeNativeMessagingHost =
     pkgs.writeTextDir "lib/mozilla/native-messaging-hosts/com.vicinae.vicinae.json"
-    (
-      builtins.toJSON {
-        name = "com.vicinae.vicinae";
-        description = "Vicinae Native Messaging Host";
-        path = "${vicinaePkg}/libexec/vicinae/vicinae-browser-link";
-        type = "stdio";
-        allowed_extensions = ["firefox@vicinae.com"];
-      }
-    );
-in {
+      (
+        builtins.toJSON {
+          name = "com.vicinae.vicinae";
+          description = "Vicinae Native Messaging Host";
+          path = "${vicinaePkg}/libexec/vicinae/vicinae-browser-link";
+          type = "stdio";
+          allowed_extensions = [ "firefox@vicinae.com" ];
+        }
+      );
+in
+{
   imports = [
     inputs.zen-browser.homeModules.beta
   ];
 
   programs.zen-browser = {
     enable = true;
-    nativeMessagingHosts =
-      (lib.optionals pkgs.stdenv.isLinux [pkgs-stable.firefoxpwa])
-      ++ [vicinaeNativeMessagingHost];
+    nativeMessagingHosts = (lib.optionals pkgs.stdenv.isLinux [ pkgs-stable.firefoxpwa ]) ++ [
+      vicinaeNativeMessagingHost
+    ];
     darwinDefaultsId = lib.mkIf (!pkgs.stdenv.isLinux) "com.zen.browser";
 
     inherit policies;
 
-    profiles.default =
-      builtins.removeAttrs defaultProfileData ["profileExtensions"]
-      // {
-        id = 0;
-        isDefault = true;
-        mods = zenManagedMods;
-      };
+    profiles.default = builtins.removeAttrs defaultProfileData [ "profileExtensions" ] // {
+      id = 0;
+      isDefault = true;
+      mods = zenManagedMods;
+    };
   };
 }

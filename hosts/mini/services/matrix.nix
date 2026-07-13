@@ -37,17 +37,22 @@
 #   3. In Element: homeserver "matrix.jadee.fyi", sign in. Auto-discovery works.
 #   4. DM @hermes:matrix.jadee.fyi (it auto-joins on invite; @mention it in rooms).
 #   5. (optional) Put a room id in MATRIX_HOME_ROOM (hermes.nix) for cron/notifications.
-{config, ...}: let
+{ config, ... }:
+let
   domain = "matrix.jadee.fyi";
   port = 6167; # continuwuity default; loopback only
-in {
+in
+{
   services.matrix-continuwuity = {
     enable = true;
     settings.global = {
       server_name = domain;
       # Loopback only — Caddy (the tailnet node) terminates TLS and proxies in.
-      address = ["127.0.0.1" "::1"];
-      port = [port];
+      address = [
+        "127.0.0.1"
+        "::1"
+      ];
+      port = [ port ];
 
       # Registration enabled but gated by the token (CONTINUWUITY_REGISTRATION_TOKEN
       # from the EnvironmentFile below).
@@ -65,7 +70,9 @@ in {
   # Registration token → env var, read by systemd (root) before the dynamic user
   # starts, so the 0400 sops secret is readable. Keeps the token out of /nix/store.
   sops.secrets.matrix_registration_token.key = "matrix/registration_token";
-  systemd.services.continuwuity.serviceConfig.EnvironmentFile = [config.sops.templates."matrix-continuwuity.env".path];
+  systemd.services.continuwuity.serviceConfig.EnvironmentFile = [
+    config.sops.templates."matrix-continuwuity.env".path
+  ];
   sops.templates."matrix-continuwuity.env" = {
     mode = "0400";
     content = ''

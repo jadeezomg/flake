@@ -9,10 +9,12 @@
   pkgs,
   pkgs-small,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.devenv.agents;
-  nonoAgents = dotfilesLib.nonoProfiles {inherit pkgs pkgs-small;};
-in {
+  nonoAgents = dotfilesLib.nonoProfiles { inherit pkgs pkgs-small; };
+in
+{
   config = lib.mkIf cfg.enable {
     home-manager.sharedModules = [
       ./skills.nix
@@ -43,6 +45,6 @@ in {
       ])
       # mcp-nixos pulls python3.lupa → luajit_2_0, which nixpkgs 26.05 marks
       # unsupported on aarch64-darwin. Drop it on Darwin until fixed upstream.
-      ++ lib.optionals (!pkgs.stdenv.isDarwin) [pkgs.mcp-nixos];
+      ++ lib.optionals (!pkgs.stdenv.isDarwin) [ pkgs.mcp-nixos ];
   };
 }

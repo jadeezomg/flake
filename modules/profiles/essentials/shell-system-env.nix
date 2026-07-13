@@ -3,7 +3,8 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   envData = dotfilesLib.shellEnvData;
   paths = dotfilesLib.shellPaths;
 
@@ -15,7 +16,7 @@
   # `lib.escapeShellArg` (single-quoted) or programs.nushell.environmentVariables
   # (no POSIX expansion) loses that, so resolve placeholders at eval time
   # before those values hit such consumers.
-  expand = lib.replaceStrings ["$HOME" "$USER"] [config.home.homeDirectory config.home.username];
+  expand = lib.replaceStrings [ "$HOME" "$USER" ] [ config.home.homeDirectory config.home.username ];
 
   # Workstation-only PATH additions on top of the base list from env/base.nix.
   systemPathList = map expand [
@@ -38,15 +39,13 @@
     }
   );
 
-  exportLines =
-    lib.concatStringsSep "\n"
-    (lib.mapAttrsToList (k: v: "export ${k}=${lib.escapeShellArg v}")
-      systemEnv);
+  exportLines = lib.concatStringsSep "\n" (
+    lib.mapAttrsToList (k: v: "export ${k}=${lib.escapeShellArg v}") systemEnv
+  );
 
-  fishSetLines =
-    lib.concatStringsSep "\n"
-    (lib.mapAttrsToList (k: v: "set -gx ${k} ${lib.escapeShellArg v}")
-      systemEnv);
+  fishSetLines = lib.concatStringsSep "\n" (
+    lib.mapAttrsToList (k: v: "set -gx ${k} ${lib.escapeShellArg v}") systemEnv
+  );
 
   zshFlakeFn = ''
     flake() { command just --justfile "''${FLAKE:?}/Justfile" "$@"; }
@@ -73,7 +72,8 @@
       ^just --justfile $"($env.FLAKE)/Justfile" ...$rest
     }
   '';
-in {
+in
+{
   programs.bash.initExtra = lib.mkAfter ''
     ${exportLines}
     export PATH="${systemPathColon}:$PATH"

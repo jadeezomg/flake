@@ -7,22 +7,22 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   ext = inputs.vicinae-extensions.packages.${pkgs.stdenv.hostPlatform.system};
 
   # Store extensions previously installed via the GUI (store.vicinae.*).
   # https://docs.vicinae.com/nixos#configuring-extensions
   # systemd is in the store but omitted from vicinae-extensions.packages (dbus build).
-  extensionNames =
-    [
-      "github"
-      "it-tools"
-      "nix"
-      "podman"
-      "process-manager"
-      "protondb-search"
-    ]
-    ++ lib.optionals pkgs.stdenv.isLinux ["niri"];
+  extensionNames = [
+    "github"
+    "it-tools"
+    "nix"
+    "podman"
+    "process-manager"
+    "protondb-search"
+  ]
+  ++ lib.optionals pkgs.stdenv.isLinux [ "niri" ];
 
   vicinaeExtensions = map (name: ext.${name}) extensionNames;
 
@@ -59,7 +59,8 @@
   };
 
   vicinaeExe = "${config.home.path}/bin/vicinae";
-in {
+in
+{
   sops.templates."vicinae-github.json" = lib.mkIf (config.sops.secrets ? "github-token") {
     content = ''
       {
@@ -85,7 +86,9 @@ in {
     # Zen native-messaging host wiring lives in apps.browsers/zen.
     enableFirefoxIntegration = false;
     extensions = vicinaeExtensions;
-    settingOverrides = lib.mkIf (config.sops.secrets ? "github-token") [config.sops.templates."vicinae-github.json".path];
+    settingOverrides = lib.mkIf (config.sops.secrets ? "github-token") [
+      config.sops.templates."vicinae-github.json".path
+    ];
     systemd = lib.mkIf pkgs.stdenv.isLinux {
       enable = true;
       autoStart = true;
@@ -97,7 +100,7 @@ in {
   };
 
   # Drop GUI store copies so Vicinae does not list duplicates after switch.
-  home.activation.removeVicinaeStoreExtensions = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.removeVicinaeStoreExtensions = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     for ext in ${lib.concatStringsSep " " extensionNames}; do
       $DRY_RUN_CMD rm -rf "${config.xdg.dataHome}/vicinae/extensions/store.vicinae.''${ext}"
     done
@@ -119,7 +122,7 @@ in {
 
   # Vicinae has no global hotkeys; bind Hyper+Space via skhd (Hyperkey chord).
   # HM has no programs.skhd — wire the daemon + ~/.skhdrc ourselves.
-  home.packages = lib.mkIf pkgs.stdenv.isDarwin [pkgs.skhd];
+  home.packages = lib.mkIf pkgs.stdenv.isDarwin [ pkgs.skhd ];
 
   home.file.".skhdrc" = lib.mkIf pkgs.stdenv.isDarwin {
     text = ''
@@ -131,7 +134,7 @@ in {
   launchd.agents.skhd = lib.mkIf pkgs.stdenv.isDarwin {
     enable = true;
     config = {
-      ProgramArguments = ["${pkgs.skhd}/bin/skhd"];
+      ProgramArguments = [ "${pkgs.skhd}/bin/skhd" ];
       RunAtLoad = true;
       KeepAlive = true;
     };

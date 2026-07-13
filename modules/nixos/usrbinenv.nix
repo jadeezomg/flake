@@ -6,19 +6,21 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   config.system.activationScripts.usrbinenv = lib.mkForce (
-    if config.environment.usrbinenv != null
-    then ''
-      mkdir -p /usr/bin
-      chmod 0755 /usr/bin
-      ln -sfn ${config.environment.usrbinenv} /usr/bin/.env.tmp
-      mv -f /usr/bin/.env.tmp /usr/bin/env
-    ''
-    else ''
-      rm -f /usr/bin/env
-      if test -d /usr/bin; then rmdir --ignore-fail-on-non-empty /usr/bin; fi
-      if test -d /usr; then rmdir --ignore-fail-on-non-empty /usr; fi
-    ''
+    if config.environment.usrbinenv != null then
+      ''
+        mkdir -p /usr/bin
+        chmod 0755 /usr/bin
+        ln -sfn ${config.environment.usrbinenv} /usr/bin/.env.tmp
+        mv -f /usr/bin/.env.tmp /usr/bin/env
+      ''
+    else
+      ''
+        rm -f /usr/bin/env
+        if test -d /usr/bin; then rmdir --ignore-fail-on-non-empty /usr/bin; fi
+        if test -d /usr; then rmdir --ignore-fail-on-non-empty /usr; fi
+      ''
   );
 }

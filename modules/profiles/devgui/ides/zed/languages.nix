@@ -2,13 +2,15 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   vls = pkgs.vscode-langservers-extracted;
   vscodeLangServer = name: {
     binary.path = lib.getExe' vls name;
-    binary.arguments = ["--stdio"];
+    binary.arguments = [ "--stdio" ];
   };
-in {
+in
+{
   programs.zed-editor = {
     userSettings = {
       languages = {
@@ -17,7 +19,11 @@ in {
             "ty"
             "!basedpyright"
           ];
-          formatter = {language_server = {name = "ruff";};};
+          formatter = {
+            language_server = {
+              name = "ruff";
+            };
+          };
         };
 
         Ruby = {
@@ -35,46 +41,78 @@ in {
         };
 
         Nix = {
-          language_servers = ["nil"];
+          language_servers = [ "nil" ];
           formatter.external = {
             command = "nixfmt";
-            arguments = ["-"];
+            arguments = [ "-" ];
           };
           format_on_save = "on";
         };
 
         # --- Biome (per-language; avoid global so unsupported languages aren't affected) ---
         CSS = {
-          formatter = {language_server = {name = "biome";};};
+          formatter = {
+            language_server = {
+              name = "biome";
+            };
+          };
         };
         GraphQL = {
-          formatter = {language_server = {name = "biome";};};
+          formatter = {
+            language_server = {
+              name = "biome";
+            };
+          };
         };
         HTML = {
-          formatter = {language_server = {name = "biome";};};
+          formatter = {
+            language_server = {
+              name = "biome";
+            };
+          };
         };
         JSON = {
-          formatter = {language_server = {name = "biome";};};
+          formatter = {
+            language_server = {
+              name = "biome";
+            };
+          };
         };
         JSONC = {
-          formatter = {language_server = {name = "biome";};};
+          formatter = {
+            language_server = {
+              name = "biome";
+            };
+          };
         };
         JavaScript = {
-          formatter = {language_server = {name = "biome";};};
+          formatter = {
+            language_server = {
+              name = "biome";
+            };
+          };
           code_actions_on_format = {
             "source.fixAll.biome" = true;
             "source.organizeImports.biome" = true;
           };
         };
         TSX = {
-          formatter = {language_server = {name = "biome";};};
+          formatter = {
+            language_server = {
+              name = "biome";
+            };
+          };
           code_actions_on_format = {
             "source.fixAll.biome" = true;
             "source.organizeImports.biome" = true;
           };
         };
         TypeScript = {
-          formatter = {language_server = {name = "biome";};};
+          formatter = {
+            language_server = {
+              name = "biome";
+            };
+          };
           code_actions_on_format = {
             "source.fixAll.biome" = true;
             "source.organizeImports.biome" = true;
@@ -85,7 +123,7 @@ in {
       lsp = {
         nil = {
           binary.path = "nil";
-          binary.arguments = [];
+          binary.arguments = [ ];
         };
 
         rubocop = {
@@ -107,8 +145,8 @@ in {
         # and won't run on NixOS (stub-ld error).
         biome = {
           binary.path = "biome";
-          binary.arguments = ["lsp-proxy"];
-          settings = {};
+          binary.arguments = [ "lsp-proxy" ];
+          settings = { };
         };
 
         # Pin VSCodium-extracted servers from pkgs (avoid stale 4.x on PATH / in Zed).

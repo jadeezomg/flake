@@ -20,7 +20,8 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   # account name in libsecret  →  sops secret attribute
   agentKeyMap = {
     "openrouter_api_key" = "openrouter-api-key";
@@ -29,46 +30,54 @@
     "github_token" = "agent-pat";
   };
 
-  secrets = config.sops.secrets or {};
+  secrets = config.sops.secrets or { };
 
-  resolvePath = name: let
-    raw = secrets.${name}.path;
-  in
-    if lib.hasPrefix "/" raw
-    then raw
-    else "${config.home.homeDirectory}/${raw}";
+  resolvePath =
+    name:
+    let
+      raw = secrets.${name}.path;
+    in
+    if lib.hasPrefix "/" raw then raw else "${config.home.homeDirectory}/${raw}";
 
   esc = lib.escapeShellArg;
 
-  emit = account: sopsName: let
-    path = resolvePath sopsName;
-  in ''
-    if [ -r ${esc path} ]; then
-      _val="$(tr -d '[:space:]' <${esc path})"
-      if [ -n "$_val" ]; then
-        printf '%s' "$_val" | secret-tool store \
-          --label=${esc "nono: ${account}"} \
-          service nono username ${esc account} target default \
-          2>/dev/null || true
+  emit =
+    account: sopsName:
+    let
+      path = resolvePath sopsName;
+    in
+    ''
+      if [ -r ${esc path} ]; then
+        _val="$(tr -d '[:space:]' <${esc path})"
+        if [ -n "$_val" ]; then
+          printf '%s' "$_val" | secret-tool store \
+            --label=${esc "nono: ${account}"} \
+            service nono username ${esc account} target default \
+            2>/dev/null || true
+        fi
+        unset _val
       fi
-      unset _val
-    fi
-  '';
+    '';
 
   presentMap = lib.filterAttrs (_: sopsName: lib.hasAttr sopsName secrets) agentKeyMap;
   script = lib.concatStrings (lib.mapAttrsToList emit presentMap);
 in
-  lib.mkMerge [
-    (lib.mkIf pkgs.stdenv.isLinux {
-      # `secret-tool` is the supported way to inspect / manage the nono
-      # keystore; ship it on user PATH so the same tool that activation
-      # uses is available in interactive shells.
-      home.packages = [pkgs.libsecret];
-    })
-    (lib.mkIf (pkgs.stdenv.isLinux && presentMap != {}) {
-      home.activation.sopsKeyring = lib.hm.dag.entryAfter ["sops-nix"] ''
-        export PATH=${lib.makeBinPath [pkgs.coreutils pkgs.libsecret]}:$PATH
-        ${script}
-      '';
-    })
-  ]
+lib.mkMerge [
+  (lib.mkIf pkgs.stdenv.isLinux {
+    # `secret-tool` is the supported way to inspect / manage the nono
+    # keystore; ship it on user PATH so the same tool that activation
+    # uses is available in interactive shells.
+    home.packages = [ pkgs.libsecret ];
+  })
+  (lib.mkIf (pkgs.stdenv.isLinux && presentMap != { }) {
+    home.activation.sopsKeyring = lib.hm.dag.entryAfter [ "sops-nix" ] ''
+      export PATH=${
+        lib.makeBinPath [
+          pkgs.coreutils
+          pkgs.libsecret
+        ]
+      }:$PATH
+      ${script}
+    '';
+  })
+]

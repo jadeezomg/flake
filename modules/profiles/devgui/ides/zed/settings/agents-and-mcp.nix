@@ -1,8 +1,10 @@
-{dotfilesLib}: let
+{ dotfilesLib }:
+let
   registryLib = rec {
     attrNames = builtins.attrNames;
     concatStringsSep = builtins.concatStringsSep;
-    mapAttrs = f: attrs:
+    mapAttrs =
+      f: attrs:
       builtins.listToAttrs (
         map (name: {
           inherit name;
@@ -10,25 +12,23 @@
         }) (attrNames attrs)
       );
     intersectLists = left: right: builtins.filter (name: builtins.elem name right) left;
-    assertMsg = condition: message:
-      if condition
-      then true
-      else throw message;
+    assertMsg = condition: message: if condition then true else throw message;
   };
-  mcpRegistry = dotfilesLib.mcpServers {lib = registryLib;};
+  mcpRegistry = dotfilesLib.mcpServers { lib = registryLib; };
   extensionManagedMcpServers = {
     mcp-server-context7 = {
-      settings = {};
+      settings = { };
       enabled = true;
       remote = false;
     };
     mcp-server-github = {
-      settings = {};
+      settings = { };
       enabled = true;
       remote = false;
     };
   };
-in {
+in
+{
   agent_servers = {
     goose = {
       type = "registry";
@@ -105,7 +105,7 @@ in {
     expand_edit_card = true;
     notify_when_agent_waiting = "never";
     single_file_review = true;
-    model_parameters = [];
+    model_parameters = [ ];
     tool_permissions = import ../tool-permissions.nix;
     show_turn_stats = true;
   };

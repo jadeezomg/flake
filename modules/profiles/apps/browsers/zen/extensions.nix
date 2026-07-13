@@ -1,32 +1,28 @@
-{...}: let
+{ ... }:
+let
   # Shared extension helper functions
   mkPluginUrl = id: "https://addons.mozilla.org/firefox/downloads/latest/${id}/latest.xpi";
 
-  mkExtensionEntry = {
-    id,
-    pinned ? false,
-    url ? null,
-  }: let
-    install_url =
-      if url != null
-      then url
-      else mkPluginUrl id;
-    base = {
-      inherit install_url;
-      installation_mode = "force_installed";
-    };
-  in
-    if pinned
-    then base // {default_area = "navbar";}
-    else base;
+  mkExtensionEntry =
+    {
+      id,
+      pinned ? false,
+      url ? null,
+    }:
+    let
+      install_url = if url != null then url else mkPluginUrl id;
+      base = {
+        inherit install_url;
+        installation_mode = "force_installed";
+      };
+    in
+    if pinned then base // { default_area = "navbar"; } else base;
 
   mkExtensionSettings = builtins.mapAttrs (
-    _: entry:
-      if builtins.isAttrs entry
-      then entry
-      else mkExtensionEntry {id = entry;}
+    _: entry: if builtins.isAttrs entry then entry else mkExtensionEntry { id = entry; }
   );
-in {
+in
+{
   inherit mkPluginUrl mkExtensionEntry mkExtensionSettings;
 
   # Common extensions (shared across all profiles)

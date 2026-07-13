@@ -1,6 +1,6 @@
-{config, ...}: let
-  inherit
-    (config.lib.dotfiles)
+{ config, ... }:
+let
+  inherit (config.lib.dotfiles)
     mkLiveSymlink
     ;
 
@@ -13,7 +13,8 @@
 
   ompConfigFile = "${flakeRoot}/data/agents/omp/config.yml";
   ompThemeFile = "${flakeRoot}/data/agents/omp/themes/birds-of-paradise.json";
-in {
+in
+{
   home.file = {
     "AGENTS.md".source = agentsLink;
     ".codex/AGENTS.md".source = agentsLink;

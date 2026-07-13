@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   # --- sudo (NixOS + nix-darwin) ---
   security.sudo.extraConfig = ''
     Defaults timestamp_timeout=60 # Change default timeout for sudo

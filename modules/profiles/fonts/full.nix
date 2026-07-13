@@ -9,9 +9,11 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.fonts;
-in {
+in
+{
   config = lib.mkIf (cfg.enable && cfg.full.enable) {
     fonts.packages = with pkgs; [
       alegreya

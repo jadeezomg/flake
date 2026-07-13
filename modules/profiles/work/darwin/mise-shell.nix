@@ -7,13 +7,15 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   # nushell's config is a read-only store symlink and `source` resolves at parse
   # time, so we can't pipe `mise activate` inline like zsh/fish. Instead we
   # generate the activation snippet into a writable cache path on switch and
   # source that constant path (empty file when mise is absent → sources nothing).
   miseInit = "${config.xdg.cacheHome}/mise/init.nu";
-in {
+in
+{
   # zsh + fish activate at interactive startup when mise is on PATH.
   programs.zsh.initContent = lib.mkAfter ''
     if command -v mise >/dev/null 2>&1; then
@@ -34,7 +36,7 @@ in {
   # Regenerate the nushell activation snippet on each switch so it tracks the
   # installed mise version. Homebrew isn't on the activation PATH, so fall back
   # to its known Apple-Silicon prefix.
-  home.activation.miseNushellInit = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.miseNushellInit = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     miseInit=${lib.escapeShellArg miseInit}
     mkdir -p "$(dirname "$miseInit")"
     mise_bin="$(command -v mise || true)"

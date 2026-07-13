@@ -1,4 +1,4 @@
-{lib}: {
+{ lib }: {
   # --- Appearance ---
   # mkForce overrides Stylix's computed font values while keeping its theme.
   buffer_font_family = lib.mkForce "Iosevka Nerd Font";
@@ -23,7 +23,10 @@
   current_line_highlight = "all";
   selection_highlight = true;
   ui_font_family = lib.mkForce "Inter Display";
-  ui_font_fallbacks = ["Helvetica Neue" ".SystemUIFont"];
+  ui_font_fallbacks = [
+    "Helvetica Neue"
+    ".SystemUIFont"
+  ];
 
   ui_font_features = {
     calt = true;

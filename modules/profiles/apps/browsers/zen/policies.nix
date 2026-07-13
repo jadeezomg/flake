@@ -2,14 +2,16 @@
   extensions,
   profileExtensions,
   ...
-}: let
+}:
+let
   mkLockedAttrs = builtins.mapAttrs (
     _: value: {
       Value = value;
       Status = "locked";
     }
   );
-in {
+in
+{
   # Autofill
   AutofillAddressEnabled = true;
   AutofillCreditCardEnabled = false;
@@ -37,8 +39,7 @@ in {
 
   # Extensions
   ExtensionSettings = extensions.mkExtensionSettings (
-    extensions.commonExtensions
-    // profileExtensions
+    extensions.commonExtensions // profileExtensions
   );
 
   # Locked Preferences

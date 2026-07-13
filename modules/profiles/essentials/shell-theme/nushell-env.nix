@@ -2,9 +2,11 @@
   dotfilesLib,
   pkgs,
   ...
-}: let
+}:
+let
   themeColors = dotfilesLib.palette;
-in {
+in
+{
   programs.nushell.extraEnv = ''
     $env.ENV_CONVERSIONS = {
       "PATH": {

@@ -2,7 +2,8 @@
   dotfilesLib,
   config,
   ...
-}: let
+}:
+let
   # Sops *attribute* name for the GitHub PAT file. Must be one of `githubPatSecretAttrs` in
   # `modules/profiles/minimal/shells/sops-session-env.nix` (e.g. "github-token" or "gh-token").
   githubPatSecretAttrName = "github-token";
@@ -12,7 +13,8 @@
     key = "github_token";
     path = "${secretDir}/github-token";
   };
-in {
+in
+{
   sops = {
     defaultSopsFile = dotfilesLib.sopsFile;
     age = {
@@ -22,40 +24,39 @@ in {
       keyFile = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
       generateKey = false;
     };
-    secrets =
-      {
-        ${githubPatSecretAttrName} = githubPatSecret;
-        "agent-pat" = {
-          key = "agent_pat";
-          path = "${secretDir}/agent-pat";
-        };
-      }
-      // {
-        "context7-api-key" = {
-          key = "context7_api_key";
-          path = "${home}/.config/context7/api-key";
-        };
-        "inception-api-key" = {
-          key = "inception_api_key";
-          path = "${secretDir}/inception-api-key";
-        };
-        "kagi-api-key" = {
-          key = "kagi/api_key";
-          path = "${home}/.kagi_api_key";
-        };
-        "kagi-session-token" = {
-          key = "kagi/session_token";
-          path = "${home}/.kagi_session_token";
-        };
-        "openrouter-api-key" = {
-          key = "openrouter_api_key";
-          path = "${secretDir}/openrouter-api-key";
-        };
-        "hf-token" = {
-          key = "hf_token";
-          path = "${secretDir}/hf-token";
-        };
+    secrets = {
+      ${githubPatSecretAttrName} = githubPatSecret;
+      "agent-pat" = {
+        key = "agent_pat";
+        path = "${secretDir}/agent-pat";
       };
+    }
+    // {
+      "context7-api-key" = {
+        key = "context7_api_key";
+        path = "${home}/.config/context7/api-key";
+      };
+      "inception-api-key" = {
+        key = "inception_api_key";
+        path = "${secretDir}/inception-api-key";
+      };
+      "kagi-api-key" = {
+        key = "kagi/api_key";
+        path = "${home}/.kagi_api_key";
+      };
+      "kagi-session-token" = {
+        key = "kagi/session_token";
+        path = "${home}/.kagi_session_token";
+      };
+      "openrouter-api-key" = {
+        key = "openrouter_api_key";
+        path = "${secretDir}/openrouter-api-key";
+      };
+      "hf-token" = {
+        key = "hf_token";
+        path = "${secretDir}/hf-token";
+      };
+    };
 
     # Render ~/.kagi.toml from the kagi secrets so the `kagi` CLI's default
     # config carries credentials declaratively. Note: env vars exported by

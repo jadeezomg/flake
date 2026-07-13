@@ -3,9 +3,11 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.devenv.tools;
-in {
+in
+{
   config = lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
       # --- Build essentials (migrated from modules/shared/utils/core.nix) ---

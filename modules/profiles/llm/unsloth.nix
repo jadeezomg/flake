@@ -1,6 +1,7 @@
 # Unsloth Studio podman container as a user service. Agent skills install
 # moved to ../devenv/agents/skills.nix.
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   unslothDefaults = {
     containerName = "unsloth-studio";
     jupyterPassword = "unsloth";
@@ -29,11 +30,7 @@
     api_port="''${UNSLOTH_API_PORT:-${unslothDefaults.apiPort}}"
     ssh_port="''${UNSLOTH_SSH_PORT:-${unslothDefaults.sshPort}}"
     enable_gpu="''${UNSLOTH_ENABLE_GPU:-${unslothDefaults.enableGpu}}"
-    is_linux="${
-      if pkgs.stdenv.isLinux
-      then "1"
-      else "0"
-    }"
+    is_linux="${if pkgs.stdenv.isLinux then "1" else "0"}"
 
     mkdir -p "$workdir"
 
@@ -55,12 +52,13 @@
       "''${gpu_args[@]}" \
       unsloth/unsloth
   '';
-in {
+in
+{
   systemd.user.services.unsloth-studio = {
     Unit = {
       Description = "Unsloth Studio container (Podman)";
-      After = ["network-online.target"];
-      Wants = ["network-online.target"];
+      After = [ "network-online.target" ];
+      Wants = [ "network-online.target" ];
     };
     Service = {
       Type = "simple";

@@ -5,7 +5,8 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.devenv;
 
   # Keep in sync with ./languages/default.nix. Duplicated here on purpose:
@@ -23,7 +24,8 @@
     "swift"
     "web"
   ];
-in {
+in
+{
   imports = [
     ./tools.nix
     ./cloud.nix
@@ -39,7 +41,10 @@ in {
   # meta-flag.
   config = lib.mkIf cfg.enable {
     # HM dev tooling without its own category (biome config, gh CLI config).
-    home-manager.sharedModules = [./biome.nix ./gh];
+    home-manager.sharedModules = [
+      ./biome.nix
+      ./gh
+    ];
 
     dotfiles.profiles.devenv = {
       tools.enable = lib.mkDefault true;
@@ -47,7 +52,9 @@ in {
       agents.enable = lib.mkDefault true;
       containers.enable = lib.mkDefault true;
       databases.enable = lib.mkDefault true;
-      languages = lib.genAttrs langs (_: {enable = lib.mkDefault true;});
+      languages = lib.genAttrs langs (_: {
+        enable = lib.mkDefault true;
+      });
     };
   };
 }

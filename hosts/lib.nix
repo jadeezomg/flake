@@ -3,7 +3,7 @@ let
 
   sharedNixOSUser = userData.users.jadee;
   darwinUser = userData.users.caya-jonas;
-  nixosExtraUsers = [userData.users.angelie];
+  nixosExtraUsers = [ userData.users.angelie ];
 
   sharedNixOSHost = {
     username = sharedNixOSUser.username;
@@ -15,7 +15,8 @@ let
     # Used for nix.settings.cores and half-sized CARGO_BUILD_JOBS.
     buildCores = 6;
   };
-in {
+in
+{
   inherit
     userData
     sharedNixOSUser

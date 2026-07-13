@@ -1,4 +1,4 @@
-{...}: {
+{ ... }: {
   dotfiles.hardware = {
     wireless.enable = true;
     gpu = "amd";

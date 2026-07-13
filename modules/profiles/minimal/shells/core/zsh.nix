@@ -4,10 +4,12 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   aliases = (import ./data/aliases.nix).commonAliases;
   paths = dotfilesLib.shellPaths.commonPaths;
-in {
+in
+{
   programs.zsh = {
     enable = true;
 

@@ -5,7 +5,8 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   options.dotfiles.flakeRoot = lib.mkOption {
     type = lib.types.str;
     description = ''
@@ -21,6 +22,6 @@
     # HM-native helper channel: any HM module can use
     # `config.lib.dotfiles.mkLiveSymlink` & friends without path imports
     # (same mechanism as config.lib.file.mkOutOfStoreSymlink).
-    lib.dotfiles = import ./live-xdg-symlinks.nix {inherit config;};
+    lib.dotfiles = import ./live-xdg-symlinks.nix { inherit config; };
   };
 }

@@ -5,15 +5,14 @@
   lib,
   pkgs,
   ...
-}: let
-  host = hostData.hosts.${hostKey} or {};
-  extras = host.extraUsers or [];
+}:
+let
+  host = hostData.hosts.${hostKey} or { };
+  extras = host.extraUsers or [ ];
   username = config.home.username;
-  extraUser =
-    lib.findFirst (u: (u.username or "") == username) null extras;
+  extraUser = lib.findFirst (u: (u.username or "") == username) null extras;
   shouldPromptPasswordChange =
-    extraUser
-    != null
+    extraUser != null
     && (extraUser.promptPasswordChange or false)
     && (extraUser.initialPassword or null) != null;
 
@@ -65,18 +64,18 @@
     fi
   '';
 in
-  lib.mkIf shouldPromptPasswordChange {
-    systemd.user.services.guest-password-reminder = {
-      Unit = {
-        Description = "Prompt guest user to change temporary password";
-        After = ["graphical-session.target"];
-      };
-      Install = {
-        WantedBy = ["graphical-session.target"];
-      };
-      Service = {
-        Type = "oneshot";
-        ExecStart = "${launchReminderScript}";
-      };
+lib.mkIf shouldPromptPasswordChange {
+  systemd.user.services.guest-password-reminder = {
+    Unit = {
+      Description = "Prompt guest user to change temporary password";
+      After = [ "graphical-session.target" ];
     };
-  }
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${launchReminderScript}";
+    };
+  };
+}

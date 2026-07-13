@@ -5,14 +5,16 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.apps.notes;
   typoraTheme = import ./theme.nix {
     inherit (dotfilesLib) palette;
   };
-in {
+in
+{
   config = lib.mkIf cfg.enable {
-    environment.systemPackages = lib.optionals (!isDarwin) [pkgs.typora];
+    environment.systemPackages = lib.optionals (!isDarwin) [ pkgs.typora ];
 
     home-manager.sharedModules = [
       {

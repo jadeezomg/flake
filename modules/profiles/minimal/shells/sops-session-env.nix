@@ -34,8 +34,9 @@
   lib,
   pkgs,
   ...
-}: let
-  secrets = config.sops.secrets or {};
+}:
+let
+  secrets = config.sops.secrets or { };
 
   # Secrets delivered to consumers by another mechanism (not the session env).
   #
@@ -45,64 +46,67 @@
   # can't find it. Exporting KAGI_API_KEY/KAGI_SESSION_TOKEN to the session env
   # makes kagi cwd-independent; env overrides the toml and the values match, so
   # there's no conflict.
-  sessionEnvExcludeAttrs = [];
+  sessionEnvExcludeAttrs = [ ];
   secretNames = lib.filter (n: !lib.elem n sessionEnvExcludeAttrs) (lib.attrNames secrets);
 
   githubPatSecretAttrs = [
     "github-token"
     "gh-token"
   ];
-  hfTokenSecretAttrs = ["hf-token"];
+  hfTokenSecretAttrs = [ "hf-token" ];
 
-  resolvePath = name: let
-    raw = secrets.${name}.path;
-  in
-    if lib.hasPrefix "/" raw
-    then raw
-    else "${config.home.homeDirectory}/${raw}";
+  resolvePath =
+    name:
+    let
+      raw = secrets.${name}.path;
+    in
+    if lib.hasPrefix "/" raw then raw else "${config.home.homeDirectory}/${raw}";
 
-  defaultEnvVar = name: lib.strings.toUpper (lib.replaceStrings ["-"] ["_"] name);
+  defaultEnvVar = name: lib.strings.toUpper (lib.replaceStrings [ "-" ] [ "_" ] name);
 
-  mkExports = name: let
-    path = resolvePath name;
-  in
-    if lib.elem name githubPatSecretAttrs
-    then [
-      {
-        inherit path;
-        var = "GITHUB_TOKEN";
-      }
-      {
-        inherit path;
-        var = "GITHUB_PAT";
-      }
-      {
-        inherit path;
-        var = "GITHUB_PERSONAL_ACCESS_TOKEN";
-      }
-      {
-        inherit path;
-        var = "NIX_CONFIG";
-        valuePrefix = "access-tokens = github.com=";
-      }
-    ]
-    else if lib.elem name hfTokenSecretAttrs
-    then [
-      {
-        inherit path;
-        var = "HF_TOKEN";
-      }
-      {
-        inherit path;
-        var = "HUGGING_FACE_HUB_TOKEN";
-      }
-    ]
-    else [
-      {
-        inherit path;
-        var = defaultEnvVar name;
-      }
-    ];
+  mkExports =
+    name:
+    let
+      path = resolvePath name;
+    in
+    if lib.elem name githubPatSecretAttrs then
+      [
+        {
+          inherit path;
+          var = "GITHUB_TOKEN";
+        }
+        {
+          inherit path;
+          var = "GITHUB_PAT";
+        }
+        {
+          inherit path;
+          var = "GITHUB_PERSONAL_ACCESS_TOKEN";
+        }
+        {
+          inherit path;
+          var = "NIX_CONFIG";
+          valuePrefix = "access-tokens = github.com=";
+        }
+      ]
+    else if lib.elem name hfTokenSecretAttrs then
+      [
+        {
+          inherit path;
+          var = "HF_TOKEN";
+        }
+        {
+          inherit path;
+          var = "HUGGING_FACE_HUB_TOKEN";
+        }
+      ]
+    else
+      [
+        {
+          inherit path;
+          var = defaultEnvVar name;
+        }
+      ];
 
   exports = lib.concatMap mkExports secretNames;
 
@@ -133,7 +137,7 @@
 
   darwinSetenvScript = pkgs.writeShellScript "sops-launchctl-setenv" ''
     set -u
-    export PATH=${lib.makeBinPath [pkgs.coreutils]}:/bin:/usr/bin:$PATH
+    export PATH=${lib.makeBinPath [ pkgs.coreutils ]}:/bin:/usr/bin:$PATH
 
     # LaunchAgents start concurrently at login; wait briefly for sops-nix to
     # materialize decrypted secrets before exporting launchd env.
@@ -155,75 +159,71 @@
     ${darwinScript}
   '';
 
-  shBlock =
-    lib.concatMapStrings (e: ''
-      if [ -r ${esc e.path} ]; then
-        export ${e.var}=${esc (prefixOf e)}"$(tr -d '[:space:]' <${esc e.path})"
-      fi
-    '')
-    exports;
+  shBlock = lib.concatMapStrings (e: ''
+    if [ -r ${esc e.path} ]; then
+      export ${e.var}=${esc (prefixOf e)}"$(tr -d '[:space:]' <${esc e.path})"
+    fi
+  '') exports;
 
-  fishBlock =
-    lib.concatMapStrings (e: ''
-      if test -r ${esc e.path}
-        set -gx ${e.var} ${esc (prefixOf e)}(cat ${esc e.path} | string trim)
-      end
-    '')
-    exports;
+  fishBlock = lib.concatMapStrings (e: ''
+    if test -r ${esc e.path}
+      set -gx ${e.var} ${esc (prefixOf e)}(cat ${esc e.path} | string trim)
+    end
+  '') exports;
 
-  nuBlock =
-    lib.concatMapStrings (
-      e: let
-        pJson = builtins.toJSON e.path;
-        prefixJson = builtins.toJSON (prefixOf e);
-      in ''
-        if (${pJson} | path exists) {
-          $env.${e.var} = ${prefixJson} + (${pJson} | open | str trim)
-        }
+  nuBlock = lib.concatMapStrings (
+    e:
+    let
+      pJson = builtins.toJSON e.path;
+      prefixJson = builtins.toJSON (prefixOf e);
+    in
+    ''
+      if (${pJson} | path exists) {
+        $env.${e.var} = ${prefixJson} + (${pJson} | open | str trim)
+      }
 
-      ''
-    )
-    exports;
+    ''
+  ) exports;
 in
-  lib.mkMerge [
-    (lib.mkIf (exports != []) {
-      programs.bash.initExtra = lib.mkAfter shBlock;
-      programs.zsh.initContent = lib.mkAfter shBlock;
-      programs.fish.interactiveShellInit = lib.mkAfter fishBlock;
-      programs.nushell.extraEnv = lib.mkAfter nuBlock;
-    })
+lib.mkMerge [
+  (lib.mkIf (exports != [ ]) {
+    programs.bash.initExtra = lib.mkAfter shBlock;
+    programs.zsh.initContent = lib.mkAfter shBlock;
+    programs.fish.interactiveShellInit = lib.mkAfter fishBlock;
+    programs.nushell.extraEnv = lib.mkAfter nuBlock;
+  })
 
-    (lib.mkIf (pkgs.stdenv.isLinux && exports != []) {
-      home.activation.sopsSessionEnv = lib.hm.dag.entryAfter ["sops-nix"] ''
-        export PATH=${
-          lib.makeBinPath [
-            pkgs.coreutils
-            pkgs.systemd
-          ]
-        }:$PATH
-        envDir=${esc envDir}
-        envFile=${esc envFile}
-        mkdir -p "$envDir"
-        : >"$envFile"
-        chmod 600 "$envFile"
-        printf '# Auto-generated by sops-session-env.nix — do not edit.\n' >>"$envFile"
+  (lib.mkIf (pkgs.stdenv.isLinux && exports != [ ]) {
+    home.activation.sopsSessionEnv = lib.hm.dag.entryAfter [ "sops-nix" ] ''
+      export PATH=${
+        lib.makeBinPath [
+          pkgs.coreutils
+          pkgs.systemd
+        ]
+      }:$PATH
+      envDir=${esc envDir}
+      envFile=${esc envFile}
+      mkdir -p "$envDir"
+      : >"$envFile"
+      chmod 600 "$envFile"
+      printf '# Auto-generated by sops-session-env.nix — do not edit.\n' >>"$envFile"
 
-        ${linuxScript}
-      '';
-    })
+      ${linuxScript}
+    '';
+  })
 
-    (lib.mkIf (pkgs.stdenv.isDarwin && exports != []) {
-      launchd.agents.sops-session-env = {
-        enable = true;
-        config = {
-          ProgramArguments = ["${darwinSetenvScript}"];
-          RunAtLoad = true;
-          KeepAlive = false;
-        };
+  (lib.mkIf (pkgs.stdenv.isDarwin && exports != [ ]) {
+    launchd.agents.sops-session-env = {
+      enable = true;
+      config = {
+        ProgramArguments = [ "${darwinSetenvScript}" ];
+        RunAtLoad = true;
+        KeepAlive = false;
       };
+    };
 
-      home.activation.sopsSessionEnv = lib.hm.dag.entryAfter ["sops-nix"] ''
-        ${darwinSetenvScript} || true
-      '';
-    })
-  ]
+    home.activation.sopsSessionEnv = lib.hm.dag.entryAfter [ "sops-nix" ] ''
+      ${darwinSetenvScript} || true
+    '';
+  })
+]

@@ -1,3 +1,3 @@
-{...}: {
+{ ... }: {
   programs.atuin.enable = true;
 }
