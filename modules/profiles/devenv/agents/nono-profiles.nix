@@ -5,8 +5,9 @@
   pkgs,
   pkgs-small,
   ...
-}: let
-  profiles = (dotfilesLib.nonoProfiles {inherit pkgs pkgs-small;}).profiles;
+}:
+let
+  profiles = (dotfilesLib.nonoProfiles { inherit pkgs pkgs-small; }).profiles;
 
   mkProfileFile = name: data: {
     name = "nono/profiles/${name}.json";
@@ -14,6 +15,7 @@
       text = builtins.toJSON data;
     };
   };
-in {
+in
+{
   xdg.configFile = lib.mapAttrs' mkProfileFile profiles;
 }

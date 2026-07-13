@@ -10,22 +10,26 @@
   lib,
   system,
   ...
-}: final: _prev: let
+}:
+final: _prev:
+let
   pkgRoot = ../../packages;
 
-  pkgNames = import (pkgRoot + "/names.nix") {inherit lib system;};
+  pkgNames = import (pkgRoot + "/names.nix") { inherit lib system; };
 
-  importPkg = name: let
-    path = pkgRoot + "/${name}";
-    fn = import path;
-    args = builtins.functionArgs fn;
-  in
-    if args ? pkgs
-    then
+  importPkg =
+    name:
+    let
+      path = pkgRoot + "/${name}";
+      fn = import path;
+      args = builtins.functionArgs fn;
+    in
+    if args ? pkgs then
       fn {
         pkgs = final;
         inherit lib;
       }
-    else final.callPackage path {};
+    else
+      final.callPackage path { };
 in
-  lib.genAttrs pkgNames importPkg
+lib.genAttrs pkgNames importPkg

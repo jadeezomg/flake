@@ -3,9 +3,11 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.devenv.languages.general;
-in {
+in
+{
   config = lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
       devenv # Reproducible dev shells

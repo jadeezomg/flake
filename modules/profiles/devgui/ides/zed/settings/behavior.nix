@@ -1,4 +1,4 @@
-{}: {
+{ }: {
   # --- Behavior ---
   auto_indent_on_paste = true;
   auto_indent = "syntax_aware";
@@ -10,7 +10,7 @@
   show_wrap_guides = true;
   use_autoclose = true;
   use_auto_surround = true;
-  wrap_guides = [];
+  wrap_guides = [ ];
   sticky_scroll = {
     enabled = true;
   };

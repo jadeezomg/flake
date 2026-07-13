@@ -4,10 +4,12 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.devgui.containers;
-in {
+in
+{
   config = lib.mkIf cfg.enable {
-    environment.systemPackages = [pkgs.podman-desktop];
+    environment.systemPackages = [ pkgs.podman-desktop ];
   };
 }

@@ -3,9 +3,11 @@
   pkgs,
   hostKey ? "unknown",
   ...
-}: let
+}:
+let
   flakeRoot = config.dotfiles.flakeRoot;
-in {
+in
+{
   # tmux is a shell baseline: every host gets the multiplexer, while sesh owns
   # runtime session discovery/creation. Sessions are runtime state, not Nix
   # services; keep only durable entry points declarative here.

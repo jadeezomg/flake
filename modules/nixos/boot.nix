@@ -2,13 +2,15 @@
   config,
   pkgs,
   lib,
-  host ? {},
+  host ? { },
   ...
-}: let
+}:
+let
   secureBoot = host.secureBoot or true;
   serverProfile = config.dotfiles.profiles.server.enable;
   zen4 = config.dotfiles.hardware.cpu.zen4.enable;
-in {
+in
+{
   boot = {
     loader = {
       systemd-boot.enable = lib.mkForce (!secureBoot);
@@ -22,16 +24,17 @@ in {
     # (dotfiles.hardware.cpu.zen4) get the zen4-LTO latest. Falls back to
     # mainline for other CPUs / aarch64 / when the cachyos overlay is absent.
     kernelPackages =
-      if pkgs ? cachyosKernels
-      then
+      if pkgs ? cachyosKernels then
         (
-          if serverProfile
-          then pkgs.cachyosKernels.linuxPackages-cachyos-server
-          else if zen4
-          then pkgs.cachyosKernels.linuxPackages-cachyos-latest-zen4
-          else pkgs.linuxPackages_latest
+          if serverProfile then
+            pkgs.cachyosKernels.linuxPackages-cachyos-server
+          else if zen4 then
+            pkgs.cachyosKernels.linuxPackages-cachyos-latest-zen4
+          else
+            pkgs.linuxPackages_latest
         )
-      else pkgs.linuxPackages_latest;
+      else
+        pkgs.linuxPackages_latest;
 
     lanzaboote = {
       enable = secureBoot;
@@ -42,7 +45,7 @@ in {
     plymouth = lib.mkIf (!serverProfile) {
       enable = true;
       theme = lib.mkForce "blahaj";
-      themePackages = [pkgs.plymouth-blahaj-theme];
+      themePackages = [ pkgs.plymouth-blahaj-theme ];
     };
   };
 }

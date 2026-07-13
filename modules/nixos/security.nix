@@ -2,7 +2,8 @@
   pkgs,
   config,
   ...
-}: let
+}:
+let
   # pam_keyinit gives each login session its own kernel session keyring.
   # Without it (bare WM / greetd, no display-manager auto-unlock) processes
   # share the volatile per-uid keyring and lose "possession" of keys stored
@@ -12,14 +13,18 @@
     keyinit = {
       control = "optional";
       modulePath = "${config.security.pam.package}/lib/security/pam_keyinit.so";
-      args = ["force" "revoke"];
+      args = [
+        "force"
+        "revoke"
+      ];
       # Run right after pam_loginuid (so the keyring binds the right uid) and
       # before pam_systemd. order MUST be relative — a constant could be
       # silently reordered by a nixpkgs update and lock you out.
       order = loginuidOrder + 1;
     };
   };
-in {
+in
+{
   # --- sudo ---
   security.sudo.enable = true;
 

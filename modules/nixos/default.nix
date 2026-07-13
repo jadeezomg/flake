@@ -1,4 +1,4 @@
-{...}: {
+{ ... }: {
   imports = [
     ./boot.nix
     ./gc.nix

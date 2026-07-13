@@ -4,7 +4,8 @@
   lib,
   pkgs,
   ...
-}: {
+}:
+{
   config = lib.mkIf (config.dotfiles.hardware.gpu == "intel") {
     hardware.graphics = {
       enable = true;
@@ -29,7 +30,7 @@
       ];
     };
 
-    boot.kernelParams = ["i915.enable_guc=3"];
+    boot.kernelParams = [ "i915.enable_guc=3" ];
 
     # CAP_PERFMON wrappers so the GPU monitors read the perf PMU without sudo
     # (perf_event_paranoid blocks unprivileged perf access). /run/wrappers/bin

@@ -11,14 +11,15 @@
   pkgs,
   host,
   ...
-}: {
+}:
+{
   # vllm-xpu-kernels compile through ccache by default (upstream useCcache = true).
   # Without a sandbox-visible, nixbld-writable cache dir, icpx fails with
   # "ccache: error: Permission denied". See vllm-xpu-nix docs/build.md.
   systemd.tmpfiles.rules = [
     "d /var/cache/ccache 0770 root nixbld - -"
   ];
-  nix.settings.extra-sandbox-paths = lib.mkAfter ["/var/cache/ccache"];
+  nix.settings.extra-sandbox-paths = lib.mkAfter [ "/var/cache/ccache" ];
 
   services.vllm-xpu = {
     # Qwen3.5 is natively multimodal (image-text-to-text). Image input is enabled

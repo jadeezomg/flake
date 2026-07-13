@@ -24,8 +24,9 @@
   pkgs,
   host,
   ...
-}: let
-  llamaCpp = pkgs.llama-cpp.override {vulkanSupport = true;};
+}:
+let
+  llamaCpp = pkgs.llama-cpp.override { vulkanSupport = true; };
 
   port = host.miniLlmPort;
   listenHost = host.miniLlmHost;
@@ -105,8 +106,9 @@
     "--threads"
     "8"
   ];
-in {
-  environment.systemPackages = [llamaCpp];
+in
+{
+  environment.systemPackages = [ llamaCpp ];
 
   users.users.llama = {
     isSystemUser = true;
@@ -118,7 +120,7 @@ in {
       "video"
     ];
   };
-  users.groups.llama = {};
+  users.groups.llama = { };
 
   systemd.tmpfiles.rules = [
     "d ${stateDir} 0750 llama llama - -"
@@ -127,9 +129,9 @@ in {
 
   systemd.services.llama-cpp-gemma = {
     description = "llama.cpp router — ${chatName} (gemma-4-12B QAT+MTP) + ${embedName} (F2LLM-v2-0.6B)";
-    wantedBy = ["multi-user.target"];
-    after = ["network-online.target"];
-    wants = ["network-online.target"];
+    wantedBy = [ "multi-user.target" ];
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
 
     environment = {
       HF_HOME = hfHome;
@@ -146,7 +148,7 @@ in {
       RestartSec = 10;
       TimeoutStartSec = 0;
 
-      DeviceAllow = ["char-drm rw"];
+      DeviceAllow = [ "char-drm rw" ];
       PrivateDevices = false;
 
       WorkingDirectory = stateDir;
@@ -154,7 +156,7 @@ in {
       ProtectSystem = "strict";
       ProtectHome = true;
       NoNewPrivileges = true;
-      ReadWritePaths = [stateDir];
+      ReadWritePaths = [ stateDir ];
 
       EnvironmentFile = config.sops.templates."mini-llm-hf.env".path;
     };

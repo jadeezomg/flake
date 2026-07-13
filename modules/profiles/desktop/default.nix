@@ -5,7 +5,8 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.desktop;
   useDmsGreeter = cfg.loginManager == "dms-greeter";
   useGdm = cfg.loginManager == "gdm";
@@ -16,17 +17,16 @@
     # so they pass that UID-only filter even though NixOS already marks them
     # as display-manager hiddenUsers. Keep the build users for Nix, hide them
     # at the DMS seam until upstream respects hiddenUsers or shell filtering.
-    postInstall =
-      (old.postInstall or "")
-      + ''
-        substituteInPlace $out/share/quickshell/dms/Services/GreeterUsersService.qml \
-          --replace-fail \
-            '$3>=1000 && $3<60000 && $1!=\"nobody\"' \
-            '$3>=1000 && $3<60000 && $1!=\"nobody\" && $1 !~ /^nixbld[0-9]+$/'
-      '';
+    postInstall = (old.postInstall or "") + ''
+      substituteInPlace $out/share/quickshell/dms/Services/GreeterUsersService.qml \
+        --replace-fail \
+          '$3>=1000 && $3<60000 && $1!=\"nobody\"' \
+          '$3>=1000 && $3<60000 && $1!=\"nobody\" && $1 !~ /^nixbld[0-9]+$/'
+    '';
   });
-in {
-  imports = [./peripherals.nix];
+in
+{
+  imports = [ ./peripherals.nix ];
 
   config = lib.mkIf cfg.enable {
     # HM halves: DMS/niri live-symlink wiring (./dms), dconf user settings,
@@ -42,7 +42,7 @@ in {
       enable = useDmsGreeter;
       compositor.name = "niri";
       configHome = host.homeDirectory;
-      configFiles = ["${host.homeDirectory}/.config/DankMaterialShell/settings.json"];
+      configFiles = [ "${host.homeDirectory}/.config/DankMaterialShell/settings.json" ];
     };
 
     programs.niri.enable = true;

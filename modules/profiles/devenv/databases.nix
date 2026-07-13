@@ -3,9 +3,11 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.devenv.databases;
-in {
+in
+{
   config = lib.mkIf cfg.enable {
     # Database client tooling. Server daemons (postgresql, redis) live in
     # dotfiles.profiles.server (parked, no host enables it yet).

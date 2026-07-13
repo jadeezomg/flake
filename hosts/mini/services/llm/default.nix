@@ -17,20 +17,23 @@
   pkgs,
   host,
   ...
-}: let
+}:
+let
   backend = host.miniLlmBackend or "llamacpp";
-in {
-  imports =
-    [./open-webui.nix]
-    ++ lib.optionals (backend == "vllm") [
-      # vllm-xpu-nix: `nixosModules.default` = overlay + `services.vllm-xpu` (see upstream
-      # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
-      inputs.vllm-xpu-nix.nixosModules.default
-      ./vllm-xpu.nix
-    ]
-    ++ lib.optionals (backend == "llamacpp") [
-      ./llama-cpp.nix
-    ];
+in
+{
+  imports = [
+    ./open-webui.nix
+  ]
+  ++ lib.optionals (backend == "vllm") [
+    # vllm-xpu-nix: `nixosModules.default` = overlay + `services.vllm-xpu` (see upstream
+    # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
+    inputs.vllm-xpu-nix.nixosModules.default
+    ./vllm-xpu.nix
+  ]
+  ++ lib.optionals (backend == "llamacpp") [
+    ./llama-cpp.nix
+  ];
 
   # --- shared base: needed by both backends, so it lives in the always-present aggregator ---
 
@@ -44,15 +47,15 @@ in {
     vpl-gpu-rt
   ];
 
-  environment.systemPackages = [pkgs.intel-gpu-tools];
+  environment.systemPackages = [ pkgs.intel-gpu-tools ];
 
   # Battlemage-class discrete GPU: same probe as examples/brutus. Remove if you have
   # no dGPU. Needed by both backends — without it neither vLLM nor Vulkan sees the card.
-  boot.kernelParams = ["xe.force_probe=e223"];
+  boot.kernelParams = [ "xe.force_probe=e223" ];
 
   # Hugging Face Hub auth (`secrets/secrets.yaml` → `hf_token`): rate limits + downloads.
   # Both `vllm-xpu` and `llama-cpp` load this env file (`EnvironmentFile` / `environmentFile`).
-  sops.secrets.hf_token = {};
+  sops.secrets.hf_token = { };
   sops.templates."mini-llm-hf.env" = {
     mode = "0400";
     content = ''

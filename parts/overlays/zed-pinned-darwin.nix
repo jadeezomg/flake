@@ -5,11 +5,14 @@
 {
   inputs,
   system,
-}: _final: _prev: let
+}:
+_final: _prev:
+let
   isDarwin = builtins.match ".*-darwin" system != null;
 in
-  if !isDarwin
-  then {}
-  else {
+if !isDarwin then
+  { }
+else
+  {
     zed-editor = inputs.nixpkgs-zed.legacyPackages.${system}.zed-editor;
   }

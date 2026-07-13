@@ -9,7 +9,8 @@
 {
   pkgs,
   pkgs-small ? pkgs,
-}: let
+}:
+let
   inherit (pkgs) lib;
 
   # Per-platform credential-key resolution.
@@ -18,10 +19,7 @@
   # The vault name is duplicated in scripts/shell/sync-1password.bash.
   # Item-naming convention is shared so the same `<name>` works on both.
   opVault = "Employee";
-  mkCredentialKey = name:
-    if pkgs.stdenv.isDarwin
-    then "op://${opVault}/${name}/credential"
-    else name;
+  mkCredentialKey = name: if pkgs.stdenv.isDarwin then "op://${opVault}/${name}/credential" else name;
 
   loopbackPorts = [
     3000
@@ -84,59 +82,60 @@
     };
   };
 
-  mkAgentProfile = {
-    name,
-    description,
-    baseProfiles,
-    dotDirs ? [],
-    extraCredentials ? {},
-    extraServiceList ? [],
-    extraGroups ? [],
-  }: {
-    meta = {
-      inherit name description;
-      version = "1.0.0";
-    };
-    extends = baseProfiles;
-    security.groups = extraGroups;
-    network = {
-      # `developer` engages the broker with these domain groups: llm_apis,
-      # package_registries, github, sigstore, documentation. Without it,
-      # populating `credentials` triggers proxy filtering with an empty
-      # allowlist and everything (incl. localhost) is blocked.
-      network_profile = "developer";
-      # Hosts our custom_credentials inject auth for. Listed so `nono why`
-      # static analysis matches runtime — without this, `nono why` reports
-      # DENIED for these even though the broker rewrites them at runtime.
-      allow_domain = ["context7.com"] ++ lib.optional (extraCredentials ? openrouter) "openrouter.ai";
-      open_port = loopbackPorts;
-      custom_credentials = sharedCustomCredentials // extraCredentials;
-      credentials =
-        [
+  mkAgentProfile =
+    {
+      name,
+      description,
+      baseProfiles,
+      dotDirs ? [ ],
+      extraCredentials ? { },
+      extraServiceList ? [ ],
+      extraGroups ? [ ],
+    }:
+    {
+      meta = {
+        inherit name description;
+        version = "1.0.0";
+      };
+      extends = baseProfiles;
+      security.groups = extraGroups;
+      network = {
+        # `developer` engages the broker with these domain groups: llm_apis,
+        # package_registries, github, sigstore, documentation. Without it,
+        # populating `credentials` triggers proxy filtering with an empty
+        # allowlist and everything (incl. localhost) is blocked.
+        network_profile = "developer";
+        # Hosts our custom_credentials inject auth for. Listed so `nono why`
+        # static analysis matches runtime — without this, `nono why` reports
+        # DENIED for these even though the broker rewrites them at runtime.
+        allow_domain = [ "context7.com" ] ++ lib.optional (extraCredentials ? openrouter) "openrouter.ai";
+        open_port = loopbackPorts;
+        custom_credentials = sharedCustomCredentials // extraCredentials;
+        credentials = [
           "context7"
           "github"
         ]
         ++ extraServiceList;
+      };
+      filesystem = {
+        allow = dotDirs;
+        allow_file = sharedUnixSockets;
+      };
+      workdir.access = "readwrite";
     };
-    filesystem = {
-      allow = dotDirs;
-      allow_file = sharedUnixSockets;
-    };
-    workdir.access = "readwrite";
-  };
 
   profiles = {
     claude-flake = mkAgentProfile {
       name = "claude-flake";
       description = "Claude Code — broker creds, podman socket, loopback dev ports";
-      baseProfiles = ["claude-code"];
+      baseProfiles = [ "claude-code" ];
       # ~/.claude / ~/.claude.json already granted by the claude-code base.
     };
 
     pi-flake = mkAgentProfile {
       name = "pi-flake";
       description = "pi coding agent — OpenRouter broker, podman socket, loopback dev ports";
-      baseProfiles = ["linux-host-compat"];
+      baseProfiles = [ "linux-host-compat" ];
       # nix_runtime: agent binary lives in /nix/store; without it the
       # wrapper's /nix/store/.../bin/env exec fails (directory not readable).
       # node_runtime: pi shells out to bun/npm.
@@ -159,13 +158,13 @@
           credential_format = "Bearer {}";
         };
       };
-      extraServiceList = ["openrouter"];
+      extraServiceList = [ "openrouter" ];
     };
 
     omp-flake = mkAgentProfile {
       name = "omp-flake";
       description = "oh-my-pi (omp) — OpenRouter broker, podman socket, loopback dev ports";
-      baseProfiles = ["linux-host-compat"];
+      baseProfiles = [ "linux-host-compat" ];
       extraGroups = [
         "nix_runtime"
         "node_runtime"
@@ -187,7 +186,7 @@
           credential_format = "Bearer {}";
         };
       };
-      extraServiceList = ["openrouter"];
+      extraServiceList = [ "openrouter" ];
     };
   };
 
@@ -213,7 +212,7 @@
       bin = "pi";
       gitName = "pi-jadee";
       gitEmail = "pi@jadee.fyi";
-      extraArgs = [];
+      extraArgs = [ ];
     };
     # omp shares pi's identity since both are pi-derived; commits should
     # attribute to "the pi family". Differentiation is by config dir
@@ -224,7 +223,7 @@
       bin = "omp";
       gitName = "pi-jadee";
       gitEmail = "pi@jadee.fyi";
-      extraArgs = [];
+      extraArgs = [ ];
     };
   };
 
@@ -238,25 +237,25 @@
     "GIT_CONFIG_GLOBAL=${agentGitconfig}"
   ];
 
-  mkAgentProfileFile = agentName: let
-    meta = metadata.${agentName};
-  in
+  mkAgentProfileFile =
+    agentName:
+    let
+      meta = metadata.${agentName};
+    in
     pkgs.writeText "${meta.profileName}.json" (builtins.toJSON profiles.${meta.profileName});
 
-  mkAgentInvocation = {
-    agentName,
-    detached ? false,
-    passArgs ? false,
-    usePackagePath ? true,
-  }: let
-    meta = metadata.${agentName};
-    profileFile = mkAgentProfileFile agentName;
-    nonoBin =
-      if usePackagePath
-      then "${pkgs.nono}/bin/nono"
-      else "nono";
-    nonoArgs =
-      [
+  mkAgentInvocation =
+    {
+      agentName,
+      detached ? false,
+      passArgs ? false,
+      usePackagePath ? true,
+    }:
+    let
+      meta = metadata.${agentName};
+      profileFile = mkAgentProfileFile agentName;
+      nonoBin = if usePackagePath then "${pkgs.nono}/bin/nono" else "nono";
+      nonoArgs = [
         nonoBin
         "run"
       ]
@@ -270,13 +269,10 @@
         "${pkgs.coreutils}/bin/env"
       ]
       ++ mkAgentEnvArgs meta;
-    executable =
-      if usePackagePath
-      then "${meta.pkg}/bin/${meta.bin}"
-      else meta.bin;
-    agentArgs = [executable] ++ meta.extraArgs;
-    argv = map toString nonoArgs ++ map lib.escapeShellArg agentArgs ++ lib.optional passArgs ''"$@"'';
-  in
+      executable = if usePackagePath then "${meta.pkg}/bin/${meta.bin}" else meta.bin;
+      agentArgs = [ executable ] ++ meta.extraArgs;
+      argv = map toString nonoArgs ++ map lib.escapeShellArg agentArgs ++ lib.optional passArgs ''"$@"'';
+    in
     lib.concatStringsSep " " argv;
 
   prepareCommitMsg = pkgs.writeShellScript "agent-prepare-commit-msg" ''
@@ -288,7 +284,7 @@
       --in-place "$1"
   '';
 
-  hooksDir = pkgs.runCommand "agent-git-hooks" {} ''
+  hooksDir = pkgs.runCommand "agent-git-hooks" { } ''
     mkdir -p $out
     cp ${prepareCommitMsg} $out/prepare-commit-msg
     chmod +x $out/prepare-commit-msg
@@ -299,10 +295,11 @@
     	hooksPath = ${hooksDir}
   '';
 
-  mkAgentBin = agentName:
+  mkAgentBin =
+    agentName:
     pkgs.writeShellApplication {
       name = "agent-${agentName}";
-      runtimeInputs = [pkgs.nono];
+      runtimeInputs = [ pkgs.nono ];
       text = ''
         exec ${
           mkAgentInvocation {
@@ -323,58 +320,49 @@
   ];
   profileNames = map (n: metadata.${n}.profileName) agentNames;
 
-  linuxChecks =
-    [
-      {
-        label = "gnome-keyring-daemon serving org.freedesktop.secrets";
-        cmd = "${pkgs.dbus}/bin/dbus-send --session --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.NameHasOwner string:org.freedesktop.secrets >/dev/null 2>&1";
-      }
-    ]
-    ++ map (acc: {
-      label = "keyring: ${acc} present";
-      cmd = "${pkgs.libsecret}/bin/secret-tool lookup service nono username ${acc} target default >/dev/null 2>&1";
-    })
-    credentialAccounts;
+  linuxChecks = [
+    {
+      label = "gnome-keyring-daemon serving org.freedesktop.secrets";
+      cmd = "${pkgs.dbus}/bin/dbus-send --session --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.NameHasOwner string:org.freedesktop.secrets >/dev/null 2>&1";
+    }
+  ]
+  ++ map (acc: {
+    label = "keyring: ${acc} present";
+    cmd = "${pkgs.libsecret}/bin/secret-tool lookup service nono username ${acc} target default >/dev/null 2>&1";
+  }) credentialAccounts;
 
-  darwinChecks =
-    [
-      {
-        label = "1Password CLI signed in";
-        cmd = "${pkgs._1password-cli}/bin/op whoami >/dev/null 2>&1";
-      }
-    ]
-    ++ map (acc: {
-      label = "1password: ${opVault}/${acc} present";
-      cmd = "${pkgs._1password-cli}/bin/op item get ${acc} --vault ${opVault} >/dev/null 2>&1";
-    })
-    credentialAccounts;
+  darwinChecks = [
+    {
+      label = "1Password CLI signed in";
+      cmd = "${pkgs._1password-cli}/bin/op whoami >/dev/null 2>&1";
+    }
+  ]
+  ++ map (acc: {
+    label = "1password: ${opVault}/${acc} present";
+    cmd = "${pkgs._1password-cli}/bin/op item get ${acc} --vault ${opVault} >/dev/null 2>&1";
+  }) credentialAccounts;
 
-  commonChecks =
-    [
-      {
-        label = "podman rootless socket reachable";
-        cmd = ''[ -S "''${XDG_RUNTIME_DIR:-/run/user/$(${pkgs.coreutils}/bin/id -u)}/podman/podman.sock" ]'';
-      }
-    ]
-    ++ map (p: {
-      label = "nono profile resolves: ${p}";
-      cmd = "${pkgs.nono}/bin/nono profile show ${p} >/dev/null 2>&1";
-    })
-    profileNames;
+  commonChecks = [
+    {
+      label = "podman rootless socket reachable";
+      cmd = ''[ -S "''${XDG_RUNTIME_DIR:-/run/user/$(${pkgs.coreutils}/bin/id -u)}/podman/podman.sock" ]'';
+    }
+  ]
+  ++ map (p: {
+    label = "nono profile resolves: ${p}";
+    cmd = "${pkgs.nono}/bin/nono profile show ${p} >/dev/null 2>&1";
+  }) profileNames;
 
-  platformChecks =
-    if pkgs.stdenv.isDarwin
-    then darwinChecks
-    else linuxChecks;
+  platformChecks = if pkgs.stdenv.isDarwin then darwinChecks else linuxChecks;
   doctorChecks = platformChecks ++ commonChecks;
 
   # Each check becomes a bash function so shellcheck sees a real shell AST
   # rather than a quoted command-as-string passed to `eval`.
-  indexedChecks = lib.imap0 (i: c: c // {fn = "chk_${toString i}";}) doctorChecks;
+  indexedChecks = lib.imap0 (i: c: c // { fn = "chk_${toString i}"; }) doctorChecks;
 
   doctor = pkgs.writeShellApplication {
     name = "agent-doctor";
-    runtimeInputs = [pkgs.coreutils];
+    runtimeInputs = [ pkgs.coreutils ];
     text = ''
       fail=0
       run() {
@@ -389,17 +377,15 @@
       }
 
       ${lib.concatMapStringsSep "\n" (c: ''
-          ${c.fn}() {
-            ${c.cmd}
-          }
-        '')
-        indexedChecks}
+        ${c.fn}() {
+          ${c.cmd}
+        }
+      '') indexedChecks}
 
       printf '\nagent doctor - verifying nono sandbox setup\n\n'
       ${lib.concatMapStringsSep "\n" (c: ''
-          run ${lib.escapeShellArg c.label} ${c.fn}
-        '')
-        indexedChecks}
+        run ${lib.escapeShellArg c.label} ${c.fn}
+      '') indexedChecks}
 
       if [ $fail -gt 0 ]; then
         printf '\n\033[31m%d check(s) failed\033[0m\n\n' "$fail"
@@ -434,13 +420,11 @@
 
   agent = pkgs.writeShellApplication {
     name = "agent";
-    runtimeInputs =
-      lib.attrValues agentBins
-      ++ [
-        doctor
-        status
-        pkgs.nono
-      ];
+    runtimeInputs = lib.attrValues agentBins ++ [
+      doctor
+      status
+      pkgs.nono
+    ];
     text = ''
       usage() {
         cat <<HELP
@@ -449,8 +433,7 @@
       run an agent in its sandbox:
         ${lib.concatMapStringsSep "\n  " (
           n: "${n} [args...]    invoke ${metadata.${n}.bin} via ${metadata.${n}.profileName}"
-        )
-        agentNames}
+        ) agentNames}
 
       session management (forwarded to nono):
         ps                list running / detached sandbox sessions
@@ -488,7 +471,8 @@
       esac
     '';
   };
-in {
+in
+{
   inherit
     profiles
     metadata

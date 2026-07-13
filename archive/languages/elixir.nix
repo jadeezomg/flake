@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   home.packages = with pkgs; [
     # --- Elixir/erlang ---
     elixir # Binary (includes mix)

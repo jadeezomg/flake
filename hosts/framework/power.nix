@@ -1,4 +1,4 @@
-{...}: {
+{ ... }: {
   # bluetooth lives in dotfiles.hardware.bluetooth (profiles.nix).
   hardware = {
     fw-fanctrl = {

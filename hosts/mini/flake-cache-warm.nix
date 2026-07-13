@@ -13,10 +13,18 @@
   config,
   pkgs,
   ...
-}: let
+}:
+let
   cacheWarm = pkgs.writeShellApplication {
     name = "flake-cache-warm";
-    runtimeInputs = with pkgs; [git nix cachix coreutils openssh jq];
+    runtimeInputs = with pkgs; [
+      git
+      nix
+      cachix
+      coreutils
+      openssh
+      jq
+    ];
     text = ''
       set -euo pipefail
 
@@ -87,11 +95,12 @@
       fi
     '';
   };
-in {
+in
+{
   systemd.services.flake-cache-warm = {
     description = "Nightly flake update + build + cachix push";
-    after = ["network-online.target"];
-    wants = ["network-online.target"];
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
     serviceConfig = {
       Type = "oneshot";
       ExecStart = "${cacheWarm}/bin/flake-cache-warm";
@@ -106,7 +115,7 @@ in {
 
   systemd.timers.flake-cache-warm = {
     description = "Nightly flake update + build + cachix push";
-    wantedBy = ["timers.target"];
+    wantedBy = [ "timers.target" ];
     timerConfig = {
       OnCalendar = "*-*-* 06:00:00";
       RandomizedDelaySec = "10m";
@@ -118,6 +127,10 @@ in {
   # time, not at evaluation, so this evaluates fine even before mini's age key
   # is added to secrets/secrets.yaml. Activation will fail until the secrets
   # are populated — see docs/hosts/mini-install.md §6 for the bootstrap flow.
-  sops.secrets."mini/git/deploy-key" = {mode = "0400";};
-  sops.secrets."cachix/auth-token" = {mode = "0400";};
+  sops.secrets."mini/git/deploy-key" = {
+    mode = "0400";
+  };
+  sops.secrets."cachix/auth-token" = {
+    mode = "0400";
+  };
 }

@@ -5,10 +5,12 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.theme;
-in {
+in
+{
   config = lib.mkIf cfg.enable {
-    home-manager.sharedModules = [./stylix.nix] ++ lib.optionals cfg.gui.enable [./gui.nix];
+    home-manager.sharedModules = [ ./stylix.nix ] ++ lib.optionals cfg.gui.enable [ ./gui.nix ];
   };
 }

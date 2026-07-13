@@ -1,10 +1,12 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   # home-manager's programs.navi module only supports bash/zsh/fish.
   # For nushell we source the widget output directly so Ctrl-G opens navi.
-  naviNushellWidget = pkgs.runCommand "navi-widget.nu" {} ''
+  naviNushellWidget = pkgs.runCommand "navi-widget.nu" { } ''
     ${pkgs.navi}/bin/navi widget nushell > $out
   '';
-in {
+in
+{
   programs = {
     btop = {
       enable = true;

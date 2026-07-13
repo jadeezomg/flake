@@ -7,21 +7,22 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.minimal;
   minimalPackages = dotfilesLib.minimalPackages pkgs;
-in {
+in
+{
   config = lib.mkIf cfg.enable {
-    home-manager.sharedModules =
-      [
-        ./shells
-        ./network
-        ./git.nix
-        ./nix-client.nix
-        ./security.nix
-      ]
-      ++ lib.optionals (!isDarwin) [./linux]
-      ++ lib.optionals isDarwin [./darwin];
+    home-manager.sharedModules = [
+      ./shells
+      ./network
+      ./git.nix
+      ./nix-client.nix
+      ./security.nix
+    ]
+    ++ lib.optionals (!isDarwin) [ ./linux ]
+    ++ lib.optionals isDarwin [ ./darwin ];
 
     environment.systemPackages = minimalPackages;
   };

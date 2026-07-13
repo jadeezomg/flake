@@ -4,6 +4,7 @@
 {
   inputs,
   system,
-}: _final: _prev: {
+}:
+_final: _prev: {
   hunk = inputs.hunk.packages.${system}.default;
 }

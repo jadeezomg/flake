@@ -4,12 +4,14 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.work;
-in {
+in
+{
   # ./darwin holds the homebrew side (+ cask app HM configs); the
   # `homebrew.*` namespace only exists on darwin, hence the import gate.
-  imports = lib.optionals isDarwin [./darwin];
+  imports = lib.optionals isDarwin [ ./darwin ];
 
   config = lib.mkIf cfg.enable {
     environment.systemPackages = [

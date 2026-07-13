@@ -1,9 +1,11 @@
 # dconf user settings (HM half) — pushed only for desktop hosts: dconf
 # activation talks to the user dconf D-Bus service; on headless hosts
 # home-manager-<user>.service would fail at "Activating dconfSettings".
-{lib, ...}: let
+{ lib, ... }:
+let
   inherit (lib.hm.gvariant) mkTuple;
-in {
+in
+{
   dconf.enable = true;
   dconf.settings = {
     "org/gnome/desktop/interface" = {
@@ -21,11 +23,11 @@ in {
           "de"
         ])
       ];
-      xkb-options = ["compose:ralt"];
+      xkb-options = [ "compose:ralt" ];
     };
 
     "org/gnome/mutter" = {
-      experimental-features = ["scale-monitor-framebuffer"];
+      experimental-features = [ "scale-monitor-framebuffer" ];
     };
 
     # Reduce GTK decoration font size

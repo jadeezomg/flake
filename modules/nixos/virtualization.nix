@@ -4,7 +4,8 @@
   pkgs,
   user,
   ...
-}: {
+}:
+{
   config = lib.mkMerge [
     (lib.mkIf config.dotfiles.profiles.devenv.containers.enable {
       virtualisation.podman = {
@@ -41,7 +42,7 @@
           shell = pkgs.bash;
         };
 
-        users.groups.vmtest = {};
+        users.groups.vmtest = { };
 
         services.xserver.displayManager.autoLogin = {
           enable = true;

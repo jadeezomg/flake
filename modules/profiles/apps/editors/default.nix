@@ -2,10 +2,12 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.apps.editors;
-in {
+in
+{
   config = lib.mkIf cfg.enable {
-    home-manager.sharedModules = [./helix.nix];
+    home-manager.sharedModules = [ ./helix.nix ];
   };
 }

@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   # /bin/bash compat for scripts with hardcoded shebangs (third-party tools)
   environment.binsh = "${pkgs.bash}/bin/bash";
 

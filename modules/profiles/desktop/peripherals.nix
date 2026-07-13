@@ -6,9 +6,11 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.desktop;
-in {
+in
+{
   config = lib.mkIf cfg.enable {
     hardware.graphics.enable = true;
 

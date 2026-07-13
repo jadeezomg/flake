@@ -3,28 +3,29 @@
   isDarwin ? false,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.apps;
-in {
+in
+{
   # Sub-category options are declared in ../default.nix. Each category file
   # holds its system packages with platform extras inline; media.nix is a
   # Linux-only leaf because `programs.obs-studio` doesn't exist on darwin.
-  imports =
-    [
-      ./browsers
-      ./comms.nix
-      ./editors
-      ./files
-      ./notes
-      ./terminals
-    ]
-    ++ lib.optionals (!isDarwin) [./media.nix];
+  imports = [
+    ./browsers
+    ./comms.nix
+    ./editors
+    ./files
+    ./notes
+    ./terminals
+  ]
+  ++ lib.optionals (!isDarwin) [ ./media.nix ];
 
   # Convenience: enabling apps.enable activates every category the current
   # workstation hosts ship today. Slimmer hosts (work laptop, server) should
   # set the unwanted sub-flags to `false` explicitly after enabling apps.
   config = lib.mkIf cfg.enable {
-    home-manager.sharedModules = [./vicinae.nix];
+    home-manager.sharedModules = [ ./vicinae.nix ];
 
     dotfiles.profiles.apps = {
       browsers.enable = lib.mkDefault true;

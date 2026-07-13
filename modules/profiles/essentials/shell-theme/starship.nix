@@ -2,7 +2,8 @@
   dotfilesLib,
   lib,
   ...
-}: let
+}:
+let
   themeColors = dotfilesLib.palette;
 
   # Nix doesn't support \uXXXX escapes — use builtins.fromJSON to get real UTF-8.
@@ -12,34 +13,35 @@
     ellipsis = u "2026"; # …
     chevron = u "276f"; # ❯
     chevron-left = u "276e"; # ❮
-    git-branch = u "e725"; #
-    dotnet = u "e77f"; #
-    go = u "e626"; #
-    python = u "e235"; #
-    rust = u "e7a8"; #
-    node = u "e718"; #
-    bun = u "eb5c"; #
-    ssh = u "eba9"; #
-    nix = u "f313"; #
-    nixos = u "f313"; #
-    linux = u "f17c"; #
-    macos = u "f179"; #
-    container = u "f308"; #
-    sudo = u "f0e7"; #
-    lock = u "f023"; #
+    git-branch = u "e725";
+    dotnet = u "e77f";
+    go = u "e626";
+    python = u "e235";
+    rust = u "e7a8";
+    node = u "e718";
+    bun = u "eb5c";
+    ssh = u "eba9";
+    nix = u "f313";
+    nixos = u "f313";
+    linux = u "f17c";
+    macos = u "f179";
+    container = u "f308";
+    sudo = u "f0e7";
+    lock = u "f023";
     # git status
-    git-stash = u "f01c"; #
-    git-modified = u "f040"; #
-    git-staged = u "f067"; #
-    git-untracked = u "f128"; #
-    git-renamed = u "f553"; #
-    git-deleted = u "f014"; #
-    git-conflicted = u "e727"; #
-    git-ahead = u "f062"; #
-    git-behind = u "f063"; #
-    git-diverged = u "f047"; #
+    git-stash = u "f01c";
+    git-modified = u "f040";
+    git-staged = u "f067";
+    git-untracked = u "f128";
+    git-renamed = u "f553";
+    git-deleted = u "f014";
+    git-conflicted = u "e727";
+    git-ahead = u "f062";
+    git-behind = u "f063";
+    git-diverged = u "f047";
   };
-in {
+in
+{
   programs.starship = {
     enable = true;
     enableBashIntegration = true;

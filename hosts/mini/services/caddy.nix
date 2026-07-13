@@ -28,7 +28,8 @@
   config,
   pkgs,
   ...
-}: let
+}:
+let
   tsNode = "mini-proxy"; # caddy-tailscale node name + requested tailnet hostname
 
   # Caddy built with the tailnet listener + Cloudflare DNS-01 plugins. Both lack
@@ -42,7 +43,8 @@
     ];
     hash = "sha256-OwSvmqoGGGRHi1akpwxk5UMhEVJGaDnr6zjjGqVVwkA=";
   };
-in {
+in
+{
   services.caddy = {
     enable = true;
     package = caddyWithPlugins;
@@ -77,15 +79,15 @@ in {
 
   # Put the same (plugin) caddy on PATH for on-box ops: `caddy hash-password`,
   # `caddy validate`, `caddy fmt`. The service binary itself is set via package above.
-  environment.systemPackages = [caddyWithPlugins];
+  environment.systemPackages = [ caddyWithPlugins ];
 
-  systemd.services.caddy.restartTriggers = [config.sops.templates."caddy.env".content];
+  systemd.services.caddy.restartTriggers = [ config.sops.templates."caddy.env".content ];
 
-  sops.secrets.cloudflare_dns_api_token = {};
-  sops.secrets.tailscale_authkey = {};
+  sops.secrets.cloudflare_dns_api_token = { };
+  sops.secrets.tailscale_authkey = { };
 
   # Generate with: caddy hash-password --plaintext '<pw>'  → store the hash here.
-  sops.secrets.hermes_dashboard_basic_auth_hash = {};
+  sops.secrets.hermes_dashboard_basic_auth_hash = { };
   sops.templates."caddy.env" = {
     mode = "0400";
     content = ''

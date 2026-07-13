@@ -5,17 +5,18 @@
 # channel regression, not a real build break (the prior snapshot built podman on
 # Darwin fine). Re-add the Darwin platforms until nixos-unstable carries the fix.
 # Remove this overlay once `pkgs.podman.meta.platforms` includes darwin again.
-{system}: _final: prev: let
+{ system }:
+_final: prev:
+let
   isDarwin = builtins.match ".*-darwin" system != null;
 in
-  if !isDarwin
-  then {}
-  else {
+if !isDarwin then
+  { }
+else
+  {
     podman = prev.podman.overrideAttrs (old: {
-      meta =
-        old.meta
-        // {
-          platforms = old.meta.platforms ++ ["aarch64-darwin"];
-        };
+      meta = old.meta // {
+        platforms = old.meta.platforms ++ [ "aarch64-darwin" ];
+      };
     });
   }

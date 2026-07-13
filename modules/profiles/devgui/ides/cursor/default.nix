@@ -1,9 +1,10 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   programs.cursor = {
     enable = true;
     mutableExtensionsDir = false;
     profiles.default = {
-      extensions = with pkgs.vscode-extensions;
+      extensions =
+        with pkgs.vscode-extensions;
         [
           # --- General ---
           github.vscode-pull-request-github # GitHub Pull Requests
@@ -89,20 +90,20 @@
         "terminal.integrated.profiles.osx" = {
           "nu" = {
             "path" = "/run/current-system/sw/bin/nu";
-            "args" = ["-l"];
+            "args" = [ "-l" ];
             "icon" = "terminal";
           };
           "zsh" = {
             "path" = "/bin/zsh";
-            "args" = ["-l"];
+            "args" = [ "-l" ];
           };
           "bash" = {
             "path" = "/bin/bash";
-            "args" = ["-l"];
+            "args" = [ "-l" ];
           };
           "fish" = {
             "path" = "/run/current-system/sw/bin/fish";
-            "args" = ["-l"];
+            "args" = [ "-l" ];
           };
         };
 
@@ -125,7 +126,7 @@
             "useBundler" = true;
           };
         };
-        "rubyLsp.addonSettings" = {};
+        "rubyLsp.addonSettings" = { };
         "rubyLsp.formatter" = "rubocop_internal";
 
         # TypeScript settings

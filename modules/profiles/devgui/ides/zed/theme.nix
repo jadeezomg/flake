@@ -3,14 +3,16 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   # Comment color tracks the palette's line-highlight (lib/theme-palette.nix).
   commentColor = dotfilesLib.palette.line-highlight;
-in {
+in
+{
   # Workarounds for zed + stylix:
   # - force unsupported `appearance: "unspecified"` to `"dark"` (stylix #2267)
   # - main background at d0 (slightly transparent), other surfaces at 50.
-  home.activation.zedFixStylixAppearance = lib.hm.dag.entryAfter ["linkGeneration"] ''
+  home.activation.zedFixStylixAppearance = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     theme_file="${"$"}{XDG_CONFIG_HOME:-${"$"}HOME/.config}/zed/themes/stylix.json"
     if [ -e "${"$"}theme_file" ]; then
       # If stylix linked a read-only store file, replace link with a writable copy.

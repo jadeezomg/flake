@@ -3,9 +3,11 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.apps.notes;
-in {
+in
+{
   config = lib.mkIf cfg.enable {
     home-manager.sharedModules = [
       {

@@ -4,9 +4,11 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.work;
-in {
+in
+{
   home-manager.sharedModules = lib.mkIf cfg.enable [
     ./brew-casks
     ./mise-shell.nix
@@ -67,6 +69,6 @@ in {
       # Example: "Xcode" = 497799835;
     };
 
-    taps = builtins.attrNames (config.nix-homebrew.taps or {});
+    taps = builtins.attrNames (config.nix-homebrew.taps or { });
   };
 }

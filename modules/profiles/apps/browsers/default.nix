@@ -4,10 +4,12 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.apps.browsers;
-in {
+in
+{
   config = lib.mkIf cfg.enable {
-    home-manager.sharedModules = [./zen];
+    home-manager.sharedModules = [ ./zen ];
   };
 }

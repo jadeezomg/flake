@@ -4,35 +4,34 @@
   pkgs,
   host,
   ...
-}: {
-  imports =
-    [
-      ./hardware-configuration.nix
-      inputs.disko.nixosModules.disko
-      ./disko.nix
-      ../../modules/shared
-      ../../modules/nixos
-      ../../modules/profiles
-      ./profiles.nix
-      inputs.hermes-agent.nixosModules.default
-      ./services/caddy.nix
-      ./services/hermes.nix
-      ./services/hermes-dashboard.nix
-      ./services/matrix.nix
-      ./services/cinny.nix
-      # Nightly cachix pipeline — disabled until the host is up (mini-install.md §6).
-      # ./flake-cache-warm.nix
-    ]
-    ++ lib.optionals (host.miniLlmHosting or false) [
-      # Self-contained chat stack: shared base + open-webui + the backend selected
-      # by host.miniLlmBackend (see hosts/mini/services/llm/default.nix).
-      ./services/llm
-    ]
-    ++ lib.optionals (
-      (host.miniLlmHosting or false)
-      && (host.miniMemoryHosting or false)
-    ) [./services/honcho.nix]
-    ++ lib.optionals (host.miniMonitoring or false) [./services/beszel.nix];
+}:
+{
+  imports = [
+    ./hardware-configuration.nix
+    inputs.disko.nixosModules.disko
+    ./disko.nix
+    ../../modules/shared
+    ../../modules/nixos
+    ../../modules/profiles
+    ./profiles.nix
+    inputs.hermes-agent.nixosModules.default
+    ./services/caddy.nix
+    ./services/hermes.nix
+    ./services/hermes-dashboard.nix
+    ./services/matrix.nix
+    ./services/cinny.nix
+    # Nightly cachix pipeline — disabled until the host is up (mini-install.md §6).
+    # ./flake-cache-warm.nix
+  ]
+  ++ lib.optionals (host.miniLlmHosting or false) [
+    # Self-contained chat stack: shared base + open-webui + the backend selected
+    # by host.miniLlmBackend (see hosts/mini/services/llm/default.nix).
+    ./services/llm
+  ]
+  ++ lib.optionals ((host.miniLlmHosting or false) && (host.miniMemoryHosting or false)) [
+    ./services/honcho.nix
+  ]
+  ++ lib.optionals (host.miniMonitoring or false) [ ./services/beszel.nix ];
   # NOPASSWD wheel — quality-of-life over SSH on a key-only headless host.
   # Desktop/framework keep password-required sudo (gated by hostKey == "mini"
   # is unnecessary because this file only loads for the mini host).
@@ -63,7 +62,7 @@
   # vLLM-XPU + Vulkan llama.cpp stacks live under ./services/llm/.
 
   # AMT / vPro — non-root /dev/mei access for amtterm / openwsman.
-  users.groups.amt = {};
+  users.groups.amt = { };
   services.udev.extraRules = ''
     KERNEL=="mei*", GROUP="amt", MODE="0660"
   '';
@@ -79,7 +78,10 @@
   # `fwupd.service` or LVFS (client/daemon mismatch, nixpkgs#288598) and exits 1,
   # which makes switch-to-configuration return 4. Treat those as non-fatal;
   # run `fwupdmgr refresh` / `fwupdmgr update` when you care about metadata.
-  systemd.services.fwupd-refresh.serviceConfig.SuccessExitStatus = lib.mkForce [1 2];
+  systemd.services.fwupd-refresh.serviceConfig.SuccessExitStatus = lib.mkForce [
+    1
+    2
+  ];
 
   # AMT controller tools (also useful here for SOL-from-localhost debugging).
   environment.systemPackages = with pkgs; [
@@ -89,7 +91,10 @@
 
   # Password handling is the generic path (modules/nixos/user.nix →
   # `users/jadee/password_mini`); only host-specific groups remain here.
-  users.users.jadee.extraGroups = ["amt" "render"];
+  users.users.jadee.extraGroups = [
+    "amt"
+    "render"
+  ];
 
   # System state version — host specific, do not change.
   system.stateVersion = "26.05";

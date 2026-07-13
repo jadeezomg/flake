@@ -2,9 +2,11 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.integrations;
-in {
+in
+{
   config = lib.mkMerge [
     # --- AppImage ---
     # See https://wiki.nixos.org/wiki/Appimage

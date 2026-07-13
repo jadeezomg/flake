@@ -7,10 +7,12 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.fonts;
-in {
-  imports = [./full.nix];
+in
+{
+  imports = [ ./full.nix ];
 
   config = lib.mkIf cfg.enable {
     fonts.packages = with pkgs; [
@@ -23,6 +25,6 @@ in {
     # User-level fontconfig integration — previously enabled by the deleted
     # HM font installer (home/shared/assets/fonts/install.nix) on Linux; HM
     # still installs fonts of its own (e.g. Stylix's), so keep it.
-    home-manager.sharedModules = lib.optionals (!isDarwin) [./fontconfig.nix];
+    home-manager.sharedModules = lib.optionals (!isDarwin) [ ./fontconfig.nix ];
   };
 }

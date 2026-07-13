@@ -1,4 +1,4 @@
-{...}: {
+{ ... }: {
   # Headless-server behaviour is gated inline in
   # modules/nixos/{boot,networking}.nix via
   # `config.dotfiles.profiles.server.enable`.

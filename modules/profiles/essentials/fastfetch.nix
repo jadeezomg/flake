@@ -7,14 +7,15 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   theme = dotfilesLib.palette;
 
   # Pin host-status to its Nix store path. fastfetch executes command modules
   # via a minimal subshell whose PATH does not include
   # /etc/profiles/per-user/<user>/bin on Darwin, so an unqualified `host-status`
   # falls through to the `|| echo '?'` fallback.
-  hs = "${(dotfilesLib.hostStatus {inherit pkgs;}).hostStatus}/bin/host-status";
+  hs = "${(dotfilesLib.hostStatus { inherit pkgs; }).hostStatus}/bin/host-status";
 
   # Edit one accent here to recolor its section.
   systemAccent = theme."accent-yellow";
@@ -35,7 +36,8 @@
       ^${pkgs.fastfetch}/bin/fastfetch
     }
   '';
-in {
+in
+{
   programs.fastfetch = {
     enable = true;
     settings = {
@@ -55,7 +57,9 @@ in {
           "8" = theme."ansi-bright-black";
           "9" = theme."ansi-black";
         };
-        padding = {top = 1;};
+        padding = {
+          top = 1;
+        };
       };
 
       display.separator = " ";
@@ -63,137 +67,140 @@ in {
       # All Nerd Font icons are nf-md-* (Material Design Icons). User's
       # font ships mdi but not FA — confirmed empirically: 󰏖 / 󰅐 render,
       # FA glyphs do not. Project section stays on plain Unicode dingbats.
-      modules =
-        [
-          "break"
+      modules = [
+        "break"
 
-          {
-            type = "os";
-            key = "╭ 󰌽 ";
-            keyColor = systemAccent;
-          }
-          {
-            type = "kernel";
-            key = "├ 󰒓 ";
-            keyColor = systemAccent;
-          }
-          {
-            type = "packages";
-            key = "├ 󰏖 ";
-            keyColor = systemAccent;
-          }
-          {
-            type = "command";
-            key = "├ 󰥔 ";
-            keyColor = systemAccent;
-            text = "${hs} generation 2>/dev/null || echo '?'";
-          }
-          {
-            type = "command";
-            key = "╰ ❄ ";
-            keyColor = systemAccent;
-            text = "${hs} flake 2>/dev/null || echo '?'";
-          }
-
-          "break"
-
-          {
-            type = "terminal";
-            key = "╭ 󰆍 ";
-            keyColor = terminalAccent;
-          }
-          {
-            type = "shell";
-            key = "├ 󰌌 ";
-            keyColor = terminalAccent;
-          }
-          {
-            type = "terminalfont";
-            key = "╰ 󰛖 ";
-            keyColor = terminalAccent;
-          }
-
-          "break"
-
-          {
-            type = "host";
-            key = "╭ 󰌢 ";
-            keyColor = hardwareAccent;
-          }
-          {
-            type = "cpu";
-            key = "├ 󰻟 ";
-            keyColor = hardwareAccent;
-          }
-          {
-            type = "gpu";
-            key = "├ 󰢮 ";
-            format = "{2}";
-            keyColor = hardwareAccent;
-          }
-          {
-            type = "memory";
-            key = "├ 󰍛 ";
-            keyColor = hardwareAccent;
-            percent = {type = 3;};
-          }
-          {
-            type = "disk";
-            key = "├ 󰋊 ";
-            keyColor = hardwareAccent;
-            percent = {type = 3;};
-          }
-          {
-            type = "uptime";
-            key = "╰ 󰅐 ";
-            keyColor = hardwareAccent;
-          }
-
-          "break"
-
-          {
-            type = "command";
-            key = "╭ 󰒍 ";
-            keyColor = projectAccent;
-            text = "${hs} tailscale 2>/dev/null || echo '?'";
-          }
-          {
-            type = "command";
-            key = "├ 󰡨 ";
-            keyColor = projectAccent;
-            text = "${hs} containers 2>/dev/null || echo '?'";
-          }
-          {
-            type = "command";
-            key = "├ 󰚩 ";
-            keyColor = projectAccent;
-            text = "${hs} agents 2>/dev/null || echo '?'";
-          }
-          {
-            type = "command";
-            key = "├ 󰧑 ";
-            keyColor = projectAccent;
-            text = "${hs} render claude 2>/dev/null || echo '?'";
-          }
-        ]
-        # OpenRouter refresher is Linux-only; on Darwin the cache is never
-        # populated and the row would show "(no data)" forever.
-        ++ lib.optional (!pkgs.stdenv.isDarwin) {
-          type = "command";
-          key = "├ 󰈸 ";
-          keyColor = projectAccent;
-          text = "${hs} render openrouter 2>/dev/null || echo '?'";
+        {
+          type = "os";
+          key = "╭ 󰌽 ";
+          keyColor = systemAccent;
         }
-        ++ [
-          {
-            type = "command";
-            key = "╰ 󰂺 ";
-            keyColor = projectAccent;
-            text = "${hs} skills 2>/dev/null || echo '?'";
-          }
+        {
+          type = "kernel";
+          key = "├ 󰒓 ";
+          keyColor = systemAccent;
+        }
+        {
+          type = "packages";
+          key = "├ 󰏖 ";
+          keyColor = systemAccent;
+        }
+        {
+          type = "command";
+          key = "├ 󰥔 ";
+          keyColor = systemAccent;
+          text = "${hs} generation 2>/dev/null || echo '?'";
+        }
+        {
+          type = "command";
+          key = "╰ ❄ ";
+          keyColor = systemAccent;
+          text = "${hs} flake 2>/dev/null || echo '?'";
+        }
 
-          "break"
-        ];
+        "break"
+
+        {
+          type = "terminal";
+          key = "╭ 󰆍 ";
+          keyColor = terminalAccent;
+        }
+        {
+          type = "shell";
+          key = "├ 󰌌 ";
+          keyColor = terminalAccent;
+        }
+        {
+          type = "terminalfont";
+          key = "╰ 󰛖 ";
+          keyColor = terminalAccent;
+        }
+
+        "break"
+
+        {
+          type = "host";
+          key = "╭ 󰌢 ";
+          keyColor = hardwareAccent;
+        }
+        {
+          type = "cpu";
+          key = "├ 󰻟 ";
+          keyColor = hardwareAccent;
+        }
+        {
+          type = "gpu";
+          key = "├ 󰢮 ";
+          format = "{2}";
+          keyColor = hardwareAccent;
+        }
+        {
+          type = "memory";
+          key = "├ 󰍛 ";
+          keyColor = hardwareAccent;
+          percent = {
+            type = 3;
+          };
+        }
+        {
+          type = "disk";
+          key = "├ 󰋊 ";
+          keyColor = hardwareAccent;
+          percent = {
+            type = 3;
+          };
+        }
+        {
+          type = "uptime";
+          key = "╰ 󰅐 ";
+          keyColor = hardwareAccent;
+        }
+
+        "break"
+
+        {
+          type = "command";
+          key = "╭ 󰒍 ";
+          keyColor = projectAccent;
+          text = "${hs} tailscale 2>/dev/null || echo '?'";
+        }
+        {
+          type = "command";
+          key = "├ 󰡨 ";
+          keyColor = projectAccent;
+          text = "${hs} containers 2>/dev/null || echo '?'";
+        }
+        {
+          type = "command";
+          key = "├ 󰚩 ";
+          keyColor = projectAccent;
+          text = "${hs} agents 2>/dev/null || echo '?'";
+        }
+        {
+          type = "command";
+          key = "├ 󰧑 ";
+          keyColor = projectAccent;
+          text = "${hs} render claude 2>/dev/null || echo '?'";
+        }
+      ]
+      # OpenRouter refresher is Linux-only; on Darwin the cache is never
+      # populated and the row would show "(no data)" forever.
+      ++ lib.optional (!pkgs.stdenv.isDarwin) {
+        type = "command";
+        key = "├ 󰈸 ";
+        keyColor = projectAccent;
+        text = "${hs} render openrouter 2>/dev/null || echo '?'";
+      }
+      ++ [
+        {
+          type = "command";
+          key = "╰ 󰂺 ";
+          keyColor = projectAccent;
+          text = "${hs} skills 2>/dev/null || echo '?'";
+        }
+
+        "break"
+      ];
     };
   };
 

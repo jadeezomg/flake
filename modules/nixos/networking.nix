@@ -4,9 +4,11 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   serverProfile = config.dotfiles.profiles.server.enable;
-in {
+in
+{
   networking.hostName = host.hostname or "nixos";
   networking.networkmanager.enable = true;
 
@@ -14,18 +16,19 @@ in {
   services.tailscale = {
     enable = true;
     openFirewall = true;
-    extraUpFlags = ["--ssh"];
+    extraUpFlags = [ "--ssh" ];
   };
 
   # Server hosts use NixOS's built-in nftables-backed firewall; desktop hosts keep
   # firewalld (the GUI app expects it).
   networking.firewall = lib.mkIf serverProfile {
     enable = true;
-    allowedTCPPorts = [22];
-    trustedInterfaces = ["tailscale0"];
+    allowedTCPPorts = [ 22 ];
+    trustedInterfaces = [ "tailscale0" ];
   };
 
-  environment.systemPackages = with pkgs;
+  environment.systemPackages =
+    with pkgs;
     [
       # --- Network management ---
       networkmanager

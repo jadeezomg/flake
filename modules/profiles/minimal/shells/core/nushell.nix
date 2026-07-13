@@ -3,15 +3,17 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   aliases = (import ./data/aliases.nix).commonAliases;
   paths = dotfilesLib.shellPaths.commonPaths;
 
-  configRel = builtins.replaceStrings ["$HOME/"] [""] paths.config;
-  downloadsRel = builtins.replaceStrings ["$HOME/"] [""] paths.downloads;
+  configRel = builtins.replaceStrings [ "$HOME/" ] [ "" ] paths.config;
+  downloadsRel = builtins.replaceStrings [ "$HOME/" ] [ "" ] paths.downloads;
   # Local git shortcuts. Keep these boring: shell conveniences should not pull
   # mutable upstream source into the system closure.
-in {
+in
+{
   programs.nushell = {
     enable = true;
     shellAliases =

@@ -20,7 +20,8 @@
   config,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.services.hermes-agent;
   # Same package the gateway runs (mirrors the module's effectivePackage), so the
   # `web`/`matrix` extras are present and no extra build is triggered.
@@ -28,12 +29,16 @@
     inherit (cfg) extraPythonPackages extraDependencyGroups;
   };
   port = 9119; # hermes dashboard default; loopback only
-in {
+in
+{
   systemd.services.hermes-dashboard = {
     description = "Hermes Agent Dashboard (web UI)";
-    wantedBy = ["multi-user.target"];
-    after = ["network-online.target" "hermes-agent.service"];
-    wants = ["network-online.target"];
+    wantedBy = [ "multi-user.target" ];
+    after = [
+      "network-online.target"
+      "hermes-agent.service"
+    ];
+    wants = [ "network-online.target" ];
 
     # NB: deliberately NOT setting HERMES_MANAGED — see the un-manage block in
     # hermes.nix. With it unset (and the .managed marker removed), save_config()
@@ -55,11 +60,19 @@ in {
       NoNewPrivileges = true;
       ProtectSystem = "strict";
       ProtectHome = false;
-      ReadWritePaths = [cfg.stateDir cfg.workingDirectory];
+      ReadWritePaths = [
+        cfg.stateDir
+        cfg.workingDirectory
+      ];
       PrivateTmp = true;
     };
 
-    path = [hermesPkg pkgs.bash pkgs.coreutils pkgs.git];
+    path = [
+      hermesPkg
+      pkgs.bash
+      pkgs.coreutils
+      pkgs.git
+    ];
   };
 
   # Front door: tailnet TLS via the shared mini-proxy node, gated by basic_auth.

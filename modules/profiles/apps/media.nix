@@ -3,9 +3,11 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.apps.media;
-in {
+in
+{
   config = lib.mkIf cfg.enable {
     # HM half: desktop entry for pear-desktop (no upstream .desktop file).
     home-manager.sharedModules = [
@@ -16,7 +18,11 @@ in {
           exec = "pear-desktop";
           icon = "pear-desktop";
           terminal = false;
-          categories = ["Audio" "Music" "Player"];
+          categories = [
+            "Audio"
+            "Music"
+            "Player"
+          ];
           comment = "YouTube Music Desktop Client";
         };
       }

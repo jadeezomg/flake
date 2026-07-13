@@ -6,10 +6,12 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   # Palette single source: lib/theme-palette.nix (via dotfilesLib).
   themeColors = dotfilesLib.palette;
-in {
+in
+{
   stylix = {
     enable = true;
     autoEnable = true;

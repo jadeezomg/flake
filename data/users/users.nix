@@ -19,7 +19,7 @@
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA+aciat7EcEICxtjz/xNiJ1sLsOT9w2GxKUPSL3bG1t"
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAbIeHyzeI6Z5sD/Enn11dzBSobwFrDbPK/K56jw8R6F"
       ];
-      packages = [];
+      packages = [ ];
     };
 
     caya-jonas = {
@@ -29,8 +29,8 @@
       description = "Caya Jonas Darwin User";
       homeDirectory = "/Users/caya-jonas";
       stateVersion = "26.05";
-      extraGroups = [];
-      packages = [];
+      extraGroups = [ ];
+      packages = [ ];
     };
 
     # NixOS guest: no wheel/sudo; video/audio/network for desktop login (GDM + Niri/GNOME)
@@ -45,7 +45,7 @@
         "networkmanager"
         "video"
       ];
-      packages = [];
+      packages = [ ];
     };
   };
 }

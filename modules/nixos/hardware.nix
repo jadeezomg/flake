@@ -4,7 +4,8 @@
   lib,
   pkgs,
   ...
-}: {
+}:
+{
   # Compressed RAM swap for parallel nix builds (fork overcommit without disk wear).
   zramSwap = {
     enable = lib.mkDefault true;

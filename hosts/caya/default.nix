@@ -2,7 +2,8 @@
   inputs,
   user,
   ...
-}: {
+}:
+{
   imports = [
     ../../modules/shared
     ../../modules/darwin

@@ -1,4 +1,4 @@
-{lib, ...}: {
+{ lib, ... }: {
   programs.helix.settings = {
     theme = lib.mkDefault "chiaroscuro";
 

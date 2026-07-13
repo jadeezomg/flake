@@ -1,4 +1,4 @@
-{}: {
+{ }: {
   # --- Git ---
   git = {
     inline_blame = {

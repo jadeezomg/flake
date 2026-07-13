@@ -5,9 +5,11 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.dotfiles.profiles.devgui;
-in {
+in
+{
   imports = [
     ./containers.nix
     ./ides

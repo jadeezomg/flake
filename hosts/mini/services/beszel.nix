@@ -22,10 +22,12 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   hubPort = 8090; # 8000 vLLM, 8080 webui, 8100 honcho
   agentDir = "/var/lib/beszel-agent";
-in {
+in
+{
   services.beszel.hub = {
     enable = true;
     host = "127.0.0.1"; # Caddy (services/caddy.nix) fronts it with TLS
@@ -41,7 +43,7 @@ in {
     # GPU monitoring: the Arc Pro B50 uses the `xe` driver, which does NOT expose
     # the i915 PMU that `intel_gpu_top` needs ("Failed to detect engines"). nvtop
     # reads xe GPUs via fdinfo/sysfs, so use it as the collector instead.
-    extraPath = [pkgs.nvtopPackages.intel];
+    extraPath = [ pkgs.nvtopPackages.intel ];
     environment = {
       # Hub + agent are co-located on mini, so use the classic SSH path: the agent
       # listens on :45876 and the hub (registered system 127.0.0.1:45876) connects
@@ -59,8 +61,12 @@ in {
   # as a dynamic user in `podman disk` (set by the module for container + SMART
   # monitoring); add `video`+`render` so it can open the GPU nodes. mkForce keeps
   # the full set since the same serviceConfig key is set by the module.
-  systemd.services.beszel-agent.serviceConfig.SupplementaryGroups =
-    lib.mkForce ["podman" "disk" "video" "render"];
+  systemd.services.beszel-agent.serviceConfig.SupplementaryGroups = lib.mkForce [
+    "podman"
+    "disk"
+    "video"
+    "render"
+  ];
 
   # Skip the agent until onboarding has dropped the hub pubkey, so a deploy before
   # onboarding leaves the unit inactive (condition unmet) rather than failed —

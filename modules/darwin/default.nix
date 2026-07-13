@@ -5,8 +5,9 @@
   hostKey,
   user,
   ...
-}: let
-  host = hostData.hosts.${hostKey} or {};
+}:
+let
+  host = hostData.hosts.${hostKey} or { };
   homeDir = host.homeDirectory or "/Users/${user}";
 
   xdgVars = {
@@ -17,10 +18,11 @@
     XDG_BIN_HOME = "${homeDir}/.local/bin";
   };
 
-  setenvCommands =
-    lib.concatStringsSep " && "
-    (lib.mapAttrsToList (k: v: "launchctl setenv ${k} ${lib.escapeShellArg v}") xdgVars);
-in {
+  setenvCommands = lib.concatStringsSep " && " (
+    lib.mapAttrsToList (k: v: "launchctl setenv ${k} ${lib.escapeShellArg v}") xdgVars
+  );
+in
+{
   nix.enable = false;
   system.primaryUser = user;
   users.users.${user} = {
@@ -43,7 +45,11 @@ in {
   launchd.user.agents.xdg-env = {
     serviceConfig = {
       Label = "org.nix-community.xdg-env";
-      ProgramArguments = ["/bin/sh" "-c" setenvCommands];
+      ProgramArguments = [
+        "/bin/sh"
+        "-c"
+        setenvCommands
+      ];
       RunAtLoad = true;
     };
   };

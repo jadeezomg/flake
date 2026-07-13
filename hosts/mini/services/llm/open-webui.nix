@@ -12,9 +12,11 @@
 #   (modules/nixos/networking.nix); only :22 is public.
 #
 # open-webui is unfree ("Open WebUI License") — allowed flake-wide in lib/pkgs.nix.
-{host, ...}: let
+{ host, ... }:
+let
   webuiPort = 8080;
-in {
+in
+{
   services.open-webui = {
     enable = true;
     # Loopback only: Caddy (services/caddy.nix) fronts it with TLS; never public.

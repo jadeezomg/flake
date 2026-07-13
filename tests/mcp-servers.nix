@@ -1,5 +1,6 @@
-{lib}: let
-  registry = import ../lib/mcp-servers.nix {inherit lib;};
+{ lib }:
+let
+  registry = import ../lib/mcp-servers.nix { inherit lib; };
 
   disabledRegistry = import ../lib/mcp-servers.nix {
     inherit lib;
@@ -16,12 +17,13 @@
     mcpFile = "/tmp/mcp-disabled-test/mcp.json";
   };
 in
-  assert registry.needsSharedServerMaintenance;
-  assert builtins.elem "context-mode" registry.obsoleteSharedServers;
-  assert lib.hasInfix "claude mcp remove --scope user context-mode"
+assert registry.needsSharedServerMaintenance;
+assert builtins.elem "context-mode" registry.obsoleteSharedServers;
+assert lib.hasInfix "claude mcp remove --scope user context-mode"
   registry.mkClaudeObsoleteRemovalActivation;
-  assert disabledRegistry.sharedServers == {};
-  assert disabledRegistry.needsSharedServerMaintenance;
-  assert lib.hasInfix "del(.mcpServers[$name])" disabledActivation;
-  assert !(lib.hasInfix "mcp-nixos" disabledActivation);
-  assert lib.hasInfix "del(.mcpServers[$name])" activation; true
+assert disabledRegistry.sharedServers == { };
+assert disabledRegistry.needsSharedServerMaintenance;
+assert lib.hasInfix "del(.mcpServers[$name])" disabledActivation;
+assert !(lib.hasInfix "mcp-nixos" disabledActivation);
+assert lib.hasInfix "del(.mcpServers[$name])" activation;
+true

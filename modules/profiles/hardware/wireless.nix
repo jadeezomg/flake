@@ -5,11 +5,12 @@
   lib,
   pkgs,
   ...
-}: {
+}:
+{
   config = lib.mkIf config.dotfiles.hardware.wireless.enable {
     hardware.bluetooth.enable = true;
     services.blueman.enable = config.dotfiles.profiles.desktop.enable;
 
-    environment.systemPackages = [pkgs.wirelesstools];
+    environment.systemPackages = [ pkgs.wirelesstools ];
   };
 }
