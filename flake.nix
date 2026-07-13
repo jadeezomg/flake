@@ -146,7 +146,6 @@
         ./parts/shells.nix
         ./parts/packages.nix
         ./parts/checks.nix
-        ./parts/lib.nix
       ];
 
       systems = import systems;

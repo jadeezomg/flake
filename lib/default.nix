@@ -28,5 +28,7 @@
 
   sshDestinations = (import ../data/network/ssh-destinations.nix).destinations;
   agentSkillsDir = ../data/agents/skills;
+  # apply: { lib, inputs }
+  agentSkills = import ./agent-skills.nix;
   sopsFile = ../secrets/secrets.yaml;
 }

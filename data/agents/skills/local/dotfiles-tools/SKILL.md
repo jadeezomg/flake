@@ -5,7 +5,7 @@ description: Reference for all CLI tools and development preferences in jadee's 
 
 # Dotfiles CLI Tools & Development Preferences
 
-**Edit this skill in the flake only:** `data/agents/skills/local/dotfiles-tools/` (including `references/`). Do not edit `~/.claude/skills/dotfiles-tools/` — Home Manager copies from the flake on `flake switch`.
+**Edit this skill in the flake only:** `data/agents/skills/local/dotfiles-tools/` (including `references/`). Do not edit `~/.agents/skills/dotfiles-tools/` — Home Manager copies from the flake on `flake switch`.
 
 For platform-specific tools, read `references/nixos.md` (NixOS) or `references/darwin.md` (macOS).
 The full shared tool list is in `references/shared-tools.md`.

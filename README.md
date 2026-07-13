@@ -60,7 +60,7 @@ just health          # git status, disk, nh os info
 | `system`      | `health`, `rollback`, `update` |
 | `repo`        | `git` (quiet fmt + status/log + commit + push) |
 | `zen`         | `zen-session`, `zen-sync`, `zen-compare`, `zen-extract` |
-| `llm`         | `unsloth`, `unsloth-stop`, `unsloth-reset`, `unsloth-logs`, `unsloth-status`, `skills-upstream` |
+| `llm`         | `unsloth`, `unsloth-stop`, `unsloth-reset`, `unsloth-logs`, `unsloth-status` |
 | `meta`        | `list`, `info` |
 
 `NH_FLAKE` is set to this repo. Shell helpers live in `scripts/shell/common.sh` (`get_host`, `is_darwin`, `notify`, …).
@@ -77,11 +77,12 @@ flake/
 │   ├── hosts.nix             # nixosConfigurations + darwinConfigurations
 │   ├── shells.nix            # devShell
 │   └── overlays/             # local packages, niri, CachyOS kernel, …
+├── .agents/skills/           # project-only agent skills (repo discovery)
 ├── data/                     # e.g. users/users.nix, static files
 ├── hosts/                    # hosts.nix + per-host NixOS/darwin config
 ├── modules/                  # profiles (features, system + HM halves) / platform base
 ├── packages/                 # custom packages; auto-registered as pkgs.<name> (see overlays)
-├── data/agents/              # global AGENTS.md + copy-in agent skills (upstream ref: skills-mattpocock)
+├── data/agents/              # global AGENTS.md + local skill overrides (upstream: skills-mattpocock input)
 ├── scripts/                  # Justfile helpers + uv Python package (flake-scripts)
 └── secrets/secrets.yaml        # sops + age
 ```
@@ -113,7 +114,7 @@ Bash under `scripts/shell/` backs the Justfile. Python is a uv project in `scrip
 | `nixos-hardware` | hardware modules |
 | `nix-cachyos-kernel` | CachyOS kernel (x86_64-linux) |
 | `google-workspace-cli` | `gws` in per-system `packages` |
-| `skills-mattpocock` | pinned upstream source for `just skills-upstream` (exposed as `lib.skillsUpstreamSrc`; updated via `just update`) |
+| `skills-mattpocock` | pinned upstream agent skills (auto-installed on switch; updated via `just update`) |
 | `corecycler` | kept while disabled (upstream bug); not wired into any host |
 
 `packages.<system>` exposes every `packages/<name>` automatically (`parts/packages.nix` + `packages/names.nix`).

@@ -26,7 +26,6 @@
 			"Bash(git push *)",
 			"WebFetch(domain:home-manager-options.extranix.com)",
 			"Bash(nix flake *)",
-			"Bash(FLAKE=/home/jadee/.dotfiles/flake bash /home/jadee/.dotfiles/flake/scripts/shell/skills-upstream.bash)",
 			"Bash(curl -sL \"https://api.github.com/repos/AvengeMedia/DankMaterialShell/tags\")",
 			"Bash(curl -sL \"https://raw.githubusercontent.com/AvengeMedia/DankMaterialShell/36a7692da77267cbc6f21f528979cbb5f0bb18cf/nix/dms-shell.nix\")",
 			"Bash(curl -sL \"https://raw.githubusercontent.com/AvengeMedia/DankMaterialShell/36a7692da77267cbc6f21f528979cbb5f0bb18cf/flake.nix\")",
