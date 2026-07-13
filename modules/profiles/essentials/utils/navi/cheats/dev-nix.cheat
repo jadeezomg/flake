@@ -5,18 +5,18 @@
 
 % nix, format
 
-# Format .nix files with alejandra (flake's canonical formatter)
-alejandra <path>
+# Format .nix files with treefmt/nixfmt (flake's canonical formatter)
+treefmt <path>
 
 $ path: fd -e nix --type f
 
-# Format quietly (banner off)
-alejandra --quiet <path>
+# Format quietly
+treefmt -q <path>
 
 $ path: echo ". $FLAKE" | tr ' ' '\n'
 
 # Check formatting (CI mode)
-alejandra --check <path>
+treefmt --fail-on-change -q <path>
 
 $ path: echo ". $FLAKE" | tr ' ' '\n'
 

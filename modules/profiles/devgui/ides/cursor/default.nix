@@ -19,8 +19,7 @@
           prettier.prettier-vscode # Prettier formatter
           biomejs.biome # TypeScript linter and formatter
           # Nix
-          kamadorueda.alejandra # Nix formatter
-          jnoortheen.nix-ide # Nix language support
+          jnoortheen.nix-ide # Nix language support + nixfmt formatting
           # Lua
           sumneko.lua # Lua Language Server with formatting support
           # Python
@@ -155,12 +154,12 @@
           "editor.insertSpaces" = true;
         };
 
-        # Nix-specific settings for Alejandra formatter
-        "[nix].editor.defaultFormatter" = "kamadorueda.alejandra";
+        # Nix-specific settings for nixfmt (via nix-ide)
+        "[nix].editor.defaultFormatter" = "jnoortheen.nix-ide";
         "[nix].editor.formatOnPaste" = true;
         "[nix].editor.formatOnSave" = true;
         "[nix].editor.formatOnType" = false;
-        "alejandra.program" = "alejandra";
+        "nix.formatterPath" = "nixfmt";
         "[nix].editor.colorDecorators" = true;
 
         # Lua-specific settings for stylua formatter

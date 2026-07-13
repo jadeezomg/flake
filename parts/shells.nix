@@ -59,7 +59,7 @@
     devShells = {
       default = pkgs.mkShell {
         packages = [
-          pkgs.alejandra
+          pkgs.nixfmt-tree
           pkgs.nil
           pkgs.nixd
           pkgs.nix-update
