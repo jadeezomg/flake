@@ -4,7 +4,7 @@
   ...
 }:
 let
-  unwrapped = pkgs.buildNpmPackage rec {
+  unwrapped = pkgs.buildNpmPackage {
     pname = "pi-coding-agent-unwrapped";
     version = "0.80.6";
 
