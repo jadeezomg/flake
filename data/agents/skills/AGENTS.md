@@ -2,15 +2,16 @@
 
 ## Purpose
 
-Global-install agent skills managed by this flake and installed into user agent skill directories by Home Manager.
+Global-install agent skills: upstream from pinned `skills-mattpocock`, local overrides in `local/`.
 
 ## Use skills
 
-- `agent-structure` — global-install skills vs project-only root `skills/`, installed copies, and agent config wiring.
+- `agent-structure` — project-only `.agents/skills/` vs global-install `data/agents/skills/`, installed copies, and agent config wiring.
 
 ## Local hazards
 
-- Skills here install globally into `~/.claude/skills/` and `~/.agents/skills/`; project-only skills belong in root `skills/`.
-- `local/` is still global-install; use it only for dotfiles-specific skills that should follow the user into every repo.
-- Do not edit installed copies under `~/.claude/skills/` or `~/.agents/skills/`.
-- Category folders mirror the pinned `skills-mattpocock` input; keep upstream-sync exceptions in `.upstream-ignore`.
+- Upstream skills are **not** vendored here — they install from the flake input on `just switch`.
+- Edit overrides only under `data/agents/skills/local/`; project-only skills belong in `.agents/skills/`.
+- Do not edit installed copies under `~/.agents/skills/` (`~/.claude/skills` symlinks there).
+- Opt out of upstream skills via `data/agents/skills/.upstream-ignore` (one skill name per line).
+- Refresh the upstream pin with `just update`.

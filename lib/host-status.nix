@@ -202,13 +202,12 @@ let
 
       skills_status() {
         local dir="''${FLAKE:-$HOME/.dotfiles/flake}"
-        local skills_dir="$dir/data/agents/skills"
-        if [ ! -d "$skills_dir" ]; then
-          printf '(none)\n'; return 0
+        local local_dir="$dir/data/agents/skills/local"
+        local local_count=0
+        if [ -d "$local_dir" ]; then
+          local_count="$(find "$local_dir" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')"
         fi
-        local count
-        count="$(find "$skills_dir" -mindepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' ')"
-        printf '%s installed\n' "$count"
+        printf 'upstream + %s local override(s)\n' "$local_count"
       }
 
       openrouter_json() {
@@ -325,7 +324,7 @@ let
         containers   podman running / stopped counts
         flake        \$FLAKE branch + dirty count
         generation   current NixOS generation # + age
-        skills       count of SKILL.md files under data/agents/skills/
+        skills       upstream pin + local override count
         openrouter   cached OpenRouter credit/usage (refreshed by timer)
         claude       cached Claude Code 5h/7d rate-limit utilization (refreshed by timer)
         agents       proxy to \`agent status\` (running nono sessions)

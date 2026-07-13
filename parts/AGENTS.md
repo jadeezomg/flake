@@ -7,7 +7,7 @@ flake-parts modules that assemble hosts, Home Manager configs, packages, checks,
 ## Use skills
 
 - `flake-structure` — flake-parts ownership, package exposure, checks, and overlays.
-- `agent-structure` — `skillsUpstreamSrc` and agent-related flake wiring.
+- `agent-structure` — agent-related flake wiring.
 
 ## Local hazards
 

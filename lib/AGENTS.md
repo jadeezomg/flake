@@ -15,4 +15,4 @@ Shared Nix data and helpers exposed to modules through `dotfilesLib` and Home Ma
 - Modules should use `dotfilesLib.<name>` instead of climbing with `../../` imports.
 - `pkgs.nix` owns nixpkgs import helpers; host-specific nixpkgs config is passed through `getPkgsWithConfig`.
 - `theme-palette.nix` and `scripts/src/flake_scripts/lib/palette.py` must stay in sync.
-- `home/dotfiles.nix` defines `dotfiles.flakeRoot`; live symlink targets should build on that, not hardcoded home paths.
+- `agent-skills.nix` builds HM skill install attrs from `skills-mattpocock` + `data/agents/skills/local/`.

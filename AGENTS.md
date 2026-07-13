@@ -8,7 +8,7 @@ Single-flake, multi-host NixOS/Darwin dotfiles for `desktop`, `framework`, `caya
 
 - `flake-structure` — top-level layout: hosts, parts, packages, lib, scripts, docs.
 - `module-structure` — `modules/profiles/**` profile/app layout.
-- `agent-structure` — root `skills/`, global `data/agents/`, and installed agent config.
+- `agent-structure` — `.agents/skills/`, global `data/agents/`, and installed agent config.
 - `secrets-structure` — SOPS/age secret layout and wiring.
 - `theme-structure` — shared palette and generated app themes.
 - `xdg-default-apps` — MIME defaults and desktop app ownership.
