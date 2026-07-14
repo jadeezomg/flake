@@ -33,6 +33,7 @@ in
     # and GDM session glue.
     home-manager.sharedModules = [
       ./dms
+      ./dankcalendar.nix
       ./dconf.nix
       ./gdm-session.nix
     ];
