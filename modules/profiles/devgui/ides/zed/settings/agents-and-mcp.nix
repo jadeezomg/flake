@@ -34,6 +34,35 @@ in
       type = "registry";
     };
 
+    # rohan-patra fork of the Claude Agent SDK ACP adapter (diff preview
+    # support); packaged in packages/claude-agent-acp.
+    claude = {
+      type = "custom";
+      command = "claude-agent-acp";
+      args = [ ];
+    };
+
+    # Same adapter inside the claude-flake nono profile (installed by
+    # nono-profiles.nix; grants ~/.claude via the claude-code base pack).
+    # Permission mode stays switchable per-session in Zed's UI — the adapter
+    # reads permissions.defaultMode from Claude settings, not a CLI flag.
+    claude-nono = {
+      type = "custom";
+      command = "nono";
+      args = [
+        "run"
+        "--profile"
+        "claude-flake"
+        "--allow-cwd"
+        "--rollback"
+        "--no-rollback-prompt"
+        "--name"
+        "claude-zed"
+        "--"
+        "claude-agent-acp"
+      ];
+    };
+
     pi = {
       type = "registry";
       favorite_models = [
