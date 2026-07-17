@@ -17,6 +17,7 @@ in
     home-manager.sharedModules = [
       ./shells
       ./network
+      ./hunk.nix
       ./git.nix
       ./nix-client.nix
       ./security.nix
