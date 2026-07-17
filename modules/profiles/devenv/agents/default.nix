@@ -39,6 +39,7 @@ in
       ++ (with pkgs; [
         nono
 
+        claude-agent-acp
         context7
         kagi-cli
         agent-browser
