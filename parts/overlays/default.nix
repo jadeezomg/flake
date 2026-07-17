@@ -13,8 +13,6 @@ in
   # `{pkgs, lib}` and standard-nixpkgs `callPackage` signatures, with
   # per-package system gates inside the overlay).
   (import ./local-packages.nix { inherit lib system; })
-  # Surface external flake-input packages (e.g. `hunk`) as `pkgs.<name>`.
-  (import ./flake-packages.nix { inherit inputs system; })
   (import ./vscode-langservers-node-esm.nix)
   (import ./direnv-skip-check-darwin.nix { inherit system; })
   (import ./zed-pinned-darwin.nix { inherit inputs system; })
