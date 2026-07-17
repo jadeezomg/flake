@@ -9,11 +9,9 @@
   lib,
   pkgs,
   ...
-}:
-let
+}: let
   cfg = config.dotfiles.profiles.fonts;
-in
-{
+in {
   config = lib.mkIf (cfg.enable && cfg.full.enable) {
     fonts.packages = with pkgs; [
       alegreya
@@ -99,8 +97,6 @@ in
       source-sans-pro
       source-serif-pro
       ubuntu-classic
-      # unifont — the old catalogue marked it enabled but a nesting typo meant
-      # it was never actually installed; add back deliberately if wanted.
       victor-mono
       vollkorn
       work-sans
