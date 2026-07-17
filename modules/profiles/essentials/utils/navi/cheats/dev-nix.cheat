@@ -309,3 +309,111 @@ nixd
 
 # Ranger-like flake.lock viewer
 nix-melt
+
+% nix, troubleshoot, logs
+
+# Show the build log of a failed/finished build
+nix log <installable>
+
+$ installable: echo ".#"
+
+# Build with full build logs streamed (-L) and a stack trace
+nix build <installable> -L --show-trace
+
+$ installable: echo ".#"
+
+# Keep the failed build dir for inspection (path printed in error)
+nix build <installable> --keep-failed
+
+$ installable: echo ".#"
+
+# Rebuild a path deterministically and diff against the store (impurity check)
+nix build <installable> --rebuild
+
+$ installable: echo ".#"
+
+% nix, troubleshoot, eval
+
+# Evaluate a flake attribute (quick smoke test)
+nix eval <flake>#<attr>
+
+$ flake: echo "."
+$ attr: echo ""
+
+# Evaluate with trace on error
+nix eval <flake>#<attr> --show-trace
+
+$ flake: echo "."
+$ attr: echo ""
+
+# Drop into the debugger at the failure point (:env, :st to inspect)
+nix eval <flake>#<attr> --debugger
+
+$ flake: echo "."
+$ attr: echo ""
+
+# Show the derivation behind an installable (env, inputs, builder)
+nix derivation show <installable> | jq . | less
+
+$ installable: echo ".#"
+
+# Effective nix.conf (spot bad substituters, sandbox, experimental features)
+nix config show
+
+# Pinned flake registry entries (why is nixpkgs not what you expect?)
+nix registry list
+
+# System diagnostics (nix version, channels, sandbox, store)
+nix run nixpkgs#nix-info -- -m
+
+% nix, troubleshoot, store
+
+# Verify store path integrity (hash + signatures)
+nix store verify <path>
+
+$ path: echo "/run/current-system"
+
+# Verify the whole store's contents (slow)
+nix-store --verify --check-contents
+
+# Repair a corrupted store path from substituters
+sudo nix store repair <path>
+
+$ path: echo ""
+
+# Closure size of a path (what's really being pulled in)
+nix path-info -rsSh <installable> | sort -hk2 | tail -n 25
+
+$ installable: echo "/run/current-system"
+
+# Check whether a path is available in binary caches (avoid a local build)
+nix path-info --store https://cache.nixos.org <installable>
+
+$ installable: echo ""
+
+% nix, troubleshoot, gc-roots
+
+# What keeps a store path alive? (GC roots pointing at it)
+nix-store --query --roots <path>
+
+$ path: echo ""
+
+# List every GC root on the system
+nix-store --gc --print-roots | rg -v '/proc/' | less
+
+# Dry-run GC: what would be deleted and how much
+nix store gc --dry-run 2>&1 | tail -n 5
+
+% nix, troubleshoot, hash
+
+# Fix a fetcher hash mismatch: convert the "got:" hash to SRI
+nix hash convert --hash-algo sha256 <hash>
+
+$ hash: echo ""
+
+# Prefetch a URL and print its SRI hash
+nix store prefetch-file <url>
+
+$ url: echo ""
+
+; Tip: set the hash to `lib.fakeHash`, build once, copy the "got:" value.
