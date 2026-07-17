@@ -298,3 +298,26 @@ $ ver: rbenv versions --bare 2>/dev/null
 
 # Show current Ruby + source
 rbenv version
+
+% darwin, nix, daemon, troubleshoot
+
+; This host runs Determinate Nix; the daemon is launchd service
+; `systems.determinate.nix-daemon` (not the nixpkgs nix-daemon).
+
+# Determinate Nix daemon + login status
+determinate-nixd status
+
+# Determinate Nix version
+determinate-nixd version
+
+# Inspect the daemon's launchd state (pid, exit status, stdout/stderr paths)
+sudo launchctl print system/systems.determinate.nix-daemon
+
+# Restart the Nix daemon (fixes hung builds / stale socket)
+sudo launchctl kickstart -k system/systems.determinate.nix-daemon
+
+# Recent daemon log lines from unified logging
+log show --last 10m --predicate 'process CONTAINS "determinate-nixd"' --style compact
+
+# Upgrade Determinate Nix itself
+sudo determinate-nixd upgrade

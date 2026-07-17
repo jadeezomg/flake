@@ -217,3 +217,17 @@ $ port: echo ""
 
 # All listening sockets (tcp + udp)
 ss -tulpn
+
+% nixos, nix, daemon, troubleshoot
+
+# Nix daemon status
+systemctl status nix-daemon
+
+# Restart the Nix daemon (fixes hung builds / stale socket)
+sudo systemctl restart nix-daemon
+
+# Follow daemon logs
+journalctl -u nix-daemon -e -f
+
+# Daemon logs from the current boot
+journalctl -u nix-daemon -b --no-pager | tail -n 50
