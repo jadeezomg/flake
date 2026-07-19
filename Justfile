@@ -607,32 +607,15 @@ symlink-check-dms:
     @cd "$FLAKE" && uv run --project "$FLAKE/scripts" symlink-check dms-settings
 
 
-[doc('Zen session CLI; after sync, runs nix fmt on the flake')]
-[group('zen')]
-[positional-arguments]
-zen-session *ARGS:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    cd "${FLAKE:?}"
-    uv run --project "$FLAKE/scripts" zen-session "$@"
-    for a in "$@"; do
-      if [[ "$a" == sync ]]; then nix fmt .; break; fi
-    done
-
 [doc('Write spaces.nix + pins.nix from live Zen; then nix fmt (see scripts/README.md)')]
 [group('zen')]
-zen-sync:
-    @cd "$FLAKE" && uv run --project "$FLAKE/scripts" zen-session sync && nix fmt .
+zen-sync *ARGS:
+    @cd "$FLAKE" && uv run --project "$FLAKE/scripts" zen-sync {{ ARGS }} && nix fmt .
 
-[doc('Diff flake spaces/pins vs live Zen session (exit 0 = match)')]
+[doc('Check flake spaces/pins vs live Zen session (exit 0 = match)')]
 [group('zen')]
-zen-compare:
-    @cd "$FLAKE" && uv run --project "$FLAKE/scripts" zen-session compare
-
-[doc('Pinned tabs per workspace (JSON); add --nix for snippet')]
-[group('zen')]
-zen-extract *ARGS:
-    @cd "$FLAKE" && uv run --project "$FLAKE/scripts" zen-session extract {{ ARGS }}
+zen-check *ARGS:
+    @cd "$FLAKE" && uv run --project "$FLAKE/scripts" zen-sync --check {{ ARGS }}
 
 
 

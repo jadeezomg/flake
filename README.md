@@ -59,7 +59,7 @@ just health          # git status, disk, nh os info
 | `config`      | `init`, `post-install`, `read-defaults`, `setup-age-darwin` |
 | `system`      | `health`, `rollback`, `update` |
 | `repo`        | `git` (quiet fmt + status/log + commit + push) |
-| `zen`         | `zen-session`, `zen-sync`, `zen-compare`, `zen-extract` |
+| `zen`         | `zen-sync`, `zen-check` |
 | `llm`         | `unsloth`, `unsloth-stop`, `unsloth-reset`, `unsloth-logs`, `unsloth-status` |
 | `meta`        | `list`, `info` |
 
@@ -91,7 +91,7 @@ flake/
 
 ## Scripts
 
-Bash under `scripts/shell/` backs the Justfile. Python is a uv project in `scripts/` (console entry points in `pyproject.toml`): `symlink-check`, `update-packages`, `read-defaults`, `zen-session`, etc. See `scripts/README.md` for details.
+Bash under `scripts/shell/` backs the Justfile. Python is a uv project in `scripts/` (console entry points in `pyproject.toml`): `symlink-check`, `update-packages`, `read-defaults`, `zen-sync`, etc. See `scripts/README.md` for details.
 
 ## Flake inputs (high level)
 
