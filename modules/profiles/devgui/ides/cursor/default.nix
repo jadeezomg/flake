@@ -1,4 +1,8 @@
 { pkgs, ... }: {
+  imports = [
+    ./mcp-cleanup.nix
+  ];
+
   programs.cursor = {
     enable = true;
     mutableExtensionsDir = false;
