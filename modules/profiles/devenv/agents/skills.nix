@@ -1,7 +1,7 @@
 # Installs global skills under ~/.agents/skills; ~/.claude/skills symlinks there.
 # Repo project skills live in the flake's .agents/skills/; .claude/skills symlinks there.
 #
-# Upstream: pinned `skills-mattpocock` flake input (mattpocock/skills).
+# Upstream: pinned `skills-mattpocock` and `skills-ponytail` flake inputs.
 # Local overrides: `data/agents/skills/local/` (same skill name wins).
 # Opt-outs: `data/agents/skills/.upstream-ignore`.
 {

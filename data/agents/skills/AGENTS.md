@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Global-install agent skills: upstream from pinned `skills-mattpocock`, local overrides in `local/`.
+Global-install agent skills: upstream from pinned `skills-mattpocock` and `skills-ponytail`, local overrides in `local/`.
 
 ## Use skills
 
@@ -10,7 +10,7 @@ Global-install agent skills: upstream from pinned `skills-mattpocock`, local ove
 
 ## Local hazards
 
-- Upstream skills are **not** vendored here — they install from the flake input on `just switch`.
+- Upstream skills are **not** vendored here — they install from the flake inputs on `just switch`.
 - Edit overrides only under `data/agents/skills/local/`; project-only skills belong in `.agents/skills/`.
 - Do not edit installed copies under `~/.agents/skills/` (`~/.claude/skills` symlinks there).
 - Opt out of upstream skills via `data/agents/skills/.upstream-ignore` (one skill name per line).

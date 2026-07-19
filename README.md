@@ -82,7 +82,7 @@ flake/
 ├── hosts/                    # hosts.nix + per-host NixOS/darwin config
 ├── modules/                  # profiles (features, system + HM halves) / platform base
 ├── packages/                 # custom packages; auto-registered as pkgs.<name> (see overlays)
-├── data/agents/              # global AGENTS.md + local skill overrides (upstream: skills-mattpocock input)
+├── data/agents/              # global AGENTS.md + local skill overrides (upstream skill inputs)
 ├── scripts/                  # Justfile helpers + uv Python package (flake-scripts)
 └── secrets/secrets.yaml        # sops + age
 ```
@@ -115,6 +115,7 @@ Bash under `scripts/shell/` backs the Justfile. Python is a uv project in `scrip
 | `nix-cachyos-kernel` | CachyOS kernel (x86_64-linux) |
 | `google-workspace-cli` | `gws` in per-system `packages` |
 | `skills-mattpocock` | pinned upstream agent skills (auto-installed on switch; updated via `just update`) |
+| `skills-ponytail` | pinned Ponytail agent skills (auto-installed on switch; updated via `just update`) |
 | `corecycler` | kept while disabled (upstream bug); not wired into any host |
 
 `packages.<system>` exposes every `packages/<name>` automatically (`parts/packages.nix` + `packages/names.nix`).
