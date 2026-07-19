@@ -14,5 +14,3 @@ package/
 $HOME/*
 
 
-# Dated backups from zen-session sync (flake_scripts.zen.sync_flake_profiles)
-*.nix.*.bak
