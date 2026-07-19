@@ -1,6 +1,7 @@
 # Flake checks + formatter. Eval-level only — no VM tests, nothing builds
 # beyond trivial runCommand stamps.
 {
+  inputs,
   lib,
   self,
   ...
@@ -14,6 +15,15 @@
     }:
     {
       checks = {
+        agent-skills =
+          let
+            testPassed = import ../tests/agent-skills.nix { inherit lib inputs; };
+          in
+          assert testPassed;
+          pkgs.runCommand "agent-skills-tests" { } ''
+            touch "$out"
+          '';
+
         mcp-servers =
           let
             testPassed = import ../tests/mcp-servers.nix { lib = pkgs.lib; };

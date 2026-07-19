@@ -109,6 +109,10 @@
       url = "github:mattpocock/skills";
       flake = false;
     };
+    skills-ponytail = {
+      url = "github:DietrichGebert/ponytail";
+      flake = false;
+    };
     # Intel XPU vLLM — add `nixosModules.default` + overlay (see upstream
     # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
     # `hosts/mini/services/llm/` holds the mini-only chat stack (`services.vllm-xpu` + hardware/ccache/sops).

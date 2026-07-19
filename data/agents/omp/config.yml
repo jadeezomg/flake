@@ -55,7 +55,6 @@ renderMermaid:
 github: 
   enabled: true
 mcp: 
-  discoveryMode: true
   enableProjectConfig: true
   notifications: true
 plan: 
@@ -96,12 +95,10 @@ browser:
   screenshotDir: ~/Pictures/Agent
 tools: 
   intentTracing: true
-  discoveryMode: mcp-only
   approvalMode: yolo
 autocompleteMaxVisible: 15
 dev: 
-  autoqa: 
-    consent: granted
+  autoqaConsent: granted
 bash: 
   autoBackground: 
     enabled: true

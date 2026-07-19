@@ -1,6 +1,6 @@
 # Build Home Manager `home.file` entries for agent skills.
 #
-# Upstream skills come from the pinned `skills-mattpocock` flake input.
+# Upstream skills come from pinned Matt Pocock and Ponytail flake inputs.
 # Local overrides live in `data/agents/skills/local/` and win on name clashes.
 # Opt-outs are listed in `data/agents/skills/.upstream-ignore`.
 {
@@ -10,7 +10,8 @@
 }:
 let
   agentSkillsDir = dotfilesLib.agentSkillsDir;
-  upstreamRoot = "${inputs.skills-mattpocock.outPath}/skills";
+  mattpocockRoot = "${inputs.skills-mattpocock.outPath}/skills";
+  ponytailRoot = "${inputs.skills-ponytail.outPath}/skills";
   localRoot = "${agentSkillsDir}/local";
   ignoreFile = "${agentSkillsDir}/.upstream-ignore";
 
@@ -50,9 +51,22 @@ let
       }) (dirOnly categoryPath)
     ) { } (lib.filter (c: c != "deprecated") (lib.attrNames (dirOnly root)));
 
-  upstreamSkills = lib.filterAttrs (name: _path: !(ignored ? ${name})) (
-    skillDirsFromCategoryTree upstreamRoot
+  skillDirsFromFlatRoot =
+    root: lib.mapAttrs (skillName: _type: "${root}/${skillName}") (dirOnly root);
+
+  filterIgnored = lib.filterAttrs (name: _path: !(ignored ? ${name}));
+
+  mattpocockSkills = filterIgnored (skillDirsFromCategoryTree mattpocockRoot);
+  ponytailSkills = filterIgnored (skillDirsFromFlatRoot ponytailRoot);
+
+  upstreamCollisions = lib.intersectLists (lib.attrNames mattpocockSkills) (
+    lib.attrNames ponytailSkills
   );
+
+  upstreamSkills =
+    assert lib.assertMsg (upstreamCollisions == [ ])
+      "Agent skill name collision between Matt Pocock and Ponytail inputs: ${lib.concatStringsSep ", " upstreamCollisions}";
+    mattpocockSkills // ponytailSkills;
 
   localSkills = lib.mapAttrs' (skillName: _type: {
     name = skillName;
@@ -81,9 +95,11 @@ let
 in
 {
   inherit
-    upstreamRoot
+    mattpocockRoot
+    ponytailRoot
     localRoot
     ignored
+    upstreamCollisions
     mergedSkills
     canonicalPrefix
     ;
