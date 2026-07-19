@@ -15,37 +15,47 @@ let
   nonoAgents = dotfilesLib.nonoProfiles { inherit pkgs pkgs-small; };
 in
 {
-  config = lib.mkIf cfg.enable {
-    home-manager.sharedModules = [
-      ./skills.nix
-      ./global-config.nix
-      ./nono-agent.nix
-      ./nono-profiles.nix
-      ./pi-packages.nix
-      ./pi-mcp.nix
-      ./omp-mcp.nix
-      ./claude-mcp.nix
-    ];
+  config = lib.mkMerge [
+    {
+      # Keep reconciliation active when the profile is disabled, so mutable
+      # MCP/plugin state is removed rather than orphaned.
+      home-manager.sharedModules = [
+        ./pi-mcp.nix
+        ./omp-mcp.nix
+        ./claude-mcp.nix
+        ./mcp-obsolete-npm.nix
+      ];
+    }
 
-    environment.systemPackages =
-      nonoAgents.agentPackages
-      ++ (with pkgs-small; [
-        goose-cli
-        codex
-        codex-acp
-        cursor-cli
-      ])
-      # Local flake packages from parts/overlays/local-packages.nix.
-      ++ (with pkgs; [
-        nono
+    (lib.mkIf cfg.enable {
+      home-manager.sharedModules = [
+        ./skills.nix
+        ./global-config.nix
+        ./nono-agent.nix
+        ./nono-profiles.nix
+        ./pi-packages.nix
+      ];
 
-        claude-agent-acp
-        context7
-        kagi-cli
-        agent-browser
-      ])
-      # mcp-nixos pulls python3.lupa → luajit_2_0, which nixpkgs 26.05 marks
-      # unsupported on aarch64-darwin. Drop it on Darwin until fixed upstream.
-      ++ lib.optionals (!pkgs.stdenv.isDarwin) [ pkgs.mcp-nixos ];
-  };
+      environment.systemPackages =
+        nonoAgents.agentPackages
+        ++ (with pkgs-small; [
+          goose-cli
+          codex
+          codex-acp
+          cursor-cli
+        ])
+        # Local flake packages from parts/overlays/local-packages.nix.
+        ++ (with pkgs; [
+          nono
+
+          claude-agent-acp
+          context7
+          kagi-cli
+          agent-browser
+        ])
+        # mcp-nixos pulls python3.lupa → luajit_2_0, which nixpkgs 26.05 marks
+        # unsupported on aarch64-darwin. Drop it on Darwin until fixed upstream.
+        ++ lib.optionals (!pkgs.stdenv.isDarwin) [ pkgs.mcp-nixos ];
+    })
+  ];
 }

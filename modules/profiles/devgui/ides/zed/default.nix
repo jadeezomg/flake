@@ -3,6 +3,7 @@
     ./extensions.nix
     ./keybinds.nix
     ./languages.nix
+    ./mcp-cleanup.nix
     ./settings.nix
     ./tasks.nix
     ./theme.nix
