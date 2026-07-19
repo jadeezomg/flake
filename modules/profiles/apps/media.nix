@@ -9,8 +9,9 @@ let
 in
 {
   config = lib.mkIf cfg.enable {
-    # HM half: desktop entry for pear-desktop (no upstream .desktop file).
+    # HM half: pear-desktop desktop entry and custom YouTube Music CSS.
     home-manager.sharedModules = [
+      ./media/home.nix
       {
         xdg.desktopEntries."pear-desktop" = {
           name = "Pear Desktop";
