@@ -1,5 +1,9 @@
 modelRoles: 
-  default: cursor/composer-2.5
+  smol: cursor/composer-2.5
+  tiny: cursor/composer-2.5
+  advisor: cursor/gpt-5.6-sol-high
+  plan: openai-codex/gpt-5.6-sol
+  default: openai-codex/gpt-5.6-sol
 theme: 
   dark: birds-of-paradise
   light: light-gruvbox
@@ -28,12 +32,12 @@ compaction:
   handoffSaveToDisk: true
   idleEnabled: true
 memory: 
-  backend: local
+  backend: "off"
 edit: 
   mode: hashline
   streamingAbort: true
   hashlineAutoDropPureInsertDuplicates: true
-readLineNumbers: true
+readLineNumbers: false
 bashInterceptor: 
   enabled: true
 python: 
@@ -74,7 +78,7 @@ secrets:
 providers: 
   webSearch: auto
   image: auto
-  kimiApiFormat: anthropic
+  kimiApiFormat: auto
   openaiWebsockets: auto
 exa: 
   enabled: false
@@ -91,8 +95,9 @@ fetch:
   enabled: true
 browser: 
   enabled: true
-  headless: false
+  headless: true
   screenshotDir: ~/Pictures/Agent
+  cmux: false
 tools: 
   intentTracing: true
   approvalMode: yolo
@@ -107,7 +112,7 @@ async:
 checkpoint: 
   enabled: true
 defaultThinkingLevel: auto
-hideThinkingBlock: true
+hideThinkingBlock: false
 retry: 
   fallbackRevertPolicy: cooldown-expiry
 steeringMode: one-at-a-time
@@ -116,7 +121,7 @@ loop:
 doubleEscapeAction: tree
 treeFilterMode: default
 stt: 
-  modelName: medium.en
+  modelName: parakeet
 repeatToolDescriptions: false
 setupVersion: 1
 tier: 
@@ -133,3 +138,7 @@ advisor:
 interruptMode: immediate
 ask: 
   notify: "on"
+prewalk: 
+  enabled: true
+contextPromotion: 
+  enabled: false
