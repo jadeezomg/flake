@@ -2,6 +2,7 @@
   config,
   isDarwin ? false,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -24,17 +25,24 @@ in
   # Convenience: enabling apps.enable activates every category the current
   # workstation hosts ship today. Slimmer hosts (work laptop, server) should
   # set the unwanted sub-flags to `false` explicitly after enabling apps.
-  config = lib.mkIf cfg.enable {
-    home-manager.sharedModules = [ ./vicinae.nix ];
+  config = lib.mkIf cfg.enable (
+    {
+      home-manager.sharedModules = [ ./vicinae.nix ];
 
-    dotfiles.profiles.apps = {
-      browsers.enable = lib.mkDefault true;
-      terminals.enable = lib.mkDefault true;
-      editors.enable = lib.mkDefault true;
-      files.enable = lib.mkDefault true;
-      comms.enable = lib.mkDefault true;
-      notes.enable = lib.mkDefault true;
-      media.enable = lib.mkDefault true;
-    };
-  };
+      dotfiles.profiles.apps = {
+        browsers.enable = lib.mkDefault true;
+        terminals.enable = lib.mkDefault true;
+        editors.enable = lib.mkDefault true;
+        files.enable = lib.mkDefault true;
+        comms.enable = lib.mkDefault true;
+        notes.enable = lib.mkDefault true;
+        media.enable = lib.mkDefault true;
+      };
+    }
+    // lib.optionalAttrs (!isDarwin) {
+      # The input-server wrapper defaults to the flake-input source build;
+      # use nixpkgs' cached vicinae on Linux (matches programs.vicinae.package).
+      programs.vicinae.input-server.package = pkgs.vicinae;
+    }
+  );
 }
