@@ -38,6 +38,18 @@ is_darwin() {
   [[ "$h" == *darwin* ]] || [[ "$h" == *caya* ]] || [[ "$(uname -s 2>/dev/null)" == "Darwin" ]]
 }
 
+# Nix eval/fetch opens many fds; macOS's default soft limit (256) triggers
+# EMFILE ("Too many open files"). Raise the soft fd limit to the per-process
+# ceiling (macOS) or hard limit (Linux) for this shell and its children.
+raise_fd_limit() {
+  local maxfd
+  if maxfd=$(sysctl -n kern.maxfilesperproc 2>/dev/null); then
+    ulimit -Sn "$maxfd" 2>/dev/null || true
+  else
+    ulimit -Sn "$(ulimit -Hn)" 2>/dev/null || true
+  fi
+}
+
 nh_prefix() {
   if is_darwin; then
     echo "nh darwin"

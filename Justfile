@@ -31,6 +31,7 @@ build:
     #!/usr/bin/env bash
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
+    raise_fd_limit
     print_header "BUILD"; h="$(get_host "")"
     is_darwin && sc="nh darwin build '${FLAKE}#${h}'" || sc="nh os build '${FLAKE}#${h}'"
     notify "Flake Build" "Building $h..." "pending"
@@ -43,6 +44,7 @@ build-boot:
     #!/usr/bin/env bash
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
+    raise_fd_limit
     print_header "BUILD"; h="$(get_host "")"
     is_darwin && sc="nh darwin build '${FLAKE}#${h}'" || sc="nh os boot '${FLAKE}#${h}'"
     notify "Flake Build" "Boot $h..." "pending"
@@ -55,6 +57,7 @@ build-dry:
     #!/usr/bin/env bash
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
+    raise_fd_limit
     print_header "BUILD"; h="$(get_host "")"
     is_darwin && sc="nh darwin build --dry '${FLAKE}#${h}'" || sc="nh os test '${FLAKE}#${h}'"
     notify "Flake Build" "Dry $h..." "pending"
@@ -66,6 +69,7 @@ build-dev:
     #!/usr/bin/env bash
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
+    raise_fd_limit
     print_header "BUILD"; h="$(get_host "")"
     is_darwin && sc="nh darwin switch --show-trace '${FLAKE}#${h}'" || sc="nh os switch --show-trace '${FLAKE}#${h}'"
     notify "Flake Build" "Trace $h..." "pending"
@@ -78,6 +82,7 @@ switch:
     #!/usr/bin/env bash
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
+    raise_fd_limit
     print_header "SWITCH"
     notify "Flake Switch" "Pre-flight..." "pending"
     bash -lc "nix flake check --all-systems $FLAKE --no-write-lock-file" \
@@ -108,6 +113,7 @@ switch-fast:
     #!/usr/bin/env bash
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
+    raise_fd_limit
     print_header "SWITCH"
     notify "Flake Switch" "Fast" "info"; echo ""
     h="$(get_host "")"
@@ -121,6 +127,7 @@ switch-check:
     #!/usr/bin/env bash
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
+    raise_fd_limit
     print_header "SWITCH"
     notify "Flake Switch" "Pre-flight..." "pending"
     bash -lc "nix flake check --all-systems $FLAKE --no-write-lock-file" \
@@ -516,14 +523,7 @@ update:
     #!/usr/bin/env bash
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
-    # nix's libgit2 tarball-cache opens many fds while fetching the input tree;
-    # macOS's default soft limit (256) triggers EMFILE on `nix flake update`.
-    # Raise soft fd limit to the per-process ceiling (macOS) or hard limit (Linux).
-    if maxfd=$(sysctl -n kern.maxfilesperproc 2>/dev/null); then
-      ulimit -Sn "$maxfd" 2>/dev/null || true
-    else
-      ulimit -Sn "$(ulimit -Hn)" 2>/dev/null || true
-    fi
+    raise_fd_limit
     print_header "UPDATE"
     print_pending "update-packages  updating custom flake packages..."
     up=()
