@@ -5,7 +5,7 @@
 }:
 pkgs.buildNpmPackage rec {
   pname = "claude-agent-acp";
-  version = "0.59.0.2-custom";
+  version = "0.59.0.3-custom";
 
   # rohan-patra's fork of zed-industries/claude-agent-acp: adds full diff
   # preview support via a patched @anthropic-ai/claude-agent-sdk (pinned as a
@@ -14,7 +14,7 @@ pkgs.buildNpmPackage rec {
     owner = "rohan-patra";
     repo = "claude-agent-acp";
     rev = "v${version}";
-    hash = "sha256-cBYNyDRd6LXmHJgH3SzsAwCTlEWKHgEEHAPuA7cED7s=";
+    hash = "sha256-tL7T7yh5bVxMu2tDwb5JpVzGCcccD/67Yb3qEVF5DWw=";
   };
 
   npmDepsHash = "sha256-qVWois3wVPsE7uw55ujCi8Bi7vk0Eo1YyqLNp8YRYUE=";
