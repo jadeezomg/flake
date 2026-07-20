@@ -22,7 +22,7 @@ let
       cp ${./package-lock.json} npm-shrinkwrap.json
     '';
 
-    npmDepsHash = "sha256-uXeGxyGq6V1fpHVgrKvy6mu7oq/UIwAWXHYmJ93Dfj4=";
+    npmDepsHash = "sha256-nr8JUdNK5AkuDdhlVFmOSGRAdWxe2lv5VXIW3kCPfEE=";
 
     dontNpmBuild = true;
 
