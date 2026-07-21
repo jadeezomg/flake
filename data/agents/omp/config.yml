@@ -27,7 +27,7 @@ autoResume: true
 startup: 
   checkUpdate: false
 compaction: 
-  strategy: "off"
+  strategy: shake
   thresholdPercent: 80
   handoffSaveToDisk: true
   idleEnabled: true
