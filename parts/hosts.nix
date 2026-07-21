@@ -121,8 +121,6 @@ let
         # host's own `hosts/<name>/default.nix`.
         modules = [
           inputs.stylix.nixosModules.stylix
-          inputs.dms.nixosModules.dank-material-shell
-          inputs.dank-greeter.nixosModules.dank-greeter
           inputs.vicinae.nixosModules.default
           (./. + "/../hosts/${hostKey}")
           sops-nix.nixosModules.sops
@@ -130,6 +128,10 @@ let
           lanzaboote.nixosModules.lanzaboote
           home-manager.nixosModules.home-manager
           (mkHomeManagerModule { inherit hostKey user system; })
+        ]
+        ++ lib.optionals (hostKey != "mini") [
+          inputs.dms.nixosModules.dank-material-shell
+          inputs.dank-greeter.nixosModules.dank-greeter
         ];
       };
     in
