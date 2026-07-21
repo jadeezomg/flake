@@ -10,6 +10,7 @@ symlink-check = "flake_scripts.symlinks:main"
 zen-sync = "flake_scripts.zen.sync:main"
 read-defaults = "flake_scripts.read_defaults:main"
 update-packages = "flake_scripts.update_packages:main"
+media-quality = "flake_scripts.media_quality:main"
 
 [dependency-groups]
 dev = ["ruff", "ty"]

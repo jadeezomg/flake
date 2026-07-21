@@ -493,6 +493,18 @@ sync-1password:
     set -euo pipefail
     bash "$FLAKE/scripts/shell/sync-1password.bash"
 
+[doc('Sync mini media secrets into the Proton Pass CLI default vault')]
+[group('config')]
+[positional-arguments]
+sync-media-secrets-to-pass *args:
+    @bash "$FLAKE/scripts/shell/sync-media-secrets-to-pass.bash" "$@"
+
+[doc('Apply efficient 4K quality policy to mini Arr services and Seerr')]
+[group('config')]
+[positional-arguments]
+media-quality *args:
+    @uv run --project "$FLAKE/scripts" media-quality {{ args }}
+
 
 [doc('Rollback to previous generation (nh rollback / darwin-rebuild --rollback)')]
 [group('system')]

@@ -31,7 +31,11 @@
   ++ lib.optionals ((host.miniLlmHosting or false) && (host.miniMemoryHosting or false)) [
     ./services/honcho.nix
   ]
-  ++ lib.optionals (host.miniMonitoring or false) [ ./services/beszel.nix ];
+  ++ lib.optionals (host.miniMonitoring or false) [ ./services/beszel.nix ]
+  ++ lib.optionals (host.miniMediaHosting or false) [
+    inputs.nixflix.nixosModules.default
+    ./services/media
+  ];
   # NOPASSWD wheel — quality-of-life over SSH on a key-only headless host.
   # Desktop/framework keep password-required sudo (gated by hostKey == "mini"
   # is unnecessary because this file only loads for the mini host).
@@ -46,13 +50,13 @@
     connection = {
       id = "mini-lan";
       type = "ethernet";
-      interface-name = "enp6s0f0np0";
+      interface-name = "enp2s0f0np0";
       autoconnect = true;
     };
     ipv4 = {
       method = "manual";
       # Format: <address>/<prefix>,<gateway>
-      address1 = "192.168.178.100/24,192.168.178.255";
+      address1 = "192.168.178.100/24,192.168.178.1";
       dns = "1.1.1.1;9.9.9.9";
     };
     ipv6.method = "auto";

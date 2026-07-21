@@ -86,6 +86,37 @@ maps `kagi/session_token` into the hermes env file separately.
 | `matrix/hermes_access_token` | Long-lived access token for `@hermes` bound to device `hermes-mini` (preferred auth — avoids password re-login key churn that breaks E2EE) | `hosts/mini/services/hermes.nix` → `MATRIX_ACCESS_TOKEN` in hermes env | mini |
 | `matrix/hermes_recovery_key` | Cross-signing recovery key that verifies the `hermes-mini` device for E2EE; generated during the one-time cross-signing bootstrap | `hosts/mini/services/hermes.nix` → `MATRIX_RECOVERY_KEY` in hermes env | mini |
 
+### mini media
+
+All media secrets are nested, runtime-only values consumed by
+`hosts/mini/services/media.nix`; none are exported to interactive shells.
+
+| Path | Source | Consumed by | Consumed on |
+|---|---|---|---|
+| `mini/media/sonarr/api-key` | existing Sonarr `config.xml` API key | nixflix Sonarr configuration and Seerr cutover rewrite | mini |
+| `mini/media/sonarr/password` | generated web UI password | nixflix Sonarr host configuration | mini |
+| `mini/media/radarr/api-key` | existing Radarr `config.xml` API key | nixflix Radarr configuration and Seerr cutover rewrite | mini |
+| `mini/media/radarr/password` | generated web UI password | nixflix Radarr host configuration | mini |
+| `mini/media/lidarr/api-key` | existing Lidarr `config.xml` API key | nixflix Lidarr configuration | mini |
+| `mini/media/lidarr/password` | generated web UI password | nixflix Lidarr host configuration | mini |
+| `mini/media/prowlarr/api-key` | existing Prowlarr `config.xml` API key | nixflix Prowlarr configuration | mini |
+| `mini/media/prowlarr/password` | generated web UI password | nixflix Prowlarr host configuration | mini |
+| `mini/media/prowlarr/indexers/nzbgeek-api-key` | existing NZBgeek Prowlarr indexer settings | nixflix Prowlarr indexer reconciliation | mini |
+| `mini/media/prowlarr/indexers/scenenzbs-api-key` | existing SceneNZBs Prowlarr indexer settings | nixflix Prowlarr indexer reconciliation | mini |
+| `mini/media/sabnzbd/api-key` | existing `sabnzbd.ini` API key | nixflix SABnzbd and Arr download-client integration | mini |
+| `mini/media/sabnzbd/nzb-key` | existing `sabnzbd.ini` NZB key | nixflix SABnzbd configuration | mini |
+| `mini/media/sabnzbd/username` | current unset `sabnzbd.ini` web username (encrypted empty value) | nixflix SABnzbd configuration | mini |
+| `mini/media/sabnzbd/password` | current unset `sabnzbd.ini` web password (encrypted empty value) | nixflix SABnzbd configuration | mini |
+| `mini/media/sabnzbd/premiumize-username` | existing Premiumize server username in `sabnzbd.ini` | nixflix SABnzbd Premiumize server | mini |
+| `mini/media/sabnzbd/premiumize-password` | existing Premiumize server password in `sabnzbd.ini` | nixflix SABnzbd Premiumize server | mini |
+| `mini/media/qbittorrent/password` | existing plaintext Arr integration password | nixflix Arr-to-qBittorrent integration | mini |
+| `mini/media/bazarr/opensubtitles-username` | OpenSubtitles.com account username (not email) | Bazarr English subtitle provider | mini |
+| `mini/media/bazarr/opensubtitles-password` | OpenSubtitles.com account password | Bazarr English subtitle provider | mini |
+| `mini/media/jellyfin/api-key` | generated 32-byte hexadecimal API key | nixflix Jellyfin management services and one-shot watch migration | mini |
+| `mini/media/jellyfin/users/jadee-password` | generated initial Jellyfin password | nixflix Jellyfin user creation | mini |
+| `mini/media/jellyfin/users/angeli265-password` | generated initial Jellyfin password | nixflix Jellyfin user creation | mini |
+| `mini/media/vpn/wireguard-conf` | Proton VPN WireGuard profile downloaded from the existing account | nixflix VPN confinement `wgConfFile` | mini |
+
 ### Future / not yet wired
 
 - `users/<name>/password` for guest users once `passwd` is migrated to sops.
