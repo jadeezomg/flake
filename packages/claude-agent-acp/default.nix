@@ -5,7 +5,7 @@
 }:
 pkgs.buildNpmPackage rec {
   pname = "claude-agent-acp";
-  version = "0.59.0.3-custom";
+  version = "0.60.0.2-custom";
 
   # rohan-patra's fork of zed-industries/claude-agent-acp: adds full diff
   # preview support via a patched @anthropic-ai/claude-agent-sdk (pinned as a
@@ -14,10 +14,10 @@ pkgs.buildNpmPackage rec {
     owner = "rohan-patra";
     repo = "claude-agent-acp";
     rev = "v${version}";
-    hash = "sha256-tL7T7yh5bVxMu2tDwb5JpVzGCcccD/67Yb3qEVF5DWw=";
+    hash = "sha256-ABA8buketX7+ccVM11EuVc+7ZvxXBXEd985jnxei2Dc=";
   };
 
-  npmDepsHash = "sha256-qVWois3wVPsE7uw55ujCi8Bi7vk0Eo1YyqLNp8YRYUE=";
+  npmDepsHash = "sha256-V2IqNKV5E1f3HVmSis/7E0Q42D77/+M6PDuzlVF209w=";
 
   # npm re-packs the git dependency at install time, which needs a writable
   # cache dir.
