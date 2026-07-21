@@ -39,7 +39,11 @@ let
     "a6335949-4465-4b71-926c-4a52d34bc9c0" # Better Find Bar
   ];
 
-  vicinaePkg = inputs.vicinae.packages.${pkgs.stdenv.hostPlatform.system}.default;
+  vicinaePkg =
+    if pkgs.stdenv.isLinux then
+      pkgs.vicinae
+    else
+      inputs.vicinae.packages.${pkgs.stdenv.hostPlatform.system}.default;
   vicinaeNativeMessagingHost =
     pkgs.writeTextDir "lib/mozilla/native-messaging-hosts/com.vicinae.vicinae.json"
       (
