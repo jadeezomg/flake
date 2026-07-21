@@ -122,7 +122,7 @@ let
         modules = [
           inputs.stylix.nixosModules.stylix
           inputs.dms.nixosModules.dank-material-shell
-          inputs.dms.nixosModules.greeter
+          inputs.dank-greeter.nixosModules.dank-greeter
           inputs.vicinae.nixosModules.default
           (./. + "/../hosts/${hostKey}")
           sops-nix.nixosModules.sops
