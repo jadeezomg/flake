@@ -4,7 +4,6 @@
     ../../modules/shared
     ../../modules/nixos
     ../../modules/profiles
-    ./display.nix
     ./profiles.nix
   ];
 
