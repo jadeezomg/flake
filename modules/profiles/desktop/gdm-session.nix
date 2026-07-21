@@ -13,7 +13,7 @@ let
 in
 {
   config = lib.mkIf useGdm {
-    # NixOS installs dms/dsearch as system-wide user units; GDM greeter sessions
+    # NixOS installs dms as a system-wide user unit; GDM greeter sessions
     # inherit graphical-session.target and break login. Scope to the HM user instead.
     systemd.user.services = {
       dms = {
@@ -28,23 +28,6 @@ in
         };
         Install = {
           WantedBy = [ "graphical-session.target" ];
-        };
-      };
-
-      dsearch = {
-        Unit = {
-          Description = "dsearch - Fast filesystem search service";
-          Documentation = [ "https://github.com/AvengeMedia/dsearch" ];
-          After = [ "network.target" ];
-        };
-        Service = {
-          Type = "simple";
-          ExecStart = "${pkgs.dsearch}/bin/dsearch serve";
-          Restart = "on-failure";
-          RestartSec = 5;
-        };
-        Install = {
-          WantedBy = [ "default.target" ];
         };
       };
     };
