@@ -58,7 +58,9 @@ def _specification(
     name: str,
     values: dict[str, Any],
 ) -> dict[str, Any]:
-    specification = next(item.copy() for item in schemas if item["implementation"] == implementation)
+    specification = next(
+        item.copy() for item in schemas if item["implementation"] == implementation
+    )
     specification["name"] = name
     specification["negate"] = False
     specification["required"] = False
@@ -118,7 +120,9 @@ def _format_payloads(arr: Arr) -> dict[str, dict[str, Any]]:
                 schemas,
                 "ReleaseTitleSpecification",
                 "English subtitles in release name",
-                {"value": r"\b(?:ENG(?:LISH)?[ ._-]?(?:SUBS?|SUBTITLES?)|SUBS?[ ._-]?ENG)\b"},
+                {
+                    "value": r"\b(?:ENG(?:LISH)?[ ._-]?(?:SUBS?|SUBTITLES?)|SUBS?[ ._-]?ENG)\b"
+                },
             )
         ],
     }
@@ -168,7 +172,11 @@ def _configure_profile(arr: Arr, format_ids: dict[str, int]) -> None:
         _set_allowed(item, {7, 9, 16, 19, 1002, 1003})
 
     managed_ids = set(format_ids.values())
-    format_items = [item for item in profile.get("formatItems", []) if item["format"] not in managed_ids]
+    format_items = [
+        item
+        for item in profile.get("formatItems", [])
+        if item["format"] not in managed_ids
+    ]
     format_items.extend(
         {"format": format_ids[name], "name": name, "score": score}
         for name, score in MANAGED_FORMATS.items()
@@ -197,7 +205,9 @@ def _configure_sizes(arr: Arr) -> None:
 
 
 def _assign_profile(arr: Arr) -> int:
-    entity, editor_key = ("series", "seriesIds") if arr.name == "sonarr" else ("movie", "movieIds")
+    entity, editor_key = (
+        ("series", "seriesIds") if arr.name == "sonarr" else ("movie", "movieIds")
+    )
     items = arr.get(entity)
     ids = [item["id"] for item in items if item.get("qualityProfileId") != PROFILE_ID]
     if ids:
@@ -242,7 +252,9 @@ def _on_host(apply: bool) -> None:
     if not apply:
         print("Would configure Sonarr and Radarr profile 7 as Efficient 4K")
         print("Would require original-language audio and prefer AV1 > HEVC > AVC")
-        print("Would target WEB 2160p; Radarr prefers ~10 GiB and caps ~15 GiB per 120 min")
+        print(
+            "Would target WEB 2160p; Radarr prefers ~10 GiB and caps ~15 GiB per 120 min"
+        )
         print("Would assign all existing series and movies and update Seerr defaults")
         return
 
@@ -259,7 +271,9 @@ def _on_host(apply: bool) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--apply", action="store_true", help="apply changes (default: dry run)")
+    parser.add_argument(
+        "--apply", action="store_true", help="apply changes (default: dry run)"
+    )
     parser.add_argument("--on-host", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
 
