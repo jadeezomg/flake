@@ -32,6 +32,8 @@ in
     security.rtkit.enable = true;
 
     environment.systemPackages = with pkgs; [
+      mission-center
+
       # --- Audio admin ---
       alsa-utils
       pamixer
