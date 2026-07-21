@@ -56,15 +56,6 @@ in
       enableCalendarEvents = false; # DMS calendar is unused; avoid khal/vdirsyncer
     };
 
-    programs.dsearch = {
-      enable = true;
-      systemd = {
-        # System-wide user unit runs for gdm-greeter too and breaks GDM login.
-        enable = useDmsGreeter;
-        target = "default.target";
-      };
-    };
-
     # --- Supporting services ---
     services = {
       displayManager.gdm = lib.mkIf useGdm {
