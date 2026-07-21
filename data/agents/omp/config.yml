@@ -127,7 +127,8 @@ setupVersion: 1
 tier: 
   openai: auto
 tui: 
-  tight: false
+  tight: true
+  textSizing: false
 images: 
   blockImages: true
 personality: pragmatic
