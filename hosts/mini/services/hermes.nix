@@ -10,7 +10,36 @@ let
   hermesSrc = inputs.hermes-agent;
   haInputs = hermesSrc.inputs;
 
-  hermesAgent = pkgs.callPackage "${hermesSrc}/nix/hermes-agent.nix" {
+  # Upstream's TUI now imports @hermes/shared/charge-settlement, but its Nix
+  # source filter still includes only ui-tui. Keep the shared workspace in the
+  # filtered source until NousResearch/hermes-agent updates nix/tui.nix.
+  patchedHermesSrc = pkgs.applyPatches {
+    name = "hermes-agent-source";
+    src = hermesSrc;
+    patches = [
+      (pkgs.writeText "hermes-tui-shared-source.patch" ''
+        diff --git a/nix/tui.nix b/nix/tui.nix
+        --- a/nix/tui.nix
+        +++ b/nix/tui.nix
+        @@ -1,7 +1,12 @@
+         # nix/tui.nix — Hermes TUI (Ink/React) compiled with tsc and bundled
+         { pkgs, hermesNpmLib, ... }:
+         let
+        -  npm = hermesNpmLib.mkNpmPassthru { dirs = [ "ui-tui" ]; };
+        +  npm = hermesNpmLib.mkNpmPassthru {
+        +    dirs = [
+        +      "ui-tui"
+        +      "apps/shared"
+        +    ];
+        +  };
+
+           packageJson = builtins.fromJSON (builtins.readFile (npm.src + "/ui-tui/package.json"));
+           version = packageJson.version;
+      '')
+    ];
+  };
+
+  hermesAgent = pkgs.callPackage "${patchedHermesSrc}/nix/hermes-agent.nix" {
     inherit (haInputs) uv2nix pyproject-nix pyproject-build-systems;
     npm-lockfile-fix = haInputs.npm-lockfile-fix.packages.${system}.default;
     rev = hermesSrc.rev or null;
