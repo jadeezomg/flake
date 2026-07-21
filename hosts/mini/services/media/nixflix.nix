@@ -183,7 +183,7 @@ in
           complete_dir = "/data/usenet/complete";
           host_whitelist = "sabnzbd.jadee.fyi";
           local_ranges = [
-            "192.168.15.0/24"
+            "192.168.178.0/24"
             "100.64.0.0/10"
           ];
         };
