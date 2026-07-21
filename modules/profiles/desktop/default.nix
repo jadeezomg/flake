@@ -13,7 +13,10 @@ let
   dmsShell = inputs.dms.packages.${pkgs.stdenv.hostPlatform.system}.dms-shell;
 in
 {
-  imports = [ ./peripherals.nix ];
+  imports = [
+    ./dms-greeter-acl.nix
+    ./peripherals.nix
+  ];
 
   config = lib.mkIf cfg.enable {
     # HM halves: DMS/niri live-symlink wiring (./dms), dconf user settings,
