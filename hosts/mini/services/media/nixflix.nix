@@ -348,13 +348,6 @@ in
     };
 
     sonarr.serviceConfig = {
-      BindPaths = [
-        "/data/media/Series"
-        "/data/media/Anime"
-        "/data/media/Series-PtBr"
-        "/data/torrents/sonarr"
-        "/data/usenet/complete/sonarr"
-      ];
       PrivateTmp = true;
       ProtectSystem = "strict";
       ReadWritePaths = lib.mkForce [
@@ -367,11 +360,6 @@ in
       ];
     };
     radarr.serviceConfig = {
-      BindPaths = [
-        "/data/media/Cinema"
-        "/data/torrents/radarr"
-        "/data/usenet/complete/radarr"
-      ];
       PrivateTmp = true;
       ProtectSystem = "strict";
       ReadWritePaths = lib.mkForce [
@@ -382,11 +370,6 @@ in
       ];
     };
     lidarr.serviceConfig = {
-      BindPaths = [
-        "/Music"
-        "/data/torrents/lidarr"
-        "/data/usenet/complete/lidarr"
-      ];
       PrivateTmp = true;
       ProtectSystem = "strict";
       ReadWritePaths = lib.mkForce [
@@ -402,7 +385,6 @@ in
       ReadWritePaths = lib.mkForce [ "/srv/nixflix/prowlarr" ];
     };
     qbittorrent.serviceConfig = {
-      BindPaths = [ "/data/torrents" ];
       ProtectSystem = lib.mkForce "strict";
       ReadWritePaths = lib.mkForce [
         "/var/lib/qBittorrent"

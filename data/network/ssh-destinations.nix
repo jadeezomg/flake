@@ -15,7 +15,7 @@
       user = "jadee";
     };
     unraid = {
-      hostName = "192.168.178.62";
+      hostName = "jadee-server";
       user = "root";
     };
   };
