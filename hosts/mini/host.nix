@@ -32,6 +32,10 @@ sharedNixOSHost
   # Nixflix media stack (./services/media.nix): automation and playback on mini,
   # with library and download payloads mounted from Unraid.
   miniMediaHosting = true;
+  # Static LAN address on enp2s0f0np0 (see default.nix mini-lan NM profile).
+  miniLanAddress = "192.168.178.100";
+  # Also serve Caddy vhosts on the LAN IP (same *.jadee.fyi names; needs local DNS).
+  miniCaddyLanEnable = true;
   # GGML backends for nixpkgs `llama-cpp` (Vulkan + CLBlast/OpenCL only — not SYCL/OpenVINO).
   # Use `vulkan-opencl` to compile both, then pick GPU at runtime via `LLAMA_ARG_DEVICE` or
   # `systemctl edit llama-cpp-gemma` (see docs/hosts/mini-llm-hosting.md).
