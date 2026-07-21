@@ -184,7 +184,7 @@ update_login_item() {
 
  update_args+=(--field "username=$(jq -r '.username' <<<"$spec")")
  update_args+=(--field "password=$(jq -r '.password' <<<"$spec")")
- update_args+=(--field "urls=$(jq -r '.url' <<<"$spec")")
+ update_args+=(--field "url=$(jq -r '.url' <<<"$spec")")
  update_args+=(--field "note=$NOTE")
 
  while IFS= read -r extra; do
