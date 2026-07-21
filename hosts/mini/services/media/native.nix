@@ -74,7 +74,12 @@ in
         export OPENSUBTITLES_USERNAME="$(<"$CREDENTIALS_DIRECTORY/opensubtitles-username")"
         export OPENSUBTITLES_PASSWORD="$(<"$CREDENTIALS_DIRECTORY/opensubtitles-password")"
         ${pkgs.yq-go}/bin/yq -i '
-          .general.enabled_providers = ["opensubtitlescom"] |
+          .general.enabled_providers = [
+            "animetosho",
+            "gestdown",
+            "opensubtitlescom",
+            "yifysubtitles"
+          ] |
           .general.use_embedded_subs = true |
           .general.embedded_subs_show_desired = true |
           .general.parse_embedded_audio_track = true |
