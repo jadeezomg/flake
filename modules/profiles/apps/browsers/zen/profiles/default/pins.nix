@@ -104,6 +104,22 @@ in
       editedTitle = true;
       position = 1003;
     };
+    "Arr Stack" = {
+      id = "{99e147cc-4caf-47d8-9aff-4173cae0badb}";
+      workspace = spaces."Downloads".id;
+      isGroup = true;
+      isFolderCollapsed = true;
+      editedTitle = true;
+      position = 1004;
+    };
+    "Download Clients" = {
+      id = "{2eeb86a1-ed2e-4608-8faf-2fff492b1464}";
+      workspace = spaces."Downloads".id;
+      isGroup = true;
+      isFolderCollapsed = true;
+      editedTitle = true;
+      position = 1005;
+    };
     "Home - Mastodon" = {
       id = "9f74dc7f-0ec6-4984-ba38-e9a1b39e092a";
       url = "https://mastodon.social/home";
@@ -311,26 +327,92 @@ in
       isEssential = false;
       position = 227;
     };
+    "Seerr" = {
+      id = "7be8383b-0734-4547-af55-1d6d4026d568";
+      url = "https://seerr.jadee.fyi/";
+      workspace = spaces."Downloads".id;
+      isEssential = false;
+      position = 228;
+    };
     "JDownloader 2" = {
       id = "71c66a44-3f74-4149-9714-fb2a5b5af39b";
       url = "http://jadee-server:7807/";
       workspace = spaces."Downloads".id;
       isEssential = false;
-      position = 228;
+      position = 229;
+      folderParentId = "{2eeb86a1-ed2e-4608-8faf-2fff492b1464}";
     };
-    "Tab" = {
+    "qBittorrent" = {
       id = "4d625060-e07c-4486-a418-3a6ec5f88bc6";
-      url = "http://jadee-server:8080/";
+      url = "https://qbittorrent.jadee.fyi/";
       workspace = spaces."Downloads".id;
       isEssential = false;
-      position = 229;
+      position = 230;
+      folderParentId = "{2eeb86a1-ed2e-4608-8faf-2fff492b1464}";
     };
-    "LinkSnappy - Get your files as a premium" = {
+    "LinkSnappy" = {
       id = "b19c8441-18b9-4cfb-ad0d-c6151f2cd526";
       url = "https://linksnappy.com/home";
       workspace = spaces."Downloads".id;
       isEssential = false;
-      position = 230;
+      position = 231;
+      folderParentId = "{2eeb86a1-ed2e-4608-8faf-2fff492b1464}";
+    };
+    "SABnzbd" = {
+      id = "b5d1e5de-cb08-4f4e-9a3d-36be211e1a9c";
+      url = "https://sabnzbd.jadee.fyi/";
+      workspace = spaces."Downloads".id;
+      isEssential = false;
+      position = 232;
+      folderParentId = "{2eeb86a1-ed2e-4608-8faf-2fff492b1464}";
+    };
+    "Premiumize" = {
+      id = "ba982a0b-5742-433c-9aea-e094f469a452";
+      url = "https://www.premiumize.me/";
+      workspace = spaces."Downloads".id;
+      isEssential = false;
+      position = 233;
+      folderParentId = "{2eeb86a1-ed2e-4608-8faf-2fff492b1464}";
+    };
+    "Sonarr" = {
+      id = "e1f41415-ac6e-454b-89bc-a9d834709996";
+      url = "https://sonarr.jadee.fyi/";
+      workspace = spaces."Downloads".id;
+      isEssential = false;
+      position = 234;
+      folderParentId = "{99e147cc-4caf-47d8-9aff-4173cae0badb}";
+    };
+    "Radarr" = {
+      id = "df2e7f9d-9dd7-4a99-b0df-20a86f1bbc9e";
+      url = "https://radarr.jadee.fyi/";
+      workspace = spaces."Downloads".id;
+      isEssential = false;
+      position = 235;
+      folderParentId = "{99e147cc-4caf-47d8-9aff-4173cae0badb}";
+    };
+    "Lidarr" = {
+      id = "2fcb532d-ab4e-4389-b4f3-80353e929aee";
+      url = "https://lidarr.jadee.fyi/";
+      workspace = spaces."Downloads".id;
+      isEssential = false;
+      position = 236;
+      folderParentId = "{99e147cc-4caf-47d8-9aff-4173cae0badb}";
+    };
+    "Prowlarr" = {
+      id = "8f6f65ec-86a1-4211-be9e-e6c6d8decf72";
+      url = "https://prowlarr.jadee.fyi/";
+      workspace = spaces."Downloads".id;
+      isEssential = false;
+      position = 237;
+      folderParentId = "{99e147cc-4caf-47d8-9aff-4173cae0badb}";
+    };
+    "Bazarr" = {
+      id = "ef2fcc8b-fb84-4a8c-809e-8ef256e07fb1";
+      url = "https://bazarr.jadee.fyi/";
+      workspace = spaces."Downloads".id;
+      isEssential = false;
+      position = 238;
+      folderParentId = "{99e147cc-4caf-47d8-9aff-4173cae0badb}";
     };
   };
 }
