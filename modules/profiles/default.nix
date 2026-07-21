@@ -22,12 +22,14 @@
     ./work
     ./server.nix
   ]
-  ++ lib.optionals (!isDarwin) [
-    ./desktop
-    ./gaming.nix
-    ./integrations.nix
-    ./hardware
-  ];
+  ++ lib.optionals (!isDarwin) (
+    [
+      ./gaming.nix
+      ./integrations.nix
+      ./hardware
+    ]
+    ++ lib.optionals (hostKey != "mini") [ ./desktop ]
+  );
 
   options.dotfiles.profiles =
     let
