@@ -153,7 +153,44 @@
         "type": "github"
       }
     },
+    "dank-greeter": {
+      "inputs": {
+        "dank-qml-common": "dank-qml-common",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1784516427,
+        "narHash": "sha256-uYHpbrbkrbLjZlXnYPkY7vB8IQdWCflX8wdn1CUlZlw=",
+        "owner": "AvengeMedia",
+        "repo": "dank-greeter",
+        "rev": "d73d3c0430a9429fb12505f1b9ba9d53ec4da64b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AvengeMedia",
+        "repo": "dank-greeter",
+        "type": "github"
+      }
+    },
     "dank-qml-common": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784433462,
+        "narHash": "sha256-8MdKtu/tSYrCenhtmgYW+lcv9JhGPTE3BnSE6WuqO1U=",
+        "owner": "AvengeMedia",
+        "repo": "dank-qml-common",
+        "rev": "8d36f668d73e7a4391ea9ead3939c5de137aa1f0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AvengeMedia",
+        "repo": "dank-qml-common",
+        "type": "github"
+      }
+    },
+    "dank-qml-common_2": {
       "flake": false,
       "locked": {
         "lastModified": 1784074596,
@@ -169,7 +206,7 @@
         "type": "github"
       }
     },
-    "dank-qml-common_2": {
+    "dank-qml-common_3": {
       "flake": false,
       "locked": {
         "lastModified": 1784485083,
@@ -187,7 +224,7 @@
     },
     "dankcalendar": {
       "inputs": {
-        "dank-qml-common": "dank-qml-common",
+        "dank-qml-common": "dank-qml-common_2",
         "nixpkgs": [
           "nixpkgs"
         ]
@@ -285,7 +322,7 @@
     },
     "dms": {
       "inputs": {
-        "dank-qml-common": "dank-qml-common_2",
+        "dank-qml-common": "dank-qml-common_3",
         "flake-compat": "flake-compat_3",
         "nixpkgs": [
           "nixpkgs"
@@ -1357,6 +1394,7 @@
     "root": {
       "inputs": {
         "corecycler": "corecycler",
+        "dank-greeter": "dank-greeter",
         "dankcalendar": "dankcalendar",
         "determinate": "determinate",
         "disko": "disko",
