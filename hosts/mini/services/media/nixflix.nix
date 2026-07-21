@@ -183,6 +183,7 @@ in
           complete_dir = "/data/usenet/complete";
           host_whitelist = "sabnzbd.jadee.fyi";
           local_ranges = [
+            "192.168.15.0/24"
             "192.168.178.0/24"
             "100.64.0.0/10"
           ];
@@ -330,6 +331,9 @@ in
   };
 
   systemd.services = lib.mkIf mediaEnabled {
+    # Upstream's reconciler returns 1 after successfully updating every indexer.
+    prowlarr-indexers.serviceConfig.SuccessExitStatus = [ 1 ];
+
     nixflix-setup-remote-dirs = {
       description = "Create Nixflix directories on mounted Unraid storage";
       after = mountDeps;
