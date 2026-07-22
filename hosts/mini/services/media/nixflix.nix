@@ -200,6 +200,13 @@ in
           Misc = false;
           RSS = false;
         };
+        # Sonarr/Radarr removeCompletedDownloads only deletes torrents after seeding
+        # goals are met. Ratio 0 + Stop marks them done immediately after download so
+        # Arr can import (hardlink) then remove the torrent job (files kept).
+        BitTorrent.Session = {
+          GlobalMaxRatio = 0;
+          ShareLimitAction = "Stop";
+        };
         Preferences = {
           WebUI = {
             Username = "admin";
