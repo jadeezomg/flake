@@ -403,16 +403,15 @@ in
       ) remoteDirs;
     };
 
+    # One ReadWritePaths entry for /data (not per-subdir). Separate systemd binds
+    # remount each path and break hardlinks (EXDEV) between torrents/usenet and media.
+    # Also avoids /data appearing read-only under ProtectSystem=strict with NFS.
     sonarr.serviceConfig = {
       PrivateTmp = true;
       ProtectSystem = "strict";
       ReadWritePaths = lib.mkForce [
         "/srv/nixflix/sonarr"
-        "/data/media/Series"
-        "/data/media/Anime"
-        "/data/media/Series-PtBr"
-        "/data/torrents/sonarr"
-        "/data/usenet/complete/sonarr"
+        "/data"
       ];
     };
     radarr.serviceConfig = {
@@ -420,9 +419,7 @@ in
       ProtectSystem = "strict";
       ReadWritePaths = lib.mkForce [
         "/srv/nixflix/radarr"
-        "/data/media/Cinema"
-        "/data/torrents/radarr"
-        "/data/usenet/complete/radarr"
+        "/data"
       ];
     };
     lidarr.serviceConfig = {
@@ -430,9 +427,8 @@ in
       ProtectSystem = "strict";
       ReadWritePaths = lib.mkForce [
         "/srv/nixflix/lidarr"
+        "/data"
         "/Music"
-        "/data/torrents/lidarr"
-        "/data/usenet/complete/lidarr"
       ];
     };
     prowlarr.serviceConfig = {
@@ -463,7 +459,14 @@ in
     sabnzbd = {
       after = mountDeps;
       requires = mountDeps;
-      serviceConfig.BindPaths = [ "/data/usenet" ];
+      serviceConfig = {
+        # Avoid BindPaths (can remount NFS read-only). Keep one RW view of /data.
+        BindPaths = lib.mkForce [ ];
+        ReadWritePaths = lib.mkForce [
+          "/var/lib/sabnzbd"
+          "/data"
+        ];
+      };
     };
   };
 }
