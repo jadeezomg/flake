@@ -27,8 +27,14 @@ let
   llamaDevice = host.miniLlamaCppDevice or null;
 
   llamaCpp = pkgs.llama-cpp.override {
-    vulkanSupport = lib.elem ggmlBackends [ "vulkan" "vulkan-opencl" ];
-    openclSupport = lib.elem ggmlBackends [ "opencl" "vulkan-opencl" ];
+    vulkanSupport = lib.elem ggmlBackends [
+      "vulkan"
+      "vulkan-opencl"
+    ];
+    openclSupport = lib.elem ggmlBackends [
+      "opencl"
+      "vulkan-opencl"
+    ];
   };
 
   port = host.miniLlmPort;
@@ -126,7 +132,8 @@ in
 
     environment = {
       HF_HOME = hfHome;
-    } // lib.optionalAttrs (llamaDevice != null) {
+    }
+    // lib.optionalAttrs (llamaDevice != null) {
       LLAMA_ARG_DEVICE = llamaDevice;
     };
 

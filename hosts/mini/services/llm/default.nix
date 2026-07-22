@@ -5,7 +5,6 @@
 # Serving: `./llama-cpp.nix` — `local-chat` + `local-embed` on one port.
 {
   config,
-  lib,
   pkgs,
   ...
 }:

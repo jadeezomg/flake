@@ -256,7 +256,9 @@ def _verify_seerr(settings: dict[str, Any]) -> None:
     main = settings["main"]
     metadata = settings["metadataSettings"]
     for key, value in SEERR_MAIN_SETTINGS.items():
-        assert main[key] == value, f"seerr main.{key} is {main.get(key)!r}, want {value!r}"
+        assert main[key] == value, (
+            f"seerr main.{key} is {main.get(key)!r}, want {value!r}"
+        )
     for key, value in SEERR_METADATA_SETTINGS.items():
         assert metadata[key] == value, (
             f"seerr metadataSettings.{key} is {metadata.get(key)!r}, want {value!r}"
@@ -296,7 +298,9 @@ def _verify(arr: Arr) -> None:
 def _print_seerr_plan() -> None:
     print("Would enable Seerr partial TV requests (per-season picker)")
     print("Would enable Seerr specials (season 0) in the request dialog")
-    print("Would use TVDB metadata for anime season/episode lists (TMDB for live-action TV)")
+    print(
+        "Would use TVDB metadata for anime season/episode lists (TMDB for live-action TV)"
+    )
 
 
 def _on_host(apply: bool, *, seerr_only: bool) -> None:
@@ -329,9 +333,7 @@ def _on_host(apply: bool, *, seerr_only: bool) -> None:
         print("seerr: updated " + ", ".join(seerr_changes))
     else:
         print("seerr: request settings already match desired configuration")
-    print(
-        "seerr: partial requests + specials enabled; anime metadata provider = TVDB"
-    )
+    print("seerr: partial requests + specials enabled; anime metadata provider = TVDB")
 
 
 def main() -> None:

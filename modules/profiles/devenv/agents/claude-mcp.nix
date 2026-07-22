@@ -2,23 +2,15 @@
 # activation does not overwrite auth/state in ~/.claude.json.
 {
   dotfilesLib,
-  config,
   lib,
   osConfig,
-  pkgs,
   pkgs-small,
   ...
 }:
 let
   mcpRegistry = dotfilesLib.mcpServers { inherit lib osConfig; };
-  inherit (mcpRegistry)
-    needsSharedServerMaintenance
-    mkClaudeObsoleteRemovalActivation
-    mkClaudeObsoletePluginRemovalActivation
-    mkClaudeObsoleteFileRemovalActivation
-    ;
+  inherit (mcpRegistry) needsSharedServerMaintenance;
   mcpServers = mcpRegistry.sharedServers;
-  homeDir = config.home.homeDirectory;
 
   registerScript = lib.concatMapStringsSep "\n" (
     name:
@@ -43,14 +35,9 @@ lib.mkIf needsSharedServerMaintenance {
     export PATH=${
       lib.makeBinPath [
         pkgs-small.claude-code
-        pkgs.glib
       ]
     }:$PATH
 
-    existing=$(claude mcp list 2>/dev/null || true)
-    ${mkClaudeObsoleteRemovalActivation}
-    ${mkClaudeObsoletePluginRemovalActivation}
-    ${mkClaudeObsoleteFileRemovalActivation homeDir}
     existing=$(claude mcp list 2>/dev/null || true)
     ${registerScript}
   '';

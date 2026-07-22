@@ -23,3 +23,4 @@ Single-flake, multi-host NixOS/Darwin dotfiles for `desktop`, `framework`, `caya
 - Run `git add` before Nix eval/build; flakes only see tracked files.
 - Never commit secrets or `.flake-host`; use SOPS for encrypted secrets.
 - Do not edit installed agent files under `~/.claude/`, `~/.agents/`, or `~/AGENTS.md`; edit this flake's sources.
+- Non-nixpkgs packages that write mutable state need a removal path when dropped from the flake (see `packages/AGENTS.md`).
