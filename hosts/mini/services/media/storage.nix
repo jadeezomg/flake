@@ -70,13 +70,6 @@ in
     "mini/media/sabnzbd/premiumize-username" = { };
     "mini/media/sabnzbd/premiumize-password" = { };
     "mini/media/qbittorrent/password" = { };
-    "mini/media/qbittorrent/search-plugins" = {
-      # qbittorrent.service sets User=qbittorrent, so preStart runs unprivileged too.
-      owner = "qbittorrent";
-      group = "users";
-      mode = "0400";
-      restartUnits = [ "qbittorrent.service" ];
-    };
     "mini/media/bazarr/opensubtitles-username".restartUnits = [ "bazarr.service" ];
     "mini/media/bazarr/opensubtitles-password".restartUnits = [ "bazarr.service" ];
     "mini/media/jellyfin/api-key" = { };

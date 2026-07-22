@@ -110,7 +110,6 @@ All media secrets are nested, runtime-only values consumed by
 | `mini/media/sabnzbd/premiumize-username` | existing Premiumize server username in `sabnzbd.ini` | nixflix SABnzbd Premiumize server | mini |
 | `mini/media/sabnzbd/premiumize-password` | existing Premiumize server password in `sabnzbd.ini` | nixflix SABnzbd Premiumize server | mini |
 | `mini/media/qbittorrent/password` | existing plaintext Arr integration password | nixflix Arr-to-qBittorrent integration | mini |
-| `mini/media/qbittorrent/search-plugins` | JSON string: `{"official":["piratebay",...],"external":["sukebeisi"]}` — plugin enable-list for qBittorrent search (`external` = wiki-listed unofficial plugins fetched at build time) | nixflix `qbittorrent-pre-start` plugin sync | mini |
 | `mini/media/bazarr/opensubtitles-username` | OpenSubtitles.com account username (not email) | Bazarr English subtitle provider | mini |
 | `mini/media/bazarr/opensubtitles-password` | OpenSubtitles.com account password | Bazarr English subtitle provider | mini |
 | `mini/media/jellyfin/api-key` | generated 32-byte hexadecimal API key | nixflix Jellyfin management services and one-shot watch migration | mini |
