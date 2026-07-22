@@ -65,7 +65,6 @@ let
       requests
     ]
   );
-  qbittorrentSearchPythonPath = "/var/lib/qBittorrent/bin/python3";
   qbittorrentNovaDir = "/var/lib/qBittorrent/qBittorrent/data/nova3";
 
   # Search plugin enable-list lives in sops: mini/media/qbittorrent/search-plugins (JSON).
@@ -145,9 +144,8 @@ let
     fi
   '';
 
-  # qBittorrent spawns PythonExecutable for each search-plugin subprocess. bubblewrap
-  # gives plugins their own mount tree so they cannot reach /data, config, or secrets.
-  qbittorrentSearchPythonWrapped = pkgs.writeShellScript "qbittorrent-search-python" ''
+  # Inner bwrap sandbox for search plugins (host netns; see security.wrappers below).
+  qbittorrentSearchBwrap = pkgs.writeShellScript "qbittorrent-search-bwrap" ''
     set -euo pipefail
     exec ${pkgs.bubblewrap}/bin/bwrap \
       --unshare-pid \
@@ -168,6 +166,47 @@ let
       --setenv SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt \
       --setenv PATH "" \
       ${qbittorrentSearchPython}/bin/python3 "$@"
+  '';
+
+  qbittorrentSearchPythonPath = "/var/lib/qBittorrent/bin/python3";
+
+  # setuid-root helper: security.wrappers drops to caller uid before exec, so nsenter
+  # must live in a real setuid binary (only qbittorrent may invoke it).
+  qbittorrentSearchNetnsHelper = pkgs.runCommand "qbittorrent-search-netns-helper" { } ''
+    mkdir -p $out/bin
+    cat > main.c <<EOF
+    #include <pwd.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <unistd.h>
+
+    static void die(const char *msg) {
+      perror(msg);
+      _exit(1);
+    }
+
+    int main(int argc, char **argv) {
+      struct passwd *pw = getpwnam("qbittorrent");
+      if (!pw || getuid() != pw->pw_uid) {
+        fprintf(stderr, "qbittorrent-search-python: refused caller uid %%d\n", getuid());
+        return 1;
+      }
+      if (seteuid(0) != 0) die("seteuid");
+
+      char **child = calloc((size_t) argc + 6, sizeof(char *));
+      if (!child) die("calloc");
+      child[0] = "nsenter";
+      child[1] = "-t";
+      child[2] = "1";
+      child[3] = "-n";
+      child[4] = "--";
+      child[5] = (char *) "${qbittorrentSearchBwrap}";
+      for (int i = 1; i < argc; i++) child[5 + i] = argv[i];
+      execv("${pkgs.util-linux}/bin/nsenter", child);
+      die("execv");
+    }
+EOF
+    ${pkgs.gcc}/bin/cc -O2 -o $out/bin/qbittorrent-search-python main.c
   '';
 in
 {
@@ -461,11 +500,11 @@ in
         user = "qbittorrent";
         group = "users";
       };
-      "${qbittorrentSearchPythonPath}".L = {
-        type = "L+";
-        argument = "${qbittorrentSearchPythonWrapped}";
-        user = "qbittorrent";
-        group = "users";
+      "${qbittorrentSearchPythonPath}".C = {
+        mode = "4755";
+        user = "root";
+        group = "root";
+        argument = "${qbittorrentSearchNetnsHelper}/bin/qbittorrent-search-python";
       };
     };
     "10-sabnzbd" = lib.mkForce {
@@ -476,6 +515,7 @@ in
       };
     };
   };
+
 
   systemd.services = lib.mkIf mediaEnabled {
     # Upstream's reconciler returns 1 after successfully updating every indexer.
@@ -536,6 +576,7 @@ in
         qbittorrentSearchPython
         pkgs.bubblewrap
         pkgs.jq
+        pkgs.util-linux
       ];
       preStart = lib.mkOrder 50 ''
         export QBITTORRENT_SEARCH_PLUGINS_CONFIG=${
