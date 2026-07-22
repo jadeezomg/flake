@@ -601,6 +601,7 @@ in
         RestrictNamespaces = lib.mkForce false;
         # Search python is a setuid helper (nsenter → host netns); default hardening blocks it.
         RestrictSUIDSGID = lib.mkForce false;
+        NoNewPrivileges = lib.mkForce false;
         ReadWritePaths = lib.mkForce [
           "/var/lib/qBittorrent"
           "/data/torrents"
