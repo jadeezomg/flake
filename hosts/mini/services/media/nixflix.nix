@@ -55,9 +55,11 @@ let
     saveTrickplayWithMedia = false;
   };
 
-  # Search runs in host netns (qBittorrent itself is in /run/netns/wg).
+  # Search stays inside the VPN netns with qBittorrent (no host-netns escape).
   # Plugins are managed manually via the WebUI under nova3/engines — not declared in Nix.
   # Bare system python3 lacks plugin deps (requests/bs4/lxml); keep a small withPackages env.
+  # Wrapper only strips qBittorrent's -I (breaks PYTHONPATH / nova3 `helpers` imports).
+  qbittorrentNovaDir = "/var/lib/qBittorrent/qBittorrent/data/nova3";
   qbittorrentSearchPython = pkgs.python3.withPackages (
     ps: with ps; [
       beautifulsoup4
@@ -67,72 +69,17 @@ let
       requests
     ]
   );
-  qbittorrentNovaDir = "/var/lib/qBittorrent/qBittorrent/data/nova3";
-
-  # Non-setuid launcher (what qBittorrent configures) → setuid netns helper.
-  qbittorrentSearchPythonPath = "/var/lib/qBittorrent/bin/python3";
-  qbittorrentSearchNetnsPath = "/var/lib/qBittorrent/bin/qbittorrent-search-netns";
-
-  qbittorrentSearchPythonLauncher = pkgs.writeShellScript "qbittorrent-search-python-launcher" ''
-    exec ${qbittorrentSearchNetnsPath} "$@"
-  '';
-
-  # setuid helper: only qbittorrent may invoke; nsenter host netns, drop to qbittorrent, run python.
-  # Strips qBittorrent's -I (breaks PYTHONPATH / nova3 `helpers` imports).
-  qbittorrentSearchNetnsHelper = pkgs.runCommand "qbittorrent-search-netns-helper" { } ''
-    mkdir -p $out/bin
-    cat > main.c <<EOF
-    #include <pwd.h>
-    #include <stdio.h>
-    #include <string.h>
-    #include <stdlib.h>
-    #include <unistd.h>
-
-    static void die(const char *msg) {
-      perror(msg);
-      _exit(1);
-    }
-
-    int main(int argc, char **argv) {
-      struct passwd *pw = getpwnam("qbittorrent");
-      if (!pw || getuid() != pw->pw_uid) {
-        fprintf(stderr, "qbittorrent-search-netns: refused caller uid %d\n", getuid());
-        return 1;
-      }
-
-      char uidbuf[32], gidbuf[32];
-      snprintf(uidbuf, sizeof uidbuf, "%ld", (long)pw->pw_uid);
-      snprintf(gidbuf, sizeof gidbuf, "%ld", (long)pw->pw_gid);
-
-      /* nsenter argv + python + filtered user args (skip -I) + NULL */
-      char **child = calloc((size_t)argc + 12, sizeof(char *));
-      if (!child) die("calloc");
-      int n = 0;
-      child[n++] = "nsenter";
-      child[n++] = "-t";
-      child[n++] = "1";
-      child[n++] = "-n";
-      child[n++] = "-S";
-      child[n++] = uidbuf;
-      child[n++] = "-G";
-      child[n++] = gidbuf;
-      child[n++] = "--";
-      child[n++] = (char *)"${qbittorrentSearchPython}/bin/python3";
-      for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-I") == 0) continue;
-        child[n++] = argv[i];
-      }
-      child[n] = NULL;
-
-      if (seteuid(0) != 0) die("seteuid");
-      if (setenv("PYTHONPATH", "${qbittorrentNovaDir}", 1) != 0) die("setenv PYTHONPATH");
-      if (setenv("SSL_CERT_FILE", "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt", 1) != 0) die("setenv SSL_CERT_FILE");
-      if (chdir("${qbittorrentNovaDir}/engines") != 0) die("chdir");
-      execv("${pkgs.util-linux}/bin/nsenter", child);
-      die("execv");
-    }
-    EOF
-    ${pkgs.gcc}/bin/cc -O2 -o $out/bin/qbittorrent-search-python main.c
+  qbittorrentSearchPythonPath = pkgs.writeShellScript "qbittorrent-search-python" ''
+    export PYTHONPATH=${qbittorrentNovaDir}
+    export SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt
+    args=()
+    for arg in "$@"; do
+      if [ "$arg" != "-I" ]; then
+        args+=("$arg")
+      fi
+    done
+    cd ${qbittorrentNovaDir}/engines
+    exec ${qbittorrentSearchPython}/bin/python3 "''${args[@]}"
   '';
 in
 {
@@ -260,7 +207,8 @@ in
           };
           Search = {
             # qBittorrent 5.x reads Preferences/Search/pythonExecutablePath (not PythonExecutable).
-            pythonExecutablePath = qbittorrentSearchPythonPath;
+            # Store-path wrapper; search traffic stays in the VPN netns with the daemon.
+            pythonExecutablePath = "${qbittorrentSearchPythonPath}";
           };
         };
       };
@@ -377,14 +325,10 @@ in
     };
   };
 
-  # tmpfiles type C does not refresh an existing setuid copy after rebuilds.
-  system.activationScripts.qbittorrentSearchPythonHelper = lib.mkIf mediaEnabled ''
-    install -m 4755 -o root -g root \
-      ${qbittorrentSearchNetnsHelper}/bin/qbittorrent-search-python \
-      ${qbittorrentSearchNetnsPath}
-    install -m 0755 -o qbittorrent -g users \
-      ${qbittorrentSearchPythonLauncher} \
-      ${qbittorrentSearchPythonPath}
+  # Drop leftover host-netns setuid helper from earlier revisions.
+  system.activationScripts.qbittorrentSearchCleanup = lib.mkIf mediaEnabled ''
+    rm -f /var/lib/qBittorrent/bin/qbittorrent-search-netns \
+      /var/lib/qBittorrent/bin/python3
   '';
 
   systemd.tmpfiles.settings = lib.mkIf mediaEnabled {
@@ -418,11 +362,6 @@ in
     };
     "10-qbittorrent" = lib.mkForce {
       "/var/lib/qBittorrent".d = {
-        mode = "0755";
-        user = "qbittorrent";
-        group = "users";
-      };
-      "/var/lib/qBittorrent/bin".d = {
         mode = "0755";
         user = "qbittorrent";
         group = "users";
@@ -501,20 +440,12 @@ in
       ProtectSystem = "strict";
       ReadWritePaths = lib.mkForce [ "/srv/nixflix/prowlarr" ];
     };
-    qbittorrent = {
-      # Plugins are manual under nova3/engines. Search still needs host netns via setuid helper.
-      path = [ pkgs.util-linux ];
-      serviceConfig = {
-        ProtectSystem = lib.mkForce "strict";
-        # setuid nsenter helper (host netns for search); PrivateUsers/SUID hardening blocks it.
-        PrivateUsers = lib.mkForce false;
-        RestrictSUIDSGID = lib.mkForce false;
-        NoNewPrivileges = lib.mkForce false;
-        ReadWritePaths = lib.mkForce [
-          "/var/lib/qBittorrent"
-          "/data/torrents"
-        ];
-      };
+    qbittorrent.serviceConfig = {
+      ProtectSystem = lib.mkForce "strict";
+      ReadWritePaths = lib.mkForce [
+        "/var/lib/qBittorrent"
+        "/data/torrents"
+      ];
     };
     jellyfin.serviceConfig = {
       ProtectSystem = "strict";
