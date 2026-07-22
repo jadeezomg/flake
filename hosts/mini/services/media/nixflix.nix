@@ -462,6 +462,14 @@ in
     };
   };
 
+
+  # tmpfiles type C does not refresh an existing setuid copy after rebuilds.
+  system.activationScripts.qbittorrentSearchPythonHelper = lib.mkIf mediaEnabled ''
+    install -m 4755 -o root -g root \
+      ${qbittorrentSearchNetnsHelper}/bin/qbittorrent-search-python \
+      ${qbittorrentSearchPythonPath}
+  '';
+
   systemd.tmpfiles.settings = lib.mkIf mediaEnabled {
     "10-nixflix" = lib.mkForce {
       "/srv/nixflix".d = {
@@ -591,10 +599,6 @@ in
         pkgs.util-linux
       ];
       preStart = lib.mkOrder 50 ''
-        # tmpfiles type C does not refresh an existing setuid copy; keep helper in sync.
-        install -m 4755 -o root -g root \
-          ${qbittorrentSearchNetnsHelper}/bin/qbittorrent-search-python \
-          ${qbittorrentSearchPythonPath}
         export QBITTORRENT_SEARCH_PLUGINS_CONFIG=${
           config.sops.secrets."mini/media/qbittorrent/search-plugins".path
         }
