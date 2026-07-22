@@ -54,6 +54,18 @@ let
     saveLyricsWithMedia = false;
     saveTrickplayWithMedia = false;
   };
+
+  # Dedicated interpreter for qBittorrent search plugins (not system python3).
+  qbittorrentSearchPython = pkgs.python3.withPackages (
+    ps: with ps; [
+      beautifulsoup4
+      defusedxml
+      html5lib
+      lxml
+      requests
+    ]
+  );
+  qbittorrentSearchPythonPath = "/var/lib/qBittorrent/bin/python3";
 in
 {
   nixflix = {
@@ -166,9 +178,14 @@ in
         lidarr = "/data/torrents/lidarr";
         prowlarr = "/data/torrents/prowlarr";
       };
-      serverConfig.Preferences.WebUI = {
-        Username = "admin";
-        Password_PBKDF2 = "@ByteArray(UEDQJNvOAG77ID/NZNBFUA==:/iBnGxh7a5EQWn3kApyU2x7Hd8KrwjnzxSK4CQDEJ9bQbxQSDd5oFsroNXX+s2GdGCWFdDXPFZg2e07aH0wPvA==)";
+      serverConfig.Preferences = {
+        WebUI = {
+          Username = "admin";
+          Password_PBKDF2 = "@ByteArray(UEDQJNvOAG77ID/NZNBFUA==:/iBnGxh7a5EQWn3kApyU2x7Hd8KrwjnzxSK4CQDEJ9bQbxQSDd5oFsroNXX+s2GdGCWFdDXPFZg2e07aH0wPvA==)";
+        };
+        Search = {
+          PythonExecutable = qbittorrentSearchPythonPath;
+        };
       };
     };
 
@@ -318,8 +335,18 @@ in
         user = "qbittorrent";
         group = "users";
       };
+      "/var/lib/qBittorrent/bin".d = {
+        mode = "0755";
+        user = "qbittorrent";
+        group = "users";
+      };
       "/var/lib/qBittorrent/qBittorrent/config".d = {
         mode = "0754";
+        user = "qbittorrent";
+        group = "users";
+      };
+      "${qbittorrentSearchPythonPath}".L = {
+        argument = "${qbittorrentSearchPython}/bin/python3";
         user = "qbittorrent";
         group = "users";
       };
@@ -387,12 +414,15 @@ in
       ProtectSystem = "strict";
       ReadWritePaths = lib.mkForce [ "/srv/nixflix/prowlarr" ];
     };
-    qbittorrent.serviceConfig = {
-      ProtectSystem = lib.mkForce "strict";
-      ReadWritePaths = lib.mkForce [
-        "/var/lib/qBittorrent"
-        "/data/torrents"
-      ];
+    qbittorrent = {
+      path = [ qbittorrentSearchPython ];
+      serviceConfig = {
+        ProtectSystem = lib.mkForce "strict";
+        ReadWritePaths = lib.mkForce [
+          "/var/lib/qBittorrent"
+          "/data/torrents"
+        ];
+      };
     };
     jellyfin.serviceConfig = {
       ProtectSystem = "strict";
