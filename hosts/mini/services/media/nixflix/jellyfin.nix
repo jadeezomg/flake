@@ -4,7 +4,7 @@
   ...
 }:
 let
-  inherit (import ./common.nix) mediaEnabled mkLibrary;
+  inherit (import ./common.nix) mkLibrary;
 in
 {
   nixflix.jellyfin = {
@@ -71,7 +71,7 @@ in
     };
   };
 
-  systemd.services = lib.mkIf mediaEnabled {
+  systemd.services = {
     jellyfin.serviceConfig = {
       ProtectSystem = "strict";
       ReadWritePaths = [

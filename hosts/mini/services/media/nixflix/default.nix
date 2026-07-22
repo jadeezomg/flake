@@ -2,7 +2,7 @@
   ...
 }:
 let
-  inherit (import ./common.nix) mediaEnabled mountDeps;
+  inherit (import ./common.nix) mountDeps;
 in
 {
   imports = [
@@ -13,7 +13,7 @@ in
   ];
 
   nixflix = {
-    enable = mediaEnabled;
+    enable = true;
     mediaDir = "/data/media";
     downloadsDir = "/data";
     stateDir = "/srv/nixflix";

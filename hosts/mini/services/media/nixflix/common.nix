@@ -1,6 +1,4 @@
 {
-  mediaEnabled = true;
-
   mountDeps = [
     "data.mount"
     "data-media-Music.mount"

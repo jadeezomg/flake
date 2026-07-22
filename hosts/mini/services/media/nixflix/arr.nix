@@ -3,9 +3,6 @@
   lib,
   ...
 }:
-let
-  inherit (import ./common.nix) mediaEnabled;
-in
 {
   nixflix = {
     sonarr = {
@@ -90,7 +87,7 @@ in
     flaresolverr.enable = true;
   };
 
-  systemd.tmpfiles.settings = lib.mkIf mediaEnabled {
+  systemd.tmpfiles.settings = {
     "10-sonarr" = lib.mkForce {
       "/srv/nixflix/sonarr".d = {
         mode = "0755";
@@ -114,7 +111,7 @@ in
     };
   };
 
-  systemd.services = lib.mkIf mediaEnabled {
+  systemd.services = {
     # Upstream's reconciler returns 1 after successfully updating every indexer.
     prowlarr-indexers.serviceConfig.SuccessExitStatus = [ 1 ];
 
