@@ -3,7 +3,7 @@ modelRoles:
   tiny: cursor/composer-2.5
   advisor: cursor/gpt-5.6-sol-high
   plan: openai-codex/gpt-5.6-sol
-  default: openai-codex/gpt-5.6-sol
+  default: cursor/cursor-grok-4.5-high
 theme: 
   dark: birds-of-paradise
   light: light-gruvbox
