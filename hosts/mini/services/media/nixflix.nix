@@ -166,14 +166,15 @@ let
       --tmpfs /run \
       --ro-bind /nix/store /nix/store \
       --ro-bind ${pkgs.glibc}/lib /lib \
-      --ro-bind ${pkgs.cacert}/etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt \
+      # nss-cacert ships ca-bundle.crt (not ca-certificates.crt); bind the whole dir.
+      --ro-bind ${pkgs.cacert}/etc/ssl/certs /etc/ssl/certs \
       --ro-bind /etc/resolv.conf /etc/resolv.conf \
       --ro-bind /etc/hosts /etc/hosts \
       --ro-bind /etc/nsswitch.conf /etc/nsswitch.conf \
       --bind ${qbittorrentNovaDir} ${qbittorrentNovaDir} \
       --chdir ${qbittorrentNovaDir}/engines \
       --setenv PYTHONPATH ${qbittorrentNovaDir} \
-      --setenv SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt \
+      --setenv SSL_CERT_FILE /etc/ssl/certs/ca-bundle.crt \
       --setenv PATH "" \
       ${qbittorrentSearchPython}/bin/python3 "''${filtered[@]}"
   '';
@@ -590,6 +591,10 @@ in
         pkgs.util-linux
       ];
       preStart = lib.mkOrder 50 ''
+        # tmpfiles type C does not refresh an existing setuid copy; keep helper in sync.
+        install -m 4755 -o root -g root \
+          ${qbittorrentSearchNetnsHelper}/bin/qbittorrent-search-python \
+          ${qbittorrentSearchPythonPath}
         export QBITTORRENT_SEARCH_PLUGINS_CONFIG=${
           config.sops.secrets."mini/media/qbittorrent/search-plugins".path
         }
