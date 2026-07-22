@@ -179,45 +179,51 @@ let
       ${qbittorrentSearchPython}/bin/python3 "''${filtered[@]}"
   '';
 
+  # qBittorrent's configured interpreter (non-setuid launcher → setuid netns helper).
   qbittorrentSearchPythonPath = "/var/lib/qBittorrent/bin/python3";
+  qbittorrentSearchNetnsPath = "/var/lib/qBittorrent/bin/qbittorrent-search-netns";
+
+  qbittorrentSearchPythonLauncher = pkgs.writeShellScript "qbittorrent-search-python-launcher" ''
+    exec ${qbittorrentSearchNetnsPath} "$@"
+  '';
 
   # setuid-root helper: security.wrappers drops to caller uid before exec, so nsenter
   # must live in a real setuid binary (only qbittorrent may invoke it).
   qbittorrentSearchNetnsHelper = pkgs.runCommand "qbittorrent-search-netns-helper" { } ''
-    mkdir -p $out/bin
-    cat > main.c <<EOF
-    #include <pwd.h>
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <unistd.h>
+        mkdir -p $out/bin
+        cat > main.c <<EOF
+        #include <pwd.h>
+        #include <stdio.h>
+        #include <stdlib.h>
+        #include <unistd.h>
 
-    static void die(const char *msg) {
-      perror(msg);
-      _exit(1);
-    }
+        static void die(const char *msg) {
+          perror(msg);
+          _exit(1);
+        }
 
-    int main(int argc, char **argv) {
-      struct passwd *pw = getpwnam("qbittorrent");
-      if (!pw || getuid() != pw->pw_uid) {
-        fprintf(stderr, "qbittorrent-search-python: refused caller uid %%d\n", getuid());
-        return 1;
-      }
-      if (seteuid(0) != 0) die("seteuid");
+        int main(int argc, char **argv) {
+          struct passwd *pw = getpwnam("qbittorrent");
+          if (!pw || getuid() != pw->pw_uid) {
+            fprintf(stderr, "qbittorrent-search-python: refused caller uid %%d\n", getuid());
+            return 1;
+          }
+          if (seteuid(0) != 0) die("seteuid");
 
-      char **child = calloc((size_t) argc + 6, sizeof(char *));
-      if (!child) die("calloc");
-      child[0] = "nsenter";
-      child[1] = "-t";
-      child[2] = "1";
-      child[3] = "-n";
-      child[4] = "--";
-      child[5] = (char *) "${qbittorrentSearchBwrap}";
-      for (int i = 1; i < argc; i++) child[5 + i] = argv[i];
-      execv("${pkgs.util-linux}/bin/nsenter", child);
-      die("execv");
-    }
-EOF
-    ${pkgs.gcc}/bin/cc -O2 -o $out/bin/qbittorrent-search-python main.c
+          char **child = calloc((size_t) argc + 6, sizeof(char *));
+          if (!child) die("calloc");
+          child[0] = "nsenter";
+          child[1] = "-t";
+          child[2] = "1";
+          child[3] = "-n";
+          child[4] = "--";
+          child[5] = (char *) "${qbittorrentSearchBwrap}";
+          for (int i = 1; i < argc; i++) child[5 + i] = argv[i];
+          execv("${pkgs.util-linux}/bin/nsenter", child);
+          die("execv");
+        }
+    EOF
+        ${pkgs.gcc}/bin/cc -O2 -o $out/bin/qbittorrent-search-python main.c
   '';
 in
 {
@@ -462,11 +468,13 @@ in
     };
   };
 
-
   # tmpfiles type C does not refresh an existing setuid copy after rebuilds.
   system.activationScripts.qbittorrentSearchPythonHelper = lib.mkIf mediaEnabled ''
     install -m 4755 -o root -g root \
       ${qbittorrentSearchNetnsHelper}/bin/qbittorrent-search-python \
+      ${qbittorrentSearchNetnsPath}
+    install -m 0755 -o qbittorrent -g users \
+      ${qbittorrentSearchPythonLauncher} \
       ${qbittorrentSearchPythonPath}
   '';
 
@@ -520,12 +528,6 @@ in
         user = "qbittorrent";
         group = "users";
       };
-      "${qbittorrentSearchPythonPath}".C = {
-        mode = "4755";
-        user = "root";
-        group = "root";
-        argument = "${qbittorrentSearchNetnsHelper}/bin/qbittorrent-search-python";
-      };
     };
     "10-sabnzbd" = lib.mkForce {
       "/var/lib/sabnzbd".d = {
@@ -535,7 +537,6 @@ in
       };
     };
   };
-
 
   systemd.services = lib.mkIf mediaEnabled {
     # Upstream's reconciler returns 1 after successfully updating every indexer.
@@ -608,7 +609,8 @@ in
         ProtectSystem = lib.mkForce "strict";
         # bubblewrap needs mount (+ user) namespaces for per-plugin sandboxes.
         RestrictNamespaces = lib.mkForce false;
-        # Search python is a setuid helper (nsenter → host netns); default hardening blocks it.
+        # Search plugins use a setuid nsenter helper (host netns). PrivateUsers breaks setuid+nsenter.
+        PrivateUsers = lib.mkForce false;
         RestrictSUIDSGID = lib.mkForce false;
         NoNewPrivileges = lib.mkForce false;
         ReadWritePaths = lib.mkForce [
