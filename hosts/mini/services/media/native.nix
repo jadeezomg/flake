@@ -86,6 +86,10 @@ in
           .general.use_embedded_subs = true |
           .general.embedded_subs_show_desired = true |
           .general.parse_embedded_audio_track = true |
+          # English defaults for new Sonarr/Radarr items (profile 1). Language profiles
+          # live in Bazarr's DB — define profile 1 in the UI once; no boot-time API reconcile
+          # (removed bazarr-english-profile oneshot). Future pt-BR ASR will need a second
+          # profile + path defaults for Series-PtBr — do not force everything to profile 1.
           .general.serie_default_enabled = true |
           .general.serie_default_profile = 1 |
           .general.movie_default_enabled = true |
@@ -130,77 +134,6 @@ in
           "/data/media/Series-PtBr"
           "/data/media/Cinema"
         ];
-      };
-    };
-
-    bazarr-english-profile = {
-      description = "Reconcile Bazarr English subtitle profile";
-      wantedBy = [ "multi-user.target" ];
-      after = [ "bazarr.service" ];
-      requires = [ "bazarr.service" ];
-      path = [ pkgs.coreutils ];
-      script = ''
-        api=http://127.0.0.1:6767/api
-        config=/srv/nixflix/bazarr/config/config.yaml
-        for _ in $(seq 1 60); do
-          api_key="$(${pkgs.yq-go}/bin/yq -r '.auth.apikey // ""' "$config")"
-          if test -n "$api_key" && ${pkgs.curl}/bin/curl -fsS -H "X-API-KEY: $api_key" "$api/system/status" >/dev/null; then
-            break
-          fi
-          sleep 1
-        done
-        test -n "$api_key"
-
-        profile="$(${pkgs.jq}/bin/jq -cn '{
-          profileId: 1,
-          name: "English",
-          cutoff: 1,
-          items: [{
-            id: 1,
-            language: "en",
-            hi: false,
-            forced: false,
-            audio_exclude: false,
-            audio_only_include: false
-          }],
-          mustContain: [],
-          mustNotContain: [],
-          originalFormat: false,
-          tag: null
-        }')"
-        ${pkgs.curl}/bin/curl -fsS -X POST           -H "X-API-KEY: $api_key"           --data-urlencode "languages-enabled=en"           --data-urlencode "languages-profiles=[$profile]"           "$api/system/settings" >/dev/null
-
-        for media_type in series movies; do
-          case "$media_type" in
-            series)
-              json_id_field=sonarrSeriesId
-              form_id_field=seriesid
-              ;;
-            movies)
-              json_id_field=radarrId
-              form_id_field=radarrid
-              ;;
-          esac
-          mapfile -t ids < <(
-            ${pkgs.curl}/bin/curl -fsS -H "X-API-KEY: $api_key" "$api/$media_type" |
-              ${pkgs.jq}/bin/jq -r --arg field "$json_id_field" '.data[] | select(.profileId != 1) | .[$field]'
-          )
-          if test "''${#ids[@]}" -gt 0; then
-            args=()
-            for id in "''${ids[@]}"; do
-              args+=(--data-urlencode "$form_id_field=$id" --data-urlencode "profileid=1")
-            done
-            ${pkgs.curl}/bin/curl -fsS -X POST -H "X-API-KEY: $api_key"               "''${args[@]}" "$api/$media_type" >/dev/null
-          fi
-        done
-
-        ${pkgs.curl}/bin/curl -fsS -H "X-API-KEY: $api_key" "$api/system/languages/profiles" |
-          ${pkgs.jq}/bin/jq -e 'any(.[]; .profileId == 1 and .name == "English")' >/dev/null
-      '';
-      serviceConfig = {
-        Type = "oneshot";
-        User = "unraid";
-        Group = "users";
       };
     };
 
