@@ -2,7 +2,7 @@
 {
   imports = [
     ./storage.nix
-    ./nixflix.nix
+    ./nixflix
     ./native.nix
     ./proxy.nix
   ];
