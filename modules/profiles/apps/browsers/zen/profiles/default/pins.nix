@@ -120,6 +120,14 @@ in
       editedTitle = true;
       position = 1005;
     };
+    "Media Servers" = {
+      id = "{013163e2-4100-4d25-8698-189f8fb27f2d}";
+      workspace = spaces."Downloads".id;
+      isGroup = true;
+      isFolderCollapsed = true;
+      editedTitle = true;
+      position = 1006;
+    };
     "Home - Mastodon" = {
       id = "9f74dc7f-0ec6-4984-ba38-e9a1b39e092a";
       url = "https://mastodon.social/home";
@@ -413,6 +421,22 @@ in
       isEssential = false;
       position = 238;
       folderParentId = "{99e147cc-4caf-47d8-9aff-4173cae0badb}";
+    };
+    "Jellyfin" = {
+      id = "50a08368-d776-4aab-86d5-c4eb03753e6d";
+      url = "https://jellyfin.jadee.fyi/";
+      workspace = spaces."Downloads".id;
+      isEssential = false;
+      position = 239;
+      folderParentId = "{013163e2-4100-4d25-8698-189f8fb27f2d}";
+    };
+    "Plex" = {
+      id = "8e096e61-6265-482a-9434-be6a99942cb4";
+      url = "https://plex.jadee.fyi/";
+      workspace = spaces."Downloads".id;
+      isEssential = false;
+      position = 240;
+      folderParentId = "{013163e2-4100-4d25-8698-189f8fb27f2d}";
     };
   };
 }
