@@ -33,6 +33,70 @@ let
     cd ${qbittorrentNovaDir}/engines
     exec ${qbittorrentSearchPython}/bin/python3 "''${args[@]}"
   '';
+
+  # nixflix password._secret is Arr→qBittorrent only; WebUI needs Password_PBKDF2.
+  # Derive the hash at start from the same sops plaintext so the flake never stores it.
+  qbittorrentPbkdf2Py = pkgs.writeText "qbittorrent-pbkdf2.py" ''
+    import base64
+    import hashlib
+    import os
+    import sys
+
+    password = open(sys.argv[1], "rb").read().strip()
+    if not password:
+        raise SystemExit("empty qbittorrent password secret")
+    salt = os.urandom(16)
+    dk = hashlib.pbkdf2_hmac("sha512", password, salt, 100_000, dklen=64)
+    print(
+        "@ByteArray("
+        + base64.b64encode(salt).decode()
+        + ":"
+        + base64.b64encode(dk).decode()
+        + ")"
+    )
+  '';
+
+  qbittorrentPatchConfPy = pkgs.writeText "qbittorrent-patch-webui-password.py" ''
+    import pathlib
+    import re
+    import sys
+
+    conf = pathlib.Path(sys.argv[1])
+    value = sys.argv[2]
+    text = conf.read_text()
+    line = f'WebUI\\Password_PBKDF2="{value}"'
+    pattern = re.compile(r"^WebUI\\Password_PBKDF2=.*$", re.M)
+    if pattern.search(text):
+        text = pattern.sub(line, text, count=1)
+    elif re.search(r"^\[Preferences\]\s*$", text, re.M):
+        text = re.sub(
+            r"^(\[Preferences\]\s*)$",
+            r"\1\n" + line,
+            text,
+            count=1,
+            flags=re.M,
+        )
+    else:
+        text = text.rstrip() + "\n[Preferences]\n" + line + "\n"
+    conf.write_text(text)
+  '';
+
+  qbittorrentWebuiPasswordScript = pkgs.writeShellScript "qbittorrent-webui-password-from-sops" ''
+    set -euo pipefail
+    conf=/var/lib/qBittorrent/qBittorrent/config/qBittorrent.conf
+    secret=${config.sops.secrets."mini/media/qbittorrent/password".path}
+    if [ ! -r "$secret" ]; then
+      echo "qbittorrent-webui-password: cannot read $secret" >&2
+      exit 1
+    fi
+    if [ ! -f "$conf" ]; then
+      echo "qbittorrent-webui-password: missing $conf (serverConfig install should run first)" >&2
+      exit 1
+    fi
+    hash="$(${pkgs.python3}/bin/python3 ${qbittorrentPbkdf2Py} "$secret")"
+    ${pkgs.python3}/bin/python3 ${qbittorrentPatchConfPy} "$conf" "$hash"
+  '';
+
 in
 {
   nixflix = {
@@ -49,27 +113,20 @@ in
         prowlarr = "/data/torrents/prowlarr";
       };
       serverConfig = {
-        # Misc/RSS proxy flags are on but no proxy is configured; keep them off so
-        # any future HTTP client inside qBittorrent does not try a blank proxy.
         Network.Proxy.Profiles = {
           Misc = false;
           RSS = false;
         };
-        # Sonarr/Radarr removeCompletedDownloads only deletes torrents after seeding
-        # goals are met. Ratio 0 + Stop marks them done immediately after download so
-        # Arr can import (hardlink) then remove the torrent job (files kept).
         BitTorrent.Session = {
           GlobalMaxRatio = 0;
           ShareLimitAction = "Stop";
         };
         Preferences = {
           WebUI = {
+            # Non-secret; Password_PBKDF2 is injected from sops plaintext in ExecStartPre.
             Username = "admin";
-            Password_PBKDF2 = "@ByteArray(UEDQJNvOAG77ID/NZNBFUA==:/iBnGxh7a5EQWn3kApyU2x7Hd8KrwjnzxSK4CQDEJ9bQbxQSDd5oFsroNXX+s2GdGCWFdDXPFZg2e07aH0wPvA==)";
           };
           Search = {
-            # qBittorrent 5.x reads Preferences/Search/pythonExecutablePath (not PythonExecutable).
-            # Store-path wrapper; search traffic stays in the VPN netns with the daemon.
             pythonExecutablePath = "${qbittorrentSearchPythonPath}";
           };
         };
@@ -123,7 +180,6 @@ in
     };
   };
 
-  # Drop leftover host-netns setuid helper from earlier revisions.
   system.activationScripts.qbittorrentSearchCleanup = lib.mkIf mediaEnabled ''
     rm -f /var/lib/qBittorrent/bin/qbittorrent-search-netns \
       /var/lib/qBittorrent/bin/python3
@@ -163,13 +219,14 @@ in
         "/var/lib/qBittorrent"
         "/data/torrents"
       ];
+      # '+' = root so we can read root-only sops; runs after nixpkgs conf install.
+      ExecStartPre = lib.mkAfter [ "+${qbittorrentWebuiPasswordScript}" ];
     };
 
     sabnzbd = {
       after = mountDeps;
       requires = mountDeps;
       serviceConfig = {
-        # Avoid BindPaths (can remount NFS read-only). Keep one RW view of /data.
         BindPaths = lib.mkForce [ ];
         ReadWritePaths = lib.mkForce [
           "/var/lib/sabnzbd"
