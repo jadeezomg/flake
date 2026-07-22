@@ -36,55 +36,58 @@ let
 
   # nixflix password._secret is Arr→qBittorrent only; WebUI needs Password_PBKDF2.
   # Derive the hash at start from the same sops plaintext so the flake never stores it.
-  qbittorrentWebuiPassword = pkgs.writers.writePython3 "qbittorrent-webui-password" {
-    doCheck = false;
-  } ''
-      import base64
-      import hashlib
-      import os
-      import pathlib
-      import re
-      import sys
+  qbittorrentWebuiPassword =
+    pkgs.writers.writePython3 "qbittorrent-webui-password"
+      {
+        doCheck = false;
+      }
+      ''
+        import base64
+        import hashlib
+        import os
+        import pathlib
+        import re
+        import sys
 
-      secret_path = pathlib.Path(sys.argv[1])
-      conf_path = pathlib.Path("/var/lib/qBittorrent/qBittorrent/config/qBittorrent.conf")
+        secret_path = pathlib.Path(sys.argv[1])
+        conf_path = pathlib.Path("/var/lib/qBittorrent/qBittorrent/config/qBittorrent.conf")
 
-      password = secret_path.read_bytes().strip()
-      if not password:
-          raise SystemExit("empty qbittorrent password secret")
-      if not conf_path.is_file():
-          raise SystemExit(
-              f"missing {conf_path} (serverConfig install should run first)"
-          )
+        password = secret_path.read_bytes().strip()
+        if not password:
+            raise SystemExit("empty qbittorrent password secret")
+        if not conf_path.is_file():
+            raise SystemExit(
+                f"missing {conf_path} (serverConfig install should run first)"
+            )
 
-      salt = os.urandom(16)
-      dk = hashlib.pbkdf2_hmac("sha512", password, salt, 100_000, dklen=64)
-      value = (
-          "@ByteArray("
-          + base64.b64encode(salt).decode()
-          + ":"
-          + base64.b64encode(dk).decode()
-          + ")"
-      )
+        salt = os.urandom(16)
+        dk = hashlib.pbkdf2_hmac("sha512", password, salt, 100_000, dklen=64)
+        value = (
+            "@ByteArray("
+            + base64.b64encode(salt).decode()
+            + ":"
+            + base64.b64encode(dk).decode()
+            + ")"
+        )
 
-      text = conf_path.read_text()
-      line = f'WebUI\\Password_PBKDF2="{value}"'
-      pattern = re.compile(r"^WebUI\\Password_PBKDF2=.*$", re.M)
-      # Callable replacements: line has backslashes that re.sub would re-parse.
-      if pattern.search(text):
-          text = pattern.sub(lambda _m: line, text, count=1)
-      elif re.search(r"^\[Preferences\]\s*$", text, re.M):
-          text = re.sub(
-              r"^(\[Preferences\]\s*)$",
-              lambda m: m.group(1) + "\n" + line,
-              text,
-              count=1,
-              flags=re.M,
-          )
-      else:
-          text = text.rstrip() + "\n[Preferences]\n" + line + "\n"
-      conf_path.write_text(text)
-  '';
+        text = conf_path.read_text()
+        line = f'WebUI\\Password_PBKDF2="{value}"'
+        pattern = re.compile(r"^WebUI\\Password_PBKDF2=.*$", re.M)
+        # Callable replacements: line has backslashes that re.sub would re-parse.
+        if pattern.search(text):
+            text = pattern.sub(lambda _m: line, text, count=1)
+        elif re.search(r"^\[Preferences\]\s*$", text, re.M):
+            text = re.sub(
+                r"^(\[Preferences\]\s*)$",
+                lambda m: m.group(1) + "\n" + line,
+                text,
+                count=1,
+                flags=re.M,
+            )
+        else:
+            text = text.rstrip() + "\n[Preferences]\n" + line + "\n"
+        conf_path.write_text(text)
+      '';
 
   qbittorrentWebuiPasswordScript = pkgs.writeShellScript "qbittorrent-webui-password-from-sops" ''
     set -euo pipefail
@@ -93,7 +96,8 @@ let
       echo "qbittorrent-webui-password: cannot read $secret" >&2
       exit 1
     fi
-    exec ${qbittorrentWebuiPassword}/bin/qbittorrent-webui-password "$secret"
+    # writePython3 returns the script path (symlink), not a package with /bin/.
+    exec ${qbittorrentWebuiPassword} "$secret"
   '';
 
 in
