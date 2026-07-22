@@ -69,6 +69,11 @@ in
         export RADARR_API_KEY="$(<"$CREDENTIALS_DIRECTORY/radarr-api-key")"
         export OPENSUBTITLES_USERNAME="$(<"$CREDENTIALS_DIRECTORY/opensubtitles-username")"
         export OPENSUBTITLES_PASSWORD="$(<"$CREDENTIALS_DIRECTORY/opensubtitles-password")"
+        # English defaults for new Sonarr/Radarr items (profile 1). Language profiles
+        # live in Bazarr DB — define profile 1 in the UI once; no boot-time API reconcile
+        # (removed bazarr-english-profile oneshot). Future pt-BR ASR will need a second
+        # profile + path defaults for Series-PtBr — do not force everything to profile 1.
+        # Keep this comment outside the yq single-quoted program (apostrophes break it).
         ${pkgs.yq-go}/bin/yq -i '
           .general.enabled_providers = [
             "animetosho",
@@ -79,10 +84,6 @@ in
           .general.use_embedded_subs = true |
           .general.embedded_subs_show_desired = true |
           .general.parse_embedded_audio_track = true |
-          # English defaults for new Sonarr/Radarr items (profile 1). Language profiles
-          # live in Bazarr's DB — define profile 1 in the UI once; no boot-time API reconcile
-          # (removed bazarr-english-profile oneshot). Future pt-BR ASR will need a second
-          # profile + path defaults for Series-PtBr — do not force everything to profile 1.
           .general.serie_default_enabled = true |
           .general.serie_default_profile = 1 |
           .general.movie_default_enabled = true |
