@@ -7,7 +7,7 @@ Context for all tasks below. Read this first, then the per-task file.
 - GPUs: **Arc Pro B50** (`xe` driver, `/dev/dri/card0`, ~15 GiB — the LLM/compute GPU) + Iris Xe (`i915`, card1, display).
 - Tailnet: **`mini.quokka-qilin.ts.net`**. Firewall trusts **only `tailscale0`** (`modules/nixos/networking.nix`); only `:22` is public. Services bind loopback and are fronted by Caddy `tsnet` (HTTPS), or bind `0.0.0.0` and are tailnet-gated.
 - Ports: LLM chat **8000**, open-webui **8080**, beszel **8090**.
-- Services live in `hosts/mini/services/`. Toggles in `hosts/mini/host.nix`: `miniLlmHosting`, `miniLlmBackend` (`vllm`|`llamacpp`), shared contract `miniLlm{ServedName="local-chat",Port=8000,Host}`, `miniMonitoring`, `miniMediaHosting`.
+- Services live in `hosts/mini/services/`. Toggles in `hosts/mini/host.nix`: `miniLlmHosting`, shared contract `miniLlm{ServedName="local-chat",EmbedServedName="local-embed",Port=8000,Host}`, `miniMonitoring`, `miniMediaHosting`.
 
 ## Plan & status
 - Done & deployed: `services/` refactor, **beszel** (server+services+containers+disk), local LLM stack (llama.cpp backend), nixflix media.

@@ -102,7 +102,7 @@
       };
 
       llm = {
-        enable = mkEnableOption "the LLM serving stack (llama.cpp server + unsloth-studio podman service); mini serves via its own vllm-xpu/llama-cpp host modules instead";
+        enable = mkEnableOption "the LLM serving stack (llama.cpp server + unsloth-studio podman service); mini serves via its own llama-cpp host modules instead";
         llamaCppBackend = mkOption {
           type = types.enum [
             "vulkan"

@@ -1,6 +1,6 @@
 # llm — the LLM serving stack (top-level profile, default off). Extracted
 # from devenv: serving belongs to a host's role, not the dev toolbox. mini
-# serves via its own vllm-xpu/llama-cpp host modules and keeps this off.
+# serves via its own llama-cpp host modules and keeps this off.
 {
   config,
   isDarwin,

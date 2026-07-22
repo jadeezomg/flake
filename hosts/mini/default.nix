@@ -25,7 +25,7 @@
   ]
   ++ lib.optionals (host.miniLlmHosting or false) [
     # Self-contained chat stack: shared base + open-webui + the backend selected
-    # by host.miniLlmBackend (see hosts/mini/services/llm/default.nix).
+    # (see hosts/mini/services/llm/default.nix).
     ./services/llm
   ]
   ++ lib.optionals (host.miniMonitoring or false) [ ./services/beszel.nix ]
@@ -60,7 +60,7 @@
   };
 
   # Intel GPU (graphics.enable via dotfiles.hardware.gpu = "intel"):
-  # vLLM-XPU + Vulkan llama.cpp stacks live under ./services/llm/.
+  # Vulkan llama.cpp stack lives under ./services/llm/.
 
   # AMT / vPro — non-root /dev/mei access for amtterm / openwsman.
   users.groups.amt = { };

@@ -1,8 +1,7 @@
 # Mini LLM service ops — nested under the `mini` module as `just mini llm <cmd>`.
-# Operate the active LLM backend *on mini* (systemctl, journals, 127.0.0.1): either
-# the llama.cpp router (`local-chat` + `local-embed`) or vLLM-XPU, auto-detected from
-# the deployed unit. `bench` is the exception — it hits the OpenAI API over the network
-# and can run from any host. $FLAKE is inherited from the root Justfile's export.
+# Operate the llama.cpp router on mini (`local-chat` + `local-embed`). `bench` hits
+# the OpenAI API over the network and can run from any host. $FLAKE is inherited from
+# the root Justfile's export.
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
 [doc('Dashboard: backend + status + runtime command + model probes')]
@@ -21,7 +20,7 @@ logs:
 restart:
     @bash "$FLAKE/scripts/shell/mini-llm.bash" restart
 
-[doc('List served models on :8000 (+ :8001 if vLLM embeddings)')]
+[doc('List served models on :8000')]
 models:
     @bash "$FLAKE/scripts/shell/mini-llm.bash" models
 
@@ -35,7 +34,7 @@ chat *args:
 perf *args:
     @bash "$FLAKE/scripts/shell/mini-llm.bash" perf "$@"
 
-[doc('Smoke-test embeddings (local-embed on llama.cpp, or vLLM :8001)')]
+[doc('Smoke-test embeddings (`local-embed` on :8000)')]
 [positional-arguments]
 embedding *args:
     @bash "$FLAKE/scripts/shell/mini-llm.bash" embedding "$@"
@@ -66,7 +65,7 @@ bench *args:
     # NO HF tokenizer files, so point at the *source* (safetensors) repo with a
     # tokenizer.json — same tokenizer as the served GGUF, just accurate counts instead of
     # the gpt2 fallback. Defaults to the Gemma 4 source repo (ungated); override with
-    # MINI_BENCH_MODEL (e.g. Intel/Qwen3.5-9B-int4-AutoRound for the vLLM backend).
+    # MINI_BENCH_MODEL (HF tokenizer source repo for token counting).
     bench_model="${MINI_BENCH_MODEL:-unsloth/gemma-4-12b-it}"
     # Default sweep if the caller passes nothing; any args override it.
     # Concurrency tops out at the server's slot count — keep it in sync with
