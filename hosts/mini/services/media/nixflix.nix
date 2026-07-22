@@ -599,6 +599,8 @@ in
         ProtectSystem = lib.mkForce "strict";
         # bubblewrap needs mount (+ user) namespaces for per-plugin sandboxes.
         RestrictNamespaces = lib.mkForce false;
+        # Search python is a setuid helper (nsenter → host netns); default hardening blocks it.
+        RestrictSUIDSGID = lib.mkForce false;
         ReadWritePaths = lib.mkForce [
           "/var/lib/qBittorrent"
           "/data/torrents"
