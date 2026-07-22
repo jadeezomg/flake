@@ -25,55 +25,57 @@ default:
     tv --cable-dir "$FLAKE/modules/profiles/essentials/utils/television/cable" just-recipes "$FLAKE"
 
 
-[doc('Build / home-manager build for .flake-host')]
-[group('build')]
-build:
+[private]
+_build mode:
     #!/usr/bin/env bash
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     raise_fd_limit
     print_header "BUILD"; h="$(get_host "")"
-    is_darwin && sc="nh darwin build '${FLAKE}#${h}'" || sc="nh os build '${FLAKE}#${h}'"
-    notify "Flake Build" "Building $h..." "pending"
+    case "{{mode}}" in
+      build)
+        is_darwin && sc="nh darwin build '${FLAKE}#${h}'" || sc="nh os build '${FLAKE}#${h}'"
+        pending="Building $h..."; done_msg="OK"
+        ;;
+      boot)
+        is_darwin && sc="nh darwin build '${FLAKE}#${h}'" || sc="nh os boot '${FLAKE}#${h}'"
+        pending="Boot $h..."; done_msg="Next reboot"
+        ;;
+      dry)
+        is_darwin && sc="nh darwin build --dry '${FLAKE}#${h}'" || sc="nh os test '${FLAKE}#${h}'"
+        pending="Dry $h..."; done_msg=""
+        ;;
+      dev)
+        is_darwin && sc="nh darwin switch --show-trace '${FLAKE}#${h}'" || sc="nh os switch --show-trace '${FLAKE}#${h}'"
+        pending="Trace $h..."; done_msg=""
+        ;;
+      *)
+        echo "unknown build mode: {{mode}}" >&2
+        exit 1
+        ;;
+    esac
+    notify "Flake Build" "$pending" "pending"
     print_info "-> $sc"; run_logged "Flake Build" bash -c "$sc"
-    notify "Flake Build" "OK" "success"; print_header "END"
+    if [[ -n "$done_msg" ]]; then
+      notify "Flake Build" "$done_msg" "success"
+    fi
+    print_header "END"
+
+[doc('Build / home-manager build for .flake-host')]
+[group('build')]
+build: (_build "build")
 
 [doc('Stage generation for next boot (nh boot)')]
 [group('build')]
-build-boot:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    source "$FLAKE/scripts/shell/common.sh"
-    raise_fd_limit
-    print_header "BUILD"; h="$(get_host "")"
-    is_darwin && sc="nh darwin build '${FLAKE}#${h}'" || sc="nh os boot '${FLAKE}#${h}'"
-    notify "Flake Build" "Boot $h..." "pending"
-    print_info "-> $sc"; run_logged "Flake Build" bash -c "$sc"
-    notify "Flake Build" "Next reboot" "success"; print_header "END"
+build-boot: (_build "boot")
 
 [doc('Dry-run eval/build (no switch)')]
 [group('build')]
-build-dry:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    source "$FLAKE/scripts/shell/common.sh"
-    raise_fd_limit
-    print_header "BUILD"; h="$(get_host "")"
-    is_darwin && sc="nh darwin build --dry '${FLAKE}#${h}'" || sc="nh os test '${FLAKE}#${h}'"
-    notify "Flake Build" "Dry $h..." "pending"
-    print_info "-> $sc"; run_logged "Flake Build" bash -c "$sc"; print_header "END"
+build-dry: (_build "dry")
 
 [doc('Build with extra trace (dev / debug)')]
 [group('build')]
-build-dev:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    source "$FLAKE/scripts/shell/common.sh"
-    raise_fd_limit
-    print_header "BUILD"; h="$(get_host "")"
-    is_darwin && sc="nh darwin switch --show-trace '${FLAKE}#${h}'" || sc="nh os switch --show-trace '${FLAKE}#${h}'"
-    notify "Flake Build" "Trace $h..." "pending"
-    print_info "-> $sc"; run_logged "Flake Build" bash -c "$sc"; print_header "END"
+build-dev: (_build "dev")
 
 
 [doc('flake check + build, commit on success, then activate; errors land in the clipboard')]
@@ -191,27 +193,35 @@ generation-delete:
 
 alias gc := gc-keep
 
-[doc('nh clean keeping last N generations (prompts N, default 5)')]
-[group('gc')]
-gc-keep:
+[private]
+_gc mode:
     #!/usr/bin/env bash
     set -euo pipefail
     source "$FLAKE/scripts/shell/common.sh"
     print_header "GC"
-    n="$(prompt_number "Keep N [5]")" || n=5
-    nh clean all --keep "${n:-5}"
+    case "{{mode}}" in
+      keep)
+        n="$(prompt_number "Keep N [5]")" || n=5
+        nh clean all --keep "${n:-5}"
+        ;;
+      days)
+        d="$(prompt_number "Days [7]")" || d=7
+        nh clean all --keep-since "${d:-7}d"
+        ;;
+      *)
+        echo "unknown gc mode: {{mode}}" >&2
+        exit 1
+        ;;
+    esac
     print_header "END"
+
+[doc('nh clean keeping last N generations (prompts N, default 5)')]
+[group('gc')]
+gc-keep: (_gc "keep")
 
 [doc('nh clean keeping store paths newer than N days (prompts N, default 7)')]
 [group('gc')]
-gc-days:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    source "$FLAKE/scripts/shell/common.sh"
-    print_header "GC"
-    d="$(prompt_number "Days [7]")" || d=7
-    nh clean all --keep-since "${d:-7}d"
-    print_header "END"
+gc-days: (_gc "days")
 
 [doc('Aggressive nh clean + empty user Trash')]
 [group('gc')]
