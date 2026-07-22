@@ -14,6 +14,17 @@ from typing import Any
 HOST = "mini"
 PROFILE_ID = 7
 PROFILE_NAME = "Efficient 4K"
+# Seerr request UX: season picker needs partialRequestsEnabled; specials need
+# enableSpecialEpisodes. Anime season lists come from TVDB (TMDB often merges
+# cours into one season).
+SEERR_MAIN_SETTINGS = {
+    "partialRequestsEnabled": True,
+    "enableSpecialEpisodes": True,
+}
+SEERR_METADATA_SETTINGS = {
+    "tv": "tmdb",
+    "anime": "tvdb",
+}
 MANAGED_FORMATS = {
     "Efficient 4K: Original Language": 10_000,
     "Efficient 4K: AV1": 600,
@@ -215,16 +226,51 @@ def _assign_profile(arr: Arr) -> int:
     return len(ids)
 
 
-def _configure_seerr() -> None:
+def _apply_seerr_settings(settings: dict[str, Any]) -> list[str]:
+    changes: list[str] = []
+    main = settings.setdefault("main", {})
+    for key, value in SEERR_MAIN_SETTINGS.items():
+        if main.get(key) != value:
+            changes.append(f"main.{key}={value!r}")
+        main[key] = value
+
+    metadata = settings.setdefault("metadataSettings", {})
+    for key, value in SEERR_METADATA_SETTINGS.items():
+        if metadata.get(key) != value:
+            changes.append(f"metadataSettings.{key}={value!r}")
+        metadata[key] = value
+
+    for service in ("sonarr", "radarr"):
+        for server in settings[service]:
+            if server.get("activeProfileId") != PROFILE_ID:
+                changes.append(
+                    f"{service}[{server.get('name', '?')}].activeProfileId={PROFILE_ID}"
+                )
+            server["activeProfileId"] = PROFILE_ID
+            server["activeProfileName"] = PROFILE_NAME
+
+    return changes
+
+
+def _verify_seerr(settings: dict[str, Any]) -> None:
+    main = settings["main"]
+    metadata = settings["metadataSettings"]
+    for key, value in SEERR_MAIN_SETTINGS.items():
+        assert main[key] == value, f"seerr main.{key} is {main.get(key)!r}, want {value!r}"
+    for key, value in SEERR_METADATA_SETTINGS.items():
+        assert metadata[key] == value, (
+            f"seerr metadataSettings.{key} is {metadata.get(key)!r}, want {value!r}"
+        )
+
+
+def _configure_seerr() -> list[str]:
     path = Path("/var/lib/private/seerr/settings.json")
     stat = path.stat()
     subprocess.run(["systemctl", "stop", "seerr"], check=True)
     try:
         settings = json.loads(path.read_text())
-        for service in ("sonarr", "radarr"):
-            for server in settings[service]:
-                server["activeProfileId"] = PROFILE_ID
-                server["activeProfileName"] = PROFILE_NAME
+        changes = _apply_seerr_settings(settings)
+        _verify_seerr(settings)
         with tempfile.NamedTemporaryFile("w", dir=path.parent, delete=False) as handle:
             json.dump(settings, handle, indent=2)
             handle.write("\n")
@@ -232,6 +278,7 @@ def _configure_seerr() -> None:
             os.fchown(handle.fileno(), stat.st_uid, stat.st_gid)
             replacement = Path(handle.name)
         os.replace(replacement, path)
+        return changes
     finally:
         subprocess.run(["systemctl", "start", "seerr"], check=True)
 
@@ -246,27 +293,45 @@ def _verify(arr: Arr) -> None:
     assert all(formats[name] == score for name, score in MANAGED_FORMATS.items())
 
 
-def _on_host(apply: bool) -> None:
-    sonarr = Arr("sonarr", 8989)
-    radarr = Arr("radarr", 7878)
+def _print_seerr_plan() -> None:
+    print("Would enable Seerr partial TV requests (per-season picker)")
+    print("Would enable Seerr specials (season 0) in the request dialog")
+    print("Would use TVDB metadata for anime season/episode lists (TMDB for live-action TV)")
+
+
+def _on_host(apply: bool, *, seerr_only: bool) -> None:
     if not apply:
+        if seerr_only:
+            _print_seerr_plan()
+            return
         print("Would configure Sonarr and Radarr profile 7 as Efficient 4K")
         print("Would require original-language audio and prefer AV1 > HEVC > AVC")
         print(
             "Would target WEB 2160p; Radarr prefers ~10 GiB and caps ~15 GiB per 120 min"
         )
         print("Would assign all existing series and movies and update Seerr defaults")
+        _print_seerr_plan()
         return
 
-    for arr in (sonarr, radarr):
-        format_ids = _upsert_formats(arr)
-        _configure_profile(arr, format_ids)
-        _configure_sizes(arr)
-        changed = _assign_profile(arr)
-        _verify(arr)
-        print(f"{arr.name}: applied {PROFILE_NAME}; reassigned {changed} items")
-    _configure_seerr()
-    print("seerr: selected Efficient 4K for Sonarr and Radarr")
+    if not seerr_only:
+        sonarr = Arr("sonarr", 8989)
+        radarr = Arr("radarr", 7878)
+        for arr in (sonarr, radarr):
+            format_ids = _upsert_formats(arr)
+            _configure_profile(arr, format_ids)
+            _configure_sizes(arr)
+            changed = _assign_profile(arr)
+            _verify(arr)
+            print(f"{arr.name}: applied {PROFILE_NAME}; reassigned {changed} items")
+
+    seerr_changes = _configure_seerr()
+    if seerr_changes:
+        print("seerr: updated " + ", ".join(seerr_changes))
+    else:
+        print("seerr: request settings already match desired configuration")
+    print(
+        "seerr: partial requests + specials enabled; anime metadata provider = TVDB"
+    )
 
 
 def main() -> None:
@@ -274,17 +339,24 @@ def main() -> None:
     parser.add_argument(
         "--apply", action="store_true", help="apply changes (default: dry run)"
     )
+    parser.add_argument(
+        "--seerr-only",
+        action="store_true",
+        help="only update Seerr request settings (skip Sonarr/Radarr quality profiles)",
+    )
     parser.add_argument("--on-host", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
 
     if args.on_host:
-        _on_host(args.apply)
+        _on_host(args.apply, seerr_only=args.seerr_only)
         return
 
     source = Path(__file__).read_text()
     command = ["ssh", HOST, "sudo", "python3", "-", "--on-host"]
     if args.apply:
         command.append("--apply")
+    if args.seerr_only:
+        command.append("--seerr-only")
     subprocess.run(command, input=source, text=True, check=True)
 
 
