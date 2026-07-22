@@ -66,12 +66,13 @@ let
     text = conf.read_text()
     line = f'WebUI\\Password_PBKDF2="{value}"'
     pattern = re.compile(r"^WebUI\\Password_PBKDF2=.*$", re.M)
+    # Callable replacements: line has backslashes that re.sub would re-parse.
     if pattern.search(text):
-        text = pattern.sub(line, text, count=1)
+        text = pattern.sub(lambda _m: line, text, count=1)
     elif re.search(r"^\[Preferences\]\s*$", text, re.M):
         text = re.sub(
             r"^(\[Preferences\]\s*)$",
-            r"\1\n" + line,
+            lambda m: m.group(1) + "\n" + line,
             text,
             count=1,
             flags=re.M,
