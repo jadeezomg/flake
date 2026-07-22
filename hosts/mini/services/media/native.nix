@@ -52,6 +52,9 @@ in
       };
       unitConfig.RequiresMountsFor = [ "/media" ];
       serviceConfig = {
+        # NixOS enables MemoryDenyWriteExecute on Plex; EasyAudioEncoder (EAC3/DTS)
+        # needs executable pages or transcoding loops with "EAE timeout" in logs.
+        MemoryDenyWriteExecute = lib.mkForce false;
         ReadWritePaths = [
           "/srv/nixflix/plex"
           "/srv/nixflix/plex-transcode"
