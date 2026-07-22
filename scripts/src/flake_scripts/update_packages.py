@@ -1,9 +1,8 @@
 """Update custom flake packages from per-package update.json metadata.
 
 Custom handlers cover package sources `nix-update` cannot resolve directly:
-npm registry tarballs, GitHub releases with npm lock regeneration, and
-platform-agnostic release zips (`fetchzip`), and prebuilt binary release channels.
-`github_npm` may patch git+ssh lockfile entries so `buildNpmPackage` can resolve them in the Nix sandbox.
+npm registry tarballs, platform-agnostic release zips (`fetchzip`), and
+prebuilt binary release channels.
 """
 
 import base64
@@ -120,10 +119,10 @@ def _npm_deps_hash(lock_file: Path) -> str:
     ).stdout.strip()
 
 
-# npm/github_npm handlers run in parallel; the first `nix run nixpkgs#...` per
-# machine must resolve + unpack the nixpkgs flake into the Git cache. Concurrent
-# cold-cache invocations race on that and fail. Warming the tool once serializes it.
-_NPM_HANDLER_TYPES = {"npm", "github_npm"}
+# npm handlers run in parallel; the first `nix run nixpkgs#...` per machine must
+# resolve + unpack the nixpkgs flake into the Git cache. Concurrent cold-cache
+# invocations race on that and fail. Warming the tool once serializes it.
+_NPM_HANDLER_TYPES = {"npm"}
 
 
 def _warm_prefetch_tool() -> None:
@@ -238,26 +237,6 @@ def validate_update_metadata(
         )
         return
 
-    if handler_type == "github_npm":
-        _require_fields(
-            pkg_name,
-            meta,
-            ["repo", "hash_field", "npm_deps_hash_field", "lock_file"],
-        )
-        for field in ["repo", "hash_field", "npm_deps_hash_field", "lock_file"]:
-            _require_text_field(pkg_name, meta, field)
-        rev_field = meta.get("rev_field", "rev")
-        if not isinstance(rev_field, str) or not rev_field:
-            raise ValueError(
-                f"{pkg_name}: update.json field 'rev_field' must be a non-empty string"
-            )
-        _require_default_attr(pkg_name, nix_text, "rev_field", rev_field)
-        _require_default_attr(pkg_name, nix_text, "hash_field", meta["hash_field"])
-        _require_default_attr(
-            pkg_name, nix_text, "npm_deps_hash_field", meta["npm_deps_hash_field"]
-        )
-        return
-
     if handler_type == "fetchzip":
         _require_fields(pkg_name, meta, ["version_url", "url_template"])
         for field in ["version_url", "url_template"]:
@@ -350,6 +329,14 @@ def _current_version(text: str) -> str:
     return m.group(1) if m else "unknown"
 
 
+def _npm_integrity_sha512_from_url(url: str) -> str:
+    req = urllib.request.Request(url, headers={"Accept": "application/octet-stream"})
+    with urllib.request.urlopen(req, timeout=60, context=_SSL) as r:
+        data = r.read()
+    digest = hashlib.sha512(data).digest()
+    return "sha512-" + base64.b64encode(digest).decode()
+
+
 def _patch_lock_missing_integrity(lock: dict) -> None:
     """Add integrity hashes for registry entries that npm-shrinkwrap omits.
 
@@ -426,150 +413,6 @@ def _handle_npm(
     return new_version, {
         # Keep fetchurl in sync with npm `dist.tarball` (version bumps alone miss this).
         "url": tarball_url,
-        meta["hash_field"]: src_hash,
-        meta["npm_deps_hash_field"]: deps_hash,
-    }
-
-
-_GIT_SSH_RESOLVED = re.compile(
-    r"^git\+ssh://git@github\.com/(?P<owner>[^/]+)/(?P<repo>[^/]+?)\.git#(?P<commit>[a-fA-F0-9]+)$"
-)
-
-
-def _github_latest_tag(owner: str, repo: str) -> tuple[str, str]:
-    """Return (tag_name, version for default.nix `version =` field)."""
-    url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
-    try:
-        data = _fetch_json(url)
-        tag = data["tag_name"]
-    except urllib.error.HTTPError as e:
-        if e.code != 404:
-            raise
-        tags = _fetch_json(f"https://api.github.com/repos/{owner}/{repo}/tags")
-        if not tags:
-            raise RuntimeError(f"No releases or tags for {owner}/{repo}") from e
-        tag = tags[0]["name"]
-    version = tag.removeprefix("v") if tag.startswith("v") else tag
-    return tag, version
-
-
-def _nix_prefetch_github_hash(owner: str, repo: str, rev: str) -> str:
-    proc = subprocess.run(
-        ["nix-prefetch-github", owner, repo, "--rev", rev],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    return json.loads(proc.stdout)["hash"]
-
-
-def _npm_integrity_sha512_from_url(url: str) -> str:
-    req = urllib.request.Request(url, headers={"Accept": "application/octet-stream"})
-    with urllib.request.urlopen(req, timeout=60, context=_SSL) as r:
-        data = r.read()
-    digest = hashlib.sha512(data).digest()
-    return "sha512-" + base64.b64encode(digest).decode()
-
-
-def _find_github_archive_root(tmp: Path, repo_name: str, tag: str) -> Path:
-    safe = tag.removeprefix("v") if tag.startswith("v") else tag
-    for name in (f"{repo_name}-{tag}", f"{repo_name}-{safe}"):
-        p = tmp / name
-        if p.is_dir():
-            return p
-    subs = [p for p in tmp.iterdir() if p.is_dir()]
-    if len(subs) == 1:
-        return subs[0]
-    raise RuntimeError(
-        f"Could not find extracted source root under {tmp} for {repo_name}@{tag}"
-    )
-
-
-def _patch_lock_git_ssh(lock: dict) -> None:
-    """Rewrite git+ssh resolved entries to https tarballs + integrity (for Nix npm prefetch)."""
-    packages = lock.get("packages")
-    if not isinstance(packages, dict):
-        return
-
-    for _key, entry in packages.items():
-        if not isinstance(entry, dict):
-            continue
-        resolved = entry.get("resolved")
-        if not isinstance(resolved, str):
-            continue
-        m = _GIT_SSH_RESOLVED.match(resolved)
-        if not m:
-            continue
-        owner, repo, commit = m.group("owner"), m.group("repo"), m.group("commit")
-        tarball = f"https://github.com/{owner}/{repo}/archive/{commit}.tar.gz"
-        entry["resolved"] = tarball
-        entry["integrity"] = _npm_integrity_sha512_from_url(tarball)
-
-    root = packages.get("")
-    if isinstance(root, dict):
-        deps = root.get("dependencies")
-        if isinstance(deps, dict):
-            for name, spec in list(deps.items()):
-                if isinstance(spec, str) and spec.startswith("github:"):
-                    mod = packages.get(f"node_modules/{name}")
-                    if isinstance(mod, dict):
-                        res = mod.get("resolved")
-                        if isinstance(res, str) and res.startswith(
-                            "https://github.com"
-                        ):
-                            deps[name] = res
-
-
-def _handle_github_npm(
-    meta: dict, pkg_dir: Path, status: StatusCb, current_version: str
-) -> tuple[str, dict]:
-    owner, repo_name = meta["repo"].split("/", 1)
-
-    status("fetching latest GitHub tag")
-    tag, new_version = _github_latest_tag(owner, repo_name)
-    if new_version == current_version:
-        return new_version, {}
-
-    quoted_tag = urllib.parse.quote(tag, safe="")
-    archive_url = (
-        f"https://github.com/{owner}/{repo_name}/archive/refs/tags/{quoted_tag}.tar.gz"
-    )
-
-    with tempfile.TemporaryDirectory() as tmp_s:
-        tmp = Path(tmp_s)
-        arc = tmp / "src.tar.gz"
-        req = urllib.request.Request(
-            archive_url, headers={"Accept": "application/octet-stream"}
-        )
-        status("downloading source archive")
-        with urllib.request.urlopen(req, timeout=120, context=_SSL) as r:
-            arc.write_bytes(r.read())
-        status("extracting archive")
-        with tarfile.open(arc) as tf:
-            if sys.version_info >= (3, 12):
-                tf.extractall(tmp, filter="data")
-            else:
-                tf.extractall(tmp)
-        src_root = _find_github_archive_root(tmp, repo_name, tag)
-        upstream_lock = src_root / "package-lock.json"
-        if not upstream_lock.is_file():
-            raise RuntimeError(f"No package-lock.json in {owner}/{repo_name}@{tag}")
-
-        lock = json.loads(upstream_lock.read_text())
-        if meta.get("patch_git_ssh_lock"):
-            status("patching git+ssh lockfile entries")
-            _patch_lock_git_ssh(lock)
-        dest_lock = pkg_dir / meta["lock_file"]
-        dest_lock.write_text(json.dumps(lock, indent=2) + "\n")
-
-        status("hashing npm deps")
-        deps_hash = _npm_deps_hash(dest_lock)
-
-    status("prefetching GitHub source hash")
-    src_hash = _nix_prefetch_github_hash(owner, repo_name, tag)
-
-    return new_version, {
-        meta.get("rev_field", "rev"): tag,
         meta["hash_field"]: src_hash,
         meta["npm_deps_hash_field"]: deps_hash,
     }
@@ -656,7 +499,6 @@ _HANDLERS = {
     "binary_channel": _handle_binary_channel,
     "fetchzip": _handle_fetchzip,
     "npm": _handle_npm,
-    "github_npm": _handle_github_npm,
 }
 
 

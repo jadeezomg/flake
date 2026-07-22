@@ -16,7 +16,7 @@ let
   mcpDir = "${homeDir}/.omp/agent";
   mcpFile = "${mcpDir}/mcp.json";
 
-  inherit (mcpRegistry) needsSharedServerMaintenance mkOmpObsoletePluginRemovalActivation;
+  inherit (mcpRegistry) needsSharedServerMaintenance;
 in
 lib.mkIf needsSharedServerMaintenance {
   home.activation.ompMcp = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -24,10 +24,8 @@ lib.mkIf needsSharedServerMaintenance {
       lib.makeBinPath [
         pkgs.jq
         pkgs.coreutils
-        pkgs.oh-my-pi
       ]
     }:$PATH
     ${mcpRegistry.mkMcpJsonMergeActivation { inherit mcpDir mcpFile; }}
-    ${mkOmpObsoletePluginRemovalActivation}
   '';
 }

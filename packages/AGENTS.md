@@ -14,3 +14,4 @@ Custom flake packages auto-registered into overlays and flake package outputs.
 - Updatable packages need `update.json`; `.update-check.json` is generated state with a cooldown.
 - Use standard `callPackage` signatures; only accept final `pkgs` when the derivation genuinely needs it.
 - Verify packages/dependencies with live nixpkgs tooling and cache availability before adding them.
+- Packages not managed by nixpkgs must ship a removal solution for any mutable side effects (MCP entries, plugins, npm globals, config dirs, etc.) when they are dropped from the flake. Do not leave orphaned state for a later cleanup pass.
