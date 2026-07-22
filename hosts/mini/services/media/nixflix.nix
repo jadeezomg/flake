@@ -147,6 +147,15 @@ let
   # Inner bwrap sandbox for search plugins (host netns; see security.wrappers below).
   qbittorrentSearchBwrap = pkgs.writeShellScript "qbittorrent-search-bwrap" ''
     set -euo pipefail
+    # qBittorrent passes -I (isolated mode), which ignores PYTHONPATH and breaks
+    # `from helpers import …` in nova3 plugins; drop it before exec.
+    filtered=()
+    for arg in "$@"; do
+      if [ "$arg" = "-I" ]; then
+        continue
+      fi
+      filtered+=("$arg")
+    done
     exec ${pkgs.bubblewrap}/bin/bwrap \
       --unshare-pid \
       --die-with-parent \
@@ -157,15 +166,16 @@ let
       --tmpfs /run \
       --ro-bind /nix/store /nix/store \
       --ro-bind ${pkgs.glibc}/lib /lib \
-      --ro-bind ${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt /etc/ssl/certs/ca-certificates.crt \
+      --ro-bind ${pkgs.cacert}/etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt \
       --ro-bind /etc/resolv.conf /etc/resolv.conf \
       --ro-bind /etc/hosts /etc/hosts \
       --ro-bind /etc/nsswitch.conf /etc/nsswitch.conf \
       --bind ${qbittorrentNovaDir} ${qbittorrentNovaDir} \
       --chdir ${qbittorrentNovaDir}/engines \
+      --setenv PYTHONPATH ${qbittorrentNovaDir} \
       --setenv SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt \
       --setenv PATH "" \
-      ${qbittorrentSearchPython}/bin/python3 "$@"
+      ${qbittorrentSearchPython}/bin/python3 "''${filtered[@]}"
   '';
 
   qbittorrentSearchPythonPath = "/var/lib/qBittorrent/bin/python3";
@@ -333,7 +343,8 @@ in
             Password_PBKDF2 = "@ByteArray(UEDQJNvOAG77ID/NZNBFUA==:/iBnGxh7a5EQWn3kApyU2x7Hd8KrwjnzxSK4CQDEJ9bQbxQSDd5oFsroNXX+s2GdGCWFdDXPFZg2e07aH0wPvA==)";
           };
           Search = {
-            PythonExecutable = qbittorrentSearchPythonPath;
+            # qBittorrent 5.x reads Preferences/Search/pythonExecutablePath (not PythonExecutable).
+            pythonExecutablePath = qbittorrentSearchPythonPath;
           };
         };
       };
