@@ -68,6 +68,39 @@ let
   qbittorrentSearchPythonPath = "/var/lib/qBittorrent/bin/python3";
   qbittorrentNovaDir = "/var/lib/qBittorrent/qBittorrent/data/nova3";
 
+  # Declarative search plugins - edit qbittorrentSearchPluginNames; synced on service start.
+  # Fetched at build time because qBittorrent VPN netns cannot reach GitHub.
+  qbittorrentSearchPluginNames = [
+    "sukebeisi"
+  ];
+
+  qbittorrentOfficialSearchPlugins = pkgs.fetchFromGitHub {
+    owner = "qbittorrent";
+    repo = "search-plugins";
+    rev = "62f296ed47010ab0ea9dbd43257a1a20025d1d1a";
+    hash = "sha256-ncY7iK6lTIbF3h1Ts+BC2YHT8sWX4XRSi3vbORSQoMw=";
+  };
+
+  qbittorrentSearchPlugins = pkgs.linkFarm "qbittorrent-search-plugins" (
+    map (name: {
+      name = "${name}.py";
+      path = "${qbittorrentOfficialSearchPlugins}/nova3/engines/${name}.py";
+    }) qbittorrentSearchPluginNames
+  );
+
+  qbittorrentSearchPluginsSync = pkgs.writeShellScript "qbittorrent-search-plugins-sync" ''
+    set -euo pipefail
+    src="${qbittorrentSearchPlugins}"
+    dst="${qbittorrentNovaDir}/engines"
+    install -d -m 0755 -o qbittorrent -g users "$dst"
+    for plugin in "$src"/*.py; do
+      install -m 0644 -o qbittorrent -g users "$plugin" "$dst/"
+    done
+    if [ ! -e "$dst/__init__.py" ]; then
+      install -m 0644 -o qbittorrent -g users /dev/null "$dst/__init__.py"
+    fi
+  '';
+
   # qBittorrent spawns PythonExecutable for each search-plugin subprocess. bubblewrap
   # gives plugins their own mount tree so they cannot reach /data, config, or secrets.
   qbittorrentSearchPythonWrapped = pkgs.writeShellScript "qbittorrent-search-python" ''
@@ -204,13 +237,21 @@ in
         lidarr = "/data/torrents/lidarr";
         prowlarr = "/data/torrents/prowlarr";
       };
-      serverConfig.Preferences = {
-        WebUI = {
-          Username = "admin";
-          Password_PBKDF2 = "@ByteArray(UEDQJNvOAG77ID/NZNBFUA==:/iBnGxh7a5EQWn3kApyU2x7Hd8KrwjnzxSK4CQDEJ9bQbxQSDd5oFsroNXX+s2GdGCWFdDXPFZg2e07aH0wPvA==)";
+      serverConfig = {
+        # Misc/RSS proxy flags are on but no proxy is configured; keep them off so
+        # any future HTTP client inside qBittorrent does not try a blank proxy.
+        Network.Proxy.Profiles = {
+          Misc = false;
+          RSS = false;
         };
-        Search = {
-          PythonExecutable = qbittorrentSearchPythonPath;
+        Preferences = {
+          WebUI = {
+            Username = "admin";
+            Password_PBKDF2 = "@ByteArray(UEDQJNvOAG77ID/NZNBFUA==:/iBnGxh7a5EQWn3kApyU2x7Hd8KrwjnzxSK4CQDEJ9bQbxQSDd5oFsroNXX+s2GdGCWFdDXPFZg2e07aH0wPvA==)";
+          };
+          Search = {
+            PythonExecutable = qbittorrentSearchPythonPath;
+          };
         };
       };
     };
@@ -451,6 +492,9 @@ in
         qbittorrentSearchPython
         pkgs.bubblewrap
       ];
+      preStart = lib.mkOrder 50 ''
+        ${qbittorrentSearchPluginsSync}
+      '';
       serviceConfig = {
         ProtectSystem = lib.mkForce "strict";
         # bubblewrap needs mount (+ user) namespaces for per-plugin sandboxes.
