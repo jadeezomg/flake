@@ -505,6 +505,11 @@ sync-media-secrets-to-pass *args:
 media-quality *args:
     @uv run --project "$FLAKE/scripts" media-quality {{ args }}
 
+[doc('Enable Seerr per-season picker, specials, and TVDB anime metadata on mini')]
+[group('config')]
+seerr-request-settings *args:
+    @uv run --project "$FLAKE/scripts" media-quality --seerr-only {{ args }}
+
 
 [doc('Rollback to previous generation (nh rollback / darwin-rebuild --rollback)')]
 [group('system')]
@@ -634,6 +639,7 @@ zen-check *ARGS:
 # Mini host + LLM commands, grouped as a module: `just mini <cmd>` and
 # `just mini llm <cmd>`. Definitions live in just/mini.just + just/mini-llm.just.
 mod mini "just/mini.just"
+mod unraid "just/unraid.just"
 
 [doc('Start declarative Unsloth Studio user service')]
 [group('llm')]
