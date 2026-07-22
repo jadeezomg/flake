@@ -5,14 +5,13 @@ Context for all tasks below. Read this first, then the per-task file.
 ## The system
 - Repo: `~/.dotfiles/flake` (NixOS flake). Active host **mini** = Minisforum MS-01, headless.
 - GPUs: **Arc Pro B50** (`xe` driver, `/dev/dri/card0`, ~15 GiB — the LLM/compute GPU) + Iris Xe (`i915`, card1, display).
-- Tailnet: **`mini.quokka-qilin.ts.net`**. Firewall trusts **only `tailscale0`** (`modules/nixos/networking.nix`); only `:22` is public. Services bind loopback and are fronted by `tailscale serve` (HTTPS), or bind `0.0.0.0` and are tailnet-gated.
-- Ports: vLLM **8000**, open-webui **8080**→443, honcho **8100**, beszel **8090**.
-- Services live in `hosts/mini/services/`. Toggles in `hosts/mini/host.nix`: `miniLlmHosting`, `miniLlmBackend` (`vllm`|`llamacpp`), shared contract `miniLlm{ServedName="local-chat",Port=8000,Host}`, `miniMemoryHosting`, `miniMonitoring`.
+- Tailnet: **`mini.quokka-qilin.ts.net`**. Firewall trusts **only `tailscale0`** (`modules/nixos/networking.nix`); only `:22` is public. Services bind loopback and are fronted by Caddy `tsnet` (HTTPS), or bind `0.0.0.0` and are tailnet-gated.
+- Ports: LLM chat **8000**, open-webui **8080**, beszel **8090**.
+- Services live in `hosts/mini/services/`. Toggles in `hosts/mini/host.nix`: `miniLlmHosting`, `miniLlmBackend` (`vllm`|`llamacpp`), shared contract `miniLlm{ServedName="local-chat",Port=8000,Host}`, `miniMonitoring`, `miniMediaHosting`.
 
 ## Plan & status
-- Master plan: **`docs/hosts/mini-agent-memory-plan.md`** (architecture, phases, model-routing tiers: local for background/simple, OpenRouter for complex).
-- Done & deployed: `services/` refactor, **honcho** (Phase 1, working), **beszel** (server+services+containers+disk).
-- Recent commits: `4399ac3 beszel`, `23a277b honcho agent beszel`, `fca4b52 firewall fix`.
+- Done & deployed: `services/` refactor, **beszel** (server+services+containers+disk), local LLM stack (llama.cpp backend), nixflix media.
+- Honcho shared-memory (ADR-0002) was withdrawn and removed from the flake (2026-07-22).
 
 ## Working conventions (important)
 - Deploy from any host: **`just mini deploy`** (pulls origin/main on mini + `nh switch`). Also `just mini pull`, `just mini deploy-dry`, `just mini llm <status|logs|bench|...>`. Commit + **push** first — `deploy` pulls origin.
@@ -22,8 +21,5 @@ Context for all tasks below. Read this first, then the per-task file.
 
 ## Tasks (one file each)
 1. ~~`01-beszel-gpu-deploy.md` — deploy + verify the staged nvtop GPU change.~~ **Done** (deployed + verified on mini; doc removed). Also added `cap_perfmon` wrappers for `btop`/`gputop` in `gpu-intel.nix`.
-2. `02-honcho-llm-finalize.md` — per-feature LLM endpoints + embeddings.
-3. `03-hermes-phase2.md` — hermes-agent: local↔OpenRouter routing + honcho memory.
-4. `04-shared-honcho-mcp-phase3.md` — honcho MCP across hosts + migrate MEMORY.md.
-5. `05-nixflix-phase4.md` — media stack (blocked on decisions).
-6. `06-pin-honcho-image.md` — pin the honcho image digest.
+2. `03-hermes-phase2.md` — hermes-agent: local↔OpenRouter routing.
+3. ~~`05-nixflix-phase4.md` — media stack.~~ **Done** — see [`docs/hosts/mini-media.md`](../hosts/mini-media.md) + ADRs 0003–0006.

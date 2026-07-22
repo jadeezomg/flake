@@ -89,7 +89,7 @@ maps `kagi/session_token` into the hermes env file separately.
 ### mini media
 
 All media secrets are nested, runtime-only values consumed by
-`hosts/mini/services/media.nix`; none are exported to interactive shells.
+`hosts/mini/services/media/storage.nix`; none are exported to interactive shells.
 
 | Path | Source | Consumed by | Consumed on |
 |---|---|---|---|
