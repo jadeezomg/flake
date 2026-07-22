@@ -44,6 +44,15 @@ in
         TMPDIR = lib.mkForce "/srv/nixflix/plex-transcode";
       };
       unitConfig.RequiresMountsFor = [ "/media" ];
+      # Keep stock plex ExecStartPre (!plex-run-prestart). This only adds a user
+      # preStart so migrated Codec trees that lost +x get fixed before PMS starts.
+      # Without execute bits, eac3_eae loops: "EAE timeout! EAE not running…".
+      preStart = ''
+        codecs="${config.services.plex.dataDir}/Plex Media Server/Codecs"
+        if [ -d "$codecs" ]; then
+          find "$codecs" -type f \( -name EasyAudioEncoder -o -name '*.so' \) -exec chmod a+x {} +
+        fi
+      '';
       serviceConfig = {
         # NixOS enables MemoryDenyWriteExecute on Plex; EasyAudioEncoder (EAC3/DTS)
         # needs executable pages or transcoding loops with "EAE timeout" in logs.
