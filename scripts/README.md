@@ -10,7 +10,7 @@
 | **`src/flake_scripts/`** | Python package. |
 | **`lib/`** | `common.py` (flake paths, Rich consoles), `palette.py` (hex mirror of `lib/theme-palette.nix`). |
 | **`zen/`** | Zen browser → flake: `session.py` (MozLZ4 reader), `sync.py` (`zen-sync` CLI). |
-| Package root | `symlinks.py`, `read_defaults.py` (other entry points). |
+| Package root | `symlinks.py`, `darwin_defaults.py` (other entry points). |
 
 ## Commands
 
@@ -19,10 +19,11 @@ From the flake root, with **`uv`** on `PATH`:
 ```bash
 uv run --project scripts symlink-check all
 uv run --project scripts zen-sync --check
+uv run --project scripts darwin-defaults --list-allowlist
 ```
 
 The root **`Justfile`** `default` recipe runs `tv` with the `just-recipes` cable; other recipes use `scripts/shell/common.sh`.
 
 ## Justfile integration
 
-Root `Justfile` sets `script-interpreter` for uv-backed recipes; see recipe docs there for `zen-sync`, `zen-check`, `_read-defaults`, etc.
+Root `Justfile` sets `script-interpreter` for uv-backed recipes; see recipe docs there for `zen-sync`, `zen-check`, `darwin-defaults-sync`, `darwin-defaults-check`, etc.

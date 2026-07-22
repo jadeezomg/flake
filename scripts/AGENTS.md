@@ -16,3 +16,4 @@ Shell helpers sourced by Justfile recipes and Python automation exposed through 
 - Add Python entry points in `scripts/pyproject.toml` before calling them from Justfile.
 - `palette.py` mirrors `lib/theme-palette.nix`; update both together.
 - New scripts must be staged before Nix eval/build.
+- `darwin-defaults` owns allowlisted macOS defaults sync into `modules/profiles/minimal/darwin/defaults.generated.nix`; do not hand-edit the generated file.
