@@ -66,6 +66,32 @@ let
     ]
   );
   qbittorrentSearchPythonPath = "/var/lib/qBittorrent/bin/python3";
+  qbittorrentNovaDir = "/var/lib/qBittorrent/qBittorrent/data/nova3";
+
+  # qBittorrent spawns PythonExecutable for each search-plugin subprocess. bubblewrap
+  # gives plugins their own mount tree so they cannot reach /data, config, or secrets.
+  qbittorrentSearchPythonWrapped = pkgs.writeShellScript "qbittorrent-search-python" ''
+    set -euo pipefail
+    exec ${pkgs.bubblewrap}/bin/bwrap \
+      --unshare-pid \
+      --die-with-parent \
+      --share-net \
+      --proc /proc \
+      --dev /dev \
+      --tmpfs /tmp \
+      --tmpfs /run \
+      --ro-bind /nix/store /nix/store \
+      --ro-bind ${pkgs.glibc}/lib /lib \
+      --ro-bind ${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt /etc/ssl/certs/ca-certificates.crt \
+      --ro-bind /etc/resolv.conf /etc/resolv.conf \
+      --ro-bind /etc/hosts /etc/hosts \
+      --ro-bind /etc/nsswitch.conf /etc/nsswitch.conf \
+      --bind ${qbittorrentNovaDir} ${qbittorrentNovaDir} \
+      --chdir ${qbittorrentNovaDir}/engines \
+      --setenv SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt \
+      --setenv PATH "" \
+      ${qbittorrentSearchPython}/bin/python3 "$@"
+  '';
 in
 {
   nixflix = {
@@ -345,8 +371,14 @@ in
         user = "qbittorrent";
         group = "users";
       };
+      "${qbittorrentNovaDir}/engines".d = {
+        mode = "0755";
+        user = "qbittorrent";
+        group = "users";
+      };
       "${qbittorrentSearchPythonPath}".L = {
-        argument = "${qbittorrentSearchPython}/bin/python3";
+        type = "L+";
+        argument = "${qbittorrentSearchPythonWrapped}";
         user = "qbittorrent";
         group = "users";
       };
@@ -415,9 +447,14 @@ in
       ReadWritePaths = lib.mkForce [ "/srv/nixflix/prowlarr" ];
     };
     qbittorrent = {
-      path = [ qbittorrentSearchPython ];
+      path = [
+        qbittorrentSearchPython
+        pkgs.bubblewrap
+      ];
       serviceConfig = {
         ProtectSystem = lib.mkForce "strict";
+        # bubblewrap needs mount (+ user) namespaces for per-plugin sandboxes.
+        RestrictNamespaces = lib.mkForce false;
         ReadWritePaths = lib.mkForce [
           "/var/lib/qBittorrent"
           "/data/torrents"
