@@ -55,7 +55,9 @@ let
     saveTrickplayWithMedia = false;
   };
 
-  # Dedicated interpreter for qBittorrent search plugins (not system python3).
+  # Search runs in host netns (qBittorrent itself is in /run/netns/wg).
+  # Plugins are managed manually via the WebUI under nova3/engines — not declared in Nix.
+  # Bare system python3 lacks plugin deps (requests/bs4/lxml); keep a small withPackages env.
   qbittorrentSearchPython = pkgs.python3.withPackages (
     ps: with ps; [
       beautifulsoup4
@@ -67,84 +69,7 @@ let
   );
   qbittorrentNovaDir = "/var/lib/qBittorrent/qBittorrent/data/nova3";
 
-  # Search plugin enable-list lives in sops: mini/media/qbittorrent/search-plugins (JSON).
-  # official: names in qbittorrent/search-plugins nova3/engines at qbittorrentSearchPluginsRev.
-  # external: unofficial plugins catalogued in search-plugins wiki (fetched at build time, not vendored).
-  qbittorrentSearchPluginsRev = "62f296ed47010ab0ea9dbd43257a1a20025d1d1a";
-
-  qbittorrentOfficialSearchPlugins = pkgs.fetchFromGitHub {
-    owner = "qbittorrent";
-    repo = "search-plugins";
-    rev = qbittorrentSearchPluginsRev;
-    hash = "sha256-ncY7iK6lTIbF3h1Ts+BC2YHT8sWX4XRSi3vbORSQoMw=";
-  };
-
-  qbittorrentOfficialSearchPluginsDir = "${qbittorrentOfficialSearchPlugins}/nova3/engines";
-
-  # https://github.com/qbittorrent/search-plugins/wiki/Unofficial-search-plugins
-  qbittorrentExternalSearchPlugins = {
-    sukebeisi = pkgs.fetchurl {
-      url = "https://raw.githubusercontent.com/vt-idiot/qBit-SukebeiNyaa-plugin/master/engines/sukebeisi.py";
-      hash = "sha256-NTy4igWjf2yjD5zjYWPWSSbIcGpaQb72NOS04HsVVTk=";
-    };
-  };
-
-  qbittorrentExternalSearchPluginsDir = pkgs.linkFarm "qbittorrent-external-search-plugins" (
-    lib.mapAttrsToList (name: path: {
-      inherit name path;
-    }) qbittorrentExternalSearchPlugins
-  );
-
-  qbittorrentSearchPluginsSync = pkgs.writeShellScript "qbittorrent-search-plugins-sync" ''
-    set -euo pipefail
-    config_file="''${QBITTORRENT_SEARCH_PLUGINS_CONFIG:?QBITTORRENT_SEARCH_PLUGINS_CONFIG is unset}"
-    official_src="${qbittorrentOfficialSearchPluginsDir}"
-    external_src="${qbittorrentExternalSearchPluginsDir}"
-    dst="${qbittorrentNovaDir}/engines"
-    jq=${pkgs.jq}/bin/jq
-
-    if [ ! -r "$config_file" ]; then
-      echo "qbittorrent-search-plugins-sync: cannot read $config_file" >&2
-      exit 1
-    fi
-
-    install -d -m 0755 -o qbittorrent -g users "$dst"
-
-    # Drop stale plugins so sops edits take effect without manual cleanup.
-    find "$dst" -maxdepth 1 -name '*.py' ! -name '__init__.py' -delete
-
-    mapfile -t official < <("$jq" -r '.official[]? // empty' "$config_file")
-    mapfile -t external < <("$jq" -r '.external[]? // empty' "$config_file")
-
-    if [ ''${#official[@]} -eq 0 ] && [ ''${#external[@]} -eq 0 ]; then
-      echo "qbittorrent-search-plugins-sync: no plugins in $config_file (need .official and/or .external arrays)" >&2
-      exit 1
-    fi
-
-    for name in "''${official[@]}"; do
-      plugin="$official_src/$name.py"
-      if [ ! -e "$plugin" ]; then
-        echo "qbittorrent-search-plugins-sync: unknown official plugin '$name' (not in search-plugins@${qbittorrentSearchPluginsRev})" >&2
-        exit 1
-      fi
-      install -m 0644 -o qbittorrent -g users "$plugin" "$dst/"
-    done
-
-    for name in "''${external[@]}"; do
-      plugin="$external_src/$name"
-      if [ ! -e "$plugin" ]; then
-        echo "qbittorrent-search-plugins-sync: unknown external plugin '$name' (not in qbittorrentExternalSearchPlugins)" >&2
-        exit 1
-      fi
-      install -m 0644 -o qbittorrent -g users "$plugin" "$dst/$name.py"
-    done
-
-    if [ ! -e "$dst/__init__.py" ]; then
-      install -m 0644 -o qbittorrent -g users /dev/null "$dst/__init__.py"
-    fi
-  '';
-
-  # qBittorrent's configured interpreter (non-setuid launcher → setuid netns helper).
+  # Non-setuid launcher (what qBittorrent configures) → setuid netns helper.
   qbittorrentSearchPythonPath = "/var/lib/qBittorrent/bin/python3";
   qbittorrentSearchNetnsPath = "/var/lib/qBittorrent/bin/qbittorrent-search-netns";
 
@@ -152,7 +77,7 @@ let
     exec ${qbittorrentSearchNetnsPath} "$@"
   '';
 
-  # setuid helper: only qbittorrent may invoke; nsenter host netns, drop privs, run python.
+  # setuid helper: only qbittorrent may invoke; nsenter host netns, drop to qbittorrent, run python.
   # Strips qBittorrent's -I (breaks PYTHONPATH / nova3 `helpers` imports).
   qbittorrentSearchNetnsHelper = pkgs.runCommand "qbittorrent-search-netns-helper" { } ''
     mkdir -p $out/bin
@@ -577,17 +502,8 @@ in
       ReadWritePaths = lib.mkForce [ "/srv/nixflix/prowlarr" ];
     };
     qbittorrent = {
-      path = [
-        qbittorrentSearchPython
-        pkgs.jq
-        pkgs.util-linux
-      ];
-      preStart = lib.mkOrder 50 ''
-        export QBITTORRENT_SEARCH_PLUGINS_CONFIG=${
-          config.sops.secrets."mini/media/qbittorrent/search-plugins".path
-        }
-        ${qbittorrentSearchPluginsSync}
-      '';
+      # Plugins are manual under nova3/engines. Search still needs host netns via setuid helper.
+      path = [ pkgs.util-linux ];
       serviceConfig = {
         ProtectSystem = lib.mkForce "strict";
         # setuid nsenter helper (host netns for search); PrivateUsers/SUID hardening blocks it.
