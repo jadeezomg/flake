@@ -1,20 +1,20 @@
-# Task 5 — Phase 4: nixflix media stack (BLOCKED on decisions)
+# Task 5 — Phase 4: nixflix media stack
 
-**State:** not started; **independent** of the agent/memory work. Researched only.
+**State:** done & deployed (2026-07-22). This handoff is retained as a pointer only.
 
-## What it is
-`github:kiriwalawren/nixflix` (MPL-2.0) — declarative NixOS media server: Jellyfin + arr stack (Sonarr/Radarr/Lidarr/Prowlarr/Seerr), qBittorrent, optional PostgreSQL backend, **WireGuard VPN confinement** (via its `vpn-confinement` input), nginx/Caddy reverse proxy, theme.park theming, TRaSH-guide defaults. Exposes `nixosModules.default` (alias `.nixflix`).
+## Where to read instead
 
-## Implementation sketch (once unblocked)
-- Add `nixflix` + its `vpn-confinement` input to `flake.nix` (`inputs.nixpkgs.follows`).
-- Gate behind a new toggle (e.g. `miniMediaHosting`) in `hosts/mini/host.nix`; new module `hosts/mini/services/nixflix.nix` importing `inputs.nixflix.nixosModules.default`.
-- Configure media/state dirs, the arr services, VPN confinement for the torrent path, and tailnet exposure (likely `tailscale serve` like the other UIs).
+- Operator guide: [`docs/hosts/mini-media.md`](../hosts/mini-media.md)
+- ADRs:
+  - [0003 dual playback](../adr/0003-dual-playback-plex-and-jellyfin.md)
+  - [0004 automation on mini / payloads on Unraid](../adr/0004-media-automation-on-mini-payloads-on-unraid.md)
+  - [0005 VPN downloaders; Search in-netns](../adr/0005-vpn-confined-downloaders-search-in-netns.md)
+  - [0006 Arr `/data` ReadWritePaths](../adr/0006-arr-single-data-readwritepaths-for-hardlinks.md)
+- Code: `hosts/mini/services/media/` (toggle `miniMediaHosting` in `hosts/mini/host.nix`)
 
-## BLOCKERS — decide before building (open in the plan)
-1. **Host it on mini at all?** mini is the LLM/agent box — media may belong on a different host.
-2. **Media storage location** — check mini's disko layout / free space (`hosts/mini/disko.nix`); media needs lots of disk.
-3. **VPN provider** for the torrent/arr path.
-4. Which arr services + indexers.
+## Historical blockers (resolved)
 
-## Suggested skills
-- `Plan` (architect the storage/VPN/exposure design) or `grill-with-docs` to resolve the blockers, then implement. `flake-structure` for input wiring.
+1. Host on mini? **Yes** — automation/UIs on mini; bytes on Unraid NFS (ADR-0004).
+2. Storage? Unraid NFS `/data` + local `/srv/nixflix` state.
+3. VPN? Proton WireGuard via nixflix `vpn-confinement` (ADR-0005).
+4. Arr set? Sonarr/Radarr/Lidarr/Prowlarr + FlareSolverr; Seerr/Bazarr/Plex native.
