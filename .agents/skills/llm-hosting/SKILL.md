@@ -11,7 +11,7 @@ Local LLM serving on the **mini** host. Everything lives under `hosts/mini/servi
 
 ## The contract (single source of truth — `hosts/mini/host.nix`)
 
-One chat endpoint, identical across backends, so consumers (`open-webui.nix`, `honcho.nix`) never change when you switch:
+One chat endpoint, identical across backends, so consumers (`open-webui.nix`) never change when you switch:
 
 - `miniLlmBackend` — `"vllm"` | `"llamacpp"`. **Exactly one runs** (shared 15 GiB Arc B50; both OOM).
 - `miniLlmServedName` — `"local-chat"`, the OpenAI chat model id.

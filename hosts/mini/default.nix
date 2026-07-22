@@ -28,9 +28,6 @@
     # by host.miniLlmBackend (see hosts/mini/services/llm/default.nix).
     ./services/llm
   ]
-  ++ lib.optionals ((host.miniLlmHosting or false) && (host.miniMemoryHosting or false)) [
-    ./services/honcho.nix
-  ]
   ++ lib.optionals (host.miniMonitoring or false) [ ./services/beszel.nix ]
   ++ lib.optionals (host.miniMediaHosting or false) [
     inputs.nixflix.nixosModules.default

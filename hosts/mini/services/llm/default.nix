@@ -5,8 +5,8 @@
 # This module is both the aggregator AND the shared base every backend needs (the
 # Intel GPU stack + the Hugging Face token), since those are always present too.
 # Exactly one backend is imported (shared GPU; both would OOM), and both honour the
-# same contract (`host.miniLlm{ServedName,Port,Host}`) so consumers (open-webui,
-# honcho) can't tell them apart:
+# same contract (`host.miniLlm{ServedName,Port,Host}`) so consumers (open-webui)
+# can't tell them apart:
 #   "vllm"     → vllm-xpu-nix module + ./vllm-xpu.nix  (Intel XPU, Qwen3.5-9B int4)
 #   "llamacpp" → ./llama-cpp.nix                       (Vulkan, Gemma-4-12B GGUF)
 # The chat frontend (`./open-webui.nix`) is always imported and is backend-agnostic.

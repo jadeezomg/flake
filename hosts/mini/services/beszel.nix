@@ -24,7 +24,7 @@
   ...
 }:
 let
-  hubPort = 8090; # 8000 vLLM, 8080 webui, 8100 honcho
+  hubPort = 8090; # 8000 LLM chat, 8080 open-webui
   agentDir = "/var/lib/beszel-agent";
 in
 {

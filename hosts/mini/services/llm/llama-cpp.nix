@@ -11,8 +11,8 @@
 #                 draft arch — see the chatMtp note below.
 #   [local-embed] mradermacher/F2LLM-v2-0.6B-GGUF — Qwen3-arch embedding model
 #                 (`embedding = true`), for /v1/embeddings.
-# `local-chat` keeps the shared chat contract (host.miniLlmServedName), so open-webui /
-# honcho are unaffected; `local-embed` (host.miniLlmEmbedServedName) is the extra
+# `local-chat` keeps the shared chat contract (host.miniLlmServedName), so open-webui
+# is unaffected; `local-embed` (host.miniLlmEmbedServedName) is the extra
 # embedding capability (vLLM backend does not serve it). See docs/hosts/mini-llm-hosting.md.
 #
 # Router/preset mechanics: docs/preset.md + tools/server/README.md (PR#17859). Section
