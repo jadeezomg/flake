@@ -337,14 +337,15 @@ init:
     fi
     set_host "$t"; print_header "END"
 
-[doc('macOS defaults -> Nix-style output (prompts domain; empty = list domains)')]
+[doc('Write allowlisted macOS defaults into minimal/darwin/defaults.generated.nix')]
 [group('config')]
-read-defaults:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    read -r -p "Domain (empty = list domains): " d || true
-    if [[ -z "${d:-}" ]]; then uv run --project "$FLAKE/scripts" read-defaults
-    else uv run --project "$FLAKE/scripts" read-defaults "$d"; fi
+darwin-defaults-sync *ARGS:
+    @cd "$FLAKE" && uv run --project "$FLAKE/scripts" darwin-defaults {{ ARGS }} && nix fmt .
+
+[doc('Check flake Darwin defaults vs live allowlisted domains (exit 0 = match)')]
+[group('config')]
+darwin-defaults-check *ARGS:
+    @cd "$FLAKE" && uv run --project "$FLAKE/scripts" darwin-defaults --check {{ ARGS }}
 
 [doc('Create sops editor age key under ~/.config/sops/age (Linux/macOS)')]
 [group('config')]
@@ -718,5 +719,5 @@ _init host:
     print_success "Host set to: {{ host }}"
 
 [private]
-_read-defaults *ARGS:
-    @uv run --project "$FLAKE/scripts" read-defaults {{ ARGS }}
+_darwin-defaults *ARGS:
+    @uv run --project "$FLAKE/scripts" darwin-defaults {{ ARGS }}
