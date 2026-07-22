@@ -155,8 +155,6 @@ journalctl -u hermes-agent -b --no-pager | grep -i matrix | tail -20
   in `hermes.nix`, then `flake switch`.
 - **Apex IDs** (`@you:jadee.fyi` instead of `@you:matrix.jadee.fyi`): needs a
   well-known delegation vhost for `jadee.fyi` — ask to wire it.
-- **honcho** (currently disabled): when re-enabled, give it a `honcho.jadee.fyi`
-  vhost using the same `import tsnet` pattern instead of its own serve port.
 - **Verify Hermes tools:** confirm `kagi`, `ctx7`, GitHub (`agent_pat`), and HF
   access work from a Hermes session.
 

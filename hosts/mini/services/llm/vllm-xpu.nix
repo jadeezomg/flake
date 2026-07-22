@@ -32,7 +32,7 @@
       environmentFile = config.sops.templates."mini-llm-hf.env".path;
 
       # Shared serving contract (host.nix) — identical to the llama.cpp backend so
-      # consumers (open-webui, honcho) never change. host = tailnet bind; the firewall
+      # consumers (open-webui) never change. host = tailnet bind; the firewall
       # trusts only tailscale0 (modules/nixos/networking.nix), so it is tailnet-only,
       # never public. Open-WebUI on mini still reaches it over loopback.
       host = host.miniLlmHost;

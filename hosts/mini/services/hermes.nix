@@ -10,7 +10,6 @@ let
   hermesSrc = inputs.hermes-agent;
   haInputs = hermesSrc.inputs;
 
-
   hermesAgent = pkgs.callPackage "${hermesSrc}/nix/hermes-agent.nix" {
     inherit (haInputs) uv2nix pyproject-nix pyproject-build-systems;
     npm-lockfile-fix = haInputs.npm-lockfile-fix.packages.${system}.default;
@@ -36,7 +35,6 @@ in
       "web"
       "messaging"
       "mcp"
-      "honcho"
       "edge-tts"
     ];
 

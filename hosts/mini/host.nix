@@ -12,8 +12,7 @@ sharedNixOSHost
   miniLlmHosting = true;
   # Which backend serves local chat. Exactly one runs (shared GPU; both on will
   # OOM). Both expose the SAME contract (`miniLlm{ServedName,Port,Host}` below),
-  # so consumers (open-webui, honcho) can't tell them apart — switching backends
-  # is transparent.
+  # so consumers (open-webui) can't tell them apart — switching backends is transparent.
   #   "vllm"     → ./services/llm/vllm-xpu.nix   (Intel XPU, Qwen3.5-9B int4 AutoRound)
   #   "llamacpp" → ./services/llm/llama-cpp.nix  (Vulkan, Gemma-4-12B GGUF)
   miniLlmBackend = "llamacpp";
@@ -23,13 +22,9 @@ sharedNixOSHost
   # Tailnet bind: the firewall trusts only tailscale0 (modules/nixos/networking.nix),
   # so this is tailnet-only, never public. Loopback consumers still reach it.
   miniLlmHost = "0.0.0.0";
-  # Honcho shared-memory server (./services/honcho.nix). Needs `miniLlmHosting`
-  # since its deriver uses the local vLLM model. See docs/hosts/mini-agent-memory-plan.md.
-  # Disabled 2026-06-16 while evaluating alternatives — see docs/adr/0002-honcho-as-shared-agent-memory.md.
-  miniMemoryHosting = false;
   # Beszel hub + agent (./services/beszel.nix): server/service/container monitoring.
   miniMonitoring = true;
-  # Nixflix media stack (./services/media.nix): automation and playback on mini,
+  # Nixflix media stack (./services/media/): automation and playback on mini,
   # with library and download payloads mounted from Unraid.
   miniMediaHosting = true;
   # Static LAN address on enp2s0f0np0 (see default.nix mini-lan NM profile).
