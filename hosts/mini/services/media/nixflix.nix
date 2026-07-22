@@ -68,34 +68,66 @@ let
   qbittorrentSearchPythonPath = "/var/lib/qBittorrent/bin/python3";
   qbittorrentNovaDir = "/var/lib/qBittorrent/qBittorrent/data/nova3";
 
-  # Declarative search plugins - edit qbittorrentSearchPluginNames; synced on service start.
-  # Fetched at build time because qBittorrent VPN netns cannot reach GitHub.
-  qbittorrentSearchPluginNames = [
-    "sukebeisi"
-  ];
+  # Search plugin enable-list lives in sops: mini/media/qbittorrent/search-plugins (JSON).
+  # Official names must exist in qbittorrent/search-plugins at qbittorrentSearchPluginsRev.
+  # Custom .py files: ./qbittorrent-search-plugins/ (class name = filename without .py).
+  qbittorrentSearchPluginsRev = "62f296ed47010ab0ea9dbd43257a1a20025d1d1a";
+  qbittorrentCustomSearchPluginsDir = ./qbittorrent-search-plugins;
+  qbittorrentCustomSearchPlugins = lib.cleanSource qbittorrentCustomSearchPluginsDir;
 
   qbittorrentOfficialSearchPlugins = pkgs.fetchFromGitHub {
     owner = "qbittorrent";
     repo = "search-plugins";
-    rev = "62f296ed47010ab0ea9dbd43257a1a20025d1d1a";
+    rev = qbittorrentSearchPluginsRev;
     hash = "sha256-ncY7iK6lTIbF3h1Ts+BC2YHT8sWX4XRSi3vbORSQoMw=";
   };
 
-  qbittorrentSearchPlugins = pkgs.linkFarm "qbittorrent-search-plugins" (
-    map (name: {
-      name = "${name}.py";
-      path = "${qbittorrentOfficialSearchPlugins}/nova3/engines/${name}.py";
-    }) qbittorrentSearchPluginNames
-  );
+  qbittorrentOfficialSearchPluginsDir = "${qbittorrentOfficialSearchPlugins}/nova3/engines";
 
   qbittorrentSearchPluginsSync = pkgs.writeShellScript "qbittorrent-search-plugins-sync" ''
     set -euo pipefail
-    src="${qbittorrentSearchPlugins}"
+    config_file="''${QBITTORRENT_SEARCH_PLUGINS_CONFIG:?QBITTORRENT_SEARCH_PLUGINS_CONFIG is unset}"
+    official_src="${qbittorrentOfficialSearchPluginsDir}"
+    custom_src="${qbittorrentCustomSearchPlugins}"
     dst="${qbittorrentNovaDir}/engines"
+    jq=${pkgs.jq}/bin/jq
+
+    if [ ! -r "$config_file" ]; then
+      echo "qbittorrent-search-plugins-sync: cannot read $config_file" >&2
+      exit 1
+    fi
+
     install -d -m 0755 -o qbittorrent -g users "$dst"
-    for plugin in "$src"/*.py; do
+
+    # Drop stale plugins so sops edits take effect without manual cleanup.
+    find "$dst" -maxdepth 1 -name '*.py' ! -name '__init__.py' -delete
+
+    mapfile -t official < <("$jq" -r '.official[]? // empty' "$config_file")
+    mapfile -t custom < <("$jq" -r '.custom[]? // empty' "$config_file")
+
+    if [ ''${#official[@]} -eq 0 ] && [ ''${#custom[@]} -eq 0 ]; then
+      echo "qbittorrent-search-plugins-sync: no plugins in $config_file (need .official and/or .custom arrays)" >&2
+      exit 1
+    fi
+
+    for name in "''${official[@]}"; do
+      plugin="$official_src/$name.py"
+      if [ ! -e "$plugin" ]; then
+        echo "qbittorrent-search-plugins-sync: unknown official plugin '$name' (not in search-plugins@${qbittorrentSearchPluginsRev})" >&2
+        exit 1
+      fi
       install -m 0644 -o qbittorrent -g users "$plugin" "$dst/"
     done
+
+    for name in "''${custom[@]}"; do
+      plugin="$custom_src/$name.py"
+      if [ ! -e "$plugin" ]; then
+        echo "qbittorrent-search-plugins-sync: custom plugin '$name' missing from ${qbittorrentCustomSearchPluginsDir}" >&2
+        exit 1
+      fi
+      install -m 0644 -o qbittorrent -g users "$plugin" "$dst/"
+    done
+
     if [ ! -e "$dst/__init__.py" ]; then
       install -m 0644 -o qbittorrent -g users /dev/null "$dst/__init__.py"
     fi
@@ -491,8 +523,12 @@ in
       path = [
         qbittorrentSearchPython
         pkgs.bubblewrap
+        pkgs.jq
       ];
       preStart = lib.mkOrder 50 ''
+        export QBITTORRENT_SEARCH_PLUGINS_CONFIG=${
+          config.sops.secrets."mini/media/qbittorrent/search-plugins".path
+        }
         ${qbittorrentSearchPluginsSync}
       '';
       serviceConfig = {
