@@ -144,41 +144,6 @@ let
     fi
   '';
 
-  # Inner bwrap sandbox for search plugins (host netns; see security.wrappers below).
-  qbittorrentSearchBwrap = pkgs.writeShellScript "qbittorrent-search-bwrap" ''
-    set -euo pipefail
-    # qBittorrent passes -I (isolated mode), which ignores PYTHONPATH and breaks
-    # `from helpers import …` in nova3 plugins; drop it before exec.
-    filtered=()
-    for arg in "$@"; do
-      if [ "$arg" = "-I" ]; then
-        continue
-      fi
-      filtered+=("$arg")
-    done
-    # nss-cacert ships ca-bundle.crt (not ca-certificates.crt); bind the whole dir.
-    exec ${pkgs.bubblewrap}/bin/bwrap \
-      --unshare-pid \
-      --die-with-parent \
-      --share-net \
-      --proc /proc \
-      --dev /dev \
-      --tmpfs /tmp \
-      --tmpfs /run \
-      --ro-bind /nix/store /nix/store \
-      --ro-bind ${pkgs.glibc}/lib /lib \
-      --ro-bind ${pkgs.cacert}/etc/ssl/certs /etc/ssl/certs \
-      --ro-bind /etc/resolv.conf /etc/resolv.conf \
-      --ro-bind /etc/hosts /etc/hosts \
-      --ro-bind /etc/nsswitch.conf /etc/nsswitch.conf \
-      --bind ${qbittorrentNovaDir} ${qbittorrentNovaDir} \
-      --chdir ${qbittorrentNovaDir}/engines \
-      --setenv PYTHONPATH ${qbittorrentNovaDir} \
-      --setenv SSL_CERT_FILE /etc/ssl/certs/ca-bundle.crt \
-      --setenv PATH "" \
-      ${qbittorrentSearchPython}/bin/python3 "''${filtered[@]}"
-  '';
-
   # qBittorrent's configured interpreter (non-setuid launcher → setuid netns helper).
   qbittorrentSearchPythonPath = "/var/lib/qBittorrent/bin/python3";
   qbittorrentSearchNetnsPath = "/var/lib/qBittorrent/bin/qbittorrent-search-netns";
@@ -187,43 +152,62 @@ let
     exec ${qbittorrentSearchNetnsPath} "$@"
   '';
 
-  # setuid-root helper: security.wrappers drops to caller uid before exec, so nsenter
-  # must live in a real setuid binary (only qbittorrent may invoke it).
+  # setuid helper: only qbittorrent may invoke; nsenter host netns, drop privs, run python.
+  # Strips qBittorrent's -I (breaks PYTHONPATH / nova3 `helpers` imports).
   qbittorrentSearchNetnsHelper = pkgs.runCommand "qbittorrent-search-netns-helper" { } ''
-        mkdir -p $out/bin
-        cat > main.c <<EOF
-        #include <pwd.h>
-        #include <stdio.h>
-        #include <stdlib.h>
-        #include <unistd.h>
+    mkdir -p $out/bin
+    cat > main.c <<EOF
+    #include <pwd.h>
+    #include <stdio.h>
+    #include <string.h>
+    #include <stdlib.h>
+    #include <unistd.h>
 
-        static void die(const char *msg) {
-          perror(msg);
-          _exit(1);
-        }
+    static void die(const char *msg) {
+      perror(msg);
+      _exit(1);
+    }
 
-        int main(int argc, char **argv) {
-          struct passwd *pw = getpwnam("qbittorrent");
-          if (!pw || getuid() != pw->pw_uid) {
-            fprintf(stderr, "qbittorrent-search-python: refused caller uid %%d\n", getuid());
-            return 1;
-          }
-          if (seteuid(0) != 0) die("seteuid");
+    int main(int argc, char **argv) {
+      struct passwd *pw = getpwnam("qbittorrent");
+      if (!pw || getuid() != pw->pw_uid) {
+        fprintf(stderr, "qbittorrent-search-netns: refused caller uid %d\n", getuid());
+        return 1;
+      }
 
-          char **child = calloc((size_t) argc + 6, sizeof(char *));
-          if (!child) die("calloc");
-          child[0] = "nsenter";
-          child[1] = "-t";
-          child[2] = "1";
-          child[3] = "-n";
-          child[4] = "--";
-          child[5] = (char *) "${qbittorrentSearchBwrap}";
-          for (int i = 1; i < argc; i++) child[5 + i] = argv[i];
-          execv("${pkgs.util-linux}/bin/nsenter", child);
-          die("execv");
-        }
+      char uidbuf[32], gidbuf[32];
+      snprintf(uidbuf, sizeof uidbuf, "%ld", (long)pw->pw_uid);
+      snprintf(gidbuf, sizeof gidbuf, "%ld", (long)pw->pw_gid);
+
+      /* nsenter argv + python + filtered user args (skip -I) + NULL */
+      char **child = calloc((size_t)argc + 12, sizeof(char *));
+      if (!child) die("calloc");
+      int n = 0;
+      child[n++] = "nsenter";
+      child[n++] = "-t";
+      child[n++] = "1";
+      child[n++] = "-n";
+      child[n++] = "-S";
+      child[n++] = uidbuf;
+      child[n++] = "-G";
+      child[n++] = gidbuf;
+      child[n++] = "--";
+      child[n++] = (char *)"${qbittorrentSearchPython}/bin/python3";
+      for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-I") == 0) continue;
+        child[n++] = argv[i];
+      }
+      child[n] = NULL;
+
+      if (seteuid(0) != 0) die("seteuid");
+      if (setenv("PYTHONPATH", "${qbittorrentNovaDir}", 1) != 0) die("setenv PYTHONPATH");
+      if (setenv("SSL_CERT_FILE", "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt", 1) != 0) die("setenv SSL_CERT_FILE");
+      if (chdir("${qbittorrentNovaDir}/engines") != 0) die("chdir");
+      execv("${pkgs.util-linux}/bin/nsenter", child);
+      die("execv");
+    }
     EOF
-        ${pkgs.gcc}/bin/cc -O2 -o $out/bin/qbittorrent-search-python main.c
+    ${pkgs.gcc}/bin/cc -O2 -o $out/bin/qbittorrent-search-python main.c
   '';
 in
 {
@@ -595,7 +579,6 @@ in
     qbittorrent = {
       path = [
         qbittorrentSearchPython
-        pkgs.bubblewrap
         pkgs.jq
         pkgs.util-linux
       ];
@@ -607,9 +590,7 @@ in
       '';
       serviceConfig = {
         ProtectSystem = lib.mkForce "strict";
-        # bubblewrap needs mount (+ user) namespaces for per-plugin sandboxes.
-        RestrictNamespaces = lib.mkForce false;
-        # Search plugins use a setuid nsenter helper (host netns). PrivateUsers breaks setuid+nsenter.
+        # setuid nsenter helper (host netns for search); PrivateUsers/SUID hardening blocks it.
         PrivateUsers = lib.mkForce false;
         RestrictSUIDSGID = lib.mkForce false;
         NoNewPrivileges = lib.mkForce false;
