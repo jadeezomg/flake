@@ -121,24 +121,6 @@
       url = "github:DietrichGebert/ponytail";
       flake = false;
     };
-    # Intel XPU vLLM — add `nixosModules.default` + overlay (see upstream
-    # https://github.com/jasonboukheir/vllm-xpu-nix/blob/main/docs/nixos-overlay.md ).
-    # `hosts/mini/services/llm/` holds the mini-only chat stack (`services.vllm-xpu` + hardware/ccache/sops).
-    vllm-xpu-nix = {
-      url = "github:jasonboukheir/vllm-xpu-nix";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        # Upstream lock uses a bare `git` fetch; Nix may shallow-clone first, then warn
-        # `rejected … because shallow roots are not allowed to be updated` and re-fetch.
-        # That dance can interact badly with `--dry-run` / substituters (missing `.drv`).
-        vllm-xpu-kernels-unstable-src = {
-          type = "git";
-          url = "https://github.com/jasonboukheir/vllm-xpu-kernels.git";
-          submodules = true;
-          shallow = false;
-        };
-      };
-    };
   };
 
   outputs =

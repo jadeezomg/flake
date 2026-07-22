@@ -16,7 +16,6 @@ let
         input-fonts.acceptLicense = true;
         permittedInsecurePackages = [
           "ventoy-1.1.12"
-          "python3.13-vllm-0.16.0"
         ];
       }
       // extraConfig;

@@ -40,7 +40,7 @@ These tools are only available on NixOS (desktop/framework hosts).
 
 | Tool | Notes |
 |------|-------|
-| vllm | LLM serving engine |
+| llama-cpp | Local LLM inference (mini serves via systemd router) |
 
 ## nix-index (fish integration)
 

@@ -5,13 +5,8 @@ script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 root="${FLAKE:-$(cd "$script_dir/../.." && pwd)}"
 source "$root/scripts/shell/common.sh"
 
-# mini serves local LLMs through one of two backends (host.miniLlmBackend), both on
-# :8000 behind the shared `local-chat` contract:
-#   llamacpp → systemd unit `llama-cpp-gemma`, llama-server ROUTER mode serving
-#              `local-chat` (Gemma 4 QAT + MTP + vision) and `local-embed` (F2LLM).
-#   vllm     → systemd unit `vllm-xpu-chat` (+ optional `vllm-xpu-embedding` on :8001).
-# These helpers detect the active backend from which unit is deployed, so the same
-# commands work whichever backend host.nix selects.
+# mini serves local LLMs via llama.cpp (`llama-cpp-gemma` systemd unit) on :8000
+# behind the shared `local-chat` / `local-embed` contract (router mode).
 
 usage() {
   cat <<'USAGE'
@@ -22,46 +17,37 @@ commands:
   status                 service status for the active LLM backend
   logs                   follow logs for the active backend's unit(s)
   restart                restart the active backend's unit(s)
-  models                 list served models on :8000 (+ :8001 if vLLM embeddings)
+  models                 list served models on :8000
   chat [prompt]          smoke-test chat on :8000 (model local-chat)
   perf [prompt]          throughput probe: complex prompt, reports TTFT + tok/s
-  embedding [text]       smoke-test embeddings (local-embed on llama.cpp, or vLLM :8001)
+  embedding [text]       smoke-test embeddings (`local-embed` on :8000)
   gpu                    live Intel GPU utilization
   troubleshoot           backend, failed units, cache paths, recent logs
 USAGE
 }
 
 # Which backend is deployed right now (by which unit file exists), not what is running.
-active_backend() {
+primary_unit() {
   if systemctl cat llama-cpp-gemma.service >/dev/null 2>&1; then
+    echo llama-cpp-gemma
+  else
+    echo ""
+  fi
+}
+
+# Legacy name kept for callers.
+active_backend() {
+  if primary_unit | grep -q .; then
     echo llamacpp
-  elif systemctl cat vllm-xpu-chat.service >/dev/null 2>&1; then
-    echo vllm
   else
     echo none
   fi
 }
 
-# The chat/primary unit for the active backend.
-primary_unit() {
-  case "$(active_backend)" in
-  llamacpp) echo llama-cpp-gemma ;;
-  vllm) echo vllm-xpu-chat ;;
-  *) echo "" ;;
-  esac
-}
 
 # All units for the active backend (space-separated).
 backend_units() {
-  case "$(active_backend)" in
-  llamacpp) echo llama-cpp-gemma ;;
-  vllm)
-    local units=vllm-xpu-chat
-    systemctl cat vllm-xpu-embedding.service >/dev/null 2>&1 && units="$units vllm-xpu-embedding"
-    echo "$units"
-    ;;
-  *) echo "" ;;
-  esac
+  primary_unit
 }
 
 require_endpoint() {
@@ -200,7 +186,7 @@ case "$command_name" in
 overview | status)
   be="$(active_backend)"
   print_header "MINI LLM STATUS (backend: $be)"
-  systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager --full
+  systemctl list-units 'llama-cpp-*' --all --no-pager --full
   print_header "UNIT STATUS"
   mapfile -t units < <(backend_units | tr ' ' '\n' | grep -v '^$' || true)
   if ((${#units[@]})); then
@@ -209,9 +195,6 @@ overview | status)
   show_runtime_config
   if [[ "$command_name" == "overview" ]]; then
     probe "models :8000" "http://127.0.0.1:8000/v1/models"
-    if systemctl cat vllm-xpu-embedding.service >/dev/null 2>&1; then
-      probe "embeddings :8001" "http://127.0.0.1:8001/v1/models"
-    fi
     unit="$(primary_unit)"
     if [[ -n "$unit" && "$(systemctl is-active "${unit}.service" 2>/dev/null || true)" == "active" ]]; then
       perf_probe || true
@@ -239,9 +222,6 @@ restart)
   ;;
 models)
   probe "models :8000" "http://127.0.0.1:8000/v1/models"
-  if systemctl cat vllm-xpu-embedding.service >/dev/null 2>&1; then
-    probe "embeddings :8001" "http://127.0.0.1:8001/v1/models"
-  fi
   ;;
 chat)
   prompt="${1:-Reply with exactly: ok}"
@@ -259,33 +239,17 @@ perf)
   ;;
 embedding)
   text="${1:-The quick brown fox jumps over the lazy dog.}"
-  case "$(active_backend)" in
-  llamacpp)
-    require_endpoint "embeddings :8000" "http://127.0.0.1:8000/v1/models" "llama-cpp-gemma"
-    print_header "embeddings request (local-embed)"
-    print_pending "POST /v1/embeddings model=local-embed"
-    jq -n --arg t "$text" '{model:"local-embed",input:$t}' |
-      xh --timeout=60 POST http://127.0.0.1:8000/v1/embeddings Content-Type:application/json |
-      jq '{model: .model, dims: (.data[0].embedding | length), usage: .usage}'
-    ;;
-  vllm)
-    if systemctl cat vllm-xpu-embedding.service >/dev/null 2>&1; then
-      require_endpoint "vLLM embeddings :8001" "http://127.0.0.1:8001/v1/models" "vllm-xpu-embedding"
-      print_header "embeddings request (jina-embeddings-v5-nano)"
-      jq -n --arg t "$text" '{model:"jina-embeddings-v5-nano",input:$t}' |
-        xh --timeout=60 POST http://127.0.0.1:8001/v1/embeddings Content-Type:application/json |
-        jq '{model: .model, dims: (.data[0].embedding | length)}'
-    else
-      print_error "The vLLM embedding instance is disabled (services.vllm-xpu.instances.embedding.enable = false)."
-      print_info "Embeddings are served by the llama.cpp backend (miniLlmBackend = \"llamacpp\") as local-embed on :8000."
-      exit 1
-    fi
-    ;;
-  *)
+  unit="$(primary_unit)"
+  if [[ -z "$unit" ]]; then
     print_error "No LLM backend is active on this host."
     exit 1
-    ;;
-  esac
+  fi
+  require_endpoint "embeddings :8000" "http://127.0.0.1:8000/v1/models" "$unit"
+  print_header "embeddings request (local-embed)"
+  print_pending "POST /v1/embeddings model=local-embed"
+  jq -n --arg t "$text" '{model:"local-embed",input:$t}' |
+    xh --timeout=60 POST http://127.0.0.1:8000/v1/embeddings Content-Type:application/json |
+    jq '{model: .model, dims: (.data[0].embedding | length), usage: .usage}'
   ;;
 gpu)
   sudo intel_gpu_top
@@ -296,7 +260,7 @@ troubleshoot)
   print_header "FAILED UNITS"
   systemctl --no-pager --failed || true
   print_header "LLM UNITS"
-  systemctl list-units 'vllm-xpu-*' 'llama-cpp-*' --all --no-pager --full
+  systemctl list-units 'llama-cpp-*' --all --no-pager --full
   show_runtime_config
   print_header "CACHE PATHS"
   for path in /var/cache/ccache /var/lib/llama-cpp /var/lib/llama-cpp/huggingface /var/lib/private/sops/age; do

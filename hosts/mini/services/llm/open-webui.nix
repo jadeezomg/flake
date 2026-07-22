@@ -1,7 +1,6 @@
 # Open-WebUI chat frontend for the local chat server, exposed over Tailscale.
 # Backend-agnostic: it talks to the shared contract (host.miniLlm{Port,Host}) and
-# auto-discovers the model via /v1/models, so it is unaffected by whether vllm or
-# llamacpp is the active backend.
+# auto-discovers the model via /v1/models.
 #
 # - Open-WebUI listens on loopback only; the shared Caddy tailnet-node proxy
 #   (services/caddy.nix) terminates TLS and serves it at https://chat.jadee.fyi

@@ -117,7 +117,7 @@ let
             ;
         };
         # Only modules common to every Linux host belong here; single-host
-        # modules (disko, hermes-agent, vllm-xpu, …) are imported by the
+        # modules (disko, hermes-agent, …) are imported by the
         # host's own `hosts/<name>/default.nix`.
         modules = [
           inputs.stylix.nixosModules.stylix

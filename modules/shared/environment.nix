@@ -44,7 +44,7 @@ in
       # TODO: replace with the real public key after running `cachix create jadee-flake`
       # "jadee-flake.cachix.org-1:REPLACE_ME="
     ];
-    # CA / dynamic derivations (Linux only — mini vllm-xpu, etc.). Not enabled on
+    # CA / dynamic derivations (Linux only). Not enabled on
     # Darwin (Determinate / unused). NixOS applies these after `switch`; the
     # *evaluating* client also needs them — see `lib/nix-experimental-features.nix`
     # and Home Manager `nix.settings` on Linux.
