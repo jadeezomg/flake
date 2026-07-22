@@ -5,18 +5,11 @@
   ...
 }:
 let
-  mediaEnabled = true;
-
-  mountDeps = [
-    "data.mount"
-    "data-media-Music.mount"
-    "Music.mount"
-    "media.mount"
-  ];
+  inherit (import ./nixflix/common.nix) mountDeps;
 in
 {
   services.plex = {
-    enable = mediaEnabled;
+    enable = true;
     package = pkgs.plex;
     dataDir = "/srv/nixflix/plex";
     user = "unraid";
@@ -26,7 +19,7 @@ in
   };
 
   services.seerr = {
-    enable = mediaEnabled;
+    enable = true;
     package = pkgs.seerr;
     configDir = "/var/lib/seerr";
     port = 5055;
@@ -34,7 +27,7 @@ in
   };
 
   services.bazarr = {
-    enable = mediaEnabled;
+    enable = true;
     dataDir = "/srv/nixflix/bazarr";
     listenPort = 6767;
     user = "unraid";
@@ -42,7 +35,7 @@ in
     openFirewall = false;
   };
 
-  systemd.services = lib.mkIf mediaEnabled {
+  systemd.services = {
     plex = {
       after = mountDeps;
       requires = mountDeps;
@@ -140,13 +133,13 @@ in
     seerr.environment.HOST = "127.0.0.1";
   };
 
-  systemd.tmpfiles.rules = lib.mkIf mediaEnabled [
+  systemd.tmpfiles.rules = [
     "d /srv/nixflix/plex-transcode 0755 unraid users -"
   ];
 
   # Mini currently uses the iptables-backed NixOS firewall. Keep these
   # discovery rules IPv4-only rather than opening Plex on the global IPv6 address.
-  networking.firewall = lib.mkIf mediaEnabled {
+  networking.firewall = {
     extraCommands = ''
       iptables -I nixos-fw 1 -i enp2s0f0np0 -p tcp --dport 32400 -j nixos-fw-accept
       iptables -I nixos-fw 1 -i enp2s0f0np0 -s 192.168.178.0/24 -p tcp -m multiport --dports 3005,8324,32469 -j nixos-fw-accept

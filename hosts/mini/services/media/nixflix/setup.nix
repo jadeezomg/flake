@@ -4,10 +4,10 @@
   ...
 }:
 let
-  inherit (import ./common.nix) mediaEnabled mountDeps remoteDirs;
+  inherit (import ./common.nix) mountDeps remoteDirs;
 in
 {
-  systemd.tmpfiles.settings = lib.mkIf mediaEnabled {
+  systemd.tmpfiles.settings = {
     "10-nixflix" = lib.mkForce {
       "/srv/nixflix".d = {
         mode = "0755";
@@ -17,7 +17,7 @@ in
     };
   };
 
-  systemd.services = lib.mkIf mediaEnabled {
+  systemd.services = {
     nixflix-setup-remote-dirs = {
       description = "Create Nixflix directories on mounted Unraid storage";
       after = mountDeps;

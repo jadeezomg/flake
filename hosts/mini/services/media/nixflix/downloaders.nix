@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (import ./common.nix) mediaEnabled mountDeps;
+  inherit (import ./common.nix) mountDeps;
 
   # Search stays inside the VPN netns with qBittorrent (no host-netns escape).
   # Plugins are managed manually via the WebUI under nova3/engines — not declared in Nix.
@@ -170,7 +170,7 @@ in
     };
 
     vpn = {
-      enable = mediaEnabled;
+      enable = true;
       wgConfFile = config.sops.secrets."mini/media/vpn/wireguard-conf".path;
       accessibleFrom = [
         "192.168.178.0/24"
@@ -179,12 +179,12 @@ in
     };
   };
 
-  system.activationScripts.qbittorrentSearchCleanup = lib.mkIf mediaEnabled ''
+  system.activationScripts.qbittorrentSearchCleanup = ''
     rm -f /var/lib/qBittorrent/bin/qbittorrent-search-netns \
       /var/lib/qBittorrent/bin/python3
   '';
 
-  systemd.tmpfiles.settings = lib.mkIf mediaEnabled {
+  systemd.tmpfiles.settings = {
     "10-qbittorrent" = lib.mkForce {
       "/var/lib/qBittorrent".d = {
         mode = "0755";
@@ -211,7 +211,7 @@ in
     };
   };
 
-  systemd.services = lib.mkIf mediaEnabled {
+  systemd.services = {
     qbittorrent.serviceConfig = {
       ProtectSystem = lib.mkForce "strict";
       ReadWritePaths = lib.mkForce [
