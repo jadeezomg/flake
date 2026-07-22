@@ -109,7 +109,7 @@ All media secrets are nested, runtime-only values consumed by
 | `mini/media/sabnzbd/password` | current unset `sabnzbd.ini` web password (encrypted empty value) | nixflix SABnzbd configuration | mini |
 | `mini/media/sabnzbd/premiumize-username` | existing Premiumize server username in `sabnzbd.ini` | nixflix SABnzbd Premiumize server | mini |
 | `mini/media/sabnzbd/premiumize-password` | existing Premiumize server password in `sabnzbd.ini` | nixflix SABnzbd Premiumize server | mini |
-| `mini/media/qbittorrent/password` | existing plaintext Arr integration password | nixflix Arr-to-qBittorrent integration | mini |
+| `mini/media/qbittorrent/password` | generated WebUI/Arr password (plaintext) | nixflix Arr→qBittorrent integration; qbittorrent ExecStartPre derives `Password_PBKDF2` for WebUI | mini |
 | `mini/media/bazarr/opensubtitles-username` | OpenSubtitles.com account username (not email) | Bazarr English subtitle provider | mini |
 | `mini/media/bazarr/opensubtitles-password` | OpenSubtitles.com account password | Bazarr English subtitle provider | mini |
 | `mini/media/jellyfin/api-key` | generated 32-byte hexadecimal API key | nixflix Jellyfin management services and one-shot watch migration | mini |

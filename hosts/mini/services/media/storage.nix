@@ -69,7 +69,16 @@ in
     "mini/media/sabnzbd/password" = { };
     "mini/media/sabnzbd/premiumize-username" = { };
     "mini/media/sabnzbd/premiumize-password" = { };
-    "mini/media/qbittorrent/password" = { };
+    "mini/media/qbittorrent/password" = {
+      # WebUI hash is derived at qbittorrent start; Arr clients re-read on restart.
+      restartUnits = [
+        "qbittorrent.service"
+        "sonarr.service"
+        "radarr.service"
+        "lidarr.service"
+        "prowlarr.service"
+      ];
+    };
     "mini/media/bazarr/opensubtitles-username".restartUnits = [ "bazarr.service" ];
     "mini/media/bazarr/opensubtitles-password".restartUnits = [ "bazarr.service" ];
     "mini/media/jellyfin/api-key" = { };
