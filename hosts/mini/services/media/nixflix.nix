@@ -156,6 +156,7 @@ let
       fi
       filtered+=("$arg")
     done
+    # nss-cacert ships ca-bundle.crt (not ca-certificates.crt); bind the whole dir.
     exec ${pkgs.bubblewrap}/bin/bwrap \
       --unshare-pid \
       --die-with-parent \
@@ -166,7 +167,6 @@ let
       --tmpfs /run \
       --ro-bind /nix/store /nix/store \
       --ro-bind ${pkgs.glibc}/lib /lib \
-      # nss-cacert ships ca-bundle.crt (not ca-certificates.crt); bind the whole dir.
       --ro-bind ${pkgs.cacert}/etc/ssl/certs /etc/ssl/certs \
       --ro-bind /etc/resolv.conf /etc/resolv.conf \
       --ro-bind /etc/hosts /etc/hosts \
