@@ -56,6 +56,8 @@ subdirs on NFS before the stack starts.
 - **Sonarr / Radarr / Lidarr / Prowlarr** + **FlareSolverr**
 - **qBittorrent** + **SABnzbd** with `vpn.enable` (Proton WireGuard from sops)
 - **Jellyfin** — declarative libraries/users; Intel QSV on `renderD128`
+  - Trickplay **off** (`enableTrickplayImageExtraction = false` in `nixflix/common.nix`) —
+    NFS + full-library ffmpeg was multi-hour / multi-GB; not worth it on mini.
 
 ### Native extras
 
