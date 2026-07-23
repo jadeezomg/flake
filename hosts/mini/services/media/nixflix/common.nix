@@ -41,6 +41,8 @@
     # Jellyfin's nightly Audio Normalization task scans every album/track for LUFS
     # metadata; on mini it fails 100% (log spam) while ffmpeg works manually.
     enableLUFSScan = false;
+    enableTrickplayImageExtraction = false;
+    extractTrickplayImagesDuringLibraryScan = false;
     saveLocalMetadata = false;
     saveSubtitlesWithMedia = false;
     saveLyricsWithMedia = false;
