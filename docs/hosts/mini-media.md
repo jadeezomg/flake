@@ -111,9 +111,22 @@ Proton Pass entry: **Nixflix — qBittorrent** → `https://qbittorrent.jadee.fy
 strips qBittorrent’s `-I` so `PYTHONPATH` / nova3 helpers work.
 
 **Stale VPN.** If Search returns empty but the daemon is up, check WireGuard
-handshake age (`wg show` in the netns). A dead peer makes indexer HTTPS time
-out. `systemctl restart wg` may hang if SABnzbd refuses to stop — force-kill
-SABnzbd, then restart `wg` / downloaders.
+handshake age (`just mini vpn-status` / `wg show` in the netns). A dead peer
+makes indexer HTTPS time out. Prefer `just mini vpn-restart` over a raw
+`systemctl restart wg`:
+
+- SABnzbd often hangs on stop when the tunnel is dead — the recipe SIGKILLs it.
+- nixflix `wg-up` gates on **ICMP ping**; Proton peers commonly drop ping even
+  when UDP/51820 is fine, so a stock restart can fail after teardown. The recipe
+  installs a runtime ExecStart drop-in that probes UDP instead.
+- Downloaders `BindsTo=wg.service` — wg must be active for them to stay up.
+
+If handshake stays at `0 B received`, the Proton server in
+`mini/media/vpn/wireguard-conf` is down (e.g. LU#12) — export a fresh WireGuard
+profile for a healthy server into that sops secret, then `vpn-restart` again.
+
+Other media ops: `just mini media-status`, `arr-restart`, `media-restart`,
+`downloaders-restart`, `stack-restart`.
 
 ## Secrets
 
