@@ -23,6 +23,7 @@ Host is nixpkgs based. Packages live in a read-only Nix store — `npm install -
 - If checks already fail, state that and don't attribute the failure to your work.
 - If verification fails after a change, make one targeted fix when the cause is clear; otherwise stop and report.
 - Don't rewrite files when a CLI move/rename works. Use `mv` (or `git mv` inside a repo) to preserve history, avoid drift.
+- Always edit config/source on the host you are running on (the local checkout). Never change configs over SSH on remote hosts — leave remote edits for the user to review and approve locally first. Remote hosts are for inspection and deploy/ops only.
 
 ### Secrets and sensitive data
 
@@ -45,7 +46,7 @@ These handle all web, docs, and retrieval needs. Reach for them before built-in 
 
 - **Web search, page content/summaries, referenced answers** → `kagi`. `kagi search "<query>"` for discovery; `kagi quick "<question>"` for a referenced answer; `kagi extract <url>` for full readable page content; `kagi summarize --subscriber --url <url>` for a gist; `kagi ask-page <url> "<q>"` for a question about one page. See the `kagi` skill for command routing, output formats, and auth; `kagi agent` is the version-matched in-CLI guide.
 - **Library / SDK / framework / API docs** → `ctx7`. `ctx7 library <name> "<question>"` to resolve, then `ctx7 docs <id> "<question>"`. Training data lags months; these don't.
-- **nixpkgs packages / NixOS, home-manager, darwin, nixvim options / flakes / channels / store paths** → the `mcp-nixos` MCP. Its `nix` tool covers search / info / stats / browse; `nix_versions` gives commit-accurate package history. Faster and more current than `nix search` or scraping search.nixos.org.
+- **nixpkgs packages / NixOS, home-manager, darwin, nixvim options / flakes / channels / store paths** → the `mcp-nixos` MCP. Its `nix` tool covers search / info / stats / browse (default channel is already `unstable`); `nix_versions` gives commit-accurate package history. Caveat: `search`/`info` hit search.nixos.org Elasticsearch and can miss brand-new packages when mcp-nixos resolves `unstable` to a stale index generation — if those miss, retry with `nix_versions`, `nix {action="cache"}`, `source=nixhub`, or local `nix search`/`nix eval`.
 
 ### Languages
 

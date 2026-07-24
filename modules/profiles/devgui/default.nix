@@ -3,7 +3,9 @@
 # workstations enable it; server-class hosts are asserted off.
 {
   config,
+  isDarwin,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -20,5 +22,8 @@ in
       containers.enable = lib.mkDefault true;
       ides.enable = lib.mkDefault true;
     };
+
+    # Linux-only GTK4/libadwaita Git client (no darwin package).
+    environment.systemPackages = lib.optionals (!isDarwin) [ pkgs.gitte ];
   };
 }

@@ -13,6 +13,7 @@ Per-machine configuration: host facts, profile toggles, and host-specific system
 ## Local hazards
 
 - Each host folder uses `host.nix` for facts, `profiles.nix` for `dotfiles.profiles.*`, and `default.nix` for host-specific system overrides.
+- Edit host configs only in the local flake checkout on the machine you are running on. Never patch `/home/.../flake` over SSH on another host; deploy after local review.
 - `.flake-host` selects the active host and must not be committed.
 - `stateVersion` is per-host; never bump it without auditing release notes, and never lower it.
 - `extraUsers` also receive Home Manager configs through `parts/hosts.nix`.
