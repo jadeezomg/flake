@@ -98,6 +98,10 @@ If imports fail with `EXDEV` / “Read-only file system”, check Arr
 `ReadWritePaths` — it must be a **single** `/data` entry, not per-subdir
 binds.
 
+The same applies to **qBittorrent** (`ProtectSystem=strict`): grant
+`ReadWritePaths=/data`, not `/data/torrents`, or new torrents error with
+`file_open … Read-only file system` while the host mount is still RW.
+
 ## qBittorrent notes
 
 **WebUI password.** sops `mini/media/qbittorrent/password` is the plaintext.
