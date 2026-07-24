@@ -46,4 +46,4 @@ kagi <cmd> --help    # exact flags for any subcommand
 ## When NOT to use kagi
 
 - Library / SDK / framework / API / CLI docs → `ctx7` (find-docs skill).
-- nixpkgs packages or NixOS/home-manager/darwin/nixvim options → the `mcp-nixos` MCP.
+- nixpkgs packages or NixOS/home-manager/darwin/nixvim options → the `mcp-nixos` MCP (already defaults to `unstable`; see global `AGENTS.md` for stale-index fallbacks).
