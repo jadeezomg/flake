@@ -556,7 +556,7 @@ update:
     print_pending "update-packages  updating custom flake packages..."
     up=()
     [[ "${UPDATE_FORCE:-}" == 1 ]] && up+=(--force)
-    uv run --project "$FLAKE/scripts" update-packages "${up[@]}"
+    uv run --project "$FLAKE/scripts" update-packages ${up[@]+"${up[@]}"}
     print_success "update-packages  done"
     print_pending "nix              updating flake.lock..."
     nix flake update --flake "$FLAKE"

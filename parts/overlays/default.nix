@@ -15,9 +15,8 @@ in
   (import ./local-packages.nix { inherit lib system; })
   (import ./vscode-langservers-node-esm.nix)
   (import ./direnv-skip-check-darwin.nix { inherit system; })
-  (import ./zed-pinned-darwin.nix { inherit inputs system; })
   (import ./nono-skip-check-darwin.nix { inherit system; })
-  (import ./podman-platforms-darwin.nix { inherit system; })
   (import ./python-package-fixes.nix)
+  (import ./skhd-pinned-darwin.nix { inherit inputs system; })
 ]
 ++ (if isX86_64Linux then [ inputs.nix-cachyos-kernel.overlays.pinned ] else [ ])

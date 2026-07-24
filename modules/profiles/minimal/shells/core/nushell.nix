@@ -1,4 +1,5 @@
 {
+  config,
   dotfilesLib,
   pkgs,
   lib,
@@ -82,4 +83,23 @@ in
       }
     '';
   };
+
+  # nushell resolves its config dir to `$XDG_CONFIG_HOME/nushell` when the var
+  # is set, else the macOS-native `~/Library/Application Support/nushell`. With
+  # `xdg.enable = true` HM writes config only to `~/.config/nushell`, so a nu
+  # launched before XDG_CONFIG_HOME is exported (login-shell / first terminal at
+  # login, before the launchd `xdg-env` agent wins the race) falls back to the
+  # Library path, finds nothing, and starts with stock defaults + banner.
+  # Mirror the live config files into the Library path so nu is initialized in
+  # BOTH resolution modes, independent of the env var.
+  home.file = lib.mkIf pkgs.stdenv.isDarwin (
+    lib.genAttrs
+      [
+        "Library/Application Support/nushell/config.nu"
+        "Library/Application Support/nushell/env.nu"
+      ]
+      (name: {
+        source = config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}/nushell/${baseNameOf name}";
+      })
+  );
 }

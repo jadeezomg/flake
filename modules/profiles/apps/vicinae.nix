@@ -1,6 +1,6 @@
 # Vicinae launcher (HM) — apps profile on Linux + Darwin.
 # Linux: systemd autostart + niri Mod+Space toggle (keybinds-dms.kdl).
-# Darwin: launchd autostart + skhd Hyper+Space (pairs with Hyperkey).
+# Darwin: launchd autostart + skhd Option+Space.
 {
   config,
   inputs,
@@ -123,14 +123,15 @@ in
     };
   };
 
-  # Vicinae has no global hotkeys; bind Hyper+Space via skhd (Hyperkey chord).
+  # Vicinae has no global hotkeys; bind Option+Space via skhd.
   # HM has no programs.skhd — wire the daemon + ~/.skhdrc ourselves.
   home.packages = lib.mkIf pkgs.stdenv.isDarwin [ pkgs.skhd ];
 
   home.file.".skhdrc" = lib.mkIf pkgs.stdenv.isDarwin {
     text = ''
-      # Hyperkey → cmd+alt+ctrl+shift; mirrors niri Mod+Space on Linux.
-      cmd + alt + ctrl + shift - space : ${vicinaeExe} toggle
+      # Option+Space toggles Vicinae; mirrors niri Mod+Space on Linux.
+      # NB: Hyper+Space (cmd+alt+ctrl+shift) is owned by Handy — keep clear.
+      alt - space : ${vicinaeExe} toggle
     '';
   };
 
