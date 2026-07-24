@@ -56,3 +56,36 @@ hermes-status:
 [doc('Follow hermes-agent logs on mini')]
 hermes-logs:
     ssh -t {{mini_ssh}} 'bash -lc "journalctl -u hermes-agent.service -f -n 100"'
+
+
+# Media stack maintenance (VPN / downloaders / *arr / playback).
+# vpn-restart force-kills SABnzbd if stop hangs and bypasses nixflix wg-up's ICMP
+# gate (Proton peers often drop ping). Needs a healthy Proton WG peer in sops.
+
+[doc('Media stack status: VPN handshake, downloaders, arr, plex/jellyfin')]
+media-status:
+    bash "$FLAKE/scripts/shell/mini-media.bash" --remote status
+
+[doc('WireGuard / netns egress check on mini')]
+vpn-status:
+    bash "$FLAKE/scripts/shell/mini-media.bash" --remote vpn-status
+
+[doc('Restart VPN netns (UDP gate) + qBittorrent/SABnzbd — use when Search/downloads stall')]
+vpn-restart:
+    bash "$FLAKE/scripts/shell/mini-media.bash" --remote vpn-restart
+
+[doc('Restart qBittorrent + SABnzbd only (requires wg already up)')]
+downloaders-restart:
+    bash "$FLAKE/scripts/shell/mini-media.bash" --remote downloaders-restart
+
+[doc('Restart Sonarr/Radarr/Lidarr/Prowlarr/FlareSolverr')]
+arr-restart:
+    bash "$FLAKE/scripts/shell/mini-media.bash" --remote arr-restart
+
+[doc('Restart Plex/Jellyfin/Bazarr/Seerr')]
+media-restart:
+    bash "$FLAKE/scripts/shell/mini-media.bash" --remote media-restart
+
+[doc('Full bounce: vpn+downloaders → arr → media servers')]
+stack-restart:
+    bash "$FLAKE/scripts/shell/mini-media.bash" --remote stack-restart
