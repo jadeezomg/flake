@@ -216,14 +216,20 @@ in
   };
 
   systemd.services = {
-    qbittorrent.serviceConfig = {
-      ProtectSystem = lib.mkForce "strict";
-      ReadWritePaths = lib.mkForce [
-        "/var/lib/qBittorrent"
-        "/data/torrents"
-      ];
-      # '+' = root so we can read root-only sops; runs after nixpkgs conf install.
-      ExecStartPre = lib.mkAfter [ "+${qbittorrentWebuiPasswordScript}" ];
+    # One ReadWritePaths entry for /data (not /data/torrents). Separate systemd
+    # binds of NFS subdirs remount RO under ProtectSystem=strict — same fix as Arr.
+    qbittorrent = {
+      after = mountDeps;
+      requires = mountDeps;
+      serviceConfig = {
+        ProtectSystem = lib.mkForce "strict";
+        ReadWritePaths = lib.mkForce [
+          "/var/lib/qBittorrent"
+          "/data"
+        ];
+        # '+' = root so we can read root-only sops; runs after nixpkgs conf install.
+        ExecStartPre = lib.mkAfter [ "+${qbittorrentWebuiPasswordScript}" ];
+      };
     };
 
     sabnzbd = {
