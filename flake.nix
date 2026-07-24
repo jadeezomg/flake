@@ -6,17 +6,18 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-small.url = "github:NixOS/nixpkgs/nixos-unstable-small";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
+    # Pin skhd from a fixed nixpkgs rev: macOS keys skhd's Accessibility grant to
+    # its exact store path, so nixpkgs bumps silently break the Vicinae
+    # Hyper+Space hotkey until re-granted. Freezing the rev means the path (and
+    # grant) only move on a deliberate bump here. Darwin-only overlay lives in
+    # parts/overlays/skhd-pinned-darwin.nix. Bump rev + re-grant Accessibility together.
+    nixpkgs-skhd.url = "github:NixOS/nixpkgs/61b7c44c4073f0b827768aff0049561b5110ea5a";
     # Shared by inputs that otherwise evaluate nix-systems/default, which still
     # includes x86_64-darwin. nixpkgs 26.11 dropped Intel macOS support.
     systems = {
       url = "path:./lib/systems.nix";
       flake = false;
     };
-    # Pinned for zed-editor 1.8.2 on darwin: 1.9.0 fails to build on Hydra.
-    # Rev is from the last green aarch64-darwin build, hydra.nixos.org/build/333610316.
-    # Drop this (and parts/overlays/zed-pinned-darwin.nix) once zed-editor builds again.
-    nixpkgs-zed.url = "github:NixOS/nixpkgs/9c4c05a947a91dc14625265fab505fb695e93218";
-
     # --- core infrastructure ---
     flake-parts.url = "github:hercules-ci/flake-parts";
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";

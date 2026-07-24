@@ -15,4 +15,3 @@ flake-parts modules that assemble hosts, Home Manager configs, packages, checks,
 - Single-host modules belong in `hosts/<name>/default.nix`, not common platform imports.
 - `homeModules` is the flat unconditional HM base; profiles push user config through `home-manager.sharedModules`.
 - Local packages are auto-registered by `parts/overlays/local-packages.nix` from `packages/names.nix`; do not add a second registry.
-- `nixpkgs-zed` is pinned separately; do not make it follow `nixpkgs` accidentally.

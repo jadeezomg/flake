@@ -161,11 +161,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784775279,
-        "narHash": "sha256-nZMDEiW3GbkSxnmvm34maYsoAaxQzmTCfAE90XzEqiU=",
+        "lastModified": 1784907716,
+        "narHash": "sha256-Ut8XgrSfgDi5QO71SZxVpjibIZa08dJnNdzm0PWtTxc=",
         "owner": "AvengeMedia",
         "repo": "dank-greeter",
-        "rev": "f40d7f160a31b1e326590bd2f9e8971ee95f14d5",
+        "rev": "d3c919158e135e2f64e5ad3b025887e3a8b3549f",
         "type": "github"
       },
       "original": {
@@ -684,11 +684,11 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1784906999,
-        "narHash": "sha256-olato2PcLYZ/GLFu2X4gFkFKAyitS9iuNPdW3koLHSk=",
+        "lastModified": 1784915252,
+        "narHash": "sha256-bKD6KZlCk0B4I11RCEyF+iMNKvu5bpNr9TJ39KBwclE=",
         "owner": "NousResearch",
         "repo": "hermes-agent",
-        "rev": "55ef425d0c3967022cb54093112e638c5c3f9e01",
+        "rev": "3070de19637da8868b6bd5d2f60f8d6008f2040f",
         "type": "github"
       },
       "original": {
@@ -704,11 +704,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784877405,
-        "narHash": "sha256-W649GocILahx7Vb/JMx834217+OLKBrq014VmC/8+NM=",
+        "lastModified": 1784913159,
+        "narHash": "sha256-JWq0BfjO4ktpH5USfQNQzdvHpIDT8fSKD5K7LvdMRFs=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "32de400b6ac9f43042bca706f4a64f6ad08117e8",
+        "rev": "079a3b5d1aa6a719920a51316253b7d6dd22738d",
         "type": "github"
       },
       "original": {
@@ -737,11 +737,11 @@
     "homebrew-cask": {
       "flake": false,
       "locked": {
-        "lastModified": 1784904324,
-        "narHash": "sha256-T+CWT1dZC+FHJ/TOuHhWTlYrd8+ItJsz4FtrLkKv7cA=",
+        "lastModified": 1784909428,
+        "narHash": "sha256-qxE+QPtpuhb2zIj69mBdCcVqjfeWI5NIy2VuAuiKLVI=",
         "owner": "homebrew",
         "repo": "homebrew-cask",
-        "rev": "69899a705a84d1015085d52825afbdd497d57fba",
+        "rev": "ced718969d74f5d5fdf898a92566af686c6439fe",
         "type": "github"
       },
       "original": {
@@ -753,11 +753,11 @@
     "homebrew-core": {
       "flake": false,
       "locked": {
-        "lastModified": 1784906838,
-        "narHash": "sha256-TmhSJHtRqBfQonsjbwUAOvAHEsm76tA0R+DRF0HO06E=",
+        "lastModified": 1784914896,
+        "narHash": "sha256-W1NBOWzzOeL1ew2xn365LWed29bocufHPS0trFmevSI=",
         "owner": "homebrew",
         "repo": "homebrew-core",
-        "rev": "78649f687d6575a040e19f5fc7dab230a7f6922c",
+        "rev": "3d9ff8f59d31ec40494bded931794bc263108cab",
         "type": "github"
       },
       "original": {
@@ -1068,6 +1068,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-skhd": {
+      "locked": {
+        "lastModified": 1784356753,
+        "narHash": "sha256-12KrbMiWLcf8m7pCvAtZh1ZrgF85ZXDXvfR/fWTKy84=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "61b7c44c4073f0b827768aff0049561b5110ea5a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "61b7c44c4073f0b827768aff0049561b5110ea5a",
+        "type": "github"
+      }
+    },
     "nixpkgs-small": {
       "locked": {
         "lastModified": 1784900848,
@@ -1097,22 +1113,6 @@
         "owner": "NixOS",
         "ref": "nixos-26.05",
         "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs-zed": {
-      "locked": {
-        "lastModified": 1782731455,
-        "narHash": "sha256-weCjCyph1saaHwUdjTk6AAFn/w2riVwOimn/qZMFxKY=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "9c4c05a947a91dc14625265fab505fb695e93218",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "9c4c05a947a91dc14625265fab505fb695e93218",
         "type": "github"
       }
     },
@@ -1397,9 +1397,9 @@
         "nixflix": "nixflix",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_7",
+        "nixpkgs-skhd": "nixpkgs-skhd",
         "nixpkgs-small": "nixpkgs-small",
         "nixpkgs-stable": "nixpkgs-stable",
-        "nixpkgs-zed": "nixpkgs-zed",
         "quickshell": "quickshell",
         "skills-mattpocock": "skills-mattpocock",
         "skills-ponytail": "skills-ponytail",
