@@ -17,6 +17,12 @@ _final: prev: {
           "test_fix_package_name"
           "test_parse_specifier_for_metadata"
         ];
+        # Upstream parametrizes with a trailing comma in argnames
+        # (`"pkg_spec,"`), which newer pytest parses as multi-name
+        # parametrization and fails collection of the entire file.
+        disabledTestPaths = (old.disabledTestPaths or [ ]) ++ [
+          "tests/test_inject.py"
+        ];
       });
     })
   ];
