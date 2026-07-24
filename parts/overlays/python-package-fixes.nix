@@ -24,6 +24,14 @@ _final: prev: {
           "tests/test_inject.py"
         ];
       });
+
+      # Upstream installs the distribution as `ct3` (Cheetah3 is taken on PyPI).
+      # nixpkgs still sets pname=cheetah3, so pythonMetadataCheckPhase fails with
+      # PackageNotFoundError for cheetah3. Keep the Nix attribute as cheetah3 for
+      # sabnzbd/sickgear until https://github.com/NixOS/nixpkgs/pull/545346 lands.
+      cheetah3 = python-prev.cheetah3.overridePythonAttrs (_old: {
+        pname = "ct3";
+      });
     })
   ];
 }
