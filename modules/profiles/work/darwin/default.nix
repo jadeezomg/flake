@@ -26,8 +26,6 @@ in
     };
 
     brews = [
-      "rbenv" # Ruby version manager
-      "ruby-build" # Ruby version installer for rbenv
       "trash" # Send files to Finder Trash from CLI
       "mise" # Polyglot dev tool/runtime version manager
     ];

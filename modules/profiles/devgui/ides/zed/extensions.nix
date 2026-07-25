@@ -11,7 +11,6 @@
       "latex"
       "make"
       "just"
-      "ruby"
       "graphql"
       "lua"
       "ini"

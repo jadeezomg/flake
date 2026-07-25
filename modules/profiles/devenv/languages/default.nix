@@ -6,7 +6,6 @@ let
     "general"
     "nix"
     "python"
-    "ruby"
     "rust"
     "shell"
     "swift"

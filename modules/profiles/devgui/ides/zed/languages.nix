@@ -26,14 +26,6 @@ in
           };
         };
 
-        Ruby = {
-          language_servers = [
-            "ruby-lsp"
-            "rubocop"
-            "!solargraph"
-          ];
-        };
-
         Lua = {
           tab_size = 2;
           formatter = "language_server";
@@ -124,20 +116,6 @@ in
         nil = {
           binary.path = "nil";
           binary.arguments = [ ];
-        };
-
-        rubocop = {
-          initialization_options = {
-            safeAutocorrect = false;
-          };
-        };
-
-        ruby-lsp = {
-          initialization_options = {
-            enabledFeatures = {
-              diagnostics = false;
-            };
-          };
         };
 
         # Only enable Biome when project has biome.json (avoids affecting non-Biome projects)

@@ -274,31 +274,6 @@ xcode-select -p
 # Install Xcode CLT
 xcode-select --install
 
-% darwin, ruby, rbenv
-
-; rbenv is installed via Homebrew (see modules/darwin).
-
-# List installable Ruby versions
-rbenv install -l
-
-# Install a Ruby version
-rbenv install <ver>
-
-$ ver: rbenv install -l 2>/dev/null | sed 's/^ *//' | rg '^[0-9]'
-
-# Set the global Ruby
-rbenv global <ver>
-
-$ ver: rbenv versions --bare 2>/dev/null
-
-# Set a version for this directory only
-rbenv local <ver>
-
-$ ver: rbenv versions --bare 2>/dev/null
-
-# Show current Ruby + source
-rbenv version
-
 % darwin, nix, daemon, troubleshoot
 
 ; This host runs Determinate Nix; the daemon is launchd service

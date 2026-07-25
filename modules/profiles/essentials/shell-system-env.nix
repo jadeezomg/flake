@@ -78,20 +78,12 @@ in
     ${exportLines}
     export PATH="${systemPathColon}:$PATH"
 
-    if command -v rbenv >/dev/null 2>&1; then
-      eval "$(rbenv init - bash)"
-    fi
-
     ${bashFlakeFn}
   '';
 
   programs.zsh.sessionVariables = systemEnv;
   programs.zsh.initContent = lib.mkAfter ''
     export PATH="${systemPathColon}:$PATH"
-
-    if command -v rbenv >/dev/null 2>&1; then
-      eval "$(rbenv init - zsh)"
-    fi
 
     ${zshFlakeFn}
   '';
