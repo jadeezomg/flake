@@ -123,6 +123,7 @@ let
           inputs.stylix.nixosModules.stylix
           inputs.dms.nixosModules.dank-material-shell
           inputs.dank-greeter.nixosModules.dank-greeter
+          inputs.solaar.nixosModules.default
           inputs.vicinae.nixosModules.default
           (./. + "/../hosts/${hostKey}")
           sops-nix.nixosModules.sops
