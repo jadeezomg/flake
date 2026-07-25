@@ -100,8 +100,20 @@ in
       xwayland-satellite
       # Framework enables nixpkgsConfig.rocmSupport; Handy's GPU path is
       # Vulkan/ggml, so skip ORT-MIGraphX (~8GiB ROCm) and keep CPU onnxruntime.
-      (handy.override {
-        onnxruntime = onnxruntime.override { rocmSupport = false; };
+      # WebKitGTK ignores portal prefer-dark for prefers-color-scheme unless the
+      # GTK theme name is a dark variant — without this, Handy's System theme
+      # stays on the CSS light default.
+      (symlinkJoin {
+        name = "handy";
+        paths = [
+          (handy.override {
+            onnxruntime = onnxruntime.override { rocmSupport = false; };
+          })
+        ];
+        buildInputs = [ makeWrapper ];
+        postBuild = ''
+          wrapProgram $out/bin/handy --set GTK_THEME Adwaita:dark
+        '';
       })
       # Handy paste on Wayland (niri): without these it falls back to enigo/XTest,
       # which reports success but never reaches the focused Wayland window.
