@@ -64,7 +64,7 @@
         editors.enable = mkEnableOption "apps.editors (helix; cursor/zed live in devgui.ides)";
         files.enable = mkEnableOption "apps.files (nautilus/filezilla in nixos modules)";
         comms.enable = mkEnableOption "apps.comms (protonmail-desktop, etc.)";
-        notes.enable = mkEnableOption "apps.notes (obsidian, typora, libreoffice)";
+        notes.enable = mkEnableOption "apps.notes (obsidian, typora)";
         media.enable = mkEnableOption "apps.media (pear-desktop, future media players)";
       };
 

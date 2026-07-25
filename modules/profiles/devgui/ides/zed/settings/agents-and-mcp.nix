@@ -25,10 +25,6 @@ let
 in
 {
   agent_servers = {
-    goose = {
-      type = "registry";
-    };
-
     # rohan-patra fork of the Claude Agent SDK ACP adapter (diff preview
     # support); packaged in packages/claude-agent-acp.
     claude = {

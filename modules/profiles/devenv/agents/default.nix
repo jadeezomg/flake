@@ -30,7 +30,6 @@ in
     environment.systemPackages =
       nonoAgents.agentPackages
       ++ (with pkgs-small; [
-        goose-cli
         codex
         codex-acp
         cursor-cli

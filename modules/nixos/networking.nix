@@ -19,12 +19,12 @@ in
     extraUpFlags = [ "--ssh" ];
   };
 
-  # Server hosts use NixOS's built-in nftables-backed firewall; desktop hosts keep
-  # firewalld (the GUI app expects it).
-  networking.firewall = lib.mkIf serverProfile {
+  # NixOS nftables firewall everywhere (no firewalld GUI stack).
+  # Servers also expose SSH on the LAN; desktops rely on Tailscale SSH.
+  networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 22 ];
     trustedInterfaces = [ "tailscale0" ];
+    allowedTCPPorts = lib.optionals serverProfile [ 22 ];
   };
 
   environment.systemPackages =
@@ -49,8 +49,6 @@ in
     ++ lib.optionals (!serverProfile) [
       # --- GUI / desktop-only network tooling ---
       networkmanagerapplet
-      firewalld
-      firewalld-gui
       proton-vpn
       wireguard-ui
     ];
