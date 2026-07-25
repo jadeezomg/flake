@@ -40,9 +40,12 @@ in
         nono
 
         claude-agent-acp
-        context7
         kagi-cli
         agent-browser
+
+        # nixpkgs
+        ctx7
+        context7-mcp
       ])
       # mcp-nixos pulls python3.lupa → luajit_2_0, which nixpkgs 26.05 marks
       # unsupported on aarch64-darwin. Drop it on Darwin until fixed upstream.

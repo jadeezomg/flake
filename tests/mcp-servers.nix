@@ -88,12 +88,14 @@ let
 in
 assert registry.needsSharedServerMaintenance;
 assert builtins.hasAttr "mcp-nixos" registry.sharedServers;
+assert builtins.hasAttr "context7-mcp" registry.sharedServers;
 assert !(builtins.hasAttr "mcp-nixos" disabledRegistry.sharedServers);
 assert disabledRegistry.sharedServers == { };
 assert !disabledRegistry.needsSharedServerMaintenance;
 assert !(lib.hasInfix "del(.mcpServers[$name])" activation);
 assert lib.hasInfix ".mcpServers[$e.key]" activation;
 assert lib.hasInfix "mcp-nixos" activation;
+assert lib.hasInfix "context7-mcp" activation;
 assert !(lib.hasInfix "mcp-nixos" disabledActivation);
 assert lib.hasInfix "if command_output=$(claude mcp add-json" claudeModuleSource;
 assert !(lib.hasInfix "claude mcp remove" claudeModuleSource);
