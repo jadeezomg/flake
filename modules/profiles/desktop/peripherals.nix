@@ -14,14 +14,15 @@ in
   config = lib.mkIf cfg.enable {
     hardware.graphics.enable = true;
 
-    # --- Audio (pipewire stack) ---
     services = {
+      # --- Logitech (peripherals) ---
       solaar = {
         enable = true;
         window = "hide"; # Show the window on startup (show, *hide*, only [window only])
         batteryIcons = "regular"; # Which battery icons to use (*regular*, symbolic, solaar)
         extraArgs = "";
       };
+      # --- Audio (pipewire stack) ---
       pulseaudio.enable = false;
       pipewire = {
         enable = true;
