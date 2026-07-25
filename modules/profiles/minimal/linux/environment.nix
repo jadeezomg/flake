@@ -7,7 +7,7 @@ let
   userBrowser = "zen-beta";
   audio = "org.gnome.Music";
   image = "org.gnome.Loupe";
-  pdf = "org.pwmt.zathura";
+  pdf = "org.gnome.Papers";
   video = "org.gnome.Showtime";
   fileManager = "org.gnome.Nautilus";
   archiveManager = "org.gnome.FileRoller";

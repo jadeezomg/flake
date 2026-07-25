@@ -72,7 +72,6 @@ window-rule {
 // Terminal applications
 window-rule {
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
-    match app-id="Alacritty"
     match app-id="ghostty"
     match app-id="kitty"
     match app-id="org.gnome.NautilusPreviewer"

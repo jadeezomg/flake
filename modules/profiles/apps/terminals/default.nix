@@ -22,7 +22,6 @@ in
     environment.systemPackages = lib.optionals (!isDarwin) (
       with pkgs;
       [
-        alacritty
         ghostty
         kitty
       ]
