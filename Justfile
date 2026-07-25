@@ -490,13 +490,6 @@ verify-sops-host-key anchor="framework":
     exit "$failed"
 
 
-[doc('Post-switch: Context7 CLI skills (Claude, Cursor, OpenCode); needs ctx7 login or CONTEXT7_API_KEY')]
-[group('config')]
-post-install:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    bash "$FLAKE/scripts/shell/post-install.bash"
-
 [doc('Sync sops secrets into 1Password "Employee" vault (Darwin); needs op signin')]
 [group('config')]
 sync-1password:

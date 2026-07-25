@@ -8,6 +8,10 @@ let
       command = "mcp-nixos";
       args = [ ];
     };
+    context7-mcp = {
+      command = "context7-mcp";
+      args = [ ];
+    };
   };
 
   agentsEnabled =

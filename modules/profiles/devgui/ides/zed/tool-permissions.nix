@@ -84,11 +84,11 @@
       default = "allow";
     };
 
-    # MCP: always allow Context7 documentation tools
-    "mcp:mcp-server-context7:resolve-library-id" = {
+    # MCP: always allow Context7 documentation tools (nixpkgs context7-mcp)
+    "mcp:context7-mcp:resolve-library-id" = {
       default = "allow";
     };
-    "mcp:mcp-server-context7:get-library-docs" = {
+    "mcp:context7-mcp:get-library-docs" = {
       default = "allow";
     };
   };

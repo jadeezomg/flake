@@ -16,11 +16,6 @@ let
   };
   mcpRegistry = dotfilesLib.mcpServers { lib = registryLib; };
   extensionManagedMcpServers = {
-    mcp-server-context7 = {
-      settings = { };
-      enabled = true;
-      remote = false;
-    };
     mcp-server-github = {
       settings = { };
       enabled = true;

@@ -56,7 +56,7 @@ just health          # git status, disk, nh os info
 | `format`      | `fmt`, `fmt-notree`, `lint` |
 | `backups`     | `backups`, `backups-clean`, `backups-clean-dry` |
 | `check`       | `update-packages`, `nix-update-pkg`, `symlink-check`, `symlink-check-dms` |
-| `config`      | `init`, `post-install`, `read-defaults`, `setup-age-darwin` |
+| `config`      | `init`, `read-defaults`, `setup-age-darwin` |
 | `system`      | `health`, `rollback`, `update` |
 | `repo`        | `git` (quiet fmt + status/log + commit + push) |
 | `zen`         | `zen-sync`, `zen-check` |

@@ -87,26 +87,26 @@ $ question: echo "what is this"
 ; ctx7 fetches up-to-date library docs; prefer it over web-search for APIs.
 
 # Resolve a library id (prints matches)
-npx ctx7@latest library '<name>' '<question>'
+ctx7 library '<name>' '<question>'
 
 $ name: echo ""
 $ question: echo ""
 
 # Fetch docs for a resolved id (e.g. /vercel/next.js)
-npx ctx7@latest docs <id> '<question>'
+ctx7 docs <id> '<question>'
 
 $ id: echo ""
 $ question: echo ""
 
 # Version-pinned docs
-npx ctx7@latest docs <id>/<version> '<question>'
+ctx7 docs <id>/<version> '<question>'
 
 $ id: echo ""
 $ version: echo ""
 $ question: echo ""
 
 # Login for higher API quota
-npx ctx7@latest login
+ctx7 login
 
 % docs, navi
 
