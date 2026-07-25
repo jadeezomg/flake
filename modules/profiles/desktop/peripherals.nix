@@ -5,10 +5,22 @@
   config,
   lib,
   pkgs,
+  user,
   ...
 }:
 let
   cfg = config.dotfiles.profiles.desktop;
+
+  # G Pro X Superlight 2 Lightspeed dongle (046d:c54d).
+  gpxSuperlight2Receiver = "c54d";
+
+  solaarHasReceiver = pkgs.writeShellScript "solaar-has-receiver" ''
+    set -eu
+    ${pkgs.usbutils}/bin/lsusb -d 046d:${gpxSuperlight2Receiver} | ${pkgs.gnugrep}/bin/grep -Eq .
+  '';
+
+  # udev RUN as root → user bus (ATTRS vanish on remove; use ID_* from the db).
+  stopSolaar = "${pkgs.systemd}/bin/systemctl --no-block --user --machine=${user}@.host stop solaar.service";
 in
 {
   config = lib.mkIf cfg.enable {
@@ -35,8 +47,17 @@ in
       };
       # --- Printing ---
       printing.enable = true;
+
+      # Start/stop solaar with the G Pro X Superlight 2 Lightspeed receiver.
+      udev.extraRules = ''
+        ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="046d", ATTR{idProduct}=="${gpxSuperlight2Receiver}", TAG+="systemd", ENV{SYSTEMD_USER_WANTS}="solaar.service"
+        ACTION=="remove", SUBSYSTEM=="usb", ENV{ID_VENDOR_ID}=="046d", ENV{ID_MODEL_ID}=="${gpxSuperlight2Receiver}", RUN+="${stopSolaar}"
+      '';
     };
     security.rtkit.enable = true;
+
+    # Skip autostart when the Superlight 2 receiver is absent; udev starts on plug.
+    systemd.user.services.solaar.serviceConfig.ExecCondition = solaarHasReceiver;
 
     environment.systemPackages = with pkgs; [
       mission-center
