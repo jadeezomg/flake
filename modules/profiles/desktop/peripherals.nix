@@ -16,6 +16,12 @@ in
 
     # --- Audio (pipewire stack) ---
     services = {
+      services.solaar = {
+        enable = true;
+        window = "hide"; # Show the window on startup (show, *hide*, only [window only])
+        batteryIcons = "regular"; # Which battery icons to use (*regular*, symbolic, solaar)
+        extraArgs = "";
+      };
       pulseaudio.enable = false;
       pipewire = {
         enable = true;
