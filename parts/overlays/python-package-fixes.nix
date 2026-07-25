@@ -32,6 +32,17 @@ _final: prev: {
       cheetah3 = python-prev.cheetah3.overridePythonAttrs (_old: {
         pname = "ct3";
       });
+
+      # setup.cfg reads version via `attr: nftables.NFTABLES_VERSION`, but upstream
+      # hardcodes NFTABLES_VERSION = "0.1" while the derivation inherits the C
+      # library version (1.1.6). pythonMetadataCheckPhase fails and takes
+      # firewalld with it. Mirror https://github.com/NixOS/nixpkgs/pull/545471.
+      nftables = python-prev.nftables.overridePythonAttrs (old: {
+        postPatch = (old.postPatch or "") + ''
+          substituteInPlace "src/nftables.py" \
+            --replace-fail 'NFTABLES_VERSION = "0.1"' 'NFTABLES_VERSION = "${old.version}"'
+        '';
+      });
     })
   ];
 }
