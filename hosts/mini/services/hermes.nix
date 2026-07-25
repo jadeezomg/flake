@@ -27,7 +27,7 @@ in
 
     extraPackages = [
       pkgs.kagi-cli
-      pkgs.context7
+      pkgs.ctx7
     ];
 
     extraDependencyGroups = [

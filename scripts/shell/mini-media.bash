@@ -219,19 +219,40 @@ nfs_path_ok() {
   timeout 5 ls "$path" >/dev/null 2>&1
 }
 
+# NFS bind mounts still show up as nfs4 in findmnt/What=. Identity-check the
+# bind target against its fstab source instead of comparing mount SOURCE strings.
+same_file() {
+  local a="$1" b="$2" ai bi
+  ai="$(stat -c '%d:%i' "$a" 2>/dev/null || true)"
+  bi="$(stat -c '%d:%i' "$b" 2>/dev/null || true)"
+  [[ -n "$ai" && "$ai" == "$bi" ]]
+}
+
+bind_mount_ok() {
+  case "$1" in
+  media.mount) same_file /media /data/media ;;
+  Music.mount) same_file /Music /data/media/Music ;;
+  *) return 0 ;;
+  esac
+}
+
 ensure_media_mounts() {
   # Nested NFS (/data/media/Music) goes stale after parent /data remounts.
   # ProtectSystem=strict services then fail NAMESPACE with "Stale file handle"
   # even when systemctl still reports the mount unit active.
+  # Also repair topology drift: /media and /Music must be binds, not direct NFS.
   local need_remount=false
 
   if ! systemctl is-active --quiet data.mount || ! nfs_path_ok /data; then
     need_remount=true
   elif ! systemctl is-active --quiet data-media-Music.mount || ! nfs_path_ok /data/media/Music; then
     need_remount=true
-  elif ! systemctl is-active --quiet Music.mount || ! nfs_path_ok /Music; then
+  elif ! systemctl is-active --quiet Music.mount || ! nfs_path_ok /Music || ! bind_mount_ok Music.mount; then
     need_remount=true
-  elif ! systemctl is-active --quiet media.mount || ! nfs_path_ok /media; then
+  elif ! systemctl is-active --quiet media.mount || ! nfs_path_ok /media || ! bind_mount_ok media.mount; then
+    need_remount=true
+  elif findmnt /media/Music >/dev/null 2>&1; then
+    # Leftover from ad-hoc NFS remount of /media; Music is nested via /data/media/Music.
     need_remount=true
   fi
 
@@ -239,21 +260,22 @@ ensure_media_mounts() {
     return 0
   fi
 
-  print_pending "repairing stale/missing NFS mounts"
+  print_pending "repairing stale/missing/drifted NFS mounts"
   # Consumers hold mounts open; stop the ones that BindPaths=/ReadWritePaths NFS roots.
+  stop_downloaders
   sudo systemctl stop \
-    sabnzbd.service qbittorrent.service \
     sonarr.service radarr.service lidarr.service prowlarr.service \
     bazarr.service jellyfin.service plex.service \
     2>/dev/null || true
-  sudo systemctl stop Music.mount media.mount data-media-Music.mount 2>/dev/null || true
+  sudo systemctl stop media-Music.mount Music.mount media.mount data-media-Music.mount 2>/dev/null || true
+  sudo umount -lf /media/Music 2>/dev/null || true
   sudo umount -lf /Music 2>/dev/null || true
   sudo umount -lf /media 2>/dev/null || true
   sudo umount -lf /data/media/Music 2>/dev/null || true
   sudo umount -lf /data 2>/dev/null || true
   sleep 1
   local m
-  for m in data.mount data-media-Music.mount Music.mount media.mount; do
+  for m in data.mount data-media-Music.mount Music.mount media.mount media-Music.mount; do
     sudo systemctl reset-failed "$m" 2>/dev/null || true
   done
   sudo systemctl start data.mount
@@ -261,6 +283,11 @@ ensure_media_mounts() {
   sudo systemctl start data-media-Music.mount Music.mount media.mount
   if ! nfs_path_ok /data || ! nfs_path_ok /media; then
     print_error "NFS remount still stale — check Unraid export / network"
+    return 1
+  fi
+  if ! bind_mount_ok media.mount || ! bind_mount_ok Music.mount; then
+    print_error "mount topology still drifted from fstab (expected binds for /media and /Music)"
+    findmnt /media /Music || true
     return 1
   fi
   print_success "NFS mounts healthy"

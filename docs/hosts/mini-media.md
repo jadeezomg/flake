@@ -83,6 +83,23 @@ subdirs on NFS before the stack starts.
 DNS for those names is maintained with `just dns-sync` (Cloudflare → Tailscale
 IP of `mini-proxy`). Caddy alone does not create DNS records.
 
+## NFS stale handles
+
+If Plex/Jellyfin fail with `NAMESPACE` / `Stale file handle` on `/media`, the
+NFS bind mounts drifted or went ESTALE after Unraid/`/data` blipped.
+
+Repair (stops media consumers, remounts declared fstab topology, restarts):
+
+```bash
+just mini media-restart
+# or: bash scripts/shell/mini-media.bash --remote media-restart
+```
+
+`ensure_media_mounts` also clears leftover `/media/Music` mounts from ad-hoc
+NFS remounts. `/media` and `/Music` must remain **binds** of `/data/media` and
+`/data/media/Music` (findmnt may still show `nfs4` — that is normal for NFS
+binds; identity is `/media` ≡ `/data/media`).
+
 ## Download / import / cleanup path
 
 1. Arr grabs a release → qBittorrent or SABnzbd (both VPN-confined).
