@@ -95,7 +95,11 @@ in
       # Niri auto-spawns xwayland-satellite for X11 apps when it's in PATH.
       # See: https://github.com/YaLTeR/niri/wiki/Xwayland
       xwayland-satellite
-      handy
+      # Framework enables nixpkgsConfig.rocmSupport; Handy's GPU path is
+      # Vulkan/ggml, so skip ORT-MIGraphX (~8GiB ROCm) and keep CPU onnxruntime.
+      (handy.override {
+        onnxruntime = onnxruntime.override { rocmSupport = false; };
+      })
     ];
   };
 }
