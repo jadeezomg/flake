@@ -67,6 +67,9 @@ in
       tumbler.enable = true;
       power-profiles-daemon.enable = true; # DMS widgets need this
       upower.enable = true;
+      # GNOME/graphical-desktop default these on; unused here and expensive.
+      orca.enable = lib.mkForce false;
+      speechd.enable = false;
 
       xserver = {
         enable = true;
