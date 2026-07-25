@@ -33,6 +33,7 @@ in
         codex
         codex-acp
         cursor-cli
+        herdr
       ])
       # Local flake packages from parts/overlays/local-packages.nix.
       ++ (with pkgs; [

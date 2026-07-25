@@ -72,7 +72,7 @@
         enable = mkEnableOption "the devenv meta-profile — headless, SSH-safe dev core";
         tools.enable = mkEnableOption "devenv.tools (git, just, gh, lazygit, delta, jujutsu, etc.)";
         cloud.enable = mkEnableOption "devenv.cloud (awscli2, awslogs)";
-        agents.enable = mkEnableOption "devenv.agents (agent CLIs: claude-code, codex, ctx7, context7-mcp, kagi, … plus MCP config and the flake `data/agents/skills/` install)";
+        agents.enable = mkEnableOption "devenv.agents (agent CLIs: claude-code, codex, herdr, ctx7, context7-mcp, kagi, … plus MCP config and the flake `data/agents/skills/` install)";
         containers.enable = mkEnableOption "devenv.containers (podman CLI/TUI/compose; GUI lives in devgui.containers)";
         databases.enable = mkEnableOption "devenv.databases (rainfrog TUI)";
         languages = mkOption {
