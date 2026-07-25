@@ -6,8 +6,8 @@ These tools are only available on the caya host (aarch64 Apple Silicon, macOS).
 
 | Tool | Command | Notes |
 |------|---------|-------|
-| rbenv | `rbenv install 3.x`, `rbenv global` | Ruby version manager |
-| ruby-build | used by rbenv | Ruby compilation |
+| trash | `trash <path>` | Finder Trash from CLI (preferred over `rm`) |
+| mise | `mise install`, `mise use` | Polyglot runtime version manager |
 
 ## 1Password CLI (op)
 

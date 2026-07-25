@@ -11,10 +11,6 @@
           # --- AI Agents ---
           # anthropic.claude-code # pinned below (nixpkgs hash lags marketplace republish)
           # --- Languages ---
-          # Ruby
-          wingrunr21.vscode-ruby # Ruby support
-          rebornix.ruby # Ruby support
-          shopify.ruby-lsp # Ruby Language Server
           # --- JavaScript/TypeScript ---
           dbaeumer.vscode-eslint # JavaScript/TypeScript linting
           prettier.prettier-vscode # Prettier formatter
@@ -47,12 +43,6 @@
             publisher = "Programming-Engineer";
             version = "0.1.2";
             sha256 = "05b8ahbwkjgmw2cq46dddd64lwg5mhffzff4b1knbl4yrw9jlbp2";
-          }
-          {
-            name = "vscode-rubocop"; # Ruby formatter
-            publisher = "rubocop";
-            version = "0.10.0";
-            sha256 = "0p25dzrxlvpv0a7qsn5lw65xnrjks43dzqq4g7j3r6dq6fn8ci1s";
           }
           {
             name = "kdl"; # KDL support
@@ -119,15 +109,6 @@
         # GitHub Pull Requests settings
         "githubPullRequests.pullBranch" = "never";
         "githubPullRequests.createOnPublishBranch" = "never";
-
-        # Ruby settings
-        "ruby.lint" = {
-          "rubocop" = {
-            "useBundler" = true;
-          };
-        };
-        "rubyLsp.addonSettings" = { };
-        "rubyLsp.formatter" = "rubocop_internal";
 
         # TypeScript settings
         "typescript.format.enable" = false;
