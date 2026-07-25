@@ -17,6 +17,5 @@
     devenv.enable = true;
     gaming.enable = false;
     work.enable = false;
-    devenv.languages.swift.enable = false;
   };
 }

@@ -20,7 +20,6 @@ let
     "python"
     "rust"
     "shell"
-    "swift"
     "web"
   ];
 in
@@ -34,10 +33,6 @@ in
     ./languages
   ];
 
-  # Convenience: enabling devenv.enable turns on every sub-profile that
-  # ships with the workstation today. Hosts override individual flags
-  # (e.g. `devenv.languages.swift.enable = false;`) without losing the
-  # meta-flag.
   config = lib.mkIf cfg.enable {
     # HM dev tooling without its own category (biome config, gh CLI config).
     home-manager.sharedModules = [

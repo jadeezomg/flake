@@ -103,6 +103,10 @@ in
       (handy.override {
         onnxruntime = onnxruntime.override { rocmSupport = false; };
       })
+      # Handy paste on Wayland (niri): without these it falls back to enigo/XTest,
+      # which reports success but never reaches the focused Wayland window.
+      wtype
+      wl-clipboard
     ];
   };
 }

@@ -8,7 +8,6 @@ let
     "python"
     "rust"
     "shell"
-    "swift"
     "web"
   ];
 in
