@@ -7,11 +7,11 @@ let
   # Iosevka Aile - Pre-built from GitHub releases
   # To update: change version and run: nix-prefetch-url --unpack <url>
   pname = "iosevka-aile";
-  version = "34.7.0";
+  version = "34.8.0";
 
   src = pkgs.fetchzip {
     url = "https://github.com/be5invis/Iosevka/releases/download/v${version}/PkgTTC-IosevkaAile-${version}.zip";
-    sha256 = "sha256-vPCrq193yClfe49tN5olAwT2dNfaqvaxHvxKhUCdlBY=";
+    sha256 = "sha256-bi5kRwLfoUwavzL5TMGpV+9aqKCK6F3NZR35T8jF9q0=";
     stripRoot = false;
   };
 in
