@@ -13,7 +13,6 @@ let
   colibri = pkgs.colibri.override {
     cudaSupport = cfg.llamaCppBackend == "cuda";
   };
-  huggingfaceHub = pkgs.python314Packages.huggingface-hub;
   llamaCpp =
     if
       cfg.llamaCppBackend == "cuda"
@@ -26,6 +25,8 @@ let
       pkgs.llama-cpp.override { vulkanSupport = true; };
 in
 {
+  imports = lib.optionals cfg.enable [ ./hosting-tools.nix ];
+
   config = lib.mkIf cfg.enable {
     # Unsloth Studio user service (podman). Darwin has no systemd user service;
     # `just unsloth*` recipes drive podman there directly.
@@ -33,10 +34,7 @@ in
 
     environment.systemPackages =
       lib.optionals (!isDarwin) [ llamaCpp ]
-      ++ lib.optionals (!isDarwin && cfg.colibri.enable) [
-        colibri
-        huggingfaceHub
-      ]
+      ++ lib.optionals (!isDarwin && cfg.colibri.enable) [ colibri ]
       ++ lib.optionals isDarwin [
         # For the `just unsloth*` recipes (no systemd on darwin).
         pkgs.podman
