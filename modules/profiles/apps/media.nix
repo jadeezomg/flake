@@ -33,6 +33,7 @@ in
       pear-desktop # YouTube Music desktop client
       gradia # Screenshot annotation
       pinta # Lightweight raster editor
+      readest # Modern, feature-rich ebook reader
     ];
 
     programs.obs-studio.enable = true;
