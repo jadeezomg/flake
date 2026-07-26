@@ -10,6 +10,9 @@
 }:
 let
   cfg = config.dotfiles.profiles.llm;
+  colibri = pkgs.colibri.override {
+    cudaSupport = cfg.llamaCppBackend == "cuda";
+  };
   llamaCpp =
     if
       cfg.llamaCppBackend == "cuda"
@@ -29,6 +32,7 @@ in
 
     environment.systemPackages =
       lib.optionals (!isDarwin) [ llamaCpp ]
+      ++ lib.optionals (!isDarwin && cfg.colibri.enable) [ colibri ]
       ++ lib.optionals isDarwin [
         # For the `just unsloth*` recipes (no systemd on darwin).
         pkgs.podman
