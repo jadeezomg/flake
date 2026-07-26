@@ -12,6 +12,7 @@
   imports = [
     ./open-webui.nix
     ./llama-cpp.nix
+    ../../../../modules/profiles/llm/hosting-tools.nix
   ];
 
   # Intel discrete Arc / Xe graphics stack: OpenCL/L0 + media for Vulkan llama.cpp.
