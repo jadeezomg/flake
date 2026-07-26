@@ -17,5 +17,6 @@
     # builds from source — not in the public binary cache).
     llm.enable = true;
     llm.llamaCppBackend = "cuda";
+    llm.colibri.enable = true;
   };
 }

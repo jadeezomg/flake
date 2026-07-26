@@ -115,6 +115,11 @@
             source locally — only worth it on the desktop.
           '';
         };
+        colibri.enable = mkEnableOption ''
+          [colibrì](https://github.com/JustVugg/colibri) CLI (`coli`) for GLM-5.2 MoE
+          inference. Set `COLI_MODEL` to an int4 model directory on fast storage
+          (~372 GB); the flake only ships the engine.
+        '';
       };
 
       gaming.enable = mkEnableOption "the gaming profile (Steam stack — Linux only)";

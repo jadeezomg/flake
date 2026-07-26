@@ -25,7 +25,7 @@ let
       args = builtins.functionArgs fn;
     in
     if args ? pkgs then
-      fn {
+      (lib.makeOverridable fn) {
         pkgs = final;
         inherit lib;
       }
