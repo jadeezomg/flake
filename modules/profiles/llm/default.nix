@@ -13,6 +13,7 @@ let
   colibri = pkgs.colibri.override {
     cudaSupport = cfg.llamaCppBackend == "cuda";
   };
+  huggingfaceHub = pkgs.python314Packages.huggingface-hub;
   llamaCpp =
     if
       cfg.llamaCppBackend == "cuda"
@@ -32,7 +33,10 @@ in
 
     environment.systemPackages =
       lib.optionals (!isDarwin) [ llamaCpp ]
-      ++ lib.optionals (!isDarwin && cfg.colibri.enable) [ colibri ]
+      ++ lib.optionals (!isDarwin && cfg.colibri.enable) [
+        colibri
+        huggingfaceHub
+      ]
       ++ lib.optionals isDarwin [
         # For the `just unsloth*` recipes (no systemd on darwin).
         pkgs.podman
