@@ -28,6 +28,7 @@ in
       "https://nix-community.cachix.org"
       "https://yazi.cachix.org"
       "https://niri.cachix.org"
+      "https://noctalia.cachix.org"
       "https://vicinae.cachix.org"
       # CachyOS kernel (nix-cachyos-kernel)
       "https://attic.xuyh0120.win/lantian"
@@ -41,6 +42,7 @@ in
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       "yazi.cachix.org-1:Dcdz63NZKfvUCbDGngQDAZq6kOroIrFoyO064uvLh8k="
       "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
+      "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
       "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
       "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
       # TODO: replace with the real public key after running `cachix create jadee-flake`

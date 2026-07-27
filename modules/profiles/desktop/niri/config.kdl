@@ -274,24 +274,6 @@ blur {
 }
 
 
-// Layer rules for DMS integration
-// Place quickshell (DMS) on the backdrop
-layer-rule {
-    match namespace="^quickshell$"
-    place-within-backdrop true
-}
-
-// Place blurred wallpaper on the backdrop (if "Blur Layer" is enabled in DMS)
-// layer-rule {
-//     match namespace="dms:blurwallpaper"
-//     place-within-backdrop true
-// }
-
-// Set the overview wallpaper on the backdrop for DMS
-// layer-rule {
-//     match namespace="^dms.*overview*"
-//     place-within-backdrop true
-// }
 overview {
     workspace-shadow {
         off
@@ -316,24 +298,12 @@ recent-windows {
 // Window rules
 include "window-rules.kdl"
 
-// Keybind configuration
+// Keybind configuration (shared)
 include "keybinds-default.kdl"
 
-// Include DMS-specific keybinds (overrides conflicting keybinds)
-include "keybinds-dms.kdl"
-
-// DankMaterialShell (DMS) integration
-include "dms/colors.kdl"
-include "dms/layout.kdl"
-// include "dms/outputs.kdl"
-include "dms/alttab.kdl"
-include "dms/binds.kdl"
-include "dms/cursor.kdl"
-// include "dms/wpblur.kdl"
+// Shell-specific layer rules, keybind overrides, and compositor integration.
+include "shell.kdl"
 
 // Output configurations are host-specific and included from separate files.
 include "host.kdl"
 include "dither-glitch.kdl"
-
-// Window rules
-include "window-rules.kdl"

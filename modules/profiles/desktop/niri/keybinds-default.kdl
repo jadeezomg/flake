@@ -1,6 +1,6 @@
 // Default Niri keybinds that work with DMS
 // These keybinds don't conflict with DMS and are always active
-// The conflicting keybinds are in keybinds-overrides.kdl (for non-DMS) or keybinds-dms.kdl (for DMS)
+// Shell-specific binds live in shell.kdl → keybinds-dms.kdl or keybinds-noctalia.kdl
 
 binds {
     // Mod-Shift-/, which is usually the same as Mod-?,
@@ -11,8 +11,6 @@ binds {
     // Mod+T hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
     Mod+Z hotkey-overlay-title="Launch Zen Browser" { spawn-sh "zen-beta || zen-twilight"; }
     Mod+P hotkey-overlay-title="Proton Pass" { spawn "proton-pass"; }
-    Mod+L hotkey-overlay-title="Lock the Screen: dms" { spawn "dms" "ipc" "call" "lock" "lock"; }
-    Mod+D { spawn "dms" "ipc" "call" "plugins" "toggle" "aiAssistant"; }
     // Super+X hotkey-overlay-title="App Launcher: Toggle" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
 
     Mod3+Space repeat=false hotkey-overlay-title="Handy: Toggle Transcription" {

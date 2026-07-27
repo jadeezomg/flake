@@ -8,9 +8,13 @@
 }:
 let
   cfg = config.dotfiles.profiles.desktop;
+  shell = host.desktopShell or cfg.shell;
+  useDms = shell == "dms";
+  useNoctalia = shell == "noctalia";
   useDmsGreeter = cfg.loginManager == "dms-greeter";
   useGdm = cfg.loginManager == "gdm";
   dmsShell = inputs.dms.packages.${pkgs.stdenv.hostPlatform.system}.dms-shell;
+  noctaliaPkg = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
 in
 {
   imports = [
@@ -19,18 +23,28 @@ in
   ];
 
   config = lib.mkIf cfg.enable {
-    # HM halves: DMS/niri live-symlink wiring (./dms), dconf user settings,
-    # and GDM session glue.
-    home-manager.sharedModules = [
-      ./dms
-      ./dankcalendar.nix
-      ./dconf.nix
-      ./gdm-session.nix
+    assertions = [
+      {
+        assertion = !(useNoctalia && useDmsGreeter);
+        message = "Noctalia shell requires GDM (dms-greeter is DMS-only).";
+      }
     ];
 
-    # --- Login manager: set dotfiles.profiles.desktop.loginManager per host ---
+    home-manager.sharedModules = [
+      ./niri-hm.nix
+      ./dconf.nix
+      ./gdm-session.nix
+    ]
+    ++ lib.optionals useDms [
+      ./dms
+      ./dankcalendar.nix
+    ]
+    ++ lib.optionals useNoctalia [
+      ./noctalia
+    ];
+
     programs.dms-greeter = {
-      enable = useDmsGreeter;
+      enable = useDms && useDmsGreeter;
       compositor.name = "niri";
       configHome = host.homeDirectory;
       configFiles = [ "${host.homeDirectory}/.config/DankMaterialShell/settings.json" ];
@@ -38,36 +52,38 @@ in
 
     programs.niri.enable = true;
 
-    # --- DankMaterialShell (DMS) ---
-    # xdg.configFile is handled in ./dms (Home Manager half).
-    programs.dank-material-shell = {
+    programs.dank-material-shell = lib.mkIf useDms {
       enable = true;
       package = dmsShell;
       quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.quickshell;
       systemd = {
-        # System-wide unit lands in graphical-session.target; breaks GDM greeter.
         enable = useDmsGreeter;
         restartIfChanged = true;
       };
-      enableSystemMonitoring = true; # dgop widgets
+      enableSystemMonitoring = true;
       enableVPN = true;
-      enableDynamicTheming = true; # matugen
-      enableAudioWavelength = true; # cava
-      enableCalendarEvents = false; # DMS calendar is unused; avoid khal/vdirsyncer
+      enableDynamicTheming = true;
+      enableAudioWavelength = true;
+      enableCalendarEvents = false;
     };
 
-    # --- Supporting services ---
+    programs.noctalia = lib.mkIf useNoctalia {
+      enable = true;
+      package = noctaliaPkg;
+      systemd.enable = false;
+      recommendedServices.enable = false;
+    };
+
     services = {
       displayManager.gdm = lib.mkIf useGdm {
         enable = true;
       };
 
-      desktopManager.gnome.enable = true; # GNOME session kept as fallback DE
+      desktopManager.gnome.enable = true;
       gvfs.enable = true;
       tumbler.enable = true;
-      power-profiles-daemon.enable = true; # DMS widgets need this
+      power-profiles-daemon.enable = true;
       upower.enable = true;
-      # GNOME/graphical-desktop default these on; unused here and expensive.
       orca.enable = lib.mkForce false;
       speechd.enable = false;
 
@@ -79,10 +95,9 @@ in
         };
       };
     };
-    # Niri is primary; include GNOME so gnome-control-center detects a compatible session.
+
     environment.sessionVariables.XDG_CURRENT_DESKTOP = "niri:GNOME";
 
-    # Wayland session file so GDM / greeter can offer Niri as a session.
     environment.etc."wayland-sessions/niri.desktop".text = ''
       [Desktop Entry]
       Name=Niri
@@ -92,27 +107,25 @@ in
       DesktopNames=niri
     '';
 
-    environment.systemPackages = with pkgs; [
-      libnotify
-      nautilus
-      # Niri auto-spawns xwayland-satellite for X11 apps when it's in PATH.
-      # See: https://github.com/YaLTeR/niri/wiki/Xwayland
-      xwayland-satellite
-      # WebKitGTK ignores portal prefer-dark for prefers-color-scheme unless the
-      # GTK theme name is a dark variant — without this, Handy's System theme
-      # stays on the CSS light default.
-      (symlinkJoin {
-        name = "handy";
-        paths = [ pkgs.llm-agents.handy ];
-        buildInputs = [ makeWrapper ];
-        postBuild = ''
-          wrapProgram $out/bin/handy --set GTK_THEME Adwaita:dark
-        '';
-      })
-      # Handy paste on Wayland (niri): without these it falls back to enigo/XTest,
-      # which reports success but never reaches the focused Wayland window.
-      wtype
-      wl-clipboard
-    ];
+    environment.systemPackages =
+      with pkgs;
+      [
+        libnotify
+        nautilus
+        xwayland-satellite
+        (symlinkJoin {
+          name = "handy";
+          paths = [ pkgs.llm-agents.handy ];
+          buildInputs = [ makeWrapper ];
+          postBuild = ''
+            wrapProgram $out/bin/handy --set GTK_THEME Adwaita:dark
+          '';
+        })
+        wtype
+        wl-clipboard
+      ]
+      ++ lib.optionals useNoctalia [
+        satty # shell.screenshot pipe_to_command in noctalia/config.toml
+      ];
   };
 }
