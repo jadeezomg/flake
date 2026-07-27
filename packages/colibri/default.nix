@@ -21,6 +21,24 @@ let
     hash = "sha256-GnUyW6XasJ7nTedRjvHa3zkMHC8no1LDd65foQa973s=";
   };
 
+  webUi = pkgs.buildNpmPackage {
+    pname = "colibri-web";
+    inherit version src;
+
+    sourceRoot = "${src.name}/web";
+
+    npmDepsHash = "sha256-dSBj0ugEctPY18JWe5ajsVQFy2kWvgLYLzuwIs39HLs=";
+
+    env.NODE_OPTIONS = "--max-old-space-size=4096";
+
+    installPhase = ''
+      runHook preInstall
+      mkdir -p $out/web/dist
+      cp -r dist/* $out/web/dist/
+      runHook postInstall
+    '';
+  };
+
   engine = stdenv.mkDerivation {
     pname = "colibri";
     inherit version src;
@@ -62,6 +80,12 @@ let
       # Upstream Makefile omits version.py; coli imports it from $BINDIR before
       # libexec is added to sys.path (works in a source checkout, not after install).
       install -m644 version.py $out/bin/version.py
+      # openai_server.py uses Path(__file__).resolve(), which lands in this
+      # derivation even when the installed path is a symlinkJoin — web assets must
+      # therefore live under this $out, not only in the joined wrapper.
+      mkdir -p $out/libexec/web $out/web
+      ln -s ${webUi}/web/dist $out/libexec/web/dist
+      ln -s ${webUi}/web/dist $out/web/dist
       runHook postInstall
     '';
 
@@ -73,25 +97,6 @@ let
       platforms = platforms.linux;
       sourceProvenance = with sourceTypes; [ fromSource ];
     };
-  };
-
-  # `coli web` resolves web/dist relative to the package root (parent of $BINDIR).
-  webUi = pkgs.buildNpmPackage {
-    pname = "colibri-web";
-    inherit version src;
-
-    sourceRoot = "${src.name}/web";
-
-    npmDepsHash = "sha256-dSBj0ugEctPY18JWe5ajsVQFy2kWvgLYLzuwIs39HLs=";
-
-    env.NODE_OPTIONS = "--max-old-space-size=4096";
-
-    installPhase = ''
-      runHook preInstall
-      mkdir -p $out/web/dist
-      cp -r dist/* $out/web/dist/
-      runHook postInstall
-    '';
   };
 in
 pkgs.symlinkJoin {
