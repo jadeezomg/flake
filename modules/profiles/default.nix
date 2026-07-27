@@ -115,11 +115,40 @@
             source locally — only worth it on the desktop.
           '';
         };
-        colibri.enable = mkEnableOption ''
-          [colibrì](https://github.com/JustVugg/colibri) CLI (`coli`) for GLM-5.2 MoE
-          inference. Set `COLI_MODEL` to an int4 model directory on fast storage
-          (~372 GB); the flake only ships the engine.
-        '';
+        colibri = {
+          enable = mkEnableOption ''
+            [colibrì](https://github.com/JustVugg/colibri) CLI (`coli`) for GLM-5.2 MoE
+            inference (~372 GB int4 model on fast storage; the flake only ships the engine).
+          '';
+          modelDir = mkOption {
+            type = types.nullOr types.str;
+            default = null;
+            example = "/mnt/storage/colibri";
+            description = ''
+              Root directory of the unpacked Colibri int4 model. Exported as
+              `COLI_MODEL` when set.
+            '';
+          };
+          autoTier = mkOption {
+            type = types.bool;
+            default = true;
+            description = ''
+              Prepend `--auto-tier` to every `coli` invocation so Linux sizes
+              RAM/VRAM from the model and hardware (CUDA expert tier on NVIDIA
+              builds). Without this, `coli` defaults to CPU streaming and may
+              refuse to start when MemAvailable is below the projected peak.
+            '';
+          };
+          ramGb = mkOption {
+            type = types.nullOr types.int;
+            default = null;
+            example = 64;
+            description = ''
+              Fixed RAM budget for the expert cache (`RAM_GB`). Unset leaves
+              sizing to `--auto-tier` or Colibri's MemAvailable heuristic.
+            '';
+          };
+        };
       };
 
       gaming.enable = mkEnableOption "the gaming profile (Steam stack — Linux only)";
