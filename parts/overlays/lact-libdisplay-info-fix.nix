@@ -3,7 +3,7 @@
 # pinning libdisplay-info_0_3 in affected buildInputs (NixOS/nixpkgs#546155).
 # Mirror that until we pick up the fix via nixpkgs bump.
 { lib, system }:
-final: prev:
+_final: prev:
 let
   isLinux = builtins.match ".*-linux" system != null;
 
