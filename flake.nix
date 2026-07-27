@@ -8,7 +8,7 @@
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
     # Pin skhd from a fixed nixpkgs rev: macOS keys skhd's Accessibility grant to
     # its exact store path, so nixpkgs bumps silently break the Vicinae
-    # Hyper+Space hotkey until re-granted. Freezing the rev means the path (and
+    # Option+Space hotkey until re-granted. Freezing the rev means the path (and
     # grant) only move on a deliberate bump here. Darwin-only overlay lives in
     # parts/overlays/skhd-pinned-darwin.nix. Bump rev + re-grant Accessibility together.
     nixpkgs-skhd.url = "github:NixOS/nixpkgs/61b7c44c4073f0b827768aff0049561b5110ea5a";
