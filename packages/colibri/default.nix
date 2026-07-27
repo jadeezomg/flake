@@ -59,6 +59,9 @@ let
     installPhase = ''
       runHook preInstall
       make install PREFIX=$out BINDIR=$out/bin LIBEXECDIR=$out/libexec/colibri $makeFlags
+      # Upstream Makefile omits version.py; coli imports it from $BINDIR before
+      # libexec is added to sys.path (works in a source checkout, not after install).
+      install -m644 version.py $out/bin/version.py
       runHook postInstall
     '';
 
@@ -71,10 +74,32 @@ let
       sourceProvenance = with sourceTypes; [ fromSource ];
     };
   };
+
+  # `coli web` resolves web/dist relative to the package root (parent of $BINDIR).
+  webUi = pkgs.buildNpmPackage {
+    pname = "colibri-web";
+    inherit version src;
+
+    sourceRoot = "${src.name}/web";
+
+    npmDepsHash = "sha256-dSBj0ugEctPY18JWe5ajsVQFy2kWvgLYLzuwIs39HLs=";
+
+    env.NODE_OPTIONS = "--max-old-space-size=4096";
+
+    installPhase = ''
+      runHook preInstall
+      mkdir -p $out/web/dist
+      cp -r dist/* $out/web/dist/
+      runHook postInstall
+    '';
+  };
 in
 pkgs.symlinkJoin {
   name = "colibri-${version}";
-  paths = [ engine ];
+  paths = [
+    engine
+    webUi
+  ];
   nativeBuildInputs = [ pkgs.makeWrapper ];
   postBuild = ''
     wrapProgram $out/bin/coli --prefix PATH : ${lib.makeBinPath [ python3 ]}
