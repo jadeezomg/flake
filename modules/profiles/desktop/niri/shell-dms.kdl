@@ -1,0 +1,15 @@
+// DMS / quickshell layer rules and compositor integration.
+// dms/*.kdl files are provided by DankMaterialShell at runtime.
+
+layer-rule {
+    match namespace="^quickshell$"
+    place-within-backdrop true
+}
+
+include "keybinds-dms.kdl"
+
+include "dms/colors.kdl"
+include "dms/layout.kdl"
+include "dms/alttab.kdl"
+include "dms/binds.kdl"
+include "dms/cursor.kdl"

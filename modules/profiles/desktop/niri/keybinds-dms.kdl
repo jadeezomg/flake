@@ -3,6 +3,8 @@
 // They override conflicting keybinds from keybinds-overrides.kdl
 
 binds {
+    Mod+D { spawn "dms" "ipc" "call" "plugins" "toggle" "aiAssistant"; }
+    Mod+L hotkey-overlay-title="Lock the Screen: dms" { spawn "dms" "ipc" "call" "lock" "lock"; }
     // Application launcher (overrides niri overview on Mod+Space)
     Mod+Space repeat=false hotkey-overlay-title="Application Launcher" {
         spawn "vicinae" "toggle";

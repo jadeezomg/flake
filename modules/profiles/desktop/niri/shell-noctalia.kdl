@@ -1,0 +1,2 @@
+// Noctalia v5 shell integration — IPC keybind overrides.
+include "keybinds-noctalia.kdl"

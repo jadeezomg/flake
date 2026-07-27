@@ -7,6 +7,7 @@
 let
   # Value-read (not a profile gate): is this a DMS desktop host?
   hasDesktopSession = osConfig.dotfiles.profiles.desktop.enable or false;
+  desktopShell = osConfig.dotfiles.profiles.desktop.shell or "dms";
 in
 {
   imports = [
@@ -20,6 +21,7 @@ in
     # Explicit clipboard provider, by platform/session:
     # - darwin: absolute pbcopy/pbpaste paths — helix spawns the provider via
     #   the editor's PATH, which can lack /usr/bin ("os error 2" on yank).
+    # - Noctalia desktops: built-in Wayland clipboard (wl-clipboard).
     # - DMS desktops: the DMS clipboard manager owns the Wayland clipboard
     #   (https://danklinux.com/docs/dankmaterialshell/cli-clipboard) — use
     #   `dms cl` instead of shipping wl-clipboard.
@@ -37,6 +39,8 @@ in
             };
           };
         }
+      else if hasDesktopSession && desktopShell == "noctalia" then
+        "clipboard"
       else if hasDesktopSession then
         {
           custom = {
