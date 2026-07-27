@@ -98,18 +98,12 @@ in
       # Niri auto-spawns xwayland-satellite for X11 apps when it's in PATH.
       # See: https://github.com/YaLTeR/niri/wiki/Xwayland
       xwayland-satellite
-      # Framework enables nixpkgsConfig.rocmSupport; Handy's GPU path is
-      # Vulkan/ggml, so skip ORT-MIGraphX (~8GiB ROCm) and keep CPU onnxruntime.
       # WebKitGTK ignores portal prefer-dark for prefers-color-scheme unless the
       # GTK theme name is a dark variant — without this, Handy's System theme
       # stays on the CSS light default.
       (symlinkJoin {
         name = "handy";
-        paths = [
-          (handy.override {
-            onnxruntime = onnxruntime.override { rocmSupport = false; };
-          })
-        ];
+        paths = [ pkgs.llm-agents.handy ];
         buildInputs = [ makeWrapper ];
         postBuild = ''
           wrapProgram $out/bin/handy --set GTK_THEME Adwaita:dark

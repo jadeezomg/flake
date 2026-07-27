@@ -3,11 +3,10 @@
   dotfilesLib,
   lib,
   pkgs,
-  pkgs-small,
   ...
 }:
 let
-  profiles = (dotfilesLib.nonoProfiles { inherit pkgs pkgs-small; }).profiles;
+  profiles = (dotfilesLib.nonoProfiles { inherit pkgs; }).profiles;
 
   mkProfileFile = name: data: {
     name = "nono/profiles/${name}.json";
