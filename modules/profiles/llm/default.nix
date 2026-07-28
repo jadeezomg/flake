@@ -10,22 +10,6 @@
 }:
 let
   cfg = config.dotfiles.profiles.llm;
-  colibriEngine = pkgs.colibri.override {
-    cudaSupport = cfg.llamaCppBackend == "cuda";
-  };
-  colibri =
-    if cfg.colibri.autoTier then
-      pkgs.runCommand "colibri-cli"
-        {
-          nativeBuildInputs = [ pkgs.makeWrapper ];
-          meta = colibriEngine.meta;
-        }
-        ''
-          mkdir -p $out/bin
-          makeWrapper ${lib.getExe colibriEngine} $out/bin/coli --add-flags --auto-tier
-        ''
-    else
-      colibriEngine;
   llamaCpp =
     if
       cfg.llamaCppBackend == "cuda"
@@ -48,19 +32,9 @@ in
         llamaCpp
         pkgs.python314Packages.huggingface-hub
       ]
-      ++ lib.optionals (!isDarwin && cfg.colibri.enable) [ colibri ]
       ++ lib.optionals isDarwin [
         # For the `just unsloth*` recipes (no systemd on darwin).
         pkgs.podman
       ];
-
-    environment.variables = lib.mkMerge [
-      (lib.mkIf (!isDarwin && cfg.colibri.enable && cfg.colibri.modelDir != null) {
-        COLI_MODEL = cfg.colibri.modelDir;
-      })
-      (lib.mkIf (!isDarwin && cfg.colibri.enable && cfg.colibri.ramGb != null) {
-        RAM_GB = toString cfg.colibri.ramGb;
-      })
-    ];
   };
 }
