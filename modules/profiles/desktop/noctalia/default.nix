@@ -7,6 +7,7 @@
 }:
 let
   noctaliaPkg = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
+  extraPackages = import ./extra-packages.nix { inherit pkgs; };
   hostConfigFile = host.noctaliaConfigFile or "config.toml";
   tomlFormat = pkgs.formats.toml { };
   # Import as attrset so Stylix can merge theme/wallpaper/font settings on top.
@@ -30,6 +31,5 @@ in
   # Allow migration from the old live-symlink layout to HM-managed config.toml.
   xdg.configFile."noctalia/config.toml".force = true;
 
-  # screen_recorder plugin shells out to gpu-screen-recorder (must be on PATH).
-  home.packages = [ pkgs.gpu-screen-recorder ];
+  home.packages = extraPackages;
 }
