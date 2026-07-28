@@ -8,10 +8,10 @@
 #
 {
   pkgs,
-  pkgs-small ? pkgs,
 }:
 let
   inherit (pkgs) lib;
+  nono = pkgs.llm-agents.nono;
 
   # Per-platform credential-key resolution.
   #   Linux  → libsecret account name (service "nono", account <name>)
@@ -193,7 +193,7 @@ let
   metadata = {
     claude = {
       profileName = "claude-flake";
-      pkg = pkgs-small.claude-code;
+      pkg = pkgs.llm-agents.claude-code;
       bin = "claude";
       gitName = "claude-jadee";
       gitEmail = "claude@jadee.fyi";
@@ -208,7 +208,7 @@ let
     };
     pi = {
       profileName = "pi-flake";
-      pkg = pkgs.pi-coding-agent;
+      pkg = pkgs.llm-agents.pi;
       bin = "pi";
       gitName = "pi-jadee";
       gitEmail = "pi@jadee.fyi";
@@ -219,7 +219,7 @@ let
     # (~/.omp vs ~/.pi), not by author.
     omp = {
       profileName = "omp-flake";
-      pkg = pkgs.oh-my-pi;
+      pkg = pkgs.llm-agents.omp;
       bin = "omp";
       gitName = "pi-jadee";
       gitEmail = "pi@jadee.fyi";
@@ -254,7 +254,7 @@ let
     let
       meta = metadata.${agentName};
       profileFile = mkAgentProfileFile agentName;
-      nonoBin = if usePackagePath then "${pkgs.nono}/bin/nono" else "nono";
+      nonoBin = if usePackagePath then "${nono}/bin/nono" else "nono";
       nonoArgs = [
         nonoBin
         "run"
@@ -299,7 +299,7 @@ let
     agentName:
     pkgs.writeShellApplication {
       name = "agent-${agentName}";
-      runtimeInputs = [ pkgs.nono ];
+      runtimeInputs = [ nono ];
       text = ''
         exec ${
           mkAgentInvocation {
@@ -350,7 +350,7 @@ let
   ]
   ++ map (p: {
     label = "nono profile resolves: ${p}";
-    cmd = "${pkgs.nono}/bin/nono profile show ${p} >/dev/null 2>&1";
+    cmd = "${nono}/bin/nono profile show ${p} >/dev/null 2>&1";
   }) profileNames;
 
   platformChecks = if pkgs.stdenv.isDarwin then darwinChecks else linuxChecks;
@@ -403,7 +403,7 @@ let
   status = pkgs.writeShellApplication {
     name = "agent-status";
     runtimeInputs = [
-      pkgs.nono
+      nono
       pkgs.jq
     ];
     text = ''
@@ -423,7 +423,7 @@ let
     runtimeInputs = lib.attrValues agentBins ++ [
       doctor
       status
-      pkgs.nono
+      nono
     ];
     text = ''
       usage() {

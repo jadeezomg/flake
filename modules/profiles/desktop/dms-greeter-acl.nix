@@ -8,6 +8,8 @@
 }:
 let
   cfg = config.dotfiles.profiles.desktop;
+  shell = host.desktopShell or cfg.shell or "dms";
+  useDms = shell == "dms";
   useDmsGreeter = cfg.loginManager == "dms-greeter";
   home = host.homeDirectory;
   flakeRoot = "${home}/.dotfiles/flake";
@@ -34,7 +36,7 @@ let
   };
 in
 {
-  config = lib.mkIf (cfg.enable && useDmsGreeter) {
+  config = lib.mkIf (cfg.enable && useDms && useDmsGreeter) {
     # Greeter runs as a separate user; grant read access to the user's DMS config.
     # Equivalent of `dms greeter sync`, which is unavailable on NixOS.
     users.users.${user}.extraGroups = [ "greeter" ];

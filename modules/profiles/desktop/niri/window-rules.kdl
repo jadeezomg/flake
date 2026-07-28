@@ -23,6 +23,15 @@ window-rule {
     default-column-width { proportion 0.50; }
 }
 
+// gnome Calculator
+window-rule {
+    match app-id=r#"^org.gnome.Calculator$"#
+    open-floating true
+    default-window-height { fixed 700; }
+    default-column-width { fixed 400; }
+}
+
+
 // Zed popup/helper windows can report no title and get tiled fullscreen.
 window-rule {
     match title="(unset)"

@@ -26,7 +26,7 @@ in
 {
   agent_servers = {
     # rohan-patra fork of the Claude Agent SDK ACP adapter (diff preview
-    # support); packaged in packages/claude-agent-acp.
+    # support); packaged in numtide/llm-agents.nix.
     claude = {
       type = "custom";
       command = "claude-agent-acp";

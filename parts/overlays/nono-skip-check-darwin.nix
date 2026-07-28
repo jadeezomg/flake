@@ -14,13 +14,15 @@ if !isDarwin then
   { }
 else
   {
-    nono = prev.nono.overrideAttrs (old: {
-      checkFlags = (old.checkFlags or [ ]) ++ [
-        "--skip=deprecated_override_deny_flag_emits_single_warning_on_stderr"
-        "--skip=deprecated_override_deny_flag_warning_is_emitted_once_for_multiple_uses"
-        "--skip=override_deny_alias_and_bypass_protection_merge_in_argv_order"
-        "--skip=open_url_runtime::tests::test_open_url_helper_ipc_succeeds_when_supervisor_approves"
-        "--skip=sandbox_state::tests::test_sandbox_state_roundtrip_preserves_source"
-      ];
-    });
+    llm-agents = prev.llm-agents // {
+      nono = prev.llm-agents.nono.overrideAttrs (old: {
+        checkFlags = (old.checkFlags or [ ]) ++ [
+          "--skip=deprecated_override_deny_flag_emits_single_warning_on_stderr"
+          "--skip=deprecated_override_deny_flag_warning_is_emitted_once_for_multiple_uses"
+          "--skip=override_deny_alias_and_bypass_protection_merge_in_argv_order"
+          "--skip=open_url_runtime::tests::test_open_url_helper_ipc_succeeds_when_supervisor_approves"
+          "--skip=sandbox_state::tests::test_sandbox_state_roundtrip_preserves_source"
+        ];
+      });
+    };
   }

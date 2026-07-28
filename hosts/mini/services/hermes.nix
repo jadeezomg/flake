@@ -2,24 +2,12 @@
   config,
   lib,
   pkgs,
-  inputs,
   ...
 }:
-let
-  system = pkgs.stdenv.hostPlatform.system;
-  hermesSrc = inputs.hermes-agent;
-  haInputs = hermesSrc.inputs;
-
-  hermesAgent = pkgs.callPackage "${hermesSrc}/nix/hermes-agent.nix" {
-    inherit (haInputs) uv2nix pyproject-nix pyproject-build-systems;
-    npm-lockfile-fix = haInputs.npm-lockfile-fix.packages.${system}.default;
-    rev = hermesSrc.rev or null;
-  };
-in
 {
   services.hermes-agent = {
     enable = true;
-    package = hermesAgent;
+    package = pkgs.llm-agents.hermes-agent;
 
     addToSystemPackages = true;
     restart = "always";

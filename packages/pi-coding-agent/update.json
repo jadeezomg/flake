@@ -1,7 +1,0 @@
-{
-	"type": "npm",
-	"package": "@earendil-works/pi-coding-agent",
-	"hash_field": "hash",
-	"npm_deps_hash_field": "npmDepsHash",
-	"lock_file": "package-lock.json"
-}

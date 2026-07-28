@@ -2,11 +2,10 @@
 {
   dotfilesLib,
   pkgs,
-  pkgs-small,
   ...
 }:
 let
-  nonoAgents = dotfilesLib.nonoProfiles { inherit pkgs pkgs-small; };
+  nonoAgents = dotfilesLib.nonoProfiles { inherit pkgs; };
 in
 {
   home.packages = [ nonoAgents.agent ];
