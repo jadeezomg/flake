@@ -126,6 +126,7 @@ in
       ]
       ++ lib.optionals useNoctalia [
         satty # shell.screenshot pipe_to_command in noctalia/config.toml
+        gpu-screen-recorder # official screen_recorder plugin (docs.noctalia.dev)
       ];
   };
 }
