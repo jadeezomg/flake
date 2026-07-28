@@ -4,37 +4,157 @@ config_version = 8
 enabled = true
 
 [bar]
-order = [ "Main", "Side" ]
+order = [ "default", "side" ]
 
-    [bar.Main]
-    background_opacity = 0.44999998994171619
-    capsule = true
-    capsule_radius = 0
-    capsule_thickness = 0.79999998584389687
-    center = [ "clock", "media" ]
-    concave_edge_corners = false
+    [bar.default]
+    background_opacity = 0.64999998547136784
+    capsule_radius = 6
+    capsule_thickness = 0.69999998807907104
+    center = [ "group:g3" ]
     enabled = false
-    end = [ "tray", "notifications", "clipboard", "volume", "brightness", "battery", "control-center", "session" ]
-    font_family = "Inter Display"
-    font_weight = 300
-    margin_edge = 5
-    margin_ends = 353
+    end = [ "tray", "group:g2", "group:g4" ]
+    margin_ends = 900
     margin_opposite_edge = 5
-    radius = 0
-    start = [ "wallpaper", "workspaces" ]
-    thickness = 31
-    widget_spacing = 10
+    padding = 20
+    radius = 5
+    reserve_space = false
+    show_on_workspace_switch = false
+    start = [ "group:g1" ]
+    thickness = 25
 
-        [bar.Main.monitor.DP-1]
+        [bar.default.monitor.DP-1]
         enabled = true
 
-    [bar.Side]
+        [[bar.default.capsule_group]]
+        border = ""
+        enabled = true
+        fill = "on_primary"
+        id = "g1"
+        members = [ "clipboard", "recorder", "screenshot", "privacy" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+
+        [[bar.default.capsule_group]]
+        enabled = true
+        fill = "surface_variant"
+        id = "g2"
+        members = [ "control-center", "notifications", "volume", "session" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 6.0
+
+        [[bar.default.capsule_group]]
+        enabled = true
+        fill = "surface_variant"
+        id = "g3"
+        members = [ "active_window" ]
+        opacity = 1.0
+        padding = 6.0
+        radius = 6.0
+
+        [[bar.default.capsule_group]]
+        enabled = true
+        fill = "surface_variant"
+        id = "g4"
+        members = [ "clock" ]
+        opacity = 1.0
+        padding = 6.0
+        radius = 6.0
+
+    [bar.side]
+    background_opacity = 0.69999998435378075
+    capsule_radius = 6
+    capsule_thickness = 0.69999998807907104
+    center = [ "group:g4" ]
     enabled = false
+    end = [ "group:g6", "group:g1" ]
+    margin_edge = 10
+    margin_ends = 10
+    padding = 6
+    radius = 5
+    start = [ "group:g5", "group:g2", "group:g3" ]
+    thickness = 45
 
-        [bar.Side.monitor.HDMI-A-1]
+        [bar.side.monitor.HDMI-A-1]
         enabled = true
+
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_variant"
+        id = "g2"
+        members = [ "network_tx", "network_rx" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 6.0
+
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_variant"
+        id = "g3"
+        members = [ "ram", "temp", "cat", "cpu" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 6.0
+
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_variant"
+        id = "g1"
+        members = [ "clock", "date" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 6.0
+
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_variant"
+        id = "g4"
+        members = [ "media", "audio_visualizer" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 6.0
+
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_variant"
+        id = "g5"
+        members = [ "keyboard_layout" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 6.0
+
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_variant"
+        id = "g6"
+        members = [ "weather" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 6.0
+
+[battery.device."/org/freedesktop/UPower/devices/battery_hidpp_battery_0"]
+warning_threshold = 15
+
+[control_center]
+hidden_tabs = [ "bluetooth" ]
+
+    [[control_center.shortcuts]]
+    type = "system"
+
+    [[control_center.shortcuts]]
+    type = "caffeine"
+
+    [[control_center.shortcuts]]
+    type = "notification"
+
+    [[control_center.shortcuts]]
+    type = "dark_mode"
+
+    [[control_center.shortcuts]]
+    type = "keyboard_layout"
 
 [desktop_widgets]
+enabled = false
 schema_version = 2
 widget_order = [ "desktop-widget-0000000000000001", "desktop-widget-0000000000000002", "desktop-widget-0000000000000003" ]
 
@@ -86,8 +206,13 @@ widget_order = [ "desktop-widget-0000000000000001", "desktop-widget-000000000000
         [desktop_widgets.widget.desktop-widget-0000000000000003.settings]
         show_forecast = true
 
+[location]
+auto_locate = true
+
+[lockscreen]
+monitors = [ "DP-1" ]
+
 [lockscreen_widgets]
-enabled = false
 schema_version = 2
 widget_order = [ "lockscreen-login-box@DP-1", "lockscreen-login-box@HDMI-A-1" ]
 
@@ -144,12 +269,51 @@ widget_order = [ "lockscreen-login-box@DP-1", "lockscreen-login-box@HDMI-A-1" ]
         show_session_buttons = true
         show_weather = true
 
+[notification]
+monitors = [ "HDMI-A-1" ]
+
+[osd]
+background_opacity = 0.54999998770654202
+monitors = [ "DP-1" ]
+offset_y = 40
+
+[plugin_settings."kenn/keybind-cheatsheet"]
+compositor = "niri"
+
+[plugin_settings."noctalia/screen_recorder"]
+copy_to_clipboard = true
+video_codec = "hevc"
+
+[plugins]
+enabled = [ "dotnetrob/cat", "kenn/keybind-cheatsheet", "noctalia/screen_recorder" ]
+
 [shell]
+app_icon_color = "primary"
+avatar_path = "/home/jadee/Pictures/Images/L1410618-crop.jpeg"
+button_borders = false
+card_borders = false
+corner_radius_scale = 0.5000000074505806
 font_family = "Inter Display"
-panel_anchor_bar = "default"
+input_borders = false
+password_style = "random"
+popup_borders = false
+popup_shadows = false
+
+    [shell.animation]
+    speed = 1.5000000223517418
 
     [shell.panel]
-    transparency_mode = "glass"
+    clipboard_placement = "attached"
+    polkit_placement = "attached"
+    transparency_mode = "soft"
+    wallpaper_placement = "floating"
+
+    [shell.screen_corners]
+    enabled = true
+    size = 15
+
+    [shell.shadow]
+    alpha = 0.24999999441206455
 
 [theme]
 builtin = "Gruvbox"
@@ -177,5 +341,78 @@ transition_on_startup = true
     [wallpaper.monitors.HDMI-A-1]
     path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
+[widget.active_window]
+anchor = true
+icon_size = 15
+
+[widget.audio_visualizer]
+bands = 35
+color_1 = "secondary"
+mirrored = false
+width = 150
+
+[widget.cat]
+type = "dotnetrob/cat:cat"
+
 [widget.control-center]
 glyph = "snowflake"
+
+[widget.cpu]
+display = "text"
+label_min_width = 30
+
+[widget.keyboard_layout.custom_labels]
+"English (US, intl., with dead keys)" = "en"
+German = "de"
+
+[widget.media]
+anchor = true
+art_size = 70
+hide_when_no_media = true
+max_length = 300
+min_length = 150
+title_scroll = "on_hover"
+
+[widget.network_rx]
+display = "graph"
+label_min_width = 60
+
+[widget.network_tx]
+display = "graph"
+label_min_width = 60
+
+[widget.privacy]
+hide_inactive = true
+
+[widget.ram]
+display = "text"
+
+[widget.recorder]
+type = "noctalia/screen_recorder:recorder"
+
+[widget.taskbar]
+enabled = false
+focused_output_only = true
+group_by_workspace = true
+hide_empty_workspaces = true
+inactive_opacity = 0.75
+minimal = true
+workspace_label_placement = "inside"
+
+[widget.temp]
+display = "text"
+
+[widget.tray]
+drawer = true
+drawer_columns = 5
+drawer_item_size = 20.0
+hidden = [ "Network" ]
+
+[widget.volume]
+mute_color = "secondary"
+show_label = false
+
+[widget.workspaces]
+enabled = false
+hide_when_empty = true
+style = "focus_hint"

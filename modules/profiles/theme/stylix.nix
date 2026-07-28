@@ -52,7 +52,7 @@ in
       };
       sansSerif = {
         package = pkgs.inter;
-        name = "Inter Variable";
+        name = "Inter Display";
       };
       emoji = {
         package = pkgs.noto-fonts-color-emoji;

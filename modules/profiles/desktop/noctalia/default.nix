@@ -29,4 +29,7 @@ in
 
   # Allow migration from the old live-symlink layout to HM-managed config.toml.
   xdg.configFile."noctalia/config.toml".force = true;
+
+  # screen_recorder plugin shells out to gpu-screen-recorder (must be on PATH).
+  home.packages = [ pkgs.gpu-screen-recorder ];
 }
