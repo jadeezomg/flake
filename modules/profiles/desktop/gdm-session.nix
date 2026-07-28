@@ -12,6 +12,9 @@ let
   noctaliaPackage =
     osConfig.programs.noctalia.package
       or inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
+  noctaliaPluginPackages = import ./noctalia/extra-packages.nix { inherit pkgs; };
+  # HM systemd.user.services.*.path is a Path unit (attrset), not a package list.
+  noctaliaPluginBinPath = lib.makeBinPath noctaliaPluginPackages;
 in
 {
   config = lib.mkIf useGdm (
@@ -41,6 +44,10 @@ in
             PartOf = [ "graphical-session.target" ];
           };
           Service = {
+            # GDM user units don't inherit the full login PATH.
+            Environment = [
+              "PATH=${noctaliaPluginBinPath}:$PATH"
+            ];
             ExecStart = "${lib.getExe noctaliaPackage}";
             Restart = "on-failure";
           };

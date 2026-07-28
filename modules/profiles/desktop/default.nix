@@ -107,26 +107,20 @@ in
       DesktopNames=niri
     '';
 
-    environment.systemPackages =
-      with pkgs;
-      [
-        libnotify
-        nautilus
-        xwayland-satellite
-        (symlinkJoin {
-          name = "handy";
-          paths = [ pkgs.llm-agents.handy ];
-          buildInputs = [ makeWrapper ];
-          postBuild = ''
-            wrapProgram $out/bin/handy --set GTK_THEME Adwaita:dark
-          '';
-        })
-        wtype
-        wl-clipboard
-      ]
-      ++ lib.optionals useNoctalia [
-        satty # shell.screenshot pipe_to_command in noctalia/config.toml
-        gpu-screen-recorder # official screen_recorder plugin (docs.noctalia.dev)
-      ];
+    environment.systemPackages = with pkgs; [
+      libnotify
+      nautilus
+      xwayland-satellite
+      (symlinkJoin {
+        name = "handy";
+        paths = [ pkgs.llm-agents.handy ];
+        buildInputs = [ makeWrapper ];
+        postBuild = ''
+          wrapProgram $out/bin/handy --set GTK_THEME Adwaita:dark
+        '';
+      })
+      wtype
+      wl-clipboard
+    ];
   };
 }
