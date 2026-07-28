@@ -18,6 +18,7 @@
       sshKeys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA+aciat7EcEICxtjz/xNiJ1sLsOT9w2GxKUPSL3bG1t"
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAbIeHyzeI6Z5sD/Enn11dzBSobwFrDbPK/K56jw8R6F"
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILJz+YoBDQ16FthLVSaFxBJYo3Ch8SVerQGcnPsaMkSo github.com.sincerity372@passmail.net"
       ];
       packages = [ ];
     };
