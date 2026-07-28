@@ -25,41 +25,37 @@ def resolve_flake_root(
 ) -> Path:
     """Resolve flake root: explicit arg, $FLAKE, cwd walk-up, optional anchor file walk-up, then ~/.dotfiles/flake."""
     if explicit is not None:
-        return explicit.expanduser().resolve()
+        return explicit.resolve()
     env = os.environ.get("FLAKE")
     if env:
         return Path(env).resolve()
-    cwd = Path.cwd()
-    for p in [cwd, *cwd.parents]:
-        if (p / "flake.nix").is_file():
-            return p.resolve()
-    if anchor is not None:
-        ap = Path(anchor).resolve()
-        for p in [ap, *ap.parents]:
-            if (p / "flake.nix").is_file():
-                return p.resolve()
+    start = anchor.resolve() if anchor is not None else Path.cwd()
+    for parent in [start, *start.parents]:
+        if (parent / "flake.nix").is_file():
+            return parent
     return (Path.home() / ".dotfiles" / "flake").resolve()
 
 
 def host_is_nixos() -> bool:
     """True when this machine is NixOS Linux (/etc/NIXOS or ID=nixos in /etc/os-release)."""
-    import sys
-
-    if sys.platform != "linux":
-        return False
-    if os.path.isfile("/etc/NIXOS"):
+    if Path("/etc/NIXOS").exists():
         return True
+    release = Path("/etc/os-release")
+    if not release.is_file():
+        return False
     try:
-        with open("/etc/os-release", encoding="utf-8") as f:
-            return any(line.strip() == "ID=nixos" for line in f)
+        for line in release.read_text().splitlines():
+            if line.startswith("ID="):
+                return line.split("=", 1)[1].strip().strip('"') == "nixos"
     except OSError:
         return False
+    return False
 
 
 def xdg_config_home() -> Path:
     xdg = os.environ.get("XDG_CONFIG_HOME")
     if xdg:
-        return Path(xdg).expanduser().resolve()
+        return Path(xdg).resolve()
     return (Path.home() / ".config").resolve()
 
 
@@ -73,9 +69,8 @@ def is_path_under(path: Path, parent: Path) -> bool:
 
 def format_mtime(path: Path) -> str:
     try:
-        st = path.stat()
-        return datetime.fromtimestamp(st.st_mtime).isoformat(
-            sep=" ", timespec="seconds"
+        return datetime.fromtimestamp(path.stat().st_mtime).strftime(
+            "%Y-%m-%d %H:%M:%S"
         )
     except OSError:
         return "(unknown)"
@@ -111,32 +106,54 @@ def dim_lines(*lines: str, stderr: bool = True) -> None:
         c.print(f"[dim]{line}[/]")
 
 
-def print_dir_symlink_audit(config_dir: Path) -> None:
-    """Print a compact table of entries under config_dir (symlink vs file)."""
+def symlink_has_store_hop(path: Path) -> bool:
+    """True when the immediate symlink target goes through home-manager-files."""
+    if not path.is_symlink():
+        return False
+    return "home-manager-files" in os.readlink(path)
+
+
+def print_dir_symlink_audit(config_dir: Path) -> int:
+    """Print a compact table of entries under config_dir. Return count of issues."""
     dim(f"Checking {config_dir}/")
     if not config_dir.is_dir():
         bad(f"{config_dir} directory does not exist")
-        return
+        return 0
     entries = sorted(config_dir.iterdir(), key=lambda p: p.name)
     if not entries:
         dim("  (empty directory)")
-        return
+        return 0
     table = Table(show_header=True, box=box.SIMPLE, pad_edge=False)
     table.add_column("Name", style="tbl_name", header_style="tbl_header")
     table.add_column("Status", header_style="tbl_header")
     table.add_column("Detail", style="tbl_detail", header_style="tbl_header")
+    issues = 0
     for path in entries:
         name = path.name
         if path.is_symlink():
+            raw = os.readlink(path)
             target = path.resolve()
-            if target.is_file():
+            if symlink_has_store_hop(path):
+                issues += 1
+                table.add_row(
+                    name,
+                    "[warn]store hop[/]",
+                    f"{raw} → {target} [dim](run just switch-fast)[/]",
+                )
+            elif target.is_file() or target.is_dir():
                 table.add_row(name, "[ok]symlink[/]", str(target))
             else:
+                issues += 1
                 table.add_row(
                     name, "[bad]symlink[/]", f"{target} [bad](missing target)[/]"
                 )
         elif path.is_file():
-            table.add_row(name, "[bad]regular file[/]", "expected symlink")
+            issues += 1
+            if ".backup" in name:
+                table.add_row(name, "[warn]stale file[/]", "remove; expected symlink")
+            else:
+                table.add_row(name, "[bad]regular file[/]", "expected symlink")
         else:
             table.add_row(name, "[dim]other[/]", "")
     console.print(table)
+    return issues

@@ -4,7 +4,7 @@
   dotfilesLib,
   lib,
   osConfig,
-  pkgs-small,
+  pkgs,
   ...
 }:
 let
@@ -34,7 +34,7 @@ lib.mkIf needsSharedServerMaintenance {
   home.activation.claudeMcpServers = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     export PATH=${
       lib.makeBinPath [
-        pkgs-small.claude-code
+        pkgs.llm-agents.claude-code
       ]
     }:$PATH
 

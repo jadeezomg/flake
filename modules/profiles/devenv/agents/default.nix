@@ -7,12 +7,12 @@
   config,
   lib,
   pkgs,
-  pkgs-small,
   ...
 }:
 let
   cfg = config.dotfiles.profiles.devenv.agents;
-  nonoAgents = dotfilesLib.nonoProfiles { inherit pkgs pkgs-small; };
+  agents = pkgs.llm-agents;
+  nonoAgents = dotfilesLib.nonoProfiles { inherit pkgs; };
 in
 {
   config = lib.mkIf cfg.enable {
@@ -29,19 +29,18 @@ in
 
     environment.systemPackages =
       nonoAgents.agentPackages
-      ++ (with pkgs-small; [
+      ++ (with agents; [
         codex
         codex-acp
-        cursor-cli
+        cursor-agent
         herdr
-      ])
-      # Local flake packages from parts/overlays/local-packages.nix.
-      ++ (with pkgs; [
-        nono
-
+        openspec
         claude-agent-acp
-        kagi-cli
         agent-browser
+        nono
+      ])
+      ++ (with pkgs; [
+        kagi-cli
 
         # nixpkgs
         ctx7

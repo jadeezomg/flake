@@ -447,15 +447,6 @@
 	"fadeToDpmsEnabled": true,
 	"fadeToDpmsGracePeriod": 5,
 	"launchPrefix": "",
-	"brightnessDevicePins": {},
-	"wifiNetworkPins": {},
-	"bluetoothDevicePins": {},
-	"audioInputDevicePins": {
-		"preferredInput": "alsa_input.usb-0c76_Fosi_Audio_K5_Pro-00.mono-fallback"
-	},
-	"audioOutputDevicePins": {
-		"preferredOutput": "alsa_output.usb-Creative_Technology_Ltd_SB_Katana_V2_2EBE98C4D50695FC-03.analog-surround-51"
-	},
 	"gtkThemingEnabled": false,
 	"qtThemingEnabled": false,
 	"syncModeWithPortal": true,
@@ -621,7 +612,13 @@
 	"displayNameMode": "system",
 	"screenPreferences": {
 		"osd": ["all"],
-		"wallpaper": ["all"]
+		"wallpaper": ["all"],
+		"lockScreen": [
+			{
+				"name": "DP-1",
+				"model": "AG274QS3R1B+"
+			}
+		]
 	},
 	"showOnLastDisplay": {
 		"osd": false
@@ -1017,12 +1014,7 @@
 	"frameRounding": 5,
 	"frameColor": "",
 	"frameOpacity": 0.1,
-	"frameScreenPreferences": [
-		{
-			"name": "DP-2",
-			"model": "AG274QS3R1B+"
-		}
-	],
+	"frameScreenPreferences": ["all"],
 	"frameBarSize": 40,
 	"frameShowOnOverview": true,
 	"frameBlurEnabled": true,
@@ -1034,5 +1026,5 @@
 	"barInsetPaddingShared": -1,
 	"barInsetPaddingSyncAll": false,
 	"frameBarInsetPadding": -1,
-	"configVersion": 12
+	"configVersion": 13
 }

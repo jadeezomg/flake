@@ -55,7 +55,7 @@ just health          # git status, disk, nh os info
 | `gc`          | `gc` (= `gc-keep`), `gc-days`, `gc-all` |
 | `format`      | `fmt`, `fmt-notree`, `lint` |
 | `backups`     | `backups`, `backups-clean`, `backups-clean-dry` |
-| `check`       | `update-packages`, `nix-update-pkg`, `symlink-check`, `symlink-check-dms` |
+| `check`       | `update-packages`, `nix-update-pkg`, `symlink-check`, `symlink-check-dms`, `symlink-check-noctalia` |
 | `config`      | `init`, `read-defaults`, `setup-age-darwin` |
 | `system`      | `health`, `rollback`, `update` |
 | `repo`        | `git` (quiet fmt + status/log + commit + push) |
@@ -108,6 +108,7 @@ Bash under `scripts/shell/` backs the Justfile. Python is a uv project in `scrip
 | `lanzaboote` | secure boot (Linux) |
 | `niri` | niri compositor (Wayland) |
 | `dms` | DankMaterialShell (bar / desktop shell) |
+| `noctalia` | Noctalia v5 shell (niri alternative; flake TOML via HM `settings`) |
 | `quickshell` | shell/bar framework |
 | `zen-browser` | Zen browser |
 | `nix-homebrew`, `homebrew-*` | Homebrew pins (non-flake fetches) |
@@ -142,7 +143,7 @@ Home-manager exports select secrets to the user session env via `modules/profile
 | One host only | `hosts/<name>/` |
 | User (HM) config | the owning profile's feature folder in `modules/profiles/` (pushed via `home-manager.sharedModules`) |
 | NixOS services | `modules/nixos/` |
-| Desktop / Wayland | `modules/profiles/desktop/` (system + DMS/niri HM + data) |
+| Desktop / Wayland | `modules/profiles/desktop/` (system + DMS or Noctalia/niri HM + data) |
 | Custom package | `packages/<name>/` + `update.json` when you want `just update-packages` to handle bumps |
 | New secret | sops file + declarations (see `modules/shared/security/` / encryption) |
 

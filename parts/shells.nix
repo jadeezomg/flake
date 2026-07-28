@@ -1,13 +1,11 @@
-{ inputs, ... }: {
+{ ... }: {
   perSystem =
     {
       pkgs,
-      system,
       ...
     }:
     let
-      pkgs-small = (import ../lib/pkgs.nix { inherit inputs; }).getPkgsSmall system;
-      nonoAgents = import ../lib/nono-profiles.nix { inherit pkgs pkgs-small; };
+      nonoAgents = import ../lib/nono-profiles.nix { inherit pkgs; };
       inherit (nonoAgents) metadata mkAgentInvocation mkAgentProfileFile;
 
       # Per-agent git identity is injected in the invocation because nono
@@ -30,7 +28,7 @@
         in
         pkgs.mkShell {
           packages = [
-            pkgs.nono
+            pkgs.llm-agents.nono
             meta.pkg
           ];
           shellHook = ''

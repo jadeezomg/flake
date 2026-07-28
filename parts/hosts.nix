@@ -122,6 +122,7 @@ let
         modules = [
           inputs.stylix.nixosModules.stylix
           inputs.dms.nixosModules.dank-material-shell
+          inputs.noctalia.nixosModules.default
           inputs.dank-greeter.nixosModules.dank-greeter
           inputs.solaar.nixosModules.default
           inputs.vicinae.nixosModules.default
