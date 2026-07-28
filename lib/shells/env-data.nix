@@ -18,6 +18,7 @@
     VISUAL = "zeditor";
     SOPS_EDITOR = "hx";
     BROWSER = "zen";
+    TERMINAL = "ghostty";
     PI_ACP_ENABLE_EMBEDDED_CONTEXT = "true";
     PROTON_PASS_LINUX_KEYRING = "dbus";
     NPM_CONFIG_PREFIX = "$HOME/.npm-global";
