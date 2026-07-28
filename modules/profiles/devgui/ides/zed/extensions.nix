@@ -25,6 +25,7 @@
       "biome"
       "xml"
       "comment"
+      "luau"
     ];
   };
 }
