@@ -26,6 +26,10 @@
   # apply: { lib, isDarwin }
   nixExperimentalFeatures = import ./nix-experimental-features.nix;
 
+  # Binary caches for both platforms' Nix config; `darwin = true` marks the ones
+  # that serve aarch64-darwin.
+  nixCaches = (import ./nix-caches.nix).caches;
+
   sshDestinations = (import ../data/network/ssh-destinations.nix).destinations;
   agentSkillsDir = ../data/agents/skills;
   # apply: { lib, inputs }
