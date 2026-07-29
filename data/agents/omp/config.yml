@@ -1,145 +1,142 @@
-modelRoles: 
-  smol: cursor/composer-2.5
-  tiny: cursor/composer-2.5
-  advisor: cursor/gpt-5.6-sol-high
-  plan: openai-codex/gpt-5.6-sol
-  default: cursor/cursor-grok-4.5-high
-theme: 
-  dark: birds-of-paradise
-  light: light-gruvbox
+modelRoles:
+    smol: cursor/composer-2.5
+    tiny: cursor/composer-2.5
+    advisor: cursor/gpt-5.6-sol-high
+    plan: openai-codex/gpt-5.6-sol
+theme:
+    dark: birds-of-paradise
+    light: light-gruvbox
 symbolPreset: nerd
-statusLine: 
-  preset: nerd
-  separator: slash
-  sessionAccent: true
-  showHookStatus: true
-  compactThinkingLevel: true
-  transparent: true
-terminal: 
-  showImages: true
-  showProgress: true
-display: 
-  showTokenUsage: true
-  shimmer: kitt
-  smoothStreaming: true
-  cacheMissMarker: true
+statusLine:
+    preset: nerd
+    separator: slash
+    sessionAccent: true
+    showHookStatus: true
+    compactThinkingLevel: true
+    transparent: true
+terminal:
+    showImages: true
+    showProgress: true
+display:
+    showTokenUsage: true
+    shimmer: kitt
+    smoothStreaming: true
+    cacheMissMarker: true
 autoResume: true
-startup: 
-  checkUpdate: false
-compaction: 
-  strategy: shake
-  thresholdPercent: 80
-  handoffSaveToDisk: true
-  idleEnabled: true
-memory: 
-  backend: "off"
-edit: 
-  mode: hashline
-  streamingAbort: true
-  hashlineAutoDropPureInsertDuplicates: true
+startup:
+    checkUpdate: false
+compaction:
+    strategy: shake
+    thresholdPercent: 80
+    handoffSaveToDisk: true
+    idleEnabled: true
+memory:
+    backend: "off"
+edit:
+    mode: hashline
+    streamingAbort: true
+    hashlineAutoDropPureInsertDuplicates: true
 readLineNumbers: false
-bashInterceptor: 
-  enabled: true
-python: 
-  sharedGateway: true
-  kernelMode: session
-lsp: 
-  enabled: true
-  diagnosticsOnWrite: false
-  formatOnWrite: true
-todo: 
-  reminders: true
-  eager: default
-irc: 
-  enabled: false
-debug: 
-  enabled: false
-renderMermaid: 
-  enabled: true
-github: 
-  enabled: true
-mcp: 
-  enableProjectConfig: true
-  notifications: true
-plan: 
-  enabled: true
-task: 
-  isolation: 
-    mode: none
-    merge: patch
-    commits: generic
-  maxConcurrency: 8
-  eager: default
-commands: 
-  enableOpencodeUser: false
-  enableOpencodeProject: false
-secrets: 
-  enabled: true
-providers: 
-  webSearch: auto
-  image: auto
-  kimiApiFormat: auto
-  openaiWebsockets: auto
-exa: 
-  enabled: false
-  enableSearch: false
-searxng: 
-  endpoint: ""
-astGrep: 
-  enabled: true
-astEdit: 
-  enabled: true
-recipe: 
-  enabled: true
-fetch: 
-  enabled: true
-browser: 
-  enabled: true
-  headless: true
-  screenshotDir: ~/Pictures/Agent
-  cmux: false
-tools: 
-  intentTracing: true
-  approvalMode: yolo
-autocompleteMaxVisible: 15
-dev: 
-  autoqaConsent: granted
-bash: 
-  autoBackground: 
+bashInterceptor:
     enabled: true
-async: 
-  enabled: true
-checkpoint: 
-  enabled: true
+python:
+    sharedGateway: true
+    kernelMode: session
+lsp:
+    enabled: true
+    diagnosticsOnWrite: false
+    formatOnWrite: true
+todo:
+    reminders: true
+    eager: default
+irc:
+    enabled: false
+debug:
+    enabled: false
+renderMermaid:
+    enabled: true
+github:
+    enabled: true
+mcp:
+    enableProjectConfig: true
+    notifications: true
+plan:
+    enabled: true
+task:
+    isolation:
+        mode: none
+        merge: patch
+        commits: generic
+    maxConcurrency: 8
+    eager: default
+commands:
+    enableOpencodeUser: false
+    enableOpencodeProject: false
+secrets:
+    enabled: true
+providers:
+    kimiApiFormat: auto
+    openaiWebsockets: auto
+exa:
+    enabled: false
+    enableSearch: false
+searxng:
+    endpoint: ""
+astGrep:
+    enabled: true
+astEdit:
+    enabled: true
+recipe:
+    enabled: true
+fetch:
+    enabled: true
+browser:
+    enabled: true
+    headless: true
+    screenshotDir: ~/Pictures/Agent
+    cmux: false
+tools:
+    intentTracing: true
+    approvalMode: yolo
+autocompleteMaxVisible: 15
+dev:
+    autoqaConsent: granted
+bash:
+    autoBackground:
+        enabled: true
+async:
+    enabled: true
+checkpoint:
+    enabled: true
 defaultThinkingLevel: auto
 hideThinkingBlock: false
-retry: 
-  fallbackRevertPolicy: cooldown-expiry
+retry:
+    fallbackRevertPolicy: cooldown-expiry
 steeringMode: one-at-a-time
-loop: 
-  mode: prompt
+loop:
+    mode: prompt
 doubleEscapeAction: tree
 treeFilterMode: default
-stt: 
-  modelName: parakeet
+stt:
+    modelName: parakeet
 repeatToolDescriptions: false
 setupVersion: 1
-tier: 
-  openai: auto
-tui: 
-  tight: true
-  textSizing: false
-images: 
-  blockImages: true
+tier:
+    openai: auto
+tui:
+    tight: true
+    textSizing: false
+images:
+    blockImages: true
 personality: pragmatic
 includeWorkspaceTree: false
 inlineToolDescriptors: auto
-advisor: 
-  enabled: false
+advisor:
+    enabled: false
 interruptMode: immediate
-ask: 
-  notify: "on"
-prewalk: 
-  enabled: true
-contextPromotion: 
-  enabled: false
+ask:
+    notify: "on"
+prewalk:
+    enabled: true
+contextPromotion:
+    enabled: false
