@@ -66,7 +66,10 @@ in
     nativeMessagingHosts = (lib.optionals pkgs.stdenv.isLinux [ pkgs-stable.firefoxpwa ]) ++ [
       vicinaeNativeMessagingHost
     ];
-    darwinDefaultsId = lib.mkIf (!pkgs.stdenv.isLinux) "com.zen.browser";
+    # `darwinDefaultsId` is deliberately left at the upstream default,
+    # `app.zen-browser.zen` — Zen's real macOS bundle identifier, and the plist
+    # domain it reads policies from. Overriding it writes ExtensionSettings to a
+    # domain nothing reads, so force_installed extensions never appear.
 
     inherit policies;
 
