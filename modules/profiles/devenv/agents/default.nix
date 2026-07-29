@@ -38,6 +38,7 @@ in
         claude-agent-acp
         agent-browser
         nono
+        tuicr
       ])
       ++ (with pkgs; [
         kagi-cli

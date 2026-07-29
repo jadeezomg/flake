@@ -17,6 +17,7 @@ in
     enable = true;
     openFirewall = true;
     extraUpFlags = [ "--ssh" ];
+    extraSetFlags = [ "--operator=jadee" ]; # add
   };
 
   # NixOS nftables firewall everywhere (no firewalld GUI stack).
