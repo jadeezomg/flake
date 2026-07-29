@@ -23,6 +23,10 @@ let
   );
 in
 {
+  imports = [ ./nix.nix ];
+
+  # Determinate owns /etc/nix/nix.conf. `determinateNix` (./nix.nix) also forces
+  # this off; kept explicit so the intent survives if that module moves.
   nix.enable = false;
   system.primaryUser = user;
   users.users.${user} = {
