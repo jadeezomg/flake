@@ -510,6 +510,18 @@ _HAND_OWNED_RE = re.compile(
 )
 
 
+# Domains a Nix module writes *programmatically*, so `hand_owned_domains` can't
+# see them. Capturing one would declare it twice (Home Manager conflict) and
+# freeze a snapshot of generated content — e.g. Zen's whole policy/
+# ExtensionSettings blob, which the zen-browser HM module derives from
+# modules/profiles/apps/browsers/zen/policies.nix.
+_MODULE_OWNED_DOMAINS: frozenset[str] = frozenset(
+    {
+        "app.zen-browser.zen",
+    }
+)
+
+
 def hand_owned_domains(flake_root: Path | None = None) -> set[str]:
     """Domains configured by hand somewhere in the flake.
 
@@ -529,7 +541,7 @@ def hand_owned_domains(flake_root: Path | None = None) -> set[str]:
             continue
         for match in _HAND_OWNED_RE.finditer(text):
             found.add(match.group("quoted") or match.group("bare"))
-    return found
+    return found | _MODULE_OWNED_DOMAINS
 
 
 # --------------------------------------------------------------------------
