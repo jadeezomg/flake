@@ -39,7 +39,6 @@ in
       "claude" # Claude Desktop
 
       # --- Browsers ---
-      "zen" # Daily-driver browser
       "firefox"
       "google-chrome"
 
