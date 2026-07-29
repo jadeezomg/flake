@@ -7,7 +7,6 @@
   # list. It deliberately skips any domain configured by hand in the files
   # below, so a hand-owned module always wins for the domains it claims.
   imports = [
-    ./defaults.generated.nix
     ./alt-tab.nix
     ./notunes.nix
     ./scroll-reverser.nix
