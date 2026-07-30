@@ -12,13 +12,13 @@ let
   useDms = shell == "dms";
   useNoctalia = shell == "noctalia";
   useDmsGreeter = cfg.loginManager == "dms-greeter";
-  useGdm = cfg.loginManager == "gdm";
   dmsShell = inputs.dms.packages.${pkgs.stdenv.hostPlatform.system}.dms-shell;
   noctaliaPkg = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
 in
 {
   imports = [
     ./dms-greeter-acl.nix
+    ./gdm
     ./peripherals.nix
   ];
 
@@ -75,10 +75,6 @@ in
     };
 
     services = {
-      displayManager.gdm = lib.mkIf useGdm {
-        enable = true;
-      };
-
       desktopManager.gnome.enable = true;
       gvfs.enable = true;
       tumbler.enable = true;

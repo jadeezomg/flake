@@ -1,0 +1,116 @@
+<!--
+  GDM greeter monitor layout for the `desktop` host.
+
+  Installed to /var/lib/gdm/seat0/config/monitors.xml — the greeter's real
+  XDG_CONFIG_HOME since GDM 49; see gdm/default.nix. The greeter never sees the
+  user's ~/.config/monitors.xml, nor the user's dconf. Without this file mutter
+  builds a default layout: no transform, and its own pick of primary — which
+  puts the login screen sideways on the physically-rotated Dell.
+
+  Constraints this file has to respect:
+
+  * Connector names are mutter's, not the kernel's or niri's. Mutter formats
+    them as "<type>-<connector_type_id>", where HDMIA maps to "HDMI". So
+    card1-HDMI-A-1 is "HDMI-1" here but "HDMI-A-2" in niri's outputs KDL.
+  * Scales must be integers. Fractional scaling needs the mutter
+    experimental-feature `scale-monitor-framebuffer`, which is a per-user dconf
+    key the greeter does not have. A rejected logical monitor invalidates the
+    whole configuration and mutter silently falls back to its default.
+  * A <configuration> only applies when its monitor set exactly matches the
+    connected set, so every plausible cabling gets its own block. Ports move
+    between the NVIDIA card and the iGPU on this box (see outputs-desktop.kdl).
+
+  Only the login screen depends on this; the niri session reads
+  niri/outputs-desktop.kdl instead.
+-->
+<monitors version="2">
+  <!-- Both panels on the NVIDIA card: card1-DP-1 + card1-HDMI-A-1. -->
+  <configuration>
+    <logicalmonitor>
+      <x>2160</x>
+      <y>700</y>
+      <scale>1</scale>
+      <primary>yes</primary>
+      <monitor>
+        <monitorspec>
+          <connector>DP-1</connector>
+          <vendor>AOC</vendor>
+          <product>AG274QS3R1B+</product>
+          <serial>RIMN4JA000078</serial>
+        </monitorspec>
+        <mode>
+          <width>2560</width>
+          <height>1440</height>
+          <rate>170.002</rate>
+        </mode>
+      </monitor>
+    </logicalmonitor>
+    <logicalmonitor>
+      <x>0</x>
+      <y>0</y>
+      <scale>1</scale>
+      <transform>
+        <rotation>left</rotation>
+        <flipped>no</flipped>
+      </transform>
+      <monitor>
+        <monitorspec>
+          <connector>HDMI-1</connector>
+          <vendor>DEL</vendor>
+          <product>DELL S2722QC</product>
+          <serial>88THMD3</serial>
+        </monitorspec>
+        <mode>
+          <width>3840</width>
+          <height>2160</height>
+          <rate>60.000</rate>
+        </mode>
+      </monitor>
+    </logicalmonitor>
+  </configuration>
+
+  <!-- AOC on card1-DP-2, Dell on the iGPU's card2-HDMI-A-2. -->
+  <configuration>
+    <logicalmonitor>
+      <x>2160</x>
+      <y>700</y>
+      <scale>1</scale>
+      <primary>yes</primary>
+      <monitor>
+        <monitorspec>
+          <connector>DP-2</connector>
+          <vendor>AOC</vendor>
+          <product>AG274QS3R1B+</product>
+          <serial>RIMN4JA000078</serial>
+        </monitorspec>
+        <mode>
+          <width>2560</width>
+          <height>1440</height>
+          <rate>170.002</rate>
+        </mode>
+      </monitor>
+    </logicalmonitor>
+    <logicalmonitor>
+      <x>0</x>
+      <y>0</y>
+      <scale>1</scale>
+      <transform>
+        <rotation>left</rotation>
+        <flipped>no</flipped>
+      </transform>
+      <monitor>
+        <monitorspec>
+          <connector>HDMI-2</connector>
+          <vendor>DEL</vendor>
+          <product>DELL S2722QC</product>
+          <serial>88THMD3</serial>
+        </monitorspec>
+        <mode>
+          <width>3840</width>
+          <height>2160</height>
+          <rate>60.000</rate>
+        </mode>
+      </monitor>
+    </logicalmonitor>
+  </configuration>
+</monitors>
