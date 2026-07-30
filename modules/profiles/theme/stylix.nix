@@ -14,10 +14,8 @@
     overlays.enable = false;
     polarity = "dark";
 
-    # Single source: lib/theme-base16.nix, derived from lib/theme-palette.nix.
     base16Scheme = dotfilesLib.themeBase16;
 
-    # Single source: lib/theme-fonts.nix (shape matches `stylix.fonts`).
     fonts = dotfilesLib.themeFonts { inherit pkgs; };
 
     targets = {

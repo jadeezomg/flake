@@ -1,22 +1,12 @@
 {
   config,
-  dotfilesLib,
   host,
   lib,
-  pkgs,
   ...
 }:
 let
   cfg = config.dotfiles.profiles.desktop;
   useGdm = cfg.loginManager == "gdm";
-
-  # The greeter is its own user with its own dconf database, so none of the
-  # user's HM/Stylix theming reaches it — restate the font choices from
-  # lib/theme-fonts.nix. Sizes follow Stylix's own convention (documents one
-  # step smaller than applications).
-  fonts = dotfilesLib.themeFonts { inherit pkgs; };
-  appSize = toString fonts.sizes.applications;
-  docSize = toString (fonts.sizes.applications - 1);
 
   monitorsFile = host.gdmMonitorsFile or null;
   monitors = ./. + "/${monitorsFile}";
@@ -43,30 +33,6 @@ in
     systemd.tmpfiles.rules = lib.mkIf (monitorsFile != null) [
       "d ${greeterConfigDir} 0700 gdm-greeter gdm"
       "L+ ${greeterConfigDir}/monitors.xml - - - - ${monitors}"
-    ];
-
-    # Greeter theming. `programs.dconf.profiles.gdm` is the gdm module's own
-    # hook, so these merge with its defaults rather than replacing them.
-    # Fonts resolve through system fontconfig (the `fonts` profile installs
-    # these same packages), so nothing extra is needed on XDG_DATA_DIRS here.
-    #
-    # Only the font family and base size are settable here: gnome-shell's
-    # stylesheet declares no font-family and sizes everything in `em` off
-    # `stage { font-size: 1em }`, so it inherits this GTK setting. The greeter's
-    # *colours* are the opposite — hardcoded in that stylesheet, unreachable
-    # from dconf.
-    programs.dconf.profiles.gdm.databases = [
-      {
-        settings = {
-          "org/gnome/desktop/interface" = {
-            font-name = "${fonts.sansSerif.name} ${appSize}";
-            document-font-name = "${fonts.serif.name} ${docSize}";
-            monospace-font-name = "${fonts.monospace.name} ${appSize}";
-            color-scheme = "prefer-dark";
-          };
-          "org/gnome/login-screen".disable-user-list = true;
-        };
-      }
     ];
   };
 }
