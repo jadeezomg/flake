@@ -21,33 +21,11 @@ in
     max-jobs = 1;
     cores = buildCores;
 
-    extra-substituters = [
-      "https://cache.numtide.com"
-      "https://zed.cachix.org"
-      "https://hyprland.cachix.org"
-      "https://nix-community.cachix.org"
-      "https://yazi.cachix.org"
-      "https://niri.cachix.org"
-      "https://noctalia.cachix.org"
-      "https://vicinae.cachix.org"
-      # CachyOS kernel (nix-cachyos-kernel)
-      "https://attic.xuyh0120.win/lantian"
-      # mini host nightly cache-warming output
-      # "https://jadee-flake.cachix.org"
-    ];
-    extra-trusted-public-keys = [
-      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
-      "zed.cachix.org-1:/pHQ6dpMsAZk2DiP4WCL0p9YDNKWj2Q5FL20bNmw1cU="
-      "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
-      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      "yazi.cachix.org-1:Dcdz63NZKfvUCbDGngQDAZq6kOroIrFoyO064uvLh8k="
-      "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
-      "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
-      "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
-      "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
-      # TODO: replace with the real public key after running `cachix create jadee-flake`
-      # "jadee-flake.cachix.org-1:REPLACE_ME="
-    ];
+    # Cache list lives in lib/nix-caches.nix — Darwin can't reuse `nix.settings`
+    # (Determinate owns nix.conf), so it reads the same data from
+    # modules/darwin/nix.nix.
+    extra-substituters = map (c: c.url) dotfilesLib.nixCaches;
+    extra-trusted-public-keys = map (c: c.key) dotfilesLib.nixCaches;
     # CA / dynamic derivations (Linux only). Not enabled on
     # Darwin (Determinate / unused). NixOS applies these after `switch`; the
     # *evaluating* client also needs them — see `lib/nix-experimental-features.nix`

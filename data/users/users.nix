@@ -24,11 +24,11 @@
     };
 
     caya-jonas = {
-      username = "caya-jonas";
-      fullName = "Caya Jonas";
+      username = "jonashippauf";
+      fullName = "Jonas Hippauf";
       email = "jonas.hippauf@getcaya.com";
-      description = "Caya Jonas Darwin User";
-      homeDirectory = "/Users/caya-jonas";
+      description = "Caya Darwin User";
+      homeDirectory = "/Users/jonashippauf";
       stateVersion = "26.05";
       extraGroups = [ ];
       packages = [ ];
