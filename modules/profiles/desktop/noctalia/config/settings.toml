@@ -19,7 +19,7 @@ order = [ "default", "side" ]
     radius = 5
     reserve_space = false
     show_on_workspace_switch = false
-    start = [ "group:g1" ]
+    start = [ "tailscale_2", "group:g1" ]
     thickness = 25
 
         [bar.default.monitor.DP-1]
@@ -153,6 +153,9 @@ hidden_tabs = [ "bluetooth" ]
     [[control_center.shortcuts]]
     type = "keyboard_layout"
 
+    [[control_center.shortcuts]]
+    type = "jadeezomg/tailscale:toggle"
+
 [desktop_widgets]
 enabled = false
 schema_version = 2
@@ -284,8 +287,30 @@ compositor = "niri"
 copy_to_clipboard = true
 video_codec = "hevc"
 
+[plugin_settings."noctalia/tailscale"]
+close_on_copy = true
+panel_height = 502
+panel_width = 390
+ssh_user = "jadee"
+
 [plugins]
-enabled = [ "dotnetrob/cat", "kenn/keybind-cheatsheet", "noctalia/screen_recorder" ]
+auto_update = true
+enabled = [ "dotnetrob/cat", "kenn/keybind-cheatsheet", "noctalia/screen_recorder", "jadeezomg/tailscale" ]
+
+    [[plugins.source]]
+    kind = "git"
+    location = "https://github.com/noctalia-dev/official-plugins"
+    name = "official"
+
+    [[plugins.source]]
+    kind = "git"
+    location = "https://github.com/noctalia-dev/community-plugins"
+    name = "community"
+
+    [[plugins.source]]
+    kind = "path"
+    location = "~/Git/community-plugins"
+    name = "community-plugins-fork"
 
 [shell]
 app_icon_color = "primary"
@@ -330,16 +355,16 @@ transition_on_startup = true
     enabled = true
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Mig-29s_intercepeted_by_F-15s_-_DF-ST-90-05759.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Mig-29s_intercepeted_by_F-15s_-_DF-ST-90-05759.jpg"
 
     [wallpaper.monitors.DP-1]
-    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Mig-29s_intercepeted_by_F-15s_-_DF-ST-90-05759.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Mig-29s_intercepeted_by_F-15s_-_DF-ST-90-05759.jpg"
 
 [widget.active_window]
 anchor = true
@@ -389,6 +414,10 @@ display = "text"
 
 [widget.recorder]
 type = "noctalia/screen_recorder:recorder"
+
+[widget.tailscale_2]
+show_ip = false
+type = "jadeezomg/tailscale:tailscale"
 
 [widget.taskbar]
 enabled = false

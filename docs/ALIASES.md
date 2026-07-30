@@ -96,7 +96,7 @@ All defined in `modules/profiles/essentials/shell-system-env.nix` (pushed by the
 | Function | Description |
 |----------|-------------|
 | `zf` | `cd` to `dotfiles.flakeRoot` (default `$HOME/.dotfiles/flake`) |
-| `flake` | `just --justfile $FLAKE/Justfile` — no args → **`tv … just-recipes`** (cable in `modules/profiles/essentials/utils/television/cable/`). With extra args on `build`/`switch`/`generation`/`gc`/`fmt`/`backups`/`init`/`darwin-defaults`, forwards to private `_…` recipes, e.g. `flake build --dry`, `flake init myhost`. |
+| `flake` | `just --justfile $FLAKE/Justfile` — no args → **`tv … just-recipes`** (cable in `modules/profiles/essentials/utils/television/cable/`). With extra args on `build`/`switch`/`generation`/`gc`/`fmt`/`backups`/`init`, forwards to private `_…` recipes, e.g. `flake build --dry`, `flake init myhost`. |
 | `nuflake` | `nu $FLAKE/build/flake.nu` |
 
 Requires **`just`** on PATH. **`FLAKE`** / **`NH_FLAKE`** follow **`dotfiles.flakeRoot`** (default `~/.dotfiles/flake`).
