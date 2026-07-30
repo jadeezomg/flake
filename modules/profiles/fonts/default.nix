@@ -17,7 +17,6 @@ in
   imports = [ ./full.nix ];
 
   config = lib.mkIf cfg.enable {
-    # Exactly the packages lib/theme-fonts.nix names, so the two can't drift.
     fonts.packages = map (font: font.package) [
       themeFonts.monospace
       themeFonts.serif
