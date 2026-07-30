@@ -162,6 +162,9 @@ let
                 isDarwin = true;
               })
               nix-homebrew.darwinModules.nix-homebrew
+              # Writes /etc/nix/nix.custom.conf (substituters, trusted-users) and
+              # forces nix.enable = false. See modules/darwin/nix.nix.
+              determinate.darwinModules.default
               (./. + "/../hosts/${hostKey}")
             ];
           };
