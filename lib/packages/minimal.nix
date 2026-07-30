@@ -48,6 +48,7 @@ pkgs: with pkgs; [
 
   # --- Nix store / flake workflow ---
   git
+  git-lfs
   nh
   nix-index
 ]
