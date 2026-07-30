@@ -156,7 +156,6 @@ New `.nix` files must be listed in the parent directory’s `default.nix` import
 3. `just switch` or `just switch-fast`
 4. After desktop config edits, `just symlink-check` (and reload compositor / session tools as needed).
 
-test
 ---
 
 *Theme, Stylix, niri, DMS, and recovery topics are documented in [AGENTS.md](AGENTS.md).*
