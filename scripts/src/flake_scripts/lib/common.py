@@ -59,6 +59,13 @@ def xdg_config_home() -> Path:
     return (Path.home() / ".config").resolve()
 
 
+def xdg_state_home() -> Path:
+    xdg = os.environ.get("XDG_STATE_HOME")
+    if xdg:
+        return Path(xdg).resolve()
+    return (Path.home() / ".local/state").resolve()
+
+
 def is_path_under(path: Path, parent: Path) -> bool:
     try:
         path.resolve().relative_to(parent.resolve())

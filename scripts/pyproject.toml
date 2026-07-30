@@ -1,14 +1,13 @@
 [project]
 name = "flake-scripts"
 version = "0.1.0"
-description = "Flake maintenance scripts: symlink-check, darwin-defaults, zen-sync"
+description = "Flake maintenance scripts: symlink-check, zen-sync"
 requires-python = ">=3.10"
 dependencies = ["lz4", "rich", "certifi"]
 
 [project.scripts]
 symlink-check = "flake_scripts.symlinks:main"
 zen-sync = "flake_scripts.zen.sync:main"
-darwin-defaults = "flake_scripts.darwin_defaults:main"
 update-packages = "flake_scripts.update_packages:main"
 media-quality = "flake_scripts.media_quality:main"
 

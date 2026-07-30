@@ -2,10 +2,10 @@
   # Homebrew cask application configurations
   # These apps are installed via Homebrew but configured via home-manager
   #
-  # `defaults.generated.nix` is captured from the live system by
-  # `just darwin-defaults-sync`, which discovers domains from the installed cask
-  # list. It deliberately skips any domain configured by hand in the files
-  # below, so a hand-owned module always wins for the domains it claims.
+  # Each domain is declared by hand as `targets.darwin.defaults."<domain>"` in
+  # the files below. Capture from the live system used to be automated by a
+  # `darwin-defaults` script writing `defaults.generated.nix`; that was removed,
+  # so add new domains here directly.
   imports = [
     ./alt-tab.nix
     ./notunes.nix

@@ -32,53 +32,16 @@ def _single_symlink_audit(path: Path) -> int:
     return issues
 
 
-def _flake_noctalia_config(flake: Path, config_name: str = "config.toml") -> Path:
-    return (flake / "modules/profiles/desktop/noctalia/config" / config_name).resolve()
+def _noctalia_config_dir(flake: Path) -> Path:
+    return (flake / "modules/profiles/desktop/noctalia/config").resolve()
 
 
-def _audit_noctalia_config(
-    config_file: Path, flake_config: Path, *, strict: bool
-) -> int:
-    if not config_file.exists():
-        C.bad(f"{config_file} does not exist — rebuild may be required")
-        return 1
-
-    if not flake_config.is_file():
-        C.bad(f"Flake config missing: {flake_config}")
-        return 1
-
-    expected = flake_config.read_text()
-    issues = 0
-
-    if config_file.is_symlink():
-        target = config_file.resolve()
-        C.dim(f"{config_file} → {target}")
-        if C.is_path_under(target, flake_config.parent):
-            C.ok("Legacy flake symlink")
-        else:
-            issues += 1
-            C.bad("Symlink resolves outside flake noctalia config tree")
-            return 1
-        if target.read_text() != expected:
-            issues += 1
-            msg = "Deployed config differs from flake — run just switch-fast"
-            (C.bad if strict else C.warn)(msg)
-        else:
-            C.ok("Matches flake config.toml")
-        return issues
-
-    if config_file.is_file():
-        C.ok("Home Manager managed (regular file)")
-        if config_file.read_text() == expected:
-            C.ok("Content matches flake config.toml")
-        else:
-            issues += 1
-            msg = "Deployed config differs from flake — run just switch-fast"
-            (C.bad if strict else C.warn)(msg)
-        return issues
-
-    C.bad(f"{config_file} is not a file or symlink")
-    return 1
+def _noctalia_settings_file() -> Path:
+    # The state-dir settings.toml overrides ~/.config/noctalia/config.toml, so
+    # this is the file that decides what noctalia actually does — and the one the
+    # GUI writes. config.toml is HM-generated into the store (Stylix merges into
+    # it) and is deliberately not audited against the flake.
+    return C.xdg_state_home() / "noctalia" / "settings.toml"
 
 
 def _audit_config_file(label: str, config_file: Path, config_dir: Path) -> int:
@@ -125,11 +88,10 @@ def cmd_all(flake: Path) -> int:
     C.rule("DMS config symlinks")
     issues += C.print_dir_symlink_audit(dms)
 
-    C.rule("Noctalia config.toml")
-    issues += _audit_noctalia_config(
-        noctalia / "config.toml",
-        _flake_noctalia_config(flake),
-        strict=False,
+    issues += _audit_config_file(
+        "Noctalia settings.toml",
+        _noctalia_settings_file(),
+        _noctalia_config_dir(flake),
     )
 
     C.rule("Niri config symlinks")
@@ -141,15 +103,17 @@ def cmd_all(flake: Path) -> int:
     C.rule("Summary")
     C.dim(f"Expected: {dms}/* → {flake}/modules/profiles/desktop/dms/config/*")
     C.dim(
-        f"Expected: {noctalia}/config.toml — HM copy of "
-        f"{flake}/modules/profiles/desktop/noctalia/config/config.toml "
-        f"(just switch-fast after edits)"
+        f"Expected: {_noctalia_settings_file()} → "
+        f"{flake}/modules/profiles/desktop/noctalia/config/settings.toml "
+        f"({noctalia}/config.toml is HM-generated with Stylix merged in, and is "
+        f"overridden by that settings.toml)"
     )
     C.dim(f"Expected: {niri}/* → {flake}/modules/profiles/desktop/niri/*")
     C.dim(f"Expected: {qs} → {flake}/modules/profiles/desktop/dms/config/config.kdl")
     C.info(
-        f"Edit DMS/niri under {flake}/modules/profiles/desktop/; "
-        f"Noctalia TOML needs just switch-fast after edits."
+        f"Edit DMS/niri/Noctalia under {flake}/modules/profiles/desktop/. "
+        f"Noctalia's settings.toml is live-symlinked, so GUI changes land in the "
+        f"checkout; only the config.toml base layer needs just switch-fast."
     )
     if issues:
         C.warn(
@@ -177,22 +141,23 @@ def cmd_dms_settings(flake: Path) -> int:
     return 0
 
 
-def cmd_noctalia_config(flake: Path) -> int:
-    noctalia_file = C.xdg_config_home() / "noctalia" / "config.toml"
-    C.rule("Noctalia config.toml")
-    issues = _audit_noctalia_config(
-        noctalia_file,
-        _flake_noctalia_config(flake),
-        strict=True,
+def cmd_noctalia_settings(flake: Path) -> int:
+    settings_file = _noctalia_settings_file()
+    issues = _audit_config_file(
+        "Noctalia settings.toml", settings_file, _noctalia_config_dir(flake)
     )
     if issues:
         return issues
 
+    C.rule("Write access")
+    flake_target = settings_file.resolve()
+    if not os.access(settings_file, os.W_OK):
+        C.bad("Not writable")
+        return 1
+    C.ok("Writable")
+
     C.rule("OK")
-    C.ok(
-        "Hand-edits: flake config.toml (then just switch-fast); GUI overrides: "
-        "~/.local/state/noctalia/settings.toml"
-    )
+    C.ok(f"GUI edits should land in [bold]{flake_target}[/]")
     return 0
 
 
@@ -221,8 +186,8 @@ def main(args: list[str] | None = None) -> int:
         "dms-settings", help="Strict DMS settings.json → flake (exit 1 on failure)"
     )
     sub.add_parser(
-        "noctalia-config",
-        help="Strict Noctalia config.toml matches flake (exit 1 on failure)",
+        "noctalia-settings",
+        help="Strict Noctalia settings.toml → flake (exit 1 on failure)",
     )
     ns = ap.parse_args(args)
     flake = C.resolve_flake_root(ns.flake)
@@ -231,8 +196,8 @@ def main(args: list[str] | None = None) -> int:
         return cmd_all(flake)
     if cmd == "dms-settings":
         return cmd_dms_settings(flake)
-    if cmd == "noctalia-config":
-        return cmd_noctalia_config(flake)
+    if cmd == "noctalia-settings":
+        return cmd_noctalia_settings(flake)
     ap.print_help()
     return 2
 

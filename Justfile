@@ -337,16 +337,6 @@ init:
     fi
     set_host "$t"; print_header "END"
 
-[doc('Write allowlisted macOS defaults into minimal/darwin/defaults.generated.nix')]
-[group('config')]
-darwin-defaults-sync *ARGS:
-    @cd "$FLAKE" && uv run --project "$FLAKE/scripts" darwin-defaults {{ ARGS }} && nix fmt .
-
-[doc('Check flake Darwin defaults vs live allowlisted domains (exit 0 = match)')]
-[group('config')]
-darwin-defaults-check *ARGS:
-    @cd "$FLAKE" && uv run --project "$FLAKE/scripts" darwin-defaults --check {{ ARGS }}
-
 [doc('Create sops editor age key under ~/.config/sops/age (Linux/macOS)')]
 [group('config')]
 setup-age-editor:
@@ -711,6 +701,3 @@ _init host:
     printf '%s\n' "{{ host }}" > "$FLAKE/.flake-host"
     print_success "Host set to: {{ host }}"
 
-[private]
-_darwin-defaults *ARGS:
-    @uv run --project "$FLAKE/scripts" darwin-defaults {{ ARGS }}
