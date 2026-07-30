@@ -18,14 +18,6 @@
       pkgs.ctx7
     ];
 
-    extraDependencyGroups = [
-      "matrix"
-      "web"
-      "messaging"
-      "mcp"
-      "edge-tts"
-    ];
-
     # Matrix bot, non-secret half (connects over loopback, no TLS on-box). Auth is by
     # ACCESS TOKEN (MATRIX_ACCESS_TOKEN in hermes.env), not password: password login
     # re-logs in on every restart and rotates the device's identity key, which breaks

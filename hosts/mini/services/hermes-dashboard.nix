@@ -4,7 +4,7 @@
 # It's a SEPARATE process from the gateway (`hermes dashboard`, not `hermes gateway`),
 # so we run a second systemd unit as the SAME `hermes` user → it shares the gateway's
 # HERMES_HOME (sessions/cron/config). The dashboard server deps (fastapi/uvicorn) come
-# from the `web` dependency group on services.hermes-agent (see hermes.nix).
+# bundled in the hermes-agent package we run (see hermes.nix).
 #
 # Auth model (important): bound to 127.0.0.1, the dashboard runs in its "trusted
 # loopback" mode — it injects its session token into the page, so ANYONE who can
@@ -24,10 +24,14 @@
 let
   cfg = config.services.hermes-agent;
   # Same package the gateway runs (mirrors the module's effectivePackage), so the
-  # `web`/`matrix` extras are present and no extra build is triggered.
-  hermesPkg = cfg.package.override {
-    inherit (cfg) extraPythonPackages extraDependencyGroups;
-  };
+  # `web`/`matrix` extras are present and no extra build is triggered. The override
+  # is only valid for hermes' own uv2nix build, so take it only when the options are
+  # actually set — the llm-agents package has no such args (see hermes.nix).
+  hermesPkg =
+    if cfg.extraPythonPackages == [ ] && cfg.extraDependencyGroups == [ ] then
+      cfg.package
+    else
+      cfg.package.override { inherit (cfg) extraPythonPackages extraDependencyGroups; };
   port = 9119; # hermes dashboard default; loopback only
 in
 {
