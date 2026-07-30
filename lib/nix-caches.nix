@@ -6,6 +6,20 @@
 # Darwin needs its own channel because Determinate Nix owns /etc/nix/nix.conf,
 # which makes nix-darwin's `nix.settings` inert there (`nix.enable = false`).
 #
+# These two are the only places caches get declared. Do not also put them in
+# flake.nix `nixConfig`: with the default `accept-flake-config = false`, Nix
+# prompts once and then announces "Using saved setting for 'extra-substituters'
+# … from ~/.local/share/nix/trusted-settings.json" on every single evaluation.
+# Being in `trusted-users` does not suppress that. It was pure noise, because
+# the settings below already apply system-wide.
+#
+# The one thing flake-level nixConfig bought was cache hits on a brand-new box,
+# before any of this is active. Pass them on the command line for that first
+# build instead:
+#
+#   --option extra-substituters https://cache.numtide.com \
+#   --option extra-trusted-public-keys niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=
+#
 # `darwin = true` marks caches that actually serve aarch64-darwin. The
 # compositor and kernel caches are Linux-only, and every substituter costs a
 # lookup round trip per missing path, so they stay off macOS.

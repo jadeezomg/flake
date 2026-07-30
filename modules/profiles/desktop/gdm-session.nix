@@ -12,9 +12,6 @@ let
   noctaliaPackage =
     osConfig.programs.noctalia.package
       or inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
-  noctaliaPluginPackages = import ./noctalia/extra-packages.nix { inherit pkgs; };
-  # HM systemd.user.services.*.path is a Path unit (attrset), not a package list.
-  noctaliaPluginBinPath = lib.makeBinPath noctaliaPluginPackages;
 in
 {
   config = lib.mkIf useGdm (
@@ -44,10 +41,14 @@ in
             PartOf = [ "graphical-session.target" ];
           };
           Service = {
-            # GDM user units don't inherit the full login PATH.
-            Environment = [
-              "PATH=${noctaliaPluginBinPath}:$PATH"
-            ];
+            # Deliberately no `Environment=PATH=…` here. systemd does not expand
+            # variables in Environment=, so a `…:$PATH` entry appends the literal
+            # string and destroys the inherited PATH — which left noctalia unable
+            # to find systemctl/loginctl, so its session buttons logged
+            # "no supported command found" and did nothing. Units inherit the
+            # full session PATH from the user manager (niri.service and the
+            # autostart units all show /run/current-system/sw/bin), and the
+            # plugin binaries come from home.packages in ./noctalia/default.nix.
             ExecStart = "${lib.getExe noctaliaPackage}";
             Restart = "on-failure";
           };

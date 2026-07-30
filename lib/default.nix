@@ -5,10 +5,20 @@
 # Functions are exposed unapplied; consumers apply their own pkgs/lib/etc.
 # HM helpers that need `config` (mkLiveSymlink & friends) are NOT here — they
 # live on `config.lib.dotfiles` (registered by ./home/dotfiles.nix).
+let
+  palette = import ./theme-palette.nix;
+in
 {
   # Birds-of-Paradise palette (Python mirror:
   # scripts/src/flake_scripts/lib/palette.py — keep both in sync).
-  palette = import ./theme-palette.nix;
+  inherit palette;
+
+  # The palette as a base16 scheme, for both halves of Stylix (HM and NixOS).
+  themeBase16 = import ./theme-base16.nix { inherit palette; };
+
+  # Font selections shared by Stylix, the fonts profile, and the GDM greeter's
+  # dconf profile. apply: { pkgs }
+  themeFonts = import ./theme-fonts.nix;
 
   # Shell env/path data shared by minimal's shells tree and essentials'
   # shell-system-env.

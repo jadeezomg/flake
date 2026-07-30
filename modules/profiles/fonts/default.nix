@@ -3,6 +3,7 @@
 # package). Always on, including the server; the full catalogue is ./full.nix.
 {
   config,
+  dotfilesLib,
   isDarwin,
   lib,
   pkgs,
@@ -10,16 +11,18 @@
 }:
 let
   cfg = config.dotfiles.profiles.fonts;
+  themeFonts = dotfilesLib.themeFonts { inherit pkgs; };
 in
 {
   imports = [ ./full.nix ];
 
   config = lib.mkIf cfg.enable {
-    fonts.packages = with pkgs; [
-      nerd-fonts.iosevka # stylix monospace
-      iosevka-etoile # stylix serif (local package via overlay)
-      inter # stylix sans-serif ("Inter Variable")
-      noto-fonts-color-emoji # stylix emoji
+    # Exactly the packages lib/theme-fonts.nix names, so the two can't drift.
+    fonts.packages = map (font: font.package) [
+      themeFonts.monospace
+      themeFonts.serif
+      themeFonts.sansSerif
+      themeFonts.emoji
     ];
 
     # User-level fontconfig integration — previously enabled by the deleted
