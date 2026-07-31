@@ -8,6 +8,7 @@ Single-flake, multi-host NixOS/Darwin dotfiles for `desktop`, `framework`, `caya
 
 - `flake-structure` — top-level layout: hosts, parts, packages, lib, scripts, docs.
 - `module-structure` — `modules/profiles/**` profile/app layout.
+- `overlays` — `parts/overlays/` and the self-expiring workaround pattern.
 - `agent-structure` — `.agents/skills/`, global `data/agents/`, and installed agent config.
 - `secrets-structure` — SOPS/age secret layout and wiring.
 - `theme-structure` — shared palette and generated app themes.
@@ -20,6 +21,7 @@ Single-flake, multi-host NixOS/Darwin dotfiles for `desktop`, `framework`, `caya
 - Never run build/switch commands yourself (`just build*`, `just switch`, or anything that evaluates/builds the system). Ask the user to run them and report back the output.
 - Always edit flake/config on the host you are running on. Never edit configs over SSH on remotes (`mini`, etc.) — remotes are for inspect/deploy/ops only; the user reviews and approves local diffs first.
 - Verify packages with live nixpkgs tooling before adding them; check cache availability for costly packages.
+- Every workaround overlay must carry an expiry guard (`overlays` skill); nixpkgs bumps silently make them redundant.
 - Run `flake fmt` after editing `.nix` files.
 - Run `git add` before Nix eval/build; flakes only see tracked files.
 - Never change `.flake-host` (read is fine; do not create, edit, or delete it). Never commit secrets or `.flake-host`; use SOPS for encrypted secrets.
