@@ -9,12 +9,6 @@ let
   commentColor = dotfilesLib.palette.line-highlight;
 in
 {
-  # Per-surface transparency for the stylix-generated theme: main background at
-  # e0, other surfaces lighter (stylix has no per-surface alpha knob), plus the
-  # blurred appearance and the palette comment color.
-  #
-  # The former `appearance: "unspecified"` fixup (stylix #2267) is gone — that was
-  # our base16 scheme missing a `variant` key, now set in lib/theme-base16.nix.
   home.activation.zedThemeSurfaceAlpha = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     theme_file="${"$"}{XDG_CONFIG_HOME:-${"$"}HOME/.config}/zed/themes/stylix.json"
     if [ -e "${"$"}theme_file" ]; then
