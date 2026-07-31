@@ -1,5 +1,9 @@
 # Central overlay list. Add new overlays here and in their own file under ./.
 # Each overlay is included per-system; use condition to restrict by system when needed.
+#
+# Workaround overlays take `expiry` and guard themselves with ./expiry.nix, so
+# they warn during evaluation once nixpkgs makes them redundant. The name bound
+# here is what the warning points at — keep it matching the file name.
 {
   inputs,
   system,
@@ -7,6 +11,7 @@
 let
   inherit (inputs.nixpkgs) lib;
   isX86_64Linux = system == "x86_64-linux";
+  expiryFor = import ./expiry.nix { inherit lib; };
 in
 [
   # AI agent CLIs (codex, claude-code, pi, omp, cursor-agent, …) under
@@ -17,12 +22,19 @@ in
   # `{pkgs, lib}` and standard-nixpkgs `callPackage` signatures, with
   # per-package system gates inside the overlay).
   (import ./local-packages.nix { inherit lib system; })
-  (import ./vscode-langservers-node-esm.nix)
-  (import ./direnv-skip-check-darwin.nix { inherit system; })
-  (import ./nono-skip-check-darwin.nix { inherit system; })
-  (import ./python-package-fixes.nix)
-  # lact + niri: libdisplay-info-sys needs <0.4.0 until nixpkgs#546155 lands.
-  (import ./lact-libdisplay-info-fix.nix { inherit lib system; })
+  (import ./direnv-skip-check-darwin.nix {
+    inherit lib system;
+    expiry = expiryFor "direnv-skip-check-darwin";
+  })
+  (import ./nono-skip-check-darwin.nix {
+    inherit lib system;
+    expiry = expiryFor "nono-skip-check-darwin";
+  })
+  (import ./python-package-fixes.nix {
+    inherit lib;
+    expiry = expiryFor "python-package-fixes";
+  })
+  # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })
 ]
 ++ (if isX86_64Linux then [ inputs.nix-cachyos-kernel.overlays.pinned ] else [ ])

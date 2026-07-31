@@ -5,6 +5,10 @@
 # `nixpkgs-skhd` rev so the path (and grant) only move on a deliberate bump.
 # Darwin only; skhd is macOS-only. Bump `nixpkgs-skhd` + re-grant Accessibility
 # together, or drop this overlay + input to unpin.
+#
+# Deliberately carries no expiry guard: this is a standing pin, not a workaround
+# for an upstream defect, so there is no upstream state that retires it. Only a
+# decision to stop caring about TCC grant churn does.
 {
   inputs,
   system,

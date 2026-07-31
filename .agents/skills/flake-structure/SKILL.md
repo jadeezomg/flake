@@ -7,7 +7,7 @@ description: Apply this dotfiles flake's top-level layout rules. Use when adding
 
 ## Scope
 
-Use this for top-level flake organization outside `modules/profiles/**`. For profile/app layout, use `module-structure`.
+Use this for top-level flake organization outside `modules/profiles/**`. For profile/app layout, use `module-structure`; for `parts/overlays/` internals, use `overlays`.
 
 ## Top-level ownership
 
@@ -19,7 +19,7 @@ Use this for top-level flake organization outside `modules/profiles/**`. For pro
   - `hosts.nix`: NixOS/Darwin/HM output construction.
   - `packages.nix`: exposes local packages as flake packages.
   - `checks.nix`: flake checks and formatter.
-  - `overlays/`: overlay list and package auto-registration.
+  - `overlays/`: overlay list and package auto-registration — see the `overlays` skill.
 - `packages/<name>/` owns custom package derivations and update metadata.
 - `lib/` owns shared data/helpers exposed through `dotfilesLib`.
 - `scripts/` owns Justfile-backed shell/Python helpers.
