@@ -22,14 +22,6 @@ in
   # `{pkgs, lib}` and standard-nixpkgs `callPackage` signatures, with
   # per-package system gates inside the overlay).
   (import ./local-packages.nix { inherit lib system; })
-  (import ./direnv-skip-check-darwin.nix {
-    inherit lib system;
-    expiry = expiryFor "direnv-skip-check-darwin";
-  })
-  (import ./nono-skip-check-darwin.nix {
-    inherit lib system;
-    expiry = expiryFor "nono-skip-check-darwin";
-  })
   (import ./python-package-fixes.nix {
     inherit lib;
     expiry = expiryFor "python-package-fixes";
