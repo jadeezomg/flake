@@ -9,10 +9,13 @@ let
   commentColor = dotfilesLib.palette.line-highlight;
 in
 {
-  # Workarounds for zed + stylix:
-  # - force unsupported `appearance: "unspecified"` to `"dark"` (stylix #2267)
-  # - main background at d0 (slightly transparent), other surfaces at 50.
-  home.activation.zedFixStylixAppearance = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+  # Per-surface transparency for the stylix-generated theme: main background at
+  # e0, other surfaces lighter (stylix has no per-surface alpha knob), plus the
+  # blurred appearance and the palette comment color.
+  #
+  # The former `appearance: "unspecified"` fixup (stylix #2267) is gone — that was
+  # our base16 scheme missing a `variant` key, now set in lib/theme-base16.nix.
+  home.activation.zedThemeSurfaceAlpha = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     theme_file="${"$"}{XDG_CONFIG_HOME:-${"$"}HOME/.config}/zed/themes/stylix.json"
     if [ -e "${"$"}theme_file" ]; then
       # If stylix linked a read-only store file, replace link with a writable copy.
@@ -20,10 +23,7 @@ in
         cp --remove-destination "$(readlink -f "${"$"}theme_file")" "${"$"}theme_file"
       fi
 
-      # Replace any unsupported zed value with a valid one.
-      sed -i 's/"appearance":[[:space:]]*"unspecified"/"appearance":"dark"/g' "${"$"}theme_file"
-
-      # Apply per-surface alpha: main background at d0, all other surfaces at 50.
+      # Apply per-surface alpha: main background at e0, all other surfaces lighter.
       tmp_file="$(mktemp)"
       ${lib.getExe pkgs.jq} '
         def with_alpha(a):

@@ -1,7 +1,7 @@
 # Central overlay list. Add new overlays here and in their own file under ./.
 # Each overlay is included per-system; use condition to restrict by system when needed.
 #
-# Workaround overlays take `expiry` and guard themselves with ./expiry.nix, so
+# Workaround overlays take `expiry` and guard themselves with lib/expiry.nix, so
 # they warn during evaluation once nixpkgs makes them redundant. The name bound
 # here is what the warning points at — keep it matching the file name.
 {
@@ -11,7 +11,8 @@
 let
   inherit (inputs.nixpkgs) lib;
   isX86_64Linux = system == "x86_64-linux";
-  expiryFor = import ./expiry.nix { inherit lib; };
+  # Shared with modules as `dotfilesLib.expiry`; overlays name their own file.
+  expiryFor = name: import ../../lib/expiry.nix { inherit lib; } "parts/overlays/${name}.nix";
 in
 [
   # AI agent CLIs (codex, claude-code, pi, omp, cursor-agent, …) under

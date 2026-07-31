@@ -5,12 +5,7 @@
 }:
 let
   py = pkgs.python3Packages;
-  # Upstream marks this broken; wheel build needs Cython in nativeBuildInputs on Python 3.13.
-  dependency-injector = py.dependency-injector.overridePythonAttrs (old: {
-    meta = (old.meta or { }) // {
-      broken = false;
-    };
-    nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ py.cython ];
+  dependency-injector = py.dependency-injector.overridePythonAttrs (_old: {
     doCheck = false;
   });
 in

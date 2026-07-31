@@ -1,4 +1,5 @@
 {
+  dotfilesLib,
   inputs,
   lib,
   pkgs,
@@ -79,10 +80,22 @@
   # `fwupd.service` or LVFS (client/daemon mismatch, nixpkgs#288598) and exits 1,
   # which makes switch-to-configuration return 4. Treat those as non-fatal;
   # run `fwupdmgr refresh` / `fwupdmgr update` when you care about metadata.
-  systemd.services.fwupd-refresh.serviceConfig.SuccessExitStatus = lib.mkForce [
-    1
-    2
-  ];
+  #
+  # Guarded, not exact: nixpkgs#288598 is still open and "the race stopped
+  # happening" is not observable at eval time, so this nags on a future fwupd
+  # rather than retiring itself. Still in place as of fwupd 2.1.6.
+  systemd.services.fwupd-refresh.serviceConfig.SuccessExitStatus =
+    (dotfilesLib.expiry { inherit lib; } "hosts/mini/default.nix").recheckWhen
+      {
+        stale = lib.versionAtLeast pkgs.fwupd.version "2.3";
+        reason = "fwupd reached 2.3 (workaround still in place at 2.1.6); recheck https://github.com/NixOS/nixpkgs/issues/288598 and drop this if switch no longer fails.";
+      }
+      (
+        lib.mkForce [
+          1
+          2
+        ]
+      );
 
   # AMT controller tools (also useful here for SOL-from-localhost debugging).
   environment.systemPackages = with pkgs; [

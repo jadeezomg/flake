@@ -10,6 +10,7 @@
 {
   scheme = "Birds of Paradise";
   author = "Jeroen de Vries";
+  variant = "dark";
   base00 = palette.bg-primary;
   base01 = palette.bg-secondary;
   base02 = palette.bg-tertiary;
