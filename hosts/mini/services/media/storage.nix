@@ -35,20 +35,22 @@ in
       options = mountOptions;
       depends = [ "/data" ];
     };
+    # /Music and /media are DIRECT NFS mounts, not binds of the /data tree. A bind of
+    # a subdirectory of an automounted NFS mount pins the superblock it was created
+    # from: when /data expires (idle-timeout above) or is re-mounted during activation,
+    # the bind keeps the dead handle and every access returns ESTALE. That wedged plex
+    # on 2026-07-31 — `ls /media` → "Stale file handle", so systemd could not set up its
+    # ReadOnlyPaths=/media namespace and ExecStartPre failed with 226/NAMESPACE.
+    # Mounting the export path directly lets systemd remount each one independently.
     "/Music" = {
-      device = "/data/media/Music";
-      fsType = "none";
-      options = [ "bind" ];
-      depends = [ "/data/media/Music" ];
+      device = "192.168.178.62:/mnt/user/Music";
+      fsType = "nfs";
+      options = mountOptions;
     };
     "/media" = {
-      device = "/data/media";
-      fsType = "none";
-      options = [
-        "bind"
-        "ro"
-      ];
-      depends = [ "/data/media" ];
+      device = "192.168.178.62:/mnt/user/data/media";
+      fsType = "nfs";
+      options = mountOptions ++ [ "ro" ];
     };
   };
 
