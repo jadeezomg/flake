@@ -14,13 +14,6 @@ let
       config = {
         allowUnfree = true;
         input-fonts.acceptLicense = true;
-        # Deliberately here and not in an overlay: an overlay cannot grant an
-        # insecure-package exception, and dropping ventoy's
-        # `meta.knownVulnerabilities` to fake one would hide the warning globally.
-        # This form is version-pinned on purpose — a nixpkgs bump past 1.1.12
-        # fails the build loudly instead of silently extending the exception.
-        # ventoy ships unauditable binary blobs (nixpkgs#404663); used by
-        # modules/profiles/apps/files.
         permittedInsecurePackages = [
           "ventoy-1.1.12"
         ];
