@@ -1,14 +1,21 @@
-# Self-expiring overlay guards. See the `overlays` skill for usage rules.
+# Self-expiring workaround guards. See the `overlays` skill for usage rules.
 #
-# A workaround overlay exists for a reason that will eventually stop being true:
-# nixpkgs ships the newer version, un-marks the package broken, adopts the patch
-# upstream. Nothing normally tells us when that happens, so workarounds outlive
-# their justification and quietly rot in the tree.
+# A workaround exists because of some upstream state that will eventually change:
+# nixpkgs ships the newer version, un-marks the package broken, adopts the patch,
+# fixes the module. Nothing normally tells us when that happens, so workarounds
+# outlive their justification and quietly rot in the tree.
 #
-# These combinators make the overlay carry its own justification as an
-# eval-time condition, and print a warning the moment the condition flips.
-# `flake update` then reports which overlays it made redundant, instead of us
-# finding out years later.
+# These combinators make a workaround carry its own justification as an eval-time
+# condition and print a warning the moment the condition flips, so `flake update`
+# reports what it made redundant instead of us finding out years later.
+#
+# Consumed by overlays (bound per file in parts/overlays/default.nix) and by
+# modules through `dotfilesLib.expiry "<repo-relative path>"`.
+#
+# Conditions must be evaluable offline. Nix cannot ask whether an upstream issue
+# is closed, so guard on something in the pinned tree that the fix would change —
+# a version, an attribute, a patch marker — and put the issue URL in `reason` for
+# whoever reads the warning.
 #
 # HAZARD: guard attribute *values*, never the attrset an overlay returns.
 # Nixpkgs must know an overlay's attribute names before it can evaluate the
@@ -20,13 +27,9 @@
 # Pattern from
 # https://jezenthomas.com/2026/07/nix-overrides-that-expire-themselves/
 { lib }:
-# Bound to the overlay's own file name at the import site in ./default.nix, so
-# the warning says which file to delete.
-overlay:
-let
-  location = "parts/overlays/${overlay}.nix";
-in
-{
+# Repo-relative path of the file owning the workaround, so the warning says what
+# to go edit: "parts/overlays/foo-fix.nix", "hosts/mini/default.nix", …
+location: {
   # For a condition that *is* the justification: when it flips, the workaround
   # is provably redundant, so stop applying it and say so.
   #
@@ -47,13 +50,14 @@ in
     workaround:
     lib.warnIf fixed ''
       ${location} is obsolete: ${reason}
-      Drop the override; delete the file once nothing else in it is live.
+      Drop the workaround; delete the file once nothing else in it is live.
     '' (if fixed then fallback else workaround);
 
   # For a condition that only *suggests* staleness — upstream test skips, build
-  # sandbox workarounds, anything whose justification cannot be expressed
-  # exactly. Keeps applying the workaround (dropping it on a guess would break
-  # the build) and nags us to re-verify it by hand.
+  # sandbox workarounds, module-level fixes for a still-open upstream bug,
+  # anything whose justification cannot be expressed exactly. Keeps applying the
+  # workaround (dropping it on a guess would break the build) and nags us to
+  # re-verify it by hand.
   #
   #   foo = recheckWhen {
   #     stale = lib.versionAtLeast prev.foo.version "1.5";
@@ -67,6 +71,6 @@ in
     workaround:
     lib.warnIf stale ''
       ${location} needs re-checking: ${reason}
-      Re-verify the workaround, then move its threshold forward or delete the file.
+      Re-verify the workaround, then move its threshold forward or delete it.
     '' workaround;
 }

@@ -419,22 +419,22 @@ transition_on_startup = true
     enabled = true
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
 
     [wallpaper.monitors.DP-1]
     path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
     [wallpaper.monitors.DP-2]
-    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
     path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
     [wallpaper.monitors.HDMI-A-2]
-    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
 
 [widget.active_window]
 anchor = true

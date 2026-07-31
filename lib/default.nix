@@ -36,6 +36,12 @@ in
   # apply: { lib, isDarwin }
   nixExperimentalFeatures = import ./nix-experimental-features.nix;
 
+  # Self-expiring workaround guards. apply: { lib } then the repo-relative path of
+  # the file that owns the workaround, e.g.
+  #   (dotfilesLib.expiry { inherit lib; } "hosts/mini/default.nix").recheckWhen
+  # Overlays get theirs bound in parts/overlays/default.nix.
+  expiry = import ./expiry.nix;
+
   # Binary caches for both platforms' Nix config; `darwin = true` marks the ones
   # that serve aarch64-darwin.
   nixCaches = (import ./nix-caches.nix).caches;

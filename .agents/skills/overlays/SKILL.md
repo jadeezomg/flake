@@ -13,9 +13,21 @@ Use this for everything under `parts/overlays/`. For where overlays sit in the w
 
 - One overlay per file: `parts/overlays/<name>.nix`.
 - `parts/overlays/default.nix` is the only registry — every overlay is imported and named there.
-- `parts/overlays/expiry.nix` holds the obsolescence guards; workaround overlays receive it as `expiry`.
+- `lib/expiry.nix` holds the obsolescence guards. Overlays receive them as `expiry`, bound to their file name in `default.nix`; modules reach them through `dotfilesLib.expiry { inherit lib; } "<repo-relative path>"`.
 - `parts/overlays/local-packages.nix` auto-registers `packages/<name>`; never add a second registry.
 - Restrict by platform inside the overlay with `builtins.match ".*-darwin" system != null` and return `{ }` when it does not apply.
+
+## Not every workaround belongs in an overlay
+
+Match the mechanism to what you are changing; an overlay only rewrites packages.
+
+- **Package derivation** (patch, test skip, dep bound, version) → overlay.
+- **nixpkgs config** (`permittedInsecurePackages`, `allowUnfree`) → `lib/pkgs.nix`. An overlay cannot grant an insecure-package exception, and stripping `meta.knownVulnerabilities` to fake one hides the warning globally instead of recording a version-pinned, loudly-failing exception.
+- **NixOS/HM module or unit option** (`systemd.services.*`, `programs.*`) → the module. No overlay can reach a unit's `serviceConfig`.
+- **One consumer's closure only** → keep it package-local (`packages/<name>/default.nix`), not a global overlay.
+- **Deliberate pin** (store-path stability, TCC grants) → not a workaround at all; no expiry guard.
+
+Guards are independent of that choice: anything above except the last can carry one.
 
 ## Every workaround expires
 
@@ -42,7 +54,9 @@ foo = expiry.expireWhen {
 } (prev.foo.overrideAttrs (…));
 ```
 
-`fallback` is nearly always the bare `prev` package. Prefer conditions that observe the *fix* rather than proxy for it:
+`fallback` is nearly always the bare `prev` package.
+
+Conditions must be evaluable **offline**. Nix cannot ask whether an upstream issue is closed, so never try to link a guard to a PR directly — guard on something in the pinned tree that the fix would change, and put the issue URL in `reason` for whoever reads the warning. Prefer conditions that observe the *fix* rather than proxy for it:
 
 | Workaround | Condition |
 | --- | --- |
@@ -102,7 +116,14 @@ When one condition covers several packages, evaluate it per package (a small `gu
 
 1. `git add parts/overlays` before any eval — flakes only see tracked files.
 2. `flake fmt` after editing `.nix` files.
-3. Eval the overlaid set for each affected system and confirm the guards fire (or stay quiet) as intended:
+3. **Before writing a workaround, check whether it is still needed.** Cheapest first: is the *unpatched* upstream output already in the binary cache? If yes, Hydra built it — tests and all — and our override only forces a needless local rebuild.
+
+```bash
+nix path-info --store https://cache.nixos.org "$(nix eval --raw <upstream drv>.outPath)"
+```
+
+   Then check whether the phase you are disabling even runs (`doCheck`/`doInstallCheck` in `nix derivation show … | jq '.derivations[].env'`) — `buildPythonPackage` maps `doCheck` onto `doInstallCheck`, and a `checkFlags` addition is inert when `doCheck` is false.
+4. Eval the overlaid set for each affected system and confirm the guards fire (or stay quiet) as intended:
 
 ```bash
 nix eval --impure --raw --expr '
@@ -118,5 +139,5 @@ let
 in pkgs.foo.version'
 ```
 
-4. Check both a Linux and a Darwin system when the overlay is platform-gated; the recursion hazard shows up per-system.
-5. Ask the user to run builds/switches — never run them yourself.
+5. Check both a Linux and a Darwin system when the overlay is platform-gated; the recursion hazard shows up per-system.
+6. Build the single affected package (`nix build --no-link -L <drv>^out`) to confirm the workaround is load-bearing — a package build is not a system build. Ask the user to run any `just build*` / `just switch`.
