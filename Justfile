@@ -337,6 +337,34 @@ init:
     fi
     set_host "$t"; print_header "END"
 
+# Set a secret from stdin, no editor. Takes the same slash path used in
+# secrets/SCHEMA.md and in `sops.secrets."<path>"`, and converts it to the
+# ["a"]["b"] index sops wants.
+#
+# The value is read from STDIN and passed via --value-stdin, never as an
+# argument: sops documents that flag precisely to keep secrets out of process
+# listings, and it also keeps them out of shell history.
+#
+#   openssl rand -base64 48 | tr -d '\n' | just secret-set mini/backup/restic-password
+#   sudo cat /dev/shm/k              | just secret-set mini/backup/unraid-ssh-key
+#
+# Content is stored byte-for-byte, so pipe through `tr -d '\n'` for single-line
+# values; multi-line values (ssh keys, env files) want their trailing newline.
+# Remember to update secrets/SCHEMA.md — it is not derived from this file.
+[doc('Set a sops secret from stdin, no editor: `<cmd> | just secret-set mini/backup/restic-password`')]
+[group('config')]
+secret-set path:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [[ -t 0 ]]; then
+      echo "secret-set: refusing to read a secret from a terminal — pipe the value in." >&2
+      echo "  e.g. openssl rand -base64 48 | tr -d '\\n' | just secret-set {{ path }}" >&2
+      exit 2
+    fi
+    idx="$(printf '%s' '{{ path }}' | awk -F/ '{ for (i = 1; i <= NF; i++) printf "[\"%s\"]", $i }')"
+    jq -Rs . | sops set --value-stdin "$FLAKE/secrets/secrets.yaml" "$idx"
+    echo "set {{ path }} (remember: document it in secrets/SCHEMA.md)"
+
 [doc('Create sops editor age key under ~/.config/sops/age (Linux/macOS)')]
 [group('config')]
 setup-age-editor:

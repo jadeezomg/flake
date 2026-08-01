@@ -7,6 +7,13 @@
 # live on `config.lib.dotfiles` (registered by ./home/dotfiles.nix).
 let
   palette = import ./theme-palette.nix;
+
+  # Two address registries, kept apart on purpose so neither becomes a second
+  # source of truth for the other:
+  #   hostFacts — machines this flake BUILDS; owned by hosts/<name>/host.nix.
+  #   lanHosts  — machines it only talks to (Unraid, ...), which have no host.nix.
+  hostFacts = (import ../hosts/hosts.nix).hosts;
+  lanHosts = (import ../data/network/lan-hosts.nix).hosts;
 in
 {
   # Birds-of-Paradise palette (Python mirror:
@@ -41,7 +48,17 @@ in
   # that serve aarch64-darwin.
   nixCaches = (import ./nix-caches.nix).caches;
 
-  sshDestinations = (import ../data/network/ssh-destinations.nix).destinations;
+  # Interactive ssh aliases, derived entirely from the two registries above —
+  # no hostname or address is written out a second time here.
+  sshDestinations =
+    (import ../data/network/ssh-destinations.nix {
+      hosts = hostFacts;
+      inherit lanHosts;
+    }).destinations;
+
+  # Addresses of machines the flake talks to but does not build (Unraid, ...).
+  # Flake-managed hosts keep their facts in hosts/<name>/host.nix instead.
+  inherit lanHosts;
   agentSkillsDir = ../data/agents/skills;
   # apply: { lib, inputs }
   agentSkills = import ./agent-skills.nix;

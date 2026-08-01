@@ -86,6 +86,38 @@ maps `kagi/session_token` into the hermes env file separately.
 | `matrix/hermes_access_token` | Long-lived access token for `@hermes` bound to device `hermes-mini` (preferred auth — avoids password re-login key churn that breaks E2EE) | `hosts/mini/services/hermes.nix` → `MATRIX_ACCESS_TOKEN` in hermes env | mini |
 | `matrix/hermes_recovery_key` | Cross-signing recovery key that verifies the `hermes-mini` device for E2EE; generated during the one-time cross-signing bootstrap | `hosts/mini/services/hermes.nix` → `MATRIX_RECOVERY_KEY` in hermes env | mini |
 
+### mini backup
+
+Off-host Immich backup to Unraid (`hosts/mini/services/immich-backup.nix`).
+
+**Public keys are deliberately not stored here.** For outbound deploy keys
+(`mini/git/deploy-key`, `mini/backup/unraid-ssh-key`) the public half is
+registered only at the destination — GitHub and Unraid's `authorized_keys`
+respectively — because it is always recoverable from the private half:
+
+```sh
+sudo ssh-keygen -y -f /run/secrets/mini/backup/unraid-ssh-key            # on the host
+sops -d --extract '["mini"]["backup"]["unraid-ssh-key"]' secrets/secrets.yaml \
+  | ssh-keygen -y -f /dev/stdin                                          # anywhere with an age key
+```
+
+This is the opposite of the *inbound* keys in `data/users/users.nix`, which are
+public halves committed to the flake because `users.users.*.openssh.authorizedKeys`
+needs them declaratively. Do not confuse the two directions.
+
+**Immich itself has no secrets.** `hosts/mini/services/immich.nix` reaches
+postgres over the `/run/postgresql` unix socket with peer auth as role `immich`,
+which satisfies the nixpkgs module's `!isPostgresUnixSocket -> secretsFile != null`
+assertion without a `secretsFile`. Redis is a unix socket too, and all
+application config lives in the Immich database rather than in Nix. Only the
+backup job below needs credentials.
+
+| Path | Source | Consumed by | Consumed on |
+|---|---|---|---|
+| `mini/backup/restic-password` | `openssl rand -base64 48`. **Also store this outside the flake** (password manager + paper): without it the Unraid repo is unrecoverable ciphertext, and the sops copy is only readable while at least one host holding an age key survives. | `services.restic.backups.{immich,immich-maint}.passwordFile`, `immich-backup-watchdog` | mini |
+| `mini/backup/unraid-ssh-key` | `ssh-keygen -t ed25519 -N '' -C 'mini@immich-backup' -f /dev/shm/k` **on mini** (tmpfs — mini's `/tmp` is persistent btrfs); paste the `.pub` into Unraid WebGUI → Users → root → "SSH authorized keys" (required — `/root` is tmpfs on Unraid, so a hand-appended key does not survive a reboot). Store the **private** key here, then `shred -u` both halves. | `programs.ssh.extraConfig` `Host unraid-backup` → restic sftp backend | mini |
+| `mini/backup/matrix-notify` | Multi-line `MATRIX_ROOM=!id:matrix.jadee.fyi` + `MATRIX_TOKEN=syt_…` for a **non-E2EE** notification room on the local continuwuity. Optional: the notifier no-ops (exit 0) when unset rather than going red. | `backup-notify@.service` `EnvironmentFile` | mini |
+
 ### mini media
 
 All media secrets are nested, runtime-only values consumed by
