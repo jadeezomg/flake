@@ -1,34 +1,8 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }:
-let
-  # Upstream's <app>-rootfolders oneshot has no API readiness gate of its own: it only
-  # orders after <app>-config.service, whose wait-for-api ExecStartPost runs when THAT
-  # unit (re)starts. -rootfolders also Requires the media mounts, so remounting /media
-  # re-runs it while <app>.service is still coming back up — and -config stays active
-  # (RemainAfterExit), so nothing waits. Its first `curl -Sf .../rootfolder` then hits a
-  # dead port and `set -e` kills the oneshot with exit 7 (seen 2026-07-31 and 2026-07-25).
-  # Gate each one on the app's own unauthenticated /ping (no API key needed).
-  waitForArrApi =
-    app:
-    let
-      inherit (config.nixflix.${app}.config) hostConfig;
-      url = "http://${hostConfig.bindAddress}:${toString hostConfig.port}${hostConfig.urlBase}/ping";
-    in
-    pkgs.writeShellScript "${app}-rootfolders-wait-for-api" ''
-      for i in $(seq 1 90); do
-        if ${pkgs.curl}/bin/curl -fsS -o /dev/null ${lib.escapeShellArg url}; then
-          exit 0
-        fi
-        sleep 1
-      done
-      echo "${app} API at ${url} not ready after 90s" >&2
-      exit 1
-    '';
-in
 {
   nixflix = {
     sonarr = {
@@ -140,11 +114,6 @@ in
   systemd.services = {
     # Upstream's reconciler returns 1 after successfully updating every indexer.
     prowlarr-indexers.serviceConfig.SuccessExitStatus = [ 1 ];
-
-    # See waitForArrApi above.
-    sonarr-rootfolders.serviceConfig.ExecStartPre = waitForArrApi "sonarr";
-    radarr-rootfolders.serviceConfig.ExecStartPre = waitForArrApi "radarr";
-    lidarr-rootfolders.serviceConfig.ExecStartPre = waitForArrApi "lidarr";
 
     # One ReadWritePaths entry for /data (not per-subdir). Separate systemd binds
     # remount each path and break hardlinks (EXDEV) between torrents/usenet and media.
