@@ -92,6 +92,11 @@
 
     # --- macOS / Homebrew ---
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
+    # Newer brew than nix-homebrew pins; see the guard in hosts/caya/default.nix.
+    brew-src = {
+      url = "github:Homebrew/brew/6.0.14";
+      flake = false;
+    };
     homebrew-bundle = {
       url = "github:homebrew/homebrew-bundle";
       flake = false;
