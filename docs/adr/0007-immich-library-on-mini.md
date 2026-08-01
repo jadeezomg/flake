@@ -38,14 +38,12 @@ in the same host toggle (`miniImmich`) as the service itself. There is no
 separate "backup disabled" flag — that is the kind of switch that gets flipped
 for one debugging session and never flipped back.
 
-**The library was re-imported, not migrated.** The Unraid instance ran
-pgvecto.rs (`vectors` 0.3.0), which nixpkgs no longer ships, on a schema
-predating Immich's 1.132→1.136→2.x→3.x upgrade chain — so its dump is
-unrestorable here twice over. At ~596 assets, re-uploading the originals and
-letting mini rebuild thumbnails, faces and embeddings costs minutes, against
-several risky container upgrades on Unraid to clear both blockers. We accepted
-losing albums, face names and shared links. EXIF rides along inside the
-originals, so dates, camera data and GPS survived and the timeline is correct.
+**The instance started empty rather than being migrated.** The old Unraid
+database was unrestorable here — it ran pgvecto.rs, which nixpkgs no longer
+ships, on a schema predating Immich's required upgrade chain — so the library is
+repopulated by client backup instead. Albums, face names and shared links from
+before the move do not exist on mini; this is why the instance has no history
+predating it.
 
 ## Rejected alternatives
 

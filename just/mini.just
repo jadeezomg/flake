@@ -92,9 +92,7 @@ stack-restart:
 
 
 # Immich photo library + its off-host restic backup to Unraid.
-# Migration runbook: docs/hosts/mini-immich.md. These are the recurring ops.
-# The one-time rsync seed steps are deliberately NOT recipes — they carry
-# host-specific paths and belong in the runbook, not in `just`.
+# See docs/hosts/mini-immich.md.
 
 [doc('Immich status: server, machine learning, postgres, redis')]
 immich-status:
@@ -113,17 +111,13 @@ immich-restart:
 immich-du:
     ssh {{mini_ssh}} 'bash -lc "sudo du -sh /srv/immich/* ; sudo -u postgres psql -d immich -tAc \"select pg_size_pretty(pg_database_size(current_database()))\""'
 
-[doc('List Immich users (post-restore sanity check)')]
+[doc('List Immich users')]
 immich-users:
     ssh {{mini_ssh}} 'bash -lc "sudo -u immich immich-admin list-users"'
 
 [doc('Vector-search health: vchord/pgvector extensions + CLIP/face index sizes')]
 immich-vectors:
     ssh {{mini_ssh}} 'bash -lc "sudo -u postgres psql -d immich -c \"select extname, extversion from pg_extension order by 1\" -c \"\\di+ clip_index\" -c \"\\di+ face_index\""'
-
-[doc('Interactive immich-admin change-media-location (stops immich-server for the duration)')]
-immich-media-location:
-    ssh -t {{mini_ssh}} 'bash -lc "sudo systemctl stop immich-server; sudo -u immich immich-admin change-media-location; sudo systemctl start immich-server"'
 
 [doc('Immich backup status: timers, last result, newest snapshots, repo size')]
 immich-backup-status:
