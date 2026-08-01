@@ -1,5 +1,4 @@
-# Immich — self-hosted photo/video library, migrated off the Unraid Docker
-# container. Reachable at https://immich.jadee.fyi.
+# Immich — self-hosted photo/video library, at https://immich.jadee.fyi.
 #
 # Docs:   docs/hosts/mini-immich.md
 # Policy: docs/adr/0007-immich-library-on-mini.md
@@ -39,26 +38,10 @@
 # is gone from nixpkgs); the immich module wires shared_preload_libraries,
 # search_path and the CREATE/ALTER EXTENSION ExecStartPost itself.
 #
-# ── ONE-TIME MIGRATION: RE-IMPORT, NOT DATABASE RESTORE ───────────────────────
-# The Unraid instance ran pgvecto.rs (`vectors` 0.3.0), which nixpkgs no longer
-# ships at any version, and its schema predates the 1.132->1.136->2.x->3.x
-# upgrade chain Immich requires. Restoring that dump here is therefore a
-# non-starter twice over. With only ~600 assets, re-importing the originals and
-# letting mini regenerate thumbnails, faces and CLIP embeddings costs minutes,
-# so we do that instead and accept the loss of albums, face NAMES and shared
-# links. Full runbook: docs/hosts/mini-immich.md.
-#
-#   1. miniImmich = true -> `just mini deploy` -> `just mini dns-sync`.
-#   2. Create the admin account at https://immich.jadee.fyi, then mint an API
-#      key (Account Settings -> API Keys).
-#   3. rsync the ORIGINALS off Unraid (/photos/library + /photos/upload) into a
-#      staging dir. Do NOT copy thumbs/ or encoded-video/ — they are derived
-#      from the originals and Immich rebuilds them.
-#   4. `immich login` + `immich upload --recursive` from the staging dir.
-#      Uploads are checksum-deduplicated, so re-running is safe and resumable.
-#   5. Verify the asset count matches, then delete the staging dir.
-#   6. Leave the Unraid containers STOPPED but intact for a few weeks — with no
-#      database restore, they are the only copy of the albums and face names.
+# First run: create the admin account at the URL above, then point clients at
+# it. The vhost answers on both the tailnet and the LAN with the same cert, so
+# phone backup works on Wi-Fi and — with Tailscale up — off-network too, with no
+# port forward and no plain-HTTP path.
 {
   config,
   lib,
@@ -67,14 +50,13 @@
 }:
 let
   domain = "immich.jadee.fyi";
-  # Immich's upstream default, free on mini (in use: 443 5055 6167 6767 7878
-  # 8000 8080 8090 8096 8282 8686 8989 9696 32400 45876). ML uses :3003.
+  # ML uses :3003.
   port = 2283;
   mediaLocation = "/srv/immich";
 
   immichPkg = config.services.immich.package;
 
-  # `immich-admin` (change-media-location, list-users, reset-admin-password)
+  # `immich-admin` (list-users, reset-admin-password, change-media-location)
   # needs the server's environment to reach postgres/redis. Two nixpkgs gaps
   # make a wrapper necessary: the connection env only exists inside the systemd
   # unit, and the packaged bin/immich-admin — unlike its bin/server sibling —
@@ -82,7 +64,7 @@ let
   # the bundled geodata. Reaching into lib/node_modules is a packaging detail;
   # if a future immich bump moves it, this breaks loudly and is a one-line fix.
   #
-  #   sudo -u immich immich-admin change-media-location
+  #   sudo -u immich immich-admin list-users
   immich-admin = pkgs.writeShellApplication {
     name = "immich-admin";
     runtimeInputs = [
@@ -136,8 +118,8 @@ in
 
   # The immich module's tmpfiles entry for mediaLocation is type `e` (adjust an
   # EXISTING path), so nothing creates /srv/immich on a fresh host. Not
-  # recursive on purpose: migrated content gets one manual chown during
-  # bootstrap rather than a multi-hundred-GB walk on every boot.
+  # recursive on purpose — walking the whole library on every boot is not
+  # acceptable, and the service owns everything it writes underneath.
   systemd.tmpfiles.rules = [
     "d ${mediaLocation} 0700 immich immich -"
   ];
@@ -147,14 +129,7 @@ in
   # library tree on the root filesystem.
   systemd.services.immich-server.unitConfig.RequiresMountsFor = [ mediaLocation ];
 
-  # immich-cli is the official uploader and is version-locked to the server by
-  # coming from the same nixpkgs — the API contract between them is not stable
-  # across majors, so a drifting CLI is a real failure mode. Used for the
-  # initial bulk import (docs/hosts/mini-immich.md) and any later one.
-  environment.systemPackages = [
-    immich-admin
-    pkgs.immich-cli
-  ];
+  environment.systemPackages = [ immich-admin ];
 
   services.caddy.virtualHosts.${domain}.extraConfig = ''
     import tsnet

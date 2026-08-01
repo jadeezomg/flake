@@ -1,7 +1,7 @@
 # Mini — Immich
 
-Self-hosted photo/video library, migrated off the Unraid Docker container.
-Active when **`miniImmich = true`** in `hosts/mini/host.nix`.
+Self-hosted photo/video library. Active when **`miniImmich = true`** in
+`hosts/mini/host.nix`.
 
 | Policy | ADR |
 |---|---|
@@ -55,134 +55,54 @@ is a bad trade for a household photo app. The declarative path's one real
 advantage is secret injection (`somevalue._secret`) for OAuth, which is unused
 here.
 
-## Migration: re-import, not database restore
-
-The Unraid instance ran **pgvecto.rs** (`vectors` 0.3.0) with
-`IMMICH_MEDIA_LOCATION=/photos` and ~596 assets. Its database cannot be
-restored here, for two independent reasons:
-
-1. **The vector extension is gone.** nixpkgs ships only VectorChord —
-   `services.immich` says outright that "pgvecto.rs is no longer available".
-   A dump containing `CREATE EXTENSION vectors` fails on restore.
-2. **The schema predates the upgrade chain.** Immich requires being started on
-   a version between 1.132 and 1.136 before moving to 1.137+, then again
-   through 2.x, before reaching the 3.0.3 nixpkgs ships. Restores migrate
-   forward only.
-
-Clearing both would mean walking the Unraid container up through several
-versions and swapping its Postgres image first. For ~600 assets that is not
-worth the risk: re-importing the originals and letting mini rebuild
-thumbnails, faces and CLIP embeddings takes minutes on 16 cores.
-
-**What is lost:** albums, face *names* (faces are re-detected, only the labels
-go), shared links, and per-user settings. **What is kept:** every original file
-with its embedded EXIF, so dates, camera data and GPS survive intact — the
-timeline rebuilds itself correctly.
-
-### Phase 1 — deploy
+## First run
 
 ```sh
-flake fmt && git add -A && git commit && git push
 just mini deploy
 just mini dns-sync          # once, so immich.jadee.fyi resolves
 just mini immich-status
 ```
 
-Open `https://immich.jadee.fyi`, create the admin account, then mint an API key
-under **Account Settings → API Keys**. Unlike a database restore, this path
-*wants* the account to exist first.
+Open `https://immich.jadee.fyi` and create the admin account, then set
+**Admin → Settings → General → External Domain** to the same URL so shared links
+generate correct addresses.
 
-### Phase 2 — copy the originals
+## Clients
 
-`/photos` is not one of Unraid's NFS exports (only `Music`, `data`, `Stuff`),
-so this goes over SSH. It needs mini's backup key already installed on Unraid —
-the same one the restic job uses, see *One-time Unraid prerequisites* below.
+`immich.jadee.fyi` resolves to the `mini-proxy` Tailscale IP over the tailnet and
+to `192.168.178.100` on the LAN (`miniCaddyLanEnable`), presenting the same
+Let's Encrypt certificate either way. So the Android app works on Wi-Fi and,
+with Tailscale running, off-network too — no port forward, no plain-HTTP path.
 
-Copy **only the originals**. `thumbs/` and `encoded-video/` are derived and
-Immich regenerates them; copying them wastes time and they would be ignored
-anyway, since nothing in the new database references them.
+In the app: log in, then **Backup → enable** and pick the albums to include.
+Leave it Wi-Fi-only unless you want the first pass on mobile data; use
+foreground backup for the initial run and background backup thereafter.
 
-```sh
-sudo mkdir -p /srv/immich-import
-sudo rsync -aH --info=progress2 \
-  root@192.168.178.62:/photos/library/ \
-  root@192.168.178.62:/photos/upload/  \
-  /srv/immich-import/
-
-sudo find /srv/immich-import -type f | wc -l     # sanity: ≈596 plus any strays
-```
-
-Staging on `/srv` costs a second copy of the originals for the duration. At this
-library size that is trivial against 1.8 TB free.
-
-### Phase 3 — import
-
-```sh
-immich login https://immich.jadee.fyi <api-key>
-immich upload --recursive --concurrency 8 /srv/immich-import
-```
-
-Uploads are **checksum-deduplicated server-side**, so the command is safe to
-re-run and resumable — an interrupted run picks up where it left off and
-already-present assets are reported as duplicates rather than re-uploaded. That
-also makes the `library/` + `upload/` overlap harmless: anything present in both
-is stored once.
-
-Immich queues thumbnail generation, face detection and CLIP embedding as the
-assets land. Watch it drain under **Administration → Jobs**.
-
-### Phase 4 — verify, then clean up
-
-```sh
-# expect 596
-sudo -u postgres psql -d immich -tAc 'select count(*) from asset'
-```
-
-Cross-check the timeline in the browser, confirm dates look right (they come
-from EXIF, not from file mtimes), and let the job queues reach zero. Only then:
-
-```sh
-sudo rm -rf /srv/immich-import
-```
-
-### Phase 5 — keep the source
-
-Leave the Unraid `immich` and `PostgreSQL_Immich` containers **stopped but not
-deleted**, with their appdata intact, for at least a few weeks. Because there is
-no database restore, that container is the *only* remaining record of your
-albums and face names — if you decide you want them after all, it is the only
-place to read them from.
-
-While it is stopped, note that its Postgres was exposed on
-`192.168.178.62:5433` with `postgres`/`postgres`. mini's cluster is a unix
-socket with peer auth and no password, reachable only from the host.
+Bulk-uploading a folder from a workstation is `nix shell nixpkgs#immich-cli`,
+then `immich login <url> <api-key>` and `immich upload --recursive <dir>`. Match
+the CLI major to the server — the API contract is not stable across them.
+Uploads are checksum-deduplicated server-side, so re-runs are safe.
 
 ## Verification
 
 ```sh
 just mini immich-status
 just mini immich-vectors    # vchord + vector present; clip/face indexes populated
-just mini immich-users      # the admin account you created in Phase 1
-sudo -u postgres psql -d immich -tAc 'select count(*) from asset'   # expect 596
+just mini immich-users
+sudo -u postgres psql -d immich -tAc 'select count(*) from asset'
 ```
 
-In the browser, each item proves one part of the pipeline ran:
+In the browser, each item exercises a different part of the stack:
 
-1. Timeline loads with thumbnails → thumbnail generation finished
-2. Dates and locations look right → EXIF was read from the originals, which is
-   what makes a re-import acceptable in place of a database restore
+1. Timeline loads with thumbnails → thumbnail generation is keeping up
+2. Dates and locations look right → EXIF is being read on ingest
 3. Open an original, play a video → `upload/` and `encoded-video/` resolve
-4. Explore → People shows detected faces (**unnamed** — the labels did not come
-   across; re-name the ones you care about)
-5. **Natural-language search ("beach sunset")** — the single best end-to-end
+4. Explore → People shows detected faces → face detection ran
+5. **Natural-language search ("beach sunset")** — the best single end-to-end
    signal: it exercises CLIP embeddings through vchord's index under NixOS's
    `search_path`. If this works, the whole vector stack is healthy.
-6. Admin → Jobs: every queue drained, and Smart Search / Face Detection for
+6. Admin → Jobs: queues drained; Smart Search and Face Detection for
    **missing only** report ~0 pending
-7. Admin → Settings → General → set **External Domain** to
-   `https://immich.jadee.fyi` so shared links generate correct URLs
-8. Mobile app: point at `https://immich.jadee.fyi`, log in, confirm the timeline
-   and set the backup target
 
 If search returns nothing while the job queues are empty, the vector indexes are
 the thing to look at:
@@ -308,7 +228,6 @@ just mini dns-sync              # once, after the vhost first appears
 | `just mini immich-du` | media usage + database size |
 | `just mini immich-users` | list accounts (post-restore check) |
 | `just mini immich-vectors` | extension + vector index health |
-| `just mini immich-media-location` | interactive `change-media-location` |
 | `just mini immich-backup-status` | timers, last result, newest snapshot, repo size |
 | `just mini immich-backup-now` | run the backup now and follow it |
 | `just mini immich-backup-snapshots` | list snapshots |
@@ -329,10 +248,6 @@ just mini dns-sync              # once, after the vhost first appears
   transcoding only — nixpkgs has no OpenVINO `immich-machine-learning`, so
   CLIP/face inference stays on CPU either way. The module does *not* add the
   `render`/`video` groups for you.
-- **The `immich-cli` version must track the server.** Both come from the same
-  nixpkgs so they move together; do not install the CLI from npm, where it will
-  drift out of API compatibility.
-- **This instance's history starts at the import.** There was no database
-  restore, so albums, face names and shared links from the Unraid era exist
-  nowhere on mini. The stopped Unraid containers are the only copy — see
-  *Migration* Phase 5 before deleting them.
+- **`immich-cli` must match the server major.** It is not installed on mini; use
+  `nix shell nixpkgs#immich-cli` from the same nixpkgs, and never the npm build,
+  which drifts out of API compatibility.
