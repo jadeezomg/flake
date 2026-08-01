@@ -18,12 +18,12 @@ binds {
     Mod+M hotkey-overlay-title="System Monitor" {
         spawn "noctalia" "msg" "panel-toggle" "control-center" "system";
     }
-    Mod+Alt+L hotkey-overlay-title="Lock Screen" {
+    Mod+L hotkey-overlay-title="Lock Screen" {
         spawn "noctalia" "msg" "session" "lock";
     }
-    Super+X hotkey-overlay-title="Power Menu" {
-        spawn "noctalia" "msg" "panel-toggle" "session";
-    }
+    // Super+X hotkey-overlay-title="Power Menu" {
+    //     spawn "noctalia" "msg" "panel-toggle" "session";
+    // }
     Mod+Shift+Y hotkey-overlay-title="Browse Wallpapers" {
         spawn "noctalia" "msg" "panel-toggle" "wallpaper";
     }
