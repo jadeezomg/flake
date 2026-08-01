@@ -1,6 +1,6 @@
 # gh CLI config, live-symlinked from the repo (mkOutOfStoreSymlink) so that
 # `gh` edits and repo edits stay in sync without a rebuild, and the
-# prdiff -> diffnav alias is reproducible across hosts. Same pattern as the
+# prdiff -> tuicr alias is reproducible across hosts. Same pattern as the
 # television cable channels.
 { config, ... }:
 let

@@ -25,6 +25,7 @@ in
       ./pi-mcp.nix
       ./omp-mcp.nix
       ./claude-mcp.nix
+      ./tuicr.nix
     ];
 
     environment.systemPackages =
