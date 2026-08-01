@@ -419,22 +419,22 @@ transition_on_startup = true
     enabled = true
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/John_Martin_Le_Pandemonium_Louvre.JPG"
+    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/John_Martin_Le_Pandemonium_Louvre.JPG"
+    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
 
     [wallpaper.monitors.DP-1]
     path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
     [wallpaper.monitors.DP-2]
-    path = "/home/jadee/Pictures/Wallpapers/John_Martin_Le_Pandemonium_Louvre.JPG"
+    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
     path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
     [wallpaper.monitors.HDMI-A-2]
-    path = "/home/jadee/Pictures/Wallpapers/John_Martin_Le_Pandemonium_Louvre.JPG"
+    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
 
 [widget.active_window]
 anchor = true

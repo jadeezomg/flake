@@ -28,7 +28,7 @@
     {
       url = "https://cache.numtide.com";
       key = "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=";
-      # llm-agents.nix (claude-code, nono, hunk, omp, pi, hermes-agent) — the
+      # llm-agents.nix (claude-code, nono, omp, pi, hermes-agent) — the
       # reason this list has to reach macOS at all.
       darwin = true;
     }
