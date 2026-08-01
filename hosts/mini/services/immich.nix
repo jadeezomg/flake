@@ -38,10 +38,7 @@
 # is gone from nixpkgs); the immich module wires shared_preload_libraries,
 # search_path and the CREATE/ALTER EXTENSION ExecStartPost itself.
 #
-# First run: create the admin account at the URL above, then point clients at
-# it. The vhost answers on both the tailnet and the LAN with the same cert, so
-# phone backup works on Wi-Fi and — with Tailscale up — off-network too, with no
-# port forward and no plain-HTTP path.
+
 {
   config,
   lib,
