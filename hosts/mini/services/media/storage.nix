@@ -1,5 +1,16 @@
-{ lib, ... }:
+{
+  dotfilesLib,
+  lib,
+  ...
+}:
 let
+  inherit (dotfilesLib.lanHosts) unraid;
+  # NFS export prefix, e.g. "192.168.178.62:/mnt/user". The address lives in
+  # data/network/lan-hosts.nix because the backup transport and the ssh alias
+  # need the same value (Unraid has no hosts/<name>/host.nix — the flake does
+  # not build it).
+  share = path: "${unraid.lan}:${unraid.shareRoot}/${path}";
+
   mountOptions = [
     "_netdev"
     "nfsvers=4.2"
@@ -25,12 +36,12 @@ in
 
   fileSystems = {
     "/data" = {
-      device = "192.168.178.62:/mnt/user/data";
+      device = share "data";
       fsType = "nfs";
       options = mountOptions;
     };
     "/data/media/Music" = {
-      device = "192.168.178.62:/mnt/user/Music";
+      device = share "Music";
       fsType = "nfs";
       options = mountOptions;
       depends = [ "/data" ];
@@ -43,12 +54,12 @@ in
     # ReadOnlyPaths=/media namespace and ExecStartPre failed with 226/NAMESPACE.
     # Mounting the export path directly lets systemd remount each one independently.
     "/Music" = {
-      device = "192.168.178.62:/mnt/user/Music";
+      device = share "Music";
       fsType = "nfs";
       options = mountOptions;
     };
     "/media" = {
-      device = "192.168.178.62:/mnt/user/data/media";
+      device = share "data/media";
       fsType = "nfs";
       options = mountOptions ++ [ "ro" ];
     };

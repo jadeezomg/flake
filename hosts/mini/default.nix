@@ -30,6 +30,13 @@
     ./services/llm
   ]
   ++ lib.optionals (host.miniMonitoring or false) [ ./services/beszel.nix ]
+  # One toggle for both: an Immich install without an off-host backup is a trap,
+  # and a separate "backup disabled" flag is the kind of thing that gets flipped
+  # for one debugging session and never flipped back.
+  ++ lib.optionals (host.miniImmich or false) [
+    ./services/immich.nix
+    ./services/immich-backup.nix
+  ]
   ++ lib.optionals (host.miniMediaHosting or false) [
     inputs.nixflix.nixosModules.default
     ./services/media
@@ -53,8 +60,10 @@
     };
     ipv4 = {
       method = "manual";
-      # Format: <address>/<prefix>,<gateway>
-      address1 = "192.168.178.100/24,192.168.178.1";
+      # Format: <address>/<prefix>,<gateway>. The address comes from the host
+      # facts so it cannot drift from the ssh alias and Caddy's LAN bind, which
+      # read the same value (hosts/mini/host.nix `miniLanAddress`/`sshAddress`).
+      address1 = "${host.miniLanAddress}/24,192.168.178.1";
       dns = "1.1.1.1;9.9.9.9";
     };
     ipv6.method = "auto";
