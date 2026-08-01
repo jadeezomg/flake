@@ -40,7 +40,7 @@ in
           };
         }
       else if hasDesktopSession && desktopShell == "noctalia" then
-        "clipboard"
+        "wayland"
       else if hasDesktopSession then
         {
           custom = {
