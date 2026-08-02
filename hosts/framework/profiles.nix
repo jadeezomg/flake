@@ -9,9 +9,8 @@
     devenv.enable = true;
     devgui.enable = true;
     apps.enable = true;
-    desktop.loginManager = "dms-greeter";
-    # desktop.shell = "noctalia";
-    # desktop.loginManager = "gdm"; # required for noctalia
+    desktop.shell = "noctalia";
+    desktop.loginManager = "gdm"; # required for noctalia
     desktop.enable = true;
   };
 }
