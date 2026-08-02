@@ -4,7 +4,7 @@ config_version = 11
 enabled = true
 
 [bar]
-order = [ "default", "side" ]
+order = [ "default", "side", "laptop" ]
 
     [bar.default]
     background_opacity = 0.65000000000000002
@@ -63,6 +63,63 @@ order = [ "default", "side" ]
         opacity = 1.0
         padding = 6.0
         radius = 6.0
+
+    [bar.laptop]
+    background_opacity = 0.65000000000000002
+    capsule_radius = 6
+    capsule_thickness = 0.69999999999999996
+    center = [ "group:g3" ]
+    enabled = false
+    end = [ "tray", "group:g2", "group:g4" ]
+    margin_ends = 40
+    margin_opposite_edge = 5
+    padding = 20
+    radius = 5
+    reserve_space = false
+    show_on_workspace_switch = false
+    start = [ "tailscale_2", "group:g1" ]
+    thickness = 25
+
+        [bar.laptop.monitor.eDP-1]
+        enabled = true
+
+
+        [[bar.laptop.capsule_group]]
+        border = ""
+        enabled = true
+        fill = "on_primary"
+        id = "g1"
+        members = [ "clipboard", "recorder", "screenshot", "privacy" ]
+        opacity = 0.59999999999999998
+        padding = 6.0
+
+        [[bar.laptop.capsule_group]]
+        enabled = true
+        fill = "surface_variant"
+        id = "g2"
+        members = [ "control-center", "notifications", "volume", "session" ]
+        opacity = 0.59999999999999998
+        padding = 6.0
+        radius = 6.0
+
+        [[bar.laptop.capsule_group]]
+        enabled = true
+        fill = "surface_variant"
+        id = "g3"
+        members = [ "active_window" ]
+        opacity = 1.0
+        padding = 6.0
+        radius = 6.0
+
+        [[bar.laptop.capsule_group]]
+        enabled = true
+        fill = "surface_variant"
+        id = "g4"
+        members = [ "clock" ]
+        opacity = 1.0
+        padding = 6.0
+        radius = 6.0
+
 
     [bar.side]
     background_opacity = 0.69999999999999996
@@ -219,7 +276,7 @@ widget_order = [ "desktop-widget-0000000000000001", "desktop-widget-000000000000
 auto_locate = true
 
 [lockscreen]
-monitors = [ "DP-1" ]
+monitors = [ "DP-1", "eDP-1" ]
 
 [lockscreen_widgets]
 enabled = false
@@ -337,11 +394,11 @@ widget_order = [
         show_weather = true
 
 [notification]
-monitors = [ "HDMI-A-1" ]
+monitors = [ "HDMI-A-1", "eDP-1" ]
 
 [osd]
 background_opacity = 0.54999998770654202
-monitors = [ "DP-1" ]
+monitors = [ "DP-1", "eDP-1" ]
 offset_y = 40
 
 [plugin_settings."kenn/keybind-cheatsheet"]
