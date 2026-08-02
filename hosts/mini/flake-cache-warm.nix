@@ -1,6 +1,6 @@
 # Nightly flake update + build + cachix push pipeline.
 #
-# Architecture (see docs/hosts/mini.md §7):
+# Architecture (see docs/hosts/mini.md § Known gaps):
 #   06:00 Europe/Berlin → git pull → nix flake update → build 3 closures
 #     → on success: cachix push + git commit + git push to main
 #     → on failure: bisect per-input, push partial result, log held-back inputs
@@ -126,7 +126,7 @@ in
   # Secrets are declared unconditionally; sops-nix only decrypts at activation
   # time, not at evaluation, so this evaluates fine even before mini's age key
   # is added to secrets/secrets.yaml. Activation will fail until the secrets
-  # are populated — see docs/hosts/mini-install.md §6 for the bootstrap flow.
+  # are populated — see docs/hosts/mini.md § Known gaps for the bootstrap flow.
   sops.secrets."mini/git/deploy-key" = {
     mode = "0400";
   };

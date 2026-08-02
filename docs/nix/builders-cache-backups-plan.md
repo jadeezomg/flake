@@ -1,7 +1,7 @@
 # Plan: Linux remote builders, Cachix warm, store hygiene, backups
 
 **Status:** proposed  
-**Related:** [mini.md §7 cache warm](../hosts/mini.md), [hosts/mini/flake-cache-warm.nix](../../hosts/mini/flake-cache-warm.nix), [per-host-and-pass-plan.md](../secrets/per-host-and-pass-plan.md), Mic92 `nixosModules/{builder,remote-builder}.nix`.
+**Related:** [mini.md § Known gaps](../hosts/mini.md), [hosts/mini/flake-cache-warm.nix](../../hosts/mini/flake-cache-warm.nix), [per-host-and-pass-plan.md](../secrets/per-host-and-pass-plan.md), Mic92 `nixosModules/{builder,remote-builder}.nix`.
 
 ---
 

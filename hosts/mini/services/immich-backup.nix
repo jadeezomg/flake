@@ -1,6 +1,6 @@
 # Off-host backup of the Immich library + database to the Unraid array.
 #
-# Docs: docs/hosts/mini-immich.md § Backup
+# Docs: docs/hosts/mini.md § Immich → Backup
 #
 # TRANSPORT: restic over SFTP to root@192.168.178.62:/mnt/user/backup/immich.
 #

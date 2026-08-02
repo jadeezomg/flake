@@ -1,460 +1,446 @@
-# Mini — Headless Server Host (design doc)
+# Mini — operations & troubleshooting
 
-Design doc for the `mini` NixOS host. **Implemented on `main`** — follow
-[`mini-install.md`](./mini-install.md) for the install walkthrough. Sections
-marked **[OPEN]** in §11 are deferred follow-ups, not blockers for first boot.
+Single reference for the `mini` host (Minisforum MS-01, headless NixOS).
+
+**Scope:** only what is *not* readable from the flake. Every "what is configured"
+question is answered by `hosts/mini/**` and the module tree; this file records the
+ordering constraints, failure modes, one-time runtime steps and deliberate
+decisions that the Nix code cannot express. When the two disagree, the flake wins
+— fix this file.
 
 ---
 
-## 1. Identity & hardware
+## 1. Hardware & storage facts
 
-| Field | Value |
+| | |
 |---|---|
-| `hostKey` / hostname | `mini` |
-| Chassis | Minisforum MS-01 |
-| CPU | Intel Core i5-12600H (4P + 8E, 16 threads, vPro) |
-| RAM | 24 GB |
-| Storage | 1× 256 GB NVMe system SSD + 1× 2 TB NVMe application-storage SSD (3 NVMe slots total — 1 free) |
-| NICs | 2× SFP+ 10G (Intel X710), 2× 2.5G (Intel I226-V) — only one 2.5G NIC used initially |
-| GPU | Intel UHD (iGPU) on MS-01; **optional** discrete Intel Arc (e.g. B50-class) for [llama.cpp GGUF hosting](./mini-llm-hosting.md) on the same host |
-| Out-of-band mgmt | Intel AMT 16.x (vPro) |
-| System | `x86_64-linux` |
+| CPU / RAM | i5-12600H (4P+8E, vPro), 24 GB |
+| GPU | discrete Intel Arc B50 (~15 GiB) + iGPU; needs `xe.force_probe=e223` |
+| Disks | 256 GB NVMe (ESP + btrfs `@root @nix @home @var-log @snapshots`), 2 TB NVMe (btrfs → `/srv`) |
+| NICs | 4 present, only `enp2s0f0np0` configured (`192.168.178.100/24`, gw `.1`) |
+| OOB | Intel AMT 16.x, Client Control Mode |
 
-Storage split:
-- 256 GB system SSD: ESP, root, `/nix`, home, logs, snapshots.
-- 2 TB application SSD: `/srv` for service/application data.
+Non-obvious:
 
----
+- **`/tmp` is not tmpfs** (`boot.tmp.useTmpfs = false`, no `cleanOnBoot`). It is a
+  plain directory on the btrfs root and **survives reboots**. Because btrfs is
+  copy-on-write, `shred` there cannot reliably overwrite the original extent — put
+  transient key material in **`/dev/shm`**. The only swap is zram (RAM), so nothing
+  written to `/dev/shm` reaches disk. If a secret ever lands on `/tmp`, do not
+  scrub it — rotate it.
+- **No disk swap**, zram only (50%).
+- `/nix` lives on the small 256 GB SSD → GC is deliberately aggressive
+  (`daily`, `--delete-older-than 3d`).
+- `buildCores = 2` — 24 GB is not much for a rebuild that also serves a 10 GB model.
+- The 2 TB disk holds `/srv` only: `/srv/immich` (photo library) and
+  `/srv/nixflix` (media service state). Media *payloads* are NFS from Unraid, not here.
 
-## 2. Profile shape — repurpose `server.enable`
+## 2. Boot & SecureBoot
 
-The existing `dotfiles.profiles.server.enable` flag (currently parked: only
-postgres + redis) is repurposed as the **headless-server steering wheel**.
-When true, it gates desktop assumptions off across the flake.
+`secureBoot = false` today; lanzaboote is wired but inert.
 
-Refactor scope:
+**Enrollment order matters — two ways to break the box:**
 
-- `modules/nixos/boot.nix`
-  - Plymouth: gated `lib.mkIf (!server.enable)`
-  - Kernel: when `server.enable`, switch from
-    `pkgs.cachyosKernels.linuxPackages-cachyos-latest-zen4` to
-    `pkgs.cachyosKernels.linuxPackages-cachyos-server`
-  - Lanzaboote / SecureBoot: gated by `host.secureBoot`; mini starts with
-    `secureBoot = false` for first install, then flips true after sbctl keys
-    exist
-- `modules/nixos/networking.nix`
-  - GUI tools (`networkmanagerapplet`, `firewalld-gui`, `proton-vpn`,
-    `wireguard-ui`) gated `lib.mkIf (!server.enable)`
-  - `firewalld` package + service replaced by NixOS built-in
-    `networking.firewall` (nftables) when `server.enable`
-- `parts/hosts.nix`
-  - `dms`/`niri`/`stylix` modules left wired (inert when `desktop.enable = false`,
-    verify during impl)
-- `modules/profiles/server.nix`
-  - Replace existing `postgresql + redis` body with the headless-config
-    `mkForce` overrides (`desktop.enable = false`, `integrations.enable = false`,
-    etc.)
+1. `sudo sbctl create-keys` (creates `/var/lib/sbctl`)
+2. flip `secureBoot = true` in `hosts/mini/host.nix`, commit
+3. `just switch` → lanzaboote writes **signed** EFI files
+4. `sudo sbctl verify` → every ESP entry must say signed
+5. firmware → Security → *Reset to Setup Mode* / *Clear PK*
+6. `sudo sbctl enroll-keys -m`
+7. reboot, enable SecureBoot in firmware, `sudo sbctl status`
 
-`hosts/mini/profiles.nix` enables `server.enable = true` and whatever else
-needs to be on (TBD per service list).
+- Enabling lanzaboote **before** sbctl keys exist fails the switch (no PKI bundle).
+- Enrolling keys **before** signed binaries are on the ESP makes the next boot fail.
+- Without Setup Mode, `enroll-keys` fails or silently no-ops.
+- **`-m` is not optional** — it imports Microsoft's KEK+DB; skip it and fwupd
+  capsule updates are bricked.
+- Recovery: clear all SecureBoot keys in firmware (back to Setup Mode), redo.
 
----
+**`fwupd-refresh` makes `switch` return 4.** It races a restarting `fwupd.service`
+/ LVFS and exits 1 (nixpkgs#288598, open). `hosts/mini/default.nix` forces
+`SuccessExitStatus = [1 2]` behind an expiry guard (rechecks at fwupd ≥ 2.3). Run
+`fwupdmgr refresh && fwupdmgr update` by hand when you actually want metadata.
 
-## 3. Networking
+Kernel is `cachyos-server` (not zen4) and Plymouth is off — both gated on
+`server.enable`.
 
-Stack: keep **NetworkManager** (consistency with desktop/framework — simpler diff).
+## 3. Network, DNS, firewall
 
-| Aspect | Decision |
-|---|---|
-| Active NIC | one 2.5G port (the other 3 NICs left unconfigured) |
-| Address | static IP, gateway, DNS — values filled in at impl time |
-| Interface naming | predictable defaults (`enp*`) — no link-files renaming |
-| Firewall | NixOS `networking.firewall` (nftables); drop firewalld stack |
-| LAN SSH | enabled on `:22` |
-| Tailscale SSH | already on (global `--ssh` flag) |
+- The firewall **trusts only `tailscale0`**; the sole public port is `:22`.
+  Everything else (`:8000` llama.cpp, `:8080` open-webui, Caddy) is tailnet-only.
+- **AMT ports `16992-16995` sit below the OS firewall** — `networking.firewall`
+  cannot gate them; only AMT's own ACL does. AMT shares the NIC MAC with the OS.
+  It is **LAN-only** — Tailscale cannot reach it (AMT is below the OS network
+  stack). AMT-over-VPN would need a subnet router elsewhere; not done.
+- Tailscale requires one interactive login once: `sudo tailscale up --ssh`.
+- **Legacy `tailscale serve` mappings linger in `tailscaled` state** after the move
+  to Caddy and keep answering on `mini.quokka-qilin.ts.net`. Clear once:
+  `sudo tailscale serve reset` (then `tailscale serve status` → empty).
 
-Firewall rules:
-- `22/tcp` from LAN + `tailscale0`
-- AMT firmware ports `16992-16995` are **below the OS firewall** — gated only
-  by AMT's own ACL (firmware-level)
+### Caddy / split-horizon DNS
 
----
+Caddy joins the tailnet as its **own node `mini-proxy`** (caddy-tailscale plugin) so
+it owns `:443` without colliding with mini's node. Certs come from the **Cloudflare
+DNS-01** challenge, independent of the A records — issuance works before DNS exists.
 
-## 4. Disk + boot — disko + lanzaboote
+- Cloudflare A records point at the **`mini-proxy` Tailscale IP**, **proxy OFF
+  (grey cloud)** — Cloudflare cannot reach a private tailnet IP; the record only
+  resolves the name.
+- LAN clients without Tailscale need a **local DNS override** to
+  `192.168.178.100` (`miniCaddyLanEnable` binds the LAN IP with the same certs).
+  **Never point Cloudflare at the RFC1918 address** — that breaks off-LAN resolution.
+- `just mini dns-sync` reconciles Cloudflare from the Caddy vhost set (the vhosts
+  are the registry). It creates missing A records, reports existing ones, and
+  **flags conflicts without overwriting** — a stale CNAME must be deleted by hand.
+  Needs your tailnet view + sops editor key; CF token needs Zone:Read + DNS:Edit.
+- The plugin Caddy build (caddy-tailscale + caddy-dns/cloudflare) is **uncached** —
+  the first switch after a bump compiles it locally. Bump = update both pins and
+  refresh `hash` via `lib.fakeHash`.
 
-New flake input: `inputs.disko = { url = "github:nix-community/disko"; inputs.nixpkgs.follows = "nixpkgs"; };`
-Wire `inputs.disko.nixosModules.disko` into `parts/hosts.nix` modules list
-(NixOS only — Darwin skip).
+`environment.enableAllTerminfo` is on so `TERM=xterm-kitty` forwarded over SSH does
+not break pagers/`systemctl`. On a pre-that generation use `kitty +kitten ssh`.
 
-### 4.1 `hosts/mini/disko.nix`
+## 4. Secrets
 
-```nix
-{
-  disko.devices.disk = {
-    system = {
-      type = "disk";
-      device = "/dev/disk/by-id/nvme-SYSTEM_256GB_REPLACE_ME"; # fill in real 256 GB id
-      content = {
-        type = "gpt";
-        partitions = {
-          ESP = {
-            priority = 1;
-            size = "1G";
-            type = "EF00";
-            content = {
-              type = "filesystem";
-              format = "vfat";
-              mountpoint = "/boot";
-              mountOptions = ["umask=0077"];
-            };
-          };
-          root = {
-            size = "100%";
-            content = {
-              type = "btrfs";
-              extraArgs = ["-L" "nixos-system" "-f"];
-              subvolumes = {
-                "@root" = {
-                  mountpoint = "/";
-                  mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
-                };
-                "@nix" = {
-                  mountpoint = "/nix";
-                  mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
-                };
-                "@home" = {
-                  mountpoint = "/home";
-                  mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
-                };
-                "@var-log" = {
-                  mountpoint = "/var/log";
-                  mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
-                };
-                "@snapshots" = {
-                  mountpoint = "/.snapshots";
-                  mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
-                };
-              };
-            };
-          };
-        };
-      };
-    };
+Canonical paths: `secrets/SCHEMA.md`. Two different age keys live on mini:
 
-    applications = {
-      type = "disk";
-      device = "/dev/disk/by-id/nvme-APPLICATIONS_2TB_REPLACE_ME"; # fill in real 2 TB id
-      content = {
-        type = "gpt";
-        partitions.srv = {
-          size = "100%";
-          content = {
-            type = "btrfs";
-            extraArgs = ["-L" "application-storage" "-f"];
-            subvolumes."@srv" = {
-              mountpoint = "/srv";
-              mountOptions = ["compress=zstd:3" "noatime" "discard=async"];
-            };
-          };
-        };
-      };
-    };
-  };
-}
-```
+| Key | Path | Used by |
+|---|---|---|
+| **host** key | `/var/lib/private/sops/age/keys.txt` | NixOS `sops.secrets` |
+| **editor** key | `~/.config/sops/age/keys.txt` | Home Manager `sops-nix.service` |
 
-### 4.2 `hosts/mini/hardware-configuration.nix` (minimal; disko owns `fileSystems`)
+**The host key alone is not enough** — HM decrypts user secrets with the same
+editor key as your workstation, so it must be copied to mini (dir `0700`, file
+`0600`) or `just switch` fails on the HM side. `just bootstrap-sops-host-key`
+handles the host half; `just verify-sops-host-key mini` checks it.
 
-```nix
-{ config, lib, modulesPath, ... }: {
-  imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
-  boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" ];
-  boot.extraModulePackages = [ ];
-  networking.useDHCP = lib.mkDefault false;
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-}
-```
+Mini must be a recipient: `&mini` in `.sops.yaml` + `- *mini` under
+`creation_rules`, then `sops updatekeys secrets/secrets.yaml`.
 
-### 4.3 Swap
+`mini/amt/password` is stored for recovery only — nothing consumes it declaratively.
 
-No disk swap. `zramSwap.enable = true; zramSwap.memoryPercent = 50;` stays on
-for transient build spikes without adding NVMe swap writes.
-
-### 4.4 Install flow (one-time, from NixOS minimal ISO booted via AMT KVM)
+## 5. Deploy & ops
 
 ```bash
-# Identify NVMe id, edit disko.nix
-ls /dev/disk/by-id/
-
-# Format + mount via disko
-sudo nix --extra-experimental-features 'nix-command flakes' run \
-  github:nix-community/disko -- --mode disko --flake .#mini
-
-# Install
-sudo nixos-install --flake .#mini --no-root-password --max-jobs 1 --cores 4
-
-# Reboot, create sbctl keys, flip secureBoot true, then enroll (see §4.5)
+just mini deploy        # git pull --ff-only on mini + nh switch (switch-fast)
+just mini deploy-dry    # build only, no activation
+just mini deploy-boot   # stage for next reboot (kernel/bootloader)
+just mini pull / ssh / reboot / dns-sync
+just mini llm <cmd>     # LLM service ops (nested module)
 ```
 
-### 4.5 Lanzaboote enrollment (post-install, one-time)
+- **`deploy` pulls `origin/main`** — commit *and push* first, or you deploy the old tree.
+- `deploy` uses `switch-fast` (no flake check, no commit on mini) since you authored
+  upstream. Run `deploy-dry` first when you want a pre-flight build.
+- **Author changes locally, never over SSH on mini.** Remote is inspect/deploy only.
+- `flake fmt` after `.nix` edits, `git add -A` before any eval — flakes only see
+  tracked files.
+- **Mini's login shell is nushell** — for one-liners use `ssh mini 'bash -lc "…"'`.
+- `just mini …` recipes are a `just` module (`just/mini.just`, `just/mini-llm.just`),
+  so they appear as `mini::…` and show on **every** host. `just --list mini`,
+  `just --list mini llm`.
+- Host is reached **by address, not name** (`sshAddress = 192.168.178.100`) because
+  it is headless and ops must work before name resolution does. Off-LAN:
+  `MINI_SSH=mini.quokka-qilin.ts.net`.
 
-See `mini-install.md` §5.6 — **create keys, enable lanzaboote, switch, verify,
-then enroll keys**. Summary:
+## 6. LLM stack (`miniLlmHosting`)
 
-```bash
-sudo sbctl create-keys
-# Flip hosts/mini/host.nix: secureBoot = false; -> secureBoot = true;
-just switch
-sudo sbctl verify
-sudo sbctl enroll-keys -m    # -m = --microsoft; required for fwupd capsules
-# Reboot → firmware Setup Mode if needed → enable SecureBoot
-```
+One unit, **`llama-cpp-gemma`**: `llama-server` in **router mode** on `:8000`
+(`--models-preset <generated INI> --models-max 2`, both models resident, no swap
+latency). INI section name = the OpenAI model id.
 
----
+| Preset | Model | Notes |
+|---|---|---|
+| `local-chat` | `unsloth/gemma-4-12B-it-qat-GGUF` `UD-Q4_K_XL` | vision on (`mmproj-auto`), 128K total ctx / 2 slots → **64K per conversation**, KV `q8_0` |
+| `local-embed` | `mradermacher/F2LLM-v2-0.6B-GGUF` `Q8_0` | 1024-dim, last-token pooling, `/v1/embeddings` |
 
-## 5. Users & SSH
+- **`UD-Q4_K_XL` is the only quant that exists** for the QAT repo — higher precision
+  *degrades* quantization-aware-trained weights. There is nothing to upgrade to.
+- VRAM budget on 15 GiB: QAT 6.7 + mmproj 1 + embedder 0.6 + overhead 1.5 ≈ 9.8 GB,
+  leaving ~5.2 GB for chat KV. Gemma 4 is cheap on KV (only 8 of 48 layers are full
+  attention) ≈ 32 KiB/token at q8_0. Verify with `journalctl` (prints KV size) and
+  `intel_gpu_top`. `--models-max 1` trades residency for max chat context.
+- First boot downloads ~10 GB into **`/var/lib/llama-cpp/huggingface`** (HF token
+  from sops `hf_token`).
+- **MTP (speculative decoding, ~1.5–2.2× generation) is not configured.** The old
+  blocker — missing `gemma4-assistant` draft-arch loader — is resolved in the pinned
+  llama.cpp. To enable, add to the `[local-chat]` preset:
+  `spec-type = draft-mtp` / `spec-draft-n-max = 2` (range 1–6). `hf-repo`
+  auto-discovers the repo's bundled drafter; budget **+2 GB** and verify the server
+  comes up — a drafter failure kills the whole preset.
+- nixpkgs `llama-cpp` builds **Vulkan and/or OpenCL only** — not SYCL, not OpenVINO
+  (those need custom CMake + Intel stacks). `miniLlamaCppGgmlBackends =
+  "vulkan-opencl"` compiles both so you can compare at runtime; pick with
+  `miniLlamaCppDevice` (→ `LLAMA_ARG_DEVICE`) or, without a rebuild,
+  `sudo systemctl edit llama-cpp-gemma` → `Environment=LLAMA_ARG_DEVICE=…`.
+  List ids with `llama-server --list-devices`.
+- **No auth on `:8000`** — safe only because of the tailnet-only firewall. Any
+  tailnet peer (IDEs, agents) points its OpenAI base URL at `http://mini:8000/v1`;
+  no SSH tunnel. Open WebUI is loopback `:8080` behind `chat.jadee.fyi`; the first
+  account created becomes admin.
 
-| Aspect | Decision |
+Troubleshooting:
+
+| Symptom | Action |
 |---|---|
-| Primary admin user | `jadee` (same `sharedNixOSUser` from `data/users/users.nix`) |
-| `extraUsers` | **stripped** — override `sharedNixOSHost.extraUsers` to `[]` in mini's `host.nix` |
-| Service users | dedicated system user per service (e.g. `hermes`); no shell, no home |
-| sshd port | `22` |
-| sshd auth | `PasswordAuthentication = false`, `PermitRootLogin = no`, `AllowUsers = [ "jadee" ]` |
-| Authorized keys | new shared `sshKeys` field added to `data/users/users.nix` user records; `modules/nixos/user.nix` reads it into `users.users.${user}.openssh.authorizedKeys.keys` — applies to all NixOS hosts |
-| sudo policy | `wheelNeedsPassword = false` — **only on mini** (gated `hostKey == "mini"` or via `server.enable`); desktop/framework keep password requirement |
-| jadee password | sops secret (`users/jadee/password_mini`) → `users.users.jadee.hashedPasswordFile` |
+| Silence / very slow | `just mini llm status` — it prints the running command and **flags drift from the flake**. Drifted → `git add -A && just switch`, restart. Smoke tests: `max_tokens: 8`. |
+| `jq` prints nothing | Never pipe SSE into `jq`; use `"stream": false` or read raw. |
+| HTTP/TLS errors | Confirm `/v1/models` first, then `just mini llm logs`. |
+| Live view | `just mini llm gpu` (`intel_gpu_top`) beside the journal — there is no built-in HTTP dashboard. |
 
-Schema change to `data/users/users.nix`:
-```nix
-jadee = {
-  # ...existing fields...
-  sshKeys = [
-    "ssh-ed25519 AAAA... jadee@desktop"
-    "ssh-ed25519 AAAA... jadee@framework"
-    "ssh-ed25519 AAAA... jadee@caya"
-  ];
-};
+`just mini llm bench` (llama-benchy) runs from any host. It exports
+`LD_LIBRARY_PATH` at nix-ld's lib dir because uv's standalone Python bypasses the
+nix-ld loader and PyPI wheels then cannot find `libstdc++`. Keep
+`MINI_BENCH_CONCURRENCY` ≤ the server's slot count (2) — beyond that you measure
+queueing. The tokenizer repo must be the **safetensors source** repo (GGUF repos
+ship no HF tokenizer), else counts fall back to gpt2.
+
+## 7. Immich (`miniImmich`)
+
+Library on mini's local NVMe, Unraid is the backup target (ADR-0007).
+`/srv/immich` (`0700 immich:immich`) is `IMMICH_MEDIA_LOCATION`; postgres and redis
+talk over unix sockets, so **Immich itself needs no secret** — only the backup job has
+credentials.
+
+- **Postgres major is pinned to 17** and this is the host's only cluster. The
+  on-disk format is permanent: a future bump is a manual offline `pg_upgrade`, not
+  a rebuild. Every future service on mini inherits this cluster and this pin.
+- **`services.immich.settings = null` is deliberate.** Any attrset flips Immich into
+  `IMMICH_CONFIG_FILE` mode and **greys out the whole admin settings page**. Storage
+  template, job concurrency, transcoding, external domain all live in the DB.
+- **`nix flake update` can move Immich to a new major**, which runs irreversible
+  migrations on next start. Read release notes, take a manual dump first.
+- **GPU is off by default and enabling it buys video transcoding only** — nixpkgs
+  has no OpenVINO `immich-machine-learning`, so CLIP/face inference stays on CPU
+  either way. The module does not add the `render`/`video` groups for you.
+- **`immich-cli` must match the server major** (`nix shell nixpkgs#immich-cli` from
+  the same nixpkgs — never the npm build). Uploads are checksum-deduplicated, so
+  re-runs are safe.
+- After first login set **Admin → Settings → General → External Domain** to
+  `https://immich.jadee.fyi` or shared links generate wrong addresses.
+
+**Best single health signal:** natural-language search ("beach sunset"). It
+exercises CLIP embeddings through vchord's index under NixOS's `search_path` — if
+that works the whole vector stack is fine. If search is empty while job queues are
+drained, reindex:
+
+```sh
+sudo -u postgres psql -d immich \
+  -c 'REINDEX INDEX CONCURRENTLY clip_index; REINDEX INDEX CONCURRENTLY face_index;'
 ```
 
-`modules/nixos/user.nix` extension:
-```nix
-users.users.${user} = {
-  # ...existing...
-  openssh.authorizedKeys.keys = userConfig.sshKeys or [];
-};
-```
+`postgresql-setup` only REINDEXes when an *already-installed* vchord changes
+version — it never fires on a fresh database.
 
----
+### Backup (restic → Unraid `sftp:root@192.168.178.62:/mnt/user/backup/immich`)
 
-## 6. Out-of-band management — Intel AMT / vPro
+| Unit | When | Job |
+|---|---|---|
+| `restic-backups-immich` | 03:15 daily | `pg_dump` as `backupPrepareCommand`, then snapshot `/srv/immich` |
+| `restic-backups-immich-maint` | 1st Sunday 04:30 | `forget --prune` (14d/8w/12m/3y) + `check --read-data-subset=5%` |
+| `immich-backup-watchdog` | 09:00 daily | asks the **repository** whether a snapshot < 36 h old exists |
 
-### 6.1 Firmware-side (BIOS / MEBx) — manual, one-time, physical access
+- The dump is a `backupPrepareCommand`, so **a failed dump aborts the snapshot** —
+  media is never stored without a matching database. It is gated on `gzip -t` plus
+  `pg_dump`'s completion marker and published by atomic `mv` from `.part`.
+- The watchdog is not redundant with `OnFailure=`: a green timer proves nothing if
+  the unit was masked, mini was off for a week, or the repo was replaced.
+- **Never add `/var/lib/postgresql` to the restic paths.** A filesystem copy of a
+  live `$PGDATA` is torn pages plus mid-stream WAL, version-locked to the exact
+  `vchord.so` in the store at that instant. The dump is the backup.
+- Sizing: photos are incompressible and do not dedup — budget **2×** the source.
+  Derived data (`thumbs/`, `encoded-video/`) is included on purpose so a bare-metal
+  restore is browsable immediately. Watch for an Immich upgrade that regenerates
+  thumbnails — it rewrites all derived data in one night.
+- Unraid one-time: generate the keypair on mini **in `/dev/shm`** (see §1), paste the
+  public half via the **WebGUI** (Unraid's `/root` is tmpfs — a hand-appended
+  `authorized_keys` does not survive reboot); share `backup` with cache/SMB/NFS all
+  **off**; set Disk Settings → `md_write_method` = **reconstruct write** (parity
+  read/modify/write caps the seed at ~40–80 MB/s vs ~100–130).
+- Restore: `restic-immich restore latest --target / --include /srv/immich --sparse
+  --verify`, then `chown -R immich:immich /srv/immich && chmod 0700`, then restore
+  the DB from `/srv/immich/backups/`. Nothing about the repo is mini-specific — any
+  host with an age key can decrypt `mini/backup/{restic-password,unraid-ssh-key}`.
+- **An unverified backup is a rumour**: `just mini immich-backup-drill` within a week
+  of the seed and quarterly after (checks repo, verifies newest dump, byte-compares
+  20 random originals out of the repository).
 
-1. Boot, `Ctrl+P` during POST → MEBx
-2. Change default password (`admin` → strong password, stored in password manager and sops-mirrored as `mini/amt/password`)
-3. Network: DHCP with router-side reservation (AMT shares NIC MAC with OS)
-4. Enable: SOL (serial-over-LAN), IDER (IDE redirection), KVM (graphical)
-5. KVM user consent: **None** — required for true unattended access on a headless box. Tradeoff accepted: anyone with the AMT password gets full unattended console.
-6. Activation mode: **Client Control Mode (CCM)** — homelab-appropriate, no enterprise PKI
+Ops: `just mini immich-{status,logs,restart,du,users,vectors}` and
+`immich-backup-{status,now,snapshots,check,drill,mount,unlock}`.
 
-### 6.2 OS-side — declarative
+## 8. Media stack (`miniMediaHosting`)
 
-On mini:
-- `services.fwupd.enable = true` (Intel CSME firmware updates from LVFS — critical for AMT CVE patching)
-- System packages: `amtterm`, `openwsman`
-- `users.groups.amt = {};`
-- udev rule: `KERNEL=="mei*", GROUP="amt"`
-- `users.users.jadee.extraGroups += [ "amt" ];`
+Automation on mini, payloads on Unraid NFS (ADR-0004). Upstream nixflix
+postgres/caddy/nginx/seerr are **disabled** — mini's Caddy fronts everything and
+Seerr/Bazarr/Plex run as native NixOS services.
 
-On desktop / framework (controller side) — **planned, not yet wired:**
-- `dotfiles.profiles.devenv.amt.enable` (default true on Linux desktops, false on Darwin)
-- Would add `amtterm` and a VNC client for AMT KVM (`tigervnc`/`remmina`)
-- Until then: `nix shell nixpkgs#amtterm` from the workstation (see `mini-install.md` §2)
-
-### 6.3 Security posture
-
-- AMT runs below the OS — its own TCP/IP, web UI on `:16992`/`:16993`, OOB CPU/RAM access; NixOS firewall does not reach it
-- Strong unique password is the primary defense; rotate if compromised
-- Keep CSME firmware patched (`fwupd refresh && fwupd update`)
-- AMT is **LAN-only initially** — Tailscale does not reach it (AMT is below the OS network stack)
-- Remote-AMT-over-VPN deferred — would need a Tailscale subnet router on another always-on host; revisit if it becomes a real need
-
----
-
-## 7. Nightly cache-warming pipeline
-
-### 7.1 Architecture
-
-```
-mini (06:00 Europe/Berlin nightly, RandomizedDelaySec=600)
-  ├─ git pull
-  ├─ nix flake update                               # mass bump
-  ├─ nix build .#nixosConfigurations.{mini,desktop,framework}.config.system.build.toplevel
-  ├─ on success: cachix push jadee-flake <result paths>
-  │              git commit flake.lock + git push origin main
-  ├─ on failure: enter bisect mode (see §7.3)
-  └─ journald structured log
-
-desktop / framework / mini
-  └─ nix.settings.extra-substituters += "https://jadee-flake.cachix.org"
-     nix.settings.extra-trusted-public-keys += "jadee-flake.cachix.org-1:<pubkey>"
-```
-
-### 7.2 Decisions
-
-| Aspect | Decision |
+| Path | What |
 |---|---|
-| Build targets | three system closures (`mini`, `desktop`, `framework`) — packages are transitive |
-| Lockfile policy | nightly `nix flake update`, auto-commit + push on success |
-| Branch | `main` only |
-| Cache name | `jadee-flake` |
-| Cache visibility | public-read |
-| Push tool | `cachix push` after build (not `watch-store`) |
-| Schedule | 06:00 Europe/Berlin (`OnCalendar=*-*-* 06:00:00`, `RandomizedDelaySec=600`) — accepts that bisect days may overrun into morning; heavy artifacts come from upstream caches |
-| Auth token | sops secret `cachix/auth-token`, exposed via `LoadCredential` |
-| GC retention | conservative: `daily` schedule, `--delete-older-than 3d` (mini-only override of `maintenance.garbageCollection.{schedule, deleteOlderThan}`); `/nix` stays on the 256 GB system SSD, Cachix remains canonical |
-| Self-substitution | mini also configures `jadee-flake.cachix.org` as a substituter — pulls its own freshly-pushed paths on next switch |
-| Repo remote | `git@github.com:jadeezomg/flake.git` |
-| Push credentials | per-repo SSH **deploy key**, push-only, sops-stored (`mini/git/deploy-key`) |
-| Bot identity | commit author `jadee-mini[bot] <bot@jadee.fyi>` |
-| Branch protection | none on `main` (bot pushes directly, no PR) |
+| `/data` | NFS `192.168.178.62:/mnt/user/data` — downloads **and** library, RW |
+| `/media`, `/Music` | **binds** of `/data/media` (ro) and its Music share |
+| `/srv/nixflix`, `/var/lib/qBittorrent` | local service state |
 
-### 7.3 Bisect-on-failure algorithm
+Library files are owned by **`unraid` uid 99 / `users` gid 100** to match Unraid's
+share ownership.
 
-```
-1. nix flake update                                 (mass)
-2. build all three closures
-3. on success → push + commit + done
-4. on failure:
-   a. git checkout flake.lock                       (reset)
-   b. for each input listed in flake.nix:
-      - nix flake update <input>                    (advance just that one)
-      - build all three closures
-      - on success: keep, continue
-      - on failure: revert that input's lock entry, record in HELD_BACK, continue
-   c. cachix push, git commit + push,
-      journal-log HELD_BACK list as a structured warning
-```
+- **`/media` and `/Music` must stay binds.** `findmnt` showing `nfs4` for them is
+  normal for a bind of an NFS path — the identity that matters is `/media` ≡
+  `/data/media`.
+- `NAMESPACE` / `Stale file handle` on `/media` = binds drifted or went ESTALE after
+  an Unraid blip → **`just mini media-restart`** (stops consumers, remounts the
+  declared fstab topology, restarts; also clears leftover `/media/Music` mounts from
+  ad-hoc remounts).
+- **Hardlinks require one `ReadWritePaths=/data` entry** — not per-subdir binds.
+  Applies to both the Arr services and qBittorrent (`ProtectSystem=strict`).
+  Symptoms of getting it wrong: `EXDEV`, "Read-only file system", or
+  `file_open … Read-only file system` while the host mount is plainly RW (ADR-0006).
+- Cleanup chain: qBittorrent `GlobalMaxRatio = 0` + `ShareLimitAction = Stop` stops
+  seeding immediately; Arr `removeCompletedDownloads` removes the *client job* while
+  library files survive via the hardlink.
+- **Jellyfin trickplay is off on purpose** — NFS + full-library ffmpeg was
+  multi-hour and multi-GB.
+- `nixflix-setup-remote-dirs.service` must create the torrent/usenet/media subdirs
+  on NFS before the stack starts.
 
-Failure handling philosophy: **revert only the offending input(s)**, push the
-maximal working lockfile. Mini's tree dirty → abort run + journald alert.
+### qBittorrent & VPN
 
-Implementation surface: probably a nushell or bash script under `scripts/`,
-invoked by a `systemd.services.flake-cache-warm.serviceConfig.ExecStart`,
-triggered by a sibling `systemd.timers.flake-cache-warm`.
+- sops holds the **plaintext** WebUI password (`mini/media/qbittorrent/password`) —
+  nixflix needs it for Arr→client auth; a root `ExecStartPre` derives
+  `WebUI\Password_PBKDF2` into the conf so the flake never stores a hash.
+- Search stays **inside** the VPN netns (ADR-0005). `nova3/engines` plugins are
+  installed manually via the WebUI. A thin non-setuid wrapper points
+  `pythonExecutablePath` at a `python3.withPackages` and strips qBittorrent's `-I`
+  so `PYTHONPATH`/nova3 helpers work.
+- **Search returns empty but the daemon is up** → check the WireGuard handshake age
+  (`just mini vpn-status`). A dead peer makes indexer HTTPS time out.
+- Use **`just mini vpn-restart`**, not a raw `systemctl restart wg`:
+  SABnzbd usually hangs on stop with a dead tunnel (the recipe SIGKILLs it), and
+  nixflix's `wg-up` gates on **ICMP ping** — Proton peers commonly drop ping even
+  when UDP/51820 is fine, so a stock restart fails after teardown; the recipe
+  installs a drop-in that probes UDP instead. Downloaders are `BindsTo=wg.service`.
+- Handshake stuck at `0 B received` → that Proton server is down. Export a fresh
+  profile into `mini/media/vpn/wireguard-conf` and `vpn-restart` again.
 
----
+Ops: `just mini media-status | arr-restart | media-restart | downloaders-restart |
+stack-restart | vpn-status | vpn-restart`.
 
-## 8. NixOS misc gating
+## 9. Matrix, Hermes, Caddy vhosts
 
-- `cachix` already in `essentials` profile — no packaging work
-- `extra-substituters` / `extra-trusted-public-keys` extended in
-  `modules/shared/environment.nix` — adds `jadee-flake.cachix.org` for all
-  hosts
-- `gc.nix` already provides per-host overridable
-  `maintenance.garbageCollection.{schedule, deleteOlderThan}` — mini sets
-  `daily` / `3d`
-- Stylix/DMS/Niri modules: keep wired in `parts/hosts.nix`; verify inert when
-  `desktop.enable = false` during impl
+Subdomains on the `jadee.fyi` Cloudflare zone, all → `mini-proxy`:
+`matrix`, `chat` (open-webui), `beszel`, `cinny`, `immich`, `hermes`, plus the media
+set (`sonarr`, `radarr`, `lidarr`, `prowlarr`, `sabnzbd`, `qbittorrent`, `seerr`,
+`bazarr`, `jellyfin`, `plex`).
 
----
+The first switch after a Caddy/Hermes bump builds two **uncached** packages locally
+(plugin Caddy; Matrix-augmented Hermes).
 
-## 9. hermes-agent
+### continuwuity accounts
 
-Source: `github:NousResearch/hermes-agent` — proper flake with `flake.nixosModules.default`, two modes (native systemd / OCI container), config via `services.hermes-agent.{enable, settings, environmentFiles, …}`, supports sops via `environmentFiles`.
+There is **no CLI user creation**. Register against loopback `:6167` with
+`/_matrix/client/v3/register` and an `m.login.registration_token` auth block.
 
-### 9.1 Flake wiring
+> **The first account must use the *emergency* token printed in
+> `journalctl -u continuwuity`** — it rotates on every restart. The configured
+> `matrix/registration_token` is inert until one account exists, and that first user
+> becomes server admin.
 
-`flake.nix` input:
-```nix
-hermes-agent = {
-  url = "github:NousResearch/hermes-agent";
-  inputs.nixpkgs.follows = "nixpkgs";
-};
-```
+### Hermes
 
-`parts/hosts.nix` — add to NixOS modules list:
-```nix
-inputs.hermes-agent.nixosModules.default
-```
+- **Matrix auth is an access token, not a password.** The password path re-logs-in on
+  every restart, rotating the device identity key and breaking E2EE one-time keys +
+  cross-signing. Live config: `MATRIX_ACCESS_TOKEN` + `MATRIX_RECOVERY_KEY` from
+  sops, `MATRIX_DEVICE_ID=hermes-mini` pinned; `matrix/hermes_password` is
+  break-glass only and is deliberately *not* in the env.
+- **`.env` lives at `/var/lib/hermes/.hermes/.env`** (`$HERMES_HOME`, `hermes:hermes`,
+  dir `0700`). Hermes reads it itself at process start — **not** via systemd
+  `EnvironmentFile=` — so secrets are not hot-reloaded; the gateway must restart.
+- **`.env` is fully regenerated from the sops template on every switch, not merged.**
+  Any key written only by the dashboard/CLI is **wiped**. This ate
+  `TELEGRAM_BOT_TOKEN` once (→ "No bot token configured"). **Rule: any connection
+  secret added in the dashboard must also be added to sops + the `hermes.env`
+  template.** Pre-switch `.env.bak-*` files in `$HERMES_HOME` are the recovery source.
+- **Dashboard restart wedge (recurring hazard):** adding/editing a connection in the
+  UI runs `hermes gateway restart`, which spawns a gateway **as a child of
+  `hermes-dashboard.service`**, grabbing `gateway.lock`. `hermes-agent.service` then
+  can never acquire it → "Gateway already running (PID …)" → permanent crash loop.
+  Fix: stop both units, move `/var/lib/hermes/.hermes/gateway.lock` aside, start
+  `hermes-agent` then `hermes-dashboard`. Prefer `systemctl restart hermes-agent`
+  over the dashboard's restart action.
+- **Dashboard shows a stale "Not configured"** after a secret is restored: it caches
+  platform status at its own startup and the `hermes-agent-reload` path unit only
+  restarts the *agent*. A plain `systemctl restart hermes-dashboard` is safe and does
+  **not** trip the lock wedge (the wedge is the in-UI action only).
+- Hermes runs **un-managed** (`HERMES_MANAGED=""`, `.managed` marker removed each
+  switch) so the dashboard can persist config edits — `save_config()` no-ops in
+  managed mode. Activation still deep-merges `services.hermes-agent.settings` into
+  `config.yaml` on every switch, so **keys present in Nix `settings` revert dashboard
+  edits**; everything else is dashboard-owned and persists. Keep `settings` minimal.
+  `/var/lib/hermes/.hermes/config.yaml` is not tracked in git, and a symlink to a
+  repo file is not an option — Hermes writes atomically (`os.replace`), replacing the
+  symlink with a plain file on first save.
+- Package is `pkgs.llm-agents.hermes-agent` (numtide, binary-cached) which ships all
+  extras. **`extraDependencyGroups` / `extraPythonPackages` break eval** with it —
+  the NousResearch module turns them into `cfg.package.override`, which only the
+  hermes repo's own uv2nix build accepts.
+- The dashboard is loopback-only behind Caddy `basic_auth` (user `jadee`, bcrypt
+  hash in `hermes_dashboard_basic_auth_hash` — generate with
+  `caddy hash-password --plaintext '…'`).
+- The Tailscale auth key must be **reusable + non-ephemeral** or `mini-proxy` does
+  not survive a restart.
 
-### 9.2 Service config
+## 10. Known gaps / deferred
 
-Lives in `hosts/mini/services/hermes.nix` (new file, imported from `hosts/mini/default.nix`):
+- **Nightly cachix cache-warm pipeline** — code exists at
+  `hosts/mini/flake-cache-warm.nix` but the import is **commented out** in
+  `hosts/mini/default.nix`. To bring online: `cachix create jadee-flake` (public
+  read) → paste the public key over the TODO in `modules/shared/environment.nix` →
+  push-scoped token into sops `cachix/auth-token` → GitHub deploy key (write) into
+  `mini/git/deploy-key` → uncomment → `just switch` → `systemctl start
+  flake-cache-warm.service`. Design (mass `nix flake update`, build the three
+  closures, bisect per-input on failure and revert only the offending inputs, push
+  the maximal working lockfile) lives in the module header.
+- **Power tuning** — stock. Candidates: `powersave` governor, `thermald`, ASPM in
+  BIOS, `logind.lidSwitch = "ignore"`. No `tlp` (laptop-oriented, conflicts with
+  thermald). Wake-on-LAN pointless (always on).
+- **Backups beyond Immich** — `/srv/nixflix`, Matrix and Hermes state are unprotected.
+- **AMT-over-VPN** — needs a Tailscale subnet router on another always-on host.
+- Verify Stylix/DMS/Niri stay inert with `desktop.enable = false` during a
+  `just build-dry`; gate their imports on headless if any leak.
 
-```nix
-{ config, ... }: {
-  services.hermes-agent = {
-    enable = true;
-    settings = {
-      # populated based on hermes config preferences — model, providers, etc.
-    };
-    environmentFiles = [
-      config.sops.secrets."hermes/env".path
-    ];
-  };
-}
-```
+## 11. Rebuilding from scratch
 
-### 9.3 Mode decision
+Full procedure lives in git history (`docs/hosts/mini-install.md` before this
+consolidation). The parts that are not obvious:
 
-Native systemd service (default) over OCI container — simpler, fewer moving parts. Container mode adds value only if hermes agents need `apt install` / `pip install` arbitrary tools at runtime; revisit if that becomes a need.
+1. **MEBx (`Ctrl+P` at POST, physical access once):** change the `admin` password,
+   DHCP + router reservation, enable SOL/IDER/KVM, **user consent None** (required
+   for unattended headless access — accepted tradeoff), activate in **CCM**. Mirror
+   the password to sops afterwards. Verify: `curl -k https://<amt-ip>:16993/` and
+   `nix shell nixpkgs#amtterm -c amtterm <amt-ip>`.
+2. **Installer wifi:** ethernet may not be routed yet. Disable NM scan MAC
+   randomization first (`[device] wifi.scan-rand-mac-address=no` in
+   `/etc/NetworkManager/conf.d/`) — some APs choke on it. If it sticks at
+   "connecting (configuring)", delete the transient profile and re-add with
+   `802-11-wireless.cloned-mac-address permanent`, `ipv4.method auto`,
+   `ipv6.method disabled`.
+3. **disko destroys both NVMes** — re-check `/dev/disk/by-id/nvme-…` for the 256 GB
+   *and* the 2 TB disk before running it.
+4. **`nixos-install --max-jobs 1 --cores 4`** — it uses the *installer's* daemon, so
+   mini's `buildCores` does not apply, and 24 GB will thrash otherwise.
+5. **Bootstrap mode is the chicken-and-egg fix and has been removed from
+   `host.nix`.** sops-nix cannot decrypt before mini's age host key exists, so
+   `users.users.jadee.hashedPasswordFile` cannot be declared on first install.
+   Re-introduce a `miniBootstrap` toggle that (a) uses `initialPassword` and (b)
+   skips `./services/llm`, then flip it off only after the sops checklist in §4 is
+   complete. `--no-root-password` is correct — root stays locked, jadee has
+   NOPASSWD wheel.
+6. **Password SSH is disabled from first boot** — your key must already be in
+   `data/users/users.nix` → `jadee.sshKeys` and committed *before* `nixos-install`.
+   Recovery is console or AMT KVM only.
+7. The installer's `/tmp/flake` clone is gone after reboot — clone to
+   `~/.dotfiles/flake` and run `just _init mini` before any `just` recipe.
+8. SecureBoot enrollment last (§2), after the host is reachable.
 
-### 9.4 Sops secret
-
-`hermes/env` — environment file format, contains API keys (Anthropic, OpenAI, etc.) hermes-agent needs at runtime. Schema TBD on first run; iterate via `sops secrets/secrets.yaml`.
-
----
-
-## 10. Profile interaction
-
-Mini opts out of desktop-style profiles in `hosts/mini/profiles.nix` but keeps
-**`devenv.enable = true`** so Hermes and shells get the full devenv stack:
-**tools**, **cloud**, **containers**, **databases**, **LLM agents + hosting**
-(`llama-cpp` with Vulkan), and **language stacks**. **`hardware.graphics`**
-and **`render`** (+ **`amt`**) live in `hosts/mini/default.nix` for the Intel dGPU.
-
-```nix
-{ ... }: {
-  dotfiles.profiles = {
-    server.enable = true;
-    desktop.enable = false;
-    integrations.enable = false;
-    apps.enable = false;
-    gaming.enable = false;
-    work.enable = false;
-
-    devenv.enable = true;
-  };
-}
-```
-
-`server.nix` profile body does **not** `mkForce` other profiles off — keeps the steering wheel explicit at the host level. The body of `server.nix` only sets headless-server overrides (kernel switch, firewall, GUI-tool gating).
-
----
-
-## 11. TODOs (deferred — track here, revisit after stability)
-
-- [ ] **Wire up the cachix cache-warming pipeline** (§7 of this doc) — code lives at `hosts/mini/flake-cache-warm.nix` but is **not imported** from `hosts/mini/default.nix`. Bring online once the host is stable. Steps:
-  1. `cachix create jadee-flake` (public read), copy public key into `modules/shared/environment.nix` (replace the TODO marker)
-  2. `cachix authtoken --create-token --scope push --cache jadee-flake` → sops-encrypt as `cachix/auth-token`
-  3. `ssh-keygen` deploy key on mini → register on `github.com/jadeezomg/flake` with write access → sops-encrypt private key as `mini/git/deploy-key`
-  4. Uncomment the `./flake-cache-warm.nix` import in `hosts/mini/default.nix`
-  5. `just switch`, then `sudo systemctl start flake-cache-warm.service` for a first manual run
-- [ ] **Other services** — concrete enumeration (jellyfin / syncthing / gitea / paperless / nextcloud / etc.). Out of scope for the first install; basics first.
-- [ ] **Monitoring** — pick stack (netdata / glances / prometheus + grafana). Requirement: dashboard accessible from desktop/framework/caya browsers. Recommendation when revisiting: **netdata** for low-power, single-host start; migrate to Prometheus/Grafana when scraping multiple hosts becomes a need.
-- [ ] **Power tuning** — keep stock for the first install for stability. After validating the box runs reliably, layer in:
-  - `powerManagement.cpuFreqGovernor = "powersave"`
-  - `services.thermald.enable = true`
-  - ASPM enabled in BIOS
-  - Verify `intel_pstate=active` (default)
-  - `services.logind.lidSwitch = "ignore"` (defensive)
-  - No `tlp` (laptop-oriented; conflicts with thermald)
-  - Wake-on-LAN: skip (always on)
-- [ ] **Backups** — borg / restic / btrbk for btrfs subvols. Off-site target TBD. Not blocking but a real gap.
-- [ ] **Stylix/DMS/Niri inertness** — verify all three modules are no-ops when `desktop.enable = false`. If any leak host activations or system packages, gate their imports on `host.headless or false` in `parts/hosts.nix`.
-- [ ] **Tailscale subnet router** — re-enable AMT-over-VPN by adding a subnet router on desktop or framework. Skip until the need arises.
+Smoke test: key-only SSH from desktop and over Tailscale, `sudo whoami` without a
+prompt, `sbctl status`, `amtterm`, `https://<amt-ip>:16993`, then each service's
+`just mini …-status`.

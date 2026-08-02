@@ -39,7 +39,7 @@
   sops.secrets.context7_api_key = { };
   # Matrix auth is access-token based (see the `environment` note above). The password
   # secret is kept declared (break-glass: used once to mint the token / re-bootstrap via
-  # docs/hosts/mini-matrix-hermes-setup.md) but is intentionally NOT put in the env.
+  # docs/hosts/mini.md § Matrix, Hermes, Caddy) but is intentionally NOT put in the env.
   sops.secrets.matrix_hermes_password.key = "matrix/hermes_password";
   sops.secrets.matrix_hermes_access_token.key = "matrix/hermes_access_token";
   sops.secrets.matrix_hermes_recovery_key.key = "matrix/hermes_recovery_key";

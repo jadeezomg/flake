@@ -21,7 +21,7 @@
     ./services/hermes-dashboard.nix
     ./services/matrix.nix
     ./services/cinny.nix
-    # Nightly cachix pipeline — disabled until the host is up (mini-install.md §6).
+    # Nightly cachix pipeline — disabled until the host is up (docs/hosts/mini.md § Known gaps).
     # ./flake-cache-warm.nix
   ]
   ++ lib.optionals (host.miniLlmHosting or false) [

@@ -7,7 +7,7 @@ description: Change mini's local LLM serving (llama.cpp models, context, embeddi
 
 ## Scope
 
-Local LLM serving on the **mini** host. Everything lives under `hosts/mini/services/llm/` plus the contract facts in `hosts/mini/host.nix`. Gated by `miniLlmHosting`. Reference doc: `docs/hosts/mini-llm-hosting.md` (ops + tuning).
+Local LLM serving on the **mini** host. Everything lives under `hosts/mini/services/llm/` plus the contract facts in `hosts/mini/host.nix`. Gated by `miniLlmHosting`. Reference doc: `docs/hosts/mini.md` § LLM stack (ops + tuning).
 
 ## The contract (single source of truth — `hosts/mini/host.nix`)
 

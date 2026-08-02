@@ -92,7 +92,7 @@ stack-restart:
 
 
 # Immich photo library + its off-host restic backup to Unraid.
-# See docs/hosts/mini-immich.md.
+# See docs/hosts/mini.md § Immich.
 
 [doc('Immich status: server, machine learning, postgres, redis')]
 immich-status:

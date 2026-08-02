@@ -39,7 +39,7 @@ in
   # Per-host password hash via sops (decrypted early; requires the host age
   # key at /var/lib/private/sops/age/keys.txt — on a FRESH install that key
   # doesn't exist yet, so a new host needs a temporary bootstrap exception
-  # (see docs/hosts/mini-install.md §4.4/§5.5 for the pattern).
+  # (see docs/hosts/mini.md § Secrets / § Rebuilding from scratch for the pattern).
   sops.secrets.${passwordSecretKey} = {
     neededForUsers = true;
   };
