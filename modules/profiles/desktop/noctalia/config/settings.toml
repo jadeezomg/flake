@@ -1,4 +1,4 @@
-config_version = 8
+config_version = 11
 
 [backdrop]
 enabled = true
@@ -419,22 +419,22 @@ transition_on_startup = true
     enabled = true
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
 
     [wallpaper.monitors.DP-1]
-    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
 
     [wallpaper.monitors.DP-2]
-    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Sunrise over Fishing Waters--Maine William E. Norton.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
 
     [wallpaper.monitors.HDMI-A-2]
-    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Sunrise over Fishing Waters--Maine William E. Norton.jpg"
 
 [widget.active_window]
 anchor = true
