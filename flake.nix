@@ -82,13 +82,7 @@
       };
     };
     vicinae.url = "github:vicinaehq/vicinae";
-    vicinae-extensions = {
-      url = "github:vicinaehq/extensions";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        vicinae.follows = "vicinae";
-      };
-    };
+    vicinae-extensions.url = "github:vicinaehq/extensions";
 
     # --- macOS / Homebrew ---
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
@@ -127,10 +121,13 @@
       url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    hermes-agent = {
-      url = "github:NousResearch/hermes-agent";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # Same flake, second instance, deliberately NOT following our nixpkgs.
+    # Only `packages.<system>.omp` is read from it — see
+    # parts/overlays/llm-agents-prebuilt.nix for why. Nix dedups the source by
+    # rev, so this costs one lock node, not a second fetch. Keep the url in
+    # lockstep with `llm-agents` above; `nix flake update` moves both.
+    llm-agents-prebuilt.url = "github:numtide/llm-agents.nix";
+    hermes-agent.url = "github:NousResearch/hermes-agent";
     skills-mattpocock = {
       url = "github:mattpocock/skills";
       flake = false;
