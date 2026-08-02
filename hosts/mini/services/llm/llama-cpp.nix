@@ -10,7 +10,7 @@
 #                 (`embedding = true`), for /v1/embeddings.
 # `local-chat` keeps the shared chat contract (host.miniLlmServedName), so open-webui
 # is unaffected; `local-embed` (host.miniLlmEmbedServedName) is served on the same
-# port. See docs/hosts/mini-llm-hosting.md.
+# port. See docs/hosts/mini.md § LLM stack.
 #
 # Router/preset mechanics: docs/preset.md + tools/server/README.md (PR#17859). Section
 # name = the served model id; keys are long-form llama-server args minus `--`. Local

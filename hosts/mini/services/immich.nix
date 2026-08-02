@@ -1,6 +1,6 @@
 # Immich — self-hosted photo/video library, at https://immich.jadee.fyi.
 #
-# Docs:   docs/hosts/mini-immich.md
+# Docs:   docs/hosts/mini.md § Immich
 # Policy: docs/adr/0007-immich-library-on-mini.md
 #
 # Shape: nixpkgs' `services.immich` runs `immich-server` (API + web) and

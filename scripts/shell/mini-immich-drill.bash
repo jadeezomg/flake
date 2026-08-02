@@ -6,7 +6,7 @@
 # and quarterly after. It is read-only: nothing in the repo or in /srv/immich is
 # modified.
 #
-# Docs: docs/hosts/mini-immich.md § Backup
+# Docs: docs/hosts/mini.md § Immich → Backup
 #
 # Local (on mini):      bash scripts/shell/mini-immich-drill.bash
 # Remote (workstation): just mini immich-backup-drill

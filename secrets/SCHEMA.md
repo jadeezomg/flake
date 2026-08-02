@@ -77,12 +77,12 @@ maps `kagi/session_token` into the hermes env file separately.
 
 | Path | Source | Consumed by | Consumed on |
 |---|---|---|---|
-| `mini/amt/password` | the MEBx password set in `docs/hosts/mini-install.md` §3 | **reference only** — not consumed declaratively; stored for recovery | (reference) |
+| `mini/amt/password` | the MEBx password set in `docs/hosts/mini.md` § Rebuilding from scratch | **reference only** — not consumed declaratively; stored for recovery | (reference) |
 | `mini/git/deploy-key` | `ssh-keygen -t ed25519 -N '' -C 'mini@flake-bot'` on mini; register `.pub` as a deploy key with write access on `github.com/jadeezomg/flake`. Paste the **private** key here. | `hosts/mini/flake-cache-warm.nix` → `systemd LoadCredential` → `GIT_SSH_COMMAND` | mini |
 | `cachix/auth-token` | `cachix authtoken --create-token --scope push --cache jadee-flake` | `hosts/mini/flake-cache-warm.nix` → `cachix push` | mini |
 | `hermes/env` | API keys + provider creds for `services.hermes-agent`. Format: multi-line `KEY=value`. Schema TBD on first hermes run. | `hosts/mini/services/hermes.nix` → `services.hermes-agent.environmentFiles` (currently optional) | mini |
 | `matrix/registration_token` | continuwuity registration token (gates account creation) | `hosts/mini/services/matrix.nix` → continuwuity `EnvironmentFile` | mini |
-| `matrix/hermes_password` | `@hermes` bot account password. **Break-glass only** — used out-of-band to mint the access token / re-bootstrap cross-signing (see `docs/hosts/mini-matrix-hermes-setup.md`); declared but not put in the hermes env | `hosts/mini/services/hermes.nix` | mini |
+| `matrix/hermes_password` | `@hermes` bot account password. **Break-glass only** — used out-of-band to mint the access token / re-bootstrap cross-signing (see `docs/hosts/mini.md § Matrix, Hermes, Caddy`); declared but not put in the hermes env | `hosts/mini/services/hermes.nix` | mini |
 | `matrix/hermes_access_token` | Long-lived access token for `@hermes` bound to device `hermes-mini` (preferred auth — avoids password re-login key churn that breaks E2EE) | `hosts/mini/services/hermes.nix` → `MATRIX_ACCESS_TOKEN` in hermes env | mini |
 | `matrix/hermes_recovery_key` | Cross-signing recovery key that verifies the `hermes-mini` device for E2EE; generated during the one-time cross-signing bootstrap | `hosts/mini/services/hermes.nix` → `MATRIX_RECOVERY_KEY` in hermes env | mini |
 
