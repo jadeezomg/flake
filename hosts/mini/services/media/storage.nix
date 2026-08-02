@@ -18,7 +18,6 @@ let
     "noatime"
     "nofail"
     "x-systemd.automount"
-    "x-systemd.idle-timeout=600"
     "x-systemd.mount-timeout=30s"
   ];
 in

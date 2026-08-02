@@ -219,19 +219,25 @@ nfs_path_ok() {
   timeout 5 ls "$path" >/dev/null 2>&1
 }
 
-# NFS bind mounts still show up as nfs4 in findmnt/What=. Identity-check the
-# bind target against its fstab source instead of comparing mount SOURCE strings.
-same_file() {
-  local a="$1" b="$2" ai bi
-  ai="$(stat -c '%d:%i' "$a" 2>/dev/null || true)"
-  bi="$(stat -c '%d:%i' "$b" 2>/dev/null || true)"
-  [[ -n "$ai" && "$ai" == "$bi" ]]
+# storage.nix mounts /media as a DIRECT NFS export, deliberately NOT a bind of
+# /data/media — a bind shares /data's superblock and inherits its dead handle when
+# /data expires (see the comment in hosts/mini/services/media/storage.nix).
+# NFS binds still report fsType nfs4 in findmnt/What=, so detect the drift by
+# superblock instead: a direct mount of a different export has its own device
+# number, a bind of /data/media reuses /data's.
+own_superblock() {
+  local path="$1" parent="$2" pd cd
+  pd="$(stat -c '%d' "$parent" 2>/dev/null || true)"
+  cd="$(stat -c '%d' "$path" 2>/dev/null || true)"
+  [[ -n "$cd" && -n "$pd" && "$cd" != "$pd" ]]
 }
 
-bind_mount_ok() {
+# /Music and /data/media/Music are the same export (/mnt/user/Music), so NFS
+# shares one superblock between them and a device check cannot distinguish a
+# bind there — readability (checked by nfs_path_ok) is all we can assert.
+topology_ok() {
   case "$1" in
-  media.mount) same_file /media /data/media ;;
-  Music.mount) same_file /Music /data/media/Music ;;
+  media.mount) own_superblock /media /data ;;
   *) return 0 ;;
   esac
 }
@@ -247,9 +253,9 @@ ensure_media_mounts() {
     need_remount=true
   elif ! systemctl is-active --quiet data-media-Music.mount || ! nfs_path_ok /data/media/Music; then
     need_remount=true
-  elif ! systemctl is-active --quiet Music.mount || ! nfs_path_ok /Music || ! bind_mount_ok Music.mount; then
+  elif ! systemctl is-active --quiet Music.mount || ! nfs_path_ok /Music; then
     need_remount=true
-  elif ! systemctl is-active --quiet media.mount || ! nfs_path_ok /media || ! bind_mount_ok media.mount; then
+  elif ! systemctl is-active --quiet media.mount || ! nfs_path_ok /media || ! topology_ok media.mount; then
     need_remount=true
   elif findmnt /media/Music >/dev/null 2>&1; then
     # Leftover from ad-hoc NFS remount of /media; Music is nested via /data/media/Music.
@@ -267,6 +273,11 @@ ensure_media_mounts() {
     sonarr.service radarr.service lidarr.service prowlarr.service \
     bazarr.service jellyfin.service plex.service \
     2>/dev/null || true
+  # Stop the automount units first. umount -lf under a live automount hangs up the
+  # autofs pipe and leaves the .automount unit failed ("unmounted by someone else").
+  sudo systemctl stop \
+    media.automount Music.automount data-media-Music.automount data.automount \
+    2>/dev/null || true
   sudo systemctl stop media-Music.mount Music.mount media.mount data-media-Music.mount 2>/dev/null || true
   sudo umount -lf /media/Music 2>/dev/null || true
   sudo umount -lf /Music 2>/dev/null || true
@@ -275,19 +286,25 @@ ensure_media_mounts() {
   sudo umount -lf /data 2>/dev/null || true
   sleep 1
   local m
-  for m in data.mount data-media-Music.mount Music.mount media.mount media-Music.mount; do
+  for m in data.mount data-media-Music.mount Music.mount media.mount media-Music.mount \
+    data.automount data-media-Music.automount Music.automount media.automount; do
     sudo systemctl reset-failed "$m" 2>/dev/null || true
   done
+  # Automount before mount: systemd refuses to set up an automount on a path that
+  # is already a mount point, so starting the .mount first strands the .automount.
+  sudo systemctl start data.automount 2>/dev/null || true
   sudo systemctl start data.mount
   sleep 1
+  sudo systemctl start data-media-Music.automount Music.automount media.automount 2>/dev/null || true
   sudo systemctl start data-media-Music.mount Music.mount media.mount
   if ! nfs_path_ok /data || ! nfs_path_ok /media; then
     print_error "NFS remount still stale — check Unraid export / network"
     return 1
   fi
-  if ! bind_mount_ok media.mount || ! bind_mount_ok Music.mount; then
-    print_error "mount topology still drifted from fstab (expected binds for /media and /Music)"
-    findmnt /media /Music || true
+  if ! topology_ok media.mount; then
+    print_error "mount topology still drifted from fstab (/media must be its own NFS export, not a bind of /data/media)"
+    findmnt /media || true
+    findmnt /data || true
     return 1
   fi
   print_success "NFS mounts healthy"
