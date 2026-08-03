@@ -16,7 +16,7 @@ output "eDP-1" {
     mode "2880x1920@120.000"
 
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
-    scale 1.5
+    scale 1.4
 
     // Transform allows to rotate the output counter-clockwise, valid values are:
     // normal, 90, 180, 270, flipped, flipped-90, flipped-180 and flipped-270.
@@ -33,4 +33,12 @@ output "eDP-1" {
     // If the position is unset or results in an overlap, the output is instead placed
     // automatically.
     position x=1440 y=0
+    layout {
+        struts {
+            left 0
+            right 0
+            top 7
+            bottom 0
+        }
+    }
 }
