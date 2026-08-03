@@ -14,12 +14,26 @@ let
     };
   };
 
+  # Work-only servers: remote streamable-HTTP endpoints that authenticate
+  # interactively per client (OAuth on first `/mcp` use), so there is nothing to
+  # install and no secret to wire. Gated on the work profile — only caya.
+  availableWorkServers = {
+    linear = {
+      type = "http";
+      url = "https://mcp.linear.app/mcp";
+    };
+  };
+
   agentsEnabled =
     if osConfig == null then true else osConfig.dotfiles.profiles.devenv.agents.enable or false;
 
+  workEnabled = if osConfig == null then false else osConfig.dotfiles.profiles.work.enable or false;
+
   esc = lib.escapeShellArg;
 
-  sharedServers = if agentsEnabled then availableSharedServers else { };
+  workServers = if workEnabled then availableWorkServers else { };
+
+  sharedServers = if agentsEnabled then availableSharedServers // workServers else { };
 
   mapSharedServers = transform: lib.mapAttrs transform sharedServers;
 
@@ -45,13 +59,24 @@ let
       fi
     '';
 
+  # Zed's context_servers shape differs per transport: local servers keep
+  # command/args, remote ones carry only `url` (plus optional headers) and Zed
+  # runs the MCP OAuth flow when no Authorization header is set. `type` is a
+  # claude/pi/omp key, so it is dropped here.
   toZedContextServer =
     _name: server:
-    server
-    // {
-      enabled = server.enabled or true;
-      remote = server.remote or false;
-    };
+    if server ? url then
+      {
+        inherit (server) url;
+        enabled = server.enabled or true;
+        remote = true;
+      }
+    else
+      server
+      // {
+        enabled = server.enabled or true;
+        remote = server.remote or false;
+      };
 
   toZedContextServers =
     extensionManagedServers:

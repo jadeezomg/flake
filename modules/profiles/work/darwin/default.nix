@@ -37,18 +37,16 @@ in
       "notion" # Notes and collaboration
       "slack" # Team communication (simpler via Homebrew)
       "claude" # Claude Desktop
+      "linear" # Linear Desktop
 
       # --- Browsers ---
       "firefox"
       "google-chrome"
 
       # --- Utilities ---
-      "dockdoor" # alt-tab replacement
       "middleclick" # Three-finger click utility (Mac-specific)
       "notunes" # Disable iTunes/Music auto-launch (Mac-specific)
       "linearmouse" # mouse options
-      "finetune" # Per-app volume control
-      "xykong/tap/flux-markdown" # md for peek
       "hyperkey" # rebind keys
       "handy" # Offline speech-to-text desktop app
       "shottr" # screenshot tool

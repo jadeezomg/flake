@@ -7,6 +7,29 @@ let
     osConfig.dotfiles.profiles.devenv.agents.enable = false;
   };
 
+  workRegistry = import ../lib/mcp-servers.nix {
+    inherit lib;
+    osConfig.dotfiles.profiles = {
+      devenv.agents.enable = true;
+      work.enable = true;
+    };
+  };
+
+  nonWorkRegistry = import ../lib/mcp-servers.nix {
+    inherit lib;
+    osConfig.dotfiles.profiles = {
+      devenv.agents.enable = true;
+      work.enable = false;
+    };
+  };
+
+  workActivation = workRegistry.mkMcpJsonMergeActivation {
+    mcpDir = "/tmp/mcp-work-test";
+    mcpFile = "/tmp/mcp-work-test/mcp.json";
+  };
+
+  workZedServers = workRegistry.toZedContextServers { };
+
   activation = registry.mkMcpJsonMergeActivation {
     mcpDir = "/tmp/mcp-test";
     mcpFile = "/tmp/mcp-test/mcp.json";
@@ -97,6 +120,27 @@ assert lib.hasInfix ".mcpServers[$e.key]" activation;
 assert lib.hasInfix "mcp-nixos" activation;
 assert lib.hasInfix "context7-mcp" activation;
 assert !(lib.hasInfix "mcp-nixos" disabledActivation);
+# Linear is work-profile only: absent without osConfig and on non-work hosts.
+assert !(builtins.hasAttr "linear" registry.sharedServers);
+assert !(builtins.hasAttr "linear" nonWorkRegistry.sharedServers);
+assert !(builtins.hasAttr "linear" disabledRegistry.sharedServers);
+assert
+  workRegistry.sharedServers.linear == {
+    type = "http";
+    url = "https://mcp.linear.app/mcp";
+  };
+assert builtins.hasAttr "mcp-nixos" workRegistry.sharedServers;
+assert lib.hasInfix "https://mcp.linear.app/mcp" workActivation;
+# Zed remote context servers carry url/remote, never command or the client-side
+# `type` key.
+assert
+  workZedServers.linear == {
+    url = "https://mcp.linear.app/mcp";
+    enabled = true;
+    remote = true;
+  };
+assert workZedServers.mcp-nixos.remote == false;
+assert !(builtins.hasAttr "linear" (registry.toZedContextServers { }));
 assert lib.hasInfix "if command_output=$(claude mcp add-json" claudeModuleSource;
 assert !(lib.hasInfix "claude mcp remove" claudeModuleSource);
 assert builtins.elem ../modules/profiles/devenv/agents/pi-mcp.nix enabledAgentSharedModules;
