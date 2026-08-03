@@ -31,6 +31,14 @@ window-rule {
     default-column-width { fixed 400; }
 }
 
+window-rule {
+    match app-id=r#"^io.missioncenter.MissionCenter"#
+    default-column-width { proportion 0.6; }
+    opacity 0.8
+    background-effect {
+        blur true
+    }
+}
 
 // Zed popup/helper windows can report no title and get tiled fullscreen.
 window-rule {
@@ -49,6 +57,7 @@ window-rule {
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
     match app-id=r#"^org\.gnome\.World\.Secrets$"#
     match title=r#"^Proton Pass$"#
+    match app-id=r#"blueman-manager"#
 
     block-out-from "screen-capture"
 

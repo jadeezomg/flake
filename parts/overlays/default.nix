@@ -19,11 +19,6 @@ in
   # `pkgs.llm-agents.*`. Pre-built on https://cache.numtide.com when our
   # nixpkgs rev is close to theirs.
   inputs.llm-agents.overlays.shared-nixpkgs
-  # Must come after shared-nixpkgs — it rewrites one attr of what that defines.
-  (import ./llm-agents-prebuilt.nix { inherit inputs system; })
-  # Surface every `packages/<name>` as `pkgs.<name>` (handles both
-  # `{pkgs, lib}` and standard-nixpkgs `callPackage` signatures, with
-  # per-package system gates inside the overlay).
   (import ./local-packages.nix { inherit lib system; })
   (import ./python-package-fixes.nix {
     inherit lib;
