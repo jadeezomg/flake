@@ -7,8 +7,6 @@
   # `darwin-defaults` script writing `defaults.generated.nix`; that was removed,
   # so add new domains here directly.
   imports = [
-    ./alt-tab.nix
     ./notunes.nix
-    ./scroll-reverser.nix
   ];
 }

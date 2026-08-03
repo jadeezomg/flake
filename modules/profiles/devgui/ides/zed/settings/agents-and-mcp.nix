@@ -1,4 +1,4 @@
-{ dotfilesLib }:
+{ dotfilesLib, osConfig }:
 let
   registryLib = rec {
     attrNames = builtins.attrNames;
@@ -14,7 +14,12 @@ let
     intersectLists = left: right: builtins.filter (name: builtins.elem name right) left;
     assertMsg = condition: message: if condition then true else throw message;
   };
-  mcpRegistry = dotfilesLib.mcpServers { lib = registryLib; };
+  # osConfig is passed so the registry's profile gates (agents, work) apply to
+  # Zed's context_servers exactly as they do to the claude/pi/omp registrations.
+  mcpRegistry = dotfilesLib.mcpServers {
+    lib = registryLib;
+    inherit osConfig;
+  };
   extensionManagedMcpServers = {
     mcp-server-github = {
       settings = { };
