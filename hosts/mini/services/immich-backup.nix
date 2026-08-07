@@ -342,6 +342,13 @@ in
       ];
       CapabilityBoundingSet = [
         "CAP_DAC_READ_SEARCH" # walk the whole 0700 immich tree
+        # DAC_READ_SEARCH only grants read+search. The dump CREATES its .part file
+        # inside dumpDir, which is 0700 immich:immich, so root needs DAC_OVERRIDE
+        # too — without it every run since this unit landed died at the redirect
+        # with "Permission denied" and the repo was never even initialised.
+        # Not a widening in practice: CAP_FOWNER + CAP_CHOWN already let this unit
+        # chmod/chown any file on the host, so it could grant itself write anyway.
+        "CAP_DAC_OVERRIDE"
         "CAP_CHOWN"
         "CAP_FOWNER"
         "CAP_SETUID" # setpriv -> postgres

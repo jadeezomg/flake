@@ -47,7 +47,8 @@ in
     };
     # /Music and /media are DIRECT NFS mounts, not binds of the /data tree. A bind of
     # a subdirectory of an automounted NFS mount pins the superblock it was created
-    # from: when /data expires (idle-timeout above) or is re-mounted during activation,
+    # from: when /data is re-mounted during activation (or expired, back when these
+    # carried x-systemd.idle-timeout=600 — removed in d8c1d16 for exactly this reason),
     # the bind keeps the dead handle and every access returns ESTALE. That wedged plex
     # on 2026-07-31 — `ls /media` → "Stale file handle", so systemd could not set up its
     # ReadOnlyPaths=/media namespace and ExecStartPre failed with 226/NAMESPACE.
