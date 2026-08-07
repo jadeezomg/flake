@@ -821,6 +821,22 @@
         "type": "github"
       }
     },
+    "homebrew-nkzw-tap": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1785742782,
+        "narHash": "sha256-L9Ff4fsgCpWgXBqCTYSkpWn+AQTFTiH1btFy305He2E=",
+        "owner": "nkzw-tech",
+        "repo": "homebrew-tap",
+        "rev": "d3f7c5fe4382c4427c5272193a4ddd476feb71ec",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nkzw-tech",
+        "repo": "homebrew-tap",
+        "type": "github"
+      }
+    },
     "homebrew-xykong-tap": {
       "flake": false,
       "locked": {
@@ -1549,6 +1565,7 @@
         "homebrew-bundle": "homebrew-bundle",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
+        "homebrew-nkzw-tap": "homebrew-nkzw-tap",
         "homebrew-xykong-tap": "homebrew-xykong-tap",
         "lanzaboote": "lanzaboote",
         "llm-agents": "llm-agents",
