@@ -6,13 +6,13 @@ in
 {
   pinsForce = true;
   pins = {
-    "Inbox (1) - jonas.hippauf@getcaya.com - Caya GmbH Mail" = {
+    "Inbox - jonas.hippauf@getcaya.com - Caya GmbH Mail" = {
       id = "22b1fd3c-57f8-4984-9ef9-e8a26e396e4a";
       url = "https://mail.google.com/mail/u/0/#inbox";
       isEssential = true;
       position = 101;
     };
-    "Caya GmbH - Calendar - Week of July 13, 2026" = {
+    "Caya GmbH - Calendar - Week of August 3, 2026" = {
       id = "2fc017e6-0793-435b-a6b9-69fce452eb29";
       url = "https://calendar.google.com/calendar/u/0/r";
       isEssential = true;
@@ -20,13 +20,13 @@ in
     };
     "Google Meet" = {
       id = "0fbd8a8a-cab5-4fb4-aeff-aaf4fca8532c";
-      url = "https://meet.google.com/landing";
+      url = "https://meet.google.com/home";
       isEssential = true;
       position = 103;
     };
-    "PAM Dashboard · Dashboard · Metabase" = {
+    "Your dashboard is ready · Dashboard · Metabase" = {
       id = "55d4921c-59db-4cec-ad03-cb21e5ae8ed5";
-      url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer&e-mail&id&tab=7-customer";
+      url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer&date=past30days&e-mail&id&tab=7-customer";
       isEssential = true;
       position = 104;
     };
@@ -65,6 +65,12 @@ in
       url = "https://app.windmill.dev/variables";
       isEssential = true;
       position = 110;
+    };
+    "Solutions › Overview" = {
+      id = "7d2d3407-e55a-43f7-8c76-26533f03db63";
+      url = "https://linear.app/caya/team/SE/overview";
+      isEssential = true;
+      position = 111;
     };
     "Dev Env" = {
       id = "{1772811911012-80}";
@@ -614,7 +620,7 @@ in
       isEssential = false;
       position = 250;
     };
-    "Caya Document Cockpit_2_1" = {
+    "Caya Document Cockpit_3" = {
       id = "cb4c2b75-aea4-4747-8a65-efcadaaf79ac";
       url = "https://develop--appcayacom.netlify.app/app/folder/inbox";
       workspace = spaces."Development".id;
@@ -623,9 +629,9 @@ in
       folderParentId = "{1772811911012-80}";
       container = 4;
     };
-    "Login to build your integrations, automa" = {
+    "Workato" = {
       id = "8a1df9ea-9c7b-41bd-b206-e6d43358c2cc";
-      url = "https://app.eu.workato.com/users/sign_in";
+      url = "https://app.eu.workato.com/?fid=projects";
       workspace = spaces."Development".id;
       isEssential = false;
       position = 252;

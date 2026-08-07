@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   pkgs,
   hostData,
@@ -18,8 +19,13 @@ let
     XDG_BIN_HOME = "${homeDir}/.local/bin";
   };
 
+  # Covers every `launchd.user.envVariables` entry, not just the XDG ones, so
+  # other modules can add a GUI-visible variable by declaring it there alone
+  # (e.g. CODIFF_CODEX_PATH in modules/profiles/work/darwin).
   setenvCommands = lib.concatStringsSep " && " (
-    lib.mapAttrsToList (k: v: "launchctl setenv ${k} ${lib.escapeShellArg v}") xdgVars
+    lib.mapAttrsToList (
+      k: v: "launchctl setenv ${k} ${lib.escapeShellArg v}"
+    ) config.launchd.user.envVariables
   );
 in
 {

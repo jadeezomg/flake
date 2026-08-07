@@ -3,14 +3,29 @@
 {
   config,
   lib,
+  pkgs,
+  user,
   ...
 }:
 let
   cfg = config.dotfiles.profiles.work;
 in
 {
+  # Codiff (cask below) shells out to the Codex CLI and only looks for it on
+  # PATH or inside Codex.app, neither of which exists here — codex comes from
+  # the llm-agents overlay. CODIFF_CODEX_PATH overrides that lookup. It goes
+  # through launchd rather than the shell env because Codiff is a GUI app:
+  # apps launched from Finder/Dock/Spotlight never see shell exports.
+  # modules/darwin re-runs `launchctl setenv` for these at every login, so the
+  # value survives reboots. A store path (not /run/current-system/sw/bin) keeps
+  # it valid even if the devenv.agents profile stops installing codex.
+  launchd.user.envVariables = lib.mkIf cfg.enable {
+    CODIFF_CODEX_PATH = "${pkgs.llm-agents.codex}/bin/codex";
+  };
+
   home-manager.sharedModules = lib.mkIf cfg.enable [
     ./brew-casks
+    ./brew-trust.nix
     ./mise-shell.nix
   ];
 
@@ -23,6 +38,13 @@ in
       # Upgrades run during activation; transient network/CDN issues can
       # fail the switch — set to false if that bites.
       upgrade = true;
+
+      # Activation runs brew under `sudo --set-home env …`, which drops
+      # XDG_CONFIG_HOME — brew would then look for its tap trust store in
+      # ~/.homebrew/trust.json while an interactive shell uses
+      # ~/.config/homebrew/trust.json. Pin it so both read the file declared in
+      # ./brew-trust.nix.
+      extraEnv.XDG_CONFIG_HOME = "${config.users.users.${user}.home}/.config";
     };
 
     brews = [

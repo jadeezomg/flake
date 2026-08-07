@@ -94,7 +94,7 @@
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
     # Newer brew than nix-homebrew pins; see the guard in hosts/caya/default.nix.
     brew-src = {
-      url = "github:Homebrew/brew/6.0.14";
+      url = "github:Homebrew/brew/6.0.15";
       flake = false;
     };
     homebrew-bundle = {
@@ -107,10 +107,6 @@
     };
     homebrew-cask = {
       url = "github:homebrew/homebrew-cask";
-      flake = false;
-    };
-    homebrew-xykong-tap = {
-      url = "github:xykong/homebrew-tap";
       flake = false;
     };
     homebrew-nkzw-tap = {

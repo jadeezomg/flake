@@ -22,6 +22,22 @@ flake_root() {
   fi
 }
 
+# Flake reference for nix/nh commands, as a git URL rather than a bare path.
+#
+# A bare path becomes a `path:` input, which copies the whole directory and
+# ignores .gitignore, so one unreadable entry fails the whole fetch:
+#   nix flake archive path:$FLAKE
+#   error: cannot read directory "$FLAKE/.cache": Permission denied
+# `git+file:` reads the git tree instead, so ignored and untracked files are
+# never touched. Trade-off: new files must be `git add`ed before they are
+# visible — the same rule AGENTS.md already states for Nix eval.
+flake_ref() {
+  echo "git+file://$(flake_root)"
+}
+
+# Recipes pass this to nh / nix instead of "$FLAKE".
+export FLAKE_REF="$(flake_ref)"
+
 get_hostname_lc() {
   if command -v hostname >/dev/null 2>&1; then
     hostname -s 2>/dev/null | tr '[:upper:]' '[:lower:]' || hostname | tr '[:upper:]' '[:lower:]'
