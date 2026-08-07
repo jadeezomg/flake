@@ -97,9 +97,20 @@
 		]
 	},
 	"enabledPlugins": {
-		"typescript-lsp@claude-plugins-official": true
+		"typescript-lsp@claude-plugins-official": true,
+		"caya-working-docs@caya": true,
+		"caya-customer-api@caya": true,
+		"caya-design-system@caya": true,
+		"caya-mailroom-api@caya": true
 	},
-	"extraKnownMarketplaces": {},
+	"extraKnownMarketplaces": {
+		"caya": {
+			"source": {
+				"source": "github",
+				"repo": "AMN-DATA/claude-plugin"
+			}
+		}
+	},
 	"effortLevel": "medium",
 	"tui": "fullscreen",
 	"skipDangerousModePermissionPrompt": true,

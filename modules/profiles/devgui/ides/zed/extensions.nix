@@ -26,6 +26,7 @@
       "xml"
       "comment"
       "luau"
+      "svelte"
     ];
   };
 }
