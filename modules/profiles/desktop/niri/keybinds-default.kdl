@@ -12,6 +12,7 @@ binds {
     Mod+Z hotkey-overlay-title="Launch Zen Browser" { spawn-sh "zen-beta || zen-twilight"; }
     Mod+P hotkey-overlay-title="Proton Pass" { spawn "proton-pass"; }
     // Super+X hotkey-overlay-title="App Launcher: Toggle" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
+    Mod+B hotkey-overlay-title="Blueman Manager" { spawn "blueman-manager"; }
 
     Mod3+Space repeat=false hotkey-overlay-title="Handy: Toggle Transcription" {
         spawn "handy" "--toggle-transcription";
