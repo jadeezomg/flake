@@ -48,10 +48,20 @@ in
       # --- Printing ---
       printing.enable = true;
 
-      # Start/stop solaar with the G Pro X Superlight 2 Lightspeed receiver.
       udev.extraRules = ''
+        # Start/stop solaar with the G Pro X Superlight 2 Lightspeed receiver.
         ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="046d", ATTR{idProduct}=="${gpxSuperlight2Receiver}", TAG+="systemd", ENV{SYSTEMD_USER_WANTS}="solaar.service"
         ACTION=="remove", SUBSYSTEM=="usb", ENV{ID_VENDOR_ID}=="046d", ENV{ID_MODEL_ID}=="${gpxSuperlight2Receiver}", RUN+="${stopSolaar}"
+
+        # binepad CandyPad (4249:4350) — grant access to the QMK raw HID
+        # interface (usage page 0xFF60) so VIA can remap keys/encoders.
+        # Nodes are root-only by default.
+        #
+        # GROUP/MODE do the real work here: extraRules lands in 99-local.rules,
+        # but systemd's uaccess builtin already ran at 70-uaccess.rules, so a
+        # bare TAG+="uaccess" is set too late to produce an ACL. GROUP/MODE are
+        # applied after all rules are read, so they hold at any priority.
+        KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="4249", ATTRS{idProduct}=="4350", GROUP="input", MODE="0660", TAG+="uaccess"
       '';
     };
     security.rtkit.enable = true;
