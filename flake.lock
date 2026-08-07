@@ -1628,6 +1628,7 @@
         "quickshell": "quickshell",
         "skills-mattpocock": "skills-mattpocock",
         "skills-ponytail": "skills-ponytail",
+        "skills-simple-english": "skills-simple-english",
         "solaar": "solaar",
         "sops-nix": "sops-nix",
         "stylix": "stylix",
@@ -1687,6 +1688,22 @@
       "original": {
         "owner": "DietrichGebert",
         "repo": "ponytail",
+        "type": "github"
+      }
+    },
+    "skills-simple-english": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784650100,
+        "narHash": "sha256-XnZ4SbhZMFOqtB4LTqOGuALGJUQ4+IcJMcacjjvkdE0=",
+        "owner": "AminBlg",
+        "repo": "SimpleEnglish",
+        "rev": "379728b51981b6d2ee1de0f201164483a9648972",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AminBlg",
+        "repo": "SimpleEnglish",
         "type": "github"
       }
     },

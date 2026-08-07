@@ -136,6 +136,10 @@
       url = "github:DietrichGebert/ponytail";
       flake = false;
     };
+    skills-simple-english = {
+      url = "github:AminBlg/SimpleEnglish";
+      flake = false;
+    };
   };
 
   outputs =

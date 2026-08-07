@@ -22,4 +22,7 @@ assert lib.all (name: skills.mergedSkills ? ${name}) ponytailSkillNames;
 assert lib.all (
   name: lib.hasPrefix "${inputs.skills-ponytail.outPath}/skills/" skills.mergedSkills.${name}
 ) ponytailSkillNames;
+assert
+  skills.mergedSkills."simple-english"
+  == "${inputs.skills-simple-english.outPath}/skills/simple-english";
 true

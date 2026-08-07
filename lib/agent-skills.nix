@@ -1,6 +1,6 @@
 # Build Home Manager `home.file` entries for agent skills.
 #
-# Upstream skills come from pinned Matt Pocock and Ponytail flake inputs.
+# Upstream skills come from pinned Matt Pocock, Ponytail, and SimpleEnglish flake inputs.
 # Local overrides live in `data/agents/skills/local/` and win on name clashes.
 # Opt-outs are listed in `data/agents/skills/.upstream-ignore`.
 {
@@ -12,6 +12,7 @@ let
   agentSkillsDir = dotfilesLib.agentSkillsDir;
   mattpocockRoot = "${inputs.skills-mattpocock.outPath}/skills";
   ponytailRoot = "${inputs.skills-ponytail.outPath}/skills";
+  simpleEnglishRoot = "${inputs.skills-simple-english.outPath}/skills";
   localRoot = "${agentSkillsDir}/local";
   ignoreFile = "${agentSkillsDir}/.upstream-ignore";
 
@@ -56,17 +57,32 @@ let
 
   filterIgnored = lib.filterAttrs (name: _path: !(ignored ? ${name}));
 
-  mattpocockSkills = filterIgnored (skillDirsFromCategoryTree mattpocockRoot);
-  ponytailSkills = filterIgnored (skillDirsFromFlatRoot ponytailRoot);
+  # One entry per pinned upstream input; names must stay unique across all of them.
+  upstreamSources = [
+    {
+      source = "skills-mattpocock";
+      skills = filterIgnored (skillDirsFromCategoryTree mattpocockRoot);
+    }
+    {
+      source = "skills-ponytail";
+      skills = filterIgnored (skillDirsFromFlatRoot ponytailRoot);
+    }
+    {
+      source = "skills-simple-english";
+      skills = filterIgnored (skillDirsFromFlatRoot simpleEnglishRoot);
+    }
+  ];
 
-  upstreamCollisions = lib.intersectLists (lib.attrNames mattpocockSkills) (
-    lib.attrNames ponytailSkills
-  );
+  upstreamCollisions = lib.pipe upstreamSources [
+    (map (entry: lib.attrNames entry.skills))
+    lib.concatLists
+    (names: lib.filter (name: lib.count (n: n == name) names > 1) (lib.unique names))
+  ];
 
   upstreamSkills =
     assert lib.assertMsg (upstreamCollisions == [ ])
-      "Agent skill name collision between Matt Pocock and Ponytail inputs: ${lib.concatStringsSep ", " upstreamCollisions}";
-    mattpocockSkills // ponytailSkills;
+      "Agent skill name collision between upstream skill inputs: ${lib.concatStringsSep ", " upstreamCollisions}";
+    lib.foldl' (acc: entry: acc // entry.skills) { } upstreamSources;
 
   localSkills = lib.mapAttrs' (skillName: _type: {
     name = skillName;
@@ -97,6 +113,7 @@ in
   inherit
     mattpocockRoot
     ponytailRoot
+    simpleEnglishRoot
     localRoot
     ignored
     upstreamCollisions

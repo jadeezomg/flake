@@ -15,6 +15,6 @@ Shared Nix data and helpers exposed to modules through `dotfilesLib` and Home Ma
 - Modules should use `dotfilesLib.<name>` instead of climbing with `../../` imports.
 - `pkgs.nix` owns nixpkgs import helpers; host-specific nixpkgs config is passed through `getPkgsWithConfig`.
 - `theme-palette.nix` and `scripts/src/flake_scripts/lib/palette.py` must stay in sync.
-- `agent-skills.nix` builds HM skill install attrs from `skills-mattpocock`, `skills-ponytail`, and `data/agents/skills/local/`.
+- `agent-skills.nix` builds HM skill install attrs from `skills-mattpocock`, `skills-ponytail`, `skills-simple-english`, and `data/agents/skills/local/`.
 - `mcp-servers.nix` owns live shared MCP registration only. Removals for dropped non-nixpkgs packages belong with that package's retirement plan, not a standing obsolete-cleanup list.
 - `mcp-servers.nix` has two server sets: `availableSharedServers` (every agents host) and `availableWorkServers` (gated on `dotfiles.profiles.work.enable`, so caya only — currently the remote Linear endpoint). Callers must pass `osConfig` or the work gate falls closed.

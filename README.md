@@ -117,6 +117,7 @@ Bash under `scripts/shell/` backs the Justfile. Python is a uv project in `scrip
 | `google-workspace-cli` | `gws` in per-system `packages` |
 | `skills-mattpocock` | pinned upstream agent skills (auto-installed on switch; updated via `just update`) |
 | `skills-ponytail` | pinned Ponytail agent skills (auto-installed on switch; updated via `just update`) |
+| `skills-simple-english` | pinned SimpleEnglish (ASD-STE100) agent skill (auto-installed on switch; updated via `just update`) |
 | `corecycler` | kept while disabled (upstream bug); not wired into any host |
 
 `packages.<system>` exposes every `packages/<name>` automatically (`parts/packages.nix` + `packages/names.nix`).
