@@ -4,6 +4,7 @@
       username = "jadee";
       fullName = "Jadee";
       email = "me@jadee.fyi";
+      gitEmail = "github@jadee.fyi";
       description = "jadee";
       extraGroups = [
         "gamemode"
@@ -27,6 +28,7 @@
       username = "jonashippauf";
       fullName = "Jonas Hippauf";
       email = "jonas.hippauf@getcaya.com";
+      gitEmail = "github@jadee.fyi";
       description = "Caya Darwin User";
       homeDirectory = "/Users/jonashippauf";
       stateVersion = "26.05";
