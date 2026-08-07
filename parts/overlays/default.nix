@@ -26,5 +26,9 @@ in
   })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })
+  (import ./zed-pinned-darwin.nix {
+    inherit inputs lib system;
+    expiry = expiryFor "zed-pinned-darwin";
+  })
 ]
 ++ (if isX86_64Linux then [ inputs.nix-cachyos-kernel.overlays.pinned ] else [ ])

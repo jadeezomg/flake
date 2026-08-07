@@ -12,6 +12,12 @@
     # grant) only move on a deliberate bump here. Darwin-only overlay lives in
     # parts/overlays/skhd-pinned-darwin.nix. Bump rev + re-grant Accessibility together.
     nixpkgs-skhd.url = "github:NixOS/nixpkgs/61b7c44c4073f0b827768aff0049561b5110ea5a";
+    # Pin zed-editor from the last nixpkgs rev whose aarch64-darwin build Hydra
+    # finished (zed-editor 1.13.1, build 340698173); newer revs have no Darwin
+    # substitute, so a switch on caya tries a local Rust build. Darwin-only
+    # overlay lives in parts/overlays/zed-pinned-darwin.nix. Bump the rev once
+    # Hydra caches a newer zed-editor for aarch64-darwin.
+    nixpkgs-zed.url = "github:NixOS/nixpkgs/104240a772428cc2e20d8fd86c9ddbb886bbaff2";
     # Shared by inputs that otherwise evaluate nix-systems/default, which still
     # includes x86_64-darwin. nixpkgs 26.11 dropped Intel macOS support.
     systems = {
