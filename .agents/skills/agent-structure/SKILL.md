@@ -13,7 +13,7 @@ Use this for agent-facing files: `.agents/skills/`, `data/agents/**`, installed 
 
 - Project-only skills for this repo live in `.agents/skills/<name>/SKILL.md`.
 - `.claude/skills` symlinks to `.agents/skills` in the flake root (Claude reads the same tree).
-- Global-install skills live in `data/agents/skills/local/` (overrides) plus the pinned `skills-mattpocock` and `skills-ponytail` inputs (upstream).
+- Global-install skills live in `data/agents/skills/local/` (overrides) plus the pinned `skills-mattpocock`, `skills-ponytail`, and `skills-simple-english` inputs (upstream).
 - `data/agents/skills/local/` is still global-install; use it only when a dotfiles-specific skill should be available in every repo.
 - Never edit installed copies in `~/.agents/skills/`; `~/.claude/skills` symlinks there. Home Manager regenerates them.
 
@@ -55,11 +55,11 @@ Ask: should this skill follow the user into unrelated repos?
 ## Global skill categories
 
 - `local/`: dotfiles-specific overrides (still global-install; wins over upstream on name clash).
-- Matt Pocock categories (`engineering/`, `productivity/`, …) and Ponytail's flat `skills/` tree live in their flake inputs only.
+- Matt Pocock categories (`engineering/`, `productivity/`, …) and the flat `skills/` trees of Ponytail and SimpleEnglish live in their flake inputs only.
 
 ## Upstream skills
 
-- Upstream skills come from the pinned `skills-mattpocock` and `skills-ponytail` flake inputs — installed automatically on switch.
+- Upstream skills come from the pinned `skills-mattpocock`, `skills-ponytail`, and `skills-simple-english` flake inputs — installed automatically on switch.
 - Local overrides live in `data/agents/skills/local/` (same skill name wins).
 - Opt-outs: `data/agents/skills/.upstream-ignore`.
 - `just update`: refreshes the upstream pin via `flake.lock`.

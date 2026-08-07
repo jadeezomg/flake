@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Global-install agent skills: upstream from pinned `skills-mattpocock` and `skills-ponytail`, local overrides in `local/`.
+Global-install agent skills: upstream from pinned `skills-mattpocock`, `skills-ponytail`, and `skills-simple-english`, local overrides in `local/`.
 
 ## Use skills
 
