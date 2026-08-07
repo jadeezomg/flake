@@ -35,7 +35,14 @@ let
     // envData.system
     // {
       FLAKE = flakeRoot;
-      NH_FLAKE = flakeRoot;
+      # nh gets the flake as a git URL, not a bare path: a `path:` input copies
+      # the whole directory (ignoring .gitignore), so `nix flake archive` dies on
+      # any unreadable entry — e.g. the root-owned `.cache/nix` that a `sudo nix`
+      # run in this directory leaves behind. `git+file:` reads the git tree, so
+      # ignored and untracked files are never touched. New files must be
+      # `git add`ed to be visible, which AGENTS.md already requires.
+      # `FLAKE` stays a plain path — scripts source and cd into it.
+      NH_FLAKE = "git+file://${flakeRoot}";
     }
   );
 

@@ -71,16 +71,16 @@
     "brew-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1785486805,
-        "narHash": "sha256-FiBBDgiVDdOYmXRgl7zB/18jWtk3qlMe1fKoEKiFcVQ=",
+        "lastModified": 1785710351,
+        "narHash": "sha256-DTL5T9+HlblsnXCEdxRpEo/2NBHD3t48BS7r+PTf090=",
         "owner": "Homebrew",
         "repo": "brew",
-        "rev": "9e9f316db6990631c097d48a792caf8645a4129e",
+        "rev": "7b0f22a4ab77567edef114c8dfc423fb96e2fbaa",
         "type": "github"
       },
       "original": {
         "owner": "Homebrew",
-        "ref": "6.0.14",
+        "ref": "6.0.15",
         "repo": "brew",
         "type": "github"
       }
@@ -837,22 +837,6 @@
         "type": "github"
       }
     },
-    "homebrew-xykong-tap": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1784554471,
-        "narHash": "sha256-Og2Pq2TIn5eKSUmWOksStrWcJuM6fSofXTk3r5wMvHE=",
-        "owner": "xykong",
-        "repo": "homebrew-tap",
-        "rev": "b78f63297a3c1feb7f9548ca9736ea6b627ed4ac",
-        "type": "github"
-      },
-      "original": {
-        "owner": "xykong",
-        "repo": "homebrew-tap",
-        "type": "github"
-      }
-    },
     "lanzaboote": {
       "inputs": {
         "crane": "crane",
@@ -1566,7 +1550,6 @@
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
         "homebrew-nkzw-tap": "homebrew-nkzw-tap",
-        "homebrew-xykong-tap": "homebrew-xykong-tap",
         "lanzaboote": "lanzaboote",
         "llm-agents": "llm-agents",
         "nix-cachyos-kernel": "nix-cachyos-kernel",

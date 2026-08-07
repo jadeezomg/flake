@@ -34,19 +34,19 @@ _build mode:
     print_header "BUILD"; h="$(get_host "")"
     case "{{mode}}" in
       build)
-        is_darwin && sc="nh darwin build '${FLAKE}#${h}'" || sc="nh os build '${FLAKE}#${h}'"
+        is_darwin && sc="nh darwin build '${FLAKE_REF}#${h}'" || sc="nh os build '${FLAKE_REF}#${h}'"
         pending="Building $h..."; done_msg="OK"
         ;;
       boot)
-        is_darwin && sc="nh darwin build '${FLAKE}#${h}'" || sc="nh os boot '${FLAKE}#${h}'"
+        is_darwin && sc="nh darwin build '${FLAKE_REF}#${h}'" || sc="nh os boot '${FLAKE_REF}#${h}'"
         pending="Boot $h..."; done_msg="Next reboot"
         ;;
       dry)
-        is_darwin && sc="nh darwin build --dry '${FLAKE}#${h}'" || sc="nh os test '${FLAKE}#${h}'"
+        is_darwin && sc="nh darwin build --dry '${FLAKE_REF}#${h}'" || sc="nh os test '${FLAKE_REF}#${h}'"
         pending="Dry $h..."; done_msg=""
         ;;
       dev)
-        is_darwin && sc="nh darwin switch --show-trace '${FLAKE}#${h}'" || sc="nh os switch --show-trace '${FLAKE}#${h}'"
+        is_darwin && sc="nh darwin switch --show-trace '${FLAKE_REF}#${h}'" || sc="nh os switch --show-trace '${FLAKE_REF}#${h}'"
         pending="Trace $h..."; done_msg=""
         ;;
       *)
@@ -87,7 +87,7 @@ switch:
     raise_fd_limit
     print_header "SWITCH"
     notify "Flake Switch" "Pre-flight..." "pending"
-    bash -lc "nix flake check --all-systems $FLAKE --no-write-lock-file" \
+    bash -lc "nix flake check --all-systems $FLAKE_REF --no-write-lock-file" \
       && notify "Flake Switch" "OK" "success" \
       || notify "Flake Switch" "Check failed [continue]" "pending"
     echo ""
@@ -96,14 +96,14 @@ switch:
     # 1) Build first — nothing gets committed unless the build succeeds.
     notify "Flake Switch" "Building $h..." "pending"
     print_info "-> $nhp build"
-    run_logged "Flake Build" bash -lc "$nhp build '${FLAKE}#${h}'"
+    run_logged "Flake Build" bash -lc "$nhp build '${FLAKE_REF}#${h}'"
     echo ""
     # 2) Tree is known-good: optional commit + push.
     command -v just >/dev/null && just --justfile "$JUSTFILE" git || true; echo ""
     # 3) Activate (everything is cached from step 1).
     notify "Flake Switch" "Switching $h..." "pending"
     print_info "-> $nhp switch"
-    run_logged "Flake Switch" bash -lc "$nhp switch '${FLAKE}#${h}'"
+    run_logged "Flake Switch" bash -lc "$nhp switch '${FLAKE_REF}#${h}'"
     echo ""
     hm_vars="/etc/profiles/per-user/${USER}/etc/profile.d/hm-session-vars.sh"
     [[ -f "$hm_vars" ]] && bash -lc "source '$hm_vars'" || true
@@ -119,7 +119,7 @@ switch-fast:
     print_header "SWITCH"
     notify "Flake Switch" "Fast" "info"; echo ""
     h="$(get_host "")"
-    is_darwin && sc="nh darwin switch '${FLAKE}#${h}'" || sc="nh os switch '${FLAKE}#${h}'"
+    is_darwin && sc="nh darwin switch '${FLAKE_REF}#${h}'" || sc="nh os switch '${FLAKE_REF}#${h}'"
     notify "Flake Switch" "Switching $h..." "pending"
     print_info "-> $sc"; run_logged "Flake Switch" bash -lc "$sc"; print_header "END"
 
@@ -132,7 +132,7 @@ switch-check:
     raise_fd_limit
     print_header "SWITCH"
     notify "Flake Switch" "Pre-flight..." "pending"
-    bash -lc "nix flake check --all-systems $FLAKE --no-write-lock-file" \
+    bash -lc "nix flake check --all-systems $FLAKE_REF --no-write-lock-file" \
       && notify "Flake Switch" "OK" "success" \
       || notify "Flake Switch" "Check failed" "pending"
     print_header "END"
@@ -398,16 +398,16 @@ bootstrap-sops-host-key:
       echo "  First install on a fresh box: you already have a key — skip bootstrap." >&2
       echo "  Phase 1 temporary copy from editor: use rotate-sops-host-key for a dedicated key." >&2
       echo "  Current public key:" >&2
-      sudo nix develop "$FLAKE" --command age-keygen -y "$host_key"
+      sudo -H nix develop "$FLAKE" --command age-keygen -y "$host_key"
       exit 1
     fi
     sudo mkdir -p "$host_dir"
-    sudo nix develop "$FLAKE" --command age-keygen -o "$host_key"
+    sudo -H nix develop "$FLAKE" --command age-keygen -o "$host_key"
     sudo chmod 700 "$host_dir"
     sudo chmod 600 "$host_key"
     echo ""
     echo "Host public key — add/replace the matching &<hostKey> entry in .sops.yaml:"
-    sudo nix develop "$FLAKE" --command age-keygen -y "$host_key"
+    sudo -H nix develop "$FLAKE" --command age-keygen -y "$host_key"
     echo ""
     echo "Next: sops updatekeys secrets/secrets.yaml && git add .sops.yaml secrets/secrets.yaml && flake switch"
 
@@ -457,7 +457,7 @@ rotate-sops-host-key:
     sudo chmod 700 "$host_dir"
     echo ""
     echo "NEW host public key — update &<hostKey> in .sops.yaml to this value:"
-    sudo nix develop "$FLAKE" --command age-keygen -y "$host_key"
+    sudo -H nix develop "$FLAKE" --command age-keygen -y "$host_key"
     echo ""
     echo "STOP — required before flake switch on this host:"
     echo "  1. Edit .sops.yaml (&<hostKey> = pubkey above; must differ from &editor)"
@@ -478,7 +478,7 @@ verify-sops-host-key anchor="framework":
     sops_yaml="$FLAKE/.sops.yaml"
     anchor="{{anchor}}"
     sudo test -f "$host_key" || { echo "Missing $host_key" >&2; exit 1; }
-    host_pub="$(sudo nix develop "$FLAKE" --command age-keygen -y "$host_key")"
+    host_pub="$(sudo -H nix develop "$FLAKE" --command age-keygen -y "$host_key")"
     editor_pub=""
     if [[ -f "$editor_key" ]]; then
       editor_pub="$(nix develop "$FLAKE" --command age-keygen -y "$editor_key")"
