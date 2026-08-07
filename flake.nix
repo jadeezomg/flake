@@ -113,6 +113,10 @@
       url = "github:xykong/homebrew-tap";
       flake = false;
     };
+    homebrew-nkzw-tap = {
+      url = "github:nkzw-tech/homebrew-tap";
+      flake = false;
+    };
 
     # --- hardware ---
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
