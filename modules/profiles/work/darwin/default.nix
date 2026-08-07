@@ -4,7 +4,6 @@
   config,
   lib,
   pkgs,
-  user,
   ...
 }:
 let
@@ -25,7 +24,6 @@ in
 
   home-manager.sharedModules = lib.mkIf cfg.enable [
     ./brew-casks
-    ./brew-trust.nix
     ./mise-shell.nix
   ];
 
@@ -38,13 +36,6 @@ in
       # Upgrades run during activation; transient network/CDN issues can
       # fail the switch — set to false if that bites.
       upgrade = true;
-
-      # Activation runs brew under `sudo --set-home env …`, which drops
-      # XDG_CONFIG_HOME — brew would then look for its tap trust store in
-      # ~/.homebrew/trust.json while an interactive shell uses
-      # ~/.config/homebrew/trust.json. Pin it so both read the file declared in
-      # ./brew-trust.nix.
-      extraEnv.XDG_CONFIG_HOME = "${config.users.users.${user}.home}/.config";
     };
 
     brews = [
