@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   ...
 }:
@@ -7,6 +8,12 @@ let
   cfg = config.dotfiles.profiles.integrations;
 in
 {
+  # nix-flatpak extends the `services.flatpak` namespace with declarative
+  # `remotes` and `packages`; nixpkgs only ships the daemon. The import is
+  # unconditional (this file is Linux-only already) and everything it adds is
+  # gated behind `services.flatpak.enable`, so headless hosts stay unaffected.
+  imports = [ inputs.nix-flatpak.nixosModules.nix-flatpak ];
+
   config = lib.mkMerge [
     # --- AppImage ---
     # See https://wiki.nixos.org/wiki/Appimage
@@ -19,17 +26,16 @@ in
 
     # --- Flatpak + Flathub remote ---
     (lib.mkIf (cfg.enable && cfg.flatpak.enable) {
+      # nix-flatpak's `remotes` default already registers Flathub, so no
+      # activation script is needed. Individual apps are declared next to their
+      # own profile via `services.flatpak.packages`, which merges across modules.
       services.flatpak.enable = true;
 
-      # Register Flathub remote at activation time. Installing individual apps
-      # is left to the user (`flatpak install flathub <app-id>`).
-      system.activationScripts.flatpakSetup = ''
-        export PATH="${config.system.path}/bin:''${PATH}"
-        if ! flatpak remote-list 2>/dev/null | grep -q "flathub"; then
-          echo "Adding Flathub remote..."
-          flatpak remote-add --if-not-exists --system flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
-        fi
-      '';
+      # Deliberately left at `false`: these hosts also carry hand-installed
+      # flatpaks this flake does not declare, and `true` would uninstall them.
+      # The cost is that dropping an app from `packages` leaves it on disk —
+      # follow up with `flatpak uninstall --system <app-id>`.
+      services.flatpak.uninstallUnmanaged = false;
     })
   ];
 }

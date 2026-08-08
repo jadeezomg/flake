@@ -38,6 +38,18 @@ Ask before changes to behavior, API, UX, naming, persistence, auth, dependencies
 
 Gather evidence proportional to risk. For behavior/API/infra changes, trace execution path and regression surface before editing. Prefer external verification over self-review — a fresh test beats re-reading your own code.
 
+## Writing
+
+Invoke the `simple-english` skill before you write prose. This rule covers three targets:
+
+- Code comments and docstrings.
+- Documentation: `README.md`, `AGENTS.md`, ADRs, skills, commit and PR messages.
+- Replies, status reports, and questions that the user reads.
+
+Invoke the skill one time per session. Then keep its rules in force for the rest of the session. Do not draft in your own voice and rewrite after.
+
+Code, identifiers, commands, file paths, and quoted errors stay exact.
+
 ## Tools
 
 ### Web / docs / retrieval — priority
