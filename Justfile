@@ -543,6 +543,18 @@ rollback:
     if is_darwin; then darwin-rebuild switch --rollback; else nh os rollback; fi
     print_header "END"
 
+[doc('Move files out of subdirectories into the current shell directory (or a given DIR)')]
+[group('system')]
+[no-cd]
+flatten-dir *ARGS:
+    @FLATTEN_DIR_FROM="{{ invocation_directory() }}" bash "$FLAKE/scripts/shell/flatten-dir.bash" {{ ARGS }}
+
+[doc('Preview flatten-dir: list the moves, change nothing')]
+[group('system')]
+[no-cd]
+flatten-dir-dry *ARGS:
+    @FLATTEN_DIR_FROM="{{ invocation_directory() }}" bash "$FLAKE/scripts/shell/flatten-dir.bash" --dry-run {{ ARGS }}
+
 [doc('Quick snapshot: Host Status, git status, disk, nh os info')]
 [group('system')]
 health:

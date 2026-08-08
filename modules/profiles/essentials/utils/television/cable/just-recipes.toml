@@ -44,5 +44,9 @@ f5 = "actions:execute-recipe"
 
 [actions.execute-recipe]
 description = "Execute a justfile recipe"
-command = "bash -lc 'cd \"${FLAKE}\" && exec just --justfile \"${JUSTFILE}\" \"$1\"' -- '{}'"
+# Deliberately no `cd "${FLAKE}"` here. just already runs a recipe in the
+# directory of its justfile, so the cd changed nothing for ordinary recipes —
+# but it destroyed the caller's directory for `[no-cd]` recipes such as
+# `flatten-dir`, which must act on the directory the shell is in.
+command = "bash -lc 'exec just --justfile \"${JUSTFILE}\" \"$1\"' -- '{}'"
 mode = "execute"
