@@ -26,9 +26,15 @@ window-rule {
 // gnome Calculator
 window-rule {
     match app-id=r#"^org.gnome.Calculator$"#
+    match app-id=r#"^io.github.tanaybhomia.Whisp$"#
     open-floating true
+    opacity 0.8
     default-window-height { fixed 700; }
-    default-column-width { fixed 400; }
+    default-column-width { fixed 500; }
+    background-effect {
+        blur true
+        xray false
+    }
 }
 
 window-rule {
