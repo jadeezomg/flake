@@ -73,6 +73,7 @@ order = [ "default", "side", "laptop" ]
     margin_ends = 600
     padding = 20
     radius = 5
+    reserve_space = false
     show_on_workspace_switch = false
     start = [ "tailscale_2", "group:g1", "group:g6", "media" ]
     thickness = 25
@@ -522,10 +523,10 @@ transition_on_startup = true
     enabled = true
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Sunrise over Fishing Waters--Maine William E. Norton.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Sunrise over Fishing Waters--Maine William E. Norton.jpg"
 
     [wallpaper.monitors.DP-1]
     path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
@@ -540,7 +541,7 @@ transition_on_startup = true
     path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Sunrise over Fishing Waters--Maine William E. Norton.jpg"
 
 [widget.active_window]
 anchor = true
