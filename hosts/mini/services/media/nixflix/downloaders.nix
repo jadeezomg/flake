@@ -123,6 +123,10 @@ in
         BitTorrent.Session = {
           GlobalMaxRatio = 0;
           ShareLimitAction = "Stop";
+          MaxActiveDownloads = 19;
+          MaxActiveUploads = 1;
+          MaxActiveTorrents = 20;
+          IgnoreSlowTorrentsForQueueing = true;
         };
         Preferences = {
           WebUI = {
