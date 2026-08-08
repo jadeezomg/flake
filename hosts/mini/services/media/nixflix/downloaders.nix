@@ -127,6 +127,23 @@ in
           MaxActiveUploads = 1;
           MaxActiveTorrents = 20;
           IgnoreSlowTorrentsForQueueing = true;
+
+          # Keep partial torrents in their own directory, away from the finished
+          # files. Two reasons, in order of importance:
+          #
+          #   1. The Unraid mover skips this path by name (Mover Tuning "ignore
+          #      list", which holds the pool path /mnt/array_cache/data/torrents/
+          #      incomplete). Without the split there is no path to skip, so the
+          #      mover can relocate a file while mini is still writing it over
+          #      NFS. The write then lands on an unlinked inode and the download
+          #      is silently corrupted.
+          #   2. Only finished files reach the array, so the array disks stay
+          #      spun down during a download.
+          #
+          # qBittorrent keeps the category subfolder under this path, so the
+          # per-category layout above still applies while downloading.
+          TempPathEnabled = true;
+          TempPath = "/data/torrents/incomplete";
         };
         Preferences = {
           WebUI = {
