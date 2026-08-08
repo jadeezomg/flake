@@ -89,15 +89,7 @@
 		"defaultMode": "auto"
 	},
 	"model": "opus[1m]",
-	"hooks": {
-		"SessionStart": [
-			{
-				"hooks": []
-			}
-		]
-	},
 	"enabledPlugins": {
-		"typescript-lsp@claude-plugins-official": true,
 		"caya-working-docs@caya": true,
 		"caya-customer-api@caya": true,
 		"caya-design-system@caya": true,

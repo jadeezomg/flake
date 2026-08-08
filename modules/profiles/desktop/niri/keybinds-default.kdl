@@ -20,6 +20,11 @@ binds {
     Mod3+Shift+Space repeat=false hotkey-overlay-title="Handy: Toggle Post-Processing" {
         spawn "handy" "--toggle-post-process";
     }
+    // Whisp is a Flathub app, so there is no `whisp` binary.
+    // `flatpak kill` exits 1 when the app is not running, so `||` launches it.
+    Mod+Period repeat=false hotkey-overlay-title="Whisp: Toggle Notes" {
+        spawn-sh "flatpak kill io.github.tanaybhomia.Whisp || flatpak run io.github.tanaybhomia.Whisp";
+    }
 
 
     // Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
@@ -175,7 +180,7 @@ binds {
     // Consume one window from the right to the bottom of the focused column.
     Mod+S  { consume-window-into-column; }
     // Expel the bottom window from the focused column to the right.
-    Mod+Period { expel-window-from-column; }
+    Mod+Shift+S { expel-window-from-column; }
 
     Mod+R { switch-preset-column-width; }
     // Cycling through the presets in reverse order is also possible.
