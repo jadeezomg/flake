@@ -89,6 +89,9 @@
     };
     vicinae.url = "github:vicinaehq/vicinae";
     vicinae-extensions.url = "github:vicinaehq/extensions";
+    # Declarative `services.flatpak.{remotes,packages}`; nixpkgs only ships the
+    # daemon. Wired in modules/profiles/integrations.nix.
+    nix-flatpak.url = "github:gmodena/nix-flatpak/v0.7.0";
 
     # --- macOS / Homebrew ---
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
