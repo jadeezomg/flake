@@ -3,9 +3,3 @@
 # One skill name per line. Blank lines and lines starting with # are ignored.
 
 setup-matt-pocock-skills  # handled via the flake directly
-
-# deprecated upstream skills
-design-an-interface
-qa
-request-refactor-plan
-ubiquitous-language
