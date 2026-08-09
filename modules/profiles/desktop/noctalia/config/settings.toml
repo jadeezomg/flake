@@ -19,7 +19,7 @@ order = [ "default", "side", "laptop" ]
     radius = 5
     reserve_space = false
     show_on_workspace_switch = false
-    start = [ "tailscale_2", "group:g1" ]
+    start = [ "status", "group:g1" ]
     thickness = 25
 
         [bar.default.monitor.DP-1]
@@ -29,24 +29,30 @@ order = [ "default", "side", "laptop" ]
         enabled = true
 
         [[bar.default.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
         border = ""
         enabled = true
         fill = "on_primary"
         id = "g1"
-        members = [ "clipboard", "recorder", "screenshot", "privacy" ]
-        opacity = 0.59999999999999998
+        members = [ "clipboard", "recorder", "screenshot", "launcher_2", "privacy" ]
+        opacity = 0.60000002384185791
         padding = 6.0
 
         [[bar.default.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
         enabled = true
         fill = "surface_variant"
         id = "g2"
         members = [ "control-center", "notifications", "volume", "session" ]
-        opacity = 0.59999999999999998
+        opacity = 0.60000002384185791
         padding = 6.0
         radius = 6.0
 
         [[bar.default.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
         enabled = true
         fill = "surface_variant"
         id = "g3"
@@ -56,6 +62,8 @@ order = [ "default", "side", "laptop" ]
         radius = 6.0
 
         [[bar.default.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
         enabled = true
         fill = "surface_variant"
         id = "g4"
@@ -229,10 +237,10 @@ hidden_tabs = []
     type = "keyboard_layout"
 
     [[control_center.shortcuts]]
-    type = "jadeezomg/tailscale:toggle"
+    type = "bluetooth"
 
     [[control_center.shortcuts]]
-    type = "bluetooth"
+    type = "jadeezomg/tailscale:toggle"
 
 [desktop_widgets]
 enabled = false
@@ -454,12 +462,24 @@ widget_order = [
         show_weather = true
 
 [notification]
+background_opacity = 0.59999998658895493
+border = false
 monitors = [ "HDMI-A-1", "eDP-1" ]
 
 [osd]
-background_opacity = 0.54999998770654202
+background_opacity = 0.59999998658895493
+border = false
 monitors = [ "DP-1", "eDP-1" ]
 offset_y = 40
+
+[plugin_settings."alexander/game-launcher"]
+browser_open_near_click = false
+browser_placement = "attached"
+lutris_enabled = false
+
+[plugin_settings."davemhammer/tailscale"]
+manager_open_near_click = false
+manager_placement = "attached"
 
 [plugin_settings."kenn/keybind-cheatsheet"]
 compositor = "niri"
@@ -476,7 +496,14 @@ ssh_user = "jadee"
 
 [plugins]
 auto_update = true
-enabled = [ "noctalia/screen_recorder", "jadeezomg/tailscale" ]
+enabled = [
+    "noctalia/screen_recorder",
+    "jadeezomg/tailscale",
+    "davemhammer/tailscale",
+    "alexander/game-launcher",
+    "dotnetrob/cat",
+    "kenn/keybind-cheatsheet"
+]
 
     [[plugins.source]]
     kind = "git"
@@ -489,6 +516,7 @@ enabled = [ "noctalia/screen_recorder", "jadeezomg/tailscale" ]
     name = "community"
 
     [[plugins.source]]
+    enabled = false
     kind = "path"
     location = "~/Git/community-plugins"
     name = "community-plugins-fork"
@@ -496,14 +524,10 @@ enabled = [ "noctalia/screen_recorder", "jadeezomg/tailscale" ]
 [shell]
 app_icon_color = "primary"
 avatar_path = "/home/jadee/Pictures/Images/L1410618-crop.jpeg"
-button_borders = false
-card_borders = false
 corner_radius_scale = 0.5000000074505806
 font_family = "Inter Display"
-input_borders = false
 password_style = "random"
-popup_borders = false
-popup_shadows = false
+popup_shadows = true
 
     [shell.animation]
     speed = 1.5000000223517418
@@ -513,9 +537,12 @@ popup_shadows = false
     German = "de"
 
     [shell.panel]
+    borders = false
     clipboard_placement = "attached"
+    floating_offset = 10
     polkit_placement = "attached"
-    wallpaper_placement = "floating"
+    transparency_mode = "glass"
+    wallpaper_placement = "attached"
 
     [shell.screen_corners]
     enabled = true
@@ -542,19 +569,19 @@ transition_on_startup = true
     enabled = true
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
     [wallpaper.monitors.DP-1]
-    path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
     [wallpaper.monitors.DP-2]
     path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
     [wallpaper.monitors.HDMI-A-2]
     path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
@@ -593,6 +620,9 @@ visualization = "none"
 
 [widget.keyboard_layout]
 
+[widget.launcher_2]
+type = "alexander/game-launcher:launcher"
+
 [widget.media]
 album_art_only = true
 anchor = true
@@ -621,6 +651,11 @@ display = "text"
 
 [widget.recorder]
 type = "noctalia/screen_recorder:recorder"
+
+[widget.status]
+capsule_opacity = 0.59999999999999998
+show_counts = false
+type = "davemhammer/tailscale:status"
 
 [widget.tailscale_2]
 show_ip = false
