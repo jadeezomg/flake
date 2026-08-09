@@ -4,7 +4,7 @@ let
   # Keep MIME ownership centralized here; feature profiles should install tools,
   # and only use lib.mkForce overrides for intentionally profile-specific defaults.
   userEditor = "dev.zed.Zed";
-  userBrowser = "zen-beta";
+  userBrowser = "zen-twilight";
   audio = "org.gnome.Music";
   image = "org.gnome.Loupe";
   pdf = "org.gnome.Papers";

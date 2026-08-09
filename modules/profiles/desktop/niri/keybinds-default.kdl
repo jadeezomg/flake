@@ -9,7 +9,12 @@ binds {
 
     Mod+T hotkey-overlay-title="Open a Terminal: kitty" { spawn "kitty"; }
     // Mod+T hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
-    Mod+Z hotkey-overlay-title="Launch Zen Browser" { spawn-sh "zen-beta || zen-twilight"; }
+    // Focus the open Zen window instead of opening a second one. Zen with no
+    // arguments opens a new window when it already runs, so ask niri first.
+    // The app-id prefix covers zen, zen-beta, and zen-twilight, like window-rules.kdl.
+    Mod+Z hotkey-overlay-title="Launch or Focus Zen Browser" {
+        spawn-sh r#"id=$(niri msg -j windows | jq -r 'map(select(.app_id | test("^zen(-|$)"))) | sort_by(.id) | first | .id // empty'); if [ -n "$id" ]; then niri msg action focus-window --id "$id"; else zen-twilight || zen-beta; fi"#;
+    }
     Mod+P hotkey-overlay-title="Proton Pass" { spawn "proton-pass"; }
     // Super+X hotkey-overlay-title="App Launcher: Toggle" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
     Mod+B hotkey-overlay-title="Blueman Manager" { spawn "blueman-manager"; }
