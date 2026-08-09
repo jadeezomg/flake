@@ -1,5 +1,7 @@
 # NixOS default profile: composed from shared settings/search/extensions and spaces/pins.
 # Regenerate spaces.nix / pins.nix from the live session: `just zen-sync` (or `zen-sync`).
+# pins.nix must merge last: it re-emits `spaces` with each space's pins nested
+# under it, built from the metadata in spaces.nix.
 {
   extensions,
   sharedSearch,

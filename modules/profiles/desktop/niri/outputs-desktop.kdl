@@ -92,7 +92,7 @@ output "DP-1" {
 }
 
 // Browser
-spawn-sh-at-startup "zen-beta || zen-twilight"
+spawn-sh-at-startup "zen-twilight || zen-beta"
 window-rule {
     match app-id=r#"^zen-twilight$"#
     match app-id=r#"^zen-beta$"#

@@ -106,18 +106,15 @@ def _pin_frag(
     url: str,
     essential: bool,
     position: int,
-    nix_space: str | None = None,
     folder_id: str | None = None,
     container_id: int | None = None,
 ) -> str:
     lines = [
         f'      id = "{pin_id}";',
         f'      url = "{nix_escape(url)}";',
+        f"      isEssential = {'true' if essential else 'false'};",
+        f"      position = {position};",
     ]
-    if nix_space is not None:
-        lines.append(f'      workspace = spaces."{nix_space}".id;')
-    lines.append(f"      isEssential = {'true' if essential else 'false'};")
-    lines.append(f"      position = {position};")
     if folder_id:
         lines.append(f'      folderParentId = "{folder_id}";')
     if container_id is not None:
@@ -128,13 +125,11 @@ def _pin_frag(
 def _folder_frag(
     *,
     fid: str,
-    nix_space: str,
     position: int,
     parent_id: str | None = None,
 ) -> str:
     lines = [
         f'      id = "{fid}";',
-        f'      workspace = spaces."{nix_space}".id;',
         "      isGroup = true;",
         "      isFolderCollapsed = true;",
         "      editedTitle = true;",
@@ -145,13 +140,32 @@ def _folder_frag(
     return "\n".join(lines)
 
 
+def _attrset_body(entries) -> str:
+    return "\n".join('    "' + k + '" = {\n' + v + "\n    };" for k, v in entries)
+
+
 def _render_pins(windows, folders, spaces_list):
-    space_to_key = {sid: key for key, sid, _, _ in iter_space_nix_rows(spaces_list)}
-    seen_urls_essential = set()
-    seen_keys_all = set()
+    """Render pins in the space-scoped form: `spaces.<name>.pins`.
+
+    Essentials stay in the flat `pins` set. With
+    `zen.workspaces.separate-essentials = false` they belong to every space, so
+    they have no owning space to nest under. Every other pin and folder nests
+    under its space, which makes the `workspace = spaces."X".id` pairing
+    unnecessary — the module derives it from the owning space.
+    """
+    space_rows = iter_space_nix_rows(spaces_list)
+    space_to_key = {sid: key for key, sid, _, _ in space_rows}
+    essentials: list[tuple[str, str]] = []
+    scoped: dict[str, list[tuple[str, str]]] = {}
+    seen_urls_essential: set[str] = set()
+    # Keys are namespaced per space, so equal titles in different spaces keep
+    # their name instead of getting a _1 suffix.
+    seen_keys: dict[str, set[str]] = {}
     pos_essential = 101
     pos_pin = 201
-    entries = []
+
+    def key_for(namespace: str, base: str) -> str:
+        return _unique_nix_key(base, seen_keys.setdefault(namespace, set()))
 
     for group in windows:
         for p in group["pins"]:
@@ -162,63 +176,71 @@ def _render_pins(windows, folders, spaces_list):
                 continue
             seen_urls_essential.add(url)
             title = p.get("title") or slug(None, url)
-            key = _unique_nix_key(title or slug(None, url), seen_keys_all)
-            pin_id = normalize_zen_tab_id(p.get("tabId"))
+            key = key_for("", title or slug(None, url))
             frag = _pin_frag(
-                pin_id=pin_id,
+                pin_id=normalize_zen_tab_id(p.get("tabId")),
                 url=url,
                 essential=True,
                 position=pos_essential,
                 container_id=p.get("containerId"),
             )
-            entries.append((key, frag))
+            essentials.append((key, frag))
             pos_essential += 1
 
     for f in folders:
-        fid = f.get("id") or ""
-        name = (f.get("name") or "").strip() or "Folder"
-        space_id = f.get("spaceId") or ""
         nix_space = space_to_key.get(
-            space_id, nix_escape(f.get("spaceName") or "Default")
+            f.get("spaceId") or "", nix_escape(f.get("spaceName") or "Default")
         )
-        key = _unique_nix_key(name, seen_keys_all)
+        key = key_for(nix_space, (f.get("name") or "").strip() or "Folder")
         frag = _folder_frag(
-            fid=fid,
-            nix_space=nix_space,
+            fid=f.get("id") or "",
             position=f.get("position", 1000),
             parent_id=f.get("parentId"),
         )
-        entries.append((key, frag))
+        scoped.setdefault(nix_space, []).append((key, frag))
 
     for group in windows:
-        space_id = group.get("spaceId") or ""
-        space_name = group.get("spaceName") or "Default"
-        nix_space = space_to_key.get(space_id, nix_escape(space_name))
+        nix_space = space_to_key.get(
+            group.get("spaceId") or "", nix_escape(group.get("spaceName") or "Default")
+        )
         for p in group["pins"]:
             if p.get("isEssential"):
                 continue
             url = p["url"]
             title = p.get("title") or slug(None, url)
-            base_key = slug(title, url)
-            key = _unique_nix_key(base_key, seen_keys_all)
-            pin_id = normalize_zen_tab_id(p.get("tabId"))
+            key = key_for(nix_space, slug(title, url))
             frag = _pin_frag(
-                pin_id=pin_id,
+                pin_id=normalize_zen_tab_id(p.get("tabId")),
                 url=url,
                 essential=False,
                 position=pos_pin,
-                nix_space=nix_space,
                 folder_id=p.get("folderId"),
                 container_id=p.get("containerId"),
             )
             pos_pin += 1
-            entries.append((key, frag))
+            scoped.setdefault(nix_space, []).append((key, frag))
 
-    body = "\n".join('    "' + k + '" = {\n' + v + "\n    };" for k, v in entries)
+    ordered = [key for key, _, _, _ in space_rows if key in scoped]
+    ordered += [key for key in scoped if key not in set(ordered)]
+    space_blocks = "\n".join(
+        f'    "{key}" = baseSpaces."{key}" // {{\n      pins = {{\n'
+        + _attrset_body(scoped[key])
+        + "\n      };\n    };"
+        for key in ordered
+    )
+    spaces_attr = (
+        "  spaces = baseSpaces // {\n" + space_blocks + "\n  };\n" if ordered else ""
+    )
     return (
-        f"# Pins and folders (skifli format). Generated by {_SYNC_TOOL}.\n{{ ... }}: let\n  spaces = (import ./spaces.nix {{}}).spaces;\nin {{\n  pinsForce = true;\n  pins = {{\n"
-        + body
-        + "\n  };\n}\n"
+        f"# Pins and folders (space-scoped form). Generated by {_SYNC_TOOL}.\n"
+        f"# Close Zen before `just switch`: the activation script needs exclusive\n"
+        f"# access to zen-sessions.jsonlz4, and silently skips the update otherwise.\n"
+        f"{{ ... }}: let\n  baseSpaces = (import ./spaces.nix {{}}).spaces;\nin {{\n"
+        f"  pinsForce = true;\n  pins = {{\n"
+        + _attrset_body(essentials)
+        + "\n  };\n"
+        + spaces_attr
+        + "}\n"
     )
 
 
