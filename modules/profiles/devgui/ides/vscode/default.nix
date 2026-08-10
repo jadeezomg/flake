@@ -25,13 +25,9 @@ in
           # --- General ---
           github.vscode-pull-request-github # GitHub Pull Requests
           # --- JavaScript/TypeScript ---
-          dbaeumer.vscode-eslint # JavaScript/TypeScript linting
-          prettier.prettier-vscode # Prettier formatter
-          biomejs.biome # TypeScript linter and formatter
+          dbaeumer.vscode-eslint # JavaScript/TypeScript linting          biomejs.biome # TypeScript linter and formatter
           # Nix
           jnoortheen.nix-ide # Nix language support + nixfmt formatting
-          # Lua
-          sumneko.lua # Lua Language Server with formatting support
           # Python
           charliermarsh.ruff # Python linting/formatting
           ms-python.python # Python support
@@ -77,6 +73,10 @@ in
         # VS Code from updating itself or the extensions it was given.
         "update.mode" = "none";
         "extensions.autoUpdate" = false;
+        # `autoUpdate` alone still leaves the update check running, which logs
+        # "Auto updating outdated extensions" on every launch. The nixpkgs
+        # versions always look outdated against the marketplace.
+        "extensions.autoCheckUpdates" = false;
 
         # Font settings
         "editor.fontFamily" = "'Iosevka Nerd Font', 'Iosevka', Menlo, Monaco, 'Courier New', monospace";
