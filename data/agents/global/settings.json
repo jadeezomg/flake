@@ -93,13 +93,20 @@
 		"caya-working-docs@caya": true,
 		"caya-customer-api@caya": true,
 		"caya-design-system@caya": true,
-		"caya-mailroom-api@caya": true
+		"caya-mailroom-api@caya": true,
+		"simple-english@simple-english": true
 	},
 	"extraKnownMarketplaces": {
 		"caya": {
 			"source": {
 				"source": "github",
 				"repo": "AMN-DATA/claude-plugin"
+			}
+		},
+		"simple-english": {
+			"source": {
+				"source": "github",
+				"repo": "AminBlg/SimpleEnglish"
 			}
 		}
 	},
