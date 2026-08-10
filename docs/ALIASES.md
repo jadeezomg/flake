@@ -45,7 +45,6 @@ Source: `modules/profiles/minimal/shells/core/data/aliases.nix` (same `shellAlia
 | Alias | Command | Description |
 |-------|---------|-------------|
 | `zed` | `zeditor` | Open Zed editor |
-| `code` | `cursor` | Open Cursor editor |
 
 ## General shortcuts (Bash, Fish, Nushell, Zsh)
 

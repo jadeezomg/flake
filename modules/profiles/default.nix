@@ -61,7 +61,7 @@
         enable = mkEnableOption "the apps meta-profile";
         browsers.enable = mkEnableOption "apps.browsers (zen-browser; firefox/chrome live in work)";
         terminals.enable = mkEnableOption "apps.terminals (ghostty, kitty)";
-        editors.enable = mkEnableOption "apps.editors (helix; cursor/zed live in devgui.ides)";
+        editors.enable = mkEnableOption "apps.editors (helix; vscode/zed live in devgui.ides)";
         files.enable = mkEnableOption "apps.files (nautilus/filezilla in nixos modules)";
         comms.enable = mkEnableOption "apps.comms (protonmail-desktop, etc.)";
         notes.enable = mkEnableOption "apps.notes (obsidian, typora)";
@@ -98,7 +98,7 @@
       devgui = {
         enable = mkEnableOption "the devgui meta-profile — GUI dev tooling; mirrors devenv's category names";
         containers.enable = mkEnableOption "devgui.containers (podman-desktop)";
-        ides.enable = mkEnableOption "devgui.ides (cursor, zed — system packages on NixOS + HM configs)";
+        ides.enable = mkEnableOption "devgui.ides (vscode, zed — system packages on NixOS + HM configs)";
       };
 
       llm = {

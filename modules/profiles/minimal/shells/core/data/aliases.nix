@@ -22,7 +22,6 @@
     "....." = "z ../../../..";
 
     zed = "zeditor";
-    code = "cursor";
 
     cl = "clear";
     h = "history";
