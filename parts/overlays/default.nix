@@ -15,7 +15,7 @@ let
   expiryFor = name: import ../../lib/expiry.nix { inherit lib; } "parts/overlays/${name}.nix";
 in
 [
-  # AI agent CLIs (codex, claude-code, pi, omp, cursor-agent, …) under
+  # AI agent CLIs (codex, claude-code, pi, omp, herdr, …) under
   # `pkgs.llm-agents.*`. Pre-built on https://cache.numtide.com when our
   # nixpkgs rev is close to theirs.
   inputs.llm-agents.overlays.shared-nixpkgs

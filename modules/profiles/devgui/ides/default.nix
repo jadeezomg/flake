@@ -1,5 +1,5 @@
 # IDEs feature folder — system packages (NixOS-wide install so root/gdm can
-# resolve them) plus the rich HM configs in ./cursor and ./zed.
+# resolve them) plus the rich HM configs in ./vscode and ./zed.
 {
   config,
   isDarwin,
@@ -13,14 +13,14 @@ in
 {
   config = lib.mkIf cfg.enable {
     home-manager.sharedModules = [
-      ./cursor
+      ./vscode
       ./zed
     ];
 
     environment.systemPackages = lib.optionals (!isDarwin) (
       with pkgs;
       [
-        code-cursor
+        vscode
         zed-editor
       ]
     );

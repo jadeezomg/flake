@@ -1,16 +1,29 @@
-{ pkgs, ... }: {
-  programs.cursor = {
+{ pkgs, ... }:
+let
+  # Biome owns the web languages here, as it does in ../zed/languages.nix.
+  # `just fmt` runs the same formatter, so the editor and the repo agree.
+  biome = {
+    "editor.defaultFormatter" = "biomejs.biome";
+    "editor.formatOnSave" = true;
+  };
+  # Zed adds the fix-all and organize-imports actions for JS/TS only.
+  biomeWithFixAll = biome // {
+    "editor.codeActionsOnSave" = {
+      "source.fixAll.biome" = "explicit";
+      "source.organizeImports.biome" = "explicit";
+    };
+  };
+in
+{
+  programs.vscode = {
     enable = true;
-    mutableExtensionsDir = false;
+    mutableExtensionsDir = true;
     profiles.default = {
       extensions =
         with pkgs.vscode-extensions;
         [
           # --- General ---
           github.vscode-pull-request-github # GitHub Pull Requests
-          # --- AI Agents ---
-          # anthropic.claude-code # pinned below (nixpkgs hash lags marketplace republish)
-          # --- Languages ---
           # --- JavaScript/TypeScript ---
           dbaeumer.vscode-eslint # JavaScript/TypeScript linting
           prettier.prettier-vscode # Prettier formatter
@@ -33,29 +46,10 @@
         ]
         ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
           {
-            name = "schemastore"; # JSON Schema support
-            publisher = "remcohaszing";
-            version = "1.0.264";
-            sha256 = "0n0yxvi6abqlh0x498z3xzinf2qs01crgv62hgg7xk3akskav1ri";
-          }
-          {
             name = "birds-of-paradise"; # Cozy brown Theme
             publisher = "Programming-Engineer";
             version = "0.1.2";
             sha256 = "05b8ahbwkjgmw2cq46dddd64lwg5mhffzff4b1knbl4yrw9jlbp2";
-          }
-          {
-            name = "kdl"; # KDL support
-            publisher = "kdl-org";
-            version = "2.1.3";
-            sha256 = "sha256-Jssmb5owrgNWlmLFSKCgqMJKp3sPpOrlEUBwzZSSpbM=";
-          }
-          # Just — https://github.com/nefrob/vscode-just
-          {
-            name = "vscode-just-syntax";
-            publisher = "nefrob";
-            version = "0.9.1";
-            sha256 = "sha256-yl9v4sL1yWzKwE0MIk7BeAd4/FkLmxQaW5ENb8UVNIU=";
           }
         ];
       userSettings = {
@@ -66,6 +60,23 @@
         "editor.accessibilitySupport" = "off";
         "telemetry.telemetryLevel" = "off";
         "window.commandCenter" = true;
+
+        # Ported from the Zed config in ../zed/settings, so both editors behave
+        # the same. Zed's `cursor_shape = "hollow"` has no VS Code equivalent.
+        "editor.lineNumbers" = "relative";
+        "editor.renderWhitespace" = "selection";
+        "editor.guides.indentation" = true;
+        "editor.bracketPairColorization.enabled" = true;
+        "editor.stickyScroll.enabled" = true;
+        "editor.inlayHints.enabled" = "on";
+        "editor.tabSize" = 4;
+        "files.autoSave" = "onFocusChange";
+        "search.smartCase" = true;
+
+        # Zed pins `auto_update = false`. The flake owns the versions, so stop
+        # VS Code from updating itself or the extensions it was given.
+        "update.mode" = "none";
+        "extensions.autoUpdate" = false;
 
         # Font settings
         "editor.fontFamily" = "'Iosevka Nerd Font', 'Iosevka', Menlo, Monaco, 'Courier New', monospace";
@@ -97,10 +108,31 @@
           };
         };
 
+        # The NixOS hosts install VS Code through the same module, and Zed uses
+        # `shell.program = "nu"` on every platform.
+        "terminal.integrated.defaultProfile.linux" = "nu";
+        "terminal.integrated.profiles.linux" = {
+          "nu" = {
+            "path" = "/run/current-system/sw/bin/nu";
+            "args" = [ "-l" ];
+            "icon" = "terminal";
+          };
+          "bash" = {
+            "path" = "/run/current-system/sw/bin/bash";
+            "args" = [ "-l" ];
+          };
+          "fish" = {
+            "path" = "/run/current-system/sw/bin/fish";
+            "args" = [ "-l" ];
+          };
+        };
+        "terminal.integrated.copyOnSelection" = true;
+
         # Git settings
         "git.confirmSync" = false;
         "git.autofetch" = true;
         "git.enableSmartCommit" = true;
+        "git.blame.editorDecoration.enabled" = true;
 
         # Explorer settings
         "explorer.confirmDelete" = false;
@@ -113,42 +145,53 @@
         # TypeScript settings
         "typescript.format.enable" = false;
 
-        # Ruff settings
+        # Python — Ruff formats and lints, as it does in Zed.
         "ruff.configurationPreference" = "filesystemFirst";
         "ruff.format.backend" = "uv";
-
-        # CursorPyright settings
-        "cursorpyright.disableLanguageServices" = true;
-
-        # JSON-specific settings
-        "[json]" = {
-          "editor.defaultFormatter" = "prettier.prettier-vscode";
+        "[python]" = {
+          "editor.defaultFormatter" = "charliermarsh.ruff";
           "editor.formatOnSave" = true;
-          "editor.tabSize" = 2;
-          "editor.insertSpaces" = true;
         };
 
-        # JSONC-specific settings
-        "[jsonc]" = {
-          "editor.defaultFormatter" = "prettier.prettier-vscode";
-          "editor.formatOnSave" = true;
-          "editor.tabSize" = 2;
-          "editor.insertSpaces" = true;
-        };
+        # Web languages — Biome. `[jsonc]` covers VS Code's own settings files.
+        "[css]" = biome;
+        "[graphql]" = biome;
+        "[html]" = biome;
+        "[json]" = biome;
+        "[jsonc]" = biome;
+        "[javascript]" = biomeWithFixAll;
+        "[javascriptreact]" = biomeWithFixAll;
+        "[typescript]" = biomeWithFixAll;
+        "[typescriptreact]" = biomeWithFixAll;
 
-        # Nix-specific settings for nixfmt (via nix-ide)
-        "[nix].editor.defaultFormatter" = "jnoortheen.nix-ide";
-        "[nix].editor.formatOnPaste" = true;
-        "[nix].editor.formatOnSave" = true;
-        "[nix].editor.formatOnType" = false;
+        # Nix — `nil` language server, `nixfmt` formatting, both from
+        # devenv.tools. nix-ide formats through the server, so the formatter
+        # command belongs in the server settings.
+        "nix.enableLanguageServer" = true;
+        "nix.serverPath" = "nil";
         "nix.formatterPath" = "nixfmt";
-        "[nix].editor.colorDecorators" = true;
+        "nix.serverSettings" = {
+          "nil" = {
+            "formatting" = {
+              "command" = [ "nixfmt" ];
+            };
+          };
+        };
+        "[nix]" = {
+          "editor.defaultFormatter" = "jnoortheen.nix-ide";
+          "editor.formatOnSave" = true;
+          "editor.formatOnPaste" = true;
+          "editor.formatOnType" = false;
+          "editor.colorDecorators" = true;
+        };
 
-        # Lua-specific settings for stylua formatter
-        "[lua].editor.defaultFormatter" = "sumneko.lua";
-        "[lua].editor.formatOnSave" = true;
-        "[lua].editor.formatOnPaste" = false;
-        "[lua].editor.formatOnType" = false;
+        # Lua — formatting through the Lua Language Server.
+        "[lua]" = {
+          "editor.defaultFormatter" = "sumneko.lua";
+          "editor.formatOnSave" = true;
+          "editor.formatOnPaste" = false;
+          "editor.formatOnType" = false;
+        };
 
         # Configure Lua Language Server formatting
         "Lua.format.enable" = true;

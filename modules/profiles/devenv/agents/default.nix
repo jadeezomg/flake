@@ -33,7 +33,6 @@ in
       ++ (with agents; [
         codex
         codex-acp
-        cursor-agent
         herdr
         openspec
         claude-agent-acp
