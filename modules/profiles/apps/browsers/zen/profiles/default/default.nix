@@ -14,7 +14,7 @@ let
 in
 {
   settings = sharedSettings // {
-    "zen.workspaces.natural-scroll" = true;
+    "zen.workspaces.natural-scroll" = false;
     "zen.widget.linux.transparency" = true;
     "widget.dmabuf.force-enabled" = true;
   };
