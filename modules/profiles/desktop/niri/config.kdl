@@ -243,8 +243,11 @@ environment {
     XDG_CURRENT_DESKTOP "niri"
     QT_QPA_PLATFORM "wayland"
     ELECTRON_OZONE_PLATFORM_HINT "auto"
-    QT_QPA_PLATFORMTHEME "gtk3"
-    QT_QPA_PLATFORMTHEME_QT6 "gtk3"
+    // The only platform theme plugin installed is qt6ct (keys: qt6ct, qt5ct).
+    // "gtk3" needs a plugin this host does not have, and Qt then falls back to
+    // its built-in light palette.
+    QT_QPA_PLATFORMTHEME "qt5ct"
+    QT_QPA_PLATFORMTHEME_QT6 "qt6ct"
 }
 
 // You can change the path where screenshots are saved.
