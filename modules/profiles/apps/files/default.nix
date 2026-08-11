@@ -16,6 +16,7 @@ in
         file-roller # GNOME archive manager for zip/rar/7z and other archives.
         nautilus # GNOME file manager
         ventoy # create bootable USB drives
+        localsend # file sharing
       ]
     );
   };

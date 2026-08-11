@@ -49,6 +49,7 @@ in
           enable = cfg.enable;
           package = pkgs.vicinae;
         };
+        programs.kdeconnect.enable = cfg.enable;
       }
     ]
   );
