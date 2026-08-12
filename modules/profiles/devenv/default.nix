@@ -34,10 +34,12 @@ in
   ];
 
   config = lib.mkIf cfg.enable {
-    # HM dev tooling without its own category (biome config, gh CLI config).
+    # HM dev tooling without its own category (biome config, gh CLI config,
+    # mise version manager).
     home-manager.sharedModules = [
       ./biome.nix
       ./gh
+      ./mise.nix
     ];
 
     dotfiles.profiles.devenv = {

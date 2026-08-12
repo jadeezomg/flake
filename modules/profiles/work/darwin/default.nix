@@ -24,7 +24,6 @@ in
 
   home-manager.sharedModules = lib.mkIf cfg.enable [
     ./brew-casks
-    ./mise-shell.nix
   ];
 
   homebrew = lib.mkIf cfg.enable {
@@ -40,7 +39,6 @@ in
 
     brews = [
       "trash" # Send files to Finder Trash from CLI
-      "mise" # Polyglot dev tool/runtime version manager
     ];
 
     casks = [
