@@ -25,6 +25,10 @@ sharedNixOSHost
   # Beszel hub + agent (./services/beszel.nix): server/service/container monitoring.
   miniMonitoring = true;
 
+  # Atuin sync server (./services/atuin.nix): shell history for every host, on
+  # the postgres this box already runs. Clients point at atuin.jadee.fyi.
+  miniAtuinSync = true;
+
   # Nixflix media stack (./services/media/): automation and playback on mini,
   # with library and download payloads mounted from Unraid.
   miniMediaHosting = true;

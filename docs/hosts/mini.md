@@ -327,8 +327,8 @@ stack-restart | vpn-status | vpn-restart`.
 ## 9. Matrix, Hermes, Caddy vhosts
 
 Subdomains on the `jadee.fyi` Cloudflare zone, all → `mini-proxy`:
-`matrix`, `chat` (open-webui), `beszel`, `cinny`, `immich`, `hermes`, plus the media
-set (`sonarr`, `radarr`, `lidarr`, `prowlarr`, `sabnzbd`, `qbittorrent`, `seerr`,
+`matrix`, `chat` (open-webui), `beszel`, `cinny`, `immich`, `hermes`, `atuin`, plus the
+media set (`sonarr`, `radarr`, `lidarr`, `prowlarr`, `sabnzbd`, `qbittorrent`, `seerr`,
 `bazarr`, `jellyfin`, `plex`).
 
 The first switch after a Caddy/Hermes bump builds two **uncached** packages locally
@@ -388,6 +388,20 @@ There is **no CLI user creation**. Register against loopback `:6167` with
 - The Tailscale auth key must be **reusable + non-ephemeral** or `mini-proxy` does
   not survive a restart.
 
+### Atuin sync (`miniAtuinSync`)
+
+Shell history for every host, at `https://atuin.jadee.fyi` → loopback `:8888`. The
+server keeps history in an `atuin` database on the same postgres as Immich
+(`services.atuin.database.createLocally`). Clients set `sync_address` in
+`modules/profiles/minimal/shells/core/atuin.nix`.
+
+History is end-to-end encrypted, so the server holds ciphertext only and needs no
+sops secret. The encryption key lives on the clients. **Lose the key and the synced
+history cannot be read**, so keep `atuin key` output in 1Password.
+
+Registration is closed (`openRegistration = false`). To add an account: flip it to
+true, switch, run `atuin register`, then flip it back and switch again.
+
 ## 10. Known gaps / deferred
 
 - **Nightly cachix cache-warm pipeline** — code exists at
@@ -402,7 +416,8 @@ There is **no CLI user creation**. Register against loopback `:6167` with
 - **Power tuning** — stock. Candidates: `powersave` governor, `thermald`, ASPM in
   BIOS, `logind.lidSwitch = "ignore"`. No `tlp` (laptop-oriented, conflicts with
   thermald). Wake-on-LAN pointless (always on).
-- **Backups beyond Immich** — `/srv/nixflix`, Matrix and Hermes state are unprotected.
+- **Backups beyond Immich** — `/srv/nixflix`, Matrix, Hermes and the atuin database
+  are unprotected.
 - **AMT-over-VPN** — needs a Tailscale subnet router on another always-on host.
 - Verify Stylix/DMS/Niri stay inert with `desktop.enable = false` during a
   `just build-dry`; gate their imports on headless if any leak.
