@@ -22,7 +22,7 @@ let
     "process-manager"
     "protondb-search"
   ]
-  ++ lib.optionals pkgs.stdenv.isLinux [ "niri" ];
+  ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [ "niri" ];
 
   vicinaeExtensions = map (name: ext.${name}) extensionNames;
 
@@ -85,14 +85,14 @@ in
     enable = true;
     # nixpkgs' vicinae is Linux-only (cached); darwin keeps the flake-input
     # source build (package = null falls back to it).
-    package = lib.mkIf pkgs.stdenv.isLinux pkgs.vicinae;
+    package = lib.mkIf pkgs.stdenv.hostPlatform.isLinux pkgs.vicinae;
     # Zen native-messaging host wiring lives in apps.browsers/zen.
     enableFirefoxIntegration = false;
     extensions = vicinaeExtensions;
     settingOverrides = lib.mkIf (config.sops.secrets ? "github-token") [
       config.sops.templates."vicinae-github.json".path
     ];
-    systemd = lib.mkIf pkgs.stdenv.isLinux {
+    systemd = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
       enable = true;
       autoStart = true;
       environment = {
@@ -111,7 +111,7 @@ in
 
   # Nix-built Vicinae on macOS skips onboarding login items — start the server
   # ourselves. https://docs.vicinae.com/quickstart/macos
-  launchd.agents.vicinae = lib.mkIf pkgs.stdenv.isDarwin {
+  launchd.agents.vicinae = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     enable = true;
     config = {
       ProgramArguments = [
@@ -125,9 +125,9 @@ in
 
   # Vicinae has no global hotkeys; bind Option+Space via skhd.
   # HM has no programs.skhd — wire the daemon + ~/.skhdrc ourselves.
-  home.packages = lib.mkIf pkgs.stdenv.isDarwin [ pkgs.skhd ];
+  home.packages = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin [ pkgs.skhd ];
 
-  home.file.".skhdrc" = lib.mkIf pkgs.stdenv.isDarwin {
+  home.file.".skhdrc" = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     text = ''
       # Option+Space toggles Vicinae; mirrors niri Mod+Space on Linux.
       # NB: Hyper+Space (cmd+alt+ctrl+shift) is owned by Handy — keep clear.
@@ -135,7 +135,7 @@ in
     '';
   };
 
-  launchd.agents.skhd = lib.mkIf pkgs.stdenv.isDarwin {
+  launchd.agents.skhd = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     enable = true;
     config = {
       ProgramArguments = [ "${pkgs.skhd}/bin/skhd" ];

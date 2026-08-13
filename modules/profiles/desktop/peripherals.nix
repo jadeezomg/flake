@@ -26,14 +26,18 @@ in
   config = lib.mkIf cfg.enable {
     hardware.graphics.enable = true;
 
-    services = {
-      # --- Logitech (peripherals) ---
-      solaar = {
+    # --- Logitech (peripherals) ---
+    programs.solaar = {
+      enable = true;
+      userService = {
         enable = true;
         window = "hide"; # Show the window on startup (show, *hide*, only [window only])
         batteryIcons = "regular"; # Which battery icons to use (*regular*, symbolic, solaar)
-        extraArgs = "";
+        extraArgs = [ ];
       };
+    };
+
+    services = {
       # --- Audio (pipewire stack) ---
       pulseaudio.enable = false;
       pipewire = {

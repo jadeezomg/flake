@@ -38,8 +38,8 @@ pkgs.stdenvNoCC.mkDerivation {
   # Tarball contains a single bare binary, not a subdirectory.
   sourceRoot = ".";
 
-  nativeBuildInputs = lib.optionals pkgs.stdenv.isLinux [ pkgs.autoPatchelfHook ];
-  buildInputs = lib.optionals pkgs.stdenv.isLinux [ pkgs.stdenv.cc.cc.lib ];
+  nativeBuildInputs = lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.autoPatchelfHook ];
+  buildInputs = lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.stdenv.cc.cc.lib ];
 
   installPhase = ''
     runHook preInstall

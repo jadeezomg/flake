@@ -29,7 +29,7 @@ in
 
     shellAliases =
       aliases
-      // lib.optionalAttrs pkgs.stdenv.isLinux {
+      // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
         trash = "gio trash";
       };
 

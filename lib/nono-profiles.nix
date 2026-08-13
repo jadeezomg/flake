@@ -19,7 +19,8 @@ let
   # The vault name is duplicated in scripts/shell/sync-1password.bash.
   # Item-naming convention is shared so the same `<name>` works on both.
   opVault = "Employee";
-  mkCredentialKey = name: if pkgs.stdenv.isDarwin then "op://${opVault}/${name}/credential" else name;
+  mkCredentialKey =
+    name: if pkgs.stdenv.hostPlatform.isDarwin then "op://${opVault}/${name}/credential" else name;
 
   loopbackPorts = [
     3000
@@ -353,7 +354,7 @@ let
     cmd = "${nono}/bin/nono profile show ${p} >/dev/null 2>&1";
   }) profileNames;
 
-  platformChecks = if pkgs.stdenv.isDarwin then darwinChecks else linuxChecks;
+  platformChecks = if pkgs.stdenv.hostPlatform.isDarwin then darwinChecks else linuxChecks;
   doctorChecks = platformChecks ++ commonChecks;
 
   # Each check becomes a bash function so shellcheck sees a real shell AST

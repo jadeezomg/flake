@@ -115,10 +115,6 @@
     # --- hardware ---
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
     corecycler.url = "github:Daaboulex/linux-corecycler";
-    solaar = {
-      url = "github:Svenum/Solaar-Flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     # --- AI / agents ---
     llm-agents.url = "github:numtide/llm-agents.nix";

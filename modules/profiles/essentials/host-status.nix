@@ -60,14 +60,14 @@ in
 {
   home.packages = [ hostStatus ];
 
-  systemd.user.services = lib.mkIf pkgs.stdenv.isLinux (
+  systemd.user.services = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (
     lib.mapAttrs' (
       name: source:
       lib.nameValuePair "host-status-${name}" ((mkLinuxTimer name source)."host-status-${name}")
     ) cacheSources
   );
 
-  systemd.user.timers = lib.mkIf pkgs.stdenv.isLinux (
+  systemd.user.timers = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (
     lib.mapAttrs' (
       name: source:
       lib.nameValuePair "host-status-${name}" ((mkLinuxTimerUnit name source)."host-status-${name}")
@@ -78,7 +78,7 @@ in
   # `op read op://Personal/openrouter_api_key/credential`, which pops the
   # 1Password "exec is trying to access 1Password" prompt every 5 minutes.
   # OpenRouter usage tracking remains Linux-only.
-  launchd.agents = lib.mkIf pkgs.stdenv.isDarwin (
+  launchd.agents = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (
     lib.mapAttrs' (name: source: lib.nameValuePair "host-status-${name}" (mkDarwinAgent source)) (
       lib.filterAttrs (name: _: name != "openrouter") cacheSources
     )

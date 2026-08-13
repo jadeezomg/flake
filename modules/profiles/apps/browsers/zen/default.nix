@@ -26,7 +26,7 @@ let
       sharedSearch
       ;
   };
-  defaultProfileData = if pkgs.stdenv.isLinux then defaultProfile else cayaProfile;
+  defaultProfileData = if pkgs.stdenv.hostPlatform.isLinux then defaultProfile else cayaProfile;
   activeProfileExtensions = defaultProfileData.profileExtensions;
   policies = import ./policies.nix {
     inherit pkgs lib extensions;
@@ -40,7 +40,7 @@ let
   ];
 
   vicinaePkg =
-    if pkgs.stdenv.isLinux then
+    if pkgs.stdenv.hostPlatform.isLinux then
       pkgs.vicinae
     else
       inputs.vicinae.packages.${pkgs.stdenv.hostPlatform.system}.default;
@@ -63,9 +63,11 @@ in
 
   programs.zen-browser = {
     enable = true;
-    nativeMessagingHosts = (lib.optionals pkgs.stdenv.isLinux [ pkgs-stable.firefoxpwa ]) ++ [
-      vicinaeNativeMessagingHost
-    ];
+    nativeMessagingHosts =
+      (lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs-stable.firefoxpwa ])
+      ++ [
+        vicinaeNativeMessagingHost
+      ];
     # `darwinDefaultsId` is deliberately left at the upstream default,
     # `app.zen-browser.zen` — Zen's real macOS bundle identifier, and the plist
     # domain it reads policies from. Overriding it writes ExtensionSettings to a

@@ -193,7 +193,7 @@ lib.mkMerge [
     programs.nushell.extraEnv = lib.mkAfter nuBlock;
   })
 
-  (lib.mkIf (pkgs.stdenv.isLinux && exports != [ ]) {
+  (lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && exports != [ ]) {
     home.activation.sopsSessionEnv = lib.hm.dag.entryAfter [ "sops-nix" ] ''
       export PATH=${
         lib.makeBinPath [
@@ -212,7 +212,7 @@ lib.mkMerge [
     '';
   })
 
-  (lib.mkIf (pkgs.stdenv.isDarwin && exports != [ ]) {
+  (lib.mkIf (pkgs.stdenv.hostPlatform.isDarwin && exports != [ ]) {
     launchd.agents.sops-session-env = {
       enable = true;
       config = {
