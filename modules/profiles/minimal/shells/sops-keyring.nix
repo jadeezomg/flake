@@ -63,13 +63,13 @@ let
   script = lib.concatStrings (lib.mapAttrsToList emit presentMap);
 in
 lib.mkMerge [
-  (lib.mkIf pkgs.stdenv.isLinux {
+  (lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     # `secret-tool` is the supported way to inspect / manage the nono
     # keystore; ship it on user PATH so the same tool that activation
     # uses is available in interactive shells.
     home.packages = [ pkgs.libsecret ];
   })
-  (lib.mkIf (pkgs.stdenv.isLinux && presentMap != { }) {
+  (lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && presentMap != { }) {
     home.activation.sopsKeyring = lib.hm.dag.entryAfter [ "sops-nix" ] ''
       export PATH=${
         lib.makeBinPath [

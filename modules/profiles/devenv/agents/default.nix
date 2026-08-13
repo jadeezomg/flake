@@ -49,6 +49,6 @@ in
       ])
       # mcp-nixos pulls python3.lupa → luajit_2_0, which nixpkgs 26.05 marks
       # unsupported on aarch64-darwin. Drop it on Darwin until fixed upstream.
-      ++ lib.optionals (!pkgs.stdenv.isDarwin) [ pkgs.mcp-nixos ];
+      ++ lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [ pkgs.mcp-nixos ];
   };
 }

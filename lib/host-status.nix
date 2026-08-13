@@ -33,8 +33,8 @@ let
           curl
           jq
         ]
-        ++ lib.optional stdenv.isLinux libsecret
-        ++ lib.optional stdenv.isDarwin _1password-cli;
+        ++ lib.optional stdenv.hostPlatform.isLinux libsecret
+        ++ lib.optional stdenv.hostPlatform.isDarwin _1password-cli;
       text = ''
         mkdir -p "${cacheDir}"
         cache="${source.cachePath}"
@@ -294,7 +294,7 @@ let
         printf '%-12s %s\n' 'Containers'  "$(containers_status)"
         printf '%-12s %s\n' 'Agents'      "$(agents_status)"
         printf '%-12s %s\n' 'Claude'      "$(claude_status)"
-        ${lib.optionalString (!pkgs.stdenv.isDarwin) ''
+        ${lib.optionalString (!pkgs.stdenv.hostPlatform.isDarwin) ''
           printf '%-12s %s\n' 'OpenRouter'  "$(openrouter_status)"
         ''}
         printf '%-12s %s\n' 'Skills'      "$(skills_status)"

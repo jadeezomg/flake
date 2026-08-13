@@ -30,7 +30,7 @@ let
     api_port="''${UNSLOTH_API_PORT:-${unslothDefaults.apiPort}}"
     ssh_port="''${UNSLOTH_SSH_PORT:-${unslothDefaults.sshPort}}"
     enable_gpu="''${UNSLOTH_ENABLE_GPU:-${unslothDefaults.enableGpu}}"
-    is_linux="${if pkgs.stdenv.isLinux then "1" else "0"}"
+    is_linux="${if pkgs.stdenv.hostPlatform.isLinux then "1" else "0"}"
 
     mkdir -p "$workdir"
 

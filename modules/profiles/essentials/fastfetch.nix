@@ -185,7 +185,7 @@ in
       ]
       # OpenRouter refresher is Linux-only; on Darwin the cache is never
       # populated and the row would show "(no data)" forever.
-      ++ lib.optional (!pkgs.stdenv.isDarwin) {
+      ++ lib.optional (!pkgs.stdenv.hostPlatform.isDarwin) {
         type = "command";
         key = "├ 󰈸 ";
         keyColor = projectAccent;

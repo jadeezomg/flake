@@ -12,7 +12,6 @@ order = [ "default", "side", "laptop" ]
     capsule_thickness = 0.69999999999999996
     center = [ "group:g3" ]
     enabled = false
-    end = [ "tray", "group:g2", "group:g4" ]
     margin_ends = 900
     margin_opposite_edge = 5
     padding = 20
@@ -45,7 +44,7 @@ order = [ "default", "side", "laptop" ]
         enabled = true
         fill = "surface_variant"
         id = "g2"
-        members = [ "control-center", "notifications", "volume", "session" ]
+        members = [ "control-center", "bar", "notifications", "volume", "session" ]
         opacity = 0.60000002384185791
         padding = 6.0
         radius = 6.0
@@ -576,19 +575,19 @@ transition_on_startup = true
     enabled = true
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/Sunrise over Fishing Waters--Maine William E. Norton.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/Sunrise over Fishing Waters--Maine William E. Norton.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.DP-1]
-    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.DP-2]
     path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.HDMI-A-2]
     path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
@@ -609,6 +608,9 @@ bands = 35
 color_1 = "secondary"
 mirrored = false
 width = 150
+
+[widget.bar]
+type = "icefish/phone-connect:bar"
 
 [widget.bar_2]
 type = "icefish/phone-connect:bar"

@@ -26,7 +26,7 @@ in
         # every shell via home-environment.nix, so override just the nushell form.
         s = lib.mkForce "sesh connect (sesh list --icons | fzf --ansi)";
       }
-      // lib.optionalAttrs pkgs.stdenv.isLinux {
+      // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
         trash = "gio trash";
       };
 
@@ -92,7 +92,7 @@ in
   # Library path, finds nothing, and starts with stock defaults + banner.
   # Mirror the live config files into the Library path so nu is initialized in
   # BOTH resolution modes, independent of the env var.
-  home.file = lib.mkIf pkgs.stdenv.isDarwin (
+  home.file = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (
     lib.genAttrs
       [
         "Library/Application Support/nushell/config.nu"
