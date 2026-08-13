@@ -33,7 +33,7 @@ in
     host = "127.0.0.1";
     inherit port;
     # Flip to true only for the registration window (see step 2 above).
-    openRegistration = false;
+    openRegistration = true;
     # Postgres role + database beside Immich's; the socket path is the default.
     database.createLocally = true;
   };
