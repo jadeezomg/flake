@@ -30,6 +30,7 @@
     ./services/llm
   ]
   ++ lib.optionals (host.miniMonitoring or false) [ ./services/beszel.nix ]
+  ++ lib.optionals (host.miniAtuinSync or false) [ ./services/atuin.nix ]
   # One toggle for both: an Immich install without an off-host backup is a trap,
   # and a separate "backup disabled" flag is the kind of thing that gets flipped
   # for one debugging session and never flipped back.

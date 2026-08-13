@@ -9,7 +9,4 @@
       enableFishIntegration = true;
     };
   };
-
-  # Shell history sync across shells; service-style on NixOS only.
-  services.atuin.enable = true;
 }
