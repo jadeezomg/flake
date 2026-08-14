@@ -81,34 +81,40 @@ let
   '';
 in
 {
-  programs.bash.initExtra = lib.mkAfter ''
-    ${exportLines}
-    export PATH="${systemPathColon}:$PATH"
+  programs = {
+    bash.initExtra = lib.mkAfter ''
+      ${exportLines}
+      export PATH="${systemPathColon}:$PATH"
 
-    ${bashFlakeFn}
-  '';
+      ${bashFlakeFn}
+    '';
 
-  programs.zsh.sessionVariables = systemEnv;
-  programs.zsh.initContent = lib.mkAfter ''
-    export PATH="${systemPathColon}:$PATH"
+    zsh = {
+      sessionVariables = systemEnv;
+      initContent = lib.mkAfter ''
+        export PATH="${systemPathColon}:$PATH"
 
-    ${zshFlakeFn}
-  '';
-  programs.zsh.profileExtra = lib.mkAfter ''
-    export PATH="${systemPathColon}:$PATH"
-  '';
+        ${zshFlakeFn}
+      '';
+      profileExtra = lib.mkAfter ''
+        export PATH="${systemPathColon}:$PATH"
+      '';
+    };
 
-  programs.fish.interactiveShellInit = lib.mkAfter ''
-    ${fishSetLines}
-    fish_add_path --append --global ${lib.concatStringsSep " " systemPathList}
-    ${fishFlakeFn}
-  '';
+    fish.interactiveShellInit = lib.mkAfter ''
+      ${fishSetLines}
+      fish_add_path --append --global ${lib.concatStringsSep " " systemPathList}
+      ${fishFlakeFn}
+    '';
 
-  programs.nushell.environmentVariables = systemEnv;
-  programs.nushell.extraEnv = lib.mkAfter ''
-    $env.PATH = ($env.PATH | split row (char esep) | append [
-      ${lib.concatMapStringsSep "\n        " (p: "\"${p}\"") systemPathList}
-    ])
-  '';
-  programs.nushell.extraConfig = lib.mkAfter nushellFlakeFn;
+    nushell = {
+      environmentVariables = systemEnv;
+      extraEnv = lib.mkAfter ''
+        $env.PATH = ($env.PATH | split row (char esep) | append [
+          ${lib.concatMapStringsSep "\n        " (p: "\"${p}\"") systemPathList}
+        ])
+      '';
+      extraConfig = lib.mkAfter nushellFlakeFn;
+    };
+  };
 }

@@ -4,7 +4,7 @@
   ...
 }:
 let
-  sshDestinations = dotfilesLib.sshDestinations;
+  inherit (dotfilesLib) sshDestinations;
   hostBlocks = lib.mapAttrs (
     _alias:
     {

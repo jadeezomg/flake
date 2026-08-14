@@ -1,8 +1,11 @@
-{ config, lib, ... }:
+{
+  config,
+  dotfilesLib,
+  lib,
+  ...
+}:
 let
-  userData = import ../../../data/users/users.nix;
-
-  me = lib.findFirst (u: u.username == config.home.username) null (lib.attrValues userData.users);
+  me = lib.findFirst (u: u.username == config.home.username) null (lib.attrValues dotfilesLib.users);
   authorEmail = if me == null then null else (me.gitEmail or me.email or null);
   authorName = if me == null then null else (me.fullName or null);
 in

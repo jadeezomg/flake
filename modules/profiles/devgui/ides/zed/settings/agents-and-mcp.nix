@@ -1,8 +1,8 @@
 { dotfilesLib, osConfig }:
 let
   registryLib = rec {
-    attrNames = builtins.attrNames;
-    concatStringsSep = builtins.concatStringsSep;
+    inherit (builtins) attrNames;
+    inherit (builtins) concatStringsSep;
     mapAttrs =
       f: attrs:
       builtins.listToAttrs (

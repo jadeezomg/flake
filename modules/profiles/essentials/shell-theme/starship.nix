@@ -59,20 +59,20 @@ in
       palette = lib.mkForce "birds-of-paradise";
 
       palettes.birds-of-paradise = {
-        bg-primary = themeColors.bg-primary;
-        bg-secondary = themeColors.bg-secondary;
-        bg-tertiary = themeColors.bg-tertiary;
-        text-primary = themeColors.text-primary;
-        text-secondary = themeColors.text-secondary;
-        accent-blue = themeColors.accent-blue;
-        accent-yellow = themeColors.accent-yellow;
-        accent-red = themeColors.accent-red;
-        ansi-green = themeColors.ansi-green;
-        ansi-cyan = themeColors.ansi-cyan;
-        ansi-magenta = themeColors.ansi-magenta;
-        ansi-red = themeColors.ansi-red;
-        ansi-yellow = themeColors.ansi-yellow;
-        ansi-bright-blue = themeColors.ansi-bright-blue;
+        inherit (themeColors) bg-primary;
+        inherit (themeColors) bg-secondary;
+        inherit (themeColors) bg-tertiary;
+        inherit (themeColors) text-primary;
+        inherit (themeColors) text-secondary;
+        inherit (themeColors) accent-blue;
+        inherit (themeColors) accent-yellow;
+        inherit (themeColors) accent-red;
+        inherit (themeColors) ansi-green;
+        inherit (themeColors) ansi-cyan;
+        inherit (themeColors) ansi-magenta;
+        inherit (themeColors) ansi-red;
+        inherit (themeColors) ansi-yellow;
+        inherit (themeColors) ansi-bright-blue;
       };
 
       # --- Prompt format (left block) ---

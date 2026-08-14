@@ -14,6 +14,8 @@ let
   #   lanHosts  — machines it only talks to (Unraid, ...), which have no host.nix.
   hostFacts = (import ../hosts/hosts.nix).hosts;
   lanHosts = (import ../data/network/lan-hosts.nix).hosts;
+
+  inherit ((import ../data/users/users.nix)) users;
 in
 {
   # Birds-of-Paradise palette (Python mirror:
@@ -59,6 +61,11 @@ in
   # Addresses of machines the flake talks to but does not build (Unraid, ...).
   # Flake-managed hosts keep their facts in hosts/<name>/host.nix instead.
   inherit lanHosts;
+
+  # The account registry from data/users/users.nix, keyed by registry name (not
+  # by `username`). `hosts/lib.nix` builds the system accounts from the same
+  # file; modules read identity facts (git author, ...) through this.
+  inherit users;
   agentSkillsDir = ../data/agents/skills;
   # apply: { lib, inputs }
   agentSkills = import ./agent-skills.nix;

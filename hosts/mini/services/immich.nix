@@ -79,57 +79,61 @@ let
   };
 in
 {
-  services.immich = {
-    enable = true;
-    host = "127.0.0.1"; # Caddy is the only door
-    inherit port mediaLocation;
-    openFirewall = false;
+  services = {
+    immich = {
+      enable = true;
+      host = "127.0.0.1"; # Caddy is the only door
+      inherit port mediaLocation;
+      openFirewall = false;
 
-    # Config lives in the database and is edited in the web UI. Setting this to
-    # an attrset flips Immich into IMMICH_CONFIG_FILE mode, which greys out the
-    # entire admin settings page — a bad trade for declaring a few toggles. The
-    # declarative path's one real win is secret injection (`_secret`) for OAuth,
-    # which is unused here.
-    settings = null;
+      # Config lives in the database and is edited in the web UI. Setting this to
+      # an attrset flips Immich into IMMICH_CONFIG_FILE mode, which greys out the
+      # entire admin settings page — a bad trade for declaring a few toggles. The
+      # declarative path's one real win is secret injection (`_secret`) for OAuth,
+      # which is unused here.
+      settings = null;
 
-    # All three default true. Stated explicitly because this is the host's first
-    # database and the first reader deserves to see what is being pulled in.
-    database.enable = true;
-    redis.enable = true;
-    machine-learning.enable = true;
+      # All three default true. Stated explicitly because this is the host's first
+      # database and the first reader deserves to see what is being pulled in.
+      database.enable = true;
+      redis.enable = true;
+      machine-learning.enable = true;
 
-    # CPU only — /dev/dri/renderD128 belongs to Plex (QSV) and llama.cpp
-    # (Vulkan). Empty list keeps the module's PrivateDevices=true.
-    # To opt in: set [ "/dev/dri/renderD128" ], add render+video to the immich
-    # user (the module does NOT do it for you), and enable Hardware
-    # Acceleration in Admin -> Settings -> Video Transcoding. Note this buys
-    # transcoding only: nixpkgs has no OpenVINO immich-machine-learning, so
-    # CLIP/face inference stays on CPU either way (fine on 16 cores).
-    accelerationDevices = [ ];
+      # CPU only — /dev/dri/renderD128 belongs to Plex (QSV) and llama.cpp
+      # (Vulkan). Empty list keeps the module's PrivateDevices=true.
+      # To opt in: set [ "/dev/dri/renderD128" ], add render+video to the immich
+      # user (the module does NOT do it for you), and enable Hardware
+      # Acceleration in Admin -> Settings -> Video Transcoding. Note this buys
+      # transcoding only: nixpkgs has no OpenVINO immich-machine-learning, so
+      # CLIP/face inference stays on CPU either way (fine on 16 cores).
+      accelerationDevices = [ ];
+    };
+
+    # Pinned deliberately — see the header. stateVersion 26.05 selects 17 today;
+    # this makes it explicit so a stateVersion edit cannot propose pg 18 silently
+    # and demand an offline pg_upgrade.
+    postgresql.package = pkgs.postgresql_17;
+
+    caddy.virtualHosts.${domain}.extraConfig = ''
+      import tsnet
+      reverse_proxy 127.0.0.1:${toString port}
+    '';
   };
-
-  # Pinned deliberately — see the header. stateVersion 26.05 selects 17 today;
-  # this makes it explicit so a stateVersion edit cannot propose pg 18 silently
-  # and demand an offline pg_upgrade.
-  services.postgresql.package = pkgs.postgresql_17;
 
   # The immich module's tmpfiles entry for mediaLocation is type `e` (adjust an
   # EXISTING path), so nothing creates /srv/immich on a fresh host. Not
   # recursive on purpose — walking the whole library on every boot is not
   # acceptable, and the service owns everything it writes underneath.
-  systemd.tmpfiles.rules = [
-    "d ${mediaLocation} 0700 immich immich -"
-  ];
+  systemd = {
+    tmpfiles.rules = [
+      "d ${mediaLocation} 0700 immich immich -"
+    ];
 
-  # /srv is a separate btrfs filesystem on the application NVMe. Don't let the
-  # server start against an unmounted mountpoint and quietly recreate an empty
-  # library tree on the root filesystem.
-  systemd.services.immich-server.unitConfig.RequiresMountsFor = [ mediaLocation ];
+    # /srv is a separate btrfs filesystem on the application NVMe. Don't let the
+    # server start against an unmounted mountpoint and quietly recreate an empty
+    # library tree on the root filesystem.
+    services.immich-server.unitConfig.RequiresMountsFor = [ mediaLocation ];
+  };
 
   environment.systemPackages = [ immich-admin ];
-
-  services.caddy.virtualHosts.${domain}.extraConfig = ''
-    import tsnet
-    reverse_proxy 127.0.0.1:${toString port}
-  '';
 }

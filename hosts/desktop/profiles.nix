@@ -1,4 +1,4 @@
-{ ... }: {
+_: {
   dotfiles.hardware = {
     # No radio module in the desktop (wired ethernet only).
     gpu = "nvidia";

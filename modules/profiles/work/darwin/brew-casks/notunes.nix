@@ -1,4 +1,4 @@
-{ ... }: {
+_: {
   # noTunes - Prevent Apple Music/iTunes from launching automatically
   # https://github.com/tombonez/noTunes
 

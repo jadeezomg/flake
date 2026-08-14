@@ -187,10 +187,12 @@ let
 in
 lib.mkMerge [
   (lib.mkIf (exports != [ ]) {
-    programs.bash.initExtra = lib.mkAfter shBlock;
-    programs.zsh.initContent = lib.mkAfter shBlock;
-    programs.fish.interactiveShellInit = lib.mkAfter fishBlock;
-    programs.nushell.extraEnv = lib.mkAfter nuBlock;
+    programs = {
+      bash.initExtra = lib.mkAfter shBlock;
+      zsh.initContent = lib.mkAfter shBlock;
+      fish.interactiveShellInit = lib.mkAfter fishBlock;
+      nushell.extraEnv = lib.mkAfter nuBlock;
+    };
   })
 
   (lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && exports != [ ]) {

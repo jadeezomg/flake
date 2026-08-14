@@ -9,8 +9,18 @@ let
   serverProfile = config.dotfiles.profiles.server.enable;
 in
 {
-  networking.hostName = host.hostname or "nixos";
-  networking.networkmanager.enable = true;
+  networking = {
+    hostName = host.hostname or "nixos";
+    networkmanager.enable = true;
+
+    # NixOS nftables firewall everywhere (no firewalld GUI stack).
+    # Servers also expose SSH on the LAN; desktops rely on Tailscale SSH.
+    firewall = {
+      enable = true;
+      trustedInterfaces = [ "tailscale0" ];
+      allowedTCPPorts = lib.optionals serverProfile [ 22 ];
+    };
+  };
 
   # --- Tailscale (mesh VPN + SSH) ---
   services.tailscale = {
@@ -18,14 +28,6 @@ in
     openFirewall = true;
     extraUpFlags = [ "--ssh" ];
     extraSetFlags = [ "--operator=jadee" ]; # add
-  };
-
-  # NixOS nftables firewall everywhere (no firewalld GUI stack).
-  # Servers also expose SSH on the LAN; desktops rely on Tailscale SSH.
-  networking.firewall = {
-    enable = true;
-    trustedInterfaces = [ "tailscale0" ];
-    allowedTCPPorts = lib.optionals serverProfile [ 22 ];
   };
 
   environment.systemPackages =

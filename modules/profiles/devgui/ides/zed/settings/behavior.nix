@@ -1,4 +1,4 @@
-{ }: {
+_: {
   # --- Behavior ---
   auto_indent_on_paste = true;
   auto_indent = "syntax_aware";

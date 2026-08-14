@@ -22,7 +22,7 @@
 #      with `atuin login -u <user> -k <key>`.
 #   5. Set `openRegistration = false` again and switch. The server then accepts
 #      logins but no new accounts.
-{ ... }:
+_:
 let
   domain = "atuin.jadee.fyi";
   port = 8888; # atuin default; loopback only

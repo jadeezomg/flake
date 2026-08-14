@@ -1,4 +1,4 @@
-{ }: {
+_: {
   # --- Image Viewer ---
   image_viewer = {
     unit = "decimal";

@@ -19,7 +19,7 @@ in
     let
       pkgNames = import ../packages/names.nix {
         inherit system;
-        lib = pkgs.lib;
+        inherit (pkgs) lib;
       };
     in
     {

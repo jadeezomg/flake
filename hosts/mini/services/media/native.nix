@@ -8,144 +8,148 @@ let
   inherit (import ./nixflix/common.nix) mountDeps;
 in
 {
-  services.plex = {
-    enable = true;
-    package = pkgs.plex;
-    dataDir = "/srv/nixflix/plex";
-    user = "unraid";
-    group = "users";
-    accelerationDevices = [ "/dev/dri/renderD128" ];
-    openFirewall = false;
-  };
-
-  services.seerr = {
-    enable = true;
-    package = pkgs.seerr;
-    configDir = "/var/lib/seerr";
-    port = 5055;
-    openFirewall = false;
-  };
-
-  services.bazarr = {
-    enable = true;
-    dataDir = "/srv/nixflix/bazarr";
-    listenPort = 6767;
-    user = "unraid";
-    group = "users";
-    openFirewall = false;
-  };
-
-  systemd.services = {
+  services = {
     plex = {
-      after = mountDeps;
-      requires = mountDeps;
-      environment = {
-        PLEX_MEDIA_SERVER_TMPDIR = lib.mkForce "/srv/nixflix/plex-transcode";
-        TMPDIR = lib.mkForce "/srv/nixflix/plex-transcode";
-      };
-      unitConfig.RequiresMountsFor = [ "/media" ];
-      # Keep stock plex ExecStartPre (!plex-run-prestart). This only adds a user
-      # preStart so migrated Codec trees that lost +x get fixed before PMS starts.
-      # Without execute bits, eac3_eae loops: "EAE timeout! EAE not running…".
-      preStart = ''
-        codecs="${config.services.plex.dataDir}/Plex Media Server/Codecs"
-        if [ -d "$codecs" ]; then
-          find "$codecs" -type f \( -name EasyAudioEncoder -o -name '*.so' \) -exec chmod a+x {} +
-        fi
-      '';
-      serviceConfig = {
-        # NixOS enables MemoryDenyWriteExecute on Plex; EasyAudioEncoder (EAC3/DTS)
-        # needs executable pages or transcoding loops with "EAE timeout" in logs.
-        MemoryDenyWriteExecute = lib.mkForce false;
-        ReadWritePaths = [
-          "/srv/nixflix/plex"
-          "/srv/nixflix/plex-transcode"
-        ];
-        ReadOnlyPaths = [ "/media" ];
-        InaccessiblePaths = [ "/data" ];
-      };
+      enable = true;
+      package = pkgs.plex;
+      dataDir = "/srv/nixflix/plex";
+      user = "unraid";
+      group = "users";
+      accelerationDevices = [ "/dev/dri/renderD128" ];
+      openFirewall = false;
+    };
+
+    seerr = {
+      enable = true;
+      package = pkgs.seerr;
+      configDir = "/var/lib/seerr";
+      port = 5055;
+      openFirewall = false;
     };
 
     bazarr = {
-      after = mountDeps;
-      requires = mountDeps;
-      preStart = ''
-        install -d -m 0700 /srv/nixflix/bazarr/config
-        config=/srv/nixflix/bazarr/config/config.yaml
-        test -s "$config" || printf '{}\n' >"$config"
-
-        export SONARR_API_KEY="$(<"$CREDENTIALS_DIRECTORY/sonarr-api-key")"
-        export RADARR_API_KEY="$(<"$CREDENTIALS_DIRECTORY/radarr-api-key")"
-        export OPENSUBTITLES_USERNAME="$(<"$CREDENTIALS_DIRECTORY/opensubtitles-username")"
-        export OPENSUBTITLES_PASSWORD="$(<"$CREDENTIALS_DIRECTORY/opensubtitles-password")"
-        # English defaults for new Sonarr/Radarr items (profile 1). Language profiles
-        # live in Bazarr DB — define profile 1 in the UI once; no boot-time API reconcile
-        # (removed bazarr-english-profile oneshot). Future pt-BR ASR will need a second
-        # profile + path defaults for Series-PtBr — do not force everything to profile 1.
-        # Keep this comment outside the yq single-quoted program (apostrophes break it).
-        ${pkgs.yq-go}/bin/yq -i '
-          .general.enabled_providers = [
-            "animetosho",
-            "gestdown",
-            "opensubtitlescom",
-            "yifysubtitles"
-          ] |
-          .general.use_embedded_subs = true |
-          .general.embedded_subs_show_desired = true |
-          .general.parse_embedded_audio_track = true |
-          .general.serie_default_enabled = true |
-          .general.serie_default_profile = 1 |
-          .general.movie_default_enabled = true |
-          .general.movie_default_profile = 1 |
-          .general.minimum_score = 85 |
-          .general.minimum_score_movie = 75 |
-          .general.use_sonarr = true |
-          .general.use_radarr = true |
-          .sonarr.ip = "127.0.0.1" |
-          .sonarr.port = 8989 |
-          .sonarr.ssl = false |
-          .sonarr.apikey = strenv(SONARR_API_KEY) |
-          .radarr.ip = "127.0.0.1" |
-          .radarr.port = 7878 |
-          .radarr.ssl = false |
-          .radarr.apikey = strenv(RADARR_API_KEY) |
-          .opensubtitlescom.username = strenv(OPENSUBTITLES_USERNAME) |
-          .opensubtitlescom.password = strenv(OPENSUBTITLES_PASSWORD) |
-          .opensubtitlescom.use_hash = true
-        ' "$config"
-        unset SONARR_API_KEY RADARR_API_KEY OPENSUBTITLES_USERNAME OPENSUBTITLES_PASSWORD
-      '';
-      serviceConfig = {
-        BindPaths = [
-          "/data/media/Series"
-          "/data/media/Anime"
-          "/data/media/Series-PtBr"
-          "/data/media/Cinema"
-        ];
-        LoadCredential = [
-          "sonarr-api-key:${config.sops.secrets."mini/media/sonarr/api-key".path}"
-          "radarr-api-key:${config.sops.secrets."mini/media/radarr/api-key".path}"
-          "opensubtitles-username:${config.sops.secrets."mini/media/bazarr/opensubtitles-username".path}"
-          "opensubtitles-password:${config.sops.secrets."mini/media/bazarr/opensubtitles-password".path}"
-        ];
-        PrivateTmp = true;
-        ProtectSystem = "strict";
-        ReadWritePaths = [
-          "/srv/nixflix/bazarr"
-          "/data/media/Series"
-          "/data/media/Anime"
-          "/data/media/Series-PtBr"
-          "/data/media/Cinema"
-        ];
-      };
+      enable = true;
+      dataDir = "/srv/nixflix/bazarr";
+      listenPort = 6767;
+      user = "unraid";
+      group = "users";
+      openFirewall = false;
     };
-
-    seerr.environment.HOST = "127.0.0.1";
   };
 
-  systemd.tmpfiles.rules = [
-    "d /srv/nixflix/plex-transcode 0755 unraid users -"
-  ];
+  systemd = {
+    services = {
+      plex = {
+        after = mountDeps;
+        requires = mountDeps;
+        environment = {
+          PLEX_MEDIA_SERVER_TMPDIR = lib.mkForce "/srv/nixflix/plex-transcode";
+          TMPDIR = lib.mkForce "/srv/nixflix/plex-transcode";
+        };
+        unitConfig.RequiresMountsFor = [ "/media" ];
+        # Keep stock plex ExecStartPre (!plex-run-prestart). This only adds a user
+        # preStart so migrated Codec trees that lost +x get fixed before PMS starts.
+        # Without execute bits, eac3_eae loops: "EAE timeout! EAE not running…".
+        preStart = ''
+          codecs="${config.services.plex.dataDir}/Plex Media Server/Codecs"
+          if [ -d "$codecs" ]; then
+            find "$codecs" -type f \( -name EasyAudioEncoder -o -name '*.so' \) -exec chmod a+x {} +
+          fi
+        '';
+        serviceConfig = {
+          # NixOS enables MemoryDenyWriteExecute on Plex; EasyAudioEncoder (EAC3/DTS)
+          # needs executable pages or transcoding loops with "EAE timeout" in logs.
+          MemoryDenyWriteExecute = lib.mkForce false;
+          ReadWritePaths = [
+            "/srv/nixflix/plex"
+            "/srv/nixflix/plex-transcode"
+          ];
+          ReadOnlyPaths = [ "/media" ];
+          InaccessiblePaths = [ "/data" ];
+        };
+      };
+
+      bazarr = {
+        after = mountDeps;
+        requires = mountDeps;
+        preStart = ''
+          install -d -m 0700 /srv/nixflix/bazarr/config
+          config=/srv/nixflix/bazarr/config/config.yaml
+          test -s "$config" || printf '{}\n' >"$config"
+
+          export SONARR_API_KEY="$(<"$CREDENTIALS_DIRECTORY/sonarr-api-key")"
+          export RADARR_API_KEY="$(<"$CREDENTIALS_DIRECTORY/radarr-api-key")"
+          export OPENSUBTITLES_USERNAME="$(<"$CREDENTIALS_DIRECTORY/opensubtitles-username")"
+          export OPENSUBTITLES_PASSWORD="$(<"$CREDENTIALS_DIRECTORY/opensubtitles-password")"
+          # English defaults for new Sonarr/Radarr items (profile 1). Language profiles
+          # live in Bazarr DB — define profile 1 in the UI once; no boot-time API reconcile
+          # (removed bazarr-english-profile oneshot). Future pt-BR ASR will need a second
+          # profile + path defaults for Series-PtBr — do not force everything to profile 1.
+          # Keep this comment outside the yq single-quoted program (apostrophes break it).
+          ${pkgs.yq-go}/bin/yq -i '
+            .general.enabled_providers = [
+              "animetosho",
+              "gestdown",
+              "opensubtitlescom",
+              "yifysubtitles"
+            ] |
+            .general.use_embedded_subs = true |
+            .general.embedded_subs_show_desired = true |
+            .general.parse_embedded_audio_track = true |
+            .general.serie_default_enabled = true |
+            .general.serie_default_profile = 1 |
+            .general.movie_default_enabled = true |
+            .general.movie_default_profile = 1 |
+            .general.minimum_score = 85 |
+            .general.minimum_score_movie = 75 |
+            .general.use_sonarr = true |
+            .general.use_radarr = true |
+            .sonarr.ip = "127.0.0.1" |
+            .sonarr.port = 8989 |
+            .sonarr.ssl = false |
+            .sonarr.apikey = strenv(SONARR_API_KEY) |
+            .radarr.ip = "127.0.0.1" |
+            .radarr.port = 7878 |
+            .radarr.ssl = false |
+            .radarr.apikey = strenv(RADARR_API_KEY) |
+            .opensubtitlescom.username = strenv(OPENSUBTITLES_USERNAME) |
+            .opensubtitlescom.password = strenv(OPENSUBTITLES_PASSWORD) |
+            .opensubtitlescom.use_hash = true
+          ' "$config"
+          unset SONARR_API_KEY RADARR_API_KEY OPENSUBTITLES_USERNAME OPENSUBTITLES_PASSWORD
+        '';
+        serviceConfig = {
+          BindPaths = [
+            "/data/media/Series"
+            "/data/media/Anime"
+            "/data/media/Series-PtBr"
+            "/data/media/Cinema"
+          ];
+          LoadCredential = [
+            "sonarr-api-key:${config.sops.secrets."mini/media/sonarr/api-key".path}"
+            "radarr-api-key:${config.sops.secrets."mini/media/radarr/api-key".path}"
+            "opensubtitles-username:${config.sops.secrets."mini/media/bazarr/opensubtitles-username".path}"
+            "opensubtitles-password:${config.sops.secrets."mini/media/bazarr/opensubtitles-password".path}"
+          ];
+          PrivateTmp = true;
+          ProtectSystem = "strict";
+          ReadWritePaths = [
+            "/srv/nixflix/bazarr"
+            "/data/media/Series"
+            "/data/media/Anime"
+            "/data/media/Series-PtBr"
+            "/data/media/Cinema"
+          ];
+        };
+      };
+
+      seerr.environment.HOST = "127.0.0.1";
+    };
+
+    tmpfiles.rules = [
+      "d /srv/nixflix/plex-transcode 0755 unraid users -"
+    ];
+  };
 
   # Mini currently uses the iptables-backed NixOS firewall. Keep these
   # discovery rules IPv4-only rather than opening Plex on the global IPv6 address.

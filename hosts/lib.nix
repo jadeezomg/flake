@@ -6,7 +6,7 @@ let
   nixosExtraUsers = [ userData.users.angelie ];
 
   sharedNixOSHost = {
-    username = sharedNixOSUser.username;
+    inherit (sharedNixOSUser) username;
     system = "x86_64-linux";
     homeDirectory = "/home/${sharedNixOSUser.username}";
     stateVersion = "26.05";

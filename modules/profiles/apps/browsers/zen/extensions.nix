@@ -1,4 +1,4 @@
-{ ... }:
+_:
 let
   # Shared extension helper functions
   mkPluginUrl = id: "https://addons.mozilla.org/firefox/downloads/latest/${id}/latest.xpi";

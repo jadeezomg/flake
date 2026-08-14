@@ -26,7 +26,7 @@
 
         mcp-servers =
           let
-            testPassed = import ../tests/mcp-servers.nix { lib = pkgs.lib; };
+            testPassed = import ../tests/mcp-servers.nix { inherit (pkgs) lib; };
           in
           assert testPassed;
           pkgs.runCommand "mcp-servers-tests" { } ''

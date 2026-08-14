@@ -9,7 +9,7 @@
   dotfilesLib,
 }:
 let
-  agentSkillsDir = dotfilesLib.agentSkillsDir;
+  inherit (dotfilesLib) agentSkillsDir;
   mattpocockRoot = "${inputs.skills-mattpocock.outPath}/skills";
   ponytailRoot = "${inputs.skills-ponytail.outPath}/skills";
   simpleEnglishRoot = "${inputs.skills-simple-english.outPath}/skills";
@@ -120,5 +120,5 @@ in
     mergedSkills
     canonicalPrefix
     ;
-  homeFiles = homeFiles;
+  inherit homeFiles;
 }

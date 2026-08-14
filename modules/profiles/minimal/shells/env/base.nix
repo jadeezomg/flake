@@ -44,25 +44,29 @@ in
   # Initialization-time exports (mergeable via mkBefore + mkAfter with
   # system.nix). sessionVariables / environmentVariables live in system.nix
   # only, so there's a single source of truth per var without priority wars.
-  programs.bash.initExtra = lib.mkBefore ''
-    ${exportLines}
-    export PATH="${basePathColon}:$PATH"
-  '';
-  programs.zsh.initContent = lib.mkBefore ''
-    ${exportLines}
-    export PATH="${basePathColon}:$PATH"
-  '';
-  programs.zsh.profileExtra = lib.mkBefore ''
-    export PATH="${basePathColon}:$PATH"
-  '';
-  programs.fish.interactiveShellInit = lib.mkBefore ''
-    ${fishSetLines}
-    fish_add_path --prepend --global ${lib.concatStringsSep " " basePathList}
-  '';
-  programs.nushell.extraEnv = lib.mkBefore ''
-    ${nushellSetLines}
-    $env.PATH = ($env.PATH | split row (char esep) | prepend [
-      ${lib.concatMapStringsSep "\n      " (p: "\"${p}\"") nushellBasePathList}
-    ])
-  '';
+  programs = {
+    bash.initExtra = lib.mkBefore ''
+      ${exportLines}
+      export PATH="${basePathColon}:$PATH"
+    '';
+    zsh = {
+      initContent = lib.mkBefore ''
+        ${exportLines}
+        export PATH="${basePathColon}:$PATH"
+      '';
+      profileExtra = lib.mkBefore ''
+        export PATH="${basePathColon}:$PATH"
+      '';
+    };
+    fish.interactiveShellInit = lib.mkBefore ''
+      ${fishSetLines}
+      fish_add_path --prepend --global ${lib.concatStringsSep " " basePathList}
+    '';
+    nushell.extraEnv = lib.mkBefore ''
+      ${nushellSetLines}
+      $env.PATH = ($env.PATH | split row (char esep) | prepend [
+        ${lib.concatMapStringsSep "\n      " (p: "\"${p}\"") nushellBasePathList}
+      ])
+    '';
+  };
 }

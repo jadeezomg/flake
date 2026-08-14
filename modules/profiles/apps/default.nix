@@ -46,7 +46,7 @@ in
         # The upstream module defaults this privileged wrapper on. Tie it to
         # the apps profile so headless hosts neither build nor install Vicinae.
         programs.vicinae.input-server = {
-          enable = cfg.enable;
+          inherit (cfg) enable;
           package = pkgs.vicinae;
         };
         programs.kdeconnect.enable = cfg.enable;

@@ -1,4 +1,4 @@
-{ ... }: {
+_: {
   dotfiles.hardware = {
     # Intel iGPU + Arc Pro B50 dGPU (llama.cpp stack under ./services/llm/).
     gpu = "intel";

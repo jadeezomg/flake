@@ -1,6 +1,4 @@
-{
-  ...
-}:
+_:
 let
   inherit (import ./common.nix) mountDeps;
 in

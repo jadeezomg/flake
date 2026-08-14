@@ -1,4 +1,4 @@
-{ }: {
+_: {
   # --- Panels ---
   collaboration_panel = {
     button = false;

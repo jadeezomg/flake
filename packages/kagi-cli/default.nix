@@ -32,7 +32,7 @@ pkgs.stdenvNoCC.mkDerivation {
 
   src = pkgs.fetchurl {
     url = "https://github.com/Microck/kagi-cli/releases/download/v${version}/${info.asset}";
-    hash = info.hash;
+    inherit (info) hash;
   };
 
   # Tarball contains a single bare binary, not a subdirectory.
