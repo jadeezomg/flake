@@ -8,7 +8,7 @@ in
   # explicitly rather than by omission, since hosts/hosts.nix otherwise defaults
   # sshAddress to the hostname.
   sshAddress = null;
-  username = darwinUser.username;
+  inherit (darwinUser) username;
   system = "aarch64-darwin";
   homeDirectory = darwinUser.homeDirectory or "/Users/${darwinUser.username}";
   stateVersion = darwinUser.stateVersion or "26.05";

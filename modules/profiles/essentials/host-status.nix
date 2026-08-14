@@ -63,14 +63,14 @@ in
   systemd.user.services = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (
     lib.mapAttrs' (
       name: source:
-      lib.nameValuePair "host-status-${name}" ((mkLinuxTimer name source)."host-status-${name}")
+      lib.nameValuePair "host-status-${name}" (mkLinuxTimer name source)."host-status-${name}"
     ) cacheSources
   );
 
   systemd.user.timers = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (
     lib.mapAttrs' (
       name: source:
-      lib.nameValuePair "host-status-${name}" ((mkLinuxTimerUnit name source)."host-status-${name}")
+      lib.nameValuePair "host-status-${name}" (mkLinuxTimerUnit name source)."host-status-${name}"
     ) cacheSources
   );
 

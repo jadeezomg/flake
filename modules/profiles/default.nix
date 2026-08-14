@@ -127,32 +127,34 @@
       # in one place; the implementing leaves (./desktop, ./gaming.nix,
       # ./integrations.nix) are imported only when !isDarwin, so setting these
       # on darwin has no effect.
-      desktop.enable = enableOn "the desktop profile (niri + DMS or Noctalia + GNOME fallback; Linux only)";
+      desktop = {
+        enable = enableOn "the desktop profile (niri + DMS or Noctalia + GNOME fallback; Linux only)";
 
-      desktop.shell = mkOption {
-        type = types.enum [
-          "dms"
-          "noctalia"
-        ];
-        default = "dms";
-        description = ''
-          Desktop shell for the niri session.
-          `dms` — DankMaterialShell (default).
-          `noctalia` — Noctalia v5 (flake TOML via HM `programs.noctalia.settings`).
-        '';
-      };
+        shell = mkOption {
+          type = types.enum [
+            "dms"
+            "noctalia"
+          ];
+          default = "dms";
+          description = ''
+            Desktop shell for the niri session.
+            `dms` — DankMaterialShell (default).
+            `noctalia` — Noctalia v5 (flake TOML via HM `programs.noctalia.settings`).
+          '';
+        };
 
-      desktop.loginManager = mkOption {
-        type = types.enum [
-          "gdm"
-          "dms-greeter"
-        ];
-        default = "dms-greeter";
-        description = ''
-          Login screen for the desktop profile.
-          `gdm` — GNOME Display Manager.
-          `dms-greeter` — DankMaterialShell greeter via greetd.
-        '';
+        loginManager = mkOption {
+          type = types.enum [
+            "gdm"
+            "dms-greeter"
+          ];
+          default = "dms-greeter";
+          description = ''
+            Login screen for the desktop profile.
+            `gdm` — GNOME Display Manager.
+            `dms-greeter` — DankMaterialShell greeter via greetd.
+          '';
+        };
       };
 
       integrations = {

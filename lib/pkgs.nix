@@ -10,7 +10,7 @@ let
     in
     import nixpkgs {
       inherit system;
-      overlays = overlays;
+      inherit overlays;
       config = {
         allowUnfree = true;
         input-fonts.acceptLicense = true;

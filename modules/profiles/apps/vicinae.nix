@@ -102,45 +102,49 @@ in
     settings = vicinaeSettings;
   };
 
-  # Drop GUI store copies so Vicinae does not list duplicates after switch.
-  home.activation.removeVicinaeStoreExtensions = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    for ext in ${lib.concatStringsSep " " extensionNames}; do
-      $DRY_RUN_CMD rm -rf "${config.xdg.dataHome}/vicinae/extensions/store.vicinae.''${ext}"
-    done
-  '';
+  home = {
+    # Drop GUI store copies so Vicinae does not list duplicates after switch.
+    activation.removeVicinaeStoreExtensions = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      for ext in ${lib.concatStringsSep " " extensionNames}; do
+        $DRY_RUN_CMD rm -rf "${config.xdg.dataHome}/vicinae/extensions/store.vicinae.''${ext}"
+      done
+    '';
 
-  # Nix-built Vicinae on macOS skips onboarding login items — start the server
-  # ourselves. https://docs.vicinae.com/quickstart/macos
-  launchd.agents.vicinae = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
-    enable = true;
-    config = {
-      ProgramArguments = [
-        vicinaeExe
-        "server"
-      ];
-      RunAtLoad = true;
-      KeepAlive = true;
+    # Vicinae has no global hotkeys; bind Option+Space via skhd.
+    # HM has no programs.skhd — wire the daemon + ~/.skhdrc ourselves.
+    packages = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin [ pkgs.skhd ];
+
+    file.".skhdrc" = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+      text = ''
+        # Option+Space toggles Vicinae; mirrors niri Mod+Space on Linux.
+        # NB: Hyper+Space (cmd+alt+ctrl+shift) is owned by Handy — keep clear.
+        alt - space : ${vicinaeExe} toggle
+      '';
     };
   };
 
-  # Vicinae has no global hotkeys; bind Option+Space via skhd.
-  # HM has no programs.skhd — wire the daemon + ~/.skhdrc ourselves.
-  home.packages = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin [ pkgs.skhd ];
+  launchd.agents = {
+    # Nix-built Vicinae on macOS skips onboarding login items — start the server
+    # ourselves. https://docs.vicinae.com/quickstart/macos
+    vicinae = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+      enable = true;
+      config = {
+        ProgramArguments = [
+          vicinaeExe
+          "server"
+        ];
+        RunAtLoad = true;
+        KeepAlive = true;
+      };
+    };
 
-  home.file.".skhdrc" = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
-    text = ''
-      # Option+Space toggles Vicinae; mirrors niri Mod+Space on Linux.
-      # NB: Hyper+Space (cmd+alt+ctrl+shift) is owned by Handy — keep clear.
-      alt - space : ${vicinaeExe} toggle
-    '';
-  };
-
-  launchd.agents.skhd = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
-    enable = true;
-    config = {
-      ProgramArguments = [ "${pkgs.skhd}/bin/skhd" ];
-      RunAtLoad = true;
-      KeepAlive = true;
+    skhd = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+      enable = true;
+      config = {
+        ProgramArguments = [ "${pkgs.skhd}/bin/skhd" ];
+        RunAtLoad = true;
+        KeepAlive = true;
+      };
     };
   };
 }

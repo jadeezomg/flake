@@ -1,4 +1,4 @@
-{ }: {
+_: {
   telemetry = {
     diagnostics = false;
     metrics = false;

@@ -43,35 +43,37 @@ in
       ./noctalia
     ];
 
-    programs.dms-greeter = {
-      enable = useDms && useDmsGreeter;
-      compositor.name = "niri";
-      configHome = host.homeDirectory;
-      configFiles = [ "${host.homeDirectory}/.config/DankMaterialShell/settings.json" ];
-    };
-
-    programs.niri.enable = true;
-
-    programs.dank-material-shell = lib.mkIf useDms {
-      enable = true;
-      package = dmsShell;
-      quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.quickshell;
-      systemd = {
-        enable = useDmsGreeter;
-        restartIfChanged = true;
+    programs = {
+      dms-greeter = {
+        enable = useDms && useDmsGreeter;
+        compositor.name = "niri";
+        configHome = host.homeDirectory;
+        configFiles = [ "${host.homeDirectory}/.config/DankMaterialShell/settings.json" ];
       };
-      enableSystemMonitoring = true;
-      enableVPN = true;
-      enableDynamicTheming = true;
-      enableAudioWavelength = true;
-      enableCalendarEvents = false;
-    };
 
-    programs.noctalia = lib.mkIf useNoctalia {
-      enable = true;
-      package = noctaliaPkg;
-      systemd.enable = false;
-      recommendedServices.enable = false;
+      niri.enable = true;
+
+      dank-material-shell = lib.mkIf useDms {
+        enable = true;
+        package = dmsShell;
+        quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.quickshell;
+        systemd = {
+          enable = useDmsGreeter;
+          restartIfChanged = true;
+        };
+        enableSystemMonitoring = true;
+        enableVPN = true;
+        enableDynamicTheming = true;
+        enableAudioWavelength = true;
+        enableCalendarEvents = false;
+      };
+
+      noctalia = lib.mkIf useNoctalia {
+        enable = true;
+        package = noctaliaPkg;
+        systemd.enable = false;
+        recommendedServices.enable = false;
+      };
     };
 
     services = {
@@ -92,31 +94,33 @@ in
       };
     };
 
-    environment.sessionVariables.XDG_CURRENT_DESKTOP = "niri:GNOME";
+    environment = {
+      sessionVariables.XDG_CURRENT_DESKTOP = "niri:GNOME";
 
-    environment.etc."wayland-sessions/niri.desktop".text = ''
-      [Desktop Entry]
-      Name=Niri
-      Comment=Start Niri Wayland Compositor
-      Exec=${config.programs.niri.package}/bin/niri
-      Type=Application
-      DesktopNames=niri
-    '';
+      etc."wayland-sessions/niri.desktop".text = ''
+        [Desktop Entry]
+        Name=Niri
+        Comment=Start Niri Wayland Compositor
+        Exec=${config.programs.niri.package}/bin/niri
+        Type=Application
+        DesktopNames=niri
+      '';
 
-    environment.systemPackages = with pkgs; [
-      libnotify
-      nautilus
-      xwayland-satellite
-      (symlinkJoin {
-        name = "handy";
-        paths = [ pkgs.llm-agents.handy ];
-        buildInputs = [ makeWrapper ];
-        postBuild = ''
-          wrapProgram $out/bin/handy --set GTK_THEME Adwaita:dark
-        '';
-      })
-      wtype
-      wl-clipboard
-    ];
+      systemPackages = with pkgs; [
+        libnotify
+        nautilus
+        xwayland-satellite
+        (symlinkJoin {
+          name = "handy";
+          paths = [ pkgs.llm-agents.handy ];
+          buildInputs = [ makeWrapper ];
+          postBuild = ''
+            wrapProgram $out/bin/handy --set GTK_THEME Adwaita:dark
+          '';
+        })
+        wtype
+        wl-clipboard
+      ];
+    };
   };
 }

@@ -6,7 +6,7 @@
   ...
 }:
 let
-  profiles = (dotfilesLib.nonoProfiles { inherit pkgs; }).profiles;
+  inherit ((dotfilesLib.nonoProfiles { inherit pkgs; })) profiles;
 
   mkProfileFile = name: data: {
     name = "nono/profiles/${name}.json";

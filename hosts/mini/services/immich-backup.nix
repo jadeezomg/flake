@@ -235,12 +235,6 @@ in
       Compression no
   '';
 
-  systemd.tmpfiles.settings.immich-backup.${sshStateDir}.d = {
-    user = "root";
-    group = "root";
-    mode = "0700";
-  };
-
   # ── Nightly: dump, then snapshot ───────────────────────────────────────────
   services.restic.backups.immich = {
     inherit repository passwordFile;
@@ -305,123 +299,132 @@ in
     };
   };
 
-  # 64 MiB packs instead of the 16 MiB default: 4x fewer files landing on the
-  # parity array and in shfs's directory tree, at no cost to restore granularity.
-  systemd.services.restic-backups-immich.environment.RESTIC_PACK_SIZE = "64";
-  systemd.services.restic-backups-immich-maint.environment.RESTIC_PACK_SIZE = "64";
-
-  # NOTE: no `~@privileged` in SystemCallFilter — the dump uses setpriv, which
-  # needs setuid/setgid. CapabilityBoundingSet is the narrower control here.
-  systemd.services.restic-backups-immich = {
-    onFailure = [ "backup-notify@%n.service" ];
-    serviceConfig = {
-      ReadWritePaths = [
-        dumpDir
-        sshStateDir
-      ];
-      ProtectSystem = "strict";
-      ProtectHome = true;
-      ProtectProc = "invisible";
-      PrivateDevices = true;
-      ProtectClock = true;
-      ProtectHostname = true;
-      ProtectKernelLogs = true;
-      ProtectKernelModules = true;
-      ProtectKernelTunables = true;
-      ProtectControlGroups = true;
-      RestrictNamespaces = true;
-      RestrictRealtime = true;
-      RestrictSUIDSGID = true;
-      LockPersonality = true;
-      SystemCallArchitectures = "native";
-      SystemCallFilter = [ "@system-service" ];
-      RestrictAddressFamilies = [
-        "AF_INET"
-        "AF_INET6"
-        "AF_UNIX"
-      ];
-      CapabilityBoundingSet = [
-        "CAP_DAC_READ_SEARCH" # walk the whole 0700 immich tree
-        # DAC_READ_SEARCH only grants read+search. The dump CREATES its .part file
-        # inside dumpDir, which is 0700 immich:immich, so root needs DAC_OVERRIDE
-        # too — without it every run since this unit landed died at the redirect
-        # with "Permission denied" and the repo was never even initialised.
-        # Not a widening in practice: CAP_FOWNER + CAP_CHOWN already let this unit
-        # chmod/chown any file on the host, so it could grant itself write anyway.
-        "CAP_DAC_OVERRIDE"
-        "CAP_CHOWN"
-        "CAP_FOWNER"
-        "CAP_SETUID" # setpriv -> postgres
-        "CAP_SETGID"
-      ];
-      # Don't fight llama-cpp / jellyfin transcodes for the box at 03:15.
-      CPUSchedulingPolicy = "batch";
-      IOSchedulingClass = "best-effort";
-      IOSchedulingPriority = 7;
-      # A seed can legitimately run for hours; a wedge must not run forever.
-      TimeoutStartSec = "12h";
+  systemd = {
+    tmpfiles.settings.immich-backup.${sshStateDir}.d = {
+      user = "root";
+      group = "root";
+      mode = "0700";
     };
-  };
 
-  systemd.services.restic-backups-immich-maint = {
-    onFailure = [ "backup-notify@%n.service" ];
-    serviceConfig = {
-      ProtectSystem = "strict";
-      ProtectHome = true;
-      ReadWritePaths = [ sshStateDir ];
-      PrivateDevices = true;
-      CPUSchedulingPolicy = "batch";
-      IOSchedulingClass = "best-effort";
-      IOSchedulingPriority = 7;
-      TimeoutStartSec = "8h";
-    };
-  };
+    services = {
+      # NOTE: no `~@privileged` in SystemCallFilter — the dump uses setpriv, which
+      # needs setuid/setgid. CapabilityBoundingSet is the narrower control here.
+      restic-backups-immich = {
+        onFailure = [ "backup-notify@%n.service" ];
+        # 64 MiB packs instead of the 16 MiB default: 4x fewer files landing on the
+        # parity array and in shfs's directory tree, at no cost to restore granularity.
+        environment.RESTIC_PACK_SIZE = "64";
+        serviceConfig = {
+          ReadWritePaths = [
+            dumpDir
+            sshStateDir
+          ];
+          ProtectSystem = "strict";
+          ProtectHome = true;
+          ProtectProc = "invisible";
+          PrivateDevices = true;
+          ProtectClock = true;
+          ProtectHostname = true;
+          ProtectKernelLogs = true;
+          ProtectKernelModules = true;
+          ProtectKernelTunables = true;
+          ProtectControlGroups = true;
+          RestrictNamespaces = true;
+          RestrictRealtime = true;
+          RestrictSUIDSGID = true;
+          LockPersonality = true;
+          SystemCallArchitectures = "native";
+          SystemCallFilter = [ "@system-service" ];
+          RestrictAddressFamilies = [
+            "AF_INET"
+            "AF_INET6"
+            "AF_UNIX"
+          ];
+          CapabilityBoundingSet = [
+            "CAP_DAC_READ_SEARCH" # walk the whole 0700 immich tree
+            # DAC_READ_SEARCH only grants read+search. The dump CREATES its .part file
+            # inside dumpDir, which is 0700 immich:immich, so root needs DAC_OVERRIDE
+            # too — without it every run since this unit landed died at the redirect
+            # with "Permission denied" and the repo was never even initialised.
+            # Not a widening in practice: CAP_FOWNER + CAP_CHOWN already let this unit
+            # chmod/chown any file on the host, so it could grant itself write anyway.
+            "CAP_DAC_OVERRIDE"
+            "CAP_CHOWN"
+            "CAP_FOWNER"
+            "CAP_SETUID" # setpriv -> postgres
+            "CAP_SETGID"
+          ];
+          # Don't fight llama-cpp / jellyfin transcodes for the box at 03:15.
+          CPUSchedulingPolicy = "batch";
+          IOSchedulingClass = "best-effort";
+          IOSchedulingPriority = 7;
+          # A seed can legitimately run for hours; a wedge must not run forever.
+          TimeoutStartSec = "12h";
+        };
+      };
 
-  # ── Watchdog ───────────────────────────────────────────────────────────────
-  systemd.services.immich-backup-watchdog = {
-    description = "Alarm if the Immich restic repo has no fresh snapshot";
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
-    onFailure = [ "backup-notify@%n.service" ];
-    path = [ config.programs.ssh.package ];
-    environment = {
-      RESTIC_REPOSITORY = repository;
-      RESTIC_PASSWORD_FILE = passwordFile;
-      RESTIC_CACHE_DIR = "/var/cache/immich-backup-watchdog";
-    };
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = lib.getExe watchdog;
-      CacheDirectory = "immich-backup-watchdog";
-      ReadWritePaths = [ sshStateDir ];
-      ProtectSystem = "strict";
-      ProtectHome = true;
-      PrivateDevices = true;
-      TimeoutStartSec = "10m";
-    };
-  };
+      restic-backups-immich-maint = {
+        onFailure = [ "backup-notify@%n.service" ];
+        environment.RESTIC_PACK_SIZE = "64";
+        serviceConfig = {
+          ProtectSystem = "strict";
+          ProtectHome = true;
+          ReadWritePaths = [ sshStateDir ];
+          PrivateDevices = true;
+          CPUSchedulingPolicy = "batch";
+          IOSchedulingClass = "best-effort";
+          IOSchedulingPriority = 7;
+          TimeoutStartSec = "8h";
+        };
+      };
 
-  systemd.timers.immich-backup-watchdog = {
-    description = "Daily Immich backup freshness check";
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "*-*-* 09:00:00";
-      RandomizedDelaySec = "10m";
-      Persistent = true;
-    };
-  };
+      # ── Watchdog ───────────────────────────────────────────────────────────────
+      immich-backup-watchdog = {
+        description = "Alarm if the Immich restic repo has no fresh snapshot";
+        after = [ "network-online.target" ];
+        wants = [ "network-online.target" ];
+        onFailure = [ "backup-notify@%n.service" ];
+        path = [ config.programs.ssh.package ];
+        environment = {
+          RESTIC_REPOSITORY = repository;
+          RESTIC_PASSWORD_FILE = passwordFile;
+          RESTIC_CACHE_DIR = "/var/cache/immich-backup-watchdog";
+        };
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = lib.getExe watchdog;
+          CacheDirectory = "immich-backup-watchdog";
+          ReadWritePaths = [ sshStateDir ];
+          ProtectSystem = "strict";
+          ProtectHome = true;
+          PrivateDevices = true;
+          TimeoutStartSec = "10m";
+        };
+      };
 
-  # Template unit, instanced by OnFailure=backup-notify@%n.service.
-  systemd.services."backup-notify@" = {
-    description = "Post a Matrix notice that %I failed";
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${lib.getExe notify} %I";
-      EnvironmentFile = "-${config.sops.secrets."mini/backup/matrix-notify".path}";
-      ProtectSystem = "strict";
-      ProtectHome = true;
-      PrivateDevices = true;
-      TimeoutStartSec = "1m";
+      # Template unit, instanced by OnFailure=backup-notify@%n.service.
+      "backup-notify@" = {
+        description = "Post a Matrix notice that %I failed";
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = "${lib.getExe notify} %I";
+          EnvironmentFile = "-${config.sops.secrets."mini/backup/matrix-notify".path}";
+          ProtectSystem = "strict";
+          ProtectHome = true;
+          PrivateDevices = true;
+          TimeoutStartSec = "1m";
+        };
+      };
+    };
+
+    timers.immich-backup-watchdog = {
+      description = "Daily Immich backup freshness check";
+      wantedBy = [ "timers.target" ];
+      timerConfig = {
+        OnCalendar = "*-*-* 09:00:00";
+        RandomizedDelaySec = "10m";
+        Persistent = true;
+      };
     };
   };
 

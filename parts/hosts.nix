@@ -96,18 +96,18 @@ let
   mkHostOutputs =
     hostKey: host:
     let
-      system = host.system;
+      inherit (host) system;
       isDarwin = lib.elem system darwinSystems;
       user = host.username;
-      hostname = host.hostname;
+      inherit (host) hostname;
       pkgs = getPkgsWithConfig system [ ] (host.nixpkgsConfig or { });
       nixosConfig = lib.nixosSystem {
         system = null;
-        pkgs = pkgs;
+        inherit pkgs;
         specialArgs = commonSpecialArgs // {
           pkgs-stable = getPkgsStable system;
           pkgs-small = getPkgsSmall system;
-          host = host;
+          inherit host;
           inherit
             hostKey
             user

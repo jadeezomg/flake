@@ -1,4 +1,4 @@
-{ ... }: {
+_: {
   dotfiles.hardware = {
     wireless.enable = true;
     gpu = "amd";
@@ -9,8 +9,10 @@
     devenv.enable = true;
     devgui.enable = true;
     apps.enable = true;
-    desktop.shell = "noctalia";
-    desktop.loginManager = "gdm"; # required for noctalia
-    desktop.enable = true;
+    desktop = {
+      shell = "noctalia";
+      loginManager = "gdm"; # required for noctalia
+      enable = true;
+    };
   };
 }

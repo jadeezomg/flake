@@ -28,57 +28,62 @@ let
   agentDir = "/var/lib/beszel-agent";
 in
 {
-  services.beszel.hub = {
-    enable = true;
-    host = "127.0.0.1"; # Caddy (services/caddy.nix) fronts it with TLS
-    port = hubPort;
-    # Served at the subdomain root, so the hub generates plain top-level URLs.
-    environment.APP_URL = "https://beszel.jadee.fyi";
-  };
+  services = {
+    beszel = {
+      hub = {
+        enable = true;
+        host = "127.0.0.1"; # Caddy (services/caddy.nix) fronts it with TLS
+        port = hubPort;
+        # Served at the subdomain root, so the hub generates plain top-level URLs.
+        environment.APP_URL = "https://beszel.jadee.fyi";
+      };
 
-  services.beszel.agent = {
-    enable = true;
-    # Disk SMART monitoring (adds the agent to the disk group).
-    smartmon.enable = true;
-    # GPU monitoring: the Arc Pro B50 uses the `xe` driver, which does NOT expose
-    # the i915 PMU that `intel_gpu_top` needs ("Failed to detect engines"). nvtop
-    # reads xe GPUs via fdinfo/sysfs, so use it as the collector instead.
-    extraPath = [ pkgs.nvtopPackages.intel ];
-    environment = {
-      # Hub + agent are co-located on mini, so use the classic SSH path: the agent
-      # listens on :45876 and the hub (registered system 127.0.0.1:45876) connects
-      # in, authenticated by the hub's pubkey in KEY_FILE.
-      KEY_FILE = "${agentDir}/hub_key.pub";
-      # Monitor podman containers via the docker-compat socket (enabled by the
-      # devenv containers profile). Harmless if the socket is absent.
-      DOCKER_HOST = "unix:///run/podman/podman.sock";
-      # Force the nvtop collector (auto-detect would pick the broken intel_gpu_top).
-      GPU_COLLECTOR = "nvtop";
+      agent = {
+        enable = true;
+        # Disk SMART monitoring (adds the agent to the disk group).
+        smartmon.enable = true;
+        # GPU monitoring: the Arc Pro B50 uses the `xe` driver, which does NOT expose
+        # the i915 PMU that `intel_gpu_top` needs ("Failed to detect engines"). nvtop
+        # reads xe GPUs via fdinfo/sysfs, so use it as the collector instead.
+        extraPath = [ pkgs.nvtopPackages.intel ];
+        environment = {
+          # Hub + agent are co-located on mini, so use the classic SSH path: the agent
+          # listens on :45876 and the hub (registered system 127.0.0.1:45876) connects
+          # in, authenticated by the hub's pubkey in KEY_FILE.
+          KEY_FILE = "${agentDir}/hub_key.pub";
+          # Monitor podman containers via the docker-compat socket (enabled by the
+          # devenv containers profile). Harmless if the socket is absent.
+          DOCKER_HOST = "unix:///run/podman/podman.sock";
+          # Force the nvtop collector (auto-detect would pick the broken intel_gpu_top).
+          GPU_COLLECTOR = "nvtop";
+        };
+      };
     };
+
+    # HTTPS dashboard at https://beszel.jadee.fyi via the shared Caddy proxy.
+    caddy.virtualHosts."beszel.jadee.fyi".extraConfig = ''
+      import tsnet
+      reverse_proxy 127.0.0.1:${toString hubPort}
+    '';
   };
-
-  # nvtop needs to read /dev/dri/card0 (the B50, root:video 0660). The agent runs
-  # as a dynamic user in `podman disk` (set by the module for container + SMART
-  # monitoring); add `video`+`render` so it can open the GPU nodes. mkForce keeps
-  # the full set since the same serviceConfig key is set by the module.
-  systemd.services.beszel-agent.serviceConfig.SupplementaryGroups = lib.mkForce [
-    "podman"
-    "disk"
-    "video"
-    "render"
-  ];
-
-  # Skip the agent until onboarding has dropped the hub pubkey, so a deploy before
-  # onboarding leaves the unit inactive (condition unmet) rather than failed —
-  # which previously made `switch` exit non-zero.
-  systemd.services.beszel-agent.unitConfig.ConditionPathExists = "${agentDir}/hub_key.pub";
 
   # The agent's StateDirectory (${agentDir}) is created by its systemd unit with
   # the right ownership; onboarding drops hub_key.pub there.
+  systemd.services.beszel-agent = {
+    # nvtop needs to read /dev/dri/card0 (the B50, root:video 0660). The agent runs
+    # as a dynamic user in `podman disk` (set by the module for container + SMART
+    # monitoring); add `video`+`render` so it can open the GPU nodes. mkForce keeps
+    # the full set since the same serviceConfig key is set by the module.
+    serviceConfig.SupplementaryGroups = lib.mkForce [
+      "podman"
+      "disk"
+      "video"
+      "render"
+    ];
 
-  # HTTPS dashboard at https://beszel.jadee.fyi via the shared Caddy proxy.
-  services.caddy.virtualHosts."beszel.jadee.fyi".extraConfig = ''
-    import tsnet
-    reverse_proxy 127.0.0.1:${toString hubPort}
-  '';
+    # Skip the agent until onboarding has dropped the hub pubkey, so a deploy before
+    # onboarding leaves the unit inactive (condition unmet) rather than failed —
+    # which previously made `switch` exit non-zero.
+    unitConfig.ConditionPathExists = "${agentDir}/hub_key.pub";
+  };
 }

@@ -95,17 +95,21 @@ in
 
   systemd.services.caddy.restartTriggers = [ config.sops.templates."caddy.env".content ];
 
-  sops.secrets.cloudflare_dns_api_token = { };
-  sops.secrets.tailscale_authkey = { };
+  sops = {
+    secrets = {
+      cloudflare_dns_api_token = { };
+      tailscale_authkey = { };
 
-  # Generate with: caddy hash-password --plaintext '<pw>'  → store the hash here.
-  sops.secrets.hermes_dashboard_basic_auth_hash = { };
-  sops.templates."caddy.env" = {
-    mode = "0400";
-    content = ''
-      CF_API_TOKEN=${config.sops.placeholder.cloudflare_dns_api_token}
-      TS_AUTHKEY=${config.sops.placeholder.tailscale_authkey}
-      HERMES_DASHBOARD_HASH=${config.sops.placeholder.hermes_dashboard_basic_auth_hash}
-    '';
+      # Generate with: caddy hash-password --plaintext '<pw>'  → store the hash here.
+      hermes_dashboard_basic_auth_hash = { };
+    };
+    templates."caddy.env" = {
+      mode = "0400";
+      content = ''
+        CF_API_TOKEN=${config.sops.placeholder.cloudflare_dns_api_token}
+        TS_AUTHKEY=${config.sops.placeholder.tailscale_authkey}
+        HERMES_DASHBOARD_HASH=${config.sops.placeholder.hermes_dashboard_basic_auth_hash}
+      '';
+    };
   };
 }

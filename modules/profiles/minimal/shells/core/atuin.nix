@@ -7,8 +7,7 @@
 #
 # Sync needs a one-time `atuin login` per host — see the onboarding steps in
 # hosts/mini/services/atuin.nix.
-{ ... }:
-{
+_: {
   programs.atuin = {
     enable = true;
     settings = {

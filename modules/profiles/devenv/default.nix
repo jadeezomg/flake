@@ -34,10 +34,11 @@ in
   ];
 
   config = lib.mkIf cfg.enable {
-    # HM dev tooling without its own category (biome config, gh CLI config,
-    # mise version manager).
+    # HM dev tooling without its own category (biome config, fnox secret hook,
+    # gh CLI config, mise version manager).
     home-manager.sharedModules = [
       ./biome.nix
+      ./fnox.nix
       ./gh
       ./mise.nix
     ];
