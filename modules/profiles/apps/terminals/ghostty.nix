@@ -10,7 +10,6 @@
   programs.ghostty = {
     enable = true;
     enableBashIntegration = true;
-    enableFishIntegration = true;
 
     # Upstream Linux builds ghostty from source; macOS gets the prebuilt cask.
     package = if isDarwin then pkgs.ghostty-bin else pkgs.ghostty;

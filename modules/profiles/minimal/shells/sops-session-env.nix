@@ -17,7 +17,7 @@
 #     2. The same wrapper script is invoked during home-manager activation so
 #        the live session sees vars without a re-login.
 #
-#   Interactive shells (bash/zsh/fish/nushell):
+#   Interactive shells (bash/zsh/nushell):
 #     Read decrypted secret files at startup. Terminals and tools like Cursor
 #     do not inherit systemd user env on Niri, so shell init is required.
 #
@@ -165,12 +165,6 @@ let
     fi
   '') exports;
 
-  fishBlock = lib.concatMapStrings (e: ''
-    if test -r ${esc e.path}
-      set -gx ${e.var} ${esc (prefixOf e)}(cat ${esc e.path} | string trim)
-    end
-  '') exports;
-
   nuBlock = lib.concatMapStrings (
     e:
     let
@@ -190,7 +184,6 @@ lib.mkMerge [
     programs = {
       bash.initExtra = lib.mkAfter shBlock;
       zsh.initContent = lib.mkAfter shBlock;
-      fish.interactiveShellInit = lib.mkAfter fishBlock;
       nushell.extraEnv = lib.mkAfter nuBlock;
     };
   })

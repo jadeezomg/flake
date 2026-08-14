@@ -11,7 +11,7 @@ let
   flakeRoot = config.dotfiles.flakeRoot;
 
   # data.nix and paths.nix use `$HOME`/`$USER` placeholders so shell-init
-  # contexts (bash/zsh/fish init blocks rendered into double-quoted shell
+  # contexts (bash/zsh init blocks rendered into double-quoted shell
   # strings) can rely on POSIX expansion. Anything routed through
   # `lib.escapeShellArg` (single-quoted) or programs.nushell.environmentVariables
   # (no POSIX expansion) loses that, so resolve placeholders at eval time
@@ -50,10 +50,6 @@ let
     lib.mapAttrsToList (k: v: "export ${k}=${lib.escapeShellArg v}") systemEnv
   );
 
-  fishSetLines = lib.concatStringsSep "\n" (
-    lib.mapAttrsToList (k: v: "set -gx ${k} ${lib.escapeShellArg v}") systemEnv
-  );
-
   zshFlakeFn = ''
     flake() { command just --justfile "''${FLAKE:?}/Justfile" "$@"; }
     zf() { cd ${flakeRoot}; }
@@ -62,15 +58,6 @@ let
   bashFlakeFn = ''
     flake() { just --justfile "${flakeRoot}/Justfile" "$@"; }
     zf() { cd ${flakeRoot}; }
-  '';
-
-  fishFlakeFn = ''
-    function flake
-      just --justfile "${flakeRoot}/Justfile" $argv
-    end
-    function zf
-      cd ${flakeRoot}
-    end
   '';
 
   nushellFlakeFn = ''
@@ -100,12 +87,6 @@ in
         export PATH="${systemPathColon}:$PATH"
       '';
     };
-
-    fish.interactiveShellInit = lib.mkAfter ''
-      ${fishSetLines}
-      fish_add_path --append --global ${lib.concatStringsSep " " systemPathList}
-      ${fishFlakeFn}
-    '';
 
     nushell = {
       environmentVariables = systemEnv;

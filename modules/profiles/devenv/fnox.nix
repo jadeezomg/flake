@@ -35,10 +35,6 @@ in
       eval "$(${fnox} activate bash)"
     '';
 
-    fish.interactiveShellInit = ''
-      ${fnox} activate fish | source
-    '';
-
     nushell.extraConfig = ''
       source ${nushellInit}
     '';

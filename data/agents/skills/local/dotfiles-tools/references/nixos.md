@@ -42,9 +42,9 @@ These tools are only available on NixOS (desktop/framework hosts).
 |------|-------|
 | llama-cpp | Local LLM inference (mini serves via systemd router) |
 
-## nix-index (fish integration)
+## nix-index
 
-`nix-index` is integrated with fish: when a command is not found, it suggests the nixpkgs package that provides it.
+`nix-index` is integrated with bash and zsh: when a command is not found, it suggests the nixpkgs package that provides it.
 
 ## Key Files
 

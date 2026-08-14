@@ -208,12 +208,6 @@ in
     # Shell hooks gate on FASTFETCH_SHOWN to avoid nested-shell rerenders.
     bash.initExtra = lib.mkAfter banner;
     zsh.initContent = lib.mkAfter banner;
-    fish.interactiveShellInit = lib.mkAfter ''
-      if status is-interactive; and not set -q FASTFETCH_SHOWN
-          set -gx FASTFETCH_SHOWN 1
-          ${pkgs.fastfetch}/bin/fastfetch
-      end
-    '';
     nushell.extraConfig = lib.mkAfter bannerNu;
   };
 }

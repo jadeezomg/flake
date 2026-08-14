@@ -192,7 +192,6 @@ in
       "application/x-python" = [ "${userEditor}.desktop" ];
       "application/x-bash" = [ "${userEditor}.desktop" ];
       "application/x-zsh" = [ "${userEditor}.desktop" ];
-      "application/x-fish" = [ "${userEditor}.desktop" ];
       "application/x-systemd-unit" = [ "${userEditor}.desktop" ];
 
       # Version Control
