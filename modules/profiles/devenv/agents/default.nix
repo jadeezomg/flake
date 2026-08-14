@@ -33,6 +33,8 @@ in
       ++ (with agents; [
         codex
         codex-acp
+        opencode2
+        dsh
         herdr
         openspec
         claude-agent-acp
