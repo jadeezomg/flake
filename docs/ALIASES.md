@@ -4,7 +4,7 @@ This document lists all aliases and commands available across different shells i
 
 ---
 
-## Tool replacements (Bash, Fish, Nushell, Zsh)
+## Tool replacements (Bash, Nushell, Zsh)
 
 | Alias | Command | Description |
 |-------|---------|-------------|
@@ -13,7 +13,7 @@ This document lists all aliases and commands available across different shells i
 | `grep` | `rg` | Ripgrep - faster `grep` alternative |
 | `trash` | `gio trash` *(Linux only)* | Move files to trash via GLib. On Darwin, the `trash` Homebrew formula provides the binary directly (no alias). |
 
-## Directory Listing (eza) (Bash, Fish, Nushell, Zsh)
+## Directory Listing (eza) (Bash, Nushell, Zsh)
 
 Source: `modules/profiles/minimal/shells/core/data/aliases.nix` (same `shellAliases` map for every shell).
 
@@ -31,7 +31,7 @@ Source: `modules/profiles/minimal/shells/core/data/aliases.nix` (same `shellAlia
 | `lat4` | `eza --icons -Ta -L=4` | Tree view, depth 4 |
 | `lat5` | `eza --icons -Ta -L=5` | Tree view, depth 5 |
 
-## Navigation shortcuts (Bash, Fish, Nushell, Zsh)
+## Navigation shortcuts (Bash, Nushell, Zsh)
 
 | Alias | Command | Description |
 |-------|---------|-------------|
@@ -40,26 +40,26 @@ Source: `modules/profiles/minimal/shells/core/data/aliases.nix` (same `shellAlia
 | `....` | `z ../../..` | Navigate up three directories |
 | `.....` | `z ../../../..` | Navigate up four directories |
 
-## Editor shortcuts (Bash, Fish, Nushell, Zsh)
+## Editor shortcuts (Bash, Nushell, Zsh)
 
 | Alias | Command | Description |
 |-------|---------|-------------|
 | `zed` | `zeditor` | Open Zed editor |
 
-## General shortcuts (Bash, Fish, Nushell, Zsh)
+## General shortcuts (Bash, Nushell, Zsh)
 
 | Alias | Command | Description |
 |-------|---------|-------------|
 | `cl` | `clear` | Clear terminal |
 | `h` | `history` | Show command history |
 
-## LLM shortcuts (Bash, Fish, Nushell, Zsh)
+## LLM shortcuts (Bash, Nushell, Zsh)
 
 | Command | Implementation | Description |
 |---------|----------------|-------------|
 | `p <question...>` | `pi -p "<question...>"` | Non-interactive Pi prompt shortcut. Joins unquoted words into one prompt and preserves piped stdin, e.g. `just <recipe> | p what is this`. |
 
-## Git shortcuts — basic (Bash, Fish, Nushell, Zsh)
+## Git shortcuts — basic (Bash, Nushell, Zsh)
 
 | Alias | Command | Description |
 |-------|---------|-------------|
@@ -68,7 +68,7 @@ Source: `modules/profiles/minimal/shells/core/data/aliases.nix` (same `shellAlia
 | `gcm` | `git commit -m` | Commit with message |
 | `gpu` | `git push -u origin main` | Push to main branch |
 
-## Search shortcuts (Bash, Fish, Nushell, Zsh)
+## Search shortcuts (Bash, Nushell, Zsh)
 
 | Alias | Command | Description |
 |-------|---------|-------------|
@@ -86,9 +86,9 @@ Source: `modules/profiles/minimal/shells/core/data/aliases.nix` (same `shellAlia
 | `zc` | Navigate to config | `$HOME/.config` |
 | `zd` | Navigate to downloads | `$HOME/Downloads` |
 
-Implemented per shell in `modules/profiles/minimal/shells/core/bash.nix`, `core/fish.nix`, `core/zsh.nix`, and `core/nushell.nix` (same behavior; Nushell uses `def --env`).
+Implemented per shell in `modules/profiles/minimal/shells/core/bash.nix`, `core/zsh.nix`, and `core/nushell.nix` (same behavior; Nushell uses `def --env`).
 
-## Dotfiles & flake helpers (Bash, Fish, Nushell, Zsh)
+## Dotfiles & flake helpers (Bash, Nushell, Zsh)
 
 All defined in `modules/profiles/essentials/shell-system-env.nix` (pushed by the essentials profile), together with `FLAKE`, `NH_FLAKE`, and workstation `PATH` bits. Intended to apply when the **essentials** system profile is enabled; see the `lib.mkIf` in that file for the exact condition.
 
@@ -166,7 +166,7 @@ These commands are provided by [git.nu](https://github.com/fj0r/git.nu) and are 
 
 ## Notes
 
-- **Shared aliases** (`cat`, `find`, `grep`, `ls`, eza shortcuts, git one-liners, `search*`, etc.) live in `modules/profiles/minimal/shells/core/data/aliases.nix` and are wired as `shellAliases` from `modules/profiles/minimal/shells/core/{bash,fish,zsh,nushell}.nix`.
+- **Shared aliases** (`cat`, `find`, `grep`, `ls`, eza shortcuts, git one-liners, `search*`, etc.) live in `modules/profiles/minimal/shells/core/data/aliases.nix` and are wired as `shellAliases` from `modules/profiles/minimal/shells/core/{bash,zsh,nushell}.nix`.
 - **`zz` / `zc` / `zd`** and **`p`** are small functions in those same `core/*.nix` files (not separate alias modules). `p <question...>` wraps `pi -p "<question...>"` while preserving piped stdin.
 - **`zf` / `flake` / `nuflake`** and workstation env (`FLAKE`, extra `PATH`) come from `modules/profiles/essentials/shell-system-env.nix`.
 - **Navi cheat** for quick lookup: `modules/profiles/essentials/utils/navi/cheats/aliases.cheat` (points at the paths above).

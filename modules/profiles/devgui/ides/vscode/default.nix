@@ -102,10 +102,6 @@ in
             "path" = "/bin/bash";
             "args" = [ "-l" ];
           };
-          "fish" = {
-            "path" = "/run/current-system/sw/bin/fish";
-            "args" = [ "-l" ];
-          };
         };
 
         # The NixOS hosts install VS Code through the same module, and Zed uses
@@ -119,10 +115,6 @@ in
           };
           "bash" = {
             "path" = "/run/current-system/sw/bin/bash";
-            "args" = [ "-l" ];
-          };
-          "fish" = {
-            "path" = "/run/current-system/sw/bin/fish";
             "args" = [ "-l" ];
           };
         };

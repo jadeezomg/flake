@@ -15,9 +15,6 @@ in
       shfmt
       shellcheck
 
-      # fish
-      fish-lsp
-
       # nushell
       nufmt
       nu_scripts

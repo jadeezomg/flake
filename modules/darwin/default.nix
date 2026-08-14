@@ -43,7 +43,7 @@ in
 
   # home/darwin/default.nix sets xdg.enable = true so home-manager places
   # configs under ~/.config. macOS/launchd doesn't export XDG_* by default,
-  # so shells launched outside a zsh chain (nushell as login shell, bash/fish
+  # so shells launched outside a zsh chain (nushell as login shell, bash
   # spawned from a terminal app) miss their config dir entirely — nu falls
   # back to ~/Library/Application Support/nushell and runs with stock defaults.
   #

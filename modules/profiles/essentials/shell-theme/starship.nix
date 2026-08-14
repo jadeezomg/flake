@@ -45,7 +45,6 @@ in
   programs.starship = {
     enable = true;
     enableBashIntegration = true;
-    enableFishIntegration = true;
     enableZshIntegration = true;
     enableNushellIntegration = true;
 
@@ -247,7 +246,6 @@ in
       shell = {
         disabled = false;
         bash_indicator = "[#](accent-yellow)";
-        fish_indicator = "[~](accent-blue)";
         zsh_indicator = "[%](ansi-magenta)";
         nu_indicator = "[:](ansi-green)";
         format = "$indicator";

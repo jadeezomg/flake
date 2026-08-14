@@ -3,10 +3,7 @@
   environment.binsh = "${pkgs.bash}/bin/bash";
 
   programs = {
-    command-not-found.enable = false; # Required for fish
-    nix-index = {
-      enable = true;
-      enableFishIntegration = true;
-    };
+    command-not-found.enable = false; # nix-index owns the command-not-found hook
+    nix-index.enable = true;
   };
 }

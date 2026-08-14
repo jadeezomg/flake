@@ -1,7 +1,7 @@
 % aliases, flake
 
 ; Source: home/shared/shells/core/data/aliases.nix + per-shell init in shells/core/.
-; Everything listed here is available in bash, fish, and nushell unless noted.
+; Everything listed here is available in bash, zsh, and nushell unless noted.
 
 # Reveal every shell alias (pick a shell first)
 alias
@@ -102,7 +102,7 @@ zi
 
 % aliases, flake-functions
 
-; `flake` is a nushell/bash/fish function wrapping `just` against the flake Justfile.
+; `flake` is a nushell/bash/zsh function wrapping `just` against the flake Justfile.
 
 # Interactive just picker against the flake Justfile
 flake

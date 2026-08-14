@@ -1,7 +1,7 @@
 % flake, nix, just
 
 ; jadee's flake lifecycle — always use `just` recipes over bare nh/nixos-rebuild.
-; Shell shortcuts (bash/fish/nushell):
+; Shell shortcuts (bash/zsh/nushell):
 ;   flake <recipe>   == just --justfile $FLAKE/Justfile <recipe>
 ;   flake            == interactive just picker
 ;   hm / hms / hmn   == raw home-manager for this host (prefer `flake switch`)
