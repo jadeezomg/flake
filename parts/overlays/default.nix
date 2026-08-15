@@ -19,6 +19,10 @@ in
   # `pkgs.llm-agents.*`. Pre-built on https://cache.numtide.com when our
   # nixpkgs rev is close to theirs.
   inputs.llm-agents.overlays.shared-nixpkgs
+  (import ./dsh-expose-internals.nix {
+    inherit lib;
+    expiry = expiryFor "dsh-expose-internals";
+  })
   (import ./local-packages.nix { inherit lib system; })
   (import ./python-package-fixes.nix {
     inherit lib;
