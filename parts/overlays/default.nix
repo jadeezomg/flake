@@ -15,9 +15,6 @@ let
   expiryFor = name: import ../../lib/expiry.nix { inherit lib; } "parts/overlays/${name}.nix";
 in
 [
-  # AI agent CLIs (codex, claude-code, pi, omp, herdr, …) under
-  # `pkgs.llm-agents.*`. Pre-built on https://cache.numtide.com when our
-  # nixpkgs rev is close to theirs.
   inputs.llm-agents.overlays.shared-nixpkgs
   (import ./local-packages.nix { inherit lib system; })
   (import ./python-package-fixes.nix {
@@ -26,9 +23,5 @@ in
   })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })
-  (import ./zed-pinned-darwin.nix {
-    inherit inputs lib system;
-    expiry = expiryFor "zed-pinned-darwin";
-  })
 ]
 ++ (if isX86_64Linux then [ inputs.nix-cachyos-kernel.overlays.pinned ] else [ ])
