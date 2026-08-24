@@ -62,6 +62,7 @@ in
       "handy" # Offline speech-to-text desktop app
       "shottr" # screenshot tool
       "nkzw-tech/tap/codiff" # Visual diff tool for Git changes (own tap)
+      "vorssaint"
 
       # --- Fonts (not in nixpkgs) ---
       "font-sf-mono"
