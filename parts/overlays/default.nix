@@ -21,6 +21,10 @@ in
     inherit lib;
     expiry = expiryFor "python-package-fixes";
   })
+  (import ./mise-darwin-http-tests.nix {
+    inherit lib system;
+    expiry = expiryFor "mise-darwin-http-tests";
+  })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })
 ]
