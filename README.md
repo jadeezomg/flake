@@ -1,6 +1,6 @@
 # dotfiles
 
-jadee's NixOS and nix-darwin flake. One `flake-parts` entry point builds three machines with shared home-manager modules on Linux and macOS.
+jadee's NixOS and nix-darwin flake. One `flake-parts` entry point builds four machines with shared home-manager modules on Linux and macOS.
 
 **Full reference:** [AGENTS.md](AGENTS.md) (workflows, profiles, desktop stack, gotchas). This file is the short tour.
 
@@ -11,10 +11,13 @@ jadee's NixOS and nix-darwin flake. One `flake-parts` entry point builds three m
 | `desktop`   | `x86_64-linux`  | NVIDIA GPU            | `DP-2` @ 2560×1440 / 170 Hz                        |
 | `framework` | `x86_64-linux`  | AMD, Framework 13 7040 | `eDP-2` @ 2880×1920 / 120 Hz, 2.0× scale           |
 | `caya`      | `aarch64-darwin` | Apple Silicon        | user `caya-jonas`; Homebrew casks via nix-homebrew |
+| `mini`      | `x86_64-linux`  | Minisforum MS-01     | headless server; `hostClass = "server"`; static LAN `192.168.178.100`; tailnet-only firewall |
 
-Per-host metadata lives in `hosts/<name>/host.nix`. The registry is `hosts/hosts.nix` (hostnames, users, home directories, main monitor, build cores, DMS/niri config filenames). Linux hosts share `sharedNixOSUser = jadee` and an extra `angelie` account (`hosts/lib.nix`).
+Per-host metadata lives in `hosts/<name>/host.nix`. The registry is `hosts/hosts.nix` (hostnames, users, home directories, main monitor, build cores, DMS/niri config filenames, host class). Linux hosts share `sharedNixOSUser = jadee` and an extra `angelie` account (`hosts/lib.nix`); `mini` opts out (`extraUsers = []` — no guest accounts on a headless server).
 
 The active host is read from **`.flake-host`** (not committed). Set it with `just init` (prompts) or `just _init <host>` (no prompt).
+
+**`mini`** is the headless server (Minisforum MS-01): local LLM chat + embeddings (llama.cpp via `just mini llm`), Beszel monitoring, Atuin shell-history sync, the Nixflix media stack (Jellyfin, VPN-confined downloaders, Unraid payloads — see `docs/adr/`), and an Immich photo library with off-host backups. Ops notes live in [`docs/hosts/mini.md`](docs/hosts/mini.md); deploy with `just mini deploy` (definitions in `just/mini.just`).
 
 ## Conventions
 
@@ -55,12 +58,14 @@ just health          # git status, disk, nh os info
 | `gc`          | `gc` (= `gc-keep`), `gc-days`, `gc-all` |
 | `format`      | `fmt`, `fmt-notree`, `lint` |
 | `backups`     | `backups`, `backups-clean`, `backups-clean-dry` |
-| `check`       | `update-packages`, `nix-update-pkg`, `symlink-check`, `symlink-check-dms`, `symlink-check-noctalia` |
-| `config`      | `init`, `read-defaults`, `setup-age-darwin` |
-| `system`      | `health`, `rollback`, `update` |
+| `check`       | `update-packages`, `nix-update-pkg`, `symlink-check`, `symlink-check-dms` |
+| `config`      | `init`, `_init`, `read-defaults`, `secret-set`, `setup-age-editor`, `setup-age-darwin`, sops host-key lifecycle (`bootstrap-sops-host-key`, `bootstrap-sops-host-key-from-editor`, `rotate-sops-host-key`, `verify-sops-host-key`), `sync-1password`, `sync-media-secrets-to-pass`, `media-quality`, `seerr-request-settings` |
+| `system`      | `health`, `rollback`, `update`, `flatten-dir`, `flatten-dir-dry` |
 | `repo`        | `git` (quiet fmt + status/log + commit + push) |
 | `zen`         | `zen-sync`, `zen-check` |
-| `llm`         | `unsloth`, `unsloth-stop`, `unsloth-reset`, `unsloth-logs`, `unsloth-status` |
+| `llm`         | `unsloth`, `unsloth-stop`, `unsloth-reset`, `unsloth-logs`, `unsloth-status` (mini: `just mini llm`) |
+| `mini`        | `just mini <cmd>`: `pull`, `deploy`, `deploy-dry`, `deploy-boot`, `ssh`, `reboot`, `dns-sync`, hermes/media/immich/immich-backup status + restart, `llm` sub-module (`models`, `chat`, `perf`, `embedding`, `bench`, …) |
+| `unraid`      | `just unraid <cmd>`: `ssh`, `flash-diagnose` |
 | `meta`        | `list`, `info` |
 
 `NH_FLAKE` is set to this repo. Shell helpers live in `scripts/shell/common.sh` (`get_host`, `is_darwin`, `notify`, …).
@@ -70,19 +75,23 @@ just health          # git status, disk, nh os info
 ```text
 flake/
 ├── flake.nix                 # inputs, per-system packages, formatter = nixfmt-tree
-├── Justfile
+├── Justfile                  # root recipes + module imports
+├── just/                     # Justfile modules: mini.just, mini-llm.just, unraid.just
 ├── .flake-host               # active host (local only)
-├── lib/                      # getPkgs / getPkgsStable
+├── lib/                      # getPkgs / getPkgsStable / getPkgsSmall / getPkgsWithConfig
 ├── parts/
 │   ├── hosts.nix             # nixosConfigurations + darwinConfigurations
 │   ├── shells.nix            # devShell
-│   └── overlays/             # local packages, niri, CachyOS kernel, …
+│   ├── packages.nix          # exposes packages/<name> as flake `packages`
+│   ├── checks.nix            # eval-level flake checks + formatter
+│   └── overlays/             # local packages, skhd pin, CachyOS kernel, …
 ├── .agents/skills/           # project-only agent skills (repo discovery)
 ├── data/                     # e.g. users/users.nix, static files
 ├── hosts/                    # hosts.nix + per-host NixOS/darwin config
 ├── modules/                  # profiles (features, system + HM halves) / platform base
 ├── packages/                 # custom packages; auto-registered as pkgs.<name> (see overlays)
-├── data/agents/              # global AGENTS.md + local skill overrides (upstream skill inputs)
+├── data/agents/              # global AGENTS.md + local skills + upstream skill inputs
+├── docs/                     # ADRs (docs/adr), host runbooks (docs/hosts), bench, research
 ├── scripts/                  # Justfile helpers + uv Python package (flake-scripts)
 └── secrets/secrets.yaml        # sops + age
 ```
@@ -91,30 +100,40 @@ flake/
 
 ## Scripts
 
-Bash under `scripts/shell/` backs the Justfile. Python is a uv project in `scripts/` (console entry points in `pyproject.toml`): `symlink-check`, `update-packages`, `read-defaults`, `zen-sync`, etc. See `scripts/README.md` for details.
+Bash under `scripts/shell/` backs the Justfile — including host-ops helpers (`mini-*.bash`, `dns-sync.bash`, `unraid-flash-diagnose.bash`, `flatten-dir.bash`, `sync-1password.bash`, …). Python is a uv project in `scripts/` (console entry points in `pyproject.toml`): `symlink-check`, `update-packages`, `read-defaults`, `zen-sync`, etc. See `scripts/README.md` for details.
 
 ## Flake inputs (high level)
 
 | Input | Role |
 | ----- | ---- |
 | `nixpkgs` | nixos-unstable |
-| `nixpkgs-stable` | nixos-25.11 → `pkgs-stable` in modules |
-| `nixpkgs-zed` | pinned nixpkgs for Zed (does not follow `nixpkgs`; do not bump accidentally with a blanket `nix flake update`) |
+| `nixpkgs-small` | nixos-unstable-small (exposed via `lib/pkgs.nix` → `getPkgsSmall`) |
+| `nixpkgs-stable` | nixos-26.05 → `pkgs-stable` in modules |
+| `nixpkgs-skhd` | pinned nixpkgs for skhd (macOS Accessibility grant; standing pin, not a workaround — `parts/overlays/skhd-pinned-darwin.nix`) |
+| `nixpkgs-zed` | declared but currently unused (Zed Darwin pin removed 2026-08-17; zed builds from `nixpkgs`) |
+| `systems` | this repo's `lib/systems.nix` (drops `x86_64-darwin` from the systems list) |
 | `home-manager`, `nix-darwin` | user / macOS system config |
 | `flake-parts` | module structure |
 | `determinate` | Determinate Nix |
 | `sops-nix` | secrets |
 | `stylix` | theming |
 | `lanzaboote` | secure boot (Linux) |
+| `disko` | disk partitioning (mini: `hosts/mini/disko.nix`) |
 | `niri` | niri compositor (Wayland) |
 | `dms` | DankMaterialShell (bar / desktop shell) |
+| `dank-greeter`, `dankcalendar` | DMS greeter / calendar widget |
 | `noctalia` | Noctalia v5 shell (niri alternative; flake TOML via HM `settings`) |
 | `quickshell` | shell/bar framework |
 | `zen-browser` | Zen browser |
+| `vicinae`, `vicinae-extensions` | Vicinae browser integration (Zen native-messaging host) |
+| `nix-flatpak` | declarative Flatpak remotes/packages (`modules/profiles/integrations.nix`) |
+| `nixflix` | Jellyfin/Plex wrapper for mini's media stack |
 | `nix-homebrew`, `homebrew-*` | Homebrew pins (non-flake fetches) |
 | `nixos-hardware` | hardware modules |
 | `nix-cachyos-kernel` | CachyOS kernel (x86_64-linux) |
 | `google-workspace-cli` | `gws` in per-system `packages` |
+| `llm-agents` | agent CLI overlay (`pkgs.llm-agents.*`: codex, claude-code, hermes, handy, …) |
+| `hermes-agent` | Hermes agent NixOS module + service on mini (`services.hermes-agent`) |
 | `skills-mattpocock` | pinned upstream agent skills (auto-installed on switch; updated via `just update`) |
 | `skills-ponytail` | pinned Ponytail agent skills (auto-installed on switch; updated via `just update`) |
 | `skills-simple-english` | pinned SimpleEnglish (ASD-STE100) agent skill (auto-installed on switch; updated via `just update`) |
@@ -138,7 +157,8 @@ Home-manager exports select secrets to the user session env via `modules/profile
 | ---- | ---- |
 | Profile toggles | `dotfiles.profiles` in `modules/profiles/`; enable per host in `hosts/<name>/` |
 | **Profiles overview** | [`docs/profiles.md`](docs/profiles.md) (structure + conventions; the tree is its own index) |
-| Flake streamline plan | [`docs/flake-streamline-plan.md`](docs/flake-streamline-plan.md) |
+| Architecture decisions | [`docs/adr/`](docs/adr/) (media stack, Immich, network stack, …) |
+| Host ops / troubleshooting | [`docs/hosts/`](docs/hosts/) (e.g. [`docs/hosts/mini.md`](docs/hosts/mini.md)) |
 | System packages (profile-gated) | `modules/profiles/<profile>.nix` (platform extras inline) |
 | System packages (unconditional base) | `modules/shared/`, `modules/nixos/`, `modules/darwin/` |
 | One host only | `hosts/<name>/` |
