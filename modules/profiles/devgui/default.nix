@@ -14,12 +14,14 @@ in
 {
   imports = [
     ./containers.nix
+    ./databases.nix
     ./ides
   ];
 
   config = lib.mkIf cfg.enable {
     dotfiles.profiles.devgui = {
       containers.enable = lib.mkDefault true;
+      databases.enable = lib.mkDefault true;
       ides.enable = lib.mkDefault true;
     };
 
