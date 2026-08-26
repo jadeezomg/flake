@@ -97,6 +97,7 @@
 
       devgui = {
         enable = mkEnableOption "the devgui meta-profile — GUI dev tooling; mirrors devenv's category names";
+        agents.enable = mkEnableOption "devgui.agents (openwork desktop app via homebrew cask on darwin; agent CLIs live in devenv.agents)";
         containers.enable = mkEnableOption "devgui.containers (podman-desktop)";
         databases.enable = mkEnableOption "devgui.databases (tabularis; rainfrog TUI lives in devenv.databases)";
         ides.enable = mkEnableOption "devgui.ides (vscode, zed — system packages on NixOS + HM configs)";
