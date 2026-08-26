@@ -12,6 +12,14 @@ let
       command = "context7-mcp";
       args = [ ];
     };
+    # Remote streamable-HTTP endpoint. It authenticates interactively per
+    # client (OAuth on first use), so there is nothing to install and no
+    # secret to wire. The openwork desktop app is optional — see
+    # modules/profiles/devgui/agents/darwin.nix.
+    openwork = {
+      type = "http";
+      url = "https://api.openworklabs.com/mcp/agent";
+    };
   };
 
   # Work-only servers: remote streamable-HTTP endpoints that authenticate

@@ -13,6 +13,7 @@ let
 in
 {
   imports = [
+    ./agents
     ./containers.nix
     ./databases.nix
     ./ides
@@ -20,6 +21,7 @@ in
 
   config = lib.mkIf cfg.enable {
     dotfiles.profiles.devgui = {
+      agents.enable = lib.mkDefault true;
       containers.enable = lib.mkDefault true;
       databases.enable = lib.mkDefault true;
       ides.enable = lib.mkDefault true;
