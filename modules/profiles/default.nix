@@ -74,7 +74,7 @@
         cloud.enable = mkEnableOption "devenv.cloud (awscli2, awslogs)";
         agents.enable = mkEnableOption "devenv.agents (agent CLIs: claude-code, codex, herdr, ctx7, context7-mcp, kagi, … plus MCP config and the flake `data/agents/skills/` install)";
         containers.enable = mkEnableOption "devenv.containers (podman CLI/TUI/compose; GUI lives in devgui.containers)";
-        databases.enable = mkEnableOption "devenv.databases (rainfrog TUI)";
+        databases.enable = mkEnableOption "devenv.databases (rainfrog TUI; GUI lives in devgui.databases)";
         languages = mkOption {
           type = types.attrsOf (
             types.submodule {
@@ -98,6 +98,7 @@
       devgui = {
         enable = mkEnableOption "the devgui meta-profile — GUI dev tooling; mirrors devenv's category names";
         containers.enable = mkEnableOption "devgui.containers (podman-desktop)";
+        databases.enable = mkEnableOption "devgui.databases (tabularis; rainfrog TUI lives in devenv.databases)";
         ides.enable = mkEnableOption "devgui.ides (vscode, zed — system packages on NixOS + HM configs)";
       };
 
