@@ -547,8 +547,9 @@ enabled = [
 [shell]
 app_icon_color = "primary"
 avatar_path = "/home/jadee/Pictures/Images/L1410618-crop.jpeg"
-corner_radius_scale = 0.5000000074505806
-font_family = "Inter Display"
+button_borders = false
+card_borders = false
+input_borders = false
 password_style = "random"
 popup_shadows = true
 
@@ -592,10 +593,10 @@ transition_on_startup = true
     enabled = true
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
 
     [wallpaper.monitors.DP-1]
     path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
@@ -610,7 +611,7 @@ transition_on_startup = true
     path = "/home/jadee/Pictures/Wallpapers/Sunrise over Fishing Waters--Maine William E. Norton.jpg"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/jadee/Pictures/Wallpapers/Sunrise over Fishing Waters--Maine William E. Norton.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
 
 [widget.active_window]
 anchor = true
