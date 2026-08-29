@@ -73,6 +73,15 @@ maps `kagi/session_token` into the hermes env file separately.
 | `kagi/api_key` | https://kagi.com/settings/api | `kagi` CLI via `~/.kagi.toml` `[auth] api_key` (sops attr `kagi-api-key`) | all hosts |
 | `kagi/session_token` | Kagi session link token (https://kagi.com/settings/user_details) | `kagi` CLI via `~/.kagi.toml` `[auth] session_token`; hermes env on mini | all hosts |
 
+### framework host
+
+| Path | Source | Consumed by | Consumed on |
+|---|---|---|---|
+| `framework/wifi/yukikaze_psk` | The wifi pre-shared key of the home FRITZ!Box | `sops.templates."networkmanager-yukikaze.env"` -> `networking.networkmanager.ensureProfiles` in `hosts/framework/wifi.nix` | framework |
+
+> Both the SAE and the WPA2 fallback profile read this one key. The access
+> point runs WPA2 and WPA3 together, so the two profiles share a password.
+
 ### mini host
 
 | Path | Source | Consumed by | Consumed on |
