@@ -77,7 +77,6 @@ order = [ "default", "side", "laptop" ]
     capsule_thickness = 0.69999999999999996
     center = [ "active_window" ]
     enabled = false
-    end = [ "tray", "group:g5", "group:g2", "group:g4" ]
     margin_ends = 600
     padding = 20
     radius = 5
@@ -106,7 +105,7 @@ order = [ "default", "side", "laptop" ]
         enabled = true
         fill = "surface_variant"
         id = "g2"
-        members = [ "control-center", "bar_2", "notifications", "session" ]
+        members = [ "control-center", "notifications", "bar_2" ]
         opacity = 0.60000002384185791
         padding = 6.0
         radius = 6.0
@@ -240,7 +239,7 @@ hidden_tabs = []
     type = "bluetooth"
 
     [[control_center.shortcuts]]
-    type = "jadeezomg/tailscale:toggle"
+    type = "icefish/phone-connect:tile"
 
 [desktop_widgets]
 enabled = false
@@ -593,10 +592,10 @@ transition_on_startup = true
     enabled = true
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
 
     [wallpaper.monitors.DP-1]
     path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
@@ -611,7 +610,7 @@ transition_on_startup = true
     path = "/home/jadee/Pictures/Wallpapers/Sunrise over Fishing Waters--Maine William E. Norton.jpg"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
 
 [widget.active_window]
 anchor = true
