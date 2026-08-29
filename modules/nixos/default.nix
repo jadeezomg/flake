@@ -4,6 +4,7 @@
     ./gc.nix
     ./guest-users.nix
     ./hardware.nix
+    ./home-wifi.nix
     ./networking.nix
     ./nix-ld.nix
     ./openssh.nix

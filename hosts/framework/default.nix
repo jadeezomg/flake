@@ -13,7 +13,6 @@
     ./input.nix
     ./power.nix
     ./profiles.nix
-    ./wifi.nix
   ];
 
   # System state version — host specific, do not change.
