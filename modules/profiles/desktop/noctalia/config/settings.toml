@@ -77,6 +77,7 @@ order = [ "default", "side", "laptop" ]
     capsule_thickness = 0.69999999999999996
     center = [ "active_window" ]
     enabled = false
+    end = [ "tray", "group:g3", "group:g7" ]
     margin_ends = 600
     padding = 20
     radius = 5
@@ -139,6 +140,28 @@ order = [ "default", "side", "laptop" ]
         fill = "surface_variant"
         id = "g6"
         members = [ "battery", "cpu" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 6.0
+
+        [[bar.laptop.capsule_group]]
+        accordion = true
+        accordion_direction = "start"
+        enabled = true
+        fill = "surface_variant"
+        id = "g3"
+        members = [ "notifications", "network", "bluetooth", "volume", "brightness" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 6.0
+
+        [[bar.laptop.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        enabled = true
+        fill = "surface_variant"
+        id = "g7"
+        members = [ "control-center", "bar_4", "weather", "clock" ]
         opacity = 0.60000002384185791
         padding = 6.0
         radius = 6.0
@@ -633,6 +656,9 @@ type = "icefish/phone-connect:bar"
 type = "icefish/phone-connect:bar"
 
 [widget.bar_3]
+type = "icefish/phone-connect:bar"
+
+[widget.bar_4]
 type = "icefish/phone-connect:bar"
 
 [widget.brightness]
