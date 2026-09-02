@@ -43,7 +43,7 @@ Use this for `secrets/`, `.sops.yaml`, secret-consuming Nix modules, `Justfile` 
    - `caddy.env` (`hosts/mini/services/caddy.nix`): `cloudflare_dns_api_token`, `tailscale_authkey`, `hermes_dashboard_basic_auth_hash`.
    - `hermes.env` (`hosts/mini/services/hermes.nix`): `openrouter_api_key`, `agent_pat`, `hf_token`, `kagi/session_token`, `context7_api_key`, `matrix/hermes_*`, `telegram/*`.
    - `matrix-continuwuity.env` (`hosts/mini/services/matrix.nix`): `matrix/registration_token`.
-   - `mini-llm-hf.env` (`hosts/mini/services/llm/default.nix`): `hf_token`.
+   - `mini-llm-hf.env` (`hosts/mini/secrets.nix`): `hf_token`. The same file declares `hermes_dashboard_basic_auth_hash`.
    - `networkmanager-yukikaze.env` (`modules/nixos/home-wifi.nix`): `wifi/yukikaze_psk`.
    - `kagi.toml` (`security.nix`, HM): `kagi-api-key`, `kagi-session-token` -> `~/.kagi.toml`.
    - `vicinae-github.json` (`modules/profiles/apps/vicinae.nix`, HM): `github-token`, only if that attribute exists.

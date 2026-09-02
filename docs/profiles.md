@@ -9,4 +9,4 @@ All profile content lives in one tree: [`modules/profiles/`](../modules/profiles
 
 **Hardware traits** ((`dotfiles.hardware.*`: wireless (wifi+BT combo), `gpu` enum incl. intel, `cpu.zen4`/`cpu.x3d`)) describe what a machine *is* — declared next to the profile options, implemented in `modules/profiles/hardware/`, set per host in `hosts/<name>/profiles.nix`.
 
-Meta-profiles (`apps`, `devenv`, `integrations`) `mkDefault`-enable their sub-toggles when turned on; override individual sub-flags per host after enabling the meta-flag.
+Each profile is one `enable` flag. The category files under `apps/`, `devenv/`, and `devgui/` read the parent flag; only `devenv.languages.<name>.enable` (per language) and `apps.notes.enable` have their own toggles. `fonts.full`, `theme.gui`, `desktop.shell`, and `desktop.loginManager` are the remaining per-host knobs.

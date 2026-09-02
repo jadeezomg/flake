@@ -145,9 +145,11 @@ just mini llm <cmd>     # LLM service ops (nested module)
 
 ## 6. LLM stack (`miniLlmHosting`)
 
-One unit, **`llama-cpp-gemma`**: `llama-server` in **router mode** on `:8000`
+One unit, **`llama-cpp`**: `llama-server` in **router mode** on `:8000`
 (`--models-preset <generated INI> --models-max 2`, both models resident, no swap
-latency). INI section name = the OpenAI model id.
+latency). INI section name = the OpenAI model id. The unit comes from the shared
+module `modules/profiles/llm/serve.nix` (`dotfiles.profiles.llm.serve`); mini's
+models and knobs live in `hosts/mini/services/llm/default.nix`.
 
 | Preset | Model | Notes |
 |---|---|---|
@@ -168,12 +170,12 @@ latency). INI section name = the OpenAI model id.
   `spec-type = draft-mtp` / `spec-draft-n-max = 2` (range 1–6). `hf-repo`
   auto-discovers the repo's bundled drafter; budget **+2 GB** and verify the server
   comes up — a drafter failure kills the whole preset.
-- nixpkgs `llama-cpp` builds **Vulkan and/or OpenCL only** — not SYCL, not OpenVINO
-  (those need custom CMake + Intel stacks). `miniLlamaCppGgmlBackends =
-  "vulkan-opencl"` compiles both so you can compare at runtime; pick with
-  `miniLlamaCppDevice` (→ `LLAMA_ARG_DEVICE`) or, without a rebuild,
-  `sudo systemctl edit llama-cpp-gemma` → `Environment=LLAMA_ARG_DEVICE=…`.
-  List ids with `llama-server --list-devices`.
+- The `llama-cpp` build follows the GPU trait (`dotfiles.hardware.gpu = "intel"`
+  → Vulkan). nixpkgs builds Vulkan or CUDA here — not SYCL, not OpenVINO (those
+  need custom CMake + Intel stacks). `dotfiles.profiles.llm.llamaCppBackend`
+  overrides the derived backend. Pick the GPU with `llm.serve.device`
+  (→ `LLAMA_ARG_DEVICE`) or, without a rebuild, `sudo systemctl edit llama-cpp`
+  → `Environment=LLAMA_ARG_DEVICE=…`. List ids with `llama-server --list-devices`.
 - **No auth on `:8000`** — safe only because of the tailnet-only firewall. Any
   tailnet peer (IDEs, agents) points its OpenAI base URL at `http://mini:8000/v1`;
   no SSH tunnel. Open WebUI is loopback `:8080` behind `chat.jadee.fyi`; the first

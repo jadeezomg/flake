@@ -14,8 +14,8 @@ Use this skill for agent-facing files: `.agents/skills/`, `data/agents/**`, `mod
 - Project-only skills for this repo live in `.agents/skills/<name>/SKILL.md`.
 - `.claude/skills` is a symlink to `../.agents/skills`. The `linkFlakeProjectSkills` activation step in `apm.nix` creates it on switch.
 - Global-install skills that you author live in `data/agents/skills/local/<name>/`.
-- Upstream global skills are whole bundles. `apm.nix` lists them as plain APM dependency strings in `upstreamSkillBundles` (`mattpocock/skills`, `DietrichGebert/ponytail`, `AminBlg/SimpleEnglish`). They are not flake inputs and are not vendored in this repo.
-- APM fetches the bundles at activation into `~/.apm/apm_modules` and pins them in `~/.apm/apm.lock.yaml`.
+- Upstream global skills are Claude Code plugins. `data/agents/global/settings.json` names the marketplace under `extraKnownMarketplaces` and turns the plugin on under `enabledPlugins` (`mattpocock-skills@mattpocock`, `ponytail@ponytail`, `simple-english@simple-english`). Claude Code installs them on start into `~/.claude/plugins`. They are not flake inputs and are not vendored in this repo.
+- Plugins are visible to Claude Code only. APM deploys only the two local skills into `~/.claude/skills`, which omp and Zed's ACP agents also read.
 - Never edit installed copies under `~/.claude/skills/`. APM overwrites them on switch.
 
 ## Skill shape
@@ -40,15 +40,16 @@ Ask: must this skill follow the user into unrelated repos?
 
 - No: put it in `.agents/skills/<name>/`.
 - Yes, and it is dotfiles-specific: put it in `data/agents/skills/local/<name>/`. A new directory is enough. `apm.nix` derives `localSkills` from `readDir` of that folder, so there is no list to update.
-- Yes, and it is generic: use an upstream bundle. APM cannot exclude one skill from a bundle.
+- Yes, and it is generic: enable its Claude plugin in `settings.json`. A plugin comes whole; one skill cannot be excluded.
 
 ## How APM is wired (`modules/profiles/devenv/agents/apm.nix`)
 
 - The module renders the manifest and writes it to `~/.apm/apm.yml` as a read-only store symlink.
 - `targets = [ "claude" ]`. omp and Zed's ACP agents read Claude's config, so this one target covers them.
 - The `apmInstall` activation step runs `apm install -g`. It is non-fatal. An offline switch leaves installed skills stale; the next switch retries.
+- Before the install, `fixLocalCopyPerms` runs `chmod -R u+rwX ~/.apm/apm_modules/_local`. APM copies the store-path skills with their read-only mode, and its `rmtree` fallback then sets mode 0200 (write-only), which makes every later install fail with "Permission denied" before it deploys anything. The step carries a `recheckWhen` guard on the apm version. If `~/.claude/skills` is missing while `~/.apm/apm_modules` is populated, this is the first thing to check.
 - Ad-hoc `apm install <pkg>` fails by design. Add new packages to `manifest` in `apm.nix` instead.
-- Refresh the upstream pins with `apm update -g`. `just update` does not touch them. It runs `update-packages`, `nix flake update`, `just fmt`, and optional `fwupdmgr`.
+- Plugins update themselves on Claude Code start. Refresh the local-skill lock with `apm update -g`. `just update` does not touch either. It runs `update-packages`, `nix flake update`, `just fmt`, and optional `fwupdmgr`.
 
 ## MCP servers
 
