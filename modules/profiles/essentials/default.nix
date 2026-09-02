@@ -36,11 +36,8 @@ in
 
       # --- Nix workstation tooling ---
       cachix
-      nixos-icons
       comma
       nurl
-      nix-init
-      nix-direnv
     ];
   };
 }

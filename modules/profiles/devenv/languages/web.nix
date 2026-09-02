@@ -20,11 +20,6 @@ in
       typescript-language-server
       biome
 
-      # CSS / HTML
-      vscode-langservers-extracted
-      html-tidy
-      dart-sass
-
       # GraphQL
       graphql-language-service-cli
     ];

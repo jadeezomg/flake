@@ -12,6 +12,11 @@ in
     environment.systemPackages = with pkgs; [
       rustup
       bacon
+      clippy
+      cargo
+      cargo-generate
+      cargo-nextest
+      cargo-seek
       cargo-info
       rusty-man
     ];
