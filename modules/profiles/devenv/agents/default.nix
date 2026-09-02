@@ -36,7 +36,6 @@ in
         opencode2
         dsh
         herdr
-        openspec
         claude-agent-acp
         agent-browser
         nono
