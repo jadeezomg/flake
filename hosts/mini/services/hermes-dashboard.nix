@@ -9,8 +9,8 @@
 # Auth model (important): bound to 127.0.0.1, the dashboard runs in its "trusted
 # loopback" mode — it injects its session token into the page, so ANYONE who can
 # load the page gets control. We therefore NEVER expose it directly; Caddy is the
-# only door, gated with basic_auth (HERMES_DASHBOARD_HASH, a bcrypt hash from sops in
-# services/caddy.nix). Caddy rewrites Host→127.0.0.1 so the dashboard's DNS-rebinding
+# only door, gated with basic_auth (HERMES_DASHBOARD_HASH: the sops secret is declared
+# in ../secrets.nix and rendered into caddy.env by services/caddy.nix). Caddy rewrites Host→127.0.0.1 so the dashboard's DNS-rebinding
 # guard accepts the proxied request. Net: only someone on the tailnet AND past
 # basic_auth reaches a machine-control surface.
 #

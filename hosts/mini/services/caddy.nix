@@ -6,6 +6,7 @@
 # own node. Each subdomain gets a real Let's Encrypt cert via the Cloudflare DNS-01
 # challenge. Per-service vhosts live in each service's own module
 # (services.caddy.virtualHosts.<host>), each `import`ing the shared `tsnet` snippet.
+# Plain "tsnet + reverse_proxy to a port" vhosts use `mkTsnetProxy` from ./lib.nix.
 #
 #   matrix.jadee.fyi  -> continuwuity   (services/matrix.nix)
 #   chat.jadee.fyi    -> open-webui     (services/llm/open-webui.nix)
@@ -99,9 +100,7 @@ in
     secrets = {
       cloudflare_dns_api_token = { };
       tailscale_authkey = { };
-
-      # Generate with: caddy hash-password --plaintext '<pw>'  → store the hash here.
-      hermes_dashboard_basic_auth_hash = { };
+      # hermes_dashboard_basic_auth_hash is declared in ../secrets.nix (shared).
     };
     templates."caddy.env" = {
       mode = "0400";

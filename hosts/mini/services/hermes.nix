@@ -34,6 +34,7 @@
   };
 
   sops = {
+    # hf_token is declared in ../secrets.nix (shared with the llama.cpp router).
     secrets = {
       openrouter_api_key = { };
       agent_pat = { };
