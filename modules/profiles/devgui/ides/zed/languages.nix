@@ -116,6 +116,9 @@ in
         nil = {
           binary.path = "nil";
           binary.arguments = [ ];
+          # Fetch missing flake inputs automatically instead of asking
+          # ("Some flake inputs are not available. Fetch them now?").
+          initialization_options.nix.flake.autoArchive = true;
         };
 
         # Only enable Biome when project has biome.json (avoids affecting non-Biome projects)
