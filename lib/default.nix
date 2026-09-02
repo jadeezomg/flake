@@ -34,7 +34,7 @@ in
   shellEnvData = import ./shells/env-data.nix;
   shellPaths = import ./shells/paths.nix;
 
-  # apply: { pkgs, pkgs-small }
+  # apply: { pkgs }
   nonoProfiles = import ./nono-profiles.nix;
   # apply: { pkgs }
   hostStatus = import ./host-status.nix;
@@ -43,6 +43,9 @@ in
   # apply: { lib, isDarwin }
   nixExperimentalFeatures = import ./nix-experimental-features.nix;
   expiry = import ./expiry.nix;
+  # apply: { path, packages?, linuxPackages?, darwinPackages?, hm?, extra? }
+  # Returns a system module for a plain profile leaf. See ./profile.nix.
+  mkProfile = import ./profile.nix;
 
   # Binary caches for both platforms' Nix config; `darwin = true` marks the ones
   # that serve aarch64-darwin.

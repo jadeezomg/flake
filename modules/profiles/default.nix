@@ -58,23 +58,14 @@
       };
 
       apps = {
-        enable = mkEnableOption "the apps meta-profile";
-        browsers.enable = mkEnableOption "apps.browsers (zen-browser; firefox/chrome live in work)";
-        terminals.enable = mkEnableOption "apps.terminals (ghostty, kitty)";
-        editors.enable = mkEnableOption "apps.editors (helix; vscode/zed live in devgui.ides)";
-        files.enable = mkEnableOption "apps.files (nautilus/filezilla in nixos modules)";
-        comms.enable = mkEnableOption "apps.comms (protonmail-desktop, etc.)";
-        notes.enable = mkEnableOption "apps.notes (obsidian, typora)";
-        media.enable = mkEnableOption "apps.media (pear-desktop, future media players)";
+        enable = mkEnableOption "the apps profile: browsers (zen), terminals (ghostty, kitty), editors (helix), files (nautilus, localsend), comms (protonmail), notes, media (pear-desktop, obs). One flag; the category files under ./apps read it";
+        # The one apps sub-flag that other modules still read (yazi openers,
+        # the notes leaves). Folding it waits for the MIME move.
+        notes.enable = mkEnableOption "apps.notes (obsidian, typora, whisp)";
       };
 
       devenv = {
-        enable = mkEnableOption "the devenv meta-profile — headless, SSH-safe dev core";
-        tools.enable = mkEnableOption "devenv.tools (git, just, gh, lazygit, delta, jujutsu, etc.)";
-        cloud.enable = mkEnableOption "devenv.cloud (awscli2, awslogs)";
-        agents.enable = mkEnableOption "devenv.agents (agent CLIs: claude-code, codex, herdr, ctx7, context7-mcp, kagi, … plus MCP config and the flake `data/agents/skills/` install)";
-        containers.enable = mkEnableOption "devenv.containers (podman CLI/TUI/compose; GUI lives in devgui.containers)";
-        databases.enable = mkEnableOption "devenv.databases (rainfrog TUI; GUI lives in devgui.databases)";
+        enable = mkEnableOption "the devenv profile, the headless SSH-safe dev core: tools (just, gh, lazygit, jujutsu), cloud (awscli2, awslogs), agents (agent CLIs, MCP config, the `data/agents/skills/` install), containers (podman CLI/TUI/compose), databases (rainfrog TUI). Only the languages below have their own flags";
         languages = mkOption {
           type = types.attrsOf (
             types.submodule {
@@ -96,26 +87,162 @@
       };
 
       devgui = {
-        enable = mkEnableOption "the devgui meta-profile — GUI dev tooling; mirrors devenv's category names";
-        agents.enable = mkEnableOption "devgui.agents (openwork desktop app via homebrew cask on darwin; agent CLIs live in devenv.agents)";
-        containers.enable = mkEnableOption "devgui.containers (podman-desktop)";
-        databases.enable = mkEnableOption "devgui.databases (tabularis; rainfrog TUI lives in devenv.databases)";
-        ides.enable = mkEnableOption "devgui.ides (vscode, zed — system packages on NixOS + HM configs)";
+        enable = mkEnableOption "the devgui profile, the GUI side of devenv with the same category names: agents (openwork cask on darwin), containers (podman-desktop), databases (tabularis), ides (vscode, zed)";
       };
 
       llm = {
-        enable = mkEnableOption "the LLM serving stack (llama.cpp server + unsloth-studio podman service + huggingface-cli); mini serves via its own llama-cpp host modules instead";
+        tools.enable = mkEnableOption "the LLM toolbox: llama.cpp CLI, huggingface-hub CLI, and the unsloth-studio podman user service (podman only on darwin)";
+
         llamaCppBackend = mkOption {
-          type = types.enum [
-            "vulkan"
-            "cuda"
-          ];
-          default = "vulkan";
+          type = types.nullOr (
+            types.enum [
+              "cpu"
+              "vulkan"
+              "cuda"
+            ]
+          );
+          default = null;
           description = ''
-            GPU backend for the llama-cpp package. `vulkan` works on any Mesa
-            GPU and comes from the binary cache; `cuda` (NVIDIA) builds from
-            source locally — only worth it on the desktop.
+            GPU backend for the llama-cpp package. `null` derives it from
+            `dotfiles.hardware.gpu`: nvidia -> cuda, intel and amd -> vulkan,
+            none -> cpu. `vulkan` comes from the public binary cache. `cuda`
+            builds from source unless cache.nixos-cuda.org has it.
           '';
+        };
+
+        llamaCppPackage = mkOption {
+          type = types.package;
+          description = ''
+            The llama-cpp package that `tools` install and `serve` run.
+            ./llm sets it from the backend above. Override it to pin a build.
+          '';
+        };
+
+        serve = {
+          enable = mkEnableOption "the llama.cpp router server: one `llama-server --models-preset` unit that serves every model in `serve.models` on one port (Linux only)";
+
+          host = mkOption {
+            type = types.str;
+            default = "127.0.0.1";
+            description = "Bind address for llama-server.";
+          };
+
+          port = mkOption {
+            type = types.port;
+            default = 8000;
+            description = "Listen port for the OpenAI-compatible API.";
+          };
+
+          threads = mkOption {
+            type = types.nullOr types.int;
+            default = null;
+            description = "CPU threads for llama-server (`--threads`). `null` keeps the server default.";
+          };
+
+          modelsMax = mkOption {
+            type = types.nullOr types.int;
+            default = null;
+            description = "How many models stay loaded at once (`--models-max`). `null` means all models in `serve.models`.";
+          };
+
+          gpuLayers = mkOption {
+            type = types.int;
+            default = 999;
+            description = "Layers to offload to the GPU (`n-gpu-layers`) for every model. 999 means all.";
+          };
+
+          device = mkOption {
+            type = types.nullOr types.str;
+            default = null;
+            description = "Sets `LLAMA_ARG_DEVICE` to pick a GPU. `null` lets llama-server choose. List ids with `llama-server --list-devices`.";
+          };
+
+          stateDir = mkOption {
+            type = types.str;
+            default = "/var/lib/llama-cpp";
+            description = "Home of the `llama` service user. Model files land in `<stateDir>/huggingface`.";
+          };
+
+          environmentFile = mkOption {
+            type = types.nullOr types.str;
+            default = null;
+            description = "Systemd `EnvironmentFile` for the unit, for example a sops template that carries `HF_TOKEN`.";
+          };
+
+          models = mkOption {
+            default = { };
+            description = ''
+              Served models. The attribute name is the OpenAI model id and the
+              INI section name. Keys render as long-form llama-server args
+              without the leading `--`.
+            '';
+            type = types.attrsOf (
+              types.submodule {
+                options = {
+                  hfRepo = mkOption {
+                    type = types.str;
+                    description = "Hugging Face GGUF repo, for example `unsloth/gemma-4-12B-it-qat-GGUF`.";
+                  };
+                  quant = mkOption {
+                    type = types.nullOr types.str;
+                    default = null;
+                    description = "Quant tag appended as `<repo>:<quant>`. `null` lets llama.cpp pick.";
+                  };
+                  ctx = mkOption {
+                    type = types.int;
+                    description = "Total context pool in tokens (`ctx-size`). Split evenly across `slots`.";
+                  };
+                  slots = mkOption {
+                    type = types.nullOr types.int;
+                    default = null;
+                    description = "Parallel sequences (`parallel`). `null` keeps the server default of 1.";
+                  };
+                  kvType = mkOption {
+                    type = types.nullOr types.str;
+                    default = null;
+                    description = "KV cache type for K and V (`cache-type-k` and `cache-type-v`), for example `q8_0`. Needs `flashAttn = \"on\"`.";
+                  };
+                  embedding = mkOption {
+                    type = types.bool;
+                    default = false;
+                    description = "Serve this model on /v1/embeddings instead of chat.";
+                  };
+                  pooling = mkOption {
+                    type = types.nullOr types.str;
+                    default = null;
+                    description = "Pooling for embedding models, for example `last` for Qwen3-arch embedders.";
+                  };
+                  mmprojAuto = mkOption {
+                    type = types.bool;
+                    default = false;
+                    description = "Load the repo's vision projector (`mmproj-auto`).";
+                  };
+                  flashAttn = mkOption {
+                    type = types.nullOr (
+                      types.enum [
+                        "on"
+                        "off"
+                        "auto"
+                      ]
+                    );
+                    default = null;
+                    description = "`flash-attn` setting. `null` omits the key.";
+                  };
+                  settings = mkOption {
+                    type = types.attrsOf (
+                      types.oneOf [
+                        types.bool
+                        types.int
+                        types.str
+                      ]
+                    );
+                    default = { };
+                    description = "Extra preset keys, for example sampling (`temp`, `top-p`) or `spec-type`. Write floats as strings, such as `temp = \"1.0\"`.";
+                  };
+                };
+              }
+            );
+          };
         };
       };
 
@@ -123,7 +250,7 @@
 
       work.enable = mkEnableOption "the work profile (workato + postman + gws + AWS CLI; firefox/chrome via homebrew on darwin)";
 
-      server.enable = mkEnableOption "the server profile (parked: postgresql, redis — no host imports yet, see Q9)";
+      server.enable = mkEnableOption "the server profile (headless steering flag; mini enables it. Read by modules/nixos/{boot,networking}.nix)";
 
       # Linux-only profiles — options declared here so every profile toggle lives
       # in one place; the implementing leaves (./desktop, ./gaming.nix,
@@ -159,11 +286,7 @@
         };
       };
 
-      integrations = {
-        enable = enableOn "the integrations meta-profile (AppImage + Flatpak; Linux only)";
-        appimage.enable = enableOn "integrations.appimage (AppImage binfmt support)";
-        flatpak.enable = enableOn "integrations.flatpak (flatpak daemon + Flathub remote)";
-      };
+      integrations.enable = enableOn "the integrations profile (AppImage binfmt support, flatpak daemon with the Flathub remote; Linux only)";
     };
 
   # Hardware traits — what a machine IS (radio, GPU vendor, CPU family), as
@@ -195,41 +318,29 @@
     let
       cfg = config.dotfiles.profiles;
       hostClass = host.hostClass or "workstation";
+      guiProfiles = [
+        "desktop.enable"
+        "apps.enable"
+        "integrations.enable"
+        "gaming.enable"
+        "work.enable"
+        "fonts.full.enable"
+        "theme.gui.enable"
+        "devgui.enable"
+      ];
     in
     {
-      assertions = [
+      # A server-class host must not enable a GUI-facing profile. Each entry
+      # is an option path under dotfiles.profiles.
+      assertions = map (
+        path:
+        let
+          enabled = lib.getAttrFromPath (lib.splitString "." path) cfg;
+        in
         {
-          assertion = !(hostClass == "server" && cfg.desktop.enable);
-          message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.desktop; disable it in hosts/${hostKey}/profiles.nix.";
+          assertion = !(hostClass == "server" && enabled);
+          message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.${path}; disable it in hosts/${hostKey}/profiles.nix.";
         }
-        {
-          assertion = !(hostClass == "server" && cfg.apps.enable);
-          message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.apps; disable it in hosts/${hostKey}/profiles.nix.";
-        }
-        {
-          assertion = !(hostClass == "server" && cfg.integrations.enable);
-          message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.integrations; disable it in hosts/${hostKey}/profiles.nix.";
-        }
-        {
-          assertion = !(hostClass == "server" && cfg.gaming.enable);
-          message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.gaming; disable it in hosts/${hostKey}/profiles.nix.";
-        }
-        {
-          assertion = !(hostClass == "server" && cfg.work.enable);
-          message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.work; disable it in hosts/${hostKey}/profiles.nix.";
-        }
-        {
-          assertion = !(hostClass == "server" && cfg.fonts.full.enable);
-          message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.fonts.full; disable it in hosts/${hostKey}/profiles.nix.";
-        }
-        {
-          assertion = !(hostClass == "server" && cfg.theme.gui.enable);
-          message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.theme.gui; disable it in hosts/${hostKey}/profiles.nix.";
-        }
-        {
-          assertion = !(hostClass == "server" && cfg.devgui.enable);
-          message = "Host `${hostKey}` has hostClass `server` but enables dotfiles.profiles.devgui; disable it in hosts/${hostKey}/profiles.nix.";
-        }
-      ];
+      ) guiProfiles;
     };
 }

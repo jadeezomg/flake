@@ -1,23 +1,19 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-let
-  cfg = config.dotfiles.profiles.devenv.languages.nix;
-in
-{
-  config = lib.mkIf cfg.enable {
-    # The editor toolchain (`nixd` LSP + `nixfmt`) plus treefmt (via
-    # nixfmt-tree) and lint-focused extras that a non-dev host (server)
-    # wouldn't want.
-    environment.systemPackages = with pkgs; [
+{ dotfilesLib, ... }@args:
+dotfilesLib.mkProfile {
+  path = [
+    "devenv"
+    "languages"
+    "nix"
+  ];
+  # The editor toolchain (`nixd` LSP + `nixfmt`) plus treefmt (via
+  # nixfmt-tree) and lint-focused extras that a non-dev host (server)
+  # wouldn't want.
+  packages =
+    pkgs: with pkgs; [
       nixd
       nixfmt
       nixfmt-tree
       deadnix
       statix
     ];
-  };
-}
+} args

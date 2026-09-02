@@ -73,4 +73,16 @@ location: {
       ${location} needs re-checking: ${reason}
       Re-verify the workaround, then move its threshold forward or delete it.
     '' workaround;
+
+  # For an open task with no eval-time condition at all: a decision the owner
+  # still has to make, a value known to be a placeholder, a file waiting for
+  # cleanup. Warns on every eval until someone edits the file, so the item
+  # cannot fall off the radar. Keep `reason` short and say what to decide.
+  #
+  #   openRegistration = todo "close registration after onboarding" true;
+  todo =
+    reason: value:
+    lib.warn ''
+      ${location} TODO: ${reason}
+    '' value;
 }

@@ -6,6 +6,9 @@
   host,
   ...
 }:
+let
+  inherit (dotfilesLib.expiry { inherit lib; } "hosts/mini/default.nix") todo;
+in
 {
   imports = [
     ./hardware-configuration.nix
@@ -15,6 +18,7 @@
     ../../modules/nixos
     ../../modules/profiles
     ./profiles.nix
+    ./secrets.nix
     inputs.hermes-agent.nixosModules.default
     ./services/caddy.nix
     ./services/hermes.nix
@@ -24,9 +28,17 @@
     # Nightly cachix pipeline — disabled until the host is up (docs/hosts/mini.md § Known gaps).
     # ./flake-cache-warm.nix
   ]
+  # Dead file guard: warns on every eval until the pipeline is enabled or the
+  # file is deleted (see its header).
+  ++
+    todo "hosts/mini/flake-cache-warm.nix is not imported; enable the pipeline or delete the file"
+      [ ]
+  # disko.nix is only forced when disko runs, so its own guards stay silent on
+  # a normal eval. Mirror them here.
+  ++ todo "hosts/mini/disko.nix still carries REPLACE_ME device ids; resolve before any disko run" [ ]
   ++ lib.optionals (host.miniLlmHosting or false) [
-    # Self-contained chat stack: shared base + open-webui + the backend selected
-    # (see hosts/mini/services/llm/default.nix).
+    # Turns on the shared llama.cpp router (dotfiles.profiles.llm.serve) with
+    # mini's models and adds open-webui (see hosts/mini/services/llm/default.nix).
     ./services/llm
   ]
   ++ lib.optionals (host.miniMonitoring or false) [ ./services/beszel.nix ]
@@ -70,8 +82,9 @@
     ipv6.method = "auto";
   };
 
-  # Intel GPU (graphics.enable via dotfiles.hardware.gpu = "intel"):
-  # Vulkan llama.cpp stack lives under ./services/llm/.
+  # Intel GPU stack (compute runtime, media driver, tools) comes from the
+  # hardware trait `dotfiles.hardware.gpu = "intel"` (./profiles.nix). The Arc
+  # dGPU probe flag lives in ./hardware-configuration.nix.
 
   # AMT / vPro — non-root /dev/mei access for amtterm / openwsman.
   users.groups.amt = { };
@@ -85,7 +98,6 @@
   environment.enableAllTerminfo = true;
 
   # Intel CSME firmware updates over LVFS — critical for AMT CVE patching.
-  services.fwupd.enable = true;
   # `fwupd-refresh.service` runs during switch; it often races a restarting
   # `fwupd.service` or LVFS (client/daemon mismatch, nixpkgs#288598) and exits 1,
   # which makes switch-to-configuration return 4. Treat those as non-fatal;
@@ -119,7 +131,4 @@
     "amt"
     "render"
   ];
-
-  # System state version — host specific, do not change.
-  system.stateVersion = "26.05";
 }
