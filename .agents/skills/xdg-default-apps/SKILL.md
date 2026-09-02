@@ -7,36 +7,58 @@ description: Manage default desktop applications and MIME associations in jadee'
 
 ## Source of truth
 
-- Global Linux MIME defaults live in `modules/profiles/minimal/linux/environment.nix`.
-- Feature profiles install applications; they should not own global MIME policy unless the default is intentionally profile-specific.
+- Linux MIME defaults live in `modules/profiles/minimal/linux/environment.nix`. The `let` block names one handler per role. `xdg.mimeApps.defaultApplications` maps MIME types to `"${handler}.desktop"`.
 - Yazi open-with rules live in `modules/profiles/essentials/utils/yazi/default.nix`.
-- App-specific desktop entries live with the owning profile's Home Manager module.
+- Hand-written desktop entries live with the owning profile. The only one today is `pear-desktop` in `modules/profiles/apps/media.nix`. It has no MIME association.
+- Darwin has no managed default apps. `modules/profiles/minimal/darwin/default.nix` only enables `xdg`. This is deliberate. Do not add macOS handler config there.
+
+## Current handlers
+
+GNOME apps come from `services.desktopManager.gnome.enable = true` in `modules/profiles/desktop/default.nix`. No profile installs them as packages.
+
+- `org.gnome.Nautilus` (folders), `org.gnome.FileRoller` (archives). Both are also explicit packages in `modules/profiles/apps/files/default.nix`.
+- `org.gnome.Loupe` (images), `org.gnome.Papers` (PDF), `org.gnome.Showtime` (video), `org.gnome.Music` (audio). GNOME session only.
+
+Non-GNOME handlers, each with an explicit package:
+
+- `dev.zed.Zed` (editor): `zed-editor` in `modules/profiles/devgui/ides/default.nix`. Owns text, code, config, and data types.
+- `typora` (markdown): `pkgs.typora` in `modules/profiles/apps/notes/typora/default.nix`.
+- `zen-twilight` (browser, mailto): the `twilight` home module in `modules/profiles/apps/browsers/zen/default.nix`.
+
+Intentionally unset: `application/octet-stream`, `x-scheme-handler/terminal`, and editor scheme handlers. Generic binaries and terminal URIs must not open in an editor.
+
+## Coupled places
+
+- `zen-twilight` is also the app-id in `modules/profiles/desktop/niri/outputs-desktop.kdl` and `keybinds-default.kdl`. A Zen channel change renames the `.desktop` id. Update all of them together.
+- Yazi markdown rules and the XDG markdown default both point at Typora. Change both together.
+- Yazi rules sit inside `lib.optionalAttrs (!isDarwin && osConfig.dotfiles.profiles.apps.notes.enable)`. When `apps.notes` is off, the Typora opener and the markdown rules vanish.
+- Yazi `opener.open` is overridden, not extended. It holds `xdg-open` and "Show in Nautilus". Any new entry must be added to that list, or it drops the existing ones.
 
 ## Workflow
 
-1. Verify the target application exists in nixpkgs with `mcp-nixos` before adding it.
-2. Verify its desktop id by reading the package's `share/applications/*.desktop` file.
-3. Add or update the app identifier in the `let` block of `modules/profiles/minimal/linux/environment.nix`.
-4. Add MIME mappings to `xdg.mimeApps.defaultApplications` in that same file.
-5. Install the application in the relevant feature profile's `environment.systemPackages`.
-6. Use `lib.mkForce` only for narrow, intentional profile overrides.
-7. Keep Yazi rules separate from XDG defaults; add Yazi openers only when the TUI needs an explicit open-with entry.
+1. Verify the application exists in nixpkgs with `mcp-nixos`.
+2. Read the package's `share/applications/*.desktop` file to get the desktop id.
+3. Add or update the handler variable in the `let` block of `environment.nix`.
+4. Add MIME mappings in `xdg.mimeApps.defaultApplications` in the same file.
+5. Make sure the application is installed: a GNOME app needs the desktop profile, other apps need `environment.systemPackages` in their feature profile.
+6. Add a Yazi rule only when the TUI needs its own open-with entry.
+7. Use `lib.mkForce` only for a narrow, intentional profile override. No MIME `mkForce` exists today. Keep it that way unless the default is truly profile-specific.
 
 ## Conventions
 
-- Store app ids without `.desktop` in variables, for example `archiveManager = "org.gnome.FileRoller"`.
-- Use `"application/zip" = ["${archiveManager}.desktop"];` style mappings.
-- Prefer GNOME-native handlers for GNOME desktop file types: Nautilus for folders, File Roller for archives, Loupe for images, Showtime for videos.
-- Do not set `application/octet-stream`; generic binaries should not open in an editor by default.
+- Store ids without `.desktop` in variables, for example `archiveManager = "org.gnome.FileRoller"`.
+- Map with `"application/zip" = [ "${archiveManager}.desktop" ];`.
+- Prefer GNOME-native handlers for GNOME file types.
+- Feature profiles install tools. They do not own global MIME policy.
 
 ## Verification
 
-After editing `.nix` files:
+Never build or switch yourself (see `AGENTS.md`).
 
-1. Run `just fmt`.
-2. Run `git add` for changed Nix files before Nix eval/build.
-3. Eval concrete associations, for example:
-   - `nix eval --json '.#nixosConfigurations.framework.config.home-manager.users.jadee.xdg.mimeApps.defaultApplications.application/zip'`
-   - `nix eval --json '.#nixosConfigurations.framework.config.home-manager.users.jadee.xdg.mimeApps.defaultApplications.text/markdown'`
-4. Build the affected Home Manager activation package.
-5. For Yazi changes, inspect generated `.config/yazi/yazi.toml` and run `yazi --debug` against it.
+1. Run `flake fmt`.
+2. Run `git add` on changed `.nix` files. Flakes only see tracked files.
+3. Eval the result. Quote attribute names that contain `/`:
+   `nix eval --json '.#nixosConfigurations.desktop.config.home-manager.users.jadee.xdg.mimeApps.defaultApplications."text/markdown"'`
+   Use `framework` in place of `desktop` when needed.
+4. Ask the user to switch and test with `xdg-mime query default <type>`.
+5. For Yazi changes, ask the user to check `~/.config/yazi/yazi.toml` and run `yazi --debug`.

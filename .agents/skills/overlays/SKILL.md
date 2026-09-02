@@ -1,20 +1,20 @@
 ---
 name: overlays
-description: Apply this flake's nixpkgs overlay rules, including the self-expiring workaround pattern. Use when adding, editing, or retiring anything under parts/overlays — package patches, overrideAttrs/overridePythonAttrs workarounds, doCheck or test skips, version pins, upstream-bug mirrors — or when an evaluation warning says an overlay is obsolete.
+description: Apply this flake's nixpkgs overlay rules and the self-expiring workaround pattern (lib/expiry.nix). Use when adding, editing, or retiring anything under parts/overlays — package patches, overrideAttrs/overridePythonAttrs workarounds, doCheck or test skips, version pins, upstream-bug mirrors — or when a module or host guards a workaround with dotfilesLib.expiry, or when an evaluation warning says a workaround is obsolete or needs re-checking.
 ---
 
 # Overlays
 
 ## Scope
 
-Use this for everything under `parts/overlays/`. For where overlays sit in the wider flake, use `flake-structure`; for local package derivations, `packages/AGENTS.md`.
+Use this for everything under `parts/overlays/`, and for every expiry guard outside it: modules and hosts that call `dotfilesLib.expiry` (see "Module-level guards"). For where overlays sit in the wider flake, use `flake-structure`; for local package derivations, `packages/AGENTS.md`.
 
 ## Layout
 
 - One overlay per file: `parts/overlays/<name>.nix`.
-- `parts/overlays/default.nix` is the only registry — every overlay is imported and named there.
+- `parts/overlays/default.nix` is the only registry — every overlay is imported and named there. Two entries come from flake inputs, not files: `inputs.llm-agents.overlays.shared-nixpkgs`, and `inputs.nix-cachyos-kernel.overlays.pinned`, which is appended only under `isX86_64Linux`. That registry-level platform gate is the exception for input overlays; file overlays still gate inside.
 - `lib/expiry.nix` holds the obsolescence guards. Overlays receive them as `expiry`, bound to their file name in `default.nix`; modules reach them through `dotfilesLib.expiry { inherit lib; } "<repo-relative path>"`.
-- `parts/overlays/local-packages.nix` auto-registers `packages/<name>`; never add a second registry.
+- `parts/overlays/local-packages.nix` auto-registers `packages/<name>`; never add a second registry. `packages/names.nix` is the single source of package names. Both `local-packages.nix` and `parts/packages.nix` read it, so the overlay and the flake `packages` output cannot drift.
 - Restrict by platform inside the overlay with `builtins.match ".*-darwin" system != null` and return `{ }` when it does not apply.
 
 ## Not every workaround belongs in an overlay
@@ -63,6 +63,7 @@ Conditions must be evaluable **offline**. Nix cannot ask whether an upstream iss
 | Need a newer version | `lib.versionAtLeast prev.foo.version "X"` |
 | Mirror an upstream patch | that patch's marker is in `prev.foo.postPatch` |
 | Relax a dep bound | `lib.elem "dep" (prev.foo.pythonRelaxDeps or [ ])` |
+| Skip a test file | `lib.elem "tests/test_x.py" (prev.foo.disabledTestPaths or [ ])` |
 | Fix wrong metadata | `prev.foo.pname == "expected"` |
 | Pin a dep version | the right version is already in `prev.foo.buildInputs` |
 | `markUnbroken` | `!prev.foo.meta.broken` |
@@ -86,6 +87,44 @@ foo = expiry.recheckWhen {
 ### No guard at all
 
 Deliberate pins are not workarounds. `skhd-pinned-darwin.nix` pins for store-path stability (TCC grant churn); no upstream state retires it, only a decision to stop caring. Say so in the header instead of inventing a condition. Same for registries like `local-packages.nix`.
+
+## Module-level guards
+
+The same guards apply to workarounds in NixOS/HM modules and host files. The form is:
+
+```nix
+(dotfilesLib.expiry { inherit lib; } "<repo-relative path>").expireWhen { … } workaround
+```
+
+- The location string is hand-written. It must follow the file when the file moves or is renamed.
+- Modules have no `prev`. Read the condition from `cfg.package.version` or `pkgs.foo.version` instead.
+- Keep the condition off `config.*` values where possible. A guard on the module fixpoint can loop or make eval order fragile. `cfg.package` is fine when the option has a default and nothing in the guard sets it.
+- Live examples: `modules/profiles/minimal/shells/core/atuin.nix` (`expireWhen`) and `hosts/mini/default.nix` (`recheckWhen` around a `serviceConfig` value).
+
+### Boolean-flag idiom
+
+When the workaround is a set of option changes and not one value, guard a flag and let the options read it (from `atuin.nix`):
+
+```nix
+renameUpArrowBinding = expiry.expireWhen {
+  fixed = lib.versionAtLeast cfg.package.version "18.20.1";
+  reason = "…; re-enable programs.atuin.enableNushellIntegration and drop the custom snippet.";
+  fallback = false;
+} true;
+```
+
+Consume it as `enableNushellIntegration = !renameUpArrowBinding;` and `lib.mkIf renameUpArrowBinding (…)`. Polarity rule: `fallback` is the value that means "workaround off". Here the flag is `true` while the workaround runs, so `fallback = false`.
+
+| Workaround | Condition |
+| --- | --- |
+| Custom snippet until a release | `lib.versionAtLeast cfg.package.version "X"` |
+| Unit or service tweak | `lib.versionAtLeast pkgs.foo.version "X"` (`recheckWhen` if the failure is not observable at eval) |
+
+Retirement differs from overlays: re-enable the upstream option, delete the guarded snippet, and drop the `expiry` binding. There is no registry entry to remove. To verify, eval the `nixosConfigurations.<host>` attribute that consumes the value and confirm the warning fires or stays quiet:
+
+```bash
+nix eval .#nixosConfigurations.mini.config.systemd.services.fwupd-refresh.serviceConfig.SuccessExitStatus
+```
 
 ## Hazard: guard values, never the returned attrset
 
