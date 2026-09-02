@@ -2,13 +2,11 @@
 # `parts/overlays/local-packages.nix`) as a flake `packages` output. The name
 # list is shared via `packages/names.nix`.
 #
-# Also pins `perSystem`'s `pkgs` to our overlay-laden import (`lib/pkgs.nix`)
-# — this applies to all flake-parts perSystem modules, not just this one.
-{ inputs, ... }:
-let
-  pkgsFuncs = import ../lib/pkgs.nix { inherit inputs; };
-  inherit (pkgsFuncs) getPkgs;
-in
+# Also pins `perSystem`'s `pkgs` to our overlay-laden import — the memoized
+# `pkgsFor.<system>.pkgs` from `lib/pkgs.nix`, published as a module arg by
+# parts/hosts.nix, so it is the very same attrset the hosts evaluate with.
+# This applies to all flake-parts perSystem modules, not just this one.
+{ pkgsFor, ... }:
 {
   perSystem =
     {
@@ -23,7 +21,7 @@ in
       };
     in
     {
-      _module.args.pkgs = getPkgs system [ ];
+      _module.args.pkgs = pkgsFor.${system}.pkgs;
 
       packages = pkgs.lib.genAttrs pkgNames (name: pkgs.${name});
     };
