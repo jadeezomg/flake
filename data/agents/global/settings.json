@@ -95,7 +95,9 @@
 		"caya-design-system@caya": true,
 		"caya-mailroom-api@caya": true,
 		"simple-english@simple-english": true,
-		"typescript-lsp@claude-plugins-official": true
+		"typescript-lsp@claude-plugins-official": true,
+		"mattpocock-skills@mattpocock": true,
+		"ponytail@ponytail": true
 	},
 	"extraKnownMarketplaces": {
 		"caya": {
@@ -108,6 +110,18 @@
 			"source": {
 				"source": "github",
 				"repo": "AminBlg/SimpleEnglish"
+			}
+		},
+		"mattpocock": {
+			"source": {
+				"source": "github",
+				"repo": "mattpocock/skills"
+			}
+		},
+		"ponytail": {
+			"source": {
+				"source": "github",
+				"repo": "DietrichGebert/ponytail"
 			}
 		}
 	},
