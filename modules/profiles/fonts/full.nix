@@ -19,16 +19,13 @@ in
       ibm-plex
       input-fonts
       iosevka-aile
-      iosevka-bin
       julia-mono
       maple-mono.NF
       maple-mono.variable
-      monaspace
       nerd-fonts.fira-code
       nerd-fonts.fira-mono
       nerd-fonts.go-mono
       nerd-fonts.jetbrains-mono
-      nerd-fonts.monaspace
       nerd-fonts.zed-mono
       powerline-fonts
       powerline-symbols

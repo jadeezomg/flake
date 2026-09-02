@@ -17,10 +17,6 @@ in
 [
   inputs.llm-agents.overlays.shared-nixpkgs
   (import ./local-packages.nix { inherit lib system; })
-  (import ./python-package-fixes.nix {
-    inherit lib;
-    expiry = expiryFor "python-package-fixes";
-  })
   (import ./mise-darwin-http-tests.nix {
     inherit lib system;
     expiry = expiryFor "mise-darwin-http-tests";

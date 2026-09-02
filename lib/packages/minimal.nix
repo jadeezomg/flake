@@ -32,7 +32,6 @@ pkgs: with pkgs; [
   gping
 
   # --- Diffs & readable patches ---
-  difftastic
   delta
 
   # --- PDF helpers (pdftotext, etc.) ---

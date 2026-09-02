@@ -48,7 +48,6 @@ in
       mangohud
       mangojuice
       heroic
-      protonup-ng
       protonup-rs
       gamescope-wsi
       wineWow64Packages.staging
