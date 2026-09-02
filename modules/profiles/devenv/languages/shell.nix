@@ -10,14 +10,12 @@ in
 {
   config = lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
-      # bash
+      # bash — bash-language-server is the front-end; it calls shellcheck for
+      # diagnostics and shfmt for formatting, both resolved from PATH.
+      # Wired into helix, Zed, and VSCode.
       bash-language-server
-      shfmt
       shellcheck
-
-      # nushell
-      nufmt
-      nu_scripts
+      shfmt
     ];
   };
 }

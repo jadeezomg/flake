@@ -28,6 +28,10 @@ in
           dbaeumer.vscode-eslint # JavaScript/TypeScript linting          biomejs.biome # TypeScript linter and formatter
           # Nix
           jnoortheen.nix-ide # Nix language support + nixfmt formatting
+          # Just
+          nefrob.vscode-just-syntax # Justfile support + just-lsp client
+          # Bash
+          mads-hartmann.bash-ide-vscode # bash-language-server client
           # Python
           charliermarsh.ruff # Python linting/formatting
           ms-python.python # Python support
@@ -46,6 +50,12 @@ in
             publisher = "Programming-Engineer";
             version = "0.1.2";
             sha256 = "05b8ahbwkjgmw2cq46dddd64lwg5mhffzff4b1knbl4yrw9jlbp2";
+          }
+          {
+            name = "marksman"; # Markdown LSP client (not in nixpkgs)
+            publisher = "arr";
+            version = "0.3.4";
+            sha256 = "1pvapvydbrlllhihy7bkgvz38851381fmcvwc3z2m3w6dpywaijm";
           }
         ];
       userSettings = {
@@ -156,19 +166,39 @@ in
         "[typescript]" = biomeWithFixAll;
         "[typescriptreact]" = biomeWithFixAll;
 
-        # Nix — `nil` language server, `nixfmt` formatting, both from
-        # devenv.tools. nix-ide formats through the server, so the formatter
+        # Nix — `nixd` language server, `nixfmt` formatting, both from
+        # devenv.languages.nix. nix-ide formats through the server, so the formatter
         # command belongs in the server settings.
         "nix.enableLanguageServer" = true;
-        "nix.serverPath" = "nil";
+        "nix.serverPath" = "nixd";
         "nix.formatterPath" = "nixfmt";
         "nix.serverSettings" = {
-          "nil" = {
+          "nixd" = {
             "formatting" = {
               "command" = [ "nixfmt" ];
             };
           };
         };
+        # Bash — this extension bundles its own bash-language-server, so the
+        # binary from devenv.languages.shell serves helix and Zed only. Both
+        # helper tools still come from PATH.
+        "bashIde.shellcheckPath" = "shellcheck";
+        "bashIde.shfmt.path" = "shfmt";
+        "[shellscript]" = {
+          "editor.defaultFormatter" = "mads-hartmann.bash-ide-vscode";
+          "editor.formatOnSave" = true;
+        };
+
+        # Markdown — the extension downloads its own server by default, which
+        # will not run on NixOS. Point it at the binary from
+        # devenv.languages.docs instead.
+        "marksman.customCommand" = "marksman server";
+
+        # Just — `just-lsp` from devenv.languages.general, `just` from
+        # devenv.tools. The server formats through `just --fmt --unstable`.
+        "vscode-just.lspPath" = "just-lsp";
+        "vscode-just.justPath" = "just";
+
         "[nix]" = {
           "editor.defaultFormatter" = "jnoortheen.nix-ide";
           "editor.formatOnSave" = true;

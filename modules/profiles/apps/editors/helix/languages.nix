@@ -17,9 +17,6 @@ _: {
       texlab = {
         command = "texlab";
       };
-      nil = {
-        command = "nil";
-      };
       "lua-ls" = {
         command = "lua-language-server";
       };
@@ -80,12 +77,18 @@ _: {
       # kotlin-language-server = {
       #   command = "kotlin-language-server";
       # };
-      # marksman = {
-      #   command = "marksman";
-      #   args = [ "server" ];
-      # };
+      marksman = {
+        command = "marksman";
+        args = [ "server" ];
+      };
       nixd = {
         command = "nixd";
+        config.formatting.command = [ "nixfmt" ];
+      };
+      # Helix already maps the just language to this server; named here so the
+      # list stays the full set. Formatting runs `just --fmt --unstable`.
+      just-lsp = {
+        command = "just-lsp";
       };
       # ocaml-lsp = {
       #   command = "ocamllsp";
@@ -108,5 +111,19 @@ _: {
       #   command = "zls";
       # };
     };
+
+    # Helix's defaults name more servers per language than we install: `nil`
+    # for nix, and both markdown servers for markdown. Pin the one we want.
+    # https://github.com/nix-community/nixd/blob/main/nixd/docs/editor-setup.md
+    language = [
+      {
+        name = "nix";
+        language-servers = [ "nixd" ];
+      }
+      {
+        name = "markdown";
+        language-servers = [ "marksman" ];
+      }
+    ];
   };
 }
