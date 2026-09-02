@@ -51,11 +51,13 @@
 
 | Tool | Command | Notes |
 |------|---------|-------|
-| nil | LSP | Nix language server |
-| nixd | LSP | Alternative Nix language server |
+| nixd | LSP | Nix language server (helix, Zed, VSCode) |
 | treefmt | `treefmt -q .` | Nix formatter multiplexer (flake formatter via nixfmt-tree) |
 | nixfmt | `nixfmt file.nix` | Official Nix formatter (used by treefmt and editors) |
-| nh | `nh os switch` | Nix helper (use `just` instead) |
+| deadnix | `deadnix .` | Finds unused bindings (run by `flake fmt` and `flake lint`) |
+| statix | `statix check .` | Nix antipattern linter (run by `flake lint`) |
+| nix-update | `nix-update <pkg>` | Bumps a package's version and hash |
+| nh | `nh os switch` | Nix helper (use `flake` recipes instead) |
 | devenv | `devenv shell` | Dev environments |
 
 ## Development: Language Tools
@@ -89,12 +91,27 @@
 |------|---------|-------|
 | shfmt | `shfmt -w file.sh` | Shell formatter |
 | shellcheck | `shellcheck file.sh` | Shell linter |
+| bash-language-server | LSP | Calls shellcheck and shfmt; wired into helix, Zed, VSCode |
 
 ### General
 | Tool | Command | Notes |
 |------|---------|-------|
 | just | `just <recipe>` | Task runner (primary build tool) |
-| mermaid | inline in markdown fences | Use `\`\`\`mermaid` blocks |
+| just-lsp | LSP | Justfile language server; wired into helix, Zed, VSCode |
+| mmdc | `mmdc -i in.mmd -o out.svg` | mermaid-cli renderer (for prose, use ```mermaid fences) |
+
+### Markdown
+| Tool | Command | Notes |
+|------|---------|-------|
+| marksman | LSP | Heading references, TOC action, link diagnostics |
+| markdownlint-cli2 | `markdownlint-cli2 '**/*.md'` | Style linter; no config and no caller in this repo |
+
+### Agents
+| Tool | Command | Notes |
+|------|---------|-------|
+| apm | `apm install -g` | Agent Package Manager; owns global skills + MCP |
+| kagi | `kagi search "<q>"` | Web search, page extract, referenced answers |
+| ctx7 | `ctx7 library <name> "<q>"` | Library and SDK docs |
 
 ## Security / Secrets
 
