@@ -37,8 +37,9 @@
 #   3. In Element: homeserver "matrix.jadee.fyi", sign in. Auto-discovery works.
 #   4. DM @hermes:matrix.jadee.fyi (it auto-joins on invite; @mention it in rooms).
 #   5. (optional) Put a room id in MATRIX_HOME_ROOM (hermes.nix) for cron/notifications.
-{ config, ... }:
+{ config, lib, ... }:
 let
+  inherit (import ./lib.nix { inherit lib; }) mkTsnetProxy;
   domain = "matrix.jadee.fyi";
   port = 6167; # continuwuity default; loopback only
 in
@@ -82,8 +83,5 @@ in
 
   # Fronted by the shared Caddy tailnet-node proxy (services/caddy.nix): bind to
   # the mini-proxy node + DNS-01 TLS come from the `tsnet` snippet.
-  services.caddy.virtualHosts.${domain}.extraConfig = ''
-    import tsnet
-    reverse_proxy 127.0.0.1:${toString port}
-  '';
+  services.caddy.virtualHosts = mkTsnetProxy { inherit domain port; };
 }

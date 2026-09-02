@@ -17,7 +17,7 @@ in
   config = lib.mkMerge [
     # --- AppImage ---
     # See https://wiki.nixos.org/wiki/Appimage
-    (lib.mkIf (cfg.enable && cfg.appimage.enable) {
+    (lib.mkIf cfg.enable {
       programs.appimage = {
         enable = true;
         binfmt = true;
@@ -25,7 +25,7 @@ in
     })
 
     # --- Flatpak + Flathub remote ---
-    (lib.mkIf (cfg.enable && cfg.flatpak.enable) {
+    (lib.mkIf cfg.enable {
       # nix-flatpak's `remotes` default already registers Flathub, so no
       # activation script is needed. Individual apps are declared next to their
       # own profile via `services.flatpak.packages`, which merges across modules.

@@ -1,15 +1,12 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-let
-  cfg = config.dotfiles.profiles.devenv.languages.rust;
-in
-{
-  config = lib.mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
+{ dotfilesLib, ... }@args:
+dotfilesLib.mkProfile {
+  path = [
+    "devenv"
+    "languages"
+    "rust"
+  ];
+  packages =
+    pkgs: with pkgs; [
       rustup
       bacon
       clippy
@@ -20,5 +17,4 @@ in
       cargo-info
       rusty-man
     ];
-  };
-}
+} args

@@ -1,3 +1,7 @@
+# TODO(cleanup): dead file. Not imported since hosts/mini/default.nix commented
+# it out. Decide: enable the pipeline, or move this design into
+# docs/nix/builders-cache-backups-plan.md and delete the file.
+#
 # Nightly flake update + build + cachix push pipeline.
 #
 # Architecture (see docs/hosts/mini.md § Known gaps):

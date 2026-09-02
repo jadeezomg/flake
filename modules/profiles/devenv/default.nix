@@ -2,28 +2,15 @@
 # GUI dev tooling lives in ../devgui (mirrored category names); the LLM
 # serving stack lives in ../llm.
 {
-  config,
+  dotfilesLib,
   lib,
   ...
-}:
+}@args:
 let
-  cfg = config.dotfiles.profiles.devenv;
-
-  # Keep in sync with ./languages/default.nix. Duplicated here on purpose:
-  # mkDefault-ing from a single source would require an IFD-ish dance, and
-  # the list rarely changes.
-  langs = [
-    "data"
-    "docs"
-    "general"
-    "nix"
-    "python"
-    "rust"
-    "shell"
-    "web"
-  ];
+  langs = import ./languages/names.nix { inherit lib; };
 in
-{
+dotfilesLib.mkProfile {
+  path = [ "devenv" ];
   imports = [
     ./tools.nix
     ./cloud.nix
@@ -32,26 +19,16 @@ in
     ./databases.nix
     ./languages
   ];
-
-  config = lib.mkIf cfg.enable {
-    # HM dev tooling without its own category (biome config, fnox secret hook,
-    # gh CLI config, flake git hooks).
-    home-manager.sharedModules = [
-      ./biome.nix
-      ./fnox.nix
-      ./gh
-      ./git-hooks.nix
-    ];
-
-    dotfiles.profiles.devenv = {
-      tools.enable = lib.mkDefault true;
-      cloud.enable = lib.mkDefault true;
-      agents.enable = lib.mkDefault true;
-      containers.enable = lib.mkDefault true;
-      databases.enable = lib.mkDefault true;
-      languages = lib.genAttrs langs (_: {
-        enable = lib.mkDefault true;
-      });
-    };
-  };
-}
+  # HM dev tooling without its own category (biome config, fnox secret hook,
+  # gh CLI config, flake git hooks).
+  hm = [
+    ./biome.nix
+    ./fnox.nix
+    ./gh
+    ./git-hooks.nix
+  ];
+  # Every language is on by default; hosts turn single ones off.
+  extra.dotfiles.profiles.devenv.languages = lib.genAttrs langs (_: {
+    enable = lib.mkDefault true;
+  });
+} args

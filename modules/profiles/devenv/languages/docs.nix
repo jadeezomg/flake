@@ -1,15 +1,12 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-let
-  cfg = config.dotfiles.profiles.devenv.languages.docs;
-in
-{
-  config = lib.mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
+{ dotfilesLib, ... }@args:
+dotfilesLib.mkProfile {
+  path = [
+    "devenv"
+    "languages"
+    "docs"
+  ];
+  packages =
+    pkgs: with pkgs; [
       # Markdown
       marksman # LSP: heading refs, TOC action, link diagnostics
 
@@ -23,5 +20,4 @@ in
       # Slides
       slidev-cli
     ];
-  };
-}
+} args

@@ -46,6 +46,7 @@
   ...
 }:
 let
+  inherit (import ./lib.nix { inherit lib; }) mkTsnetProxy;
   domain = "immich.jadee.fyi";
   # ML uses :3003.
   port = 2283;
@@ -114,10 +115,7 @@ in
     # and demand an offline pg_upgrade.
     postgresql.package = pkgs.postgresql_17;
 
-    caddy.virtualHosts.${domain}.extraConfig = ''
-      import tsnet
-      reverse_proxy 127.0.0.1:${toString port}
-    '';
+    caddy.virtualHosts = mkTsnetProxy { inherit domain port; };
   };
 
   # The immich module's tmpfiles entry for mediaLocation is type `e` (adjust an
