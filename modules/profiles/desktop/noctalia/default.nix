@@ -24,13 +24,15 @@ let
   baseSettings = builtins.fromTOML (builtins.readFile (./config + "/${hostSettingsFile}"));
 in
 {
-  imports = [ inputs.noctalia.homeModules.default ];
-
+  # `programs.noctalia` comes from Home Manager itself. Noctalia's own
+  # `homeModules.default` declares the same option, so importing it here made
+  # evaluation fail with "already declared". The two modules are the same code
+  # (HM upstreamed it); only `validateConfig` was renamed to `checkConfig`.
   programs.noctalia = {
     enable = true;
     package = noctaliaPkg;
     systemd.enable = false;
-    validateConfig = true;
+    checkConfig = true;
     # Source of truth: ./config/settings.toml, live-symlinked below. It feeds
     # both of noctalia's layers — here as the declarative base that HM renders
     # to ~/.config/noctalia/config.toml (with Stylix merged in), and directly as
