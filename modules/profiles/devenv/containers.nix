@@ -16,6 +16,7 @@ in
       [
         dockfmt
         dockerfile-language-server
+        dive
         podman
         podman-tui
         podman-compose

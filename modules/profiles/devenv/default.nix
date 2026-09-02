@@ -35,13 +35,12 @@ in
 
   config = lib.mkIf cfg.enable {
     # HM dev tooling without its own category (biome config, fnox secret hook,
-    # gh CLI config, flake git hooks, mise version manager).
+    # gh CLI config, flake git hooks).
     home-manager.sharedModules = [
       ./biome.nix
       ./fnox.nix
       ./gh
       ./git-hooks.nix
-      ./mise.nix
     ];
 
     dotfiles.profiles.devenv = {
