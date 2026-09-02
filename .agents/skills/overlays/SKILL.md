@@ -126,6 +126,17 @@ Retirement differs from overlays: re-enable the upstream option, delete the guar
 nix eval .#nixosConfigurations.mini.config.systemd.services.fwupd-refresh.serviceConfig.SuccessExitStatus
 ```
 
+## Open TODOs: `todo`
+
+Use `todo` for an open task with no eval-time condition: a decision still to make, a placeholder value, a file waiting for cleanup. It warns on every eval until someone edits the file.
+
+```nix
+openRegistration = todo "close registration after onboarding" true;
+```
+
+- Wrap a value the toplevel forces. A value that is only forced on demand (disko device ids, a build-time script) stays silent on a normal eval; mirror the guard in the host file with `imports = [ … ] ++ todo "…" [ ]`.
+- Prefer `expireWhen` or `recheckWhen` when a condition exists. `todo` is the fallback for tasks only a person can close.
+
 ## Hazard: guard values, never the returned attrset
 
 Nixpkgs must know an overlay's attribute *names* before it can evaluate the package set. A guard wrapped around the attrset an overlay returns forces its condition during that step, and any condition reading `prev.<drv>` loops back through `final` — **infinite recursion**, surfacing as a `flake fmt`/eval failure far from the cause.

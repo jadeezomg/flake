@@ -24,19 +24,23 @@ Use this skill for `modules/**`, mainly `modules/profiles/**`. For hosts, packag
 - HM modules: `inputs`, `hostData`, `dotfilesLib`, `host`, `hostKey`, `isDarwin`, `pkgs`, `pkgs-stable`, `pkgs-small`. HM does not get `user` or `system`. HM reads system profile flags through `osConfig`.
 - `pkgs-small` is passed but no module uses it today.
 - `hostKey` is `desktop`, `framework`, `caya`, or `mini`. `host` is the record from `hosts/hosts.nix`. `hostData` is the full registry.
-- `dotfilesLib` is `lib/default.nix`. It exports `palette`, `themeBase16`, `themeFonts`, `shellEnvData`, `shellPaths`, `minimalPackages`, `nixCaches`, `sshDestinations`, `lanHosts`, `users`, `hostStatus`, `nonoProfiles`, `nixExperimentalFeatures`, `expiry`, `agentsDataDir`, `agentSkillsDir`, `agentDataFiles`, and `sopsFile`. Functions are unapplied. MCP registration lives in `modules/profiles/devenv/agents/apm.nix`, not in `dotfilesLib`.
+- `dotfilesLib` is `lib/default.nix`. It exports `palette`, `themeBase16`, `themeFonts`, `shellEnvData`, `shellPaths`, `minimalPackages`, `nixCaches`, `sshDestinations`, `lanHosts`, `users`, `hostStatus`, `nonoProfiles`, `nixExperimentalFeatures`, `expiry`, `mkProfile`, `agentsDataDir`, `agentSkillsDir`, `agentDataFiles`, and `sopsFile`. Functions are unapplied. MCP registration lives in `modules/profiles/devenv/agents/apm.nix`, not in `dotfilesLib`.
 
 ## Options
 
 - Declare every `dotfiles.profiles.*` and `dotfiles.hardware.*` option in `modules/profiles/default.nix`. Set them per host in `hosts/<name>/profiles.nix`.
 - Use `enableOn` for default-on profiles (minimal, essentials, fonts, theme, desktop, integrations). Use `mkEnableOption` for opt-in profiles (apps, devenv, devgui, llm, gaming, work, server).
+- One `enable` flag per profile. The category files under `apps/`, `devenv/`, and `devgui/` read the parent flag. Do not add a sub-flag unless a host needs to vary it. The sub-options that exist today: `devenv.languages.<name>`, `apps.notes`, `fonts.full`, `theme.gui`, `desktop.shell`, `desktop.loginManager`, and the `llm.*` tree.
+- `modules/profiles/server.nix` sets `desktop`, `integrations`, `fonts.full`, and `theme.gui` to `mkDefault false` when `host.hostClass == "server"`. A server host does not repeat those lines in its `profiles.nix`.
 - Declare options unconditionally. Gate Linux-only leaves at import level with `lib.optionals (!isDarwin) [ ... ]`, as in `modules/profiles/default.nix` and `apps/default.nix`. Do not use `mkIf` for this. The option namespaces do not exist on darwin.
 - Profiles say what a machine is for. `dotfiles.hardware` traits say what a machine is: `wireless.enable`, `gpu` (`nvidia`, `amd`, `intel`, `none`), `cpu.zen4.enable`, `cpu.x3d.enable`. The leaves live in `modules/profiles/hardware/`.
-- `modules/profiles/default.nix` asserts that a `hostClass = "server"` host does not enable a GUI profile. When you add a GUI profile, add an assertion there.
-- `devenv.languages` is `attrsOf submodule`. Each language is `modules/profiles/devenv/languages/<name>.nix` behind `lib.mkIf cfg.enable`. Add the name to the `langs` list in `languages/default.nix` and in `devenv/default.nix`.
+- `modules/profiles/default.nix` asserts that a `hostClass = "server"` host does not enable a GUI profile. When you add a GUI profile, add its option path to the `guiProfiles` list there.
+- `devenv.languages` is `attrsOf submodule`. Each language is `modules/profiles/devenv/languages/<name>.nix`. `languages/names.nix` reads the folder, so a new file is a new language. No list to update.
 
 ## Profile shape
 
+- A leaf that only installs packages and pushes HM modules uses `dotfilesLib.mkProfile` (`lib/profile.nix`): `{ dotfilesLib, ... }@args: dotfilesLib.mkProfile { path = [ "devenv" ]; packages = pkgs: [ ... ]; hm = [ ... ]; } args`. `linuxPackages` and `darwinPackages` replace `lib.optionals (!isDarwin)` on package lists. `extra` takes other config under the same gate. `imports` passes through. Apply it to `args`; do not put the result in `imports`, that changes the definition order of `environment.systemPackages`.
+- A leaf with real logic (conditions on other options, assertions, services) keeps the plain `config = lib.mkIf cfg.enable { ... }` shape.
 - A profile folder's `default.nix` is the index and the shared baseline.
 - Keep package-only groups in the profile `default.nix`.
 - When an app has config, give it its own named module. That module owns install and config.
