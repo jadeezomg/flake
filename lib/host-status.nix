@@ -207,7 +207,7 @@ let
         if [ -d "$local_dir" ]; then
           local_count="$(find "$local_dir" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')"
         fi
-        printf 'upstream + %s local override(s)\n' "$local_count"
+        printf 'apm: %s authored + upstream bundles\n' "$local_count"
       }
 
       openrouter_json() {

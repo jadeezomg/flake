@@ -1,5 +1,5 @@
 # Unsloth Studio podman container as a user service. Agent skills install
-# moved to ../devenv/agents/skills.nix.
+# moved to ../devenv/agents/apm.nix.
 { pkgs, ... }:
 let
   unslothDefaults = {

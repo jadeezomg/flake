@@ -119,18 +119,6 @@
     # --- AI / agents ---
     llm-agents.url = "github:numtide/llm-agents.nix";
     hermes-agent.url = "github:NousResearch/hermes-agent";
-    skills-mattpocock = {
-      url = "github:mattpocock/skills";
-      flake = false;
-    };
-    skills-ponytail = {
-      url = "github:DietrichGebert/ponytail";
-      flake = false;
-    };
-    skills-simple-english = {
-      url = "github:AminBlg/SimpleEnglish";
-      flake = false;
-    };
   };
 
   outputs =

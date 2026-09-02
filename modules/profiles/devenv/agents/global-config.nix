@@ -1,18 +1,15 @@
-{ config, ... }:
+{ config, dotfilesLib, ... }:
 let
   inherit (config.lib.dotfiles)
     mkLiveSymlink
     ;
 
-  flakeRoot = config.dotfiles.flakeRoot;
-  agentsFile = "${flakeRoot}/data/agents/global/AGENTS.md";
-  agentsLink = config.lib.file.mkOutOfStoreSymlink agentsFile;
+  # Live checkout paths, not store copies: editing AGENTS.md or settings.json
+  # must take effect without a rebuild.
+  agentFiles = dotfilesLib.agentDataFiles config.dotfiles.flakeRoot;
 
-  claudeSettingsFile = "${flakeRoot}/data/agents/global/settings.json";
-  claudeSettingsLink = config.lib.file.mkOutOfStoreSymlink claudeSettingsFile;
-
-  ompConfigFile = "${flakeRoot}/data/agents/omp/config.yml";
-  ompThemeFile = "${flakeRoot}/data/agents/omp/themes/birds-of-paradise.json";
+  agentsLink = config.lib.file.mkOutOfStoreSymlink agentFiles.globalAgentsMd;
+  claudeSettingsLink = config.lib.file.mkOutOfStoreSymlink agentFiles.claudeSettings;
 in
 {
   home.file = {
@@ -24,7 +21,7 @@ in
 
     ".claude/settings.json".source = claudeSettingsLink;
 
-    ".omp/agent/config.yml" = mkLiveSymlink ompConfigFile;
-    ".omp/agent/themes/birds-of-paradise.json" = mkLiveSymlink ompThemeFile;
+    ".omp/agent/config.yml" = mkLiveSymlink agentFiles.ompConfig;
+    ".omp/agent/themes/birds-of-paradise.json" = mkLiveSymlink agentFiles.ompTheme;
   };
 }

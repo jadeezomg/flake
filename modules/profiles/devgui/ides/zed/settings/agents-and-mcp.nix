@@ -1,34 +1,7 @@
-{ dotfilesLib, osConfig }:
-let
-  registryLib = rec {
-    inherit (builtins) attrNames;
-    inherit (builtins) concatStringsSep;
-    mapAttrs =
-      f: attrs:
-      builtins.listToAttrs (
-        map (name: {
-          inherit name;
-          value = f name attrs.${name};
-        }) (attrNames attrs)
-      );
-    intersectLists = left: right: builtins.filter (name: builtins.elem name right) left;
-    assertMsg = condition: message: if condition then true else throw message;
-  };
-  # osConfig is passed so the registry's profile gates (agents, work) apply to
-  # Zed's context_servers exactly as they do to the claude/pi/omp registrations.
-  mcpRegistry = dotfilesLib.mcpServers {
-    lib = registryLib;
-    inherit osConfig;
-  };
-  extensionManagedMcpServers = {
-    mcp-server-github = {
-      settings = { };
-      enabled = true;
-      remote = false;
-    };
-  };
-in
-{
+# `context_servers` (MCP for Zed's own agent panel) is deliberately absent.
+# APM owns MCP now and has no Zed target; the ACP agents below read their own
+# configs, so claude and omp still reach every server through ~/.claude.json.
+_: {
   agent_servers = {
     # rohan-patra fork of the Claude Agent SDK ACP adapter (diff preview
     # support); packaged in numtide/llm-agents.nix.
@@ -121,8 +94,6 @@ in
       ];
     };
   };
-
-  context_servers = mcpRegistry.toZedContextServers extensionManagedMcpServers;
 
   agent = {
     thinking_display = "always_collapsed";

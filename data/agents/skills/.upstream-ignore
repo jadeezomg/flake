@@ -1,5 +1,0 @@
-# Skills present in the upstream that we explicitly do NOT want installed.
-#
-# One skill name per line. Blank lines and lines starting with # are ignored.
-
-setup-matt-pocock-skills  # handled via the flake directly
