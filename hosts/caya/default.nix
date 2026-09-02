@@ -43,6 +43,4 @@
     mutableTaps = true;
     autoMigrate = true;
   };
-
-  system.stateVersion = "26.05";
 }

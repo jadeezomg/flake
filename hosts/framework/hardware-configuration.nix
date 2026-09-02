@@ -2,8 +2,6 @@
 # and may be overwritten by future invocations.  Please make changes
 # to /etc/nixos/configuration.nix instead.
 {
-  config,
-  lib,
   modulesPath,
   ...
 }:
@@ -44,6 +42,4 @@
   swapDevices = [
     { device = "/dev/disk/by-uuid/1404fdf3-a8a8-42a4-b0ef-582a4b020da7"; }
   ];
-
-  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }

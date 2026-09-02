@@ -1,37 +1,16 @@
 {
   config,
   pkgs,
-  hostData,
+  host,
   hostKey,
   user,
   ...
 }:
 let
-  host = hostData.hosts.${hostKey} or { };
   userConfig = host.user or { };
-  passwordSecretKey =
-    {
-      desktop = "users/jadee/password_desktop";
-      framework = "users/jadee/password_framework";
-      mini = "users/jadee/password_mini";
-    }
-    .${hostKey};
-  localeConfig =
-    host.locale or {
-      defaultLocale = "en_US.UTF-8";
-      timeZone = "Europe/Berlin";
-      extraLocaleSettings = {
-        LC_ADDRESS = "de_DE.UTF-8";
-        LC_IDENTIFICATION = "de_DE.UTF-8";
-        LC_MEASUREMENT = "de_DE.UTF-8";
-        LC_MONETARY = "de_DE.UTF-8";
-        LC_NAME = "de_DE.UTF-8";
-        LC_NUMERIC = "de_DE.UTF-8";
-        LC_PAPER = "de_DE.UTF-8";
-        LC_TELEPHONE = "de_DE.UTF-8";
-        LC_TIME = "de_DE.UTF-8";
-      };
-    };
+  # One sops entry per host, named after the user and the host key.
+  # See secrets/SCHEMA.md.
+  passwordSecretKey = "users/${user}/password_${hostKey}";
 in
 {
   users.mutableUsers = false;
@@ -54,9 +33,20 @@ in
     hashedPasswordFile = config.sops.secrets.${passwordSecretKey}.path;
   };
 
-  time.timeZone = localeConfig.timeZone;
+  # Same locale on every Linux host: English UI, German formats.
+  time.timeZone = "Europe/Berlin";
   services.timesyncd.enable = true;
 
-  i18n.defaultLocale = localeConfig.defaultLocale;
-  i18n.extraLocaleSettings = localeConfig.extraLocaleSettings;
+  i18n.defaultLocale = "en_US.UTF-8";
+  i18n.extraLocaleSettings = {
+    LC_ADDRESS = "de_DE.UTF-8";
+    LC_IDENTIFICATION = "de_DE.UTF-8";
+    LC_MEASUREMENT = "de_DE.UTF-8";
+    LC_MONETARY = "de_DE.UTF-8";
+    LC_NAME = "de_DE.UTF-8";
+    LC_NUMERIC = "de_DE.UTF-8";
+    LC_PAPER = "de_DE.UTF-8";
+    LC_TELEPHONE = "de_DE.UTF-8";
+    LC_TIME = "de_DE.UTF-8";
+  };
 }

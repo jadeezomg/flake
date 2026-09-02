@@ -5,22 +5,12 @@ in
 sharedNixOSHost
 // {
   hostname = "mini";
-  description = "Mini — Minisforum MS-01 headless server";
   user = sharedNixOSUser;
 
-  # Gates the local LLM chat stack module (`./services/llm` — shared base +
-  # open-webui + the backend selected below). The generic `dotfiles.profiles.llm`
-  # serving stack defaults off and is unused on mini.
+  # Gates the local LLM stack (`./services/llm`): it turns on the shared llama.cpp
+  # router `dotfiles.profiles.llm.serve` with mini's models (`local-chat` +
+  # `local-embed` on :8000) and adds open-webui. All serving knobs live there.
   miniLlmHosting = true;
-
-  # Local chat + embeddings via llama.cpp router (`./services/llm/llama-cpp.nix`).
-  miniLlmServedName = "local-chat";
-  miniLlmEmbedServedName = "local-embed";
-  miniLlmPort = 8000;
-
-  # Tailnet bind: the firewall trusts only tailscale0 (modules/nixos/networking.nix),
-  # so this is tailnet-only, never public. Loopback consumers still reach it.
-  miniLlmHost = "0.0.0.0";
 
   # Beszel hub + agent (./services/beszel.nix): server/service/container monitoring.
   miniMonitoring = true;
@@ -51,14 +41,6 @@ sharedNixOSHost
   # Also serve Caddy vhosts on the LAN IP (same *.jadee.fyi names; needs local DNS).
   miniCaddyLanEnable = true;
 
-  # GGML backends for nixpkgs `llama-cpp` (Vulkan + CLBlast/OpenCL only — not SYCL/OpenVINO).
-  # Use `vulkan-opencl` to compile both, then pick GPU at runtime via `LLAMA_ARG_DEVICE` or
-  # `systemctl edit llama-cpp-gemma` (see docs/hosts/mini.md § LLM stack).
-  miniLlamaCppGgmlBackends = "vulkan";
-
-  # Optional `LLAMA_ARG_DEVICE` for llama-server (null = auto). List: `llama-server --list-devices`.
-  miniLlamaCppDevice = null;
-
   # No guest accounts on a headless server.
   extraUsers = [ ];
 
@@ -70,6 +52,6 @@ sharedNixOSHost
   secureBoot = false;
 
   stateVersion = "26.05";
-  # Note: mainMonitor / dmsSettingsFile / niriOutputsFile intentionally omitted.
-  # the desktop profile (disabled here) carries the desktop HM tree.
+  # Note: dmsSettingsFile / niriOutputsFile intentionally omitted.
+  # The desktop profile (disabled here) carries the desktop HM tree.
 }
