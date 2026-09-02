@@ -10,8 +10,27 @@ let
     lanzaboote
     ;
 
+  # One nixpkgs import per system (lib/pkgs.nix). Each host reads its three
+  # package sets from here once and hands the SAME values to the system's
+  # specialArgs and to Home Manager's extraSpecialArgs, so nixpkgs is never
+  # instantiated twice for one host. `pkgsFor` is also published as a
+  # flake-parts module arg for parts/packages.nix (perSystem `pkgs`).
   pkgsFuncs = import ../lib/pkgs.nix { inherit inputs; };
-  inherit (pkgsFuncs) getPkgsSmall getPkgsStable getPkgsWithConfig;
+  inherit (pkgsFuncs) pkgsFor getPkgsWithConfig;
+
+  # `pkgs`, `pkgs-stable`, `pkgs-small` for one host. Only a host with
+  # `nixpkgsConfig` (framework: rocmSupport) gets a private main import;
+  # the other two channels are always the shared ones.
+  hostPkgs =
+    host:
+    let
+      inherit (host) system;
+    in
+    {
+      pkgs = getPkgsWithConfig system [ ] (host.nixpkgsConfig or { });
+      pkgs-stable = pkgsFor.${system}.stable;
+      pkgs-small = pkgsFor.${system}.small;
+    };
 
   hostData = import ../hosts/hosts.nix;
 
@@ -38,8 +57,8 @@ let
       user,
       hostKey,
       isDarwin,
-      system,
       inputs,
+      packageSets,
       ...
     }:
     let
@@ -55,6 +74,8 @@ let
       useUserPackages = true;
       backupFileExtension = "backup";
       overwriteBackup = true;
+      # `packageSets` is the host's `hostPkgs` result — the same `pkgs`,
+      # `pkgs-stable`, `pkgs-small` the system modules see.
       extraSpecialArgs = {
         inherit
           inputs
@@ -64,10 +85,8 @@ let
           isDarwin
           dotfilesLib
           ;
-        pkgs = getPkgsWithConfig system [ ] (host.nixpkgsConfig or { });
-        pkgs-stable = getPkgsStable system;
-        pkgs-small = getPkgsSmall system;
-      };
+      }
+      // packageSets;
       users = {
         ${user} = mkUserCfg;
       }
@@ -78,7 +97,7 @@ let
     {
       hostKey,
       user,
-      system,
+      packageSets,
       isDarwin ? false,
     }:
     {
@@ -88,7 +107,7 @@ let
           hostKey
           isDarwin
           inputs
-          system
+          packageSets
           ;
       };
     };
@@ -100,22 +119,29 @@ let
       isDarwin = lib.elem system darwinSystems;
       user = host.username;
       inherit (host) hostname;
-      pkgs = getPkgsWithConfig system [ ] (host.nixpkgsConfig or { });
+      # Computed once; shared by the system's specialArgs and Home Manager's
+      # extraSpecialArgs below. `pkgs-stable` / `pkgs-small` stay available
+      # as special args for occasional per-package pinning.
+      packageSets = hostPkgs host;
+      inherit (packageSets) pkgs;
       nixosConfig = lib.nixosSystem {
         system = null;
         inherit pkgs;
-        specialArgs = commonSpecialArgs // {
-          pkgs-stable = getPkgsStable system;
-          pkgs-small = getPkgsSmall system;
-          inherit host;
-          inherit
-            hostKey
-            user
-            isDarwin
-            inputs
-            system
-            ;
-        };
+        # `pkgs` reaches NixOS modules through `nixosSystem { pkgs }` above,
+        # not through specialArgs (that would shadow the module-system arg).
+        specialArgs =
+          commonSpecialArgs
+          // (removeAttrs packageSets [ "pkgs" ])
+          // {
+            inherit
+              host
+              hostKey
+              user
+              isDarwin
+              inputs
+              system
+              ;
+          };
         # Only modules common to every Linux host belong here; single-host
         # modules (disko, hermes-agent, …) are imported by the
         # host's own `hosts/<name>/default.nix`.
@@ -129,7 +155,7 @@ let
           determinate.nixosModules.default
           lanzaboote.nixosModules.lanzaboote
           home-manager.nixosModules.home-manager
-          (mkHomeManagerModule { inherit hostKey user system; })
+          (mkHomeManagerModule { inherit hostKey user packageSets; })
         ];
       };
     in
@@ -140,23 +166,23 @@ let
         let
           darwinConfig = nix-darwin.lib.darwinSystem {
             inherit system pkgs;
-            specialArgs = commonSpecialArgs // {
-              inherit
-                pkgs
-                host
-                hostKey
-                user
-                isDarwin
-                inputs
-                ;
-              pkgs-stable = getPkgsStable system;
-              pkgs-small = getPkgsSmall system;
-            };
+            specialArgs =
+              commonSpecialArgs
+              // packageSets
+              // {
+                inherit
+                  host
+                  hostKey
+                  user
+                  isDarwin
+                  inputs
+                  ;
+              };
             modules = [
               sops-nix.darwinModules.sops
               home-manager.darwinModules.home-manager
               (mkHomeManagerModule {
-                inherit hostKey user system;
+                inherit hostKey user packageSets;
                 isDarwin = true;
               })
               nix-homebrew.darwinModules.nix-homebrew
@@ -178,5 +204,9 @@ let
   );
 in
 {
+  # Shared with the other flake-parts modules (parts/packages.nix) so the
+  # perSystem `pkgs` is the same import the hosts use.
+  _module.args.pkgsFor = pkgsFor;
+
   flake = hostOutputs;
 }
