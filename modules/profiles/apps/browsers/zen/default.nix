@@ -2,7 +2,6 @@
   inputs,
   lib,
   pkgs,
-  pkgs-stable,
   ...
 }:
 let
@@ -58,11 +57,7 @@ in
 
   programs.zen-browser = {
     enable = true;
-    nativeMessagingHosts =
-      (lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs-stable.firefoxpwa ])
-      ++ [
-        vicinaeNativeMessagingHost
-      ];
+    nativeMessagingHosts = [ vicinaeNativeMessagingHost ];
     # `darwinDefaultsId` is deliberately left at the upstream default,
     # `app.zen-browser.zen` — Zen's real macOS bundle identifier, and the plist
     # domain it reads policies from. Overriding it writes ExtensionSettings to a
