@@ -2,7 +2,8 @@
 
 ## Purpose
 
-Global-install agent skills: upstream from pinned `skills-mattpocock`, `skills-ponytail`, and `skills-simple-english`, local overrides in `local/`.
+Authored agent skills for global install. APM installs them from `local/`; see
+`modules/profiles/devenv/agents/apm.nix`.
 
 ## Use skills
 
@@ -10,8 +11,10 @@ Global-install agent skills: upstream from pinned `skills-mattpocock`, `skills-p
 
 ## Local hazards
 
-- Upstream skills are **not** vendored here — they install from the flake inputs on `just switch`.
-- Edit overrides only under `data/agents/skills/local/`; project-only skills belong in `.agents/skills/`.
-- Do not edit installed copies under `~/.agents/skills/` (`~/.claude/skills` symlinks there).
-- Opt out of upstream skills via `data/agents/skills/.upstream-ignore` (one skill name per line).
-- Refresh the upstream pin with `just update`.
+- APM names a skill after its **directory**, not the frontmatter `name`. Rename the directory to rename the skill.
+- Add a new directory under `local/` and APM installs it on the next switch; no second declaration needed.
+- Upstream skills are **not** vendored here. APM fetches the bundles named in `apm.nix` and pins them in `~/.apm/apm.lock.yaml`.
+- APM cannot exclude one skill from an upstream bundle. The former `.upstream-ignore` opt-out no longer exists.
+- Edit authored skills only under `local/`; project-only skills belong in `.agents/skills/`.
+- Do not edit installed copies under `~/.claude/skills/`. APM overwrites them on switch.
+- Refresh the upstream pins with `apm update -g`, not `just update`.

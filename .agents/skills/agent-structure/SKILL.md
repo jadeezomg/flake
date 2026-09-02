@@ -13,7 +13,7 @@ Use this for agent-facing files: `.agents/skills/`, `data/agents/**`, installed 
 
 - Project-only skills for this repo live in `.agents/skills/<name>/SKILL.md`.
 - `.claude/skills` symlinks to `.agents/skills` in the flake root (Claude reads the same tree).
-- Global-install skills live in `data/agents/skills/local/` (overrides) plus the pinned `skills-mattpocock`, `skills-ponytail`, and `skills-simple-english` inputs (upstream).
+- Global-install skills live in `data/agents/skills/local/` (authored) plus the upstream bundles APM fetches (`mattpocock/skills`, `DietrichGebert/ponytail`, `AminBlg/SimpleEnglish`).
 - `data/agents/skills/local/` is still global-install; use it only when a dotfiles-specific skill should be available in every repo.
 - Never edit installed copies in `~/.agents/skills/`; `~/.claude/skills` symlinks there. Home Manager regenerates them.
 
@@ -23,7 +23,7 @@ Use this for agent-facing files: `.agents/skills/`, `data/agents/**`, installed 
 - `data/agents/global/settings.json` is the source for Claude settings.
 - `data/agents/omp/` owns Oh-my-posh agent config.
 - `modules/profiles/devenv/agents/global-config.nix` installs global config files.
-- `modules/profiles/devenv/agents/skills.nix` installs global skills under `~/.agents/skills`, symlinks `~/.claude/skills` there, and maintains repo `.claude/skills` → `.agents/skills`.
+- `modules/profiles/devenv/agents/apm.nix` renders `~/.apm/apm.yml` and runs `apm install -g`, which deploys global skills to `~/.claude/skills`. The same module maintains repo `.claude/skills` → `.agents/skills`.
 
 ## Skill shape
 
@@ -48,7 +48,7 @@ data/agents/skills/local/<name>/
 Ask: should this skill follow the user into unrelated repos?
 
 - Yes (dotfiles-specific override): put it in `data/agents/skills/local/<name>/`.
-- Yes (generic, upstream-owned): rely on the pinned upstream skill inputs; opt out via `.upstream-ignore` if needed.
+- Yes (generic, upstream-owned): rely on the upstream bundles APM fetches. APM cannot exclude one skill from a bundle.
 - No: put it in `.agents/skills/<name>/`.
 
 
@@ -59,9 +59,9 @@ Ask: should this skill follow the user into unrelated repos?
 
 ## Upstream skills
 
-- Upstream skills come from the pinned `skills-mattpocock`, `skills-ponytail`, and `skills-simple-english` flake inputs — installed automatically on switch.
+- Upstream skills come from the bundles listed in `apm.nix` — fetched by APM on switch and pinned in `~/.apm/apm.lock.yaml`.
 - Local overrides live in `data/agents/skills/local/` (same skill name wins).
-- Opt-outs: `data/agents/skills/.upstream-ignore`.
+- Authored skills must be listed in `localSkills` in `apm.nix`; APM names each after its directory.
 - `just update`: refreshes the upstream pin via `flake.lock`.
 
 ## Checks
