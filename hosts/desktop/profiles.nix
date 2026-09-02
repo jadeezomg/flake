@@ -13,9 +13,9 @@ _: {
     gaming.enable = true;
     desktop.loginManager = "gdm";
     desktop.shell = "noctalia";
-    # LLM serving stack: unsloth-studio + llama.cpp with CUDA (NVIDIA box;
-    # builds from source — not in the public binary cache).
-    llm.enable = true;
-    llm.llamaCppBackend = "cuda";
+    # LLM toolbox: unsloth-studio + llama.cpp CLI + hf CLI. The llama.cpp build
+    # follows `hardware.gpu = "nvidia"`, so it is CUDA (built from source unless
+    # cache.nixos-cuda.org has it). Set `llm.llamaCppBackend` only to override.
+    llm.tools.enable = true;
   };
 }

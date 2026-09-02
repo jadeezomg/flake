@@ -1,6 +1,13 @@
-# llm — the LLM serving stack (top-level profile, default off). Extracted
-# from devenv: serving belongs to a host's role, not the dev toolbox. mini
-# serves via its own llama-cpp host modules and keeps this off.
+# llm: local LLM tooling and serving (top-level profile, default off).
+#
+# Two toggles under `dotfiles.profiles.llm`:
+#   tools.enable  llama.cpp CLI, huggingface-hub CLI, unsloth-studio podman
+#                 user service. For workstations.
+#   serve.enable  the llama.cpp router server (./serve.nix, Linux only).
+#                 mini turns it on in hosts/mini/services/llm/.
+#
+# The llama-cpp build follows the GPU trait (`dotfiles.hardware.gpu`) unless
+# `llamaCppBackend` overrides it. Both toggles share `llamaCppPackage`.
 {
   config,
   isDarwin,
@@ -10,31 +17,48 @@
 }:
 let
   cfg = config.dotfiles.profiles.llm;
+
+  derivedBackend =
+    {
+      nvidia = "cuda";
+      intel = "vulkan";
+      amd = "vulkan";
+      none = "cpu";
+    }
+    .${config.dotfiles.hardware.gpu};
+  backend = if cfg.llamaCppBackend != null then cfg.llamaCppBackend else derivedBackend;
+
   llamaCpp =
-    if
-      cfg.llamaCppBackend == "cuda"
-    # NVIDIA-only; builds from source (no public binary cache for CUDA).
-    then
-      pkgs.llama-cpp.override { cudaSupport = true; }
-    # Vulkan works with Intel Arc / AMD / NVIDIA (Mesa or proprietary ICD).
-    # Plain `llama-cpp` is CPU-only by default in nixpkgs.
-    else
-      pkgs.llama-cpp.override { vulkanSupport = true; };
+    {
+      # NVIDIA only. Builds from source unless cache.nixos-cuda.org has it.
+      cuda = pkgs.llama-cpp.override { cudaSupport = true; };
+      # Works on Intel Arc, AMD, and NVIDIA through Mesa or the vendor ICD.
+      vulkan = pkgs.llama-cpp.override { vulkanSupport = true; };
+      # Plain nixpkgs `llama-cpp` is CPU only.
+      cpu = pkgs.llama-cpp;
+    }
+    .${backend};
 in
 {
-  config = lib.mkIf cfg.enable {
-    # Unsloth Studio user service (podman). Darwin has no systemd user service;
-    # `just unsloth*` recipes drive podman there directly.
-    home-manager.sharedModules = lib.optionals (!isDarwin) [ ./unsloth.nix ];
+  imports = lib.optionals (!isDarwin) [ ./serve.nix ];
 
-    environment.systemPackages =
-      lib.optionals (!isDarwin) [
-        llamaCpp
-        pkgs.python314Packages.huggingface-hub
-      ]
-      ++ lib.optionals isDarwin [
-        # For the `just unsloth*` recipes (no systemd on darwin).
-        pkgs.podman
-      ];
-  };
+  config = lib.mkMerge [
+    { dotfiles.profiles.llm.llamaCppPackage = lib.mkDefault llamaCpp; }
+
+    (lib.mkIf cfg.tools.enable {
+      # Unsloth Studio user service (podman). Darwin has no systemd user
+      # services; the `just unsloth*` recipes drive podman there directly.
+      home-manager.sharedModules = lib.optionals (!isDarwin) [ ./unsloth.nix ];
+
+      environment.systemPackages =
+        lib.optionals (!isDarwin) [
+          cfg.llamaCppPackage
+          pkgs.python314Packages.huggingface-hub
+        ]
+        ++ lib.optionals isDarwin [
+          # For the `just unsloth*` recipes (no systemd on darwin).
+          pkgs.podman
+        ];
+    })
+  ];
 }
