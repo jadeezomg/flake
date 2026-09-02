@@ -12,7 +12,6 @@ order = [ "default", "side", "laptop" ]
     capsule_thickness = 0.69999999999999996
     center = [ "group:g3" ]
     enabled = false
-    end = [ "tray", "group:g2", "group:g4" ]
     margin_ends = 900
     margin_opposite_edge = 5
     padding = 20
@@ -45,7 +44,7 @@ order = [ "default", "side", "laptop" ]
         enabled = true
         fill = "surface_variant"
         id = "g2"
-        members = [ "control-center", "bar_3", "notifications", "volume", "session" ]
+        members = [ "control-center", "bar_3", "notifications", "volume" ]
         opacity = 0.60000002384185791
         padding = 6.0
         radius = 6.0
@@ -615,19 +614,19 @@ transition_on_startup = true
     enabled = true
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/John_Martin_Le_Pandemonium_Louvre.JPG"
+    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/John_Martin_Le_Pandemonium_Louvre.JPG"
+    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
 
     [wallpaper.monitors.DP-1]
-    path = "/home/jadee/Pictures/Wallpapers/John_Martin_Le_Pandemonium_Louvre.JPG"
+    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
 
     [wallpaper.monitors.DP-2]
     path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/jadee/Pictures/Wallpapers/John_Martin_Le_Pandemonium_Louvre.JPG"
+    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
 
     [wallpaper.monitors.HDMI-A-2]
     path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
