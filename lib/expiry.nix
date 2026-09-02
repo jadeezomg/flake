@@ -10,7 +10,7 @@
 # reports what it made redundant instead of us finding out years later.
 #
 # Consumed by overlays (bound per file in parts/overlays/default.nix) and by
-# modules through `dotfilesLib.expiry "<repo-relative path>"`.
+# modules through `dotfilesLib.expiry { inherit lib; } "<repo-relative path>"`.
 #
 # Conditions must be evaluable offline. Nix cannot ask whether an upstream issue
 # is closed, so guard on something in the pinned tree that the fix would change —
