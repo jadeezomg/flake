@@ -39,18 +39,13 @@ let
     "a6335949-4465-4b71-926c-4a52d34bc9c0" # Better Find Bar
   ];
 
-  vicinaePkg =
-    if pkgs.stdenv.hostPlatform.isLinux then
-      pkgs.vicinae
-    else
-      inputs.vicinae.packages.${pkgs.stdenv.hostPlatform.system}.default;
   vicinaeNativeMessagingHost =
     pkgs.writeTextDir "lib/mozilla/native-messaging-hosts/com.vicinae.vicinae.json"
       (
         builtins.toJSON {
           name = "com.vicinae.vicinae";
           description = "Vicinae Native Messaging Host";
-          path = "${vicinaePkg}/libexec/vicinae/vicinae-browser-link";
+          path = "${pkgs.vicinae}/libexec/vicinae/vicinae-browser-link";
           type = "stdio";
           allowed_extensions = [ "firefox@vicinae.com" ];
         }
