@@ -5,6 +5,7 @@
     ../../modules/nixos
     ../../modules/profiles
     ./profiles.nix
+    ./corecycler.nix
   ];
 
   fileSystems."/mnt/storage" = {
@@ -19,7 +20,4 @@
   programs.coolercontrol = {
     enable = true;
   };
-
-  # System state version — host specific, do not change.
-  system.stateVersion = "26.05";
 }

@@ -1,12 +1,10 @@
 {
-  hostData,
-  hostKey,
+  host,
   lib,
   pkgs,
   ...
 }:
 let
-  host = hostData.hosts.${hostKey} or { };
   extras = host.extraUsers or [ ];
   tempPasswordUsers = builtins.filter (u: (u.initialPassword or null) != null) extras;
   tempPasswordPairs = map (u: "${u.username}:${u.initialPassword}") tempPasswordUsers;
