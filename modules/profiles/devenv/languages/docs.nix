@@ -11,9 +11,7 @@ in
   config = lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
       # Markdown
-      markdownlint-cli2
-      markdown-oxide
-      marksman
+      marksman # LSP: heading refs, TOC action, link diagnostics
 
       # Typst
       typst

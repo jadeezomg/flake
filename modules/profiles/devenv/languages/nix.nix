@@ -9,10 +9,12 @@ let
 in
 {
   config = lib.mkIf cfg.enable {
-    # `nil`/`nixd`/`nixfmt` are already pulled in via devenv.tools. This
-    # profile adds treefmt (via nixfmt-tree) plus lint-focused extras that a
-    # non-dev host (server) wouldn't want.
+    # The editor toolchain (`nixd` LSP + `nixfmt`) plus treefmt (via
+    # nixfmt-tree) and lint-focused extras that a non-dev host (server)
+    # wouldn't want.
     environment.systemPackages = with pkgs; [
+      nixd
+      nixfmt
       nixfmt-tree
       deadnix
       statix
