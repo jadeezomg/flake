@@ -1,4 +1,4 @@
-config_version = 13
+config_version = 14
 
 [backdrop]
 enabled = true
@@ -12,6 +12,7 @@ order = [ "default", "side", "laptop" ]
     capsule_thickness = 0.69999999999999996
     center = [ "group:g3" ]
     enabled = false
+    end = [ "tray", "group:g6", "group:g5" ]
     margin_ends = 900
     margin_opposite_edge = 5
     padding = 20
@@ -67,6 +68,28 @@ order = [ "default", "side", "laptop" ]
         fill = "surface_variant"
         id = "g4"
         members = [ "clock" ]
+        opacity = 1.0
+        padding = 6.0
+        radius = 6.0
+
+        [[bar.default.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        enabled = true
+        fill = "surface_variant"
+        id = "g5"
+        members = [ "control-center", "bar_5", "clock" ]
+        opacity = 1.0
+        padding = 6.0
+        radius = 6.0
+
+        [[bar.default.capsule_group]]
+        accordion = true
+        accordion_direction = "start"
+        enabled = true
+        fill = "surface_variant"
+        id = "g6"
+        members = [ "notifications", "network", "volume" ]
         opacity = 1.0
         padding = 6.0
         radius = 6.0
@@ -614,19 +637,19 @@ transition_on_startup = true
     enabled = true
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.DP-1]
-    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.DP-2]
     path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.HDMI-A-2]
     path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
@@ -658,6 +681,9 @@ type = "icefish/phone-connect:bar"
 type = "icefish/phone-connect:bar"
 
 [widget.bar_4]
+type = "icefish/phone-connect:bar"
+
+[widget.bar_5]
 type = "icefish/phone-connect:bar"
 
 [widget.brightness]
