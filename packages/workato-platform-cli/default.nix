@@ -11,14 +11,14 @@ let
 in
 py.buildPythonApplication rec {
   pname = "workato-platform-cli";
-  version = "1.0.6";
+  version = "1.0.7";
   pyproject = true;
 
   src = pkgs.fetchFromGitHub {
     owner = "workato-devs";
     repo = "workato-platform-cli";
     rev = version;
-    hash = "sha256-NZ7FeIC90ILVfjwyKFJBm/MbOMR/x6xhKuGuagyfmiI=";
+    hash = "sha256-O7ooX/2SqJx+kMzWN25UcxNGtbisCEsHUW0hYyd0tLE=";
   };
 
   # Listed as a runtime dep upstream but only used for linting (not imported by the CLI).

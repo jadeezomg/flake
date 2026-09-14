@@ -99,11 +99,11 @@ The same guards apply to workarounds in NixOS/HM modules and host files. The for
 - The location string is hand-written. It must follow the file when the file moves or is renamed.
 - Modules have no `prev`. Read the condition from `cfg.package.version` or `pkgs.foo.version` instead.
 - Keep the condition off `config.*` values where possible. A guard on the module fixpoint can loop or make eval order fragile. `cfg.package` is fine when the option has a default and nothing in the guard sets it.
-- Live examples: `modules/profiles/minimal/shells/core/atuin.nix` (`expireWhen`) and `hosts/mini/default.nix` (`recheckWhen` around a `serviceConfig` value).
+- Live example: `hosts/mini/default.nix` (`recheckWhen` around a `serviceConfig` value). The `expireWhen` example below lived in `modules/profiles/minimal/shells/core/atuin.nix` until atuin 18.20.1 retired it (2026-09-14).
 
 ### Boolean-flag idiom
 
-When the workaround is a set of option changes and not one value, guard a flag and let the options read it (from `atuin.nix`):
+When the workaround is a set of option changes and not one value, guard a flag and let the options read it (the retired atuin nushell fix):
 
 ```nix
 renameUpArrowBinding = expiry.expireWhen {
