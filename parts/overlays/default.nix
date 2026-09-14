@@ -16,6 +16,10 @@ let
 in
 [
   inputs.llm-agents.overlays.shared-nixpkgs
+  (import ./omp-upstream-nixpkgs.nix {
+    inherit inputs lib system;
+    expiry = expiryFor "omp-upstream-nixpkgs";
+  })
   (import ./local-packages.nix { inherit lib system; })
   (import ./mise-darwin-http-tests.nix {
     inherit lib system;
