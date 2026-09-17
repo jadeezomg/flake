@@ -49,6 +49,7 @@ in
       mangojuice
       heroic
       protonup-rs
+      protontricks
       gamescope-wsi
       wineWow64Packages.staging
       winetricks

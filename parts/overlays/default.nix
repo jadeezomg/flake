@@ -25,6 +25,10 @@ in
     inherit lib system;
     expiry = expiryFor "mise-darwin-http-tests";
   })
+  (import ./xwayland-satellite-menu-flicker.nix {
+    inherit lib system;
+    expiry = expiryFor "xwayland-satellite-menu-flicker";
+  })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })
 ]
