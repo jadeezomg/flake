@@ -90,13 +90,14 @@ let
   # "Permission denied" before it deploys anything to ~/.claude/skills. The
   # deployed copies under ~/.claude/skills/<local skill> carry the same mode
   # and fail the same way on refresh.
-  # Verified 2026-09-03 with apm 0.29.0 (utils/file_ops.py `_on_readonly_retry`).
+  # Verified 2026-09-03 with apm 0.29.0, re-verified 2026-09-27 with 0.32.0
+  # (utils/file_ops.py `_on_readonly_retry`).
   # Make both copies owner-writable and readable before each install.
   fixLocalCopyPerms =
     (dotfilesLib.expiry { inherit lib; } "modules/profiles/devenv/agents/apm.nix").recheckWhen
       {
-        stale = lib.versionAtLeast apm.version "0.32";
-        reason = "apm reached 0.32 (chmod workaround verified needed at 0.29.0); check whether _on_readonly_retry still uses S_IWRITE alone and drop fixLocalCopyPerms if fixed.";
+        stale = lib.versionAtLeast apm.version "0.36";
+        reason = "apm reached 0.36 (chmod workaround verified needed at 0.32.0); check whether _on_readonly_retry still uses S_IWRITE alone and drop fixLocalCopyPerms if fixed.";
       }
       ''
         for d in "$HOME/.apm/apm_modules/_local" ${

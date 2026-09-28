@@ -26,6 +26,8 @@
         fonts.enable = false;
       };
       ghostty.fonts.enable = false;
+      # Not installed anywhere; autoEnable would still theme it and warn.
+      rofi.enable = false;
       # GTK/dconf theming needs a graphical session; ./gui.nix turns it on
       # (plain priority beats this mkDefault) for theme.gui hosts.
       gtk.enable = lib.mkDefault false;
