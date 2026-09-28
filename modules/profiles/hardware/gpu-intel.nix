@@ -17,6 +17,9 @@
 
         # Optional (compute / tooling):
         intel-compute-runtime # OpenCL (NEO) + Level Zero for Arc/Xe
+        # The package moves libze_intel* into its `drivers` output. Add it so
+        # Level Zero consumers find the libs under /run/opengl-driver/lib.
+        intel-compute-runtime.drivers
       ];
     };
 

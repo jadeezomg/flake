@@ -25,5 +25,5 @@ Single-flake, multi-host NixOS/Darwin dotfiles for `desktop`, `framework`, `caya
 - Run `flake fmt` after editing `.nix` files.
 - Run `git add` before Nix eval/build; flakes only see tracked files.
 - Never change `.flake-host` (read is fine; do not create, edit, or delete it). Never commit secrets or `.flake-host`; use SOPS for encrypted secrets.
-- Do not edit installed agent files under `~/.claude/`, `~/.agents/`, or `~/AGENTS.md`; edit this flake's sources.
+- Do not edit installed agent files under `~/.claude/` or `~/AGENTS.md`. Skills and MCP there are APM's output and are overwritten on switch; edit `modules/profiles/devenv/agents/apm.nix` and `data/agents/skills/local/` instead.
 - Non-nixpkgs packages that write mutable state need a removal path when dropped from the flake (see `packages/AGENTS.md`).

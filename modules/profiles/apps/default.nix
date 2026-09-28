@@ -22,23 +22,14 @@ in
   ]
   ++ lib.optionals (!isDarwin) [ ./media.nix ];
 
-  # Convenience: enabling apps.enable activates every category the current
-  # workstation hosts ship today. Slimmer hosts (work laptop, server) should
-  # set the unwanted sub-flags to `false` explicitly after enabling apps.
+  # The category files read `apps.enable` directly. Only notes keeps its own
+  # flag, because other modules still read it.
   config = lib.mkMerge (
     [
       (lib.mkIf cfg.enable {
         home-manager.sharedModules = [ ./vicinae.nix ];
 
-        dotfiles.profiles.apps = {
-          browsers.enable = lib.mkDefault true;
-          terminals.enable = lib.mkDefault true;
-          editors.enable = lib.mkDefault true;
-          files.enable = lib.mkDefault true;
-          comms.enable = lib.mkDefault true;
-          notes.enable = lib.mkDefault true;
-          media.enable = lib.mkDefault true;
-        };
+        dotfiles.profiles.apps.notes.enable = lib.mkDefault true;
       })
     ]
     ++ lib.optionals (!isDarwin) [

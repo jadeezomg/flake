@@ -1,15 +1,12 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-let
-  cfg = config.dotfiles.profiles.devenv.languages.data;
-in
-{
-  config = lib.mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
+{ dotfilesLib, ... }@args:
+dotfilesLib.mkProfile {
+  path = [
+    "devenv"
+    "languages"
+    "data"
+  ];
+  packages =
+    pkgs: with pkgs; [
       # YAML
       yaml-language-server
 
@@ -23,5 +20,4 @@ in
       sqlite
       sqls
     ];
-  };
-}
+} args

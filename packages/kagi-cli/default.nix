@@ -4,11 +4,11 @@
   ...
 }:
 let
-  version = "0.18.1";
+  version = "0.20.1";
 
   # update_packages.py rewrites these top-level attrs for each release asset.
-  linuxX64Hash = "sha256-My65QvZ8UenIyZM+5D7c0cNv8fAheTnQ1r2Bv1YkLcI=";
-  darwinArm64Hash = "sha256-pjYuj6Kk2gcDA+RRigqR2S760F+XCaIpCbLl/0YWXoM=";
+  linuxX64Hash = "sha256-xZvSAvzTMwNPYyHTm8QbcGUWJ8P5GtWvjh14wa5eSE4=";
+  darwinArm64Hash = "sha256-f6z7+m5YbHfwQVWFrfcZt+VrO4re5ZtlxHQ5eItcUFo=";
 
   platforms = {
     "x86_64-linux" = {

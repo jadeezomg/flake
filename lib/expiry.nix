@@ -10,7 +10,7 @@
 # reports what it made redundant instead of us finding out years later.
 #
 # Consumed by overlays (bound per file in parts/overlays/default.nix) and by
-# modules through `dotfilesLib.expiry "<repo-relative path>"`.
+# modules through `dotfilesLib.expiry { inherit lib; } "<repo-relative path>"`.
 #
 # Conditions must be evaluable offline. Nix cannot ask whether an upstream issue
 # is closed, so guard on something in the pinned tree that the fix would change —
@@ -73,4 +73,16 @@ location: {
       ${location} needs re-checking: ${reason}
       Re-verify the workaround, then move its threshold forward or delete it.
     '' workaround;
+
+  # For an open task with no eval-time condition at all: a decision the owner
+  # still has to make, a value known to be a placeholder, a file waiting for
+  # cleanup. Warns on every eval until someone edits the file, so the item
+  # cannot fall off the radar. Keep `reason` short and say what to decide.
+  #
+  #   openRegistration = todo "close registration after onboarding" true;
+  todo =
+    reason: value:
+    lib.warn ''
+      ${location} TODO: ${reason}
+    '' value;
 }

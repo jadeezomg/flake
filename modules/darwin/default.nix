@@ -2,13 +2,11 @@
   config,
   lib,
   pkgs,
-  hostData,
-  hostKey,
+  host,
   user,
   ...
 }:
 let
-  host = hostData.hosts.${hostKey} or { };
   homeDir = host.homeDirectory or "/Users/${user}";
 
   xdgVars = {

@@ -33,7 +33,8 @@ These tools are only available on NixOS (desktop/framework hosts).
 |------|-------|
 | steamcmd | Steam command-line interface |
 | mangohud | In-game overlay (FPS, temps) |
-| protonup-ng / protonup-rs | Update Proton/GE versions |
+| protonup-ng | Update Proton/GE versions — binary is `protonup`, not `protonup-ng` |
+| protonup-rs | Update Proton/GE versions (`protonup-rs`) |
 | heroic | Launcher for Epic/GOG games |
 
 ## LLM Tools (NixOS)
@@ -44,10 +45,10 @@ These tools are only available on NixOS (desktop/framework hosts).
 
 ## nix-index
 
-`nix-index` is integrated with bash and zsh: when a command is not found, it suggests the nixpkgs package that provides it.
+`nix-index` owns the command-not-found hook (`programs.command-not-found` is off). The hook covers bash and zsh only, so nushell — the default shell here — gets no suggestion. Query it directly with `nix-locate <bin>`.
 
 ## Key Files
 
 - `/etc/nixos/` - NixOS config (but prefer flake)
-- `~/.dotfiles/flake/` - The flake root (`zf` to navigate there)
-- `.flake-host` - Active host (desktop/framework)
+- `~/.dotfiles/flake/` - The flake root, also `$FLAKE`
+- `.flake-host` - Active host; never commit it and never edit it

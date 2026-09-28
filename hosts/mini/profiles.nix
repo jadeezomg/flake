@@ -6,16 +6,9 @@ _: {
   };
 
   dotfiles.profiles = {
+    # hostClass "server" (hosts/hosts.nix) already defaults desktop,
+    # integrations, fonts.full and theme.gui to off; see modules/profiles/server.nix.
     server.enable = true;
-
-    # Headless: opt out of every desktop-flavoured profile explicitly.
-    desktop.enable = false;
-    integrations.enable = false;
-    apps.enable = false;
-    fonts.full.enable = false;
-    theme.gui.enable = false;
     devenv.enable = true;
-    gaming.enable = false;
-    work.enable = false;
   };
 }

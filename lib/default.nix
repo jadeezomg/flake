@@ -34,17 +34,18 @@ in
   shellEnvData = import ./shells/env-data.nix;
   shellPaths = import ./shells/paths.nix;
 
-  # apply: { pkgs, pkgs-small }
+  # apply: { pkgs }
   nonoProfiles = import ./nono-profiles.nix;
   # apply: { pkgs }
   hostStatus = import ./host-status.nix;
-  # apply: { lib, osConfig ? null }
-  mcpServers = import ./mcp-servers.nix;
   # apply: pkgs
   minimalPackages = import ./packages/minimal.nix;
   # apply: { lib, isDarwin }
   nixExperimentalFeatures = import ./nix-experimental-features.nix;
   expiry = import ./expiry.nix;
+  # apply: { path, packages?, linuxPackages?, darwinPackages?, hm?, extra? }
+  # Returns a system module for a plain profile leaf. See ./profile.nix.
+  mkProfile = import ./profile.nix;
 
   # Binary caches for both platforms' Nix config; `darwin = true` marks the ones
   # that serve aarch64-darwin.
@@ -66,8 +67,22 @@ in
   # by `username`). `hosts/lib.nix` builds the system accounts from the same
   # file; modules read identity facts (git author, ...) through this.
   inherit users;
-  agentSkillsDir = ../data/agents/skills;
-  # apply: { lib, inputs }
-  agentSkills = import ./agent-skills.nix;
+  # Agent data. `data/agents/**` is spelled once here; consumers pick the form
+  # they need. Store paths are immutable and need a switch to pick up an edit;
+  # the live paths from `agentDataFiles` are the checkout itself, for files
+  # that must stay editable (live symlinks).
+  agentsDataDir = ../data/agents;
+  # A store path, so APM's local `path:` deps do not depend on where the flake
+  # is checked out — see modules/profiles/devenv/agents/apm.nix.
+  agentSkillsDir = ../data/agents + "/skills";
+  # apply: flakeRoot
+  agentDataFiles = flakeRoot: rec {
+    root = "${flakeRoot}/data/agents";
+    globalAgentsMd = "${root}/global/AGENTS.md";
+    claudeSettings = "${root}/global/settings.json";
+    ompConfig = "${root}/omp/config.yml";
+    ompTheme = "${root}/omp/themes/birds-of-paradise.json";
+    localSkills = "${root}/skills/local";
+  };
   sopsFile = ../secrets/secrets.yaml;
 }

@@ -63,7 +63,6 @@ _: {
         default = pkgs.mkShell {
           packages = [
             pkgs.nixfmt-tree
-            pkgs.nil
             pkgs.nixd
             pkgs.nix-update
             pkgs.jq

@@ -4,12 +4,22 @@ These tools are only available on the caya host (aarch64 Apple Silicon, macOS).
 
 ## Homebrew CLI Tools
 
+Declared in `modules/profiles/work/darwin/default.nix`, so they exist only when
+the `work` profile is on — which today means caya.
+
 | Tool | Command | Notes |
 |------|---------|-------|
 | trash | `trash <path>` | Finder Trash from CLI (preferred over `rm`) |
-| mise | `mise install`, `mise use` | Polyglot runtime version manager |
+
+## Nix-provided (both platforms)
+
+| Tool | Command | Notes |
+|------|---------|-------|
+| mise | `mise install`, `mise use` | Polyglot runtime version manager. Comes from the nix closure via `programs.mise.enable`, not Homebrew. |
 
 ## 1Password CLI (op)
+
+From the `1password-cli` cask (work profile).
 
 ```bash
 op signin                          # authenticate
