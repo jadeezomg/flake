@@ -19,7 +19,7 @@ in
     assertions = [
       {
         assertion = config.services.flatpak.enable;
-        message = "apps.notes installs Whisp from Flathub; enable dotfiles.profiles.integrations.flatpak.";
+        message = "apps.notes installs Whisp from Flathub; enable dotfiles.profiles.integrations (it turns on Flatpak).";
       }
     ];
 

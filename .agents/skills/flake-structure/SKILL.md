@@ -1,89 +1,115 @@
 ---
 name: flake-structure
-description: Apply this dotfiles flake's top-level layout rules. Use when adding, moving, or reorganizing hosts, flake-parts, custom packages, shared lib helpers, scripts, docs, or other non-profile flake structure.
+description: Apply this dotfiles flake's top-level layout rules. Use when adding, moving, or reorganizing hosts, flake-parts, custom packages, shared lib helpers, data registries, scripts, just modules, docs, or other non-profile flake structure.
 ---
 
 # Flake Structure
 
 ## Scope
 
-Use this for top-level flake organization outside `modules/profiles/**`. For profile/app layout, use `module-structure`; for `parts/overlays/` internals, use `overlays`.
+This skill maps the tree outside `modules/profiles/**`. For profile and app layout, use `module-structure`. For `parts/overlays/` internals, use `overlays`. For `secrets/` and `.sops.yaml`, use `secrets-structure`. For `data/agents/`, use `agent-structure`.
 
-## Top-level ownership
+## Top-level map
 
-- `hosts/<name>/` owns per-machine facts and overrides.
-  - `host.nix`: host facts such as hostname, monitors, hardware knobs, `nixpkgsConfig`.
+- `flake.nix`: inputs and the flake-parts `imports` list. `systems` is a `flake = false` path input that points at `lib/systems.nix`.
+- `hosts/`: host registry and per-machine config.
+- `parts/`: flake-parts modules.
+- `modules/`: NixOS, Darwin, and Home Manager modules (see `module-structure`).
+- `packages/`: custom package derivations and update metadata.
+- `lib/`: shared data and helpers exposed as `dotfilesLib`.
+- `data/`: plain data registries with no Nix logic.
+- `scripts/`: bash helpers and the `flake-scripts` Python project.
+- `Justfile` and `just/`: operator recipes.
+- `docs/`: durable explanations and ADRs.
+- `secrets/` and `.sops.yaml`: SOPS/age secrets.
+- Subdirectory `CLAUDE.md` files contain only `@AGENTS.md`. Put the content in `AGENTS.md`.
+
+## Inputs
+
+- `nixpkgs` is the main channel. `nixpkgs-small` and `nixpkgs-stable` back `getPkgsSmall` and `getPkgsStable` in `lib/pkgs.nix`.
+- `nixpkgs-skhd` is a standing pin with no expiry guard. `parts/overlays/skhd-pinned-darwin.nix` consumes it.
+- `nixpkgs-zed` is declared but has no consumer. Do not document it as live.
+
+## Hosts
+
+- `hosts/hosts.nix` is the host registry. It imports each `hosts/<name>/host.nix` and validates the required fields: `hostname`, `system`, `username`, `stateVersion`. A new host must be registered here.
+- `hosts/hosts.nix` defaults `sshAddress` to `hostname`. A host sets `sshAddress = null` to opt out (caya) or a fixed address (mini). `data/network/ssh-destinations.nix` consumes it.
+- `hosts/lib.nix` holds shared host defaults: `sharedNixOSHost`, `sharedNixOSUser`, `darwinUser`, `nixosExtraUsers`. It reads `data/users/users.nix`.
+- Each `hosts/<name>/` has:
+  - `host.nix`: facts such as `hostname`, `hostClass` (`workstation` or `server`), `buildCores`, `extraUsers`, monitor data, `nixpkgsConfig`.
   - `profiles.nix`: `dotfiles.profiles.*` toggles.
-  - `default.nix`: host-specific system overrides and packages.
-- `parts/` owns flake-parts wiring.
-  - `hosts.nix`: NixOS/Darwin/HM output construction.
-  - `packages.nix`: exposes local packages as flake packages.
-  - `checks.nix`: flake checks and formatter.
-  - `overlays/`: overlay list and package auto-registration — see the `overlays` skill.
-- `packages/<name>/` owns custom package derivations and update metadata.
-- `lib/` owns shared data/helpers exposed through `dotfilesLib`.
-- `scripts/` owns Justfile-backed shell/Python helpers.
-- `docs/` owns durable explanations, ADRs, and operator references.
-
-## Host structure
-
-Each host has:
-
-- `host.nix`: facts: hostname, monitor data, extra users, secure boot, host import-time nixpkgs config.
-- `profiles.nix`: profile toggles.
-- `default.nix`: host-specific system overrides.
+  - `default.nix`: host-specific system overrides and single-host modules.
 
 Hazards:
 
-- `.flake-host` selects the active host and must not be committed.
-- `stateVersion` is per-host; never raise it without release-note audit and never lower it.
-- `extraUsers` also receive Home Manager configs through `parts/hosts.nix`.
-- Host-specific nixpkgs import config belongs in `host.nix` as `nixpkgsConfig`, consumed by `getPkgsWithConfig`.
+- `.flake-host` selects the active host. Never commit it. Never create, edit, or delete it.
+- `stateVersion` is per-host. Never raise it without a release-note audit. Never lower it.
+- `extraUsers` also get Home Manager configs through `parts/hosts.nix`.
+- Host nixpkgs import config belongs in `host.nix` as `nixpkgsConfig`. `getPkgsWithConfig` consumes it.
 
 ## Flake-parts wiring
 
-- `mkHostOutputs` builds per-host outputs keyed by `host.hostname` with `hostKey` fallback.
-- Single-host modules belong in `hosts/<name>/default.nix`, not common platform imports.
-- `homeModules` is the unconditional HM base; profile/user config arrives through `home-manager.sharedModules`.
-- `packages.nix` and `parts/overlays/local-packages.nix` share `packages/names.nix`.
-- `checks.nix` owns flake checks; darwin eval checks are explicit because `flake check` ignores `darwinConfigurations`.
-- `nixpkgs-zed` is pinned separately; do not make it follow `nixpkgs` accidentally.
+- `parts/hosts.nix`: `mkHostOutputs` builds `nixosConfigurations` or `darwinConfigurations`, keyed by `host.hostname`. Home Manager is embedded in each system output. There are no `homeConfigurations` outputs.
+- `homeModules` in `parts/hosts.nix` is the unconditional HM base. Profile and user config arrives through `home-manager.sharedModules`.
+- Single-host modules belong in `hosts/<name>/default.nix`, not in the common module lists.
+- `parts/shells.nix`: `devShells` (`default`, `nono-claude`, `nono-pi`) built from `lib/nono-profiles.nix`.
+- `parts/packages.nix`: exposes local packages as flake `packages` and pins `perSystem` `pkgs` to `getPkgs`.
+- `parts/checks.nix`: `host-caya-eval` (aarch64-darwin), `host-mini-headless` (x86_64-linux), and `formatter = nixfmt-tree`. Darwin eval is explicit because `flake check` ignores `darwinConfigurations`.
+- `parts/overlays/`: overlay list and local package registration. See the `overlays` skill.
 
-## Lib structure
+## Lib
 
-- Expose cross-tree pure data/helpers through `lib/default.nix` as `dotfilesLib`.
-- Do not add `../../` module imports for shared data.
-- `pkgs.nix` owns `getPkgs`, `getPkgsWithConfig`, `getPkgsSmall`, and `getPkgsStable`.
-- `home/dotfiles.nix` owns `dotfiles.flakeRoot` for live symlink targets.
+- `lib/default.nix` builds `dotfilesLib`. `parts/hosts.nix` passes it to every system and HM module. Do not add `../../` imports for shared data.
+- `lib/default.nix` reads two address registries and keeps them apart: `hostFacts` (machines the flake builds, from `hosts/hosts.nix`) and `lanHosts` (machines it only talks to, from `data/network/lan-hosts.nix`).
+- `pkgs.nix`: `getPkgs`, `getPkgsWithConfig`, `getPkgsSmall`, `getPkgsStable`.
+- `systems.nix`: the supported systems list.
+- `expiry.nix`: expiry guard for workaround overlays.
+- `nix-caches.nix`, `nix-experimental-features.nix`: Nix settings data.
+- `host-status.nix`, `nono-profiles.nix`: helpers applied with `pkgs`.
+- `theme-palette.nix`, `theme-base16.nix`, `theme-fonts.nix`: theme data (see `theme-structure`).
+- `shells/env-data.nix`, `shells/paths.nix`: shell env and path data.
+- `packages/minimal.nix`: the minimal package set.
+- `home/dotfiles.nix`: the `dotfiles.flakeRoot` option and `config.lib.dotfiles`. `home/live-xdg-symlinks.nix`: live symlink helpers.
 
-## Package structure
+## Data
 
-- Local packages are auto-registered from `packages/*/default.nix`; do not add duplicate explicit imports.
-- Every updatable package should have `update.json` beside `default.nix`.
-- Update types include `nix-update`, `npm`, `github_npm`, and `binary_channel`.
-- `.update-check.json` is generated cooldown state.
-- Use standard `callPackage` conventions; accept final `pkgs` only when needed.
-- Verify packages/dependencies with live nixpkgs tooling and cache availability before adding them.
+- `data/network/lan-hosts.nix`: addresses of machines the flake does not build.
+- `data/network/ssh-destinations.nix`: ssh aliases derived from both registries.
+- `data/users/users.nix`: the account registry.
+- `data/files/`: static files that modules symlink live.
+- `data/agents/`: agent config data (see `agent-structure`).
 
-## Script structure
+## Packages
 
-- Shell helpers live in `scripts/shell/` and should reuse `common.sh`.
-- Python automation lives in `scripts/src/flake_scripts/`, with entry points in `scripts/pyproject.toml`.
-- Use `uv run --project scripts <entry-point>` from recipes.
-- Shell helpers are bash-only; use `[[ ]]`, not `[ ]`.
-- New scripts must be staged before Nix eval/build.
-- If theme colors are used in Python, keep `scripts/src/flake_scripts/lib/palette.py` in sync with `lib/theme-palette.nix`.
+- `packages/names.nix` lists every `packages/<name>/default.nix`. `parts/packages.nix` and `parts/overlays/local-packages.nix` share it. Do not add explicit imports.
+- Every updatable package has `update.json` beside `default.nix`. `.update-check.json` is generated cooldown state.
+- Update types: `nix-update` (built in), `binary_channel`, `fetchzip`, `npm`. `fetchzip` serves `iosevka-aile` and `iosevka-etoile`.
+- Use standard `callPackage` conventions. Verify packages with live nixpkgs tooling before you add them.
 
-## Docs structure
+## Scripts
 
-- Use `CONTEXT.md` for domain vocabulary and current architecture map.
-- Use `docs/adr/` for durable decisions with tradeoffs.
-- Use focused docs under `docs/<area>/` for operator procedures.
-- Do not create docs just to narrate a small code change.
+- `scripts/shell/`: bash helpers that source `common.sh`. Use `[[ ]]`, not `[ ]`.
+- `scripts/src/flake_scripts/`: Python package. Subpackages: `lib/` (`common.py`, `palette.py`) and `zen/` (`session.py`, `sync.py`).
+- Entry points in `scripts/pyproject.toml`: `symlink-check`, `zen-sync`, `update-packages`, `media-quality`.
+- Recipes call `uv run --project "$FLAKE/scripts" <entry-point>`.
+- Keep `scripts/src/flake_scripts/lib/palette.py` in sync with `lib/theme-palette.nix`.
+
+## Just
+
+- `Justfile` loads `just/mini.just` as `mod mini` and `just/unraid.just` as `mod unraid`.
+- `just/mini.just` nests `just/mini-llm.just` as `mod llm` (`just mini llm <cmd>`).
+- `flake <recipe>` is a shell alias for `just --justfile $FLAKE/Justfile <recipe>`.
+
+## Docs
+
+- `docs/ALIASES.md`: shell alias reference. `docs/profiles.md`: profile reference.
+- `docs/adr/`: numbered ADRs for durable decisions.
+- `docs/bench/`, `docs/handoffs/`, `docs/hosts/`, `docs/nix/`, `docs/research/`, `docs/secrets/`: focused notes by area.
+- `CONTEXT.md` at the root defines agent sandboxing vocabulary.
+- Do not create docs to narrate a small code change.
 
 ## Checks
 
-1. Run `just fmt` for Nix/script changes.
-2. `git add` new Nix/package/script files before Nix eval/build.
-3. Eval the changed flake output or package attr directly.
-4. Run the narrow recipe/check that covers the moved owner.
+1. Run `flake fmt` after Nix or script changes.
+2. `git add` new files before Nix eval or build.
+3. Ask the user to run builds. Do not run them yourself.

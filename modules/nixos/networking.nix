@@ -3,6 +3,7 @@
   host,
   lib,
   pkgs,
+  user,
   ...
 }:
 let
@@ -27,7 +28,7 @@ in
     enable = true;
     openFirewall = true;
     extraUpFlags = [ "--ssh" ];
-    extraSetFlags = [ "--operator=jadee" ]; # add
+    extraSetFlags = [ "--operator=${user}" ];
   };
 
   environment.systemPackages =

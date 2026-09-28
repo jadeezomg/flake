@@ -7,7 +7,7 @@
 }:
 {
   config = lib.mkMerge [
-    (lib.mkIf config.dotfiles.profiles.devenv.containers.enable {
+    (lib.mkIf config.dotfiles.profiles.devenv.enable {
       virtualisation.podman = {
         enable = true;
         dockerCompat = true;

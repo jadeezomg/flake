@@ -1,18 +1,18 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-let
-  cfg = config.dotfiles.profiles.devenv.tools;
-in
-{
-  config = lib.mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
+# Core dev tooling — the system packages plus the HM half (mise).
+{ dotfilesLib, ... }@args:
+dotfilesLib.mkProfile {
+  path = [ "devenv" ];
+  # mise — polyglot tool/runtime version manager and task runner. mise is
+  # inside the nix closure on both platforms, so home-manager generates the
+  # shell activation snippets at build time. nushell gets a store path it can
+  # `use`, which is why the writable-cache dance the Homebrew mise needed on
+  # Darwin is gone.
+  hm = [ { programs.mise.enable = true; } ];
+
+  packages =
+    pkgs: with pkgs; [
       # --- Build essentials (migrated from modules/shared/utils/core.nix) ---
       gnumake
-      gnutls
       gcc
       gdb
       pkg-config
@@ -26,26 +26,14 @@ in
 
       # --- Task runners ---
       just
-      mask
       act
+      watchexec
 
       # --- Code metrics & analysis ---
       tokei
       diffnav
 
-      # --- Package managers ---
-      uv
-
-      # --- Nix tooling (formatters + LSPs) ---
-      nixfmt
-      nil
-      nixd
-
-      # --- Container tools ---
-      dive
-
       # --- Session recording ---
       asciinema
     ];
-  };
-}
+} args

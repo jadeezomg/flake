@@ -1,15 +1,12 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-let
-  cfg = config.dotfiles.profiles.devenv.languages.web;
-in
-{
-  config = lib.mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
+{ dotfilesLib, ... }@args:
+dotfilesLib.mkProfile {
+  path = [
+    "devenv"
+    "languages"
+    "web"
+  ];
+  packages =
+    pkgs: with pkgs; [
       # JavaScript runtime
       nodejs_24
       bun
@@ -20,13 +17,7 @@ in
       typescript-language-server
       biome
 
-      # CSS / HTML
-      vscode-langservers-extracted
-      html-tidy
-      dart-sass
-
       # GraphQL
       graphql-language-service-cli
     ];
-  };
-}
+} args

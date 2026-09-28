@@ -568,6 +568,12 @@ health:
     is_darwin || nh os info 2>/dev/null | head -15
     print_header "END"
 
+[doc('WoW UI settings: save | wipe | restore the WTF .lua files (beta wipes them on restart). WOW_DIR overrides the client dir')]
+[group('system')]
+wow-ui CMD:
+    @bash "$FLAKE/scripts/shell/wow-ui.bash" {{ CMD }}
+
+
 [doc('Full external refresh: update-packages (packages/*/update.json, which includes nix-update entries), flake.lock, optional fwupdmgr; then just fmt. Set UPDATE_FORCE=1 for update-packages --force')]
 [group('system')]
 update:

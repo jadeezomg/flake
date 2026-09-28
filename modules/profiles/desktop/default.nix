@@ -19,6 +19,7 @@ in
   imports = [
     ./dms-greeter-acl.nix
     ./gdm
+    ./mime.nix
     ./peripherals.nix
   ];
 

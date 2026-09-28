@@ -5,8 +5,8 @@ script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 root="${FLAKE:-$(cd "$script_dir/../.." && pwd)}"
 source "$root/scripts/shell/common.sh"
 
-# mini serves local LLMs via llama.cpp (`llama-cpp-gemma` systemd unit) on :8000
-# behind the shared `local-chat` / `local-embed` contract (router mode).
+# mini serves local LLMs via llama.cpp (`llama-cpp` systemd unit, router mode) on
+# :8000 as `local-chat` / `local-embed`. Config: hosts/mini/services/llm/default.nix.
 
 usage() {
   cat <<'USAGE'
@@ -28,8 +28,8 @@ USAGE
 
 # Which backend is deployed right now (by which unit file exists), not what is running.
 primary_unit() {
-  if systemctl cat llama-cpp-gemma.service >/dev/null 2>&1; then
-    echo llama-cpp-gemma
+  if systemctl cat llama-cpp.service >/dev/null 2>&1; then
+    echo llama-cpp
   else
     echo ""
   fi
@@ -186,7 +186,7 @@ case "$command_name" in
 overview | status)
   be="$(active_backend)"
   print_header "MINI LLM STATUS (backend: $be)"
-  systemctl list-units 'llama-cpp-*' --all --no-pager --full
+  systemctl list-units 'llama-cpp*' --all --no-pager --full
   print_header "UNIT STATUS"
   mapfile -t units < <(backend_units | tr ' ' '\n' | grep -v '^$' || true)
   if ((${#units[@]})); then
@@ -260,7 +260,7 @@ troubleshoot)
   print_header "FAILED UNITS"
   systemctl --no-pager --failed || true
   print_header "LLM UNITS"
-  systemctl list-units 'llama-cpp-*' --all --no-pager --full
+  systemctl list-units 'llama-cpp*' --all --no-pager --full
   show_runtime_config
   print_header "CACHE PATHS"
   for path in /var/cache/ccache /var/lib/llama-cpp /var/lib/llama-cpp/huggingface /var/lib/private/sops/age; do

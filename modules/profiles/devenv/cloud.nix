@@ -1,18 +1,10 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-let
-  cfg = config.dotfiles.profiles.devenv.cloud;
-in
-{
-  config = lib.mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
+{ dotfilesLib, ... }@args:
+dotfilesLib.mkProfile {
+  path = [ "devenv" ];
+  packages =
+    pkgs: with pkgs; [
       awscli2
       awslogs
       flarectl
     ];
-  };
-}
+} args

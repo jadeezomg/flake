@@ -1,15 +1,6 @@
 { lib, ... }:
 let
-  langs = [
-    "data"
-    "docs"
-    "general"
-    "nix"
-    "python"
-    "rust"
-    "shell"
-    "web"
-  ];
+  langs = import ./names.nix { inherit lib; };
 in
 {
   imports = map (l: ./. + "/${l}.nix") langs;

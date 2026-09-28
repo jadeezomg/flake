@@ -5,6 +5,34 @@
   pkgs,
   ...
 }:
+let
+  # The desktop id that owns markdown, from the same option as the XDG default
+  # (modules/profiles/desktop/mime.nix). Null on darwin and on headless hosts.
+  markdownId = osConfig.dotfiles.desktop.mimeHandlers.markdown or null;
+  notesEnabled = osConfig.dotfiles.profiles.apps.notes.enable or false;
+  hasMarkdownOpener = !isDarwin && notesEnabled && markdownId != null;
+
+  # Map a desktop id to the command yazi runs. Known apps get a direct binary.
+  # Anything else is launched through its .desktop entry.
+  markdownOpeners = {
+    typora = {
+      run = "${pkgs.typora}/bin/typora %s1";
+      desc = "Open with Typora";
+    };
+  };
+  markdownOpener =
+    markdownOpeners.${markdownId} or {
+      run = "${pkgs.gtk3}/bin/gtk-launch ${markdownId} %s1";
+      desc = "Open with ${markdownId}";
+    };
+  # Opener key: the last segment of the id, lowercased ("dev.zed.Zed" -> "zed").
+  markdownOpenerName = lib.toLower (lib.last (lib.splitString "." markdownId));
+  markdownUse = [
+    markdownOpenerName
+    "edit"
+    "open"
+  ];
+in
 {
   programs.yazi = {
     enable = true;
@@ -22,12 +50,11 @@
         linemode = "size_and_mtime";
       };
     }
-    // lib.optionalAttrs (!isDarwin && (osConfig.dotfiles.profiles.apps.notes.enable or false)) {
-      opener.typora = [
+    // lib.optionalAttrs hasMarkdownOpener {
+      opener.${markdownOpenerName} = [
         {
-          run = "${pkgs.typora}/bin/typora %s1";
+          inherit (markdownOpener) run desc;
           orphan = true;
-          desc = "Open with Typora";
           "for" = "linux";
         }
       ];
@@ -35,35 +62,19 @@
       open.prepend_rules = [
         {
           mime = "text/markdown";
-          use = [
-            "typora"
-            "edit"
-            "open"
-          ];
+          use = markdownUse;
         }
         {
           mime = "text/x-markdown";
-          use = [
-            "typora"
-            "edit"
-            "open"
-          ];
+          use = markdownUse;
         }
         {
           url = "*.md";
-          use = [
-            "typora"
-            "edit"
-            "open"
-          ];
+          use = markdownUse;
         }
         {
           url = "*.markdown";
-          use = [
-            "typora"
-            "edit"
-            "open"
-          ];
+          use = markdownUse;
         }
       ];
       opener.open = [

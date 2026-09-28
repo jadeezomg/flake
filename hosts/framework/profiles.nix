@@ -12,7 +12,6 @@ _: {
     desktop = {
       shell = "noctalia";
       loginManager = "gdm"; # required for noctalia
-      enable = true;
     };
   };
 }

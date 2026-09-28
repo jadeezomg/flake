@@ -24,6 +24,7 @@
   ...
 }:
 let
+  inherit (import ./lib.nix { inherit lib; }) mkTsnetProxy;
   hubPort = 8090; # 8000 LLM chat, 8080 open-webui
   agentDir = "/var/lib/beszel-agent";
 in
@@ -61,10 +62,10 @@ in
     };
 
     # HTTPS dashboard at https://beszel.jadee.fyi via the shared Caddy proxy.
-    caddy.virtualHosts."beszel.jadee.fyi".extraConfig = ''
-      import tsnet
-      reverse_proxy 127.0.0.1:${toString hubPort}
-    '';
+    caddy.virtualHosts = mkTsnetProxy {
+      domain = "beszel.jadee.fyi";
+      port = hubPort;
+    };
   };
 
   # The agent's StateDirectory (${agentDir}) is created by its systemd unit with

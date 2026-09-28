@@ -132,11 +132,8 @@ Bash under `scripts/shell/` backs the Justfile — including host-ops helpers (`
 | `nixos-hardware` | hardware modules |
 | `nix-cachyos-kernel` | CachyOS kernel (x86_64-linux) |
 | `google-workspace-cli` | `gws` in per-system `packages` |
-| `llm-agents` | agent CLI overlay (`pkgs.llm-agents.*`: codex, claude-code, hermes, handy, …) |
+| `llm-agents` | agent CLI overlay (`pkgs.llm-agents.*`: codex, claude-code, apm, hermes, handy, …) |
 | `hermes-agent` | Hermes agent NixOS module + service on mini (`services.hermes-agent`) |
-| `skills-mattpocock` | pinned upstream agent skills (auto-installed on switch; updated via `just update`) |
-| `skills-ponytail` | pinned Ponytail agent skills (auto-installed on switch; updated via `just update`) |
-| `skills-simple-english` | pinned SimpleEnglish (ASD-STE100) agent skill (auto-installed on switch; updated via `just update`) |
 | `corecycler` | kept while disabled (upstream bug); not wired into any host |
 
 `packages.<system>` exposes every `packages/<name>` automatically (`parts/packages.nix` + `packages/names.nix`).

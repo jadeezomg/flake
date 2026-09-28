@@ -61,11 +61,6 @@ nu -c '<expr>'
 
 $ expr: echo ""
 
-# Format a .nu file (nufmt — part of nushell)
-nufmt <file>
-
-$ file: fd -e nu --type f
-
 # Show all commands matching a pattern
 nu -c 'help commands | where name =~ "<pat>" | select name description'
 

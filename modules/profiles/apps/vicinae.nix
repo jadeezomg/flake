@@ -83,9 +83,9 @@ in
 
   programs.vicinae = {
     enable = true;
-    # nixpkgs' vicinae is Linux-only (cached); darwin keeps the flake-input
-    # source build (package = null falls back to it).
-    package = lib.mkIf pkgs.stdenv.hostPlatform.isLinux pkgs.vicinae;
+    # nixpkgs ships vicinae for Linux and darwin (both cached) since 0.26.3;
+    # the flake input is only kept for its HM/NixOS modules.
+    package = pkgs.vicinae;
     # Zen native-messaging host wiring lives in apps.browsers/zen.
     enableFirefoxIntegration = false;
     extensions = vicinaeExtensions;

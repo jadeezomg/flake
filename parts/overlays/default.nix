@@ -16,14 +16,30 @@ let
 in
 [
   inputs.llm-agents.overlays.shared-nixpkgs
-  (import ./local-packages.nix { inherit lib system; })
-  (import ./python-package-fixes.nix {
-    inherit lib;
-    expiry = expiryFor "python-package-fixes";
+  (import ./omp-upstream-nixpkgs.nix {
+    inherit inputs lib system;
+    expiry = expiryFor "omp-upstream-nixpkgs";
   })
+  (import ./local-packages.nix { inherit lib system; })
   (import ./mise-darwin-http-tests.nix {
     inherit lib system;
     expiry = expiryFor "mise-darwin-http-tests";
+  })
+  (import ./xwayland-satellite-menu-flicker.nix {
+    inherit lib system;
+    expiry = expiryFor "xwayland-satellite-menu-flicker";
+  })
+  (import ./nodejs-26-sandbox-suid-test.nix {
+    inherit lib;
+    expiry = expiryFor "nodejs-26-sandbox-suid-test";
+  })
+  (import ./sops-nix-go-builder.nix {
+    inherit inputs lib;
+    expiry = expiryFor "sops-nix-go-builder";
+  })
+  (import ./showtime-mpris-volume-deadlock.nix {
+    inherit lib system;
+    expiry = expiryFor "showtime-mpris-volume-deadlock";
   })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })

@@ -2,7 +2,6 @@
   inputs,
   lib,
   pkgs,
-  pkgs-stable,
   ...
 }:
 let
@@ -39,18 +38,13 @@ let
     "a6335949-4465-4b71-926c-4a52d34bc9c0" # Better Find Bar
   ];
 
-  vicinaePkg =
-    if pkgs.stdenv.hostPlatform.isLinux then
-      pkgs.vicinae
-    else
-      inputs.vicinae.packages.${pkgs.stdenv.hostPlatform.system}.default;
   vicinaeNativeMessagingHost =
     pkgs.writeTextDir "lib/mozilla/native-messaging-hosts/com.vicinae.vicinae.json"
       (
         builtins.toJSON {
           name = "com.vicinae.vicinae";
           description = "Vicinae Native Messaging Host";
-          path = "${vicinaePkg}/libexec/vicinae/vicinae-browser-link";
+          path = "${pkgs.vicinae}/libexec/vicinae/vicinae-browser-link";
           type = "stdio";
           allowed_extensions = [ "firefox@vicinae.com" ];
         }
@@ -63,11 +57,7 @@ in
 
   programs.zen-browser = {
     enable = true;
-    nativeMessagingHosts =
-      (lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs-stable.firefoxpwa ])
-      ++ [
-        vicinaeNativeMessagingHost
-      ];
+    nativeMessagingHosts = [ vicinaeNativeMessagingHost ];
     # `darwinDefaultsId` is deliberately left at the upstream default,
     # `app.zen-browser.zen` — Zen's real macOS bundle identifier, and the plist
     # domain it reads policies from. Overriding it writes ExtensionSettings to a

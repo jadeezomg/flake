@@ -69,7 +69,7 @@ bench *args:
     bench_model="${MINI_BENCH_MODEL:-unsloth/gemma-4-12b-it}"
     # Default sweep if the caller passes nothing; any args override it.
     # Concurrency tops out at the server's slot count — keep it in sync with
-    # `chatSlots` / `--parallel` in hosts/mini/services/llm/llama-cpp.nix (2 today).
+    # `models.local-chat.slots` / `--parallel` in hosts/mini/services/llm/default.nix (2 today).
     # Requests beyond the slot count just queue, so testing past it measures queueing,
     # not throughput. Override per run with MINI_BENCH_CONCURRENCY (space-separated).
     concurrency="${MINI_BENCH_CONCURRENCY:-1 2}"

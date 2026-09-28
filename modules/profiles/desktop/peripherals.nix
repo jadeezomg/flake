@@ -81,15 +81,10 @@ in
       pamixer
       pavucontrol
       playerctl
-      wireplumber
 
-      # --- Graphics libs (pulled in by various desktop apps) ---
+      # --- Desktop schemas ---
       glib
       gsettings-desktop-schemas
-      libGL
-      libGLU
-      libva
-      mesa
 
       # --- Display / video ---
       autorandr
@@ -99,9 +94,6 @@ in
       # --- Input ---
       evtest
       libinput
-
-      # --- Power ---
-      upower
     ];
   };
 }

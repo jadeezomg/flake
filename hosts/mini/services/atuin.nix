@@ -22,8 +22,10 @@
 #      with `atuin login -u <user> -k <key>`.
 #   5. Set `openRegistration = false` again and switch. The server then accepts
 #      logins but no new accounts.
-_:
+{ dotfilesLib, lib, ... }:
 let
+  inherit (import ./lib.nix { inherit lib; }) mkTsnetProxy;
+  inherit (dotfilesLib.expiry { inherit lib; } "hosts/mini/services/atuin.nix") todo;
   domain = "atuin.jadee.fyi";
   port = 8888; # atuin default; loopback only
 in
@@ -33,13 +35,13 @@ in
     host = "127.0.0.1";
     inherit port;
     # Flip to true only for the registration window (see step 2 above).
-    openRegistration = true;
+    # Still open after onboarding. atuin.jadee.fyi resolves publicly, so anyone
+    # can create an account here. Set false and switch once every host has
+    # logged in (step 5 above). The guard warns on every eval until then.
+    openRegistration = todo "atuin openRegistration is still true; set false once every host has logged in (step 5 in the header)." true;
     # Postgres role + database beside Immich's; the socket path is the default.
     database.createLocally = true;
   };
 
-  services.caddy.virtualHosts.${domain}.extraConfig = ''
-    import tsnet
-    reverse_proxy 127.0.0.1:${toString port}
-  '';
+  services.caddy.virtualHosts = mkTsnetProxy { inherit domain port; };
 }

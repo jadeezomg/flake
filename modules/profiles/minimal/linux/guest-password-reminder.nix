@@ -1,13 +1,11 @@
 {
   config,
-  hostData,
-  hostKey,
+  host,
   lib,
   pkgs,
   ...
 }:
 let
-  host = hostData.hosts.${hostKey} or { };
   extras = host.extraUsers or [ ];
   username = config.home.username;
   extraUser = lib.findFirst (u: (u.username or "") == username) null extras;
