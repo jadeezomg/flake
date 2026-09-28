@@ -21,17 +21,13 @@ in
     expiry = expiryFor "omp-upstream-nixpkgs";
   })
   (import ./local-packages.nix { inherit lib system; })
-  (import ./mise-darwin-http-tests.nix {
+  (import ./cargo-generate-darwin-canonicalize-test.nix {
     inherit lib system;
-    expiry = expiryFor "mise-darwin-http-tests";
+    expiry = expiryFor "cargo-generate-darwin-canonicalize-test";
   })
   (import ./xwayland-satellite-menu-flicker.nix {
     inherit lib system;
     expiry = expiryFor "xwayland-satellite-menu-flicker";
-  })
-  (import ./nodejs-26-sandbox-suid-test.nix {
-    inherit lib;
-    expiry = expiryFor "nodejs-26-sandbox-suid-test";
   })
   (import ./sops-nix-go-builder.nix {
     inherit inputs lib;
