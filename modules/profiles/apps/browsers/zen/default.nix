@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   lib,
   pkgs,
@@ -44,7 +45,9 @@ let
         builtins.toJSON {
           name = "com.vicinae.vicinae";
           description = "Vicinae Native Messaging Host";
-          path = "${pkgs.vicinae}/libexec/vicinae/vicinae-browser-link";
+          # Follow programs.vicinae.package. A literal pkgs.vicinae here pins the
+          # nixpkgs build, which has no darwin cache (see apps/vicinae.nix).
+          path = "${config.programs.vicinae.package}/libexec/vicinae/vicinae-browser-link";
           type = "stdio";
           allowed_extensions = [ "firefox@vicinae.com" ];
         }

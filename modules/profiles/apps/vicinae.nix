@@ -3,13 +3,34 @@
 # Darwin: launchd autostart + skhd Option+Space.
 {
   config,
+  dotfilesLib,
   inputs,
   lib,
   pkgs,
   ...
 }:
 let
-  ext = inputs.vicinae-extensions.packages.${pkgs.stdenv.hostPlatform.system};
+  system = pkgs.stdenv.hostPlatform.system;
+  ext = inputs.vicinae-extensions.packages.${system};
+
+  # nixpkgs builds vicinae for Linux (cached on cache.nixos.org) but not for
+  # darwin: no cache serves the nixpkgs aarch64-darwin output, so every switch
+  # compiled it locally (~40 min). The upstream flake pushes its own darwin
+  # build to vicinae.cachix.org, which lib/nix-caches.nix already enables here.
+  #
+  # Verified 2026-09-28 against vicinae 0.29.0.
+  vicinaePackage =
+    (dotfilesLib.expiry { inherit lib; } "modules/profiles/apps/vicinae.nix").recheckWhen
+      {
+        stale = lib.versionAtLeast pkgs.vicinae.version "0.32";
+        reason = "vicinae reached 0.32 (darwin cache gap verified at 0.29.0); recheck whether cache.nixos.org now serves pkgs.vicinae for aarch64-darwin, and drop the flake-input package if it does.";
+      }
+      (
+        if pkgs.stdenv.hostPlatform.isDarwin then
+          inputs.vicinae.packages.${system}.default
+        else
+          pkgs.vicinae
+      );
 
   # Store extensions previously installed via the GUI (store.vicinae.*).
   # https://docs.vicinae.com/nixos#configuring-extensions
@@ -83,9 +104,8 @@ in
 
   programs.vicinae = {
     enable = true;
-    # nixpkgs ships vicinae for Linux and darwin (both cached) since 0.26.3;
-    # the flake input is only kept for its HM/NixOS modules.
-    package = pkgs.vicinae;
+    # Linux takes nixpkgs; darwin takes the flake input (see vicinaePackage).
+    package = vicinaePackage;
     # Zen native-messaging host wiring lives in apps.browsers/zen.
     enableFirefoxIntegration = false;
     extensions = vicinaeExtensions;
