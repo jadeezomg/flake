@@ -29,6 +29,18 @@ in
     inherit lib system;
     expiry = expiryFor "xwayland-satellite-menu-flicker";
   })
+  (import ./nodejs-26-sandbox-suid-test.nix {
+    inherit lib;
+    expiry = expiryFor "nodejs-26-sandbox-suid-test";
+  })
+  (import ./sops-nix-go-builder.nix {
+    inherit inputs lib;
+    expiry = expiryFor "sops-nix-go-builder";
+  })
+  (import ./showtime-mpris-volume-deadlock.nix {
+    inherit lib system;
+    expiry = expiryFor "showtime-mpris-volume-deadlock";
+  })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })
 ]
