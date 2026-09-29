@@ -64,6 +64,18 @@ _: {
       };
     };
 
+    # DeepSeek Harness ships ACP as its `acp` profile (@deepseek-ai/dsh-acp,
+    # bundled in dsh). Standard ACP v1 only: no modes, commands, plans,
+    # terminals, or client filesystem operations.
+    dsh = {
+      type = "custom";
+      command = "dsh";
+      args = [
+        "--profile"
+        "acp"
+      ];
+    };
+
     # omp ships ACP directly via `--mode acp`; no pi-acp adapter needed.
     omp = {
       type = "custom";
