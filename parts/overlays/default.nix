@@ -37,6 +37,10 @@ in
     inherit lib system;
     expiry = expiryFor "showtime-mpris-volume-deadlock";
   })
+  (import ./dsh-official-node-darwin.nix {
+    inherit lib system;
+    expiry = expiryFor "dsh-official-node-darwin";
+  })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })
 ]

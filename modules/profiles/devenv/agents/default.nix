@@ -7,6 +7,7 @@ dotfilesLib.mkProfile {
   path = [ "devenv" ];
   hm = [
     ./apm.nix
+    ./dsh.nix
     ./global-config.nix
     ./nono-agent.nix
     ./nono-profiles.nix
