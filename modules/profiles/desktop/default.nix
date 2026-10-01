@@ -35,6 +35,7 @@ in
       ./niri-hm.nix
       ./dconf.nix
       ./gdm-session.nix
+      ./easyeffects.nix
     ]
     ++ lib.optionals useDms [
       ./dms
