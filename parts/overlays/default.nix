@@ -15,19 +15,15 @@ let
   expiryFor = name: import ../../lib/expiry.nix { inherit lib; } "parts/overlays/${name}.nix";
 in
 [
-  inputs.llm-agents.overlays.shared-nixpkgs
-  (import ./omp-upstream-nixpkgs.nix {
-    inherit inputs lib system;
-    expiry = expiryFor "omp-upstream-nixpkgs";
-  })
+  # Upstream's own build, not `overlays.shared-nixpkgs`. shared-nixpkgs rebuilds
+  # every package against our nixpkgs, which changes each derivation hash and
+  # misses cache.numtide.com for all of them (measured 2026-10-01: 0 of 10 hit).
+  # Three of them are Rust compiles. Take the cached builds instead.
+  (_final: _prev: { llm-agents = inputs.llm-agents.packages.${system}; })
   (import ./local-packages.nix { inherit lib system; })
   (import ./cargo-generate-darwin-canonicalize-test.nix {
     inherit lib system;
     expiry = expiryFor "cargo-generate-darwin-canonicalize-test";
-  })
-  (import ./xwayland-satellite-menu-flicker.nix {
-    inherit lib system;
-    expiry = expiryFor "xwayland-satellite-menu-flicker";
   })
   (import ./sops-nix-go-builder.nix {
     inherit inputs lib;
