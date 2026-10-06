@@ -50,7 +50,7 @@ let
       "github.com/tailscale/caddy-tailscale@v0.0.0-20260106222316-bb080c4414ac"
       "github.com/caddy-dns/cloudflare@v0.2.4"
     ];
-    hash = "sha256-Xe1vqoKARfrslAwdU9yr7NGI5oh2n1TjtIY4auXA7Eg=";
+    hash = "sha256-xMj9CFM4BU+Ewwnt3sqvpRIAC1pJQDCVwfc+5EMDYKQ=";
   };
 in
 {
