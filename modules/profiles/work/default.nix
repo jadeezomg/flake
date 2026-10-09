@@ -14,6 +14,5 @@ dotfilesLib.mkProfile {
     pkgs: with pkgs; [
       postman
       gws
-      workato-platform-cli
     ];
 } args
