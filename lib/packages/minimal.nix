@@ -31,9 +31,6 @@ pkgs: with pkgs; [
   xh
   gping
 
-  # --- Diffs & readable patches ---
-  delta
-
   # --- PDF helpers (pdftotext, etc.) ---
   poppler-utils
 
