@@ -248,7 +248,7 @@
 
       gaming.enable = mkEnableOption "the gaming profile (Steam stack — Linux only)";
 
-      work.enable = mkEnableOption "the work profile (workato + postman + gws + AWS CLI; firefox/chrome via homebrew on darwin)";
+      work.enable = mkEnableOption "the work profile (postman + gws + AWS CLI; firefox/chrome via homebrew on darwin)";
 
       server.enable = mkEnableOption "the server profile (headless steering flag; mini enables it. Read by modules/nixos/{boot,networking}.nix)";
 
