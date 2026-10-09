@@ -94,8 +94,9 @@ in
 
   # Kitty (and other modern terminals) set TERM=xterm-kitty; SSH forwards it.
   # Without matching terminfo on the server, tools complain ('unknown terminal type')
-  # or behave oddly. Pulls small terminfo-only outputs (kitty, ghostty, foot, …).
-  environment.enableAllTerminfo = true;
+  # or behave oddly. The systemPackages list below adds terminfo only for the
+  # terminals we use: enableAllTerminfo also pulls contour.terminfo, which needs
+  # a full contour build (broken on GCC 16 std::simd).
 
   # Intel CSME firmware updates over LVFS — critical for AMT CVE patching.
   # `fwupd-refresh.service` runs during switch; it often races a restarting
@@ -123,6 +124,8 @@ in
   environment.systemPackages = with pkgs; [
     amtterm
     openwsman
+    kitty.terminfo
+    ghostty.terminfo
   ];
 
   # Password handling is the generic path (modules/nixos/user.nix →

@@ -4,10 +4,36 @@
   pkgs,
   ...
 }:
+let
+  hermes = pkgs.llm-agents.hermes-agent;
+  # The NousResearch module renders config.yaml with `package.hermesVenv`, which
+  # only its own uv2nix build has. Give the llm-agents build one: an env from the
+  # same interpreter and deps it was built with, plus its site-packages on
+  # PYTHONPATH (toPythonModule would rebuild the cached package). Skipped once
+  # the package ships it.
+  python = lib.findFirst (d: (d.pname or "") == "python3") null hermes.nativeBuildInputs;
+  hermesPkg =
+    if hermes ? hermesVenv then
+      hermes
+    else
+      hermes.overrideAttrs (old: {
+        passthru = old.passthru // {
+          hermesVenv = python.buildEnv.override {
+            extraLibs = hermes.dependencies;
+            makeWrapperArgs = [
+              "--prefix"
+              "PYTHONPATH"
+              ":"
+              "${hermes}/${python.sitePackages}"
+            ];
+          };
+        };
+      });
+in
 {
   services.hermes-agent = {
     enable = true;
-    package = pkgs.llm-agents.hermes-agent;
+    package = hermesPkg;
 
     addToSystemPackages = true;
     restart = "always";
