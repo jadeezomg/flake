@@ -113,6 +113,12 @@
     # --- AI / agents ---
     llm-agents.url = "github:numtide/llm-agents.nix";
     hermes-agent.url = "github:NousResearch/hermes-agent";
+    # Zed's Delta (proprietary binary, Linux only). Follows our nixpkgs so its
+    # glibc matches the host Mesa/LLVM in /run/opengl-driver.
+    delta = {
+      url = "github:zed-industries/delta-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
