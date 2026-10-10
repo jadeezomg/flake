@@ -97,7 +97,7 @@ window-rule {
     match app-id=r#"^zen-twilight$"#
     match app-id=r#"^zen-beta$"#
     exclude title=r#"^Picture-in-Picture$"#
-    open-on-output "HDMI-A-2"
+    open-on-output "HDMI-A-2 || HDMI-A-1"
     open-on-workspace "1"
     tiled-state false
     default-window-height { proportion 0.685; }
@@ -107,14 +107,14 @@ window-rule {
 spawn-at-startup "pear-desktop"
 window-rule {
     match app-id=r#"^com\.github\.th_ch\.youtube_music$"#
-    open-on-output "HDMI-A-2"
+    open-on-output "HDMI-A-2 || HDMI-A-1"
     open-on-workspace "1"
     default-column-width { proportion 1.0; }
 }
 
 window-rule {
     match app-id=r#"^War Thunder$"#
-    open-on-output "DP-2"
+    open-on-output "DP-2 || DP-1"
     open-maximized-to-edges true
     opacity 1.0
     variable-refresh-rate true
@@ -129,6 +129,6 @@ window-rule {
     default-column-width { proportion 1.0; }
     open-floating true
     default-floating-position x=0 y=0 relative-to="top-left"
-    open-on-output "HDMI-A-2"
+    open-on-output "HDMI-A-2 || HDMI-A-1"
     opacity 1.0
 }
