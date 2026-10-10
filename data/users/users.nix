@@ -40,7 +40,7 @@
     angelie = {
       username = "angelie";
       fullName = "Angelie";
-      description = "Guest account (limited)";
+      description = "Angelie";
       initialPassword = "gremlin";
       promptPasswordChange = true;
       extraGroups = [

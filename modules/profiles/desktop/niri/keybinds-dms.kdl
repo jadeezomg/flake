@@ -6,8 +6,12 @@ binds {
     Mod+D { spawn "dms" "ipc" "call" "plugins" "toggle" "aiAssistant"; }
     Mod+L hotkey-overlay-title="Lock the Screen: dms" { spawn "dms" "ipc" "call" "lock" "lock"; }
     // Application launcher (overrides niri overview on Mod+Space)
-    Mod+Space repeat=false hotkey-overlay-title="Application Launcher" {
-        spawn "vicinae" "toggle";
+    // GNOME-style overview: typing opens Vicinae (overview-catcher.qml).
+    Mod+Space repeat=false hotkey-overlay-title="Overview (type to search)" {
+        spawn-sh r#"
+            if niri msg -j overview-state | grep -q '"is_open":true'; then niri msg action close-overview
+            else niri msg action open-overview; QT_QUICK_BACKEND=software exec quickshell -p ~/.config/niri/overview-catcher.qml; fi
+        "#;
     }
     Mod+V hotkey-overlay-title="Clipboard Manager" {
         spawn "dms" "ipc" "call" "clipboard" "toggle";

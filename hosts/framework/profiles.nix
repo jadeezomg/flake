@@ -9,6 +9,7 @@ _: {
     devenv.enable = true;
     devgui.enable = true;
     apps.enable = true;
+    gaming.enable = true;
     desktop = {
       shell = "noctalia";
       loginManager = "gdm"; # required for noctalia
