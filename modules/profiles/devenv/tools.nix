@@ -64,6 +64,9 @@ dotfilesLib.mkProfile {
       tokei
       diffnav
 
+      # --- Tracing ---
+      otel-desktop-viewer # local OTLP receiver + UI for one-off Nix traces (nix-tracing skill)
+
       # --- Session recording ---
       asciinema
     ];
