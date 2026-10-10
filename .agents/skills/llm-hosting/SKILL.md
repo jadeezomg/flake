@@ -31,6 +31,7 @@ The module renders the INI, the `llama` system user, tmpfiles, and the unit. Do 
 
 - `default.nix`: enables `llm.serve` with mini's values and imports `open-webui.nix`. Edit the model knobs here, not raw args.
 - `open-webui.nix`: Open WebUI on loopback `127.0.0.1:8080`. Caddy serves it at `chat.jadee.fyi`. It reads the port from `llm.serve.port` and talks to `http://127.0.0.1:8000/v1` with `OPENAI_API_KEY = "sk-no-auth"` (the server has no auth). `ENABLE_OLLAMA_API = "False"`.
+- `hosts/mini/services/tracing.nix` adds the `ENABLE_OTEL*` and `OTEL_*` variables to `services.open-webui.environment` when `miniTracing` is on (OTLP/gRPC to Tempo on `127.0.0.1:4317`). Look there before you add OTel settings here.
 
 Current presets (`--models-max 2`, both resident; `1` swaps on demand and gives chat the full VRAM):
 
