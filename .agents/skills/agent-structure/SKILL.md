@@ -65,7 +65,7 @@ Ask: must this skill follow the user into unrelated repos?
 - `data/agents/global/settings.json` is the source for Claude settings.
 - `data/agents/omp/config.yml` and `data/agents/omp/themes/birds-of-paradise.json` own the Oh-my-posh agent config.
 - `global-config.nix` installs these as live symlinks (`mkOutOfStoreSymlink` and `mkLiveSymlink`). Edits take effect without a rebuild.
-- `AGENTS.md` fans out to `~/AGENTS.md`, `~/.codex/AGENTS.md`, `~/.claude/CLAUDE.md`, `~/.config/agents/AGENTS.md`, and `~/.pi/agent/AGENTS.md`.
+- `AGENTS.md` fans out to `~/AGENTS.md`, `~/.codex/AGENTS.md`, `~/.config/agents/AGENTS.md`, and `~/.pi/agent/AGENTS.md`. Claude Code reads `~/AGENTS.md` as a parent of every project under `$HOME`, so there is no `~/.claude/CLAUDE.md`. Sessions outside `$HOME` get no global instructions.
 - Do not edit the installed copies. Edit the source under `data/agents/` instead.
 
 ## Path helpers (`lib/default.nix`)

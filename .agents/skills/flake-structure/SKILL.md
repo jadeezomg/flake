@@ -22,7 +22,7 @@ This skill maps the tree outside `modules/profiles/**`. For profile and app layo
 - `Justfile` and `just/`: operator recipes.
 - `docs/`: durable explanations and ADRs.
 - `secrets/` and `.sops.yaml`: SOPS/age secrets.
-- Subdirectory `CLAUDE.md` files contain only `@AGENTS.md`. Put the content in `AGENTS.md`.
+- Agent instructions live in `AGENTS.md` only. Claude Code reads them directly, so add no `CLAUDE.md` or `CLAUDE.local.md`: one in the repo stops Claude from reading `AGENTS.md`.
 
 ## Inputs
 
