@@ -11,7 +11,7 @@ _: {
     devgui.enable = true;
     apps.enable = true;
     gaming.enable = true;
-    desktop.loginManager = "gdm";
+    desktop.loginManager = "noctalia-greeter";
     desktop.shell = "noctalia";
     # LLM toolbox: unsloth-studio + llama.cpp CLI + hf CLI. The llama.cpp build
     # follows `hardware.gpu = "nvidia"`, so it is CUDA (built from source unless
