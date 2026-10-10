@@ -2,7 +2,7 @@
   GDM greeter monitor layout for the `desktop` host.
 
   Installed to /var/lib/gdm/seat0/config/monitors.xml — the greeter's real
-  XDG_CONFIG_HOME since GDM 49; see gdm/default.nix. The greeter never sees the
+  XDG_CONFIG_HOME since GDM 49; see gnome/default.nix. The greeter never sees the
   user's ~/.config/monitors.xml, nor the user's dconf. Without this file mutter
   builds a default layout: no transform, and its own pick of primary — which
   puts the login screen sideways on the physically-rotated Dell.
