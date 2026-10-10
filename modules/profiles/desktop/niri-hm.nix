@@ -2,6 +2,7 @@
   config,
   host,
   osConfig,
+  pkgs,
   ...
 }:
 let
@@ -27,6 +28,9 @@ let
     && builtins.match "shell(-.*)?\\.kdl" name == null;
 in
 {
+  # Runs niri/overview-catcher.qml (Mod+Space type-to-search).
+  home.packages = [ pkgs.quickshell ];
+
   xdg.configFile = {
     "niri/config.kdl" = mkLiveSymlink "${niriDir}/config.kdl";
 
