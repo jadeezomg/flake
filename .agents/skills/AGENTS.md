@@ -25,4 +25,4 @@ Project-only skills for this repository.
 - `theme-structure` — shared palette and app theme generation.
 - `xdg-default-apps` — MIME defaults and desktop app ownership.
 - `llm-hosting` — mini's local LLM serving: backends, models, context/KV, embeddings, ops.
-- `nix-tracing` — OpenTelemetry traces of Nix eval, builds, and substitutions.
+- `nix-tracing` — OpenTelemetry: Nix traces, mini's Tempo/Grafana, traced services.

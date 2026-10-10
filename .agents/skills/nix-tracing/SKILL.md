@@ -1,6 +1,6 @@
 ---
 name: nix-tracing
-description: Trace Determinate Nix evaluations, builds, and substitutions with OpenTelemetry (OTLP). Use when a `flake build`/switch, eval, or cache fetch is slow or stalls and you need to see where the time goes, or when adding persistent `otlp*` Nix settings.
+description: OpenTelemetry tracing in this flake — Determinate Nix evaluations, builds, and substitutions, plus mini's Tempo/Grafana stack and its traced services (hermes-agent, open-webui, Caddy). Use when a `flake build`/switch, eval, cache fetch, hermes turn, or chat.jadee.fyi request is slow or fails and you need to see where the time goes, or when changing `otlp*` Nix settings or Tempo.
 ---
 
 # Nix tracing
@@ -14,6 +14,16 @@ Docs: <https://docs.determinate.systems/determinate-nix/opentelemetry>.
 - NixOS hosts (`desktop`, `framework`, `mini`) always send every Nix command, client and daemon, to Tempo on mini (`modules/nixos/nix-tracing.nix` → `http://mini:4318` over the tailnet). The user views them in Grafana at <https://grafana.jadee.fyi>. Retention is 60 days (`hosts/mini/services/tracing.nix`).
 - To read one trace yourself, get its ID from `NIX_DEBUG_OTEL=1` and query Tempo on mini, which listens on loopback only: `ssh mini curl -s http://127.0.0.1:3200/api/v2/traces/<trace-id>`.
 - `caya` (Darwin, work machine) has no tailnet and no persistent setting. Use the local procedure below there. `otel-desktop-viewer` is installed on every host through the devenv profile.
+
+## Service traces on mini
+
+`hosts/mini/services/tracing.nix` owns the whole stack and the service integrations. All of it is gated by `miniTracing` in `hosts/mini/host.nix`.
+
+- Tempo receivers: OTLP/HTTP `0.0.0.0:4318` (tailnet only, through the firewall) and OTLP/gRPC `127.0.0.1:4317` (loopback). Caddy and open-webui use gRPC. Nix and hermes use HTTP.
+- `hermes-agent`: the `hermes_otel` plugin, pinned by tag, enters through `services.hermes-agent.extraPlugins`. Its OpenTelemetry packages go on the unit's `PYTHONPATH`, because hermes cannot lazy-install into the Nix store. Spans hold whole prompts and responses. `max_attribute_bytes = 131072` keeps Tempo from cutting them at 2 KB.
+- `open-webui`: built-in OTel. Only the environment variables are set.
+- `caddy`: `tracing` in the shared `tsnet` snippet (`services/caddy.nix`) gives one span per request. Caddy sends `traceparent` to the backend, so a proxied request and its backend spans form one trace.
+- In Grafana Explore, filter on `service.name`: `nix`, `nix-daemon`, `hermes-agent`, `open-webui`, `caddy`.
 
 ## Trace one run locally
 
@@ -48,7 +58,7 @@ Docs: <https://docs.determinate.systems/determinate-nix/opentelemetry>.
 
 ## Persistent configuration
 
-- NixOS: `nix.settings` in `modules/nixos/nix-tracing.nix`. The Determinate module writes it to `/etc/nix/nix.custom.conf`.
+- NixOS: `/etc/nix/otlp.conf`, pulled in with `!include` from `modules/nixos/nix-tracing.nix`. Keep `otlp*` out of `nix.settings`: the NixOS `nix.conf` check runs `nix config show` in the sandbox, the trace export fails there, and the check fails the build.
 - Darwin: `determinateNix.customSettings` in `modules/darwin/nix.nix`. `nix.settings` has no effect there. caya stays without a setting: keep its traces local.
 - Keys: `otlp = true`, `otlp-endpoint = "<base URL>"` (no `/v1/traces`, no trailing slash).
 - The daemon does not see your shell environment, and it ignores `otlp*` options that clients send. Daemon-side spans come only from these files.
