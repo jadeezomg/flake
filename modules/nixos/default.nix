@@ -7,6 +7,7 @@
     ./home-wifi.nix
     ./networking.nix
     ./nix-ld.nix
+    ./nix-tracing.nix
     ./openssh.nix
     ./security.nix
     ./shells.nix
