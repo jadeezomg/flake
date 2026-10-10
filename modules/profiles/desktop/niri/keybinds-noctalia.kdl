@@ -3,8 +3,12 @@
 // Control center: https://docs.noctalia.dev/v5/control-center/
 
 binds {
-    Mod+Space repeat=false hotkey-overlay-title="Application Launcher" {
-        spawn "vicinae" "toggle";
+    // GNOME-style overview: typing opens Vicinae (overview-catcher.qml).
+    Mod+Space repeat=false hotkey-overlay-title="Overview (type to search)" {
+        spawn-sh r#"
+            if niri msg -j overview-state | grep -q '"is_open":true'; then niri msg action close-overview
+            else niri msg action open-overview; QT_QUICK_BACKEND=software exec quickshell -p ~/.config/niri/overview-catcher.qml; fi
+        "#;
     }
     Mod+V hotkey-overlay-title="Clipboard Manager" {
         spawn "noctalia" "msg" "panel-toggle" "clipboard";

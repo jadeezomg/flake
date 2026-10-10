@@ -37,9 +37,9 @@ in
     inherit lib system;
     expiry = expiryFor "dsh-official-node-darwin";
   })
-  (import ./nom-unknown-activity-type.nix {
+  (import ./nix-output-monitor-unknown-activity.nix {
     inherit lib;
-    expiry = expiryFor "nom-unknown-activity-type";
+    expiry = expiryFor "nix-output-monitor-unknown-activity";
   })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })
