@@ -2,12 +2,9 @@
 { dotfilesLib, ... }@args:
 dotfilesLib.mkProfile {
   path = [ "devenv" ];
-  # mise — polyglot tool/runtime version manager and task runner. mise is
-  # inside the nix closure on both platforms, so home-manager generates the
-  # shell activation snippets at build time. nushell gets a store path it can
-  # `use`, which is why the writable-cache dance the Homebrew mise needed on
-  # Darwin is gone.
-  hm = [ { programs.mise.enable = true; } ];
+  # mise — polyglot tool/runtime version manager and task runner. Darwin only
+  # for now. home-manager writes the shell activation snippets for it.
+  hm = [ ({ pkgs, ... }: { programs.mise.enable = pkgs.stdenv.hostPlatform.isDarwin; }) ];
 
   packages =
     pkgs: with pkgs; [
