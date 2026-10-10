@@ -21,8 +21,8 @@ let
   # Single seat here, so target seat0 directly.
   greeterConfigDir = "/var/lib/gdm/seat0/config";
 
-  # Note: the greeter's HM session units live in ../gdm-session.nix, which stays
-  # beside noctalia/ because it imports that app's extra-packages helper.
+  # The HM half is ./home.nix (the shell's session units). ../default.nix
+  # pushes it for every login manager except dms-greeter, not only for GDM.
 in
 {
   config = lib.mkIf (cfg.enable && useGdm) {

@@ -6,7 +6,7 @@
 
   # dconf needs the user dconf D-Bus service (graphical session); on headless
   # hosts HM activation would touch it for nothing. Off by default — the
-  # desktop profile (../desktop/dconf.nix) turns it on with its settings.
+  # desktop profile (../desktop/gnome/dconf.nix) turns it on with its settings.
   # The pear-desktop entry lives in apps/media.
   dconf.enable = lib.mkDefault false;
 }

@@ -17,8 +17,8 @@ let
 in
 {
   imports = [
-    ./dms-greeter-acl.nix
-    ./gdm
+    ./dms/greeter-acl.nix
+    ./gnome
     ./mime.nix
     ./noctalia/greeter.nix
     ./peripherals.nix
@@ -34,13 +34,13 @@ in
 
     home-manager.sharedModules = [
       ./niri-hm.nix
-      ./dconf.nix
-      ./gdm-session.nix
+      ./gnome/dconf.nix
+      ./gnome/home.nix
       ./easyeffects.nix
     ]
     ++ lib.optionals useDms [
       ./dms
-      ./dankcalendar.nix
+      ./dms/dankcalendar.nix
     ]
     ++ lib.optionals useNoctalia [
       ./noctalia

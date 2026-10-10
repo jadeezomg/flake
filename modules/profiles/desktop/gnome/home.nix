@@ -50,7 +50,7 @@ in
             # "no supported command found" and did nothing. Units inherit the
             # full session PATH from the user manager (niri.service and the
             # autostart units all show /run/current-system/sw/bin), and the
-            # plugin binaries come from home.packages in ./noctalia/default.nix.
+            # plugin binaries come from home.packages in ../noctalia/default.nix.
             ExecStart = "${lib.getExe noctaliaPackage}";
             Restart = "on-failure";
           };
