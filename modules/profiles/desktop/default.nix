@@ -20,6 +20,7 @@ in
     ./dms-greeter-acl.nix
     ./gdm
     ./mime.nix
+    ./noctalia/greeter.nix
     ./peripherals.nix
   ];
 
@@ -27,7 +28,7 @@ in
     assertions = [
       {
         assertion = !(useNoctalia && useDmsGreeter);
-        message = "Noctalia shell requires GDM (dms-greeter is DMS-only).";
+        message = "dms-greeter is DMS-only; use gdm or noctalia-greeter with the Noctalia shell.";
       }
     ];
 

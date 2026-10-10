@@ -276,12 +276,14 @@
           type = types.enum [
             "gdm"
             "dms-greeter"
+            "noctalia-greeter"
           ];
           default = "dms-greeter";
           description = ''
             Login screen for the desktop profile.
             `gdm` — GNOME Display Manager.
             `dms-greeter` — DankMaterialShell greeter via greetd.
+            `noctalia-greeter` — Noctalia Greeter via greetd.
           '';
         };
       };
