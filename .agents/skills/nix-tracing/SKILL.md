@@ -19,10 +19,10 @@ Docs: <https://docs.determinate.systems/determinate-nix/opentelemetry>.
 
 `hosts/mini/services/tracing.nix` owns the whole stack and the service integrations. All of it is gated by `miniTracing` in `hosts/mini/host.nix`.
 
-- Tempo receivers: OTLP/HTTP `0.0.0.0:4318` (tailnet only, through the firewall) and OTLP/gRPC `127.0.0.1:4317` (loopback). Caddy and open-webui use gRPC. Nix and hermes use HTTP.
+- Tempo receivers: OTLP/HTTP `0.0.0.0:4318` (tailnet only, through the firewall) and OTLP/gRPC `127.0.0.1:4317` (loopback). open-webui uses gRPC. Nix, hermes, and Caddy use HTTP (Caddy's docs say gRPC, but its build sends HTTP).
 - `hermes-agent`: the `hermes_otel` plugin, pinned by tag, enters through `services.hermes-agent.extraPlugins`. Its OpenTelemetry packages go on the unit's `PYTHONPATH`, because hermes cannot lazy-install into the Nix store. Spans hold whole prompts and responses. `max_attribute_bytes = 131072` keeps Tempo from cutting them at 2 KB.
 - `open-webui`: built-in OTel. Only the environment variables are set.
-- `caddy`: `tracing` in the shared `tsnet` snippet (`services/caddy.nix`) gives one span per request. Caddy sends `traceparent` to the backend, so a proxied request and its backend spans form one trace.
+- `caddy` (OTLP/HTTP, `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` with the full `/v1/traces` URL): `tracing` in the shared `tsnet` snippet (`services/caddy.nix`) gives one span per request. Caddy sends `traceparent` to the backend, so a proxied request and its backend spans form one trace.
 - In Grafana Explore, filter on `service.name`: `nix`, `nix-daemon`, `hermes-agent`, `open-webui`, `caddy`.
 
 ## Trace one run locally

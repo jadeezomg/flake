@@ -11,7 +11,7 @@
 #                 tool calls. Spans carry whole prompts and responses.
 #   open-webui    built-in OpenTelemetry (OTLP/gRPC 127.0.0.1:4317).
 #   caddy         `tracing` in the shared tsnet snippet (services/caddy.nix),
-#                 OTLP/gRPC 127.0.0.1:4317. Caddy sends `traceparent` to the
+#                 OTLP/HTTP 127.0.0.1:4318. Caddy sends `traceparent` to the
 #                 backend, so a chat.jadee.fyi request and its open-webui spans
 #                 are one trace.
 #
@@ -62,7 +62,7 @@ in
         distributor = {
           receivers.otlp.protocols = {
             http.endpoint = "0.0.0.0:4318";
-            # Caddy can only export over gRPC. Loopback: only mini's services use it.
+            # open-webui exports over gRPC. Loopback: only mini's services use it.
             grpc.endpoint = otlpGrpc;
           };
           # The 2 KB default cuts the prompts that hermes_otel puts in span attributes.
@@ -144,9 +144,11 @@ in
         ]
       )
     );
-    # opentelemetry-go reads the standard variables. An http:// URL means no TLS.
+    # Caddy uses the standard OTEL_* variables (autoexport). Its docs say gRPC,
+    # but this build sends OTLP/HTTP, so the traces endpoint is the full URL.
     caddy.environment = {
-      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT = "http://${otlpGrpc}";
+      OTEL_EXPORTER_OTLP_PROTOCOL = "http/protobuf";
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT = "http://127.0.0.1:4318/v1/traces";
       OTEL_SERVICE_NAME = "caddy";
     };
   };
