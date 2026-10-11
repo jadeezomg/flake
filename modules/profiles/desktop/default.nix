@@ -1,5 +1,6 @@
 {
   config,
+  dotfilesLib,
   inputs,
   host,
   lib,
@@ -34,6 +35,7 @@ in
 
     home-manager.sharedModules = [
       ./niri-hm.nix
+      ./mango-hm.nix
       ./gnome/dconf.nix
       ./gnome/home.nix
       ./easyeffects.nix
@@ -55,6 +57,17 @@ in
       };
 
       niri.enable = true;
+
+      # Second session next to niri, picked on the login screen.
+      mango = {
+        enable = true;
+        # HDR is off (mango/outputs-desktop.conf). It needs Vulkan, which scenefx lacks.
+        # Pure eval has no clock, so the nixpkgs pin date stands in for "6 months on".
+        package = (dotfilesLib.expiry { inherit lib; } "modules/profiles/desktop/default.nix").recheckWhen {
+          stale = lib.versionAtLeast pkgs.scenefx.version "0.6" || inputs.nixpkgs.lastModified >= 1807394400; # 2027-04-11
+          reason = "check Mango HDR status. Is wlrfx/scenefx#192 (Vulkan) merged, and does mango ship blur and HDR together? If yes, enable HDR as mango/outputs-desktop.conf says. If no, move this date forward.";
+        } pkgs.mango;
+      };
 
       dank-material-shell = lib.mkIf useDms {
         enable = true;
@@ -78,6 +91,10 @@ in
         recommendedServices.enable = false;
       };
     };
+
+    # mango starts mango-session.target, which pulls in graphical-session.target
+    # and with it the shell unit. The nixpkgs module does not install it.
+    systemd.packages = [ config.programs.mango.package ];
 
     services = {
       desktopManager.gnome.enable = true;
