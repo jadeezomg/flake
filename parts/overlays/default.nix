@@ -33,9 +33,9 @@ in
     inherit lib system;
     expiry = expiryFor "showtime-mpris-volume-deadlock";
   })
-  (import ./dsh-official-node-darwin.nix {
+  (import ./dsh-official-node.nix {
     inherit lib system;
-    expiry = expiryFor "dsh-official-node-darwin";
+    expiry = expiryFor "dsh-official-node";
   })
   (import ./nix-output-monitor-unknown-activity.nix {
     inherit lib;
