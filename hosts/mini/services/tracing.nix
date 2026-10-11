@@ -73,6 +73,13 @@ in
           wal.path = "/var/lib/tempo/wal";
           local.path = "/var/lib/tempo/blocks";
         };
+        # The live-store defaults to /var/tempo, which the unit cannot write
+        # (ProtectSystem, StateDirectory=tempo). Without it the distributor and
+        # the OTLP receivers do not start.
+        live_store = {
+          wal.path = "/var/lib/tempo/live-store/traces";
+          shutdown_marker_dir = "/var/lib/tempo/live-store/shutdown-marker";
+        };
         backend_worker.compaction.block_retention = "1440h"; # 60 days
         # A full system build substitutes thousands of paths, and each one adds
         # spans to the same trace. The 5 MB default can cut these traces off.
