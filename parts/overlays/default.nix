@@ -21,9 +21,9 @@ in
   # Three of them are Rust compiles. Take the cached builds instead.
   (_final: _prev: { llm-agents = inputs.llm-agents.packages.${system}; })
   (import ./local-packages.nix { inherit lib system; })
-  (import ./cargo-generate-darwin-canonicalize-test.nix {
+  (import ./debugpy-darwin-lldb-test.nix {
     inherit lib system;
-    expiry = expiryFor "cargo-generate-darwin-canonicalize-test";
+    expiry = expiryFor "debugpy-darwin-lldb-test";
   })
   (import ./sops-nix-go-builder.nix {
     inherit inputs lib;

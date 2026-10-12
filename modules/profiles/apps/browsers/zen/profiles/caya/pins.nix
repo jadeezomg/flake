@@ -8,15 +8,15 @@ in
 {
   pinsForce = true;
   pins = {
-    "Google Drive messaged you - Chat" = {
+    "Inbox - jonas.hippauf@getcaya.com - Caya GmbH Mail" = {
       id = "22b1fd3c-57f8-4984-9ef9-e8a26e396e4a";
       url = "https://mail.google.com/mail/u/0/#inbox";
       isEssential = true;
       position = 101;
     };
-    "Caya GmbH - Calendar - Week of September 21, 2026" = {
+    "Caya GmbH - Calendar - Week of September 28, 2026" = {
       id = "2fc017e6-0793-435b-a6b9-69fce452eb29";
-      url = "https://calendar.google.com/calendar/u/0/r/week/2026/9/14";
+      url = "https://calendar.google.com/calendar/u/0/r";
       isEssential = true;
       position = 102;
     };
@@ -28,7 +28,7 @@ in
     };
     "PAM Dashboard · Dashboard · Metabase" = {
       id = "55d4921c-59db-4cec-ad03-cb21e5ae8ed5";
-      url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer=EG%20Deutschland%20GmbH&date=past30days&e-mail&id&tab=7-customer";
+      url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer&e-mail&id&tab=7-customer";
       isEssential = true;
       position = 104;
     };
@@ -38,21 +38,21 @@ in
       isEssential = true;
       position = 105;
     };
-    "Workspace (full access) | Projects | Caya Document Automation" = {
+    "Projects | Caya Document Automation" = {
       id = "7d00f1ba-b3d0-48a6-863d-dbadc14ef757";
-      url = "https://app.eu.workato.com/recipes?fid=1606244#assets";
+      url = "https://app.eu.workato.com/?fid=projects";
       isEssential = true;
       position = 106;
     };
-    "https://github.com/AMN-DATA" = {
+    "Caya" = {
       id = "21f63058-e806-4b07-a023-90a85314ffa8";
       url = "https://github.com/AMN-DATA";
       isEssential = true;
       position = 107;
     };
-    "Log in | Windmill" = {
+    "Variables | Windmill" = {
       id = "94ccd96d-b854-467a-883a-8d646baf32a1";
-      url = "https://app.windmill.dev/user/login?rd=%2Fvariables";
+      url = "https://app.windmill.dev/variables";
       isEssential = true;
       position = 108;
     };
@@ -62,7 +62,7 @@ in
       isEssential = true;
       position = 109;
     };
-    "Solutions › Cycle 6" = {
+    "Solutions › Cycle 8" = {
       id = "4be84089-5a1c-4de2-8502-5aad2e06071d";
       url = "https://linear.app/caya/team/SE/cycle/active";
       isEssential = true;
@@ -77,46 +77,46 @@ in
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1007;
+          position = 1000;
         };
         "Magic" = {
           id = "{1772811910792-66}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1008;
+          position = 1001;
         };
         "Reports" = {
           id = "{1772811910929-76}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1009;
+          position = 1002;
         };
         "Sheets" = {
           id = "{1772811910969-69}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1010;
+          position = 1003;
         };
         "Tools_1" = {
           id = "{1779976818694-25}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1011;
+          position = 1004;
         };
         "Extraction Customers" = {
           id = "{1774868454880-16}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1012;
+          position = 1005;
         };
         "Caya Document Cockpit" = {
           id = "917f2c5d-5915-4daa-bb87-05e867a92a8b";
-          url = "https://app.caya.com/app/folder/inbox";
+          url = "https://app.caya.com/login";
           isEssential = false;
           position = 227;
         };
@@ -175,12 +175,12 @@ in
         };
         "Daily Workato Recipe failures that requi" = {
           id = "3f1f0649-da2b-4e38-9c7d-f252bda95c8f";
-          url = "https://metabase.caya.com/question/3316-daily-workato-recipe-failures-that-requires-follow-ups?days=21";
+          url = "https://metabase.caya.com/question/3316-daily-workato-recipe-failures-that-requires-follow-ups?days=1";
           isEssential = false;
           position = 235;
           folderParentId = "{1772811910929-76}";
         };
-        "Caya" = {
+        "Caya_4" = {
           id = "8e254e3a-eb7b-441b-8969-e7de6da4c9e7";
           url = "https://metabase.caya.com/question/2844-active-documents-with-missing-automation-to-be-retriggered-inc-stacked-distribution?days=31";
           isEssential = false;
@@ -188,81 +188,88 @@ in
           folderParentId = "{1772811910929-76}";
           container = 3;
         };
-        "Team - Google Drive" = {
-          id = "22f7f290-37bc-4ddc-8de6-b1193a746bcd";
-          url = "https://drive.google.com/drive/folders/1D4gIDEJVprKpioyH7PJkEyZx0a9TCTCj";
+        "Solutions_tracking_Jonas - Google Sheets" = {
+          id = "d844a9e0-0405-45db-bbc2-202e8716a377";
+          url = "https://docs.google.com/spreadsheets/d/1UYOXqPQt4LYhSOQzC_t6eDhAMLLCLjj4nUyE2w1GQS8/edit?gid=2287118#gid=2287118";
           isEssential = false;
           position = 237;
           folderParentId = "{1772811910969-69}";
         };
-        "Google_1" = {
-          id = "43b492f0-a2cb-41c9-be55-6c09f25064cb";
-          url = "https://accounts.google.com/v3/signin/confirmidentifier?authuser=0&continue=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1ZStYBJHhUrm5MfmGGc3ry5BFHgKquKGV1fuSjFdscWs%2Fedit%3Fgid%3D434507410&flowEntry=ServiceLogin&flowName=GlifWebSignIn&followup=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1ZStYBJHhUrm5MfmGGc3ry5BFHgKquKGV1fuSjFdscWs%2Fedit%3Fgid%3D434507410&ltmpl=sheets&osid=1&service=wise&dsh=S1913360619%3A1789540339376771";
+        "Team - Google Drive" = {
+          id = "22f7f290-37bc-4ddc-8de6-b1193a746bcd";
+          url = "https://drive.google.com/drive/folders/1D4gIDEJVprKpioyH7PJkEyZx0a9TCTCj";
           isEssential = false;
           position = 238;
           folderParentId = "{1772811910969-69}";
         };
-        "Google_2" = {
-          id = "28d3f318-2f89-411e-8cdb-e8e9f1438c49";
-          url = "https://accounts.google.com/v3/signin/confirmidentifier?authuser=0&continue=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1vkz3je8w2a-xEd9-CZuT5CSszUTiJKt3Zbx1RgLGVAk%2Fedit%3Fgid%3D189094951&followup=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1vkz3je8w2a-xEd9-CZuT5CSszUTiJKt3Zbx1RgLGVAk%2Fedit%3Fgid%3D189094951&ltmpl=sheets&osid=1&passive=1209600&service=wise&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S-805274224%3A1789478026608921#gid=189094951";
+        "AUTOMATION TEAM OVERVIEW - Google Sheets" = {
+          id = "43b492f0-a2cb-41c9-be55-6c09f25064cb";
+          url = "https://docs.google.com/spreadsheets/d/1ZStYBJHhUrm5MfmGGc3ry5BFHgKquKGV1fuSjFdscWs/edit?gid=0#gid=0";
           isEssential = false;
           position = 239;
+          folderParentId = "{1772811910969-69}";
+        };
+        "Google_1" = {
+          id = "28d3f318-2f89-411e-8cdb-e8e9f1438c49";
+          url = "https://docs.google.com/spreadsheets/d/1vkz3je8w2a-xEd9-CZuT5CSszUTiJKt3Zbx1RgLGVAk/edit?gid=189094951#gid=189094951";
+          isEssential = false;
+          position = 240;
           folderParentId = "{1772811910969-69}";
         };
         "Customer" = {
           id = "2b6bb4ee-b9cc-4e76-8326-4d003f573ea4";
           url = "https://fly.customer.io/workspaces/105641/home";
           isEssential = false;
-          position = 240;
+          position = 241;
           folderParentId = "{1779976818694-25}";
         };
         "Mandrillapp" = {
           id = "cb05bad0-c130-4f17-ba82-438a569ed06b";
           url = "https://mandrillapp.com/";
           isEssential = false;
-          position = 241;
+          position = 242;
           folderParentId = "{1779976818694-25}";
         };
         "Caya alignment - Rollout strategy - Goog" = {
           id = "2a185ef9-aec5-4c32-b80f-c1f62517f88f";
           url = "https://docs.google.com/document/d/18UmUsbcQZJbY7mzZopPNlFgQJ5AG6h4hkhFnP9LmypA/edit?tab=t.0#heading=h.8vobuj5y55ls";
           isEssential = false;
-          position = 242;
+          position = 243;
           folderParentId = "{1774868454880-16}";
         };
         "Standard Operational Procedure Classifie" = {
           id = "436fdc5e-9c1f-4072-b33b-8c6cd2dab699";
           url = "https://docs.google.com/document/d/19NmnQd3aVsITZvyPaTgl7fEIHRchgyeDgBlQkAxF8uU/edit?tab=t.0";
           isEssential = false;
-          position = 243;
+          position = 244;
           folderParentId = "{1774868454880-16}";
         };
         "Google_4" = {
           id = "2f6cad1d-3e77-4ee1-8627-42bea45278f3";
           url = "https://docs.google.com/spreadsheets/d/1O55Lci-L0Ol4-pfiSkdnsL53YR0SrKYsU6a7mToCR4E/edit?gid=0#gid=0";
           isEssential = false;
-          position = 244;
+          position = 245;
           folderParentId = "{1774868454880-16}";
         };
         "Zoho CRM" = {
           id = "b3b17f5c-bcc9-4836-abd5-9a1371f5c824";
           url = "https://crm.zoho.eu/crm/org20101102016/tab/CustomModule4/639790000022723260";
           isEssential = false;
-          position = 245;
+          position = 246;
           folderParentId = "{1774868454880-16}";
         };
         "Zoho" = {
           id = "c5911db0-a501-47ba-ae13-069e1f2ce63f";
           url = "https://crm.zoho.eu/crm/org20101102016/tab/Potentials/639790000026605832?pfrom=gsearch";
           isEssential = false;
-          position = 246;
+          position = 247;
           folderParentId = "{1774868454880-16}";
         };
         "Zoho CRM_1" = {
           id = "aed08224-8d88-4d3c-bb88-91b76d7941be";
           url = "https://crm.zoho.eu/crm/org20101102016/tab/CustomModule4/639790000027567302";
           isEssential = false;
-          position = 247;
+          position = 248;
           folderParentId = "{1774868454880-16}";
         };
       };
@@ -352,14 +359,14 @@ in
           position = 217;
           folderParentId = "{1774867533295-57}";
         };
-        "Caya" = {
+        "GraphQL Playground" = {
           id = "3a459f36-4b12-46b2-abcc-07ab1899fdf8";
           url = "https://mailroom-api.caya.dev/";
           isEssential = false;
           position = 218;
           folderParentId = "{1774867533295-57}";
         };
-        "Caya_2" = {
+        "Caya_3" = {
           id = "da02b43b-2262-4ed3-8c58-0feec10c6aa0";
           url = "https://mailroom-api.caya.com/";
           isEssential = false;
@@ -404,7 +411,7 @@ in
           position = 224;
           folderParentId = "{1774866854440-80}";
         };
-        "Caya_2_1" = {
+        "Caya_2" = {
           id = "42ae8969-2192-40c7-b796-35c0428166b4";
           url = "https://metabase.caya.com/question/2001-check-pin-forward-renewing-active";
           isEssential = false;
@@ -427,40 +434,40 @@ in
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1000;
+          position = 1006;
         };
         "Toolbox" = {
           id = "{1774867657222-23}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1001;
+          position = 1007;
         };
         "Tools" = {
           id = "{1774867666645-82}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1002;
+          position = 1008;
         };
         "casavi" = {
           id = "{1776351617692-26}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1003;
+          position = 1009;
         };
-        "Google" = {
+        "Google_5" = {
           id = "ecbdc963-9c7d-4c8e-8bd4-8408341be33b";
           url = "https://docs.google.com/spreadsheets/d/1Wshg44NPQ3RJPXa3hYh2z-GhZE1yIpUZzb4arNWPO7Q/edit?gid=673528804#gid=673528804";
           isEssential = false;
-          position = 248;
+          position = 249;
         };
         "Caya Document Cockpit_2_1" = {
           id = "cb4c2b75-aea4-4747-8a65-efcadaaf79ac";
           url = "https://develop--appcayacom.netlify.app/app/folder/inbox";
           isEssential = false;
-          position = 249;
+          position = 250;
           folderParentId = "{1772811911012-80}";
           container = 4;
         };
@@ -468,7 +475,7 @@ in
           id = "8a1df9ea-9c7b-41bd-b206-e6d43358c2cc";
           url = "https://app.eu.workato.com/users/sign_in";
           isEssential = false;
-          position = 250;
+          position = 251;
           folderParentId = "{1772811911012-80}";
           container = 4;
         };
@@ -476,42 +483,42 @@ in
           id = "9edeef62-3049-4d9e-9b2e-d7953b3d6929";
           url = "https://www.tools-dev.com/en/tools/xml-format/";
           isEssential = false;
-          position = 251;
+          position = 252;
           folderParentId = "{1774867657222-23}";
         };
         "DevToolbox - Fast Developer Utilities" = {
           id = "7adcad78-fa30-4aa4-851e-414f62a5ca54";
           url = "https://encode.click/";
           isEssential = false;
-          position = 252;
+          position = 253;
           folderParentId = "{1774867657222-23}";
         };
         "Github_2" = {
           id = "398748d4-abdb-4d36-84f8-ab1f390ec4fa";
           url = "https://github.com/unkn0wn-root/resterm";
           isEssential = false;
-          position = 253;
+          position = 254;
           folderParentId = "{1774867666645-82}";
         };
         "Github_3" = {
           id = "f45ac0e3-6c2a-41c3-aafe-9cde05ff5ef3";
           url = "https://github.com/aleiepure/devtoolbox?tab=readme-ov-file#features";
           isEssential = false;
-          position = 254;
+          position = 255;
           folderParentId = "{1774867666645-82}";
         };
-        "MODERN HOMES Immobilien" = {
+        "Globale E-Mails - casavi" = {
           id = "b6de9f51-8d90-4b31-8b72-ef72c6d1e7da";
-          url = "https://caya-testaccount.mycasavi.com/app/login?nextJump=%2Ftenants%2F13739%2Fmanage%2Femails%2Fglobal%2F971152%2F";
+          url = "https://caya-testaccount.mycasavi.com/tenants/13739/manage/emails/global/971152/";
           isEssential = false;
-          position = 255;
+          position = 256;
           folderParentId = "{1776351617692-26}";
         };
         "casavi manager API" = {
           id = "6163d521-903f-4114-9dad-5a5dbc1790ab";
           url = "https://api.mycasavi.com/v2/docs/manager";
           isEssential = false;
-          position = 256;
+          position = 257;
           folderParentId = "{1776351617692-26}";
         };
       };
@@ -523,21 +530,21 @@ in
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1004;
+          position = 1010;
         };
         "OCR -> Data Research" = {
           id = "{1774866958574-54}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1005;
+          position = 1011;
         };
         "OCR -> Data Tests" = {
           id = "{1774867395074-62}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1006;
+          position = 1012;
         };
         "Stitch - Projects" = {
           id = "82ca53ac-9826-45d2-91d6-190eafc28a17";
