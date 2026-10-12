@@ -19,6 +19,10 @@ sharedNixOSHost
   # the postgres this box already runs. Clients point at atuin.jadee.fyi.
   miniAtuinSync = true;
 
+  # Tempo + Grafana (./services/tracing.nix): OpenTelemetry traces of Nix builds
+  # from the NixOS hosts (modules/nixos/nix-tracing.nix), at grafana.jadee.fyi.
+  miniTracing = true;
+
   # Nixflix media stack (./services/media/): automation and playback on mini,
   # with library and download payloads mounted from Unraid.
   miniMediaHosting = true;

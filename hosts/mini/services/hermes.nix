@@ -29,6 +29,18 @@ let
           };
         };
       });
+
+  # Upstream skills for Hermes, deployed by APM to $HERMES_HOME/skills. The
+  # laptop manifest (modules/profiles/devenv/agents/apm.nix) runs as jadee and
+  # cannot write the hermes state dir, so mini runs its own. The manifest has
+  # no MCP servers, so APM does not touch Hermes' config.yaml.
+  hermesHome = "${config.services.hermes-agent.stateDir}/.hermes";
+  apmManifest = (pkgs.formats.yaml { }).generate "apm.yml" {
+    name = "hermes-skills";
+    version = "1.0.0";
+    targets = [ "hermes" ];
+    dependencies.apm = [ "AminBlg/SimpleEnglish" ];
+  };
 in
 {
   services.hermes-agent = {
@@ -106,6 +118,35 @@ in
       hermes-agent = {
         environment.HERMES_MANAGED = lib.mkForce "";
         aliases = [ "hermes-gateway.service" ];
+      };
+
+      # Runs at boot, on each switch that changes the manifest, and daily, so
+      # git deps follow their latest refs. Non-fatal for hermes-agent.
+      hermes-skills = {
+        description = "Deploy upstream agent skills into Hermes with APM";
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+        restartTriggers = [ apmManifest ];
+        startAt = "daily";
+        path = [
+          pkgs.git
+          pkgs.openssh
+        ];
+        environment = {
+          HOME = config.services.hermes-agent.stateDir;
+          HERMES_HOME = hermesHome;
+        };
+        serviceConfig = {
+          Type = "oneshot";
+          User = config.services.hermes-agent.user;
+          Group = config.services.hermes-agent.group;
+        };
+        script = ''
+          mkdir -p "$HOME/.apm"
+          ln -sfn ${apmManifest} "$HOME/.apm/apm.yml"
+          ${pkgs.llm-agents.apm}/bin/apm update -g --yes
+        '';
       };
 
       hermes-agent-reload = {

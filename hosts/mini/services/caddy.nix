@@ -40,6 +40,7 @@ let
   lanBind = host.miniLanAddress or "192.168.178.100";
   lanEnable = host.miniCaddyLanEnable or false;
   lanInterface = host.miniLanInterface or "enp2s0f0np0";
+  tracingEnable = host.miniTracing or false;
 
   # Caddy built with the tailnet listener + Cloudflare DNS-01 plugins. Both lack
   # the other's transport, so we bundle them. caddy-tailscale has no semver tags
@@ -79,6 +80,12 @@ in
         tls {
           dns cloudflare {env.CF_API_TOKEN}
         }
+        ${lib.optionalString tracingEnable ''
+          # One span per request; exporter set in services/tracing.nix.
+          tracing {
+            span {http.request.host}
+          }
+        ''}
       }
     '';
 

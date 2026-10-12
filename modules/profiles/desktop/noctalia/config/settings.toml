@@ -1,4 +1,4 @@
-config_version = 14
+config_version = 15
 
 [backdrop]
 enabled = true
@@ -600,6 +600,9 @@ popup_shadows = true
     [shell.animation]
     speed = 1.5000000223517418
 
+    [shell.greeter_sync]
+    auto_sync = true
+
     [shell.keyboard_layout.custom_labels]
     "English (US, intl., with dead keys)" = "en"
     German = "de"
@@ -655,7 +658,7 @@ transition_on_startup = true
     path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
 
 [widget.active_window]
 anchor = true

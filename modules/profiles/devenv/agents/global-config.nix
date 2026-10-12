@@ -13,9 +13,10 @@ let
 in
 {
   home.file = {
+    # Claude Code reads ~/AGENTS.md for every project under $HOME. A
+    # ~/.claude/CLAUDE.md copy would load the same text twice, so there is none.
     "AGENTS.md".source = agentsLink;
     ".codex/AGENTS.md".source = agentsLink;
-    ".claude/CLAUDE.md".source = agentsLink;
     ".config/agents/AGENTS.md".source = agentsLink;
     ".pi/agent/AGENTS.md".source = agentsLink;
 
