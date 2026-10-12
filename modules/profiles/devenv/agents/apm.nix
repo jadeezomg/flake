@@ -1,10 +1,10 @@
-# APM (Agent Package Manager) deploys the local skills and registers MCP servers.
-# Upstream skill bundles are Claude Code plugins (see `manifest` below).
+# APM (Agent Package Manager) deploys agent skills and registers MCP servers.
+# Claude Code also gets the upstream skill bundles as plugins (see `manifest`).
 #
 # Replaces the former `lib/agent-skills.nix` + `skills.nix` (pinned flake
 # inputs, local overrides, `.upstream-ignore`) and the three per-agent MCP
 # activation modules. APM resolves, fetches, and deploys; this module only
-# renders the manifest and runs `apm install -g` on switch.
+# renders the manifest and runs `apm update -g` on switch.
 #
 # Why the manifest is generated instead of committed as plain YAML:
 #   - local skills are enumerated from `dotfilesLib.agentSkillsDir`, so a new
@@ -57,14 +57,37 @@ let
   manifest = {
     name = "jadee-global";
     version = "1.0.0";
-    targets = [ "claude" ];
+    # `claude` → ~/.claude/skills (Claude Code, omp).
+    # `agent-skills` → ~/.agents/skills (pi, opencode, omp).
+    targets = [
+      "claude"
+      "agent-skills"
+    ];
     dependencies = {
-      # Only the local skills. Upstream skill bundles (mattpocock, ponytail,
-      # SimpleEnglish) are Claude Code plugins, declared in
-      # data/agents/global/settings.json under `extraKnownMarketplaces` and
-      # `enabledPlugins`. Plugins are Claude-only; APM stays for the local
-      # skills and the MCP servers, which other agents read from Claude's config.
-      apm = map (name: { path = "${localSkillsDir}/${name}"; }) localSkills;
+      # Upstream bundles go to `agent-skills` only. Claude Code gets them as
+      # plugins (data/agents/global/settings.json), which run their hooks
+      # themselves. For the `claude` target, APM writes package hooks into
+      # ~/.claude/settings.json, which is a symlink into this repo.
+      apm =
+        map (name: { path = "${localSkillsDir}/${name}"; }) localSkills
+        ++ map (dep: dep // { targets = [ "agent-skills" ]; }) (
+          [ { git = "AminBlg/SimpleEnglish"; } ]
+          # Private repo: SSH, because the fine-grained GITHUB_TOKEN has no
+          # access to the AMN-DATA org.
+          ++ lib.optionals workEnabled (
+            map
+              (name: {
+                git = "git@github.com:AMN-DATA/claude-plugin.git";
+                path = "plugins/${name}";
+              })
+              [
+                "caya-working-docs"
+                "caya-customer-api"
+                "caya-design-system"
+                "caya-mailroom-api"
+              ]
+          )
+        );
 
       # omp and Zed's ACP agents read Claude's config, so the `claude` target
       # covers them. Remote endpoints authenticate interactively per client
@@ -114,12 +137,36 @@ in
     file.".apm/apm.yml".source = manifestFile;
 
     activation = {
-      # Non-fatal: `apm install` needs network, and a failed switch must not be
-      # the cost of being offline. The next switch retries.
+      # `apm update` installs and also moves git deps to their latest refs.
+      # Non-fatal: it needs network, and a failed switch must not be the cost
+      # of being offline. The next switch retries. The apm wrapper does not
+      # bring git or ssh.
       apmInstall = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         ${fixLocalCopyPerms}
-        $DRY_RUN_CMD ${apm}/bin/apm install -g \
-          || echo "apm: install -g failed (will retry next switch)"
+        PATH=${
+          lib.makeBinPath [
+            pkgs.git
+            pkgs.openssh
+          ]
+        }:$PATH $DRY_RUN_CMD ${apm}/bin/apm update -g --yes \
+          || echo "apm: update -g failed (will retry next switch)"
+      '';
+
+      # Upstream skills are Claude Code plugins (see `manifest`). The flake does
+      # not pin them, so each switch on each host pulls the latest versions.
+      # Runs after linkGeneration so that a marketplace that was just added to
+      # settings.json is known. Skips `@synced` plugins: claude.ai manages them.
+      # Non-fatal for the same reason as apmInstall.
+      claudePluginsUpdate = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+        claude=${pkgs.llm-agents.claude-code}/bin/claude
+        $DRY_RUN_CMD $claude plugin marketplace update \
+          || echo "claude: marketplace update failed (will retry next switch)"
+        $claude plugin list --json 2>/dev/null \
+          | ${pkgs.jq}/bin/jq -r '.[].id | select(endswith("@synced") | not)' \
+          | while read -r p; do
+              $DRY_RUN_CMD $claude plugin update "$p" \
+                || echo "claude: plugin update $p failed (will retry next switch)"
+            done
       '';
 
       # Repo: .claude/skills → .agents/skills, so this flake's own project

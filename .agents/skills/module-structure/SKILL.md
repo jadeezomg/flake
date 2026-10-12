@@ -57,7 +57,7 @@ Three patterns exist. Pick the smallest that fits.
 
 `app/home.nix` is the HM half of a system leaf `app.nix`. That is the one sanctioned `home.nix`. Do not leave a generic `home.nix` without a system owner.
 
-Keep helpers that belong to one app inside that app's folder. `desktop/dms-greeter-acl.nix` and `desktop/gdm-session.nix` sit loose beside `dms/` and `gdm/`. They are known exceptions. Do not move them.
+Keep helpers that belong to one app inside that app's folder. A greeter belongs to its shell: `desktop/dms/greeter-acl.nix`, `desktop/noctalia/greeter.nix`. These are system modules; `desktop/default.nix` imports them directly, because the shell folder's `default.nix` is HM. DMS helpers such as `desktop/dms/dankcalendar.nix` also live in `dms/`. `desktop/gnome/home.nix` is the HM half of `gnome/` (GDM plus `dconf.nix`): it holds the shell session units, and `desktop/default.nix` pushes it for every login manager except dms-greeter.
 
 ## Imports and policy
 
