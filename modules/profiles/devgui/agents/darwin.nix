@@ -12,6 +12,7 @@ dotfilesLib.mkProfile {
 
     casks = [
       "openwork" # Open-source desktop agent workspace (powered by opencode)
+      "zed-delta" # Zed's Delta; Linux gets it from the delta-nix input (devgui/ides)
     ];
   };
 } args
