@@ -7,7 +7,7 @@ enabled = true
 order = [ "default", "side", "laptop" ]
 
     [bar.default]
-    background_opacity = 0.65000000000000002
+    background_opacity = 0.4999999888241291
     capsule_radius = 6
     capsule_thickness = 0.69999999999999996
     center = [ "group:g3" ]
@@ -16,7 +16,6 @@ order = [ "default", "side", "laptop" ]
     margin_ends = 900
     margin_opposite_edge = 5
     padding = 20
-    radius = 5
     reserve_space = false
     show_on_workspace_switch = false
     start = [ "status", "group:g1" ]
@@ -267,6 +266,9 @@ warning_threshold = 15
 
 [control_center]
 hidden_tabs = []
+
+    [control_center.calendar]
+    show_week_numbers = true
 
     [[control_center.shortcuts]]
     type = "system"
@@ -591,11 +593,10 @@ enabled = [
 [shell]
 app_icon_color = "primary"
 avatar_path = "/home/jadee/Pictures/Images/L1410618-crop.jpeg"
-button_borders = false
 card_borders = false
+corner_radius_scale = 0.5000000074505806
 input_borders = false
 password_style = "random"
-popup_shadows = true
 
     [shell.animation]
     speed = 1.5000000223517418
@@ -623,13 +624,12 @@ popup_shadows = true
     grid = true
 
     [shell.shadow]
-    alpha = 0.24999999441206455
+    alpha = 0.29999999329447746
 
 [theme]
 builtin = "Gruvbox"
 
     [theme.templates]
-    enable_builtin_templates = false
     enable_community_templates = false
 
 [wallpaper]
