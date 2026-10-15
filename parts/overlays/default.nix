@@ -41,6 +41,10 @@ in
     inherit lib;
     expiry = expiryFor "nix-output-monitor-unknown-activity";
   })
+  (import ./atuin-darwin-e2e-capture.nix {
+    inherit lib system;
+    expiry = expiryFor "atuin-darwin-e2e-capture";
+  })
   (import ./sesh-skip-mockery.nix {
     inherit lib;
     expiry = expiryFor "sesh-skip-mockery";
