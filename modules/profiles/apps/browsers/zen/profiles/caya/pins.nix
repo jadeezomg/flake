@@ -14,9 +14,9 @@ in
       isEssential = true;
       position = 101;
     };
-    "Caya GmbH - Calendar - Week of September 28, 2026" = {
+    "Caya GmbH - Calendar - Week of October 12, 2026" = {
       id = "2fc017e6-0793-435b-a6b9-69fce452eb29";
-      url = "https://calendar.google.com/calendar/u/0/r";
+      url = "https://calendar.google.com/calendar/u/0/r/week";
       isEssential = true;
       position = 102;
     };
@@ -26,9 +26,9 @@ in
       isEssential = true;
       position = 103;
     };
-    "PAM Dashboard · Dashboard · Metabase" = {
+    "2/2 loaded · Dashboard · Metabase" = {
       id = "55d4921c-59db-4cec-ad03-cb21e5ae8ed5";
-      url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer&e-mail&id&tab=7-customer";
+      url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer&date=past30days&e-mail=jonas.hippauf%40getcaya.com&id&tab=7-customer";
       isEssential = true;
       position = 104;
     };
@@ -61,12 +61,6 @@ in
       url = "https://app.attio.com/caya/settings/members-and-teams/members";
       isEssential = true;
       position = 109;
-    };
-    "Solutions › Cycle 8" = {
-      id = "4be84089-5a1c-4de2-8502-5aad2e06071d";
-      url = "https://linear.app/caya/team/SE/cycle/active";
-      isEssential = true;
-      position = 110;
     };
   };
   spaces = baseSpaces // {
@@ -175,12 +169,12 @@ in
         };
         "Daily Workato Recipe failures that requi" = {
           id = "3f1f0649-da2b-4e38-9c7d-f252bda95c8f";
-          url = "https://metabase.caya.com/question/3316-daily-workato-recipe-failures-that-requires-follow-ups?days=1";
+          url = "https://metabase.caya.com/question/3316-daily-workato-recipe-failures-that-requires-follow-ups?days=3";
           isEssential = false;
           position = 235;
           folderParentId = "{1772811910929-76}";
         };
-        "Caya_4" = {
+        "Caya" = {
           id = "8e254e3a-eb7b-441b-8969-e7de6da4c9e7";
           url = "https://metabase.caya.com/question/2844-active-documents-with-missing-automation-to-be-retriggered-inc-stacked-distribution?days=31";
           isEssential = false;
@@ -189,7 +183,7 @@ in
           container = 3;
         };
         "Solutions_tracking_Jonas - Google Sheets" = {
-          id = "d844a9e0-0405-45db-bbc2-202e8716a377";
+          id = "59345093-a109-41e5-b126-d811bfa84ed0";
           url = "https://docs.google.com/spreadsheets/d/1UYOXqPQt4LYhSOQzC_t6eDhAMLLCLjj4nUyE2w1GQS8/edit?gid=2287118#gid=2287118";
           isEssential = false;
           position = 237;
@@ -271,6 +265,13 @@ in
           isEssential = false;
           position = 248;
           folderParentId = "{1774868454880-16}";
+        };
+        "Google_2" = {
+          id = "bc295464-4106-4cb5-8a86-7b8a5f50ebd3";
+          url = "https://accounts.google.com/v3/signin/confirmidentifier?authuser=0&continue=https%3A%2F%2Fdrive.google.com%2Fdrive%2Fsearch%3Fq%3Dintegral&followup=https%3A%2F%2Fdrive.google.com%2Fdrive%2Fsearch%3Fq%3Dintegral&osid=1&passive=1209600&service=wise&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S-1341078008%3A1792068039460069";
+          isEssential = false;
+          position = 249;
+          container = 1;
         };
       };
     };
@@ -457,17 +458,35 @@ in
           editedTitle = true;
           position = 1009;
         };
-        "Google_5" = {
+        "Google" = {
           id = "ecbdc963-9c7d-4c8e-8bd4-8408341be33b";
-          url = "https://docs.google.com/spreadsheets/d/1Wshg44NPQ3RJPXa3hYh2z-GhZE1yIpUZzb4arNWPO7Q/edit?gid=673528804#gid=673528804";
+          url = "https://docs.google.com/spreadsheets/d/1Wshg44NPQ3RJPXa3hYh2z-GhZE1yIpUZzb4arNWPO7Q/edit?gid=2064638536#gid=2064638536";
           isEssential = false;
-          position = 249;
+          position = 250;
+        };
+        "Google_1" = {
+          id = "c077513c-ef25-44b2-97ae-cef9e88a37f8";
+          url = "https://docs.google.com/spreadsheets/d/1dcpj02gItefyonfm6P8HmqOmw7JGWYt39e5pqL66-tQ/edit?gid=2120146398#gid=2120146398";
+          isEssential = false;
+          position = 251;
+        };
+        "Google Sheets" = {
+          id = "5ea22f1f-e774-414a-a0e4-2aec462fad8d";
+          url = "https://docs.google.com/spreadsheets/u/0/?tgif=d";
+          isEssential = false;
+          position = 252;
+        };
+        "Google_2" = {
+          id = "e4d26059-b0f2-4422-b573-021dc6e26436";
+          url = "https://docs.google.com/spreadsheets/d/1NFWxKPdOYED7W5_-_wxWjEDzt7Oolt3YFyYLpdXbh20/edit?gid=2120146398#gid=2120146398";
+          isEssential = false;
+          position = 253;
         };
         "Caya Document Cockpit_2_1" = {
           id = "cb4c2b75-aea4-4747-8a65-efcadaaf79ac";
           url = "https://develop--appcayacom.netlify.app/app/folder/inbox";
           isEssential = false;
-          position = 250;
+          position = 254;
           folderParentId = "{1772811911012-80}";
           container = 4;
         };
@@ -475,7 +494,7 @@ in
           id = "8a1df9ea-9c7b-41bd-b206-e6d43358c2cc";
           url = "https://app.eu.workato.com/users/sign_in";
           isEssential = false;
-          position = 251;
+          position = 255;
           folderParentId = "{1772811911012-80}";
           container = 4;
         };
@@ -483,42 +502,42 @@ in
           id = "9edeef62-3049-4d9e-9b2e-d7953b3d6929";
           url = "https://www.tools-dev.com/en/tools/xml-format/";
           isEssential = false;
-          position = 252;
+          position = 256;
           folderParentId = "{1774867657222-23}";
         };
         "DevToolbox - Fast Developer Utilities" = {
           id = "7adcad78-fa30-4aa4-851e-414f62a5ca54";
           url = "https://encode.click/";
           isEssential = false;
-          position = 253;
+          position = 257;
           folderParentId = "{1774867657222-23}";
         };
         "Github_2" = {
           id = "398748d4-abdb-4d36-84f8-ab1f390ec4fa";
           url = "https://github.com/unkn0wn-root/resterm";
           isEssential = false;
-          position = 254;
+          position = 258;
           folderParentId = "{1774867666645-82}";
         };
         "Github_3" = {
           id = "f45ac0e3-6c2a-41c3-aafe-9cde05ff5ef3";
           url = "https://github.com/aleiepure/devtoolbox?tab=readme-ov-file#features";
           isEssential = false;
-          position = 255;
+          position = 259;
           folderParentId = "{1774867666645-82}";
         };
         "Globale E-Mails - casavi" = {
           id = "b6de9f51-8d90-4b31-8b72-ef72c6d1e7da";
           url = "https://caya-testaccount.mycasavi.com/tenants/13739/manage/emails/global/971152/";
           isEssential = false;
-          position = 256;
+          position = 260;
           folderParentId = "{1776351617692-26}";
         };
         "casavi manager API" = {
           id = "6163d521-903f-4114-9dad-5a5dbc1790ab";
           url = "https://api.mycasavi.com/v2/docs/manager";
           isEssential = false;
-          position = 257;
+          position = 261;
           folderParentId = "{1776351617692-26}";
         };
       };
