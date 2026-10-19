@@ -1,9 +1,5 @@
 modelRoles:
-  smol: openai-codex/gpt-6-luna
-  tiny: openai-codex/gpt-6-luna:auto
-  advisor: openai-codex/gpt-6.1-sol:high
   plan: openai-codex/gpt-6-astra:xhigh
-  slow: openai-codex/gpt-6-luna:auto
   default: openai-codex/gpt-6.1-sol
 theme:
   dark: birds-of-paradise
@@ -145,3 +141,5 @@ contextPromotion:
 composer:
   shape: box
   tokenRate: false
+codexResets:
+  autoRedeem: "yes"
