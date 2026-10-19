@@ -183,7 +183,7 @@ in
           container = 3;
         };
         "Solutions_tracking_Jonas - Google Sheets" = {
-          id = "59345093-a109-41e5-b126-d811bfa84ed0";
+          id = "b84f3958-83fa-4e62-8492-503a99d3961f";
           url = "https://docs.google.com/spreadsheets/d/1UYOXqPQt4LYhSOQzC_t6eDhAMLLCLjj4nUyE2w1GQS8/edit?gid=2287118#gid=2287118";
           isEssential = false;
           position = 237;
@@ -267,7 +267,7 @@ in
           folderParentId = "{1774868454880-16}";
         };
         "Google_2" = {
-          id = "bc295464-4106-4cb5-8a86-7b8a5f50ebd3";
+          id = "a072f869-f380-4265-a75e-6ff9c2cae6e9";
           url = "https://accounts.google.com/v3/signin/confirmidentifier?authuser=0&continue=https%3A%2F%2Fdrive.google.com%2Fdrive%2Fsearch%3Fq%3Dintegral&followup=https%3A%2F%2Fdrive.google.com%2Fdrive%2Fsearch%3Fq%3Dintegral&osid=1&passive=1209600&service=wise&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S-1341078008%3A1792068039460069";
           isEssential = false;
           position = 249;
@@ -282,35 +282,35 @@ in
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1013;
+          position = 1014;
         };
         "Mailroom" = {
           id = "{1774867533295-57}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1014;
+          position = 1015;
         };
         "Forwards" = {
           id = "{1772811910906-87}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1015;
+          position = 1016;
         };
         "Irrläufer" = {
           id = "{1774867512358-0}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1016;
+          position = 1017;
         };
         "PIN" = {
           id = "{1774866854440-80}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1017;
+          position = 1018;
         };
         "Caya_1" = {
           id = "32bb71b4-2bd6-4d44-bc56-285536a67965";
@@ -430,57 +430,68 @@ in
     };
     "Development" = baseSpaces."Development" // {
       pins = {
+        "Template" = {
+          id = "{1792414937488-31}";
+          isGroup = true;
+          isFolderCollapsed = true;
+          editedTitle = true;
+          position = 1006;
+        };
         "Dev Env" = {
           id = "{1772811911012-80}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1006;
+          position = 1007;
         };
         "Toolbox" = {
           id = "{1774867657222-23}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1007;
+          position = 1008;
         };
         "Tools" = {
           id = "{1774867666645-82}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1008;
+          position = 1009;
         };
         "casavi" = {
           id = "{1776351617692-26}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1009;
+          position = 1010;
         };
         "Google" = {
           id = "ecbdc963-9c7d-4c8e-8bd4-8408341be33b";
           url = "https://docs.google.com/spreadsheets/d/1Wshg44NPQ3RJPXa3hYh2z-GhZE1yIpUZzb4arNWPO7Q/edit?gid=2064638536#gid=2064638536";
           isEssential = false;
           position = 250;
+          folderParentId = "{1792414937488-31}";
         };
         "Google_1" = {
-          id = "c077513c-ef25-44b2-97ae-cef9e88a37f8";
+          id = "33b4cd7e-3150-4d1b-97e5-b018551c503a";
           url = "https://docs.google.com/spreadsheets/d/1dcpj02gItefyonfm6P8HmqOmw7JGWYt39e5pqL66-tQ/edit?gid=2120146398#gid=2120146398";
           isEssential = false;
           position = 251;
+          folderParentId = "{1792414937488-31}";
         };
         "Google Sheets" = {
-          id = "5ea22f1f-e774-414a-a0e4-2aec462fad8d";
+          id = "6745e418-c019-4213-bf41-e612497c857c";
           url = "https://docs.google.com/spreadsheets/u/0/?tgif=d";
           isEssential = false;
           position = 252;
+          folderParentId = "{1792414937488-31}";
         };
         "Google_2" = {
-          id = "e4d26059-b0f2-4422-b573-021dc6e26436";
+          id = "0d145edd-a0b6-4bb2-8e0b-82c213a5447b";
           url = "https://docs.google.com/spreadsheets/d/1NFWxKPdOYED7W5_-_wxWjEDzt7Oolt3YFyYLpdXbh20/edit?gid=2120146398#gid=2120146398";
           isEssential = false;
           position = 253;
+          folderParentId = "{1792414937488-31}";
         };
         "Caya Document Cockpit_2_1" = {
           id = "cb4c2b75-aea4-4747-8a65-efcadaaf79ac";
@@ -549,21 +560,21 @@ in
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1010;
+          position = 1011;
         };
         "OCR -> Data Research" = {
           id = "{1774866958574-54}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1011;
+          position = 1012;
         };
         "OCR -> Data Tests" = {
           id = "{1774867395074-62}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1012;
+          position = 1013;
         };
         "Stitch - Projects" = {
           id = "82ca53ac-9826-45d2-91d6-190eafc28a17";
