@@ -10,6 +10,8 @@ dotfilesLib.mkProfile {
     pkgs: with pkgs; [
       file-roller # GNOME archive manager for zip/rar/7z and other archives.
       nautilus # GNOME file manager
+      nautilus-python # host for Python extensions
+      nautilus-my-computer # "My Computer" view with drives, volumes, and mounts
       ventoy # create bootable USB drives
       localsend # file sharing
     ];
