@@ -11,7 +11,7 @@
 | **`lib/`** | `common.py` (flake paths, Rich consoles), `palette.py` (hex mirror of `lib/theme-palette.nix`). |
 | **`zen/`** | Zen browser → flake: `session.py` (MozLZ4 reader), `sync.py` (`zen-sync` CLI). |
 | **`vorssaint_sync.py`** | Vorssaint → flake: `vorssaint-sync` CLI, writes `modules/profiles/work/darwin/brew-casks/data/vorssaint.nix`. |
-| Package root | `symlinks.py`, `update_packages.py`, `media_quality.py` (other entry points). |
+| Package root | `symlinks.py`, `update_packages.py` (other entry points). |
 
 ## Commands
 

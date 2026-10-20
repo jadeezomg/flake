@@ -59,7 +59,7 @@ just health          # git status, disk, nh os info
 | `format`      | `fmt`, `fmt-notree`, `lint` |
 | `backups`     | `backups`, `backups-clean`, `backups-clean-dry` |
 | `check`       | `update-packages`, `nix-update-pkg`, `symlink-check`, `symlink-check-dms` |
-| `config`      | `init`, `_init`, `read-defaults`, `secret-set`, `setup-age-editor`, `setup-age-darwin`, sops host-key lifecycle (`bootstrap-sops-host-key`, `bootstrap-sops-host-key-from-editor`, `rotate-sops-host-key`, `verify-sops-host-key`), `sync-1password`, `sync-media-secrets-to-pass`, `media-quality`, `seerr-request-settings` |
+| `config`      | `init`, `_init`, `read-defaults`, `secret-set`, `setup-age-editor`, `setup-age-darwin`, sops host-key lifecycle (`bootstrap-sops-host-key`, `bootstrap-sops-host-key-from-editor`, `rotate-sops-host-key`, `verify-sops-host-key`), `sync-1password`, `sync-media-secrets-to-pass` |
 | `system`      | `health`, `rollback`, `update`, `flatten-dir`, `flatten-dir-dry` |
 | `repo`        | `git` (quiet fmt + status/log + commit + push) |
 | `zen`         | `zen-sync`, `zen-check` |
