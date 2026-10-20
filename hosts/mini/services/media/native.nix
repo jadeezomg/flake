@@ -131,7 +131,7 @@ in
             "opensubtitles-username:${config.sops.secrets."mini/media/bazarr/opensubtitles-username".path}"
             "opensubtitles-password:${config.sops.secrets."mini/media/bazarr/opensubtitles-password".path}"
           ];
-          PrivateTmp = true;
+          # PrivateTmp comes from the nixpkgs module ("disconnected").
           ProtectSystem = "strict";
           ReadWritePaths = [
             "/srv/nixflix/bazarr"
