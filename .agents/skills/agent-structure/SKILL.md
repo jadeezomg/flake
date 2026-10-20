@@ -59,9 +59,10 @@ A mod is a Claude Code plugin of function hooks: a pane, a command, or a hook on
 - `settings.json` loads them through `env.CLAUDE_CODE_PLUGIN_DIRS`. The value is a `:`-separated list of folders. Claude Code expands `~`, so one value works on every host.
 - To add a mod, append its folder to that value. To turn a mod off, remove its folder.
 - A saved edit reloads the mod in every open interactive session. No switch is needed. A change to `settings.json` takes effect in the next session.
-- Claude Code writes `.claude-plugin/types/` when it loads a mod. That folder holds its own `.gitignore`. Do not edit it. Keep the top-level `tsconfig.json`, which extends it.
+- When Claude Code loads a mod, it writes `.claude-plugin/types/`. That folder holds its own `.gitignore`. Do not edit it. Keep the top-level `tsconfig.json`, which extends it.
 - Before you commit a change, run `claude plugin validate <dir>` and `claude plugin test <dir>`. Type-check with `tsc -p <dir>` after Claude Code loaded the mod once.
 - Mods load in Claude Code only. omp, pi, and Zed do not read them.
+- The Caya account is on a Team plan, so Claude Code seats its built-in guard `cc-plugin-sec-default` ahead of every mod here. The guard skips a mod's `session.compact` hooks: Claude Code always makes its own summary. It also keeps injected rows (reminders, hook context, compaction rows) from `session.append` rewrites. `claude plugin test` runs without the guard. To make sure that a hook runs, use `claude --plugin-dir <dir> --debug-file <log> -p ...` and search the log for `bypassed`.
 
 ## MCP servers
 
