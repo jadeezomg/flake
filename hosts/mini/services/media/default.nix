@@ -8,5 +8,6 @@
     ./nixflix
     ./native.nix
     ./proxy.nix
+    ./seerr.nix
   ];
 }
