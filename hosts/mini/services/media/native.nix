@@ -30,7 +30,7 @@ in
     bazarr = {
       enable = true;
       dataDir = "/srv/nixflix/bazarr";
-      listenPort = 6767;
+      settings.general.port = 6767;
       user = "unraid";
       group = "users";
       openFirewall = false;
@@ -131,8 +131,10 @@ in
             "opensubtitles-username:${config.sops.secrets."mini/media/bazarr/opensubtitles-username".path}"
             "opensubtitles-password:${config.sops.secrets."mini/media/bazarr/opensubtitles-password".path}"
           ];
-          # PrivateTmp comes from the nixpkgs module ("disconnected").
-          ProtectSystem = "strict";
+          # The nixpkgs module hardens Bazarr (PrivateTmp = "disconnected" and
+          # more). It sets ProtectSystem = "full"; "strict" is stricter and
+          # works with the ReadWritePaths below.
+          ProtectSystem = lib.mkForce "strict";
           ReadWritePaths = [
             "/srv/nixflix/bazarr"
             "/data/media/Series"
