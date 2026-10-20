@@ -1,13 +1,13 @@
 ---
 name: agent-structure
-description: Apply this flake's agent configuration layout rules. Use when editing agent skills, global agent instructions (AGENTS.md), Claude settings, OMP agent config, MCP server registration in apm.nix, agent CLI packages, or deciding between project .agents/skills and data/agents/skills/local.
+description: Apply this flake's agent configuration layout rules. Use when editing agent skills, Claude Code mods (data/agents/mods), global agent instructions (AGENTS.md), Claude settings, OMP agent config, MCP server registration in apm.nix, agent CLI packages, or deciding between project .agents/skills and data/agents/skills/local.
 ---
 
 # Agent Structure
 
 ## Scope
 
-Use this skill for agent-facing files: `.agents/skills/`, `data/agents/**`, `modules/profiles/devenv/agents/`, and the installed copies in `$HOME`.
+Use this skill for agent-facing files: `.agents/skills/`, `data/agents/**` (including `data/agents/mods/`), `modules/profiles/devenv/agents/`, and the installed copies in `$HOME`.
 
 ## Skill locations
 
@@ -50,6 +50,18 @@ Ask: must this skill follow the user into unrelated repos?
 - Before the install, `fixLocalCopyPerms` runs `chmod -R u+rwX ~/.apm/apm_modules/_local`. APM copies the store-path skills with their read-only mode, and its `rmtree` fallback then sets mode 0200 (write-only), which makes every later install fail with "Permission denied" before it deploys anything. The step carries a `recheckWhen` guard on the apm version. If `~/.claude/skills` is missing while `~/.apm/apm_modules` is populated, this is the first thing to check.
 - Ad-hoc `apm install <pkg>` fails by design. Add new packages to `manifest` in `apm.nix` instead.
 - Plugins update themselves on Claude Code start. Refresh the local-skill lock with `apm update -g`. `just update` does not touch either. It runs `update-packages`, `nix flake update`, `just fmt`, and optional `fwupdmgr`.
+
+## Claude Code mods
+
+A mod is a Claude Code plugin of function hooks: a pane, a command, or a hook on tool calls.
+
+- Mods live in `data/agents/mods/<name>/`. Each has `.claude-plugin/plugin.json`, `hooks/hooks.json`, and the hooks module.
+- `settings.json` loads them through `env.CLAUDE_CODE_PLUGIN_DIRS`. The value is a `:`-separated list of folders. Claude Code expands `~`, so one value works on every host.
+- To add a mod, append its folder to that value. To turn a mod off, remove its folder.
+- A saved edit reloads the mod in every open interactive session. No switch is needed. A change to `settings.json` takes effect in the next session.
+- Claude Code writes `.claude-plugin/types/` when it loads a mod. That folder holds its own `.gitignore`. Do not edit it. Keep the top-level `tsconfig.json`, which extends it.
+- Before you commit a change, run `claude plugin validate <dir>` and `claude plugin test <dir>`. Type-check with `tsc -p <dir>` after Claude Code loaded the mod once.
+- Mods load in Claude Code only. omp, pi, and Zed do not read them.
 
 ## MCP servers
 
