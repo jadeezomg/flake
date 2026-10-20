@@ -90,7 +90,7 @@ flake/
 ├── hosts/                    # hosts.nix + per-host NixOS/darwin config
 ├── modules/                  # profiles (features, system + HM halves) / platform base
 ├── packages/                 # custom packages; auto-registered as pkgs.<name> (see overlays)
-├── data/agents/              # global AGENTS.md + local skills + upstream skill inputs
+├── data/agents/              # global AGENTS.md + local skills + Claude Code mods
 ├── docs/                     # ADRs (docs/adr), host runbooks (docs/hosts), bench, research
 ├── scripts/                  # Justfile helpers + uv Python package (flake-scripts)
 └── secrets/secrets.yaml        # sops + age
