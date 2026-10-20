@@ -674,6 +674,16 @@ zen-sync *ARGS:
 zen-check *ARGS:
     @cd "$FLAKE" && uv run --project "$FLAKE/scripts" zen-sync --check {{ ARGS }}
 
+[doc('Write brew-casks/data/vorssaint.nix from the live Vorssaint settings (see scripts/README.md)')]
+[group('vorssaint')]
+vorssaint-sync *ARGS:
+    @cd "$FLAKE" && uv run --project "$FLAKE/scripts" vorssaint-sync {{ ARGS }}
+
+[doc('Check flake Vorssaint settings vs the live app (exit 0 = match)')]
+[group('vorssaint')]
+vorssaint-check *ARGS:
+    @cd "$FLAKE" && uv run --project "$FLAKE/scripts" vorssaint-sync --check {{ ARGS }}
+
 
 
 # Mini host + LLM commands, grouped as a module: `just mini <cmd>` and
