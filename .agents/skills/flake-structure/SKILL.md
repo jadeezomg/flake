@@ -90,7 +90,7 @@ Hazards:
 
 - `scripts/shell/`: bash helpers that source `common.sh`. Use `[[ ]]`, not `[ ]`.
 - `scripts/src/flake_scripts/`: Python package. Subpackages: `lib/` (`common.py`, `palette.py`) and `zen/` (`session.py`, `sync.py`).
-- Entry points in `scripts/pyproject.toml`: `symlink-check`, `zen-sync`, `update-packages`, `media-quality`.
+- Entry points in `scripts/pyproject.toml`: `symlink-check`, `zen-sync`, `vorssaint-sync`, `update-packages`, `media-quality`.
 - Recipes call `uv run --project "$FLAKE/scripts" <entry-point>`.
 - Keep `scripts/src/flake_scripts/lib/palette.py` in sync with `lib/theme-palette.nix`.
 

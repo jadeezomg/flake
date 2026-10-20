@@ -55,14 +55,11 @@ in
       "google-chrome"
 
       # --- Utilities ---
-      "middleclick" # Three-finger click utility (Mac-specific)
       "notunes" # Disable iTunes/Music auto-launch (Mac-specific)
       "linearmouse" # mouse options
-      "hyperkey" # rebind keys
       "handy" # Offline speech-to-text desktop app
-      "shottr" # screenshot tool
       "nkzw-tech/tap/codiff" # Visual diff tool for Git changes (own tap)
-      "vorssaint"
+      "vorssaint" # Menu bar toolkit: middle click, Hyper key, screenshots + OCR (brew-casks/vorssaint.nix)
 
       # --- Fonts (not in nixpkgs) ---
       "font-sf-mono"
