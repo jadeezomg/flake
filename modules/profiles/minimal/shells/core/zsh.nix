@@ -14,7 +14,10 @@ in
     enable = true;
 
     enableCompletion = true;
-    autosuggestion.enable = true;
+    autosuggestion = {
+      enable = true;
+      highlight = "fg=${dotfilesLib.palette.ansi-bright-black}";
+    };
     syntaxHighlighting.enable = true;
 
     history = {
