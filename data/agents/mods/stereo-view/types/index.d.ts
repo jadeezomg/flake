@@ -5,8 +5,10 @@ export type ActivityCall = {
 	kind: "call";
 	id: string;
 	tool: string;
-	/** One line that names what the call works on (a command, a path). */
+	/** One line that names what the call does or works on (a description, a path). */
 	summary: string;
+	/** The full command, for calls that run one; the expanded row shows it. */
+	command?: string;
 	/** The loop the call ran in; absent on the main conversation. */
 	agentId?: string;
 	/** Milliseconds since the epoch; absent for calls read back on resume. */

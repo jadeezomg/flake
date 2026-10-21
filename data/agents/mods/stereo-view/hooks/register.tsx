@@ -2,7 +2,16 @@ import { atom, read, update } from "claude-code";
 import type { EngineInterface, Register, RenderViewport } from "claude-code";
 
 import type { ActivityCall, ActivityEntry, CallStatus } from "../types";
-import { clockTime, cut, duration, firstLine, summarize } from "./format";
+import {
+	clockTime,
+	commandOf,
+	cut,
+	duration,
+	firstLine,
+	pathsOf,
+	summarize,
+	toolLabel,
+} from "./format";
 
 const PANE = "activity";
 const TITLE = "Activity";
@@ -10,6 +19,8 @@ const STORE_SPLIT = "isSplit";
 const MAX_ENTRIES = 400;
 const MAX_RESULT = 4000;
 const EXPANDED_LINES = 40;
+// Cells before a call's glyph: its duration, right-aligned, and a space.
+const LEAD = 7;
 
 // The person answers these tools, so their rows stay in the conversation.
 const CONVERSATION_TOOLS = new Set(["AskUserQuestion", "ExitPlanMode"]);
@@ -86,15 +97,49 @@ async function setSplit($: EngineInterface, isOn: boolean): Promise<void> {
 	if (!opened.isPlaced) $.ui.toast(`Activity waits: ${opened.reason}`);
 }
 
-// Rebuilds the list from the stored conversation, for a resumed session.
-async function readBack(
+// Each folder's repository root, or null outside any. A folder that holds
+// `.git` (a folder, or a file in a worktree) is a root.
+const rootOf = new Map<string, string | null>();
+
+async function repoRoot($: EngineInterface, path: string): Promise<string | null> {
+	const seen: string[] = [];
+	let dir = path.slice(0, path.lastIndexOf("/"));
+	let root: string | null = null;
+	while (dir !== "") {
+		const known = rootOf.get(dir);
+		if (known !== undefined) {
+			root = known;
+			break;
+		}
+		seen.push(dir);
+		if (await $.fs.exists(`${dir}/.git`).catch(() => false)) {
+			root = dir;
+			break;
+		}
+		dir = dir.slice(0, dir.lastIndexOf("/"));
+	}
+	for (const one of seen) rootOf.set(one, root);
+
+	return root;
+}
+
+async function rootsFor(
 	$: EngineInterface,
-	cwd: string,
-): Promise<ActivityEntry[]> {
+	input: Record<string, unknown>,
+): Promise<string[]> {
+	const roots = await Promise.all(
+		pathsOf(input).map((path) => repoRoot($, path)),
+	);
+
+	return roots.filter((root): root is string => root !== null);
+}
+
+// Rebuilds the list from the stored conversation, for a resumed session.
+async function readBack($: EngineInterface): Promise<ActivityEntry[]> {
 	const messages = await $.session.messages();
 	if (!Array.isArray(messages)) return [];
 	const list: ActivityEntry[] = [];
-	messages.forEach((message, index) => {
+	for (const [index, message] of messages.entries()) {
 		if (
 			message.role === "user" &&
 			message.text.trim() !== "" &&
@@ -111,21 +156,19 @@ async function readBack(
 				kind: "call",
 				id: use.tool_use_id,
 				tool: use.tool,
-				summary: summarize(use.input, cwd),
+				summary: summarize(use.input, await rootsFor($, use.input)),
+				command: commandOf(use.input)?.slice(0, MAX_RESULT),
 				status: use.isError === true ? "error" : "done",
 				result: use.text?.slice(0, MAX_RESULT),
 			});
 		}
-	});
+	}
 
 	return list.slice(-MAX_ENTRIES);
 }
 
 export const register: Register = (on) => {
-	let cwd = "";
-
 	on("session.start", async ($, e, next) => {
-		cwd = e.cwd;
 		await $.command.register({
 			name: "stereo-view",
 			description: "Split tool activity from the conversation into a side pane",
@@ -137,7 +180,7 @@ export const register: Register = (on) => {
 		await update($, isSplit, () => isOn);
 
 		if ((await read($, entries)).length === 0) {
-			const list = await readBack($, cwd).catch(() => []);
+			const list = await readBack($).catch(() => []);
 			await update($, entries, () => list);
 		}
 
@@ -208,11 +251,13 @@ export const register: Register = (on) => {
 	on("tool.call", async ($, e, next) => {
 		const startedAt = await $.clock.now();
 		const id = e.tool_use_id;
+		const input = e as unknown as Record<string, unknown>;
 		const call: ActivityCall = {
 			kind: "call",
 			id,
 			tool: String(e.tool),
-			summary: summarize(e as unknown as Record<string, unknown>, cwd),
+			summary: summarize(input, await rootsFor($, input)),
+			command: commandOf(input)?.slice(0, MAX_RESULT),
 			agentId: e.agentId,
 			startedAt,
 			status: "running",
@@ -285,9 +330,21 @@ export const register: Register = (on) => {
 		if (running > 0) counts.push(`${running} running`);
 		if (failed > 0) counts.push(`${failed} failed`);
 
+		// Each prompt's divider shows the time since the prompt before it.
+		const sinceLast = new Map<string, number>();
+		let lastAt: number | undefined;
+		for (const entry of all) {
+			if (entry.kind !== "turn") continue;
+			if (entry.startedAt !== undefined && lastAt !== undefined)
+				sinceLast.set(entry.id, entry.startedAt - lastAt);
+			lastAt = entry.startedAt;
+		}
+
 		const rows = shown.map((entry) => {
 			if (entry.kind === "turn") {
-				const head = `── ${clockTime(entry.startedAt)} `;
+				const gap = sinceLast.get(entry.id);
+				const since = gap === undefined ? "" : ` +${duration(gap)}`;
+				const head = `── ${clockTime(entry.startedAt)}${since} `;
 
 				return (
 					<Box marginTop={1}>
@@ -299,20 +356,21 @@ export const register: Register = (on) => {
 			}
 
 			const isSub = entry.agentId !== undefined;
-			const time = `${clockTime(entry.startedAt)} `;
 			const indent = isSub ? "↳ " : "";
+			const label = toolLabel(entry.tool);
 			const took =
 				entry.startedAt === undefined
 					? ""
-					: ` ${duration((entry.endedAt ?? now) - entry.startedAt)}`;
+					: duration((entry.endedAt ?? now) - entry.startedAt);
+			const lead = `${took.padStart(LEAD - 1)} `;
 			const room =
-				width -
-				time.length -
-				indent.length -
-				2 -
-				entry.tool.length -
-				1 -
-				took.length;
+				width - lead.length - indent.length - 2 - label.length - 1;
+			const span =
+				entry.startedAt === undefined
+					? undefined
+					: entry.endedAt === undefined
+						? clockTime(entry.startedAt)
+						: `${clockTime(entry.startedAt)} – ${clockTime(entry.endedAt)}`;
 			const isOpen = open === entry.id;
 			const resultLines = (entry.result ?? "").split("\n");
 
@@ -325,21 +383,21 @@ export const register: Register = (on) => {
 							update($, expanded, (id) => (id === entry.id ? null : entry.id))
 						}
 					>
-						<Text dimColor>{time}</Text>
+						<Text dimColor>{lead}</Text>
 						{indent}
 						<Text color={COLOR[entry.status]}>{GLYPH[entry.status]} </Text>
-						<Text bold>{entry.tool}</Text>
+						<Text bold>{label}</Text>
 						{` ${cut(entry.summary, room)}`}
-						<Text dimColor>{took}</Text>
 					</Button>
 					{withResults && !isOpen && entry.result !== undefined && (
 						<Text dimColor wrap="truncate-end">
-							{`         ⎿ ${cut(firstLine(entry.result), width - 11)}`}
+							{`${" ".repeat(LEAD)}⎿ ${cut(firstLine(entry.result), width - LEAD - 2)}`}
 						</Text>
 					)}
 					{isOpen && (
-						<Box flexDirection="column" marginLeft={9} marginBottom={1}>
-							<Text wrap="wrap">{entry.summary}</Text>
+						<Box flexDirection="column" marginLeft={LEAD} marginBottom={1}>
+							{span !== undefined && <Text dimColor>{span}</Text>}
+							<Text wrap="wrap">{entry.command ?? entry.summary}</Text>
 							{entry.result !== undefined && (
 								<Text dimColor wrap="wrap">
 									{resultLines.slice(0, EXPANDED_LINES).join("\n")}
