@@ -80,6 +80,7 @@ in
     root = "${flakeRoot}/data/agents";
     globalAgentsMd = "${root}/global/AGENTS.md";
     claudeSettings = "${root}/global/settings.json";
+    claudeTheme = "${root}/global/themes/dark-ansi-dock.json";
     ompConfig = "${root}/omp/config.yml";
     ompTheme = "${root}/omp/themes/birds-of-paradise.json";
     localSkills = "${root}/skills/local";

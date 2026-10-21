@@ -76,6 +76,7 @@ A mod is a Claude Code plugin of function hooks: a pane, a command, or a hook on
 
 - `data/agents/global/AGENTS.md` is the source for global instructions.
 - `data/agents/global/settings.json` is the source for Claude settings.
+- `data/agents/global/themes/dark-ansi-dock.json` is the custom Claude theme that `settings.json` selects. It is `dark-ansi` with the docked pane on the terminal background.
 - `data/agents/omp/config.yml` and `data/agents/omp/themes/birds-of-paradise.json` own the Oh-my-posh agent config.
 - `global-config.nix` installs these as live symlinks (`mkOutOfStoreSymlink` and `mkLiveSymlink`). Edits take effect without a rebuild.
 - `AGENTS.md` fans out to `~/AGENTS.md`, `~/.codex/AGENTS.md`, `~/.config/agents/AGENTS.md`, and `~/.pi/agent/AGENTS.md`. Claude Code reads `~/AGENTS.md` as a parent of every project under `$HOME`, so there is no `~/.claude/CLAUDE.md`. Sessions outside `$HOME` get no global instructions.
@@ -85,7 +86,7 @@ A mod is a Claude Code plugin of function hooks: a pane, a command, or a hook on
 
 - `agentsDataDir`: `../data/agents` as a store path.
 - `agentSkillsDir`: `../data/agents/skills` as a store path. `apm.nix` builds its `path:` deps from it on purpose, so APM does not depend on where the flake is checked out.
-- `agentDataFiles flakeRoot`: live checkout paths. Keys: `root`, `globalAgentsMd`, `claudeSettings`, `ompConfig`, `ompTheme`, `localSkills`.
+- `agentDataFiles flakeRoot`: live checkout paths. Keys: `root`, `globalAgentsMd`, `claudeSettings`, `claudeTheme`, `ompConfig`, `ompTheme`, `localSkills`.
 - Add new agent data files to `agentDataFiles`. Do not hardcode `data/agents/...` in modules.
 
 ## Sibling modules (`modules/profiles/devenv/agents/`)

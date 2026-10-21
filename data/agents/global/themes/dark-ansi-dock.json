@@ -1,0 +1,7 @@
+{
+  "name": "Dark ANSI, terminal dock",
+  "base": "dark-ansi",
+  "overrides": {
+    "composerSidebarBackground": "ansi:black"
+  }
+}
