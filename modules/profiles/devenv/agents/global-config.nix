@@ -21,6 +21,9 @@ in
     ".pi/agent/AGENTS.md".source = agentsLink;
 
     ".claude/settings.json".source = claudeSettingsLink;
+    # dark-ansi with the docked pane on the terminal's own background
+    # (ansi:black), in place of the lighter ansi:blackBright.
+    ".claude/themes/dark-ansi-dock.json" = mkLiveSymlink agentFiles.claudeTheme;
 
     ".omp/agent/config.yml" = mkLiveSymlink agentFiles.ompConfig;
     ".omp/agent/themes/birds-of-paradise.json" = mkLiveSymlink agentFiles.ompTheme;

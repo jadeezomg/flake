@@ -147,7 +147,7 @@
 	"tui": "fullscreen",
 	"timeFormat": "24-hour",
 	"skipDangerousModePermissionPrompt": true,
-	"theme": "dark-ansi",
+	"theme": "custom:dark-ansi-dock",
 	"editorMode": "normal",
 	"preferredNotifChannel": "kitty",
 	"autoCompactEnabled": true,
