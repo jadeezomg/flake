@@ -106,7 +106,9 @@ test("a described command shows its description, and the expanded row shows the 
 	expect(call?.text).not.toMatch(CLOCK);
 
 	await ui.press({ key: call?.key ?? "" });
-	expect(await ui.find({ text: /npx vitest run --reporter=dot/ })).toBeDefined();
+	expect(
+		await ui.find({ text: /npx vitest run --reporter=dot/ }),
+	).toBeDefined();
 	expect(await ui.find({ text: CLOCK })).toBeDefined();
 	await ui.unmount();
 });
@@ -141,7 +143,10 @@ test("an MCP tool shows by its server and tool name", async ($, on) => {
 	on("tool.call", () => ({ result: {}, text: "ok" }));
 
 	await $.tool.call({ tool: "mcp__linear__save_issue", title: "Fix it" });
-	await $.tool.call({ tool: "mcp__claude_ai_Notion__notion-search", query: "q" });
+	await $.tool.call({
+		tool: "mcp__claude_ai_Notion__notion-search",
+		query: "q",
+	});
 
 	const ui = await $.ui.mount({
 		plugin: "stereo-view",
