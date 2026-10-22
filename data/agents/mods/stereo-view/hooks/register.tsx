@@ -101,7 +101,10 @@ async function setSplit($: EngineInterface, isOn: boolean): Promise<void> {
 // `.git` (a folder, or a file in a worktree) is a root.
 const rootOf = new Map<string, string | null>();
 
-async function repoRoot($: EngineInterface, path: string): Promise<string | null> {
+async function repoRoot(
+	$: EngineInterface,
+	path: string,
+): Promise<string | null> {
 	const seen: string[] = [];
 	let dir = path.slice(0, path.lastIndexOf("/"));
 	let root: string | null = null;
@@ -363,8 +366,7 @@ export const register: Register = (on) => {
 					? ""
 					: duration((entry.endedAt ?? now) - entry.startedAt);
 			const lead = `${took.padStart(LEAD - 1)} `;
-			const room =
-				width - lead.length - indent.length - 2 - label.length - 1;
+			const room = width - lead.length - indent.length - 2 - label.length - 1;
 			const span =
 				entry.startedAt === undefined
 					? undefined
