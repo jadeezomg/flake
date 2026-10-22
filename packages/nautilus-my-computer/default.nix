@@ -8,13 +8,13 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "nautilus-my-computer";
-  version = "0.13.2";
+  version = "0.13.3";
 
   src = fetchFromGitHub {
     owner = "yannmasoch";
     repo = "nautilus-my-computer";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-+hE39OIp1+uq0TG5E1f4VocK0iMv5xkXLJnmSal5FZM=";
+    hash = "sha256-UW1BqLQItzjpcALXzu+Zgr3He0XFYTcDmbFvW5lCVKo=";
   };
 
   # The extension imports `cairo`. The nautilus-python host only puts
