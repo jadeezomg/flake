@@ -1,10 +1,15 @@
-# Core dev tooling — the system packages plus the HM half (mise).
-{ dotfilesLib, ... }@args:
+# Core dev tooling — the system packages. mise is Darwin only, from Homebrew
+# (./mise-darwin.nix says why).
+{
+  dotfilesLib,
+  isDarwin ? false,
+  lib,
+  ...
+}@args:
 dotfilesLib.mkProfile {
   path = [ "devenv" ];
-  # mise — polyglot tool/runtime version manager and task runner. Darwin only
-  # for now. home-manager writes the shell activation snippets for it.
-  hm = [ ({ pkgs, ... }: { programs.mise.enable = pkgs.stdenv.hostPlatform.isDarwin; }) ];
+  # The `homebrew.*` namespace only exists on darwin, hence the import gate.
+  imports = lib.optionals isDarwin [ ./mise-darwin.nix ];
 
   packages =
     pkgs: with pkgs; [
