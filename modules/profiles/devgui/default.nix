@@ -7,7 +7,7 @@ dotfilesLib.mkProfile {
   imports = [
     ./agents
     ./containers.nix
-    ./databases.nix
+    ./databases
     ./ides
   ];
   # Linux-only GTK4/libadwaita Git client (no darwin package).
