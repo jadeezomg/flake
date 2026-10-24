@@ -58,7 +58,7 @@ in
 
     extraConfig = ''
       # Stylix sets the hint color to dark_gray, which is too dark on the background.
-      $env.config.color_config.hints = "${dotfilesLib.palette.ansi-bright-black}"
+      $env.config.color_config.hints = "${config.dotfiles.theme.palette.ansi-bright-black}"
 
       def gs [...args: string] { ^git status ...$args }
       def gl [...args: string] { ^git log --oneline --decorate --graph ...$args }

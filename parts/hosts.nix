@@ -48,6 +48,7 @@ let
     inputs.stylix.homeModules.stylix
     inputs.vicinae.homeManagerModules.default
     ../lib/home/dotfiles.nix
+    ../lib/home/theme.nix
   ];
 
   commonSpecialArgs = { inherit inputs hostData dotfilesLib; };

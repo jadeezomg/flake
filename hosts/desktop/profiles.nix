@@ -13,6 +13,8 @@ _: {
     gaming.enable = true;
     desktop.loginManager = "noctalia-greeter";
     desktop.shell = "noctalia";
+    # Near-black main background (lib/theme-palette-variants.nix).
+    theme.variant = "black";
     # LLM toolbox: unsloth-studio + llama.cpp CLI + hf CLI. The llama.cpp build
     # follows `hardware.gpu = "nvidia"`, so it is CUDA (built from source unless
     # cache.nixos-cuda.org has it). Set `llm.llamaCppBackend` only to override.

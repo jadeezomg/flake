@@ -2,6 +2,7 @@
 # and CLI/terminal theming. Always pushed (the server keeps shell colors);
 # GUI payload (wallpaper, cursor, opacity, GTK, …) lives in ./gui.nix.
 {
+  config,
   dotfilesLib,
   lib,
   pkgs,
@@ -14,7 +15,8 @@
     overlays.enable = false;
     polarity = "dark";
 
-    base16Scheme = dotfilesLib.themeBase16;
+    # The palette follows the host's variant (lib/home/theme.nix).
+    base16Scheme = dotfilesLib.mkThemeBase16 config.dotfiles.theme.palette;
 
     fonts = dotfilesLib.themeFonts { inherit pkgs; };
 

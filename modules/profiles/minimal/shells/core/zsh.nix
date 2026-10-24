@@ -16,7 +16,7 @@ in
     enableCompletion = true;
     autosuggestion = {
       enable = true;
-      highlight = "fg=${dotfilesLib.palette.ansi-bright-black}";
+      highlight = "fg=${config.dotfiles.theme.palette.ansi-bright-black}";
     };
     syntaxHighlighting.enable = true;
 

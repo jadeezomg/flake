@@ -1,6 +1,6 @@
 ---
 name: theme-structure
-description: Apply this flake's cross-application theme and palette structure. Use when changing colors, fonts, or wallpapers, adding app themes, wiring Stylix targets, or synchronizing the hand-copied palette mirrors across Nix, shell, Python, and GUI apps.
+description: Apply this flake's cross-application theme and palette structure. Use it to change colors, fonts, wallpapers, or palette variants. Also use it to add app themes, wire Stylix targets, or sync the hand-copied palette mirrors.
 ---
 
 # Theme Structure
@@ -11,10 +11,13 @@ Use this skill for palette, font, wallpaper, Stylix, and app theme changes.
 
 ## Sources of truth in `lib/`
 
-- `lib/theme-palette.nix` is the canonical Birds-of-Paradise palette. Nix code reads it as `dotfilesLib.palette`.
-- `lib/theme-base16.nix` maps palette keys to base16 slots. Stylix consumes it as `dotfilesLib.themeBase16`. A new palette key does nothing for Stylix until you map it here.
+- `lib/theme-palette.nix` is the canonical Birds-of-Paradise palette, exposed as `dotfilesLib.palette`.
+- `lib/theme-palette-variants.nix` builds the palette variants from it, exposed as `dotfilesLib.paletteVariants`. `brown` is the canonical palette. `black` replaces only `bg-primary`.
+- A host picks a variant with `dotfiles.profiles.theme.variant` in `hosts/<name>/profiles.nix`. The default is `brown`. The theme profile forwards it to Home Manager as `dotfiles.theme.variant` (`lib/home/theme.nix`).
+- Home Manager modules read colors from `config.dotfiles.theme.palette`, not from `dotfilesLib.palette`, so they follow the variant. A system module that needs colors pushes a Home Manager module that reads them (the Typora module is the pattern).
+- `lib/theme-base16.nix` maps palette keys to base16 slots. `theme/stylix.nix` applies `dotfilesLib.mkThemeBase16` to the selected palette. A new palette key does nothing for Stylix until you map it here.
 - `lib/theme-fonts.nix` selects the fonts. `dotfilesLib.themeFonts { inherit pkgs; }` feeds `theme/stylix.nix` and `modules/profiles/fonts/default.nix`, so Stylix names only installed fonts.
-- `lib/default.nix` exposes all three. Do not import them by relative path.
+- `lib/default.nix` exposes all of them. Do not import them by relative path.
 
 ## Hand-copied palette mirrors
 
@@ -25,13 +28,15 @@ These files repeat the hex values by hand. A palette change must update all of t
 - `modules/profiles/desktop/dms/config/birds-of-paradise.json`.
 - `modules/profiles/desktop/dms/config/themes/birds-of-paradise/theme.json`.
 - `modules/profiles/desktop/niri/config.kdl` (focus ring `active-color` and `inactive-color`).
+- `modules/profiles/desktop/umbriel/config.toml` (`colors.border.focused`, the brown `bg-primary`).
+- `modules/profiles/desktop/umbriel/outputs-desktop.toml` (`colors.border.unfocused`, the black variant's `bg-primary`).
 
 ## Theme profile split (`modules/profiles/theme/`)
 
 - `default.nix` pushes the HM modules through `home-manager.sharedModules`.
 - `stylix.nix` is always pushed. It enables Stylix with `autoEnable = true`, the base16 scheme, the fonts, and the CLI targets. The headless host must keep working with only this file.
-- `gui.nix` and `qt-kde.nix` are pushed only when `theme.gui` is enabled. `gui.nix` holds opacity, cursor, `stylix.image`, and GTK.
-- `qt-kde.nix` generates `~/.config/kdeglobals` and a qt5ct/qt6ct color scheme from `dotfilesLib.palette`. The Stylix `kde` target is inert outside Plasma, so Kirigami apps and qt6ct get no palette without this file.
+- If `theme.gui` is enabled, `default.nix` also pushes `gui.nix` and `qt-kde.nix`. `gui.nix` holds opacity, cursor, `stylix.image`, and GTK.
+- `qt-kde.nix` generates `~/.config/kdeglobals` and a qt5ct/qt6ct color scheme from `config.dotfiles.theme.palette`. The Stylix `kde` target is inert outside Plasma, so Kirigami apps and qt6ct get no palette without this file.
 
 ## Stylix ownership rule
 
@@ -40,13 +45,13 @@ These files repeat the hex values by hand. A palette change must update all of t
 - App modules can read `config.stylix.*` (for example, `ghostty.nix` reads the font names).
 - App modules can post-process Stylix output. `devgui/ides/zed/theme.nix` is the pattern: an activation script after `linkGeneration` copies `zed/themes/stylix.json` out of the store and patches it with `jq`.
 - Two deliberate exceptions exist:
-  - Starship: `essentials/shell-theme/starship.nix` sets `palette = lib.mkForce "birds-of-paradise"` and builds the palette from `dotfilesLib.palette`. `shell-theme/` holds only this file.
+  - Starship: `essentials/shell-theme/starship.nix` sets `palette = lib.mkForce "birds-of-paradise"` and builds the palette from `config.dotfiles.theme.palette`. `shell-theme/` holds only this file.
   - VSCode: `stylix.nix` disables the `vscode` target. `devgui/ides/vscode/default.nix` installs the marketplace `birds-of-paradise` extension instead. This is the one sanctioned second palette source for an app.
 
 ## Palette consumers that generate config
 
 - `apps/notes/typora/theme.nix` renders CSS from `{ palette }`. The owning module writes it to `Typora/themes/birds-of-paradise.css`.
-- `essentials/fastfetch.nix` colors the logo and section keys from `dotfilesLib.palette`.
+- `essentials/fastfetch.nix` colors the logo and section keys from `config.dotfiles.theme.palette`.
 - `theme/qt-kde.nix` (see above).
 - Keep generator code next to the app module. Keep shared data in `lib/`.
 

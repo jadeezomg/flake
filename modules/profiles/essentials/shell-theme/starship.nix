@@ -1,10 +1,10 @@
 {
-  dotfilesLib,
+  config,
   lib,
   ...
 }:
 let
-  themeColors = dotfilesLib.palette;
+  themeColors = config.dotfiles.theme.palette;
 
   # Nix doesn't support \uXXXX escapes — use builtins.fromJSON to get real UTF-8.
   u = code: builtins.fromJSON ''"\u${code}"'';

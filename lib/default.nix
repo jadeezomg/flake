@@ -22,8 +22,13 @@ in
   # scripts/src/flake_scripts/lib/palette.py — keep both in sync).
   inherit palette;
 
-  # The palette as a base16 scheme, for both halves of Stylix (HM and NixOS).
-  themeBase16 = import ./theme-base16.nix { inherit palette; };
+  # Palette variants (brown, black), keyed by dotfiles.profiles.theme.variant.
+  # Home Manager modules read the selected one as config.dotfiles.theme.palette.
+  paletteVariants = import ./theme-palette-variants.nix { inherit palette; };
+
+  # A palette as a base16 scheme, for both halves of Stylix (HM and NixOS).
+  # apply: palette
+  mkThemeBase16 = palette: import ./theme-base16.nix { inherit palette; };
 
   # Font selections shared by Stylix, the fonts profile, and the GDM greeter's
   # dconf profile. apply: { pkgs }
