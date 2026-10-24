@@ -1,8 +1,8 @@
 # Port of niri/window-rules.kdl. Rules apply in order, and later values win.
 # niri background-effect { blur true } is blur = true. niri xray false is
 # blur_optimized = false. Umbriel has no exclude, no block-out-from
-# screen-capture, no popup corner radius, and no layer xray, so the DMS and
-# Vicinae layer rules are not ported.
+# screen-capture, and no popup corner radius. The DMS layer rules are not
+# ported.
 
 # Cursor and Zed IDE at full width
 [[window_rule]]
@@ -68,6 +68,12 @@ match.app_id = '^org\.gnome\.Showtime$'
 opacity = 1.0
 blur = false
 
+# kitty asks for blur itself (background_blur in kitty.conf) through
+# ext-background-effect. Umbriel lacks that protocol, so this rule turns it on.
+[[window_rule]]
+match.app_id = '^kitty$'
+blur = true
+
 # Terminal applications
 [[window_rule]]
 match.app_id = ['^org\.wezfurlong\.wezterm$', 'ghostty', 'kitty', 'org\.gnome\.NautilusPreviewer']
@@ -83,11 +89,20 @@ match.app_id = 'cursor'
 opacity = 0.9
 blur = true
 
+# niri also set geometry-corner-radius 15 here, but the shell rule (5) loaded
+# later and won. These apps keep the global corner_radius from shell.toml.
 [[window_rule]]
 match.app_id = ['zen', 'org\.gnome', 'dev\.zed\.Zed', 'ghostty']
-corner_radius = 15
 blur = true
 blur_popups = true
+
+# Zen menus are opaque, but each popup surface has a fully transparent margin
+# for its shadow. Popup blur fills that margin with the blurred wallpaper, so
+# the menu gets a see-through frame. blur_ignore_alpha would skip the margin,
+# but it also applies to the main window, whose chrome is translucent.
+[[window_rule]]
+match.app_id = 'zen'
+blur_popups = false
 
 [[window_rule]]
 match.app_id = '^com\.github\.th-ch\.youtube-music$'
@@ -98,4 +113,15 @@ blur = true
 [[window_rule]]
 match.app_id = ['org\.quickshell$', 'com\.danklinux\.dms', 'vicinae']
 default_floating = true
+blur_optimized = false
+
+# Vicinae runs as a layer-shell surface (USE_LAYER_SHELL), so the window rule
+# above does not reach it. On niri, Vicinae asks for blur itself through
+# ext-background-effect. Umbriel lacks that protocol, so this rule turns the
+# blur on, with xray off (blur_optimized = false). 0.1 skips the fully
+# transparent corners.
+[[layer_rule]]
+match.namespace = '^vicinae$'
+blur = true
+blur_ignore_alpha = 0.1
 blur_optimized = false
