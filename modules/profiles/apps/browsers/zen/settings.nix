@@ -17,6 +17,11 @@
   "zen.view.compact.animate-sidebar" = false;
   "zen.view.compact.enable-at-startup" = false;
   "zen.view.grey-out-inactive-windows" = false;
+  # Square corners across the browser, to match the compositor. The pref
+  # squares the web page area. Square UI (default.nix) squares the rest of the
+  # browser UI. Its other sections (URL bar, sidebar, and tab changes) stay off.
+  "zen.theme.border-radius" = 0;
+  "mod.squareui.browser.enabled" = true;
 
   # Startup & new tab
   "browser.startup.homepage" = "chrome://browser/content/blanktab.html";

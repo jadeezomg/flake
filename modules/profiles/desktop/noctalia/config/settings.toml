@@ -7,9 +7,10 @@ enabled = true
 order = [ "default", "side", "laptop" ]
 
     [bar.default]
+    background_opacity = 0.80000000000000004
     border = "on_secondary"
     border_width = 3.0
-    capsule_radius = 6
+    capsule_radius = 0
     capsule_thickness = 0.69999999999999996
     center = [ "group:g3" ]
     enabled = false
@@ -49,7 +50,7 @@ order = [ "default", "side", "laptop" ]
         members = [ "control-center", "bar_3", "notifications", "volume" ]
         opacity = 0.60000002384185791
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
         [[bar.default.capsule_group]]
         accordion = false
@@ -60,7 +61,7 @@ order = [ "default", "side", "laptop" ]
         members = [ "active_window" ]
         opacity = 1.0
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
         [[bar.default.capsule_group]]
         accordion = false
@@ -71,7 +72,7 @@ order = [ "default", "side", "laptop" ]
         members = [ "clock" ]
         opacity = 1.0
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
         [[bar.default.capsule_group]]
         accordion = false
@@ -82,7 +83,7 @@ order = [ "default", "side", "laptop" ]
         members = [ "control-center", "bar_5", "clock" ]
         opacity = 1.0
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
         [[bar.default.capsule_group]]
         accordion = true
@@ -93,17 +94,17 @@ order = [ "default", "side", "laptop" ]
         members = [ "notifications", "network", "volume" ]
         opacity = 1.0
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
     [bar.laptop]
-    capsule_radius = 6
+    capsule_radius = 0
     capsule_thickness = 0.69999999999999996
     center = [ "active_window" ]
     enabled = false
     end = [ "tray", "group:g3", "group:g7" ]
     margin_ends = 600
     padding = 20
-    radius = 5
+    radius = 0
     reserve_space = false
     show_on_workspace_switch = false
     start = [ "status_2", "group:g1", "group:g6", "media" ]
@@ -132,7 +133,7 @@ order = [ "default", "side", "laptop" ]
         members = [ "control-center", "notifications", "bar_2" ]
         opacity = 0.60000002384185791
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
         [[bar.laptop.capsule_group]]
         accordion = false
@@ -143,7 +144,7 @@ order = [ "default", "side", "laptop" ]
         members = [ "weather", "clock" ]
         opacity = 0.60000002384185791
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
         [[bar.laptop.capsule_group]]
         accordion = true
@@ -154,7 +155,7 @@ order = [ "default", "side", "laptop" ]
         members = [ "power_profile", "network", "bluetooth", "volume", "brightness" ]
         opacity = 0.60000002384185791
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
         [[bar.laptop.capsule_group]]
         accordion = false
@@ -165,7 +166,7 @@ order = [ "default", "side", "laptop" ]
         members = [ "battery", "cpu" ]
         opacity = 0.60000002384185791
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
         [[bar.laptop.capsule_group]]
         accordion = true
@@ -176,7 +177,7 @@ order = [ "default", "side", "laptop" ]
         members = [ "notifications", "network", "bluetooth", "volume", "brightness" ]
         opacity = 0.60000002384185791
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
         [[bar.laptop.capsule_group]]
         accordion = false
@@ -187,11 +188,11 @@ order = [ "default", "side", "laptop" ]
         members = [ "control-center", "bar_4", "weather", "clock" ]
         opacity = 0.60000002384185791
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
     [bar.side]
     background_opacity = 0.69999999999999996
-    capsule_radius = 6
+    capsule_radius = 0
     capsule_thickness = 0.69999999999999996
     center = [ "group:g4" ]
     enabled = false
@@ -199,7 +200,7 @@ order = [ "default", "side", "laptop" ]
     margin_edge = 10
     margin_ends = 10
     padding = 6
-    radius = 5
+    radius = 0
     start = [ "group:g5", "group:g2", "group:g3" ]
     thickness = 45
 
@@ -216,7 +217,7 @@ order = [ "default", "side", "laptop" ]
         members = [ "network_tx", "network_rx" ]
         opacity = 0.59999999999999998
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
         [[bar.side.capsule_group]]
         enabled = true
@@ -225,7 +226,7 @@ order = [ "default", "side", "laptop" ]
         members = [ "ram", "temp", "cat", "cpu" ]
         opacity = 0.59999999999999998
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
         [[bar.side.capsule_group]]
         enabled = true
@@ -234,7 +235,7 @@ order = [ "default", "side", "laptop" ]
         members = [ "clock", "date" ]
         opacity = 0.59999999999999998
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
         [[bar.side.capsule_group]]
         enabled = true
@@ -243,7 +244,7 @@ order = [ "default", "side", "laptop" ]
         members = [ "media", "audio_visualizer" ]
         opacity = 0.59999999999999998
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
         [[bar.side.capsule_group]]
         enabled = true
@@ -252,7 +253,7 @@ order = [ "default", "side", "laptop" ]
         members = [ "keyboard_layout" ]
         opacity = 0.59999999999999998
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
         [[bar.side.capsule_group]]
         enabled = true
@@ -261,7 +262,7 @@ order = [ "default", "side", "laptop" ]
         members = [ "weather" ]
         opacity = 0.59999999999999998
         padding = 6.0
-        radius = 6.0
+        radius = 0.0
 
 [battery.device."/org/freedesktop/UPower/devices/battery_hidpp_battery_0"]
 warning_threshold = 15
@@ -622,6 +623,7 @@ password_style = "random"
     [shell.panel]
     floating_offset = 10
     polkit_placement = "attached"
+    transparency_mode = "glass"
     wallpaper_placement = "attached"
 
     [shell.screen_corners]
@@ -649,19 +651,19 @@ transition_on_startup = true
     enabled = true
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
 
     [wallpaper.monitors.DP-1]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
 
     [wallpaper.monitors.DP-2]
     path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Winter_at_the_Sognefjord_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
 
     [wallpaper.monitors.HDMI-A-2]
     path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"

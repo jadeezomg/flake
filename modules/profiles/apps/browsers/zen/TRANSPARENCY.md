@@ -9,9 +9,10 @@ Removed from this repo:
 
 Current wiring:
 - `modules/profiles/theme/gui.nix` sets `stylix.targets.zen-browser.profileNames = ["default"]`
-- `modules/profiles/apps/browsers/zen/default.nix` declares the managed Zen mod UUIDs; the upstream `zen-browser` Home Manager module installs mods and regenerates `zen-themes.css`
-- Linux keeps `"zen.widget.linux.transparency" = true` in `profiles/default/default.nix`; Stylix does not set browser runtime prefs
+- `modules/profiles/apps/browsers/zen/default.nix` declares the managed Zen mod UUIDs. The upstream `zen-browser` Home Manager module installs the mods and regenerates `zen-themes.css`.
+- Linux keeps `"zen.widget.linux.transparency" = true` in `profiles/default/default.nix`. Stylix does not set browser runtime prefs.
 - the Transparent Zen mod prefs in `settings.nix` remain intentional runtime settings
 - workspace sync now writes only workspace metadata, not theme overrides
+- `default.nix` appends the Square UI stylesheet (square corners) to the Stylix userChrome. It is not a transparency override.
 
 If transparency issues return, check upstream Zen, Stylix, and the Transparent Zen mod behavior first before reintroducing local CSS workarounds.

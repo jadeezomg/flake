@@ -18,11 +18,15 @@ let
 in
 {
   stylix = {
+    # Apps draw their content at 90% alpha themselves. Umbriel window rule
+    # opacity would also fade the window border, which stays fully opaque.
+    # 90% and not 80%: the HDR ultrawide mixes in linear light, so the same
+    # alpha looks more transparent there than on the SDR portrait screen.
     opacity = {
-      applications = 0.7;
-      desktop = 0.8;
-      popups = 0.8;
-      terminal = 0.8;
+      applications = 0.9;
+      desktop = 0.9;
+      popups = 0.9;
+      terminal = 0.9;
     };
 
     cursor = {
@@ -34,7 +38,28 @@ in
     image = ./wallpapers/wallpaper.jpg;
 
     targets = {
-      gtk.enable = true;
+      gtk = {
+        enable = true;
+        # GTK apps draw their own translucent background, so the compositor
+        # border stays opaque. Only the window background carries the
+        # opacity. Views are transparent on top of it, and header bars,
+        # sidebars, and cards add a light base01 tint: opaque base01 layers
+        # would hide the transparency, like the stacked layers in Zen.
+        # Popovers are their own surface. In-window dialogs stay opaque.
+        extraCss =
+          let
+            p = config.dotfiles.theme.palette;
+            alpha = toString config.stylix.opacity.applications;
+          in
+          ''
+            @define-color window_bg_color alpha(${p.bg-primary}, ${alpha});
+            @define-color view_bg_color transparent;
+            @define-color headerbar_bg_color alpha(${p.bg-secondary}, 0.4);
+            @define-color sidebar_bg_color alpha(${p.bg-secondary}, 0.4);
+            @define-color card_bg_color alpha(${p.bg-secondary}, 0.4);
+            @define-color popover_bg_color alpha(${p.bg-secondary}, ${alpha});
+          '';
+      };
       zen-browser = {
         profileNames = [ "default" ];
         # opacity.applications = 0.5;
