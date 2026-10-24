@@ -7,6 +7,8 @@
 let
   # Comment color tracks the palette's line-highlight (lib/theme-palette.nix).
   commentColor = dotfilesLib.palette.line-highlight;
+  # Edit-prediction ghost text. Stylix uses base03, which is too dark on the background.
+  predictiveColor = dotfilesLib.palette.ansi-bright-black;
 in
 {
   home.activation.zedThemeSurfaceAlpha = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
@@ -45,6 +47,8 @@ in
               | ."toolbar.background"        |= with_alpha("d0")
               | ."background.appearance"    = "blurred"
               | .syntax.comment.color        = "${commentColor}"
+              | ."predictive"                = "${predictiveColor}"
+              | .syntax.predictive.color     = "${predictiveColor}"
 
             )
           else .

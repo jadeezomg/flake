@@ -521,17 +521,6 @@ sync-1password:
 sync-media-secrets-to-pass *args:
     @bash "$FLAKE/scripts/shell/sync-media-secrets-to-pass.bash" "$@"
 
-[doc('Apply efficient 4K quality policy to mini Arr services and Seerr')]
-[group('config')]
-[positional-arguments]
-media-quality *args:
-    @uv run --project "$FLAKE/scripts" media-quality {{ args }}
-
-[doc('Enable Seerr per-season picker, specials, and TVDB anime metadata on mini')]
-[group('config')]
-seerr-request-settings *args:
-    @uv run --project "$FLAKE/scripts" media-quality --seerr-only {{ args }}
-
 
 [doc('Rollback to previous generation (nh rollback / darwin-rebuild --rollback)')]
 [group('system')]
@@ -673,6 +662,16 @@ zen-sync *ARGS:
 [group('zen')]
 zen-check *ARGS:
     @cd "$FLAKE" && uv run --project "$FLAKE/scripts" zen-sync --check {{ ARGS }}
+
+[doc('Write brew-casks/data/vorssaint.nix from the live Vorssaint settings (see scripts/README.md)')]
+[group('vorssaint')]
+vorssaint-sync *ARGS:
+    @cd "$FLAKE" && uv run --project "$FLAKE/scripts" vorssaint-sync {{ ARGS }}
+
+[doc('Check flake Vorssaint settings vs the live app (exit 0 = match)')]
+[group('vorssaint')]
+vorssaint-check *ARGS:
+    @cd "$FLAKE" && uv run --project "$FLAKE/scripts" vorssaint-sync --check {{ ARGS }}
 
 
 

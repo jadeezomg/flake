@@ -1,0 +1,6 @@
+{
+	"name": "stereo-view",
+	"version": "0.1.0",
+	"description": "Keeps the conversation in the transcript and moves tool activity to a docked Activity pane.",
+	"types": "./types/index.d.ts"
+}
