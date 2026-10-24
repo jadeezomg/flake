@@ -1,0 +1,59 @@
+# Port of niri/outputs-desktop.kdl. Outputs match by "make model serial"
+# (see `umbriel outputs`), not by connector.
+# Connector names (DP-1/DP-2, HDMI-A-1/HDMI-A-2) change with the GPU driver load order.
+# Umbriel has no per-output struts, so the portrait screen struts are not ported.
+
+[general]
+autostart = ["zen-twilight || zen-beta", "pear-desktop"]
+
+[output."Dell Inc. DELL S2722QC 88THMD3"]
+mode = "3840x2160@60"
+scale = 1.3
+transform = "90"
+position = [0, 0]
+# Full-width columns on the portrait screen
+layout.scrolling.default_extent_fraction = 1.0
+
+[output."Dell Inc. AW3926QW C2DR7K4"]
+mode = "5120x2160@165"
+scale = 1.2
+# niri used x=1665, which leaves a gap. Umbriel moves the pointer between
+# outputs only when they touch, and the portrait screen is 1661.5 wide.
+position = [1661, 200]
+focus_at_startup = true
+# HDR turns on for fullscreen content that sends HDR metadata.
+hdr = "auto"
+# niri renders 10-bit by default. Umbriel defaults to 8-bit.
+bit_depth = 10
+
+# Browser
+[[window_rule]]
+match.app_id = ['^zen-twilight$', '^zen-beta$']
+match.title = '^(?!Picture-in-Picture$)'
+default_output = "Dell Inc. DELL S2722QC 88THMD3"
+default_workspace = 1
+default_scrolling_extent = 1.0
+
+# YouTube Music
+[[window_rule]]
+match.app_id = '^com\.github\.th-ch\.youtube-music$'
+default_output = "Dell Inc. DELL S2722QC 88THMD3"
+default_workspace = 1
+default_scrolling_extent = 1.0
+
+[[window_rule]]
+match.app_id = '^War Thunder$'
+default_output = "Dell Inc. AW3926QW C2DR7K4"
+default_maximize_to_edges = true
+opacity = 1.0
+vrr = "always"
+
+# Open the zen browser picture-in-picture player as floating by default.
+[[window_rule]]
+match.app_id = ['^zen-twilight$', '^zen-beta$', '^zen$']
+match.title = '^Picture-in-Picture$'
+default_floating = true
+default_floating_size = { width = 1.0, height = 0.315 }
+default_position = { x = 0, y = 0, anchor = "top_left" }
+default_output = "Dell Inc. DELL S2722QC 88THMD3"
+opacity = 1.0

@@ -1,0 +1,86 @@
+# Umbriel config. It copies niri/config.kdl where Umbriel has an equivalent.
+# Docs: https://docs.noctalia.dev/umbriel/  Check: umbriel config validate
+# Umbriel sets XDG_CURRENT_DESKTOP itself. Its umbriel-session.target pulls in
+# graphical-session.target, which starts the shell unit (gnome/home.nix).
+
+[include]
+files = ["window-rules.toml", "keybinds.toml"]
+
+# shell.toml holds the shell binds and rules, host.toml the outputs.
+# noctalia.toml holds the colors that the Noctalia Umbriel template writes.
+# Keep "noctalia.toml" as the last entry: if it is not, the Noctalia template
+# rewrites this file.
+[include.optional]
+files = ["shell.toml", "host.toml", "noctalia.toml"]
+
+# niri input {}
+[input.keyboard]
+layout = "us,de"
+variant = "intl"
+options = "compose:ralt,caps:hyper"
+numlock_toggle = true
+
+[input.touchpad]
+tap = true
+natural_scroll = true
+scroll_factor = 0.8
+sensitivity = 0.0
+
+[input.mouse]
+sensitivity = 0.0
+accel_profile = "flat"
+
+# niri focus-follows-mouse max-scroll-amount="0%": focus on hover, never scroll.
+[input.focus]
+follows_mouse = true
+follows_mouse_max_scroll = 0.0
+
+# niri layout {}. No default extent: windows pick their first width, like
+# niri default-column-width {}.
+[layout]
+gap = 10
+extent_presets = [0.33333, 0.5, 0.66667]
+
+[appearance]
+prefer_no_csd = true
+# niri focus-ring width
+border_width = 3
+
+# niri shadow {}. Umbriel has no spread.
+[appearance.shadow]
+enabled = true
+softness = 30
+offset_x = 0
+offset_y = 5
+
+# niri blur {}. niri has no brightness or contrast step, so both stay neutral.
+[appearance.blur]
+enabled = true
+passes = 3
+radius = 3
+noise = 0.02
+saturation = 1.5
+brightness = 1.0
+contrast = 1.0
+
+# niri focus-ring and shadow colors. This file loads last, so these values win
+# over noctalia.toml.
+[colors]
+shadow = "#00000080"
+
+[colors.border]
+focused = "#372725ff"
+
+# niri hot-corners top-right. Umbriel hot corners apply to every output.
+[hot_corners.top_right]
+enabled = true
+delay_ms = 0
+action = "overview-toggle"
+
+# niri environment {}
+[environment]
+QT_QPA_PLATFORM = "wayland"
+ELECTRON_OZONE_PLATFORM_HINT = "auto"
+# The only platform theme plugin installed is qt6ct (keys: qt6ct, qt5ct).
+QT_QPA_PLATFORMTHEME = "qt5ct"
+QT_QPA_PLATFORMTHEME_QT6 = "qt6ct"

@@ -1,0 +1,54 @@
+# Port of niri/shell-noctalia.kdl and keybinds-noctalia.kdl.
+# Noctalia starts from its systemd unit (gnome/home.nix), so it is not in
+# general.autostart.
+# Docs: https://docs.noctalia.dev/noctalia/compositor-settings/umbriel
+
+# Rounded corners for all windows
+[appearance]
+corner_radius = 5
+
+[keybinds]
+# niri Mod+Space opens the overview with type-to-search. That catcher reads
+# niri IPC, so here Mod+Space opens Vicinae directly.
+"Mod+Space" = { action = "spawn:vicinae toggle", repeat = false }
+"Mod+V" = "spawn:noctalia msg panel-toggle clipboard"
+"Mod+Comma" = "spawn:noctalia msg settings-toggle"
+"Mod+N" = "spawn:noctalia msg panel-toggle control-center notifications"
+"Mod+M" = "spawn:noctalia msg panel-toggle control-center system"
+"Mod+L" = "spawn:noctalia msg session lock"
+"Mod+Shift+Y" = "spawn:noctalia msg panel-toggle wallpaper"
+"Mod+Tab" = "spawn:noctalia msg window-switcher"
+"Print" = "spawn:noctalia msg screenshot-region"
+"Alt+Print" = "spawn:noctalia msg screenshot-fullscreen"
+"Ctrl+Print" = "spawn:noctalia msg screenshot-fullscreen all"
+"XF86AudioRaiseVolume" = { action = "spawn:noctalia msg volume-up", allow_when_locked = true }
+"XF86AudioLowerVolume" = { action = "spawn:noctalia msg volume-down", allow_when_locked = true }
+"XF86AudioMute" = { action = "spawn:noctalia msg volume-mute", allow_when_locked = true, repeat = false }
+"XF86AudioMicMute" = { action = "spawn:noctalia msg mic-mute", allow_when_locked = true, repeat = false }
+"XF86AudioNext" = { action = "spawn:noctalia msg media next", allow_when_locked = true }
+"XF86AudioPrev" = { action = "spawn:noctalia msg media previous", allow_when_locked = true }
+"XF86AudioPlay" = { action = "spawn:noctalia msg media toggle", allow_when_locked = true, repeat = false }
+"XF86AudioPause" = { action = "spawn:noctalia msg media toggle", allow_when_locked = true, repeat = false }
+"XF86MonBrightnessUp" = { action = "spawn:noctalia msg brightness-up", allow_when_locked = true }
+"XF86MonBrightnessDown" = { action = "spawn:noctalia msg brightness-down", allow_when_locked = true }
+"Mod+Shift+P" = { action = "spawn:noctalia msg dpms-off", repeat = false }
+
+# Floating Noctalia settings window
+[[window_rule]]
+match.app_id = '^dev\.noctalia\.Noctalia$'
+default_floating = true
+default_floating_size_px = { width = 1080, height = 920 }
+
+# Noctalia publishes blur regions for its surfaces. These rules turn the blur
+# on, with xray off (blur_optimized = false).
+[[layer_rule]]
+match.namespace = '^noctalia-(bar-[^"]+|notification|dock|panel|attached-panel|osd)$'
+blur = true
+blur_ignore_alpha = 0.5
+blur_popups = true
+blur_optimized = false
+
+[[layer_rule]]
+match.namespace = '^noctalia-window-switcher$'
+blur = true
+blur_optimized = false
