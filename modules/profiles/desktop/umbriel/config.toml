@@ -43,10 +43,10 @@ follows_mouse = true
 follows_mouse_max_scroll = 0.0
 
 # niri layout {}. No default extent: windows pick their first width, like
-# niri default-column-width {}.
+# niri default-column-width {}. The host files set extent_presets, because
+# this file's own values win over theirs.
 [layout]
 gap = 10
-extent_presets = [0.33333, 0.5, 0.66667]
 
 # A strip that does not fill the screen starts at the left edge (the top edge
 # on a vertical strip), like niri. Umbriel centers it by default.
@@ -80,6 +80,8 @@ contrast = 1.0
 [colors]
 shadow = "#00000080"
 
+# The active window gets the brown palette background (bg-primary #372725),
+# fully opaque. The host file sets the unfocused color.
 [colors.border]
 focused = "#372725ff"
 

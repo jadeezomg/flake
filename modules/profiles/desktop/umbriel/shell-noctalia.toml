@@ -3,9 +3,9 @@
 # general.autostart.
 # Docs: https://docs.noctalia.dev/noctalia/compositor-settings/umbriel
 
-# Rounded corners for all windows
+# Square corners for all windows
 [appearance]
-corner_radius = 5
+corner_radius = 0
 
 [keybinds]
 # niri Mod+Space opens the overview with type-to-search. That catcher reads

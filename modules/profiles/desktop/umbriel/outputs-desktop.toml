@@ -4,8 +4,11 @@
 
 [general]
 autostart = [
-  "zen-twilight || zen-beta",
   "pear-desktop",
+  # YouTube Music above Zen on the portrait screen. Umbriel has no rule for the
+  # order of columns: a new tiled window opens right after the focused column.
+  # So Zen waits until the YouTube Music window is open, for 10 s at most.
+  '''i=0; until umbriel windows | grep -q 'th-ch\.youtube-music' || [ "$i" -ge 100 ]; do sleep 0.1; i=$((i + 1)); done; zen-twilight || zen-beta''',
   # Make the AW3926QW the X11 primary output. Wine's X11 driver uses it as the
   # primary monitor, and GE-Proton reads it from xrandr for its Wayland driver.
   # Without it, games size themselves to the portrait screen at 0,0.
@@ -24,6 +27,25 @@ autostart = [
 PROTON_ENABLE_WAYLAND = "1"
 PROTON_ENABLE_HDR = "1"
 DXVK_HDR = "1"
+
+# This host uses the black palette variant (hosts/desktop/profiles.nix), so
+# inactive windows get its main background (bg-primary #110c0b), fully opaque.
+# config.toml sets the brown border of the active window.
+[colors.border]
+unfocused = "#110c0bff"
+
+# Window sizes on the AW3926QW in quarters, up to full size. One list serves
+# both Mod+R (width) and Mod+E (height within a column), so 100% replaces a
+# separate full-width bind. The portrait workspaces set their own presets
+# below, so this list applies to the ultrawide only.
+[layout]
+extent_presets = [0.25, 0.5, 0.75, 1.0]
+
+# Mod+A sets the focused window to 90% width, not full width. It is not a
+# toggle: Mod+R goes back to a preset. On the portrait screen it sets 90%
+# height. This bind overrides keybinds.toml on this host only.
+[keybinds]
+"Mod+A" = { action = "window-set-primary-extent:0.9", repeat = false }
 
 [output."Dell Inc. DELL S2722QC 88THMD3"]
 mode = "3840x2160@60"
@@ -44,6 +66,9 @@ scale = 1.2
 position = [1661, 200]
 focus_at_startup = true
 # The whole desktop runs in HDR. SDR content shows at sdr_white (203 cd/m²).
+# Umbriel mixes translucent windows in linear light here, so they look more
+# transparent than on the SDR portrait screen. "auto" evens that out, but the
+# SDR desktop looked worse (2026-10-24).
 # The monitor advertises HDR only while Smart HDR is on in its menu.
 hdr = "on"
 # niri renders 10-bit by default. Umbriel defaults to 8-bit.
@@ -159,6 +184,18 @@ match.app_id = ['^forzahorizon6\.exe$', '^steam_app_2483190$']
 default_output = "Dell Inc. AW3926QW C2DR7K4"
 default_maximize_to_edges = true
 vrr = "always"
+
+# Cursor and Zed open at 90% width here, not full width (window-rules.toml).
+# This file loads after window-rules.toml, so this rule wins. Games keep
+# default_maximize_to_edges above.
+[[window_rule]]
+match.app_id = ['^cursor$', '^dev\.zed\.Zed$']
+default_scrolling_extent = 0.9
+
+# kitty opens at a quarter of the width here, not 0.4 (window-rules.toml).
+[[window_rule]]
+match.app_id = '^kitty$'
+default_scrolling_extent = 0.25
 
 # Open the zen browser picture-in-picture player as floating by default.
 [[window_rule]]
