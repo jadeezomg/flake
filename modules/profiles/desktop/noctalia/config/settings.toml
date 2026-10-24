@@ -391,11 +391,11 @@ widget_order = [
     [lockscreen_widgets.widget."lockscreen-login-box@DP-1"]
     box_height = 196.0
     box_width = 810.0
-    cx = 1280.0
-    cy = 1241.5
+    cx = 2133.5
+    cy = 1551.875
     output = "DP-1"
-    placement_height = 1440.0
-    placement_width = 2560.0
+    placement_height = 1800.0
+    placement_width = 4267.0
     rotation = 0.0
     type = "login_box"
 
@@ -411,6 +411,7 @@ widget_order = [
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
@@ -418,11 +419,11 @@ widget_order = [
     [lockscreen_widgets.widget."lockscreen-login-box@DP-2"]
     box_height = 196.0
     box_width = 810.0
-    cx = 1280.0
-    cy = 1258.0
+    cx = 2133.5
+    cy = 1572.5
     output = "DP-2"
-    placement_height = 1440.0
-    placement_width = 2560.0
+    placement_height = 1800.0
+    placement_width = 4267.0
     rotation = 0.0
     type = "login_box"
 
@@ -438,6 +439,7 @@ widget_order = [
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
@@ -465,6 +467,7 @@ widget_order = [
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
@@ -492,6 +495,7 @@ widget_order = [
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
@@ -519,6 +523,7 @@ widget_order = [
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
@@ -640,19 +645,19 @@ transition_on_startup = true
     enabled = true
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.DP-1]
-    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.DP-2]
-    path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Winter_at_the_Sognefjord_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/jadee/Pictures/Wallpapers/wallpaper.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.HDMI-A-2]
     path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
@@ -758,6 +763,8 @@ workspace_label_placement = "inside"
 
 [widget.temp]
 display = "text"
+stat = "gpu_temp"
+visualization = "graph"
 
 [widget.tray]
 drawer = true
