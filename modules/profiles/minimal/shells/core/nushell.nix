@@ -17,6 +17,9 @@ in
 {
   programs.nushell = {
     enable = true;
+    # Keep the default from before stateVersion 26.11. `true` makes HM own
+    # env.nu and load the session variables in login shells.
+    loadSessionVariables = false;
     shellAliases =
       aliases
       // {

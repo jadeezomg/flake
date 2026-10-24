@@ -52,14 +52,14 @@ else
                 nativeBuildInputs = [
                   prev.makeWrapper
                 ]
-                ++ lib.optional prev.stdenv.isLinux prev.autoPatchelfHook;
-                buildInputs = lib.optional prev.stdenv.isLinux prev.stdenv.cc.cc.lib;
+                ++ lib.optional prev.stdenv.hostPlatform.isLinux prev.autoPatchelfHook;
+                buildInputs = lib.optional prev.stdenv.hostPlatform.isLinux prev.stdenv.cc.cc.lib;
                 inherit (dsh) version meta;
               }
               ''
                 mkdir -p $out/libexec
                 tar -xJf ${nodeTarball} -C $out/libexec --strip-components=2 ${nodeDir}/bin/node
-                ${lib.optionalString prev.stdenv.isLinux "autoPatchelf $out/libexec"}
+                ${lib.optionalString prev.stdenv.hostPlatform.isLinux "autoPatchelf $out/libexec"}
                 makeWrapper $out/libexec/node $out/bin/dsh \
                   --argv0 dsh \
                   --add-flags "--expose-internals" \
