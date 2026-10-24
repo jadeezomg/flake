@@ -14,21 +14,21 @@ in
       isEssential = true;
       position = 101;
     };
-    "Caya GmbH - Calendar - Week of October 12, 2026" = {
+    "Caya GmbH - Calendar - Week of October 19, 2026" = {
       id = "2fc017e6-0793-435b-a6b9-69fce452eb29";
-      url = "https://calendar.google.com/calendar/u/0/r/week";
+      url = "https://calendar.google.com/calendar/u/0/r";
       isEssential = true;
       position = 102;
     };
-    "https://meet.google.com/home" = {
+    "Google Meet" = {
       id = "0fbd8a8a-cab5-4fb4-aeff-aaf4fca8532c";
       url = "https://meet.google.com/home";
       isEssential = true;
       position = 103;
     };
-    "2/2 loaded · Dashboard · Metabase" = {
+    "PAM Dashboard · Dashboard · Metabase" = {
       id = "55d4921c-59db-4cec-ad03-cb21e5ae8ed5";
-      url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer&date=past30days&e-mail=jonas.hippauf%40getcaya.com&id&tab=7-customer";
+      url = "https://metabase.caya.com/dashboard/122-pam-dashboard?customer=Debtist%20GmbH&date=past30days&e-mail&id&tab=7-customer";
       isEssential = true;
       position = 104;
     };
@@ -50,15 +50,15 @@ in
       isEssential = true;
       position = 107;
     };
-    "Variables | Windmill" = {
+    "Log in | Windmill" = {
       id = "94ccd96d-b854-467a-883a-8d646baf32a1";
-      url = "https://app.windmill.dev/variables";
+      url = "https://app.windmill.dev/user/login?rd=%2Fvariables";
       isEssential = true;
       position = 108;
     };
-    "Attio" = {
+    "Home - Attio" = {
       id = "943fb4f4-dfde-41be-b4d4-52e6b25a20bd";
-      url = "https://app.attio.com/caya/settings/members-and-teams/members";
+      url = "https://app.attio.com/caya/home";
       isEssential = true;
       position = 109;
     };
@@ -169,7 +169,7 @@ in
         };
         "Daily Workato Recipe failures that requi" = {
           id = "3f1f0649-da2b-4e38-9c7d-f252bda95c8f";
-          url = "https://metabase.caya.com/question/3316-daily-workato-recipe-failures-that-requires-follow-ups?days=3";
+          url = "https://metabase.caya.com/question/3316-daily-workato-recipe-failures-that-requires-follow-ups?days=1";
           isEssential = false;
           position = 235;
           folderParentId = "{1772811910929-76}";
@@ -203,7 +203,7 @@ in
           position = 239;
           folderParentId = "{1772811910969-69}";
         };
-        "Google_1" = {
+        "Google_2" = {
           id = "28d3f318-2f89-411e-8cdb-e8e9f1438c49";
           url = "https://docs.google.com/spreadsheets/d/1vkz3je8w2a-xEd9-CZuT5CSszUTiJKt3Zbx1RgLGVAk/edit?gid=189094951#gid=189094951";
           isEssential = false;
@@ -266,7 +266,7 @@ in
           position = 248;
           folderParentId = "{1774868454880-16}";
         };
-        "Google_2" = {
+        "Google_2_1" = {
           id = "a072f869-f380-4265-a75e-6ff9c2cae6e9";
           url = "https://accounts.google.com/v3/signin/confirmidentifier?authuser=0&continue=https%3A%2F%2Fdrive.google.com%2Fdrive%2Fsearch%3Fq%3Dintegral&followup=https%3A%2F%2Fdrive.google.com%2Fdrive%2Fsearch%3Fq%3Dintegral&osid=1&passive=1209600&service=wise&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S-1341078008%3A1792068039460069";
           isEssential = false;
@@ -465,9 +465,9 @@ in
           editedTitle = true;
           position = 1010;
         };
-        "Google" = {
+        "Google_5" = {
           id = "ecbdc963-9c7d-4c8e-8bd4-8408341be33b";
-          url = "https://docs.google.com/spreadsheets/d/1Wshg44NPQ3RJPXa3hYh2z-GhZE1yIpUZzb4arNWPO7Q/edit?gid=2064638536#gid=2064638536";
+          url = "https://docs.google.com/spreadsheets/d/1Wshg44NPQ3RJPXa3hYh2z-GhZE1yIpUZzb4arNWPO7Q/edit?gid=673528804#gid=673528804";
           isEssential = false;
           position = 250;
           folderParentId = "{1792414937488-31}";
@@ -479,9 +479,9 @@ in
           position = 251;
           folderParentId = "{1792414937488-31}";
         };
-        "Google Sheets" = {
-          id = "6745e418-c019-4213-bf41-e612497c857c";
-          url = "https://docs.google.com/spreadsheets/u/0/?tgif=d";
+        "Google" = {
+          id = "fae2d60a-7feb-4131-8374-5946e2c8cfef";
+          url = "https://docs.google.com/spreadsheets/d/1xEXFjJWoNS8md6Foq3YcAgqftzyDCkukgb1vcgBxHfs/edit?gid=2120146398#gid=2120146398";
           isEssential = false;
           position = 252;
           folderParentId = "{1792414937488-31}";
