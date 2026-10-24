@@ -49,9 +49,6 @@ in
     inherit lib;
     expiry = expiryFor "open-webui-otel-system-metrics";
   })
-  (import ./typescript-language-server-pnpm-hash.nix {
-    expiry = expiryFor "typescript-language-server-pnpm-hash";
-  })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })
 ]
