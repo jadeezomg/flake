@@ -127,6 +127,16 @@ $ file: fd --type f --max-depth 2
 # Launch yazi file manager
 y
 
+% fetch, fastfetch
+
+; Two configs from essentials/fastfetch.nix. The shell banner uses minimal.
+
+# Full fetch with live load stats and host-status rows
+fastfetch
+
+# Minimal fetch, the same as the shell-start banner
+fastfetch -c minimal
+
 % status, host-status
 
 ; Banner-friendly per-host status modules backing fastfetch and ad-hoc checks.
