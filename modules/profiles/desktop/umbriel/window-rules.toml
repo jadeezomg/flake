@@ -3,6 +3,12 @@
 # blur_optimized = false. Umbriel has no exclude, no block-out-from
 # screen-capture, and no popup corner radius. The DMS layer rules are not
 # ported.
+#
+# Rules set no opacity, except for YouTube Music and KDE Connect. Umbriel
+# draws the window border at the rule opacity, and the border must stay fully
+# opaque. Apps draw their own content at 90% alpha (Stylix opacity and GTK CSS
+# in theme/gui.nix). Apps that cannot do that, such as Electron apps, stay
+# opaque.
 
 # Cursor and Zed IDE at full width
 [[window_rule]]
@@ -19,14 +25,12 @@ default_floating_size = { width = 0.5, height = 0.8 }
 match.app_id = ['^org\.gnome\.Calculator$', '^io\.github\.tanaybhomia\.Whisp$']
 default_floating = true
 default_floating_size_px = { width = 500, height = 700 }
-opacity = 0.8
 blur = true
 blur_optimized = false
 
 [[window_rule]]
 match.app_id = '^io\.missioncenter\.MissionCenter'
-default_scrolling_extent = 0.6
-opacity = 0.8
+default_scrolling_extent = 0.25
 blur = true
 
 # Zed popup/helper windows can report no title and get tiled fullscreen.
@@ -41,11 +45,14 @@ default_position = { x = 10, y = 10, anchor = "top_right" }
 # Password managers and Bluetooth: float top-right. The app-id and the title
 # rule need separate entries, because match fields must all match.
 [[window_rule]]
-match.app_id = ['^org\.keepassxc\.KeePassXC$', '^org\.gnome\.World\.Secrets$', 'blueman-manager']
+match.app_id = [
+    '^org\.keepassxc\.KeePassXC$',
+    '^org\.gnome\.World\.Secrets$',
+    'blueman-manager',
+]
 default_floating = true
 default_floating_size = { width = 0.3, height = 0.75 }
 default_position = { x = 100, y = 100, anchor = "top_right" }
-opacity = 0.9
 blur = true
 
 [[window_rule]]
@@ -53,19 +60,26 @@ match.title = '^Proton Pass$'
 default_floating = true
 default_floating_size = { width = 0.3, height = 0.75 }
 default_position = { x = 100, y = 100, anchor = "top_right" }
-opacity = 0.9
 blur = true
+
+# Proton Pass opens in its own scratchpad, so Mod+P shows and hides it
+# (keybinds.toml). default_focused shows the window when it opens.
+[[scratchpad]]
+name = "pass"
+
+[[window_rule]]
+match.app_id = '^proton-pass$'
+default_scratchpad = "pass"
+default_focused = true
 
 # GNOME applications
 [[window_rule]]
 match.app_id = ['^org\.gnome\.', '^gnome']
-opacity = 0.9
 blur = true
 
-# Later rules win: keep the Showtime video player opaque (niri excluded it).
+# Later rules win: no blur behind the Showtime video player (niri excluded it).
 [[window_rule]]
 match.app_id = '^org\.gnome\.Showtime$'
-opacity = 1.0
 blur = false
 
 # kitty asks for blur itself (background_blur in kitty.conf) through
@@ -76,7 +90,12 @@ blur = true
 
 # Terminal applications
 [[window_rule]]
-match.app_id = ['^org\.wezfurlong\.wezterm$', 'ghostty', 'kitty', 'org\.gnome\.NautilusPreviewer']
+match.app_id = [
+    '^org\.wezfurlong\.wezterm$',
+    'ghostty',
+    'kitty',
+    'org\.gnome\.NautilusPreviewer',
+]
 default_scrolling_extent = 0.4
 
 [[window_rule]]
@@ -86,7 +105,6 @@ default_position = { x = 10, y = 10, anchor = "top_right" }
 
 [[window_rule]]
 match.app_id = 'cursor'
-opacity = 0.9
 blur = true
 
 # niri also set geometry-corner-radius 15 here, but the shell rule (5) loaded
@@ -104,9 +122,20 @@ blur_popups = true
 match.app_id = 'zen'
 blur_popups = false
 
+# YouTube Music (Electron) cannot draw its own transparency here. Its
+# transparent-player plugin turns off hardware acceleration, and on Wayland
+# the window then never appears. Rule opacity also fades this window's border
+# to 90%.
 [[window_rule]]
 match.app_id = '^com\.github\.th-ch\.youtube-music$'
-opacity = 0.8
+opacity = 0.9
+blur = true
+
+# KDE Connect is a Kirigami (QML) app. Kirigami ignores the alpha of the color
+# scheme, so only rule opacity makes it translucent. Its border shows at 90%.
+[[window_rule]]
+match.app_id = '^org\.kde\.kdeconnect\.'
+opacity = 0.9
 blur = true
 
 # Open DMS windows (quickshell) and Vicinae as floating

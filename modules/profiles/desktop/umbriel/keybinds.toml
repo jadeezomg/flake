@@ -11,7 +11,9 @@
 # Apps
 "Mod+T" = { action = "spawn:kitty", repeat = false }
 "Mod+Z" = { action = '''spawn:id=$(umbriel windows --json | jq -r '(.windows? // .) | map(select(.app_id | test("^zen(-|$)"))) | first | .id // empty'); if [ -n "$id" ]; then umbriel msg "window-focus:$id"; else zen-twilight || zen-beta; fi''', repeat = false }
-"Mod+P" = { action = "spawn:proton-pass", repeat = false }
+# Mod+P shows or hides the Proton Pass scratchpad (window-rules.toml). With no
+# Proton Pass window open, it starts the app, which opens in the scratchpad.
+"Mod+P" = { action = '''spawn:if umbriel windows --json | jq -e '(.windows? // .) | any(.app_id == "proton-pass")' >/dev/null; then umbriel msg scratchpad-toggle:pass; else proton-pass; fi''', repeat = false }
 "Mod+B" = { action = "spawn:blueman-manager", repeat = false }
 "Mod+Period" = { action = "spawn:flatpak kill io.github.tanaybhomia.Whisp || flatpak run io.github.tanaybhomia.Whisp", repeat = false }
 "Super+Alt+S" = { action = "spawn:pkill orca || exec orca", allow_when_locked = true }
@@ -110,6 +112,7 @@
 "Mod+Shift+S" = "window-consume-or-expel-right"
 "Mod+R" = "window-cycle-primary-extent"
 "Mod+E" = "window-cycle-secondary-extent"
+# outputs-desktop.toml makes Mod+A 90% width on the desktop.
 "Mod+A" = { action = "window-toggle-maximize", repeat = false }
 "Mod+Shift+F" = { action = "window-toggle-fullscreen", repeat = false }
 "Mod+C" = "column-center"

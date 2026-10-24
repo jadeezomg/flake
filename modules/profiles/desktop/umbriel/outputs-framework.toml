@@ -1,6 +1,10 @@
 # Port of niri/outputs-framework.kdl. Umbriel has no per-output struts, so
 # the top strut is not ported.
 
+# Window sizes in thirds (Mod+R)
+[layout]
+extent_presets = [0.33333, 0.5, 0.66667]
+
 [output.eDP-1]
 mode = "2880x1920@120"
 scale = 1.4
