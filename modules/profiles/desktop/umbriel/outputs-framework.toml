@@ -1,0 +1,9 @@
+# Port of niri/outputs-framework.kdl. Umbriel has no per-output struts, so
+# the top strut is not ported.
+
+[output.eDP-1]
+mode = "2880x1920@120"
+scale = 1.4
+position = [1440, 0]
+vrr = "always"
+focus_at_startup = true
