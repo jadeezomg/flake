@@ -1,14 +1,18 @@
 {
-  dotfilesLib,
+  config,
   lib,
   pkgs,
   ...
 }:
 let
   # Comment color tracks the palette's line-highlight (lib/theme-palette.nix).
-  commentColor = dotfilesLib.palette.line-highlight;
+  commentColor = config.dotfiles.theme.palette.line-highlight;
   # Edit-prediction ghost text. Stylix uses base03, which is too dark on the background.
-  predictiveColor = dotfilesLib.palette.ansi-bright-black;
+  predictiveColor = config.dotfiles.theme.palette.ansi-bright-black;
+  # Deleted text in diffs. Stylix uses base08, which this palette maps to the
+  # cream text color, so the removed overlay had the color of the text on it.
+  # The palette red takes its place, with the alphas of the added colors.
+  deletedColor = config.dotfiles.theme.palette.ansi-red;
 in
 {
   home.activation.zedThemeSurfaceAlpha = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
@@ -49,6 +53,11 @@ in
               | .syntax.comment.color        = "${commentColor}"
               | ."predictive"                = "${predictiveColor}"
               | .syntax.predictive.color     = "${predictiveColor}"
+              | ."version_control.deleted"   = "${deletedColor}ff"
+              | ."version_control.word_deleted" = "${deletedColor}59"
+              | .deleted                     = "${deletedColor}ff"
+              | ."deleted.background"        = "${deletedColor}1a"
+              | ."deleted.border"            = "${deletedColor}80"
 
             )
           else .

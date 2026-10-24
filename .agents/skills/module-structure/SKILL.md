@@ -24,7 +24,7 @@ Use this skill for `modules/**`, mainly `modules/profiles/**`. For hosts, packag
 - HM modules: `inputs`, `hostData`, `dotfilesLib`, `host`, `hostKey`, `isDarwin`, `pkgs`, `pkgs-stable`, `pkgs-small`. HM does not get `user` or `system`. HM reads system profile flags through `osConfig`.
 - `pkgs-small` is passed but no module uses it today.
 - `hostKey` is `desktop`, `framework`, `caya`, or `mini`. `host` is the record from `hosts/hosts.nix`. `hostData` is the full registry.
-- `dotfilesLib` is `lib/default.nix`. It exports `palette`, `themeBase16`, `themeFonts`, `shellEnvData`, `shellPaths`, `minimalPackages`, `nixCaches`, `sshDestinations`, `lanHosts`, `users`, `hostStatus`, `nonoProfiles`, `nixExperimentalFeatures`, `expiry`, `mkProfile`, `agentsDataDir`, `agentSkillsDir`, `agentDataFiles`, and `sopsFile`. Functions are unapplied. MCP registration lives in `modules/profiles/devenv/agents/apm.nix`, not in `dotfilesLib`.
+- `dotfilesLib` is `lib/default.nix`. It exports `palette`, `paletteVariants`, `mkThemeBase16`, `themeFonts`, `shellEnvData`, `shellPaths`, `minimalPackages`, `nixCaches`, `sshDestinations`, `lanHosts`, `users`, `hostStatus`, `nonoProfiles`, `nixExperimentalFeatures`, `expiry`, `mkProfile`, `agentsDataDir`, `agentSkillsDir`, `agentDataFiles`, and `sopsFile`. Functions are unapplied. MCP registration lives in `modules/profiles/devenv/agents/apm.nix`, not in `dotfilesLib`.
 
 ## Options
 
@@ -67,7 +67,7 @@ Keep helpers that belong to one app inside that app's folder. A greeter belongs 
 - Cross-cutting policy lives with the policy domain, not with the app it names.
   - MIME defaults: `modules/profiles/minimal/linux/environment.nix`.
   - Yazi openers: `modules/profiles/essentials/utils/yazi/default.nix`.
-  - Palette: `lib/theme-palette.nix` through `dotfilesLib.palette`.
+  - Palette: `lib/theme-palette.nix` and its variants. Home Manager modules read `config.dotfiles.theme.palette`.
 
 ## Live symlinks
 

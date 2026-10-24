@@ -13,18 +13,19 @@
 #   2. Stylix sets `custom_palette=true` in qt6ct.conf but no
 #      `color_scheme_path`, so qt6ct has no palette to load.
 #
-# Both files come from dotfilesLib.palette, so they follow lib/theme-palette.nix.
+# Both files come from config.dotfiles.theme.palette, so they follow the host
+# palette variant (lib/theme-palette-variants.nix).
 # ~/.config/kdeglobals is used on purpose instead of XDG_CONFIG_DIRS: Home
 # Manager exports xdg.systemDirs.config through the shell profile only, and
 # kdeconnectd is DBus-activated under systemd, which never sources it.
 {
-  dotfilesLib,
+  config,
   lib,
   pkgs,
   ...
 }:
 let
-  inherit (dotfilesLib) palette;
+  inherit (config.dotfiles.theme) palette;
 
   # KConfig wants decimal "R,G,B" triples, and qt6ct wants "#rrggbb".
   hexDigit = {

@@ -1,5 +1,6 @@
 {
   config,
+  dotfilesLib,
   host ? { },
   hostKey ? "unknown",
   isDarwin ? false,
@@ -55,6 +56,11 @@
       theme = {
         enable = enableOn "the theme baseline (Stylix + Birds-of-Paradise base16; CLI/shell theming everywhere)";
         gui.enable = enableOn "the theme GUI payload (wallpaper, cursor, opacity, GTK/Qt, Pictures symlinks; the server keeps CLI theming only)";
+        variant = mkOption {
+          type = types.enum (builtins.attrNames dotfilesLib.paletteVariants);
+          default = "brown";
+          description = "Palette variant from lib/theme-palette-variants.nix: brown (the canonical palette) or black (near-black main background).";
+        };
       };
 
       apps = {

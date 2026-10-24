@@ -14,6 +14,7 @@ in
   config = lib.mkIf cfg.enable {
     home-manager.sharedModules = [
       ./stylix.nix
+      { dotfiles.theme.variant = cfg.variant; }
     ]
     ++ lib.optionals cfg.gui.enable [
       ./gui.nix

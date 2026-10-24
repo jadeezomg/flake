@@ -1,6 +1,5 @@
 {
   config,
-  dotfilesLib,
   isDarwin,
   lib,
   pkgs,
@@ -8,9 +7,6 @@
 }:
 let
   cfg = config.dotfiles.profiles.apps.notes;
-  typoraTheme = import ./theme.nix {
-    inherit (dotfilesLib) palette;
-  };
 in
 {
   config = lib.mkIf cfg.enable (
@@ -18,9 +14,14 @@ in
       environment.systemPackages = lib.optionals (!isDarwin) [ pkgs.typora ];
 
       home-manager.sharedModules = [
-        {
-          xdg.configFile."Typora/themes/birds-of-paradise.css".text = typoraTheme;
-        }
+        (
+          { config, ... }:
+          {
+            xdg.configFile."Typora/themes/birds-of-paradise.css".text = import ./theme.nix {
+              inherit (config.dotfiles.theme) palette;
+            };
+          }
+        )
       ];
     }
     # Claim the markdown role in the desktop MIME table (desktop/mime.nix).

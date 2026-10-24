@@ -5,17 +5,18 @@
 #     hand with `fastfetch -c minimal`.
 #   - full: bare `fastfetch`. It adds packages, live load stats, and the
 #     host-status rows.
-# Colors track lib/theme-palette.nix (dotfilesLib.palette). host-status
+# Colors follow the host palette variant (config.dotfiles.theme.palette). host-status
 # command modules intentionally fall back to "?" so a failed probe does not
 # break the output.
 {
+  config,
   dotfilesLib,
   lib,
   pkgs,
   ...
 }:
 let
-  theme = dotfilesLib.palette;
+  theme = config.dotfiles.theme.palette;
   jsonFormat = pkgs.formats.json { };
 
   # Pin host-status to its Nix store path. fastfetch executes command modules
