@@ -16,6 +16,7 @@
       sync_address = "https://atuin.jadee.fyi";
       auto_sync = true;
       sync_frequency = "5m";
+      enter_accept = true;
     };
   };
 }
