@@ -19,11 +19,12 @@ dotfilesLib.mkProfile {
     ./databases.nix
     ./languages
   ];
-  # HM dev tooling without its own category (biome config, fnox secret hook,
-  # gh CLI config, flake git hooks).
+  # HM dev tooling without its own category (biome config, gh CLI config, flake
+  # git hooks). fnox is not here: each repo pins it in its mise.toml, and no
+  # shell hook loads secrets. A command that needs a secret runs through
+  # `fnox exec`.
   hm = [
     ./biome.nix
-    ./fnox.nix
     ./gh
     ./git-hooks.nix
   ];
