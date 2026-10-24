@@ -65,6 +65,13 @@ in
     };
   };
 
+  # NFS read-ahead: the default 256 KiB makes playback a stream of small reads
+  # on the Unraid disks. 16 MiB reads ahead in bigger, sequential pieces. NFS
+  # mounts get an anonymous backing device ("0:N"), created on each automount.
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="bdi", KERNEL=="0:*", ATTR{read_ahead_kb}="16384"
+  '';
+
   sops.secrets = {
     "mini/media/sonarr/api-key" = { };
     "mini/media/sonarr/password" = { };

@@ -7,6 +7,7 @@
     ./storage.nix
     ./nixflix
     ./native.nix
+    ./plex-connect.nix
     ./proxy.nix
     ./seerr.nix
   ];
