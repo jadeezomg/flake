@@ -276,6 +276,31 @@ Automation on mini, payloads on Unraid NFS (ADR-0004). Upstream nixflix
 postgres/caddy/nginx/seerr are **disabled** — mini's Caddy fronts everything and
 Seerr/Bazarr/Plex run as native NixOS services.
 
+Quality profiles are in Nix. Recyclarr syncs them every day from
+`hosts/mini/services/media/nixflix/quality.nix`. Do not edit them in the UI,
+because the next sync replaces your edits. A cleanup unit deletes all other
+profiles and moves their media to `Original + EN Subs`.
+
+| Profile | Required audio | Bonus |
+|---|---|---|
+| Original + EN Subs | original language | English subtitles in the release name. Default in Seerr. |
+| German Audio | German | original audio track too (dual audio) |
+| PT-BR Audio + Subs | Portuguese (Brazil) | original audio track, PT-BR subtitles in the release name |
+
+All three profiles use the same ladder: efficient 4K, then 1080p, then
+high-bitrate 4K, then 720p. All 720p-2160p qualities are in one quality group,
+so the custom format score sets this order. In Radarr, efficient 4K is 15 GB or
+less, 1080p is 5-12 GB, and 720p is 2-8 GB. In Sonarr, the Size condition
+measures a full season pack, so efficient 4K means AV1 or HEVC instead. Bazarr
+gets the English subtitles after the download.
+
+The custom formats are not in the TRaSH guide. Nix writes them as JSON files,
+and Recyclarr reads them through a `custom-formats` resource provider. The Seerr
+request settings (default profile, season picker, specials, TVDB metadata) are
+in `hosts/mini/services/media/seerr.nix`. Before each start, the `preStart` of
+Seerr finds the default profile ID by name and merges the settings into
+`settings.json`.
+
 | Path | What |
 |---|---|
 | `/data` | NFS `192.168.178.62:/mnt/user/data` — downloads **and** library, RW |

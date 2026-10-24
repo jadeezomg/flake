@@ -52,6 +52,8 @@
       # background-opacity = 0.8;
       background-blur = true;
       mouse-hide-while-typing = true;
+      # Focus the split under the mouse pointer (focused window only).
+      focus-follows-mouse = true;
 
       # Keybindings. Format: keybind = [ "scope:modifier+key=action" ]
       keybind = [

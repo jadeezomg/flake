@@ -33,6 +33,8 @@
       initial_window_height = 40;
       window_padding_width = 10;
       window_margin_width = 10;
+      # Focus the split under the mouse pointer when the pointer enters it.
+      focus_follows_mouse = "yes";
 
       # Tab bar configuration
       tab_bar_margin_width = 10;

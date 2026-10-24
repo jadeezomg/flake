@@ -157,6 +157,7 @@ All media secrets are nested, runtime-only values consumed by
 | `mini/media/qbittorrent/password` | generated WebUI/Arr password (plaintext) | nixflix Arr→qBittorrent integration; qbittorrent ExecStartPre derives `Password_PBKDF2` for WebUI | mini |
 | `mini/media/bazarr/opensubtitles-username` | OpenSubtitles.com account username (not email) | Bazarr English subtitle provider | mini |
 | `mini/media/bazarr/opensubtitles-password` | OpenSubtitles.com account password | Bazarr English subtitle provider | mini |
+| `mini/media/plex/token` | `PlexOnlineToken` in Plex `Preferences.xml` on mini | `plex-connect` (Radarr/Sonarr Plex connection) | mini |
 | `mini/media/jellyfin/api-key` | generated 32-byte hexadecimal API key | nixflix Jellyfin management services and one-shot watch migration | mini |
 | `mini/media/jellyfin/users/jadee-password` | generated initial Jellyfin password | nixflix Jellyfin user creation | mini |
 | `mini/media/jellyfin/users/angeli265-password` | generated initial Jellyfin password | nixflix Jellyfin user creation | mini |
