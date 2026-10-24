@@ -18,6 +18,11 @@ in
   nix.settings = {
     auto-optimise-store = true;
     download-buffer-size = 524288000; # 500 MiB
+    # Nix retries a 503 like a rate limit. Four retries from the 5000 ms
+    # default wait up to 75 s, and every command paid that while the lantian
+    # cache returned 503 (2026-10-24). From 1000 ms they wait at most 15 s.
+    # A server that sends Retry-After still gets the longer wait.
+    filetransfer-retry-delay-rate-limited = 1000;
     max-jobs = 1;
     cores = buildCores;
 
