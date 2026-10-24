@@ -37,10 +37,6 @@ in
     inherit lib system;
     expiry = expiryFor "dsh-official-node";
   })
-  (import ./nix-output-monitor-unknown-activity.nix {
-    inherit lib;
-    expiry = expiryFor "nix-output-monitor-unknown-activity";
-  })
   (import ./sesh-skip-mockery.nix {
     inherit lib;
     expiry = expiryFor "sesh-skip-mockery";
@@ -48,6 +44,10 @@ in
   (import ./open-webui-otel-system-metrics.nix {
     inherit lib;
     expiry = expiryFor "open-webui-otel-system-metrics";
+  })
+  (import ./fastmcp-slim-mcp1.nix {
+    inherit lib;
+    expiry = expiryFor "fastmcp-slim-mcp1";
   })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })
