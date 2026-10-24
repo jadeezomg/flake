@@ -23,6 +23,7 @@ order = [ "default", "side", "laptop" ]
 
         [bar.default.monitor.DP-1]
         enabled = true
+        margin_ends = 1700
 
         [bar.default.monitor.DP-2]
         enabled = true
@@ -645,19 +646,19 @@ transition_on_startup = true
     enabled = true
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
 
     [wallpaper.monitors.DP-1]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
 
     [wallpaper.monitors.DP-2]
     path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Winter_at_the_Sognefjord_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Henriette_Gudin_Hafen_von_Konstantinopel.jpg"
 
     [wallpaper.monitors.HDMI-A-2]
     path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
