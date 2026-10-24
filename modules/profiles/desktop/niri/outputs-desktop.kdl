@@ -64,7 +64,7 @@ window-rule {
 // Youtube Music
 spawn-at-startup "pear-desktop"
 window-rule {
-    match app-id=r#"^com\.github\.th_ch\.youtube_music$"#
+    match app-id=r#"^com\.github\.th-ch\.youtube-music$"#
     open-on-output "Dell Inc. DELL S2722QC 88THMD3"
     open-on-workspace "1"
     default-column-width { proportion 1.0; }
