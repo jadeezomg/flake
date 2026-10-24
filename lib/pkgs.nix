@@ -24,7 +24,7 @@ let
   };
   nixpkgsConfig = channelConfig // {
     permittedInsecurePackages = [
-      "ventoy-1.1.17"
+      "ventoy-1.1.18"
     ];
   };
 
