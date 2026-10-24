@@ -39,12 +39,15 @@ match.app_id = '^dev\.noctalia\.Noctalia$'
 default_floating = true
 default_floating_size_px = { width = 1080, height = 920 }
 
-# Noctalia publishes blur regions for its surfaces. These rules turn the blur
-# on, with xray off (blur_optimized = false).
+# On niri, Noctalia asks for blur itself through ext-background-effect.
+# Umbriel lacks that protocol, so these rules turn the blur on, with xray off
+# (blur_optimized = false). The bar background is below 50% alpha, so the
+# 0.5 threshold from the Umbriel example skipped it. 0.1 still skips the fully
+# transparent parts of the surface.
 [[layer_rule]]
 match.namespace = '^noctalia-(bar-[^"]+|notification|dock|panel|attached-panel|osd)$'
 blur = true
-blur_ignore_alpha = 0.5
+blur_ignore_alpha = 0.1
 blur_popups = true
 blur_optimized = false
 

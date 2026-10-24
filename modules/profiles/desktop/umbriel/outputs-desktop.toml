@@ -1,18 +1,40 @@
 # Port of niri/outputs-desktop.kdl. Outputs match by "make model serial"
 # (see `umbriel outputs`), not by connector.
 # Connector names (DP-1/DP-2, HDMI-A-1/HDMI-A-2) change with the GPU driver load order.
-# Umbriel has no per-output struts, so the portrait screen struts are not ported.
 
 [general]
-autostart = ["zen-twilight || zen-beta", "pear-desktop"]
+autostart = [
+  "zen-twilight || zen-beta",
+  "pear-desktop",
+  # Make the AW3926QW the X11 primary output. Wine's X11 driver uses it as the
+  # primary monitor, and GE-Proton reads it from xrandr for its Wayland driver.
+  # Without it, games size themselves to the portrait screen at 0,0.
+  '''xrandr --output "$(umbriel outputs --json | jq -r '(.outputs? // .)[] | select(.model == "AW3926QW") | .name')" --primary''',
+]
+
+# HDR for Proton games by default. As an X11 window a game only gets sRGB;
+# through Proton's Wayland driver the NVIDIA driver also offers HDR10.
+# DXVK_HDR lets DXVK and vkd3d-proton report it; PROTON_ENABLE_HDR is
+# GE-Proton's switch for the same. Umbriel publishes these to the systemd user
+# manager, so Steam started in this session gets them (restart Umbriel and
+# Steam after a change). One game can opt out with
+# `PROTON_ENABLE_WAYLAND=0 %command%`. Proton CachyOS turns Steam Input off
+# under Wayland; GE-Proton keeps it.
+[environment]
+PROTON_ENABLE_WAYLAND = "1"
+PROTON_ENABLE_HDR = "1"
+DXVK_HDR = "1"
 
 [output."Dell Inc. DELL S2722QC 88THMD3"]
 mode = "3840x2160@60"
 scale = 1.3
 transform = "90"
 position = [0, 0]
-# Full-width columns on the portrait screen
-layout.scrolling.default_extent_fraction = 1.0
+# Vertical strip on the portrait screen: windows stack top to bottom, and the
+# strip scrolls up and down. Workspaces sit side by side. The extent is the
+# window height here: two windows fill the screen.
+workspace_axis = "horizontal"
+layout.scrolling.default_extent_fraction = 0.5
 
 [output."Dell Inc. AW3926QW C2DR7K4"]
 mode = "5120x2160@165"
@@ -21,10 +43,72 @@ scale = 1.2
 # outputs only when they touch, and the portrait screen is 1661.5 wide.
 position = [1661, 200]
 focus_at_startup = true
-# HDR turns on for fullscreen content that sends HDR metadata.
-hdr = "auto"
+# The whole desktop runs in HDR. SDR content shows at sdr_white (203 cd/m²).
+# The monitor advertises HDR only while Smart HDR is on in its menu.
+hdr = "on"
 # niri renders 10-bit by default. Umbriel defaults to 8-bit.
 bit_depth = 10
+
+# Portrait screen sizes and struts, from the niri portrait layout. Umbriel sets
+# these per workspace only, and a rule must name an index, so there is one rule
+# per workspace that Mod+1 to Mod+9 reach. One preset list serves both Mod+R
+# (height on the vertical strip) and Mod+E (width within a row): niri's heights
+# 0.315, 0.5, and 0.685, plus 1.0 for full width. niri had a bottom strut of 25.
+# The Noctalia dock on this screen reserves its own space, so the bottom strut
+# is 0 and only the layout gap separates the windows from the dock.
+[[workspace]]
+index = 1
+output = "Dell Inc. DELL S2722QC 88THMD3"
+layout.extent_presets = [0.315, 0.5, 0.685, 1.0]
+layout.struts = { top = 15, bottom = 0 }
+
+[[workspace]]
+index = 2
+output = "Dell Inc. DELL S2722QC 88THMD3"
+layout.extent_presets = [0.315, 0.5, 0.685, 1.0]
+layout.struts = { top = 15, bottom = 0 }
+
+[[workspace]]
+index = 3
+output = "Dell Inc. DELL S2722QC 88THMD3"
+layout.extent_presets = [0.315, 0.5, 0.685, 1.0]
+layout.struts = { top = 15, bottom = 0 }
+
+[[workspace]]
+index = 4
+output = "Dell Inc. DELL S2722QC 88THMD3"
+layout.extent_presets = [0.315, 0.5, 0.685, 1.0]
+layout.struts = { top = 15, bottom = 0 }
+
+[[workspace]]
+index = 5
+output = "Dell Inc. DELL S2722QC 88THMD3"
+layout.extent_presets = [0.315, 0.5, 0.685, 1.0]
+layout.struts = { top = 15, bottom = 0 }
+
+[[workspace]]
+index = 6
+output = "Dell Inc. DELL S2722QC 88THMD3"
+layout.extent_presets = [0.315, 0.5, 0.685, 1.0]
+layout.struts = { top = 15, bottom = 0 }
+
+[[workspace]]
+index = 7
+output = "Dell Inc. DELL S2722QC 88THMD3"
+layout.extent_presets = [0.315, 0.5, 0.685, 1.0]
+layout.struts = { top = 15, bottom = 0 }
+
+[[workspace]]
+index = 8
+output = "Dell Inc. DELL S2722QC 88THMD3"
+layout.extent_presets = [0.315, 0.5, 0.685, 1.0]
+layout.struts = { top = 15, bottom = 0 }
+
+[[workspace]]
+index = 9
+output = "Dell Inc. DELL S2722QC 88THMD3"
+layout.extent_presets = [0.315, 0.5, 0.685, 1.0]
+layout.struts = { top = 15, bottom = 0 }
 
 # Browser
 [[window_rule]]
@@ -32,20 +116,48 @@ match.app_id = ['^zen-twilight$', '^zen-beta$']
 match.title = '^(?!Picture-in-Picture$)'
 default_output = "Dell Inc. DELL S2722QC 88THMD3"
 default_workspace = 1
-default_scrolling_extent = 1.0
+# Height on the vertical strip (niri default-window-height 0.685)
+default_scrolling_extent = 0.685
 
 # YouTube Music
 [[window_rule]]
 match.app_id = '^com\.github\.th-ch\.youtube-music$'
 default_output = "Dell Inc. DELL S2722QC 88THMD3"
 default_workspace = 1
-default_scrolling_extent = 1.0
+# Fills the rest of the screen below or above the browser
+default_scrolling_extent = 0.315
+
+# Games: open on the AW3926QW and use VRR while focused. GE-Proton tags its
+# windows proton-game, and Wine marks them with the game content type.
+# Match fields must all match, so these are two rules. Per-game rules below
+# come later and win.
+[[window_rule]]
+match.xdg_tag = '^proton-game$'
+default_output = "Dell Inc. AW3926QW C2DR7K4"
+vrr = "always"
 
 [[window_rule]]
-match.app_id = '^War Thunder$'
+match.content_type = "game"
+default_output = "Dell Inc. AW3926QW C2DR7K4"
+vrr = "always"
+
+# The X11 window reports "War Thunder (Vulkan, 64bit)".
+[[window_rule]]
+match.app_id = '^War Thunder'
 default_output = "Dell Inc. AW3926QW C2DR7K4"
 default_maximize_to_edges = true
 opacity = 1.0
+vrr = "always"
+
+# Forza Horizon 6 on Proton's Wayland driver (needed for HDR, see
+# [environment] above). GE-Proton reports the exe name, Proton CachyOS the
+# Steam app id. The game
+# starts in a small window and enters fullscreen only once its window covers
+# the output, so open it maximized to the edges.
+[[window_rule]]
+match.app_id = ['^forzahorizon6\.exe$', '^steam_app_2483190$']
+default_output = "Dell Inc. AW3926QW C2DR7K4"
+default_maximize_to_edges = true
 vrr = "always"
 
 # Open the zen browser picture-in-picture player as floating by default.

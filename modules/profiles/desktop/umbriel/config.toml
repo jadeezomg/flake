@@ -13,6 +13,13 @@ files = ["window-rules.toml", "keybinds.toml"]
 [include.optional]
 files = ["shell.toml", "host.toml", "noctalia.toml"]
 
+# X11 apps see each output at its physical size, so games render sharp on
+# scaled outputs instead of being upscaled. Toolkits that read XSETTINGS
+# (GTK, Chromium, Electron, Steam) draw at the largest output scale. Needs an
+# Umbriel restart.
+[general]
+xwayland_native_resolution = true
+
 # niri input {}
 [input.keyboard]
 layout = "us,de"
@@ -40,6 +47,11 @@ follows_mouse_max_scroll = 0.0
 [layout]
 gap = 10
 extent_presets = [0.33333, 0.5, 0.66667]
+
+# A strip that does not fill the screen starts at the left edge (the top edge
+# on a vertical strip), like niri. Umbriel centers it by default.
+[layout.scrolling]
+center_underfull_strip = false
 
 [appearance]
 prefer_no_csd = true
