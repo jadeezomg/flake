@@ -52,8 +52,10 @@ let
     activate_on_single_click = false;
     favicon_service = "twenty";
     font.rendering = "qt";
+    # Square corners and a 3 px border, like the compositor windows.
     launcher_window = {
-      client_side_decorations.border_width = 0;
+      rounding = 0;
+      client_side_decorations.border_width = 3;
       compact_mode.enabled = false;
     };
     providers = {
