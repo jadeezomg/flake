@@ -13,6 +13,7 @@
     ./playback-cache.nix
     ./plex-connect.nix
     ./proxy.nix
+    ./ptbr.nix
     ./seerr.nix
     ./unpackerr.nix
   ];
