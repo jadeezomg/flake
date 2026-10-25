@@ -19,14 +19,11 @@
 let
   name = "Plex";
 
-  # Arr apps see /data/media/...; Plex sees the same files under /media/...
   fields = {
     host = "127.0.0.1";
     port = 32400;
     useSsl = false;
     updateLibrary = true;
-    mapFrom = "/data/media/";
-    mapTo = "/media/";
   };
 
   # Events that make Plex refresh. Each is set only where the service
@@ -42,11 +39,32 @@ let
     "onSeriesDelete"
     "onEpisodeFileDelete"
     "onEpisodeFileDeleteForUpgrade"
+    "onReleaseImport"
+    "onAlbumDelete"
+    "onArtistDelete"
+    "onTrackRetag"
   ];
 
+  # Each app sees the files under its own path; Plex sees them under /media.
   services = {
-    radarr = 7878;
-    sonarr = 8989;
+    radarr = {
+      port = 7878;
+      api = "v3";
+      mapFrom = "/data/media/";
+      mapTo = "/media/";
+    };
+    sonarr = {
+      port = 8989;
+      api = "v3";
+      mapFrom = "/data/media/";
+      mapTo = "/media/";
+    };
+    lidarr = {
+      port = 8686;
+      api = "v1";
+      mapFrom = "/Music/";
+      mapTo = "/media/Music/";
+    };
   };
   notifications = lib.mapAttrsToList (service: _: "${service}-notifications.service") services;
 
@@ -88,9 +106,9 @@ in
       set -euo pipefail
 
       connect() {
-        local service=$1 port=$2 key base existing payload method url
+        local service=$1 port=$2 version=$3 map=$4 key base existing payload method url
         key=$(<"$CREDENTIALS_DIRECTORY/$service-api-key")
-        base="http://127.0.0.1:$port/api/v3"
+        base="http://127.0.0.1:$port/api/$version"
         api() { ${curl} -sSf --max-time 30 -H "X-Api-Key: $key" -H "Content-Type: application/json" "$@"; }
 
         existing=$(api "$base/notification" | ${jq} -c --arg name ${lib.escapeShellArg name} \
@@ -98,7 +116,7 @@ in
         payload=$(api "$base/notification/schema" | ${jq} -c \
           --arg name ${lib.escapeShellArg name} \
           --rawfile token "$CREDENTIALS_DIRECTORY/plex-token" \
-          --argjson fields ${lib.escapeShellArg (builtins.toJSON fields)} \
+          --argjson fields "$(${jq} -c --argjson map "$map" '. + $map' <<<${lib.escapeShellArg (builtins.toJSON fields)})" \
           --argjson events ${lib.escapeShellArg (builtins.toJSON events)} \
           --argjson existing "''${existing:-null}" '
             map(select(.implementation == "PlexServer"))[0]
@@ -125,7 +143,12 @@ in
       }
 
       ${lib.concatStringsSep "\n" (
-        lib.mapAttrsToList (service: port: "connect ${service} ${toString port}") services
+        lib.mapAttrsToList (
+          service: s:
+          "connect ${service} ${toString s.port} ${s.api} ${
+            lib.escapeShellArg (builtins.toJSON { inherit (s) mapFrom mapTo; })
+          }"
+        ) services
       )}
     '';
   };

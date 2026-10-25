@@ -44,6 +44,42 @@ in
     };
   };
 
+  # Jellyfin connection. The apps report their own paths (/data/media/...,
+  # /Music/...); Jellyfin's libraries live under /media. Without the mapping,
+  # Jellyfin cannot place an import and waits for the 06:30 scan. Lidarr
+  # needs a different mapping, so it gets its own entry.
+  nixflix.notif.jellyfin = {
+    services = [
+      "radarr"
+      "sonarr"
+    ];
+    mapFrom = "/data/media/";
+    mapTo = "/media/";
+  };
+  nixflix.notif.extraNotifications = [
+    {
+      enable = true;
+      name = "Emby / Jellyfin";
+      implementationName = "Emby / Jellyfin";
+      services = [ "lidarr" ];
+      dependencies = [ "jellyfin-api-key.service" ];
+      host = config.nixflix.jellyfin.connectionAddress;
+      port = config.nixflix.jellyfin.network.internalHttpPort;
+      inherit (config.nixflix.jellyfin) apiKey;
+      updateLibrary = true;
+      mapFrom = "/Music/";
+      mapTo = "/media/Music/";
+      triggers.lidarr = [
+        "onReleaseImport"
+        "onUpgrade"
+        "onRename"
+        "onAlbumDelete"
+        "onArtistDelete"
+        "onTrackRetag"
+      ];
+    }
+  ];
+
   systemd.services = lib.genAttrs watched (_: {
     onFailure = [ "ntfy-alert@%n.service" ];
   });
