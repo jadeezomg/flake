@@ -2,10 +2,17 @@
 # global config links, nono profiles, pi/omp package state, and the session
 # push to mini (./session-push.nix). Skills and MCP
 # registration belong to APM (./apm.nix); nono profile data lives in
-# `dotfilesLib.nonoProfiles`.
-{ dotfilesLib, ... }@args:
+# `dotfilesLib.nonoProfiles`. ./darwin.nix holds the Homebrew half; the
+# `homebrew.*` namespace only exists on darwin, hence the import gate.
+{
+  dotfilesLib,
+  isDarwin ? false,
+  lib,
+  ...
+}@args:
 dotfilesLib.mkProfile {
   path = [ "devenv" ];
+  imports = lib.optionals isDarwin [ ./darwin.nix ];
   hm = [
     ./apm.nix
     ./dsh.nix
@@ -45,5 +52,12 @@ dotfilesLib.mkProfile {
     ])
     # mcp-nixos pulls python3.lupa → luajit_2_0, which nixpkgs 26.05 marks
     # unsupported on aarch64-darwin. Drop it on Darwin until fixed upstream.
-    ++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [ pkgs.mcp-nixos ];
+    # tuios: session manager in the herdr/tuios trial (D2 in
+    # docs/agents/session-management-plan.md), 0.11.0 through
+    # parts/overlays/tuios-0-11.nix. caya takes tuios from Homebrew
+    # (./darwin.nix), because no cache has the overlay's darwin build.
+    ++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
+      pkgs.mcp-nixos
+      pkgs.tuios
+    ];
 } args
