@@ -46,6 +46,10 @@ in
         # sidebars, and cards add a light base01 tint: opaque base01 layers
         # would hide the transparency, like the stacked layers in Zen.
         # Popovers are their own surface. In-window dialogs stay opaque.
+        # Stylix gives unfocused header bars and sidebars the window color,
+        # which is a second layer on the window. They are transparent instead.
+        # Nautilus puts the view class on its window, so the window paints the
+        # transparent view color. The window.view rule paints the window color.
         extraCss =
           let
             p = config.dotfiles.theme.palette;
@@ -55,9 +59,15 @@ in
             @define-color window_bg_color alpha(${p.bg-primary}, ${alpha});
             @define-color view_bg_color transparent;
             @define-color headerbar_bg_color alpha(${p.bg-secondary}, 0.4);
+            @define-color headerbar_backdrop_color transparent;
             @define-color sidebar_bg_color alpha(${p.bg-secondary}, 0.4);
+            @define-color sidebar_backdrop_color transparent;
             @define-color card_bg_color alpha(${p.bg-secondary}, 0.4);
             @define-color popover_bg_color alpha(${p.bg-secondary}, ${alpha});
+
+            window.view {
+              background-color: @window_bg_color;
+            }
           '';
       };
       zen-browser = {
