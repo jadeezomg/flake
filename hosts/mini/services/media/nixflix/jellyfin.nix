@@ -60,7 +60,9 @@ in
     libraries = {
       Shows = lib.mkForce null;
       Movies = lib.mkForce (mkLibrary "movies" [ "/media/Cinema" ]);
-      Music = lib.mkForce (mkLibrary "music" [ "/media/Music" ]);
+      # The same path as Lidarr: Lidarr's Jellyfin connection cannot map
+      # paths (Radarr's and Sonarr's can), so Jellyfin has to see /Music.
+      Music = lib.mkForce (mkLibrary "music" [ "/Music" ]);
       Series = mkLibrary "tvshows" [ "/media/Series" ];
       "ゲーム" = mkLibrary "tvshows" [ "/media/Anime" ];
       "Documentaries Feature" = mkLibrary "movies" [ "/media/Documentaries Feature" ];
@@ -78,11 +80,11 @@ in
         "/srv/nixflix/jellyfin"
         "/srv/nixflix/jellyfin-cache"
       ];
-      ReadOnlyPaths = [ "/media" ];
-      InaccessiblePaths = [
-        "/data"
+      ReadOnlyPaths = [
+        "/media"
         "/Music"
       ];
+      InaccessiblePaths = [ "/data" ];
     };
   };
 }
