@@ -24,6 +24,7 @@ in
     ./services/hermes.nix
     ./services/hermes-dashboard.nix
     ./services/matrix.nix
+    ./services/ntfy.nix
     ./services/cinny.nix
     # Nightly cachix pipeline — disabled until the host is up (docs/hosts/mini.md § Known gaps).
     # ./flake-cache-warm.nix

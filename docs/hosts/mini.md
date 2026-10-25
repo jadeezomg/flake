@@ -294,6 +294,22 @@ less, 1080p is 5-12 GB, and 720p is 2-8 GB. In Sonarr, the Size condition
 measures a full season pack, so efficient 4K means AV1 or HEVC instead. Bazarr
 gets the English subtitles after the download.
 
+Library scans run in one daily window at 06:30
+(`hosts/mini/services/media/library-scan.nix`). Plex and Jellyfin have no
+periodic scan of their own, because the Arr apps report each import to them.
+Unpackerr extracts torrent downloads that arrive as RAR archives
+(`unpackerr.nix`).
+
+The media state is backed up every night at 04:15 (`media/backup.nix`): restic
+over SFTP to `/mnt/user/backup/media` on Unraid, with the Immich backup's ssh
+alias and password. Artwork, metadata caches, and logs are not included.
+
+Notifications go through ntfy at https://ntfy.jadee.fyi (tailnet,
+`hosts/mini/services/ntfy.nix`). The `media` topic gets imports and health
+issues from the Arr apps. The `system` topic gets failed units through
+`ntfy-alert@`. On the phone, add the server and log in as `jadee` with
+`sops -d --extract '["mini"]["ntfy"]["jadee-password"]' secrets/secrets.yaml`.
+
 Playback reads through mini's SSD (`hosts/mini/services/media/playback-cache.nix`).
 The `/media` mount uses FS-Cache (`fsc`), with a 200 GiB cache in a sparse ext4
 image at `/srv/fscache.img`. When Plex or Jellyfin start a file of 80 GiB or

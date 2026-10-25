@@ -310,7 +310,10 @@ in
       # NOTE: no `~@privileged` in SystemCallFilter — the dump uses setpriv, which
       # needs setuid/setgid. CapabilityBoundingSet is the narrower control here.
       restic-backups-immich = {
-        onFailure = [ "backup-notify@%n.service" ];
+        onFailure = [
+          "backup-notify@%n.service"
+          "ntfy-alert@%n.service"
+        ];
         # 64 MiB packs instead of the 16 MiB default: 4x fewer files landing on the
         # parity array and in shfs's directory tree, at no cost to restore granularity.
         environment.RESTIC_PACK_SIZE = "64";
@@ -364,7 +367,10 @@ in
       };
 
       restic-backups-immich-maint = {
-        onFailure = [ "backup-notify@%n.service" ];
+        onFailure = [
+          "backup-notify@%n.service"
+          "ntfy-alert@%n.service"
+        ];
         environment.RESTIC_PACK_SIZE = "64";
         serviceConfig = {
           ProtectSystem = "strict";
@@ -383,7 +389,10 @@ in
         description = "Alarm if the Immich restic repo has no fresh snapshot";
         after = [ "network-online.target" ];
         wants = [ "network-online.target" ];
-        onFailure = [ "backup-notify@%n.service" ];
+        onFailure = [
+          "backup-notify@%n.service"
+          "ntfy-alert@%n.service"
+        ];
         path = [ config.programs.ssh.package ];
         environment = {
           RESTIC_REPOSITORY = repository;

@@ -7,9 +7,13 @@
     ./storage.nix
     ./nixflix
     ./native.nix
+    ./backup.nix
+    ./library-scan.nix
+    ./notify.nix
     ./playback-cache.nix
     ./plex-connect.nix
     ./proxy.nix
     ./seerr.nix
+    ./unpackerr.nix
   ];
 }
