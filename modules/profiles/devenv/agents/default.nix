@@ -1,5 +1,6 @@
 # Agents feature folder — agent CLI packages (system half) plus the HM halves:
-# global config links, nono profiles, and pi/omp package state. Skills and MCP
+# global config links, nono profiles, pi/omp package state, and the session
+# push to mini (./session-push.nix). Skills and MCP
 # registration belong to APM (./apm.nix); nono profile data lives in
 # `dotfilesLib.nonoProfiles`.
 { dotfilesLib, ... }@args:
@@ -12,6 +13,7 @@ dotfilesLib.mkProfile {
     ./nono-agent.nix
     ./nono-profiles.nix
     ./pi-packages.nix
+    ./session-push.nix
     ./tuicr.nix
   ];
 
