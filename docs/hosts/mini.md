@@ -362,6 +362,12 @@ share ownership.
   installed manually via the WebUI. A thin non-setuid wrapper points
   `pythonExecutablePath` at a `python3.withPackages` and strips qBittorrent's `-I`
   so `PYTHONPATH`/nova3 helpers work.
+- **Sukebei torrents** get the category `jav` (folder `/data/torrents/jav`) and the
+  tag `sukebei`. qBittorrent runs `qbittorrent-tag-sukebei` for each new torrent
+  (`AutoRun.OnTorrentAdded`). The script acts only on torrents without a category
+  (search or WebUI adds) that use a sukebei tracker. It logs to the journal under
+  `qbittorrent-tag-sukebei`. The folder is under `/data/torrents`, so it stays on
+  the SSD.
 - **Search returns empty but the daemon is up** → check the WireGuard handshake age
   (`just mini vpn-status`). A dead peer makes indexer HTTPS time out.
 - Use **`just mini vpn-restart`**, not a raw `systemctl restart wg`:

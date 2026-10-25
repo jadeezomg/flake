@@ -94,6 +94,59 @@ let
         conf_path.write_text(text)
       '';
 
+  # Torrents from qBittorrent's own search (or added by hand in the WebUI)
+  # have no category: Sonarr, Radarr, Lidarr and Prowlarr always set one.
+  # When such a torrent uses a sukebei tracker, this gives it the category
+  # `jav` (its own folder, see `categories`) and the tag `sukebei`.
+  # qBittorrent runs it for every new torrent (AutoRun.OnTorrentAdded) and
+  # passes the info hash and the category. The WebUI password comes from the
+  # unit's credentials, which qBittorrent's child processes inherit.
+  qbittorrent = config.nixflix.torrentClients.qbittorrent;
+  # A plain value, not read back from serverConfig: the script path is part
+  # of serverConfig, so reading the username from it is a cycle.
+  webuiUsername = "admin";
+  qbittorrentTagSukebei = pkgs.writeShellApplication {
+    name = "qbittorrent-tag-sukebei";
+    runtimeInputs = [
+      pkgs.curl
+      pkgs.jq
+      pkgs.util-linux
+    ];
+    text = ''
+      hash=$1
+      category=''${2:-}
+      [ -z "$category" ] || exit 0
+
+      api=http://127.0.0.1:${toString qbittorrent.webuiPort}/api/v2
+      cookie=$(curl -sS --max-time 10 -D - -o /dev/null \
+        --data-urlencode "username=${webuiUsername}" \
+        --data-urlencode "password@$CREDENTIALS_DIRECTORY/webui-password" \
+        "$api/auth/login" | sed -n 's/^[Ss]et-[Cc]ookie: \(\(QBT_\)\{0,1\}SID[_0-9]*=[^;]*\).*/\1/p')
+      if [ -z "$cookie" ]; then
+        logger -t qbittorrent-tag-sukebei "WebUI login failed, $hash not tagged"
+        exit 1
+      fi
+      qbt() { curl -fsS --max-time 10 -b "$cookie" "$@"; }
+      trap 'qbt -X POST "$api/auth/logout" >/dev/null || true' EXIT
+
+      # The torrent can take a moment to appear in the API.
+      for _ in 1 2 3 4 5; do
+        trackers=$(qbt "$api/torrents/trackers?hash=$hash" || true)
+        [ -n "$trackers" ] && break
+        sleep 1
+      done
+      if jq -e 'any(.[]; .url | test("sukebei"))' <<<"$trackers" >/dev/null 2>&1; then
+        if qbt --data "hashes=$hash&category=jav" "$api/torrents/setCategory" &&
+          qbt --data "hashes=$hash&tags=sukebei" "$api/torrents/addTags"; then
+          logger -t qbittorrent-tag-sukebei "$hash: category jav, tag sukebei"
+        else
+          logger -t qbittorrent-tag-sukebei "$hash: setting category or tag failed"
+          exit 1
+        fi
+      fi
+    '';
+  };
+
   qbittorrentWebuiPasswordScript = pkgs.writeShellScript "qbittorrent-webui-password-from-sops" ''
     set -euo pipefail
     secret=${config.sops.secrets."mini/media/qbittorrent/password".path}
@@ -119,6 +172,9 @@ in
         radarr = "/data/torrents/radarr";
         lidarr = "/data/torrents/lidarr";
         prowlarr = "/data/torrents/prowlarr";
+        # Set by qbittorrent-tag-sukebei. Under /data/torrents, so the Mover
+        # Tuning skiplist keeps it on the SSD.
+        jav = "/data/torrents/jav";
       };
       serverConfig = {
         Network.Proxy.Profiles = {
@@ -150,10 +206,16 @@ in
           TempPathEnabled = true;
           TempPath = "/data/torrents/incomplete";
         };
+        AutoRun.OnTorrentAdded = {
+          Enabled = true;
+          # %I info hash, %L category. No quotes: QSettings strips them, and
+          # neither value contains a space.
+          Program = "${lib.getExe qbittorrentTagSukebei} %I %L";
+        };
         Preferences = {
           WebUI = {
             # Non-secret; Password_PBKDF2 is injected from sops plaintext in ExecStartPre.
-            Username = "admin";
+            Username = webuiUsername;
           };
           Search = {
             pythonExecutablePath = "${qbittorrentSearchPythonPath}";
@@ -257,6 +319,10 @@ in
         ];
         # '+' = root so we can read root-only sops; runs after nixpkgs conf install.
         ExecStartPre = lib.mkAfter [ "+${qbittorrentWebuiPasswordScript}" ];
+        # For qbittorrent-tag-sukebei, which logs in to the WebUI API.
+        LoadCredential = [
+          "webui-password:${config.sops.secrets."mini/media/qbittorrent/password".path}"
+        ];
       };
     };
 
