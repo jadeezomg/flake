@@ -1,6 +1,12 @@
 # Port of niri/outputs-framework.kdl. Umbriel has no per-output struts, so
 # the top strut is not ported.
 
+# This host uses the black palette variant (hosts/framework/profiles.nix), so
+# inactive windows get its main background (bg-primary #110c0b), fully opaque.
+# config.toml sets the brown border of the active window.
+[colors.border]
+unfocused = "#110c0bff"
+
 # Window sizes in thirds (Mod+R)
 [layout]
 extent_presets = [0.33333, 0.5, 0.66667]
