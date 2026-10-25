@@ -20,7 +20,7 @@ Single-flake, multi-host NixOS/Darwin dotfiles for `desktop`, `framework`, `caya
 
 - Use `flake` recipes; do not run bare `nixos-rebuild`, `home-manager switch`, or `nh` directly.
 - Never run build/switch commands yourself (`just build*`, `just switch`, or anything that evaluates/builds the system). Ask the user to run them and report back the output.
-- Always edit flake/config on the host you are running on. Never edit configs over SSH on remotes (`mini`, etc.) — remotes are for inspect/deploy/ops only; the user reviews and approves local diffs first.
+- Edit flake config only in the checkout of the host the agent runs on. An agent that runs on mini edits mini's checkout. Never edit a checkout over SSH from another host; remote hosts are for inspect/deploy/ops only. The user reviews the diff on the host where the agent made it.
 - Verify packages with live nixpkgs tooling before adding them; check cache availability for costly packages.
 - Every workaround overlay must carry an expiry guard (`overlays` skill); nixpkgs bumps silently make them redundant.
 - Run `flake fmt` after editing `.nix` files.
