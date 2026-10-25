@@ -1,12 +1,9 @@
 {
   config,
-  dotfilesLib,
   lib,
   ...
 }:
 let
-  inherit (dotfilesLib.expiry { inherit lib; } "hosts/mini/services/media/nixflix/arr.nix") todo;
-
   # Radarr and Sonarr share these settings (Settings -> Media Management).
   mediaManagement = {
     # Deleted and upgraded files wait here for 7 days. Created by
@@ -92,13 +89,21 @@ in
           {
             name = "NZBgeek";
             apiKey._secret = config.sops.secrets."mini/media/prowlarr/indexers/nzbgeek-api-key".path;
+            # Prowlarr shows a health error after this date. Update it on renewal.
+            vipExpiration = "2031-07-21";
             tags = [ "nzbgeek" ];
           }
-          (todo "SceneNZBs is now Treasure Maps. Replace this indexer when the new API key is in sops." {
-            name = "SceneNZBs";
-            apiKey._secret = config.sops.secrets."mini/media/prowlarr/indexers/scenenzbs-api-key".path;
-            tags = [ "scenenzbs" ];
-          })
+          # Formerly SceneNZBs (renamed in July 2026, same API on a new domain).
+          # Prowlarr has no preset for it, so it uses Generic Newznab.
+          {
+            name = "Treasure Maps";
+            schemaName = "Generic Newznab";
+            baseUrl = "https://treasure-maps.com";
+            apiPath = "/api";
+            apiKey._secret = config.sops.secrets."mini/media/prowlarr/indexers/treasuremaps-api-key".path;
+            vipExpiration = "2027-10-20";
+            tags = [ "treasuremaps" ];
+          }
           {
             name = "Nyaa.si";
             tags = [ "nyaa" ];

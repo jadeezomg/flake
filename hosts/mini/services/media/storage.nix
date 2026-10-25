@@ -82,7 +82,7 @@ in
     "mini/media/prowlarr/api-key" = { };
     "mini/media/prowlarr/password" = { };
     "mini/media/prowlarr/indexers/nzbgeek-api-key" = { };
-    "mini/media/prowlarr/indexers/scenenzbs-api-key" = { };
+    "mini/media/prowlarr/indexers/treasuremaps-api-key" = { };
     "mini/media/sabnzbd/api-key" = { };
     "mini/media/sabnzbd/nzb-key" = { };
     "mini/media/sabnzbd/username" = { };
