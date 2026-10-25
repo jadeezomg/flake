@@ -97,15 +97,19 @@ order = [ "default", "side", "laptop" ]
         radius = 0.0
 
     [bar.laptop]
+    background_opacity = 0.80000000000000004
+    border = "on_secondary"
+    border_width = 3.0
     capsule_radius = 0
     capsule_thickness = 0.69999999999999996
     center = [ "active_window" ]
     enabled = false
     end = [ "tray", "group:g3", "group:g7" ]
+    margin_edge = 3
     margin_ends = 600
     padding = 20
     radius = 0
-    reserve_space = false
+    reserve_space = true
     show_on_workspace_switch = false
     start = [ "status_2", "group:g1", "group:g6", "media" ]
     thickness = 25
@@ -351,8 +355,13 @@ widget_order = [ "desktop-widget-0000000000000001", "desktop-widget-000000000000
         show_forecast = true
 
 [dock]
+background_opacity = 0.8
+border = "on_secondary"
+border_width = 3.0
+concave_edge_corners = false
 enabled = true
 pinned = [ "org.gnome.Nautilus", "steam", "zen-twilight", "dev.zed.Zed", "kitty" ]
+radius = 0
 show_dots = true
 
     [dock.monitor.DP-1]
@@ -360,6 +369,11 @@ show_dots = true
 
     [dock.monitor.HDMI-A-1]
     enabled = true
+
+    [dock.monitor.eDP-1]
+    auto_hide = false
+    reserve_space = false
+    smart_auto_hide = true
 
 [idle]
 behavior_order = [ "lock", "screen-off", "lock-and-suspend" ]
