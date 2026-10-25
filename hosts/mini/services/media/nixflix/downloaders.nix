@@ -141,12 +141,12 @@ in
           # Keep partial torrents in their own directory, away from the finished
           # files. Two reasons, in order of importance:
           #
-          #   1. The Unraid mover skips this path by name (Mover Tuning "ignore
-          #      list", which holds the pool path /mnt/array_cache/data/torrents/
-          #      incomplete). Without the split there is no path to skip, so the
-          #      mover can relocate a file while mini is still writing it over
-          #      NFS. The write then lands on an unlinked inode and the download
-          #      is silently corrupted.
+          #   1. The Unraid mover must not move a file while mini is still
+          #      writing it over NFS: the write then lands on an unlinked inode
+          #      and the download is silently corrupted. The Mover Tuning skip
+          #      list (/boot/config/plugins/ca.mover.tuning/skiplist.txt on
+          #      jadee-server) holds /mnt/array_cache/data/torrents and
+          #      /mnt/array_cache/data/usenet, so downloads never leave the SSD.
           #   2. Only finished files reach the array, so the array disks stay
           #      spun down during a download.
           #
