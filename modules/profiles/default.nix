@@ -64,7 +64,7 @@
       };
 
       apps = {
-        enable = mkEnableOption "the apps profile: browsers (zen), terminals (ghostty, kitty), editors (helix), files (nautilus, localsend), comms (protonmail), notes, media (pear-desktop, obs). One flag; the category files under ./apps read it";
+        enable = mkEnableOption "the apps profile: browsers (zen), terminals (ghostty, kitty), editors (helix), files (nautilus, localsend), comms (protonmail, proton-cli), notes, media (pear-desktop, obs). One flag; the category files under ./apps read it";
         # The one apps sub-flag that other modules still read (yazi openers,
         # the notes leaves). Folding it waits for the MIME move.
         notes.enable = mkEnableOption "apps.notes (obsidian, typora, whisp)";
