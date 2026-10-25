@@ -34,6 +34,14 @@ export function cut(text: string, width: number): string {
 	return `${text.slice(0, Math.max(0, width - 1))}…`;
 }
 
+/** Cuts text from the start, so the end of a path stays: `…/hooks/a.ts`. */
+export function cutStart(text: string, width: number): string {
+	if (width <= 0) return "";
+	if (text.length <= width) return text;
+
+	return `…${text.slice(text.length - Math.max(0, width - 1))}`;
+}
+
 // The arguments that hold a path, which a row names from its repository root.
 const PATH_KEYS = ["file_path", "notebook_path", "path"];
 
@@ -149,4 +157,99 @@ export function duration(ms: number): string {
 	const minutes = Math.floor(ms / 60_000);
 
 	return `${minutes}m${pad(Math.round((ms % 60_000) / 1000))}s`;
+}
+
+/** A short token count such as `850`, `3.1k`, `128k` or `1M`. */
+export function tokenCount(n: number): string {
+	if (n < 1000) return String(Math.round(n));
+	if (n < 100_000) return `${(n / 1000).toFixed(1).replace(/\.0$/, "")}k`;
+	if (n < 1_000_000) return `${Math.round(n / 1000)}k`;
+
+	return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+}
+
+/** The short name of a rate-limit window: `five_hour` reads `5h`. */
+export function limitLabel(kind: string): string {
+	if (kind === "five_hour") return "5h";
+	if (kind === "seven_day") return "7d";
+	if (kind === "spend_limit") return "spend";
+
+	return kind;
+}
+
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+/**
+ * When a rate-limit window resets, in local time: `18:00` within a day,
+ * else `Fri 09:00`. Empty when the timestamp does not parse.
+ */
+export function resetLabel(iso: string, now: number): string {
+	const at = Date.parse(iso);
+	if (Number.isNaN(at)) return "";
+	const date = new Date(at);
+	const time = `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+
+	return at - now < 86_400_000 ? time : `${DAYS[date.getDay()]} ${time}`;
+}
+
+/**
+ * How many more turns fit before auto-compaction at `compactAt`, from the
+ * mean growth over the recent turns. Undefined when the context did not
+ * grow or when there are fewer than two turns.
+ */
+export function turnsLeft(
+	samples: readonly number[],
+	compactAt: number,
+): number | undefined {
+	const first = samples[0];
+	const last = samples.at(-1);
+	if (samples.length < 2 || first === undefined || last === undefined)
+		return undefined;
+	const growth = (last - first) / (samples.length - 1);
+	if (growth <= 0) return undefined;
+
+	return Math.max(0, Math.floor((compactAt - last) / growth));
+}
+
+/**
+ * The cells of a bar `width` wide that each part takes of `total`. Edges
+ * round once, so the cells add up to the bar's filled width.
+ */
+export function barCells(
+	parts: readonly number[],
+	total: number,
+	width: number,
+): number[] {
+	let sum = 0;
+	let drawn = 0;
+
+	return parts.map((part) => {
+		if (total <= 0) return 0;
+		sum += part;
+		const edge = Math.min(width, Math.round((sum / total) * width));
+		const cells = Math.max(0, edge - drawn);
+		drawn += cells;
+
+		return cells;
+	});
+}
+
+/**
+ * Splits text into lines of at most `width` characters, so each line takes
+ * one row of the terminal. A tab counts as two spaces.
+ */
+export function hardWrap(text: string, width: number): string[] {
+	const size = Math.max(1, width);
+
+	return text
+		.replaceAll("\t", "  ")
+		.split("\n")
+		.flatMap((line) => {
+			if (line.length <= size) return [line];
+			const parts: string[] = [];
+			for (let at = 0; at < line.length; at += size)
+				parts.push(line.slice(at, at + size));
+
+			return parts;
+		});
 }
