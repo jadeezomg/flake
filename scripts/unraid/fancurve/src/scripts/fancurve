@@ -1,0 +1,299 @@
+#!/bin/bash
+# fancurve: set the speed of one PWM fan header from two temperature curves.
+# One curve follows the CPU package temperature. The other follows the hottest
+# spinning HDD. The fan gets the higher of the two speeds.
+#
+# Usage: fancurve start|stop|restart|status|run
+#   run is the daemon loop. start puts it in the background.
+
+PLUGIN=fancurve
+# Tests override these paths.
+DOCROOT=${DOCROOT:-/usr/local/emhttp/plugins/$PLUGIN}
+CFG=${CFG:-/boot/config/plugins/$PLUGIN/$PLUGIN.cfg}
+HWMON=${HWMON:-/sys/class/hwmon}
+DISKS_INI=${DISKS_INI:-/var/local/emhttp/disks.ini}
+PIDFILE=${PIDFILE:-/var/run/$PLUGIN.pid}
+STATUS=${STATUS:-/var/run/$PLUGIN.status}
+
+# Percent per interval. The fan speeds up at once but slows down in steps,
+# so a short dip in temperature does not make it pulse.
+STEP_DOWN=5
+
+# Daemon state. Globals, because the EXIT trap reads them.
+chip="" orig_enable="" orig_pwm="" sleeper=""
+
+log() { logger -t "$PLUGIN" -- "$*"; }
+
+# Stdout, not stderr: the settings page shows only stdout after Apply.
+die() {
+	echo "$PLUGIN: $*"
+	log "$*"
+	exit 1
+}
+
+# Print the first line of a file. Fail quietly if the file cannot be read.
+get() {
+	local line
+	read -r line 2>/dev/null <"$1" || return 1
+	printf '%s\n' "$line"
+}
+
+# Read key="value" lines into variables. Only known keys are read, so the
+# file never runs as shell code.
+read_cfg() {
+	local key val
+	[[ -r $1 ]] || return 0
+	while IFS='=' read -r key val; do
+		val=${val#\"}
+		val=${val%\"}
+		case $key in
+		SERVICE | CHIP | PWM | PWM_MIN | PWM_MAX | CPU_LOW | CPU_HIGH | HDD_LOW | HDD_HIGH | INTERVAL)
+			printf -v "$key" '%s' "$val"
+			;;
+		esac
+	done <"$1"
+}
+
+load_cfg() {
+	read_cfg "$DOCROOT/default.cfg"
+	read_cfg "$CFG"
+}
+
+check_cfg() {
+	local key
+	for key in PWM_MIN PWM_MAX CPU_LOW CPU_HIGH HDD_LOW HDD_HIGH INTERVAL; do
+		[[ ${!key} =~ ^(0|[1-9][0-9]*)$ ]] || die "$key must be a whole number, not '${!key}'"
+	done
+	[[ $PWM =~ ^pwm[0-9]+$ ]] || die "no fan header is selected"
+	((PWM_MIN <= PWM_MAX && PWM_MAX <= 100)) || die "fan speed must be 0-100%, minimum not more than maximum"
+	((CPU_LOW < CPU_HIGH)) || die "CPU low temperature must be less than CPU high temperature"
+	((HDD_LOW < HDD_HIGH)) || die "HDD low temperature must be less than HDD high temperature"
+	((INTERVAL > 0)) || die "interval must be at least 1 second"
+}
+
+# Print the hwmon directory of the fan chip. CHIP is a glob.
+find_chip() {
+	local dir
+	for dir in "$HWMON"/hwmon*; do
+		# shellcheck disable=SC2053,SC2153 # CHIP is a glob from read_cfg
+		[[ $(get "$dir/name") == $CHIP ]] && echo "$dir" && return 0
+	done
+	return 1
+}
+
+# Print the CPU package temperature in whole degrees C.
+cpu_temp() {
+	local dir label milli
+	for dir in "$HWMON"/hwmon*; do
+		[[ $(get "$dir/name") == coretemp ]] || continue
+		for label in "$dir"/temp*_label; do
+			[[ $(get "$label") == "Package id 0" ]] || continue
+			milli=$(get "${label%_label}_input") || return 1
+			echo $((milli / 1000))
+			return 0
+		done
+	done
+	return 1
+}
+
+# Print the temperature of the hottest spinning HDD. Print nothing when all
+# HDDs sleep. emhttp polls SMART on its own schedule and writes "*" for a
+# sleeping disk, so this never wakes a disk. SSDs and the USB flash drive do
+# not count. Fail when disks.ini is missing.
+hdd_temp() {
+	[[ -r $DISKS_INI ]] || return 1
+	awk -F= '
+		function end_disk() {
+			if (rot == "1" && tr != "usb" && t ~ /^[0-9]+$/ && t + 0 > max) max = t + 0
+		}
+		/^\[/ { end_disk(); rot = tr = t = ""; next }
+		{ gsub(/"/, "", $2) }
+		$1 == "rotational" { rot = $2 }
+		$1 == "transport" { tr = $2 }
+		$1 == "temp" { t = $2 }
+		END { end_disk(); if (max != "") print max }
+	' "$DISKS_INI"
+}
+
+# Map a temperature onto PWM_MIN..PWM_MAX percent: flat below low and above
+# high, linear between them.
+curve() {
+	local t=$1 low=$2 high=$3
+	if ((t <= low)); then
+		echo "$PWM_MIN"
+	elif ((t >= high)); then
+		echo "$PWM_MAX"
+	else
+		echo $((PWM_MIN + (PWM_MAX - PWM_MIN) * (t - low) / (high - low)))
+	fi
+}
+
+# Put the header under software control. Remember the old mode and duty.
+take() {
+	orig_enable=$(get "$chip/${PWM}_enable") || return 1
+	orig_pwm=$(get "$chip/$PWM") || return 1
+	echo 1 2>/dev/null >"$chip/${PWM}_enable" || return 1
+	log "took $PWM on $(get "$chip/name"), it was in mode $orig_enable"
+}
+
+# Write the duty. Take the header back if something else changed its mode.
+set_duty() {
+	if [[ $(get "$chip/${PWM}_enable") != 1 ]]; then
+		echo 1 2>/dev/null >"$chip/${PWM}_enable" || return 1
+	fi
+	echo $((duty * 255 / 100)) 2>/dev/null >"$chip/$PWM"
+}
+
+# Give the header back to the chip's own fan control, as it was before.
+# The duty goes first: the driver refuses a duty write in automatic mode.
+release() {
+	[[ -n $sleeper ]] && kill "$sleeper" 2>/dev/null
+	if [[ -n $chip && -n $orig_enable ]]; then
+		echo "$orig_pwm" 2>/dev/null >"$chip/$PWM"
+		echo "$orig_enable" 2>/dev/null >"$chip/${PWM}_enable"
+		log "stopped, $PWM is back in mode $orig_enable"
+	fi
+	rm -f "$PIDFILE" "$STATUS"
+}
+
+write_status() {
+	local rpm=""
+	[[ -n $chip ]] && rpm=$(get "$chip/fan${PWM#pwm}_input")
+	printf 'cpu="%s"\nhdd="%s"\nduty="%s"\nrpm="%s"\nnote="%s"\n' \
+		"$cpu" "$hdd" "$duty" "$rpm" "$note" >"$STATUS"
+}
+
+run() {
+	load_cfg
+	check_cfg
+	echo $$ >"$PIDFILE"
+	trap release EXIT
+	trap 'exit 0' TERM INT HUP
+	log "started: CPU ${CPU_LOW}-${CPU_HIGH}C, HDD ${HDD_LOW}-${HDD_HIGH}C, fan ${PWM_MIN}-${PWM_MAX}% on $PWM"
+
+	local cpu hdd want hdd_want duty="" note="" last_note=""
+	while :; do
+		# The driver plugin can load after this one at boot, so keep looking.
+		if [[ -z $chip ]]; then
+			if ! chip=$(find_chip) || [[ ! -e $chip/$PWM ]] || ! take; then
+				chip=""
+			fi
+		fi
+
+		want=100 # full speed when a sensor cannot be read
+		note=""
+		cpu="" hdd=""
+		if ! cpu=$(cpu_temp); then
+			note="cannot read the CPU temperature, fan at 100%"
+		elif ! hdd=$(hdd_temp); then
+			note="cannot read $DISKS_INI, fan at 100%"
+		else
+			want=$(curve "$cpu" "$CPU_LOW" "$CPU_HIGH")
+			if [[ -n $hdd ]]; then
+				hdd_want=$(curve "$hdd" "$HDD_LOW" "$HDD_HIGH")
+				((hdd_want > want)) && want=$hdd_want
+			fi
+		fi
+
+		if [[ -z $duty ]] || ((want >= duty)); then
+			duty=$want
+		else
+			duty=$((duty - STEP_DOWN > want ? duty - STEP_DOWN : want))
+		fi
+
+		if [[ -z $chip ]]; then
+			note="waiting for $PWM on a chip that matches '$CHIP', is the IT87 driver loaded?"
+		elif ! set_duty; then
+			note="cannot write $chip/$PWM, looking for the chip again"
+			chip=""
+		fi
+
+		if [[ $note != "$last_note" ]]; then
+			log "${note:-all sensors and the fan header work again}"
+			last_note=$note
+		fi
+		write_status
+
+		sleep "$INTERVAL" &
+		sleeper=$!
+		wait "$sleeper"
+	done
+}
+
+running() {
+	local pid
+	pid=$(get "$PIDFILE") && kill -0 "$pid" 2>/dev/null
+}
+
+start() {
+	if running; then
+		echo "$PLUGIN: already running"
+		return 0
+	fi
+	load_cfg
+	if [[ $SERVICE != enable ]]; then
+		echo "$PLUGIN: disabled, the BIOS controls the fan"
+		return 0
+	fi
+	check_cfg
+	setsid "$0" run </dev/null >/dev/null 2>&1 &
+	sleep 1
+	running || die "the daemon stopped at once, see the syslog"
+	echo "$PLUGIN: started"
+}
+
+stop() {
+	local pid
+	if ! running; then
+		echo "$PLUGIN: not running"
+		return 0
+	fi
+	pid=$(get "$PIDFILE")
+	kill "$pid"
+	for _ in {1..20}; do
+		if ! kill -0 "$pid" 2>/dev/null; then
+			echo "$PLUGIN: stopped"
+			return 0
+		fi
+		sleep 0.5
+	done
+	die "pid $pid did not stop"
+}
+
+status() {
+	local dir n hdd
+	load_cfg
+	if running; then
+		echo "$PLUGIN: running, pid $(get "$PIDFILE")"
+		cat "$STATUS" 2>/dev/null
+	else
+		echo "$PLUGIN: stopped"
+	fi
+	hdd=$(hdd_temp) || hdd="?"
+	[[ $hdd =~ ^[0-9]+$ ]] && hdd=${hdd}C
+	echo "CPU: $(cpu_temp || echo "?")C, hottest spinning HDD: ${hdd:-none spinning}"
+	if ! dir=$(find_chip); then
+		echo "no fan chip matches '$CHIP', load the IT87 driver first"
+		return 0
+	fi
+	echo "fan chip $(get "$dir/name") at $dir:"
+	for n in "$dir"/pwm[0-9]; do
+		n=${n##*/}
+		echo "  $n: mode $(get "$dir/${n}_enable"), duty $(get "$dir/$n")/255"
+	done
+	for n in "$dir"/fan[0-9]_input; do
+		echo "  ${n##*/}: $(get "$n") RPM"
+	done
+}
+
+case $1 in
+start) start ;;
+stop) stop ;;
+restart) stop && start ;;
+status) status ;;
+run) run ;;
+*)
+	echo "usage: $PLUGIN start|stop|restart|status|run" >&2
+	exit 2
+	;;
+esac

@@ -1,0 +1,52 @@
+<?xml version='1.0' standalone='yes'?>
+<!DOCTYPE PLUGIN [
+<!ENTITY name    "fancurve">
+<!ENTITY author  "jadee">
+<!ENTITY version "2026.10.25">
+<!ENTITY plugin  "/boot/config/plugins/&name;">
+<!ENTITY emhttp  "/usr/local/emhttp/plugins/&name;">
+]>
+
+<!--
+Fan control from the CPU and the hottest HDD. Local plugin, no pluginURL.
+`just unraid fancurve-deploy` copies src/ to &plugin;/src on the flash drive.
+At each boot, the install script below copies it from there into RAM.
+The install script exits 0 when only the daemon fails to start: a failed
+install at boot moves the .plg to plugins-error.
+In inline scripts, write an ampersand as &amp;amp; and a less-than sign as &amp;lt;.
+-->
+
+<PLUGIN name="&name;" author="&author;" version="&version;" min="7.0.0" icon="thermometer-half">
+
+<CHANGES>
+###2026.10.25
+- First version.
+</CHANGES>
+
+<FILE Run="/bin/bash">
+<INLINE>
+# Not -x: the flash drive is vfat with fmask=0177, so nothing there is executable.
+if [[ ! -f &plugin;/src/scripts/&name; ]]; then
+  echo "&name;: &plugin;/src is missing, run just unraid fancurve-deploy"
+  exit 1
+fi
+# Stop the old version before its files change.
+[[ -x &emhttp;/scripts/&name; ]] &amp;&amp; &emhttp;/scripts/&name; stop
+rm -rf &emhttp;
+mkdir -p &emhttp;
+cp -r &plugin;/src/. &emhttp;/
+chmod 755 &emhttp;/scripts/&name;
+&emhttp;/scripts/&name; start
+exit 0
+</INLINE>
+</FILE>
+
+<FILE Run="/bin/bash" Method="remove">
+<INLINE>
+[[ -x &emhttp;/scripts/&name; ]] &amp;&amp; &emhttp;/scripts/&name; stop
+rm -rf &emhttp; &plugin;
+exit 0
+</INLINE>
+</FILE>
+
+</PLUGIN>

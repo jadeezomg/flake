@@ -90,6 +90,7 @@ Hazards:
 ## Scripts
 
 - `scripts/shell/`: bash helpers that source `common.sh`. Use `[[ ]]`, not `[ ]`.
+- `scripts/unraid/<plugin>/`: Unraid plugins (`.plg` plus `src/`). They run on Unraid, so they use `#!/bin/bash` and do not source `common.sh`. `just unraid <plugin>-deploy` installs them.
 - `scripts/src/flake_scripts/`: Python package. Subpackages: `lib/` (`common.py`, `palette.py`) and `zen/` (`session.py`, `sync.py`).
 - Entry points in `scripts/pyproject.toml`: `symlink-check`, `zen-sync`, `vorssaint-sync`, `update-packages`, `media-quality`.
 - Recipes call `uv run --project "$FLAKE/scripts" <entry-point>`.
