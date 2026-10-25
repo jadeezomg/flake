@@ -1,0 +1,98 @@
+Menu="Utilities"
+Title="Fan Curve"
+Icon="fa-thermometer-half"
+---
+<?PHP
+$plugin = 'fancurve';
+$cfg = parse_plugin_cfg($plugin);
+$pid = trim(@file_get_contents("/var/run/$plugin.pid"));
+$running = $pid !== '' && file_exists("/proc/$pid");
+$status = $running ? (@parse_ini_file("/var/run/$plugin.status") ?: []) : [];
+$cpu  = htmlspecialchars($status['cpu'] ?? '?');
+$hdd  = ($status['hdd'] ?? '') !== '' ? htmlspecialchars($status['hdd']).' °C' : _('none spinning');
+$duty = htmlspecialchars($status['duty'] ?? '?');
+$rpm  = ($status['rpm'] ?? '') !== '' ? ' ('.htmlspecialchars($status['rpm']).' RPM)' : '';
+$note = htmlspecialchars($status['note'] ?? '');
+
+// PWM channels on the fan chip, with the RPM of the fan of the same number.
+$pwms = [];
+foreach (glob('/sys/class/hwmon/hwmon*') as $dir) {
+  if (!fnmatch($cfg['CHIP'], trim(@file_get_contents("$dir/name")))) continue;
+  foreach (glob("$dir/pwm[0-9]") as $path) {
+    $pwm = basename($path);
+    $rpm = trim(@file_get_contents("$dir/fan".substr($pwm, 3)."_input"));
+    $pwms[$pwm] = $rpm === '' ? $pwm : "$pwm ($rpm RPM)";
+  }
+}
+if ($cfg['PWM'] && !isset($pwms[$cfg['PWM']])) $pwms[$cfg['PWM']] = "{$cfg['PWM']} (not found)";
+?>
+
+:fancurve_plug:
+> Fan Curve sets the speed of one PWM fan header. It uses two curves and gives the fan the higher speed of the two.
+>
+> The CPU curve follows the CPU package temperature. The HDD curve follows the hottest spinning hard disk.
+> Unraid reads the disk temperatures, so this plugin never wakes a sleeping disk. SSDs do not count.
+>
+> Each curve is flat at the minimum speed below its low temperature and flat at the maximum speed above its high temperature.
+> Between the two, the speed increases in a straight line. The fan speeds up at once and slows down by 5% each interval.
+>
+> If the plugin cannot read a temperature, the fan goes to 100%. When the plugin stops, the BIOS fan control comes back.
+>
+> This plugin needs the ITE IT87 Driver plugin from Community Applications.
+:end
+
+<form markdown="1" method="POST" action="/update.php" target="progressFrame">
+<input type="hidden" name="#file" value="<?=$plugin?>/<?=$plugin?>.cfg">
+<input type="hidden" name="#command" value="/plugins/<?=$plugin?>/scripts/<?=$plugin?>">
+<input type="hidden" name="#arg[1]" value="restart">
+
+_(Status)_:
+<?if ($running):?>
+: <span class="green-text">_(Running)_</span>: CPU <?=$cpu?> °C, _(hottest HDD)_ <?=$hdd?>, _(fan)_ <?=$duty?>%<?=$rpm?> <span class="orange-text"><?=$note?></span>
+<?else:?>
+: <span class="orange-text">_(Stopped)_</span>, _(the BIOS controls the fan)_
+<?endif;?>
+
+_(Fan control)_:
+: <select name="SERVICE">
+  <?=mk_option($cfg['SERVICE'], "disable", _("Disabled"))?>
+  <?=mk_option($cfg['SERVICE'], "enable", _("Enabled"))?>
+  </select>
+
+_(Fan header)_:
+: <select name="PWM">
+  <?=mk_option($cfg['PWM'], "", _("Not selected"))?>
+<?foreach ($pwms as $pwm => $text):?>
+  <?=mk_option($cfg['PWM'], $pwm, $text)?>
+<?endforeach;?>
+  </select><?if (!$pwms):?> <span class="orange-text">_(No fan chip found. Install the ITE IT87 Driver plugin.)_</span><?endif;?>
+
+:fancurve_pwm_plug:
+> Select the PWM channel of the header that the fans connect to.
+> To find the channel of a header, run `pwmconfig` in a terminal. It changes each channel and shows which fan reacts.
+:end
+
+_(Fan speed, minimum)_:
+: <input type="number" name="PWM_MIN" class="narrow" min="0" max="100" value="<?=htmlspecialchars($cfg['PWM_MIN'])?>"> %
+
+_(Fan speed, maximum)_:
+: <input type="number" name="PWM_MAX" class="narrow" min="0" max="100" value="<?=htmlspecialchars($cfg['PWM_MAX'])?>"> %
+
+_(CPU low temperature)_:
+: <input type="number" name="CPU_LOW" class="narrow" min="0" max="110" value="<?=htmlspecialchars($cfg['CPU_LOW'])?>"> °C
+
+_(CPU high temperature)_:
+: <input type="number" name="CPU_HIGH" class="narrow" min="0" max="110" value="<?=htmlspecialchars($cfg['CPU_HIGH'])?>"> °C
+
+_(HDD low temperature)_:
+: <input type="number" name="HDD_LOW" class="narrow" min="0" max="70" value="<?=htmlspecialchars($cfg['HDD_LOW'])?>"> °C
+
+_(HDD high temperature)_:
+: <input type="number" name="HDD_HIGH" class="narrow" min="0" max="70" value="<?=htmlspecialchars($cfg['HDD_HIGH'])?>"> °C
+
+_(Interval)_:
+: <input type="number" name="INTERVAL" class="narrow" min="1" max="300" value="<?=htmlspecialchars($cfg['INTERVAL'])?>"> _(seconds)_
+
+&nbsp;
+: <input type="submit" name="#apply" value="_(Apply)_"><input type="button" value="_(Done)_" onclick="done()">
+</form>
