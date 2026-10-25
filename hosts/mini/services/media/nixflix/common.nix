@@ -34,8 +34,6 @@
     "/data/usenet/complete/prowlarr"
     "/data/usenet/watch"
     "/data/usenet/nzb-backup"
-    "/data/usenet/admin"
-    "/data/usenet/logs"
   ];
 
   mkLibrary = collectionType: paths: {
