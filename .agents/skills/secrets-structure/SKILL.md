@@ -40,10 +40,10 @@ Use this for `secrets/`, `.sops.yaml`, secret-consuming Nix modules, `Justfile` 
 2. Keyring secret. `sops-keyring.nix` (Linux only) copies a curated subset into libsecret (gnome-keyring) for the nono sandbox broker. The map is `agentKeyMap`: `openrouter-api-key`, `context7-api-key`, and `agent-pat` (stored as `github_token`).
 3. Plain `sops.secrets` file. Declare `sops.secrets."<yaml/path>"` and read `.path` in the consumer. Examples: `mini/media/**` in `hosts/mini/services/media/`, `mini/backup/**`, `mini/git/deploy-key`, `cachix/auth-token`, and `grafana_secret_key` (`hosts/mini/services/tracing.nix`, `owner = "grafana"`, read through Grafana's `$__file{<path>}` syntax).
 4. `sops.templates`. Declare the secrets, then render a file with `config.sops.placeholder.<attr>`. Current templates:
-   - `caddy.env` (`hosts/mini/services/caddy.nix`): `cloudflare_dns_api_token`, `tailscale_authkey`, `hermes_dashboard_basic_auth_hash`.
+   - `caddy.env` (`hosts/mini/services/caddy.nix`): `cloudflare_dns_api_token`, `tailscale_authkey`.
    - `hermes.env` (`hosts/mini/services/hermes.nix`): `openrouter_api_key`, `agent_pat`, `hf_token`, `kagi/session_token`, `context7_api_key`, `matrix/hermes_*`, `telegram/*`.
    - `matrix-continuwuity.env` (`hosts/mini/services/matrix.nix`): `matrix/registration_token`.
-   - `mini-llm-hf.env` (`hosts/mini/secrets.nix`): `hf_token`. The same file declares `hermes_dashboard_basic_auth_hash`.
+   - `mini-llm-hf.env` (`hosts/mini/secrets.nix`): `hf_token`.
    - `networkmanager-yukikaze.env` (`modules/nixos/home-wifi.nix`): `wifi/yukikaze_psk`.
    - `kagi.toml` (`security.nix`, HM): `kagi-api-key`, `kagi-session-token` -> `~/.kagi.toml`.
    - `vicinae-github.json` (`modules/profiles/apps/vicinae.nix`, HM): `github-token`, only if that attribute exists.
@@ -70,7 +70,7 @@ Use this for `secrets/`, `.sops.yaml`, secret-consuming Nix modules, `Justfile` 
 
 ## Known schema gaps
 
-`secrets/SCHEMA.md` currently lacks rows for `cloudflare_dns_api_token`, `tailscale_authkey`, `hermes_dashboard_basic_auth_hash`, `hf_token`, `telegram/bot_token`, `telegram/allowed_users`, and `telegram/home_channel`. Its `hermes/env` row is stale: hermes reads the `hermes.env` template, not a `hermes/env` key. Correct these when you touch the schema.
+`secrets/SCHEMA.md` currently lacks rows for `cloudflare_dns_api_token`, `tailscale_authkey`, `hf_token`, `telegram/bot_token`, `telegram/allowed_users`, and `telegram/home_channel`. Its `hermes/env` row is stale: hermes reads the `hermes.env` template, not a `hermes/env` key. Correct these when you touch the schema.
 
 ## Safety rules
 

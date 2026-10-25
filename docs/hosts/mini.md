@@ -439,9 +439,10 @@ There is **no CLI user creation**. Register against loopback `:6167` with
   extras. **`extraDependencyGroups` / `extraPythonPackages` break eval** with it —
   the NousResearch module turns them into `cfg.package.override`, which only the
   hermes repo's own uv2nix build accepts.
-- The dashboard is loopback-only behind Caddy `basic_auth` (user `jadee`, bcrypt
-  hash in `hermes_dashboard_basic_auth_hash` — generate with
-  `caddy hash-password --plaintext '…'`).
+- The dashboard is loopback-only behind Caddy, with no login (since 2026-10-26).
+  The `tailnet-only` snippet in `services/caddy.nix` answers 403 to clients
+  outside the tailnet, because Caddy also binds the LAN address. Every tailnet
+  device controls hermes through it.
 - The Tailscale auth key must be **reusable + non-ephemeral** or `mini-proxy` does
   not survive a restart.
 

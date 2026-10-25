@@ -371,7 +371,7 @@ Recommendation: agentsview on mini.
 - It reads the pushed folders through `[[session_sources]]`, one entry per host and agent, with a machine label.
 - mini's own agent folders reach the archive by the same push as the other hosts, so agentsview reads only `/srv/agent-sessions`. A timer that runs as user `hermes` copies a `.backup` snapshot of hermes `state.db` into `/srv/agent-sessions/mini-hermes/hermes/`.
 - Its SQLite archive keeps a session after the source file is gone.
-- The web UI is at `https://sessions.jadee.fyi` (tailnet only, port 8089 on loopback). Caddy `basic_auth` uses the hermes dashboard login. agentsview's own auth is a single API token, so it stays off.
+- The web UI is at `https://sessions.jadee.fyi` (tailnet only, port 8089 on loopback). No login since 2026-10-26: Caddy answers 403 to clients outside the tailnet (`tailnet-only` snippet), because it also binds the LAN address. agentsview's own auth is a single API token, so it stays off.
 - `cleanupPeriodDays` is 120 (was the default 30). It gives time to notice a broken push.
 
 ### Backup
