@@ -62,5 +62,12 @@ in
         }
       else
         "termcode";
+
+    # y, p, and d use the system clipboard (register +), like vim's
+    # clipboard=unnamedplus; plain `y` otherwise only fills Helix's own
+    # register. Alt-d deletes without touching the clipboard. Headless hosts
+    # keep the default: termcode (OSC 52) can send to the clipboard but not
+    # read it, so `p` would paste nothing there.
+    settings.editor.default-yank-register = if isDarwin || hasDesktopSession then "+" else "\"";
   };
 }
