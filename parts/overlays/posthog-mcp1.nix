@@ -8,22 +8,28 @@
 # Verified 2026-10-25 against nixpkgs 3ec6363 (posthog 7.71.0, mcp 2.2.0).
 {
   expiry,
+  lib,
 }:
 _final: prev: {
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
     (pyfinal: pyprev: {
+      # A package set that already uses mcp 1 (open-webui-mcp1) needs no
+      # override, and its posthog must not count as fixed upstream.
       posthog =
-        expiry.expireWhen
-          {
-            fixed = !(pyprev.posthog.meta.broken or false);
-            reason = "nixpkgs no longer marks posthog broken against its own mcp.";
-            fallback = pyprev.posthog;
-          }
-          (
-            pyprev.posthog.override {
-              mcp = pyfinal.mcp_1;
+        if lib.versionOlder pyfinal.mcp.version "2" then
+          pyprev.posthog
+        else
+          expiry.expireWhen
+            {
+              fixed = !(pyprev.posthog.meta.broken or false);
+              reason = "nixpkgs no longer marks posthog broken against its own mcp.";
+              fallback = pyprev.posthog;
             }
-          );
+            (
+              pyprev.posthog.override {
+                mcp = pyfinal.mcp_1;
+              }
+            );
     })
   ];
 }

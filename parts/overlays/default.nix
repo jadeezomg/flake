@@ -41,14 +41,21 @@ in
     inherit lib;
     expiry = expiryFor "sesh-skip-mockery";
   })
+  # Before open-webui-otel-system-metrics, which extends this result.
+  (import ./open-webui-mcp1.nix {
+    inherit lib;
+    expiry = expiryFor "open-webui-mcp1";
+  })
   (import ./open-webui-otel-system-metrics.nix {
     inherit lib;
     expiry = expiryFor "open-webui-otel-system-metrics";
   })
   (import ./fastmcp-slim-mcp1.nix {
+    inherit lib;
     expiry = expiryFor "fastmcp-slim-mcp1";
   })
   (import ./posthog-mcp1.nix {
+    inherit lib;
     expiry = expiryFor "posthog-mcp1";
   })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
