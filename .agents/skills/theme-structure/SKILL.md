@@ -29,7 +29,7 @@ These files repeat the hex values by hand. A palette change must update all of t
 - `modules/profiles/desktop/dms/config/themes/birds-of-paradise/theme.json`.
 - `modules/profiles/desktop/niri/config.kdl` (focus ring `active-color` and `inactive-color`).
 - `modules/profiles/desktop/umbriel/config.toml` (`colors.border.focused`, the brown `bg-primary`).
-- `modules/profiles/desktop/umbriel/outputs-desktop.toml` (`colors.border.unfocused`, the black variant's `bg-primary`).
+- `modules/profiles/desktop/umbriel/outputs-desktop.toml` and `outputs-framework.toml` (`colors.border.unfocused`, the black variant's `bg-primary`).
 
 ## Theme profile split (`modules/profiles/theme/`)
 
