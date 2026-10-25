@@ -68,9 +68,11 @@
       darwin = false;
     }
     {
-      # CachyOS kernel (nix-cachyos-kernel)
-      url = "https://attic.xuyh0120.win/lantian";
-      key = "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc=";
+      # CachyOS kernel (nix-cachyos-kernel). The URL and key changed on
+      # 2026-10-24 after the old server was compromised. Do not trust the old
+      # key again. See xddxdd/nix-cachyos-kernel#110.
+      url = "https://cache.lantian.pub/lantian";
+      key = "lantian:WVGO7vsRMSEN+h7Lp7kv6SAmrkEXgUGbbXm7jMDjBuQ=";
       darwin = false;
     }
     # mini host nightly cache-warming output — enable after `cachix create
