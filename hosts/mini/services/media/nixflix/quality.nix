@@ -8,6 +8,9 @@
 # Radarr splits 4K by size and gates 1080p/720p by size. Sonarr cannot (its
 # Size condition measures a whole season pack), so it splits 4K by codec.
 #
+# TRaSH "unwanted" formats (low quality, upscaled, retagged, ...) are rejected
+# in every profile; Sonarr prefers season packs.
+#
 # Profiles not listed here are deleted after each sync. Their movies and
 # series move to the first profile (recyclarr-cleanup-profiles).
 { lib, pkgs, ... }:
@@ -53,6 +56,53 @@ let
   subsScore = 500;
   # Dual-audio releases that also keep the original track win.
   originalBonus = 2000;
+  # Sonarr: one download per season beats single episodes in the same tier.
+  seasonPackScore = 1500;
+  # TRaSH "unwanted" formats: no release with one can reach min_format_score.
+  rejectScore = -1000000;
+
+  # Formats from the TRaSH guide, by trash_id (Recyclarr's official provider).
+  guide = {
+    radarr = {
+      # Rejected in every profile.
+      junk = [
+        "ed38b889b31be83fda192888e2286d83" # BR-DISK
+        "90a6f9a284dff5103f6346090e6280c8" # LQ
+        "e204b80c87be9497a8a6eaff48f72905" # LQ (Release Title)
+        "b8cd450cbfa689c0259a01d9e29ba3d6" # 3D
+        "0a3f082873eb454bde444150b70253cc" # Extras
+        "712d74cd88bceb883ee32f773656b1f5" # Sing-Along Versions
+        "bfd8eb01832d646a0a89c4deb46f8564" # Upscaled
+        "5c44f52a8714fdd79bb4d98e2673be1f" # Retags
+        "7357cf5161efbf8c4d5d0c30b4815ee2" # Obfuscated
+      ];
+      # Rejected in the original-language profile only: many German and
+      # PT-BR dual-audio releases come from these groups or carry no group.
+      junkOriginalOnly = [
+        "b6832f586342ef70d9c128d40c07b872" # Bad Dual Groups
+        "ae9b7c9ebde1f3bd336a8cbd1ec4c5e5" # No-RlsGroup
+      ];
+      bonus = { };
+    };
+    sonarr = {
+      junk = [
+        "85c61753df5da1fb2aab6f2a47426b09" # BR-DISK
+        "9c11cd3f07101cdba90a2d81cf0e56b4" # LQ
+        "e2315f990da2e2cbfc9fa5b7a6fcfe48" # LQ (Release Title)
+        "fbcb31d8dabd2a319072b84fc0b7249c" # Extras
+        "23297a736ca77c0fc8e70f8edd7ee56c" # Upscaled
+        "06d66ab109d4d2eddb2794d21526d140" # Retags
+        "e1a997ddb54e3ecbfe06341ad323c458" # Obfuscated
+      ];
+      junkOriginalOnly = [
+        "32b367365729d530ca1c124a0b180c64" # Bad Dual Groups
+        "82d40da2bc6923f41e14394075dd4b03" # No-RlsGroup
+      ];
+      bonus = {
+        "3bc5f395426614e155e585a2f056cdf1" = seasonPackScore; # Season Pack
+      };
+    };
+  };
 
   spec = implementation: name: fields: {
     inherit implementation name fields;
@@ -245,6 +295,24 @@ let
     ];
   };
 
+  scoreFor = profileNames: score: map (name: { inherit name score; }) profileNames;
+  guideFormats =
+    g:
+    [
+      {
+        trash_ids = g.junk;
+        assign_scores_to = scoreFor profileOrder rejectScore;
+      }
+      {
+        trash_ids = g.junkOriginalOnly;
+        assign_scores_to = scoreFor [ originalEn ] rejectScore;
+      }
+    ]
+    ++ mapAttrsToList (id: score: {
+      trash_ids = [ id ];
+      assign_scores_to = scoreFor profileOrder score;
+    }) g.bonus;
+
   # One custom_formats entry per format, listing the profiles that score it.
   customFormats =
     formats:
@@ -277,13 +345,35 @@ let
       ) limits
     );
 
-  instance = formats: qualityDefinition: {
+  # Torrents wait 60 min so a usenet release can win. Every quality sits in
+  # the one ladder group, so "highest quality" would bypass the delay for
+  # every release; bypass only at the upgrade target score instead.
+  delayProfiles = [
+    {
+      id = 1;
+      order = 2147483647; # the default profile, for all tags
+      enableUsenet = true;
+      enableTorrent = true;
+      preferredProtocol = "usenet";
+      usenetDelay = 0;
+      torrentDelay = 60;
+      bypassIfHighestQuality = false;
+      bypassIfAboveCustomFormatScore = true;
+      minimumCustomFormatScore = langScore + tierScores.${tier4k} + tiebreakScores.${hevc};
+      tags = [ ];
+    }
+  ];
+
+  instance = formats: guideSet: qualityDefinition: {
     quality_definition = qualityDefinition;
     quality_profiles = map qualityProfile profileOrder;
-    custom_formats = customFormats formats;
+    custom_formats = customFormats formats ++ guideFormats guideSet;
   };
 in
 {
+  nixflix.radarr.config = { inherit delayProfiles; };
+  nixflix.sonarr.config = { inherit delayProfiles; };
+
   nixflix.recyclarr = {
     enable = true;
 
@@ -293,7 +383,7 @@ in
     };
 
     config = {
-      radarr.radarr = instance radarrFormats {
+      radarr.radarr = instance radarrFormats guide.radarr {
         type = "movie";
         qualities = sizes {
           # The 720p and 1080p maxima leave room for the tier formats (8 GB
@@ -317,7 +407,7 @@ in
         };
       };
 
-      sonarr.sonarr = instance sonarrFormats {
+      sonarr.sonarr = instance sonarrFormats guide.sonarr {
         type = "series";
         qualities = sizes {
           "1080p" = {
