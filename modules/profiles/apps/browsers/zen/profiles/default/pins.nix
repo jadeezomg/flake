@@ -74,6 +74,12 @@ in
       isEssential = true;
       position = 111;
     };
+    "jadee" = {
+      id = "d4e09ba4-df20-47c9-ad63-e24469583379";
+      url = "https://home.jadee.fyi/";
+      isEssential = true;
+      position = 112;
+    };
   };
   spaces = baseSpaces // {
     "Home" = baseSpaces."Home" // {

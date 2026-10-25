@@ -663,6 +663,7 @@ transition_on_startup = true
 
     [wallpaper.automation]
     enabled = true
+    interval_seconds = 600
 
     [wallpaper.default]
     path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Shipwreck_on_the_Coast_of_Norway_-_Google_Art_Project.jpg"
