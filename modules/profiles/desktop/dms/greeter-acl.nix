@@ -12,7 +12,7 @@ let
   useDms = shell == "dms";
   useDmsGreeter = cfg.loginManager == "dms-greeter";
   home = host.homeDirectory;
-  flakeRoot = "${home}/.dotfiles/flake";
+  flakeRoot = "${home}/git/flake";
   dmsConfigDir = "${flakeRoot}/modules/profiles/desktop/dms/config";
   cacheDir = "/var/lib/dms-greeter";
   cacheOwner = {
@@ -72,7 +72,9 @@ in
             setfacl -m g:greeter:rx ${home}/.config
             setfacl -R -m g:greeter:rX ${home}/.config/DankMaterialShell
             # Live symlinks under DankMaterialShell point into the flake checkout.
-            setfacl -m g:greeter:rx ${home}/.dotfiles
+            # ~/git holds all repos, so the greeter may only pass through it
+            # (x), not list it.
+            setfacl -m g:greeter:x ${home}/git
             setfacl -m g:greeter:rx ${flakeRoot}
             setfacl -R -m g:greeter:rX ${dmsConfigDir}
           '';

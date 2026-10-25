@@ -10,19 +10,19 @@ mini_ssh := env('MINI_SSH', 'mini')
 
 [doc('git pull --ff-only the flake on mini (no build)')]
 pull:
-    ssh {{mini_ssh}} 'bash -lc "git -C ~/.dotfiles/flake pull --ff-only"'
+    ssh {{mini_ssh}} 'bash -lc "git -C ~/git/flake pull --ff-only"'
 
 [doc('Pull newest flake on mini, then nh switch')]
 deploy:
-    ssh -t {{mini_ssh}} 'bash -lc "set -e; cd ~/.dotfiles/flake && git pull --ff-only && just switch-fast"'
+    ssh -t {{mini_ssh}} 'bash -lc "set -e; cd ~/git/flake && git pull --ff-only && just switch-fast"'
 
 [doc('Pull newest flake on mini, then build-dry (no activation)')]
 deploy-dry:
-    ssh -t {{mini_ssh}} 'bash -lc "set -e; cd ~/.dotfiles/flake && git pull --ff-only && just build-dry"'
+    ssh -t {{mini_ssh}} 'bash -lc "set -e; cd ~/git/flake && git pull --ff-only && just build-dry"'
 
 [doc('Pull newest flake on mini, stage for next reboot')]
 deploy-boot:
-    ssh -t {{mini_ssh}} 'bash -lc "set -e; cd ~/.dotfiles/flake && git pull --ff-only && just build-boot"'
+    ssh -t {{mini_ssh}} 'bash -lc "set -e; cd ~/git/flake && git pull --ff-only && just build-boot"'
 
 [doc('Open an interactive ssh shell on mini')]
 ssh:

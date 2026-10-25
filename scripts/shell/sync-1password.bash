@@ -6,7 +6,7 @@
 # unlocked.
 set -euo pipefail
 
-source "${FLAKE:-${HOME}/.dotfiles/flake}/scripts/shell/common.sh"
+source "${FLAKE:-${HOME}/git/flake}/scripts/shell/common.sh"
 
 if ! is_darwin; then
   print_error "sync-1password only applies on Darwin (Linux uses libsecret via sops-keyring.nix)"

@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # shellcheck source=scripts/shell/common.sh
-source "${FLAKE:-${HOME}/.dotfiles/flake}/scripts/shell/common.sh"
+source "${FLAKE:-${HOME}/git/flake}/scripts/shell/common.sh"
 
 export PROTON_PASS_LINUX_KEYRING="${PROTON_PASS_LINUX_KEYRING:-dbus}"
 
@@ -32,7 +32,7 @@ for command in jq sops; do
  fi
 done
 
-secrets_file="${FLAKE:-${HOME}/.dotfiles/flake}/secrets/secrets.yaml"
+secrets_file="${FLAKE:-${HOME}/git/flake}/secrets/secrets.yaml"
 if [[ ! -r "$secrets_file" ]]; then
  print_error "Cannot read $secrets_file"
  exit 1

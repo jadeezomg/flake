@@ -560,7 +560,7 @@ consolidation). The parts that are not obvious:
    `data/users/users.nix` → `jadee.sshKeys` and committed *before* `nixos-install`.
    Recovery is console or AMT KVM only.
 7. The installer's `/tmp/flake` clone is gone after reboot — clone to
-   `~/.dotfiles/flake` and run `just _init mini` before any `just` recipe.
+   `~/git/flake` and run `just _init mini` before any `just` recipe.
 8. SecureBoot enrollment last (§2), after the host is reachable.
 
 Smoke test: key-only SSH from desktop and over Tailscale, `sudo whoami` without a

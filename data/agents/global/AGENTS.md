@@ -3,7 +3,7 @@
 Host is nixpkgs based. Packages live in a read-only Nix store — `npm install -g`, `pip install --user`, `cargo install`, `brew install`, etc. typically fail or don't persist. To add a tool:
 
 - **Ephemeral**: `nix shell nixpkgs#<pkg>` for a one-off shell.
-- **Persistent**: edit the flake at `~/.dotfiles/flake`
+- **Persistent**: edit the flake at `~/git/flake`
 
 ## Rules
 

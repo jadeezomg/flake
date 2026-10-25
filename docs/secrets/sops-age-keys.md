@@ -66,7 +66,7 @@ See also: [SCHEMA.md](./SCHEMA.md).
 ## Phase 0 — Prerequisites (once per dev machine)
 
 ```bash
-cd ~/.dotfiles/flake
+cd ~/git/flake
 
 # 1. Editor key (skip if ~/.config/sops/age/keys.txt already exists)
 just setup-age-editor
@@ -93,7 +93,7 @@ If the old editor private key is lost **and** no other recipient private key rem
 Use when `flake switch` fails: missing `/var/lib/private/sops/age/keys.txt` or decrypt errors while `&framework` still equals `&editor`.
 
 ```bash
-cd ~/.dotfiles/flake
+cd ~/git/flake
 git pull
 
 just bootstrap-sops-host-key-from-editor   # fails if host key already exists
@@ -113,7 +113,7 @@ This copies the **editor** private key to the host path. It is **not** a dedicat
 ### Step 2.1 Rotate on the NixOS host
 
 ```bash
-cd ~/.dotfiles/flake
+cd ~/git/flake
 just rotate-sops-host-key
 ```
 
@@ -189,7 +189,7 @@ sudo nixos-install --flake .#mini --no-root-password
 
 ```bash
 ssh jadee@192.168.1.10
-cd ~/.dotfiles/flake
+cd ~/git/flake
 just bootstrap-sops-host-key    # only when host path is empty
 ```
 

@@ -18,7 +18,7 @@ flake_root() {
   if [[ -n "${FLAKE:-}" ]]; then
     echo "$FLAKE"
   else
-    echo "${HOME}/.dotfiles/flake"
+    echo "${HOME}/git/flake"
   fi
 }
 

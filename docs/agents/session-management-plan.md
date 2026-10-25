@@ -34,7 +34,7 @@ Status events and telemetry (D) are out of scope. This plan describes D so that 
 | tmux, sesh | On every host (`modules/profiles/minimal/shells/core/tmux.nix`). |
 | mini capacity | `free -g` shows 31 GB total, 22 GB available. `docs/hosts/mini.md` says 24 GB. `/srv` has 1.6 TB free. `buildCores = 2`. |
 | mini user | `Linger=yes` for jadee (set by `modules/nixos/virtualization.nix` for `devenv` hosts). |
-| mini content | No repos. No `~/.claude/projects`. `~/.pi`, `~/.omp`, `~/.codex` exist. The flake checkout is at `~/.dotfiles/flake`. |
+| mini content | No repos. No `~/.claude/projects`. `~/.pi`, `~/.omp`, `~/.codex` exist. The flake checkout was at `~/.dotfiles/flake` (moves to `~/git/flake`, D9). |
 | Repo folders | framework keeps repos in `~/Git` (capital G, 6 entries). `~/Projects` is empty. `modules/profiles/desktop/noctalia/config/settings.toml` points at `~/Git/community-plugins`. desktop not checked. |
 | hermes | System service, user `hermes`, `HERMES_HOME=/var/lib/hermes/.hermes`. Matrix and Telegram gateway. Dashboard at `hermes.jadee.fyi`. Model access through OpenRouter. |
 | Network | mini firewall trusts `tailscale0` only. Laptops accept Tailscale SSH only. framework → mini SSH works in `BatchMode` over the LAN address. |
@@ -74,7 +74,7 @@ Status events and telemetry (D) are out of scope. This plan describes D so that 
 | D6 | Which user runs the coding agents that hermes starts? | (H1) User `hermes`. (H2) User `jadee`. | **Decided 2026-10-25:** H1, user `hermes`. |
 | D7 | How do hosts connect to each other without a prompt (mode B)? | Tailscale SSH policy `accept` for these host pairs, OpenSSH with keys on the laptops, or no mode B for now. | **Decided 2026-10-25:** Tailscale SSH `accept` rules for the host pairs. The ACL lives in the Tailscale admin console. Test in Phase 0. |
 | D8 | Can agents on mini edit the flake checkout on mini? | Yes, with a rule change in `AGENTS.md`. No, flake work stays `local`. | **Decided 2026-10-25: yes.** See [§ Flake work on mini](#flake-work-on-mini-d8). |
-| D9 | Where do git repos live? | Flat `~/git/<repo>`, or `~/git/<owner>/<repo>`. Flake inside or outside `~/git`. | **Decided 2026-10-25:** flat `$HOME/git/<repo>` for every user on every host. The flake checkout stays at `~/.dotfiles/flake` as the one exception. See [§ Repo location](#repo-location-d9). |
+| D9 | Where do git repos live? | Flat `~/git/<repo>`, or `~/git/<owner>/<repo>`. Flake inside or outside `~/git`. | **Decided 2026-10-25:** flat `$HOME/git/<repo>` for every user on every host. Changed 2026-10-26: the flake checkout moves too, to `~/git/flake`. See [§ Repo location](#repo-location-d9). |
 | D10 | How does the push leave out work repos on personal hosts? | Exclude list, exclude by `origin` owner, no work repos on personal hosts, or filter in agentsview. | **Decided 2026-10-25: manual.** You manage these sessions by hand. The push has no filter. See [§ Work repos on personal hosts](#work-repos-on-personal-hosts). |
 
 ---
@@ -173,7 +173,7 @@ Decided: every git repo lives at `$HOME/git/<repo>`.
 - The layout is flat. `<repo>` is the folder name. By default it is the repo name from the `origin` URL, without `.git`.
 - If two repos have the same name, pick a different folder name by hand at clone time. `work --on mini` then uses the same folder name on mini.
 - The rule applies to every user on every host: jadee on desktop, framework, and mini, and user `hermes` (`/var/lib/hermes/git/`).
-- The one exception is the flake checkout at `~/.dotfiles/flake`. `flakeRoot`, the live symlinks for agent config, the `flake` alias, and mini's checkout depend on that path.
+- There is no exception. Since 2026-10-26 the flake checkout lives at `~/git/flake` on every host (it was at `~/.dotfiles/flake`). `dotfiles.flakeRoot` defaults to that path. The move steps are in [§ Moving the flake checkout](#moving-the-flake-checkout).
 - A Home Manager module creates `~/git` on each host, so that the folder exists before the first clone.
 
 Migration on framework (contents on 2026-10-25):
@@ -191,9 +191,21 @@ Steps: run `mv ~/Git ~/git` on framework, then update the noctalia path. On a ca
 
 Note on work repos on personal hosts: `graphs` is a work repo on framework. D1 removes caya. The push still sends the sessions of `~/git/graphs` on framework to the archive. You manage them by hand (D10). See [§ Work repos on personal hosts](#work-repos-on-personal-hosts).
 
+### Moving the flake checkout
+
+`dotfiles.flakeRoot` now defaults to `~/git/flake`. Live symlinks, `$FLAKE`, `$NH_FLAKE`, the flake git hooks, and the sesh `flake` session follow it after a switch. Do these steps on each host, mini first, because the new `just mini deploy` recipes expect `~/git/flake` on mini.
+
+1. In the old checkout, run `git pull`.
+2. Move the checkout and leave a symlink at the old path: `mv ~/.dotfiles/flake ~/git/flake && ln -s ../git/flake ~/.dotfiles/flake`.
+3. Switch from the new path: `cd ~/git/flake && just switch`.
+4. Open a new shell. Make sure that `echo $FLAKE` shows the new path.
+5. When nothing uses the old path, remove the symlink: `trash ~/.dotfiles/flake`.
+
+The symlink keeps open shells, running agent sessions, and the old live symlinks working until the switch. Claude Code names its project folder after the path. Copy the auto memory from `~/.claude/projects/-home-jadee--dotfiles-flake/memory/` to `~/.claude/projects/-home-jadee-git-flake/memory/`.
+
 ### Flake work on mini (D8)
 
-Decided: agents that run on mini can edit mini's flake checkout. mini has a clean clone of `jadeezomg/dotfiles` on `main` at `~/.dotfiles/flake`, with `.flake-host = mini`.
+Decided: agents that run on mini can edit mini's flake checkout. mini has a clean clone of `jadeezomg/dotfiles` on `main` at `~/.dotfiles/flake` (moves to `~/git/flake`, D9), with `.flake-host = mini`.
 
 The two rules today:
 

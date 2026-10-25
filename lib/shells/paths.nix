@@ -1,6 +1,6 @@
 {
   # Generic per-user directories. Sandbox-safe — these reference $HOME but
-  # never the dotfiles repo path. cd shortcuts that need $HOME/.dotfiles
+  # never the dotfiles repo path. cd shortcuts that need the flake checkout
   # land in env/system.nix together with the other system-only refs.
   commonPaths = {
     home = "$HOME";

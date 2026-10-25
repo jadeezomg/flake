@@ -178,7 +178,7 @@ def main(args: list[str] | None = None) -> int:
         "--flake",
         type=Path,
         metavar="DIR",
-        help="Flake root (default: $FLAKE, upward flake.nix, else ~/.dotfiles/flake)",
+        help="Flake root (default: $FLAKE, upward flake.nix, else ~/git/flake)",
     )
     sub = ap.add_subparsers(dest="command", metavar="COMMAND")
     sub.add_parser("all", help="DMS, Noctalia, niri, quickshell report (non-fatal)")
