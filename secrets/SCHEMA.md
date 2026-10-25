@@ -157,6 +157,10 @@ All media secrets are nested, runtime-only values consumed by
 | `mini/media/qbittorrent/password` | generated WebUI/Arr password (plaintext) | nixflix Arr→qBittorrent integration; qbittorrent ExecStartPre derives `Password_PBKDF2` for WebUI | mini |
 | `mini/media/bazarr/opensubtitles-username` | OpenSubtitles.com account username (not email) | Bazarr English subtitle provider | mini |
 | `mini/media/bazarr/opensubtitles-password` | OpenSubtitles.com account password | Bazarr English subtitle provider | mini |
+| `mini/ntfy/jadee-password` | generated (24 chars) — log in to https://ntfy.jadee.fyi as `jadee` | not deployed; read with `sops -d` for the phone app | — |
+| `mini/ntfy/jadee-password-hash` | `ntfy user hash` of the password above | ntfy `NTFY_AUTH_USERS` (sops template) | mini |
+| `mini/ntfy/mini-password-hash` | `ntfy user hash` of a discarded random password | ntfy `NTFY_AUTH_USERS` for the `mini` publisher | mini |
+| `mini/ntfy/mini-token` | `ntfy token generate` | ntfy `NTFY_AUTH_TOKENS`; nixflix notif ntfy; `ntfy-alert@` | mini |
 | `mini/media/plex/token` | `PlexOnlineToken` in Plex `Preferences.xml` on mini | `plex-connect` (Radarr/Sonarr Plex connection) | mini |
 | `mini/media/jellyfin/api-key` | generated 32-byte hexadecimal API key | nixflix Jellyfin management services and one-shot watch migration | mini |
 | `mini/media/jellyfin/users/jadee-password` | generated initial Jellyfin password | nixflix Jellyfin user creation | mini |
