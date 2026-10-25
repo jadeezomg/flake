@@ -473,6 +473,15 @@ loopback check. Most tiles also show live numbers from the service API.
   other vhosts. The Jellyfin widget has media control off, so a visitor cannot
   pause a stream.
 
+Tiles without a widget, on purpose:
+
+- **Lidarr:** the widget downloads the full artist list (over 7 MB) on every page
+  load, only to count artists. The calendar gets albums from Lidarr's iCal feed.
+  Homepage fetches the feed on the server and removes its URL, with the key, from
+  what the browser gets.
+- **Beszel:** Homepage's Beszel widget logs in only as a PocketBase superuser.
+  Homepage does not get Beszel admin rights.
+
 Look (`homepage/theme.nix`):
 
 - The colors are the Birds of Paradise palette of mini's theme variant.
@@ -489,10 +498,6 @@ Widgets that need a manual step:
   ADMIN role, but the widget only reads: a Viewer key gets all its fields.
 - **Immich:** an API key of the admin account with the `server.statistics`
   permission, in `mini/homepage/immich-api-key`.
-- **Beszel:** a user `homepage@jadee.fyi` with the role `readonly`, created at
-  `https://beszel.jadee.fyi/_/` (users collection, verified). Its password is
-  `mini/homepage/beszel-password`. The hub sets `SHARE_ALL_SYSTEMS`, so this user
-  sees mini and Unraid.
 - **FRITZ!Box:** the widget uses UPnP status, with no login. If it shows an error,
   turn on Home Network → Network → Network Settings → "Transmit status information
   over UPnP".

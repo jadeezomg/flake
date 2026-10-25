@@ -167,7 +167,6 @@ All media secrets are nested, runtime-only values consumed by
 | `mini/ntfy/homepage-token` | `ntfy token generate` | ntfy `NTFY_AUTH_TOKENS`; Homepage ntfy widget (reads `system`) | mini |
 | `mini/homepage/unraid-api-key` | Unraid → Settings → Management Access → API, key `homepage` | Homepage Unraid widget | mini |
 | `mini/homepage/immich-api-key` | Immich → Account Settings → API Keys, admin account, permission `server.statistics` | Homepage Immich widget | mini |
-| `mini/homepage/beszel-password` | generated 20-byte hexadecimal password; set it on the Beszel user `homepage@jadee.fyi` (read-only role) | Homepage Beszel widget | mini |
 | `mini/media/plex/token` | `PlexOnlineToken` in Plex `Preferences.xml` on mini | `plex-connect` (Radarr/Sonarr Plex connection); Homepage Plex widget | mini |
 | `mini/media/jellyfin/api-key` | generated 32-byte hexadecimal API key | nixflix Jellyfin management services and one-shot watch migration; Homepage Jellyfin widget | mini |
 | `mini/media/jellyfin/users/jadee-password` | generated initial Jellyfin password | nixflix Jellyfin user creation | mini |
