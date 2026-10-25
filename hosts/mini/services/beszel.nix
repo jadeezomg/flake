@@ -35,8 +35,13 @@ in
         enable = true;
         host = "127.0.0.1"; # Caddy (services/caddy.nix) fronts it with TLS
         port = hubPort;
-        # Served at the subdomain root, so the hub generates plain top-level URLs.
-        environment.APP_URL = "https://beszel.jadee.fyi";
+        environment = {
+          # Served at the subdomain root, so the hub generates plain top-level URLs.
+          APP_URL = "https://beszel.jadee.fyi";
+          # Every user sees every system. The Homepage tile logs in as a
+          # read-only user, and without this it sees no systems.
+          SHARE_ALL_SYSTEMS = "true";
+        };
       };
 
       agent = {

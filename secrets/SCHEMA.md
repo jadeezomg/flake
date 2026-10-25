@@ -163,6 +163,11 @@ All media secrets are nested, runtime-only values consumed by
 | `mini/ntfy/jadee-password-hash` | `ntfy user hash` of the password above | ntfy `NTFY_AUTH_USERS` (sops template) | mini |
 | `mini/ntfy/mini-password-hash` | `ntfy user hash` of a discarded random password | ntfy `NTFY_AUTH_USERS` for the `mini` publisher | mini |
 | `mini/ntfy/mini-token` | `ntfy token generate` | ntfy `NTFY_AUTH_TOKENS`; nixflix notif ntfy; `ntfy-alert@` | mini |
+| `mini/ntfy/homepage-password-hash` | `ntfy user hash` of a discarded random password | ntfy `NTFY_AUTH_USERS` for the read-only `homepage` user | mini |
+| `mini/ntfy/homepage-token` | `ntfy token generate` | ntfy `NTFY_AUTH_TOKENS`; Homepage ntfy widget (reads `system`) | mini |
+| `mini/homepage/unraid-api-key` | Unraid → Settings → Management Access → API, key `homepage` | Homepage Unraid widget | mini |
+| `mini/homepage/immich-api-key` | Immich → Account Settings → API Keys, admin account, permission `server.statistics` | Homepage Immich widget | mini |
+| `mini/homepage/beszel-password` | generated 20-byte hexadecimal password; set it on the Beszel user `homepage@jadee.fyi` (read-only role) | Homepage Beszel widget | mini |
 | `mini/media/plex/token` | `PlexOnlineToken` in Plex `Preferences.xml` on mini | `plex-connect` (Radarr/Sonarr Plex connection); Homepage Plex widget | mini |
 | `mini/media/jellyfin/api-key` | generated 32-byte hexadecimal API key | nixflix Jellyfin management services and one-shot watch migration; Homepage Jellyfin widget | mini |
 | `mini/media/jellyfin/users/jadee-password` | generated initial Jellyfin password | nixflix Jellyfin user creation | mini |

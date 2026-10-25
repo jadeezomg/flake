@@ -4,7 +4,7 @@
 # The full configuration is in Nix (services.homepage-dashboard). There is no
 # web editor and no database. Each tile links to the service, shows a status
 # dot from a loopback check, and, where Homepage has a widget, live numbers
-# from the service API.
+# from the service API. ./theme.nix holds the palette and the wallpapers.
 #
 # API keys stay in sops. systemd gives them to Homepage as credentials, and
 # Homepage reads each file where the configuration says
@@ -20,18 +20,29 @@
   ...
 }:
 let
-  inherit (import ./lib.nix { inherit lib; }) mkTsnetProxy;
-  inherit (dotfilesLib.expiry { inherit lib; } "hosts/mini/services/homepage.nix") expireWhen;
-  inherit (dotfilesLib.lanHosts) unraid;
+  inherit (import ../lib.nix { inherit lib; }) mkTsnetProxy;
+  inherit (dotfilesLib.expiry { inherit lib; } "hosts/mini/services/homepage/default.nix") expireWhen;
+  inherit (dotfilesLib.lanHosts) router unraid;
   domain = "home.jadee.fyi";
   port = 8082;
 
+  theme = import ./theme.nix {
+    inherit lib pkgs;
+    palette = dotfilesLib.paletteVariants.${config.dotfiles.profiles.theme.variant};
+  };
+
   media = host.miniMediaHosting or false;
+  immich = host.miniImmich or false;
+  beszel = host.miniMonitoring or false;
   local = port: path: "http://127.0.0.1:${toString port}${path}";
 
   # Credential name -> sops secret. The name must be one word: it becomes
   # part of an environment variable name.
-  credentials = lib.optionalAttrs media {
+  credentials = {
+    unraid = "mini/homepage/unraid-api-key";
+    ntfy = "mini/ntfy/homepage-token";
+  }
+  // lib.optionalAttrs media {
     sonarr = "mini/media/sonarr/api-key";
     radarr = "mini/media/radarr/api-key";
     lidarr = "mini/media/lidarr/api-key";
@@ -42,14 +53,16 @@ let
     plex = "mini/media/plex/token";
     jellyfin = "mini/media/jellyfin/api-key";
     seerr = "mini/media/seerr/api-key";
-  };
+  }
+  // lib.optionalAttrs immich { immich = "mini/homepage/immich-api-key"; }
+  // lib.optionalAttrs beszel { beszel = "mini/homepage/beszel-password"; };
   fileVar = name: "HOMEPAGE_FILE_${lib.toUpper name}";
   secret = name: "{{${fileVar name}}}";
 
   tile =
     name:
     {
-      href,
+      href ? null,
       icon,
       description,
       monitor,
@@ -57,9 +70,10 @@ let
     }:
     {
       ${name} = {
-        inherit href icon description;
+        inherit icon description;
         siteMonitor = monitor;
       }
+      // lib.optionalAttrs (href != null) { inherit href; }
       // lib.optionalAttrs (widget != null) { inherit widget; };
     };
 
@@ -70,6 +84,7 @@ let
       port,
       description,
       monitorPath ? "/ping",
+      widgetExtra ? { },
     }:
     let
       type = lib.toLower name;
@@ -83,8 +98,17 @@ let
         inherit type;
         url = local port "";
         key = secret type;
-      };
+      }
+      // widgetExtra;
     };
+
+  # The calendar reads its events through these tiles' widgets.
+  library = "Library";
+  calendarSources = [
+    "Sonarr"
+    "Radarr"
+    "Lidarr"
+  ];
 
   # sabnzbd and qbittorrent run in the VPN network namespace (see
   # media/proxy.nix), so they answer on the namespace address.
@@ -139,16 +163,18 @@ let
       ];
     }
     {
-      name = "Library";
+      name = library;
       columns = 4;
       tiles = lib.optionals media [
         (arr "Sonarr" {
           port = 8989;
           description = "Series";
+          widgetExtra.enableQueue = true;
         })
         (arr "Radarr" {
           port = 7878;
           description = "Movies";
+          widgetExtra.enableQueue = true;
         })
         (arr "Lidarr" {
           port = 8686;
@@ -159,6 +185,26 @@ let
           description = "Subtitles";
           monitorPath = "/";
         })
+      ];
+    }
+    {
+      name = "Coming up";
+      columns = 1;
+      tiles = lib.optionals media [
+        {
+          Calendar.widget = {
+            type = "calendar";
+            view = "agenda";
+            maxEvents = 10;
+            showTime = true;
+            integrations = map (name: {
+              type = lib.toLower name;
+              service_group = library;
+              service_name = name;
+              baseUrl = "https://${lib.toLower name}.jadee.fyi";
+            }) calendarSources;
+          };
+        }
       ];
     }
     {
@@ -207,12 +253,19 @@ let
       name = "Apps";
       columns = 4;
       tiles =
-        lib.optional (host.miniImmich or false) (
+        lib.optional immich (
           tile "Immich" {
             href = "https://immich.jadee.fyi";
             icon = "immich.svg";
             description = "Photos and videos";
             monitor = local config.services.immich.port "/api/server/ping";
+            widget = {
+              type = "immich";
+              url = local config.services.immich.port "";
+              key = secret "immich";
+              # Immich 1.118 and later.
+              version = 2;
+            };
           }
         )
         ++ lib.optional (host.miniLlmHosting or false) (
@@ -248,14 +301,36 @@ let
           icon = "unraid.svg";
           description = "NAS: array, shares and containers";
           monitor = "http://${unraid.lan}";
+          widget = {
+            type = "unraid";
+            url = "http://${unraid.lan}";
+            key = secret "unraid";
+            # The SSD pool that holds downloads (see media/nixflix/downloaders.nix).
+            pool1 = "array_cache";
+            fields = [
+              "cpu"
+              "memoryPercent"
+              "arrayFree"
+              "pool1FreeSpace"
+            ];
+          };
         })
       ]
-      ++ lib.optional (host.miniMonitoring or false) (
+      ++ lib.optional beszel (
         tile "Beszel" {
           href = "https://beszel.jadee.fyi";
           icon = "beszel.svg";
           description = "System metrics for mini and Unraid";
           monitor = local config.services.beszel.hub.port "/api/health";
+          widget = {
+            type = "beszel";
+            url = local config.services.beszel.hub.port "";
+            # A read-only Beszel user (docs/hosts/mini.md § Homepage).
+            username = "homepage@jadee.fyi";
+            password = secret "beszel";
+            # Beszel 0.9 and later.
+            version = 2;
+          };
         }
       )
       ++ lib.optional (host.miniTracing or false) (
@@ -270,13 +345,53 @@ let
         (tile "ntfy" {
           href = "https://ntfy.jadee.fyi";
           icon = "ntfy.svg";
-          description = "Push notifications";
+          description = "Last alert from mini";
           monitor = "http://${config.services.ntfy-sh.settings.listen-http}/v1/health";
+          widget = {
+            type = "ntfy";
+            url = "http://${config.services.ntfy-sh.settings.listen-http}";
+            topic = "system";
+            key = secret "ntfy";
+          };
+        })
+      ];
+    }
+    {
+      name = "Network";
+      columns = 2;
+      tiles = [
+        (tile "FRITZ!Box" {
+          href = "http://${router.lan}";
+          icon = "fritzbox.svg";
+          description = "Internet connection";
+          monitor = "http://${router.lan}";
+          # UPnP status needs no login (docs/hosts/mini.md § Homepage).
+          widget = {
+            type = "fritzbox";
+            url = "http://${router.lan}";
+            fields = [
+              "connectionStatus"
+              "uptime"
+              "down"
+              "up"
+            ];
+          };
+        })
+        (tile "Caddy" {
+          icon = "caddy.svg";
+          description = "Reverse proxy for every *.jadee.fyi name";
+          monitor = local 2019 "/reverse_proxy/upstreams";
+          widget = {
+            type = "caddy";
+            url = local 2019 "";
+          };
         })
       ];
     }
   ];
   shown = lib.filter (group: group.tiles != [ ]) groups;
+
+  bookmark = name: href: icon: { ${name} = [ { inherit href icon; } ]; };
 in
 {
   services.homepage-dashboard = {
@@ -296,7 +411,11 @@ in
       title = "jadee";
       description = "Services on mini and Unraid";
       theme = "dark";
+      # ./theme.nix replaces this palette with Birds of Paradise.
       color = "slate";
+      inherit (theme) background;
+      # Blur behind the tiles, so text stays readable over the wallpaper.
+      cardBlur = "sm";
       headerStyle = "clean";
       statusStyle = "dot";
       hideVersion = true;
@@ -311,9 +430,33 @@ in
       }) shown;
     };
 
+    customCSS = theme.css;
+    customJS = theme.js;
+
     services = map (group: { ${group.name} = group.tiles; }) shown;
 
+    bookmarks = [
+      {
+        Links = [
+          (bookmark "Proton Mail" "https://mail.proton.me" "proton-mail.svg")
+          (bookmark "Dotfiles" "https://github.com/jadeezomg/dotfiles" "github.svg")
+          (bookmark "NixOS search" "https://search.nixos.org/packages?channel=unstable" "nixos.svg")
+          (bookmark "Tailscale" "https://login.tailscale.com/admin/machines" "tailscale.svg")
+          (bookmark "Cloudflare" "https://dash.cloudflare.com" "cloudflare.svg")
+        ];
+      }
+    ];
+
     widgets = [
+      {
+        search = {
+          provider = "custom";
+          url = "https://kagi.com/search?q=";
+          suggestionUrl = "https://kagi.com/api/autosuggest?q=";
+          showSearchSuggestions = true;
+          target = "_blank";
+        };
+      }
       {
         resources = {
           label = "mini";
@@ -353,5 +496,8 @@ in
     _: path: lib.nameValuePair path { restartUnits = [ "homepage-dashboard.service" ]; }
   ) credentials;
 
-  services.caddy.virtualHosts = mkTsnetProxy { inherit domain port; };
+  services.caddy.virtualHosts = mkTsnetProxy {
+    inherit domain port;
+    extra = theme.caddyRoute;
+  };
 }
