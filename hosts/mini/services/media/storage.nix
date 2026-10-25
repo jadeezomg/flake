@@ -39,10 +39,16 @@ in
       fsType = "nfs";
       options = mountOptions;
     };
+    # Not an automount. systemd orders every automount before local-fs.target,
+    # and this one needs /data mounted first, so the network ended up in early
+    # boot: an ordering cycle on every boot. systemd broke it by dropping a
+    # random job; on 2026-10-25 that was network-online.target, and /data and
+    # /Music failed with "Network is unreachable". As a plain network mount it
+    # starts after the network, with the other remote mounts.
     "/data/media/Music" = {
       device = share "Music";
       fsType = "nfs";
-      options = mountOptions;
+      options = lib.remove "x-systemd.automount" mountOptions;
       depends = [ "/data" ];
     };
     # /Music and /media are DIRECT NFS mounts, not binds of the /data tree. A bind of
