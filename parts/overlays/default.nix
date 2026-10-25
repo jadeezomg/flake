@@ -48,6 +48,9 @@ in
   (import ./fastmcp-slim-mcp1.nix {
     expiry = expiryFor "fastmcp-slim-mcp1";
   })
+  (import ./posthog-mcp1.nix {
+    expiry = expiryFor "posthog-mcp1";
+  })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })
 ]
