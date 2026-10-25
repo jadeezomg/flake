@@ -294,6 +294,14 @@ less, 1080p is 5-12 GB, and 720p is 2-8 GB. In Sonarr, the Size condition
 measures a full season pack, so efficient 4K means AV1 or HEVC instead. Bazarr
 gets the English subtitles after the download.
 
+Playback reads through mini's SSD (`hosts/mini/services/media/playback-cache.nix`).
+The `/media` mount uses FS-Cache (`fsc`), with a 200 GiB cache in a sparse ext4
+image at `/srv/fscache.img`. When Plex or Jellyfin start a file of 80 GiB or
+less, `media-prefetch` reads it once. The Unraid disk then delivers it in one
+burst and can spin down while the file plays from the SSD. A change to the
+`/media` mount options needs a reboot (`just mini deploy-boot`), because NFS
+cannot change `fsc` on a remount.
+
 The custom formats are not in the TRaSH guide. Nix writes them as JSON files,
 and Recyclarr reads them through a `custom-formats` resource provider. The Seerr
 request settings (default profile, season picker, specials, TVDB metadata) are
