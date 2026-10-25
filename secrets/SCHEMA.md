@@ -147,7 +147,7 @@ All media secrets are nested, runtime-only values consumed by
 | `mini/media/prowlarr/api-key` | existing Prowlarr `config.xml` API key | nixflix Prowlarr configuration | mini |
 | `mini/media/prowlarr/password` | generated web UI password | nixflix Prowlarr host configuration | mini |
 | `mini/media/prowlarr/indexers/nzbgeek-api-key` | existing NZBgeek Prowlarr indexer settings | nixflix Prowlarr indexer reconciliation | mini |
-| `mini/media/prowlarr/indexers/scenenzbs-api-key` | existing SceneNZBs Prowlarr indexer settings | nixflix Prowlarr indexer reconciliation | mini |
+| `mini/media/prowlarr/indexers/treasuremaps-api-key` | Treasure Maps (formerly SceneNZBs) account API key | nixflix Prowlarr indexer reconciliation | mini |
 | `mini/media/sabnzbd/api-key` | existing `sabnzbd.ini` API key | nixflix SABnzbd and Arr download-client integration | mini |
 | `mini/media/sabnzbd/nzb-key` | existing `sabnzbd.ini` NZB key | nixflix SABnzbd configuration | mini |
 | `mini/media/sabnzbd/username` | current unset `sabnzbd.ini` web username (encrypted empty value) | nixflix SABnzbd configuration | mini |
