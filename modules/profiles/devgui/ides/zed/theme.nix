@@ -13,6 +13,15 @@ let
   # cream text color, so the removed overlay had the color of the text on it.
   # The palette red takes its place, with the alphas of the added colors.
   deletedColor = config.dotfiles.theme.palette.ansi-red;
+  # Title bar, status bar, and popups. Stylix uses base01 (bg-secondary). The
+  # black variant changes only bg-primary, so these stayed brown. With the
+  # black variant, they use bg-primary. The line highlight keeps base01,
+  # because it is not visible on bg-primary.
+  barColor =
+    if config.dotfiles.theme.variant == "black" then
+      config.dotfiles.theme.palette.bg-primary
+    else
+      config.dotfiles.theme.palette.bg-secondary;
 in
 {
   home.activation.zedThemeSurfaceAlpha = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
@@ -42,12 +51,13 @@ in
               | ."editor.gutter.background"  |= with_alpha("50")
               | ."terminal.background"       |= with_alpha("00")
               | ."panel.background"          |= with_alpha("00")
-              | ."title_bar.background"      |= with_alpha("c0")
+              | ."title_bar.background"      = "${barColor}c0"
               | ."title_bar.inactive_background" |= with_alpha("b0")
               | ."tab_bar.background"        |= with_alpha("00")
               | ."tab.active_background"     |= with_alpha("d0")
               | ."tab.inactive_background"   |= with_alpha("00")
-              | ."status_bar.background"     |= with_alpha("c0")
+              | ."status_bar.background"     = "${barColor}c0"
+              | ."elevated_surface.background" = "${barColor}ff"
               | ."toolbar.background"        |= with_alpha("d0")
               | ."background.appearance"    = "blurred"
               | .syntax.comment.color        = "${commentColor}"

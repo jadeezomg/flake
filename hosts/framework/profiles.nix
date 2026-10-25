@@ -10,6 +10,7 @@ _: {
     devgui.enable = true;
     apps.enable = true;
     gaming.enable = true;
+    theme.variant = "black";
     desktop = {
       shell = "noctalia";
       loginManager = "gdm"; # required for noctalia
