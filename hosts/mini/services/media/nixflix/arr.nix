@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -20,6 +21,28 @@ let
   # Media is deleted by hand (Plex, Jellyfin, files). Without this, the app
   # sees the file missing and downloads it again. Upgrades are not affected.
   unmonitorDeleted = field: { ${field} = true; };
+
+  # nixflix's mediamanagement and delayprofiles units, unlike its other API
+  # units, do not wait for the app. When a deploy restarted the apps, they
+  # ran before the API listened and failed with "couldn't connect"
+  # (2026-10-25). This orders them after the app and waits for /ping.
+  waitForApi = app: port: {
+    after = [ "${app}.service" ];
+    preStart = ''
+      for _ in $(seq 120); do
+        ${lib.getExe pkgs.curl} -sf --max-time 2 http://127.0.0.1:${toString port}/ping >/dev/null && exit 0
+        sleep 1
+      done
+      echo "${app} did not answer on port ${toString port}" >&2
+      exit 1
+    '';
+    onFailure = [ "ntfy-alert@%n.service" ];
+  };
+  arrPorts = {
+    radarr = 7878;
+    sonarr = 8989;
+    lidarr = 8686;
+  };
 in
 {
   nixflix = {
@@ -160,42 +183,47 @@ in
     };
   };
 
-  systemd.services = {
-    # Upstream's reconciler returns 1 after successfully updating every indexer.
-    prowlarr-indexers.serviceConfig.SuccessExitStatus = [ 1 ];
+  systemd.services =
+    lib.concatMapAttrs (app: port: {
+      "${app}-mediamanagement" = waitForApi app port;
+      "${app}-delayprofiles" = waitForApi app port;
+    }) arrPorts
+    // {
+      # Upstream's reconciler returns 1 after successfully updating every indexer.
+      prowlarr-indexers.serviceConfig.SuccessExitStatus = [ 1 ];
 
-    # One ReadWritePaths entry for /data (not per-subdir). Separate systemd binds
-    # remount each path and break hardlinks (EXDEV) between torrents/usenet and media.
-    # Also avoids /data appearing read-only under ProtectSystem=strict with NFS.
-    sonarr.serviceConfig = {
-      PrivateTmp = true;
-      ProtectSystem = "strict";
-      ReadWritePaths = lib.mkForce [
-        "/srv/nixflix/sonarr"
-        "/data"
-      ];
+      # One ReadWritePaths entry for /data (not per-subdir). Separate systemd binds
+      # remount each path and break hardlinks (EXDEV) between torrents/usenet and media.
+      # Also avoids /data appearing read-only under ProtectSystem=strict with NFS.
+      sonarr.serviceConfig = {
+        PrivateTmp = true;
+        ProtectSystem = "strict";
+        ReadWritePaths = lib.mkForce [
+          "/srv/nixflix/sonarr"
+          "/data"
+        ];
+      };
+      radarr.serviceConfig = {
+        PrivateTmp = true;
+        ProtectSystem = "strict";
+        ReadWritePaths = lib.mkForce [
+          "/srv/nixflix/radarr"
+          "/data"
+        ];
+      };
+      lidarr.serviceConfig = {
+        PrivateTmp = true;
+        ProtectSystem = "strict";
+        ReadWritePaths = lib.mkForce [
+          "/srv/nixflix/lidarr"
+          "/data"
+          "/Music"
+        ];
+      };
+      prowlarr.serviceConfig = {
+        PrivateTmp = true;
+        ProtectSystem = "strict";
+        ReadWritePaths = lib.mkForce [ "/srv/nixflix/prowlarr" ];
+      };
     };
-    radarr.serviceConfig = {
-      PrivateTmp = true;
-      ProtectSystem = "strict";
-      ReadWritePaths = lib.mkForce [
-        "/srv/nixflix/radarr"
-        "/data"
-      ];
-    };
-    lidarr.serviceConfig = {
-      PrivateTmp = true;
-      ProtectSystem = "strict";
-      ReadWritePaths = lib.mkForce [
-        "/srv/nixflix/lidarr"
-        "/data"
-        "/Music"
-      ];
-    };
-    prowlarr.serviceConfig = {
-      PrivateTmp = true;
-      ProtectSystem = "strict";
-      ReadWritePaths = lib.mkForce [ "/srv/nixflix/prowlarr" ];
-    };
-  };
 }
