@@ -33,6 +33,8 @@ let
   jq = lib.getExe pkgs.jq;
 in
 {
+  sops.secrets."mini/media/seerr/api-key".restartUnits = [ "seerr.service" ];
+
   systemd.services.seerr = {
     # Profiles are synced and old ones deleted before Seerr reads their IDs.
     after = [
@@ -45,6 +47,7 @@ in
     serviceConfig.LoadCredential = [
       "radarr-api-key:${config.sops.secrets."mini/media/radarr/api-key".path}"
       "sonarr-api-key:${config.sops.secrets."mini/media/sonarr/api-key".path}"
+      "seerr-api-key:${config.sops.secrets."mini/media/seerr/api-key".path}"
     ];
 
     preStart = ''
@@ -72,11 +75,15 @@ in
 
       radarr=$(profile radarr 7878)
       sonarr=$(profile sonarr 8989)
+      # Seerr's own API key comes from sops, so Homepage can read it too.
+      # Seerr keeps a key that is already in settings.json.
       ${jq} \
         --slurpfile patch ${patch} \
         --argjson radarr "$radarr" \
         --argjson sonarr "$sonarr" \
+        --rawfile apikey "$CREDENTIALS_DIRECTORY/seerr-api-key" \
         '. * $patch[0]
+          | .main.apiKey = $apikey
           | .radarr |= map(. + $radarr)
           | .sonarr |= map(. + $sonarr)' \
         "$settings" >"$settings.tmp"

@@ -138,31 +138,33 @@ All media secrets are nested, runtime-only values consumed by
 
 | Path | Source | Consumed by | Consumed on |
 |---|---|---|---|
-| `mini/media/sonarr/api-key` | existing Sonarr `config.xml` API key | nixflix Sonarr configuration and Seerr cutover rewrite | mini |
+| `mini/media/sonarr/api-key` | existing Sonarr `config.xml` API key | nixflix Sonarr configuration and Seerr cutover rewrite; Homepage widget | mini |
 | `mini/media/sonarr/password` | generated web UI password | nixflix Sonarr host configuration | mini |
-| `mini/media/radarr/api-key` | existing Radarr `config.xml` API key | nixflix Radarr configuration and Seerr cutover rewrite | mini |
+| `mini/media/radarr/api-key` | existing Radarr `config.xml` API key | nixflix Radarr configuration and Seerr cutover rewrite; Homepage widget | mini |
 | `mini/media/radarr/password` | generated web UI password | nixflix Radarr host configuration | mini |
-| `mini/media/lidarr/api-key` | existing Lidarr `config.xml` API key | nixflix Lidarr configuration | mini |
+| `mini/media/lidarr/api-key` | existing Lidarr `config.xml` API key | nixflix Lidarr configuration; Homepage widget | mini |
 | `mini/media/lidarr/password` | generated web UI password | nixflix Lidarr host configuration | mini |
-| `mini/media/prowlarr/api-key` | existing Prowlarr `config.xml` API key | nixflix Prowlarr configuration | mini |
+| `mini/media/prowlarr/api-key` | existing Prowlarr `config.xml` API key | nixflix Prowlarr configuration; Homepage widget | mini |
 | `mini/media/prowlarr/password` | generated web UI password | nixflix Prowlarr host configuration | mini |
 | `mini/media/prowlarr/indexers/nzbgeek-api-key` | existing NZBgeek Prowlarr indexer settings | nixflix Prowlarr indexer reconciliation | mini |
 | `mini/media/prowlarr/indexers/treasuremaps-api-key` | Treasure Maps (formerly SceneNZBs) account API key | nixflix Prowlarr indexer reconciliation | mini |
-| `mini/media/sabnzbd/api-key` | existing `sabnzbd.ini` API key | nixflix SABnzbd and Arr download-client integration | mini |
+| `mini/media/sabnzbd/api-key` | existing `sabnzbd.ini` API key | nixflix SABnzbd and Arr download-client integration; Homepage widget | mini |
 | `mini/media/sabnzbd/nzb-key` | existing `sabnzbd.ini` NZB key | nixflix SABnzbd configuration | mini |
 | `mini/media/sabnzbd/username` | current unset `sabnzbd.ini` web username (encrypted empty value) | nixflix SABnzbd configuration | mini |
 | `mini/media/sabnzbd/password` | current unset `sabnzbd.ini` web password (encrypted empty value) | nixflix SABnzbd configuration | mini |
 | `mini/media/sabnzbd/premiumize-username` | existing Premiumize server username in `sabnzbd.ini` | nixflix SABnzbd Premiumize server | mini |
 | `mini/media/sabnzbd/premiumize-password` | existing Premiumize server password in `sabnzbd.ini` | nixflix SABnzbd Premiumize server | mini |
-| `mini/media/qbittorrent/password` | generated WebUI/Arr password (plaintext) | nixflix Arr→qBittorrent integration; qbittorrent ExecStartPre derives `Password_PBKDF2` for WebUI | mini |
+| `mini/media/qbittorrent/password` | generated WebUI/Arr password (plaintext) | nixflix Arr→qBittorrent integration; qbittorrent ExecStartPre derives `Password_PBKDF2` for WebUI; Homepage widget | mini |
+| `mini/media/bazarr/api-key` | generated 16-byte hexadecimal API key (`openssl rand -hex 16`) | Bazarr `auth.apikey`; `media-ptbr`; Homepage Bazarr widget | mini |
+| `mini/media/seerr/api-key` | generated 32-byte hexadecimal API key (`openssl rand -hex 32`) | Seerr `main.apiKey` (seerr preStart); Homepage Seerr widget | mini |
 | `mini/media/bazarr/opensubtitles-username` | OpenSubtitles.com account username (not email) | Bazarr English subtitle provider | mini |
 | `mini/media/bazarr/opensubtitles-password` | OpenSubtitles.com account password | Bazarr English subtitle provider | mini |
 | `mini/ntfy/jadee-password` | generated (24 chars) — log in to https://ntfy.jadee.fyi as `jadee` | not deployed; read with `sops -d` for the phone app | — |
 | `mini/ntfy/jadee-password-hash` | `ntfy user hash` of the password above | ntfy `NTFY_AUTH_USERS` (sops template) | mini |
 | `mini/ntfy/mini-password-hash` | `ntfy user hash` of a discarded random password | ntfy `NTFY_AUTH_USERS` for the `mini` publisher | mini |
 | `mini/ntfy/mini-token` | `ntfy token generate` | ntfy `NTFY_AUTH_TOKENS`; nixflix notif ntfy; `ntfy-alert@` | mini |
-| `mini/media/plex/token` | `PlexOnlineToken` in Plex `Preferences.xml` on mini | `plex-connect` (Radarr/Sonarr Plex connection) | mini |
-| `mini/media/jellyfin/api-key` | generated 32-byte hexadecimal API key | nixflix Jellyfin management services and one-shot watch migration | mini |
+| `mini/media/plex/token` | `PlexOnlineToken` in Plex `Preferences.xml` on mini | `plex-connect` (Radarr/Sonarr Plex connection); Homepage Plex widget | mini |
+| `mini/media/jellyfin/api-key` | generated 32-byte hexadecimal API key | nixflix Jellyfin management services and one-shot watch migration; Homepage Jellyfin widget | mini |
 | `mini/media/jellyfin/users/jadee-password` | generated initial Jellyfin password | nixflix Jellyfin user creation | mini |
 | `mini/media/jellyfin/users/angeli265-password` | generated initial Jellyfin password | nixflix Jellyfin user creation | mini |
 | `mini/media/vpn/wireguard-conf` | Proton VPN WireGuard profile downloaded from the existing account | nixflix VPN confinement `wgConfFile` | mini |

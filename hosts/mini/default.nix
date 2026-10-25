@@ -23,6 +23,7 @@ in
     ./services/caddy.nix
     ./services/hermes.nix
     ./services/hermes-dashboard.nix
+    ./services/homepage.nix
     ./services/matrix.nix
     ./services/ntfy.nix
     ./services/cinny.nix
