@@ -4,15 +4,15 @@
 
 [general]
 autostart = [
-  "pear-desktop",
-  # YouTube Music above Zen on the portrait screen. Umbriel has no rule for the
-  # order of columns: a new tiled window opens right after the focused column.
-  # So Zen waits until the YouTube Music window is open, for 10 s at most.
-  '''i=0; until umbriel windows | grep -q 'th-ch\.youtube-music' || [ "$i" -ge 100 ]; do sleep 0.1; i=$((i + 1)); done; zen-twilight || zen-beta''',
-  # Make the AW3926QW the X11 primary output. Wine's X11 driver uses it as the
-  # primary monitor, and GE-Proton reads it from xrandr for its Wayland driver.
-  # Without it, games size themselves to the portrait screen at 0,0.
-  '''xrandr --output "$(umbriel outputs --json | jq -r '(.outputs? // .)[] | select(.model == "AW3926QW") | .name')" --primary''',
+    "pear-desktop",
+    # YouTube Music above Zen on the portrait screen. Umbriel has no rule for the
+    # order of columns: a new tiled window opens right after the focused column.
+    # So Zen waits until the YouTube Music window is open, for 10 s at most.
+    '''i=0; until umbriel windows | grep -q 'th-ch\.youtube-music' || [ "$i" -ge 100 ]; do sleep 0.1; i=$((i + 1)); done; zen-twilight || zen-beta''',
+    # Make the AW3926QW the X11 primary output. Wine's X11 driver uses it as the
+    # primary monitor, and GE-Proton reads it from xrandr for its Wayland driver.
+    # Without it, games size themselves to the portrait screen at 0,0.
+    '''xrandr --output "$(umbriel outputs --json | jq -r '(.outputs? // .)[] | select(.model == "AW3926QW") | .name')" --primary''',
 ]
 
 # HDR for Proton games by default. As an X11 window a game only gets sRGB;
@@ -40,6 +40,10 @@ unfocused = "#110c0bff"
 # below, so this list applies to the ultrawide only.
 [layout]
 extent_presets = [0.25, 0.5, 0.75, 1.0]
+# The Noctalia bar on the ultrawide reserves no space and covers 3 to 28 px.
+# A 15 px strut moves windows from 13 to 28 px, so they barely touch the bar.
+# 20 would clear it completely.
+struts = { top = 10 }
 
 # Mod+A sets the focused window to 90% width, not full width. It is not a
 # toggle: Mod+R goes back to a preset. On the portrait screen it sets 90%

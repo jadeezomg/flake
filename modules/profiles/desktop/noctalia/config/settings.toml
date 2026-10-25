@@ -17,8 +17,10 @@ order = [ "default", "side", "laptop" ]
     end = [ "tray", "group:g6", "group:g5" ]
     margin_edge = 3
     margin_ends = 900
+    margin_opposite_edge = 5
+    padding = 20
     radius = 0
-    reserve_space = true
+    reserve_space = false
     show_on_workspace_switch = false
     start = [ "status", "group:g1" ]
     thickness = 25
@@ -355,7 +357,7 @@ widget_order = [ "desktop-widget-0000000000000001", "desktop-widget-000000000000
         show_forecast = true
 
 [dock]
-background_opacity = 0.8
+background_opacity = 0.80000000000000004
 border = "on_secondary"
 border_width = 3.0
 concave_edge_corners = false
@@ -563,6 +565,7 @@ monitors = [ "HDMI-A-1", "eDP-1" ]
 
 [osd]
 background_opacity = 0.59999998658895493
+border = false
 monitors = [ "DP-1", "eDP-1" ]
 offset_y = 40
 
@@ -574,6 +577,7 @@ lutris_enabled = false
 [plugin_settings."davemhammer/tailscale"]
 manager_open_near_click = false
 manager_placement = "attached"
+ssh_user = "jadee"
 
 [plugin_settings."icefish/phone-connect"]
 details_floating_placement = "attached"
@@ -635,6 +639,8 @@ password_style = "random"
     German = "de"
 
     [shell.panel]
+    borders = false
+    clipboard_placement = "attached"
     floating_offset = 10
     polkit_placement = "attached"
     transparency_mode = "glass"
@@ -666,19 +672,19 @@ transition_on_startup = true
     interval_seconds = 600
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Shipwreck_on_the_Coast_of_Norway_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_View_of_Dresden_by_Moonlight_-_Google_Art_Project.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Shipwreck_on_the_Coast_of_Norway_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_View_of_Dresden_by_Moonlight_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.DP-1]
-    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_View_of_Dresden_by_Moonlight_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.DP-2]
     path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Winter_at_the_Sognefjord_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_View_of_Dresden_by_Moonlight_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.HDMI-A-2]
     path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
