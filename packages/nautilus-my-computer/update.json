@@ -1,3 +1,8 @@
 {
-	"type": "nix-update"
+	"type": "nix-update",
+	"hold": {
+		"reason": "0.13.3 crashes Nautilus when it opens Network.",
+		"issue": "https://github.com/yannmasoch/nautilus-my-computer/issues/198",
+		"bad_versions": ["0.13.3"]
+	}
 }
