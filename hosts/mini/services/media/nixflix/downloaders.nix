@@ -1,21 +1,16 @@
 {
   config,
-  dotfilesLib,
   lib,
   pkgs,
   ...
 }:
 let
   inherit (import ./common.nix) mountDeps;
-  inherit (dotfilesLib.expiry { inherit lib; } "hosts/mini/services/media/nixflix/downloaders.nix")
-    todo
-    ;
 
   # SABnzbd's queue/history database and logs stay on mini's SSD. On the data
   # share the mover put them on an array disk (disk2), and SABnzbd writes the
   # database every few seconds, so disk2 and parity never spun down.
   sabnzbdState = "/var/lib/sabnzbd";
-  oldAdminDir = "/data/usenet/admin";
 
   # Search stays inside the VPN netns with qBittorrent (no host-netns escape).
   # Plugins are managed manually via the WebUI under nova3/engines — not declared in Nix.
@@ -268,14 +263,6 @@ in
     sabnzbd = {
       after = mountDeps;
       requires = mountDeps;
-      # One-time move of the queue and history from the data share. A no-op
-      # once the new admin dir has a database.
-      preStart = todo "remove the SABnzbd admin-dir migration and ${oldAdminDir} on Unraid once it ran on mini" ''
-        if [ ! -e ${sabnzbdState}/admin/history1.db ] && [ -e ${oldAdminDir}/history1.db ]; then
-          echo "Moving the SABnzbd queue and history from ${oldAdminDir} to ${sabnzbdState}/admin"
-          cp -a ${oldAdminDir}/. ${sabnzbdState}/admin/
-        fi
-      '';
       serviceConfig = {
         BindPaths = lib.mkForce [ ];
         ReadWritePaths = lib.mkForce [
