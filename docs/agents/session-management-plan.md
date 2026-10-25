@@ -357,9 +357,9 @@ Phase 0 test: the tailnet ACL is not in this repo. If it limits ports, it can bl
 Recommendation: agentsview on mini.
 
 - It reads the pushed folders through `[[session_sources]]`, one entry per host and agent, with a machine label.
-- It reads mini's own agent folders and hermes `state.db` locally. The `agentsview` service user needs read access to `/var/lib/hermes/.hermes`, or a job copies a `.backup` snapshot.
+- mini's own agent folders reach the archive by the same push as the other hosts, so agentsview reads only `/srv/agent-sessions`. A timer that runs as user `hermes` copies a `.backup` snapshot of hermes `state.db` into `/srv/agent-sessions/mini-hermes/hermes/`.
 - Its SQLite archive keeps a session after the source file is gone.
-- The web UI goes behind Caddy at a tailnet-only name, with `--require-auth`. Search over SSH uses the CLI.
+- The web UI is at `https://sessions.jadee.fyi` (tailnet only, port 8089 on loopback). Caddy `basic_auth` uses the hermes dashboard login. agentsview's own auth is a single API token, so it stays off.
 - `cleanupPeriodDays` is 120 (was the default 30). It gives time to notice a broken push.
 
 ### Backup
@@ -442,18 +442,28 @@ All decisions have answers (2026-10-25). Phase 0 has tests and small moves left.
 3. Record which files `herdr integration install` and `tuios integration install` write. On these hosts, `~/.claude/settings.json` is a live symlink into the flake checkout.
 4. Do a dry run of the push and of agentsview on desktop.
 5. Run the herdr and tuios trial (D2).
-6. Change the remote-edit rule in the flake `AGENTS.md` (D8).
+6. Done 2026-10-25: the remote-edit rule in the flake `AGENTS.md` (D8).
 7. Move `~/Git` to `~/git` on desktop, and on framework if it has one (D9). Update the noctalia path.
 
 ### Phase 1: C, the archive
 
 1. Done 2026-10-25: `cleanupPeriodDays = 120` in `data/agents/global/settings.json`. Other hosts get it when their checkout has the commit.
-2. Add the archive directory and the push receiver on mini (D4b).
-3. Add the push timer to desktop and framework.
-4. Add the agentsview service on mini with `[[session_sources]]` for each pushed tree.
-5. Add the mini-local sources: jadee's agent folders and hermes `state.db`.
-6. Put the agentsview web UI behind Caddy on the tailnet.
-7. Add the restic backup to Unraid.
+2. Written 2026-10-25 on branch `agent-sessions`, not deployed:
+   - `hosts/mini/services/agent-sessions.nix`: push receiver (user `agent-push`, port 2222, `rrsync -wo -no-del`), hermes snapshot timer, agentsview, Caddy vhost, restic backup.
+   - `modules/profiles/devenv/agents/session-push.nix`: push timer on every Linux host, mini included.
+   - `data/agents/session-sources.nix`: the source list. `dotfilesLib` now exports `hostFacts` and `agentSessionSources`.
+3. Tested locally: rsync with the push flags against `rrsync -wo -no-del` (12 checks), and two agentsview starts with the generated `config.toml`.
+
+Rollout, in this order:
+
+1. Add `mini/backup/agent-sessions-restic-password` to `secrets/secrets.yaml`. A missing key fails the mini switch.
+2. On Unraid: `mkdir -p /mnt/user/backup/agent-sessions`.
+3. Switch desktop, framework, and mini. Each switch makes `~/.ssh/agent_push_ed25519`. No timer runs yet.
+4. Copy each `~/.ssh/agent_push_ed25519.pub` into its `hosts/<host>/host.nix` as `agentPushKey`.
+5. Switch mini, then the other hosts. The timers start.
+6. Run `flake mini dns-sync` for `sessions.jadee.fyi`.
+7. Phase 0 test: `nc -vz mini.quokka-qilin.ts.net 2222` from framework off the LAN.
+8. Check: `systemctl --user status agent-session-push` on each host, `ls /srv/agent-sessions` on mini, and the web UI.
 
 ### Phase 2: A, mini as agent host
 
