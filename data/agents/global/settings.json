@@ -94,7 +94,8 @@
 	},
 	"model": "opus",
 	"env": {
-		"CLAUDE_CODE_PLUGIN_DIRS": "~/.dotfiles/flake/data/agents/mods/stereo-view"
+		"CLAUDE_CODE_PLUGIN_DIRS": "~/.dotfiles/flake/data/agents/mods/stereo-view",
+		"CLAUDE_CODE_ENABLE_TODO_TOOLS": "1"
 	},
 	"enabledPlugins": {
 		"caya-working-docs@caya": true,
@@ -151,6 +152,7 @@
 	"editorMode": "normal",
 	"preferredNotifChannel": "kitty",
 	"autoCompactEnabled": true,
+	"cleanupPeriodDays": 120,
 	"switchModelsOnFlag": false,
 	"showTurnDuration": true,
 	"remoteControlAtStartup": true,
@@ -160,5 +162,19 @@
 		"claude-opus-5-5": {
 			"effortLevel": "xhigh"
 		}
+	},
+	"hooks": {
+		"SessionStart": [
+			{
+				"matcher": "^(startup|resume|clear|compact|fork)$",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash '/home/jadee/.claude/hooks/herdr-agent-state.sh' session",
+						"timeout": 10
+					}
+				]
+			}
+		]
 	}
 }

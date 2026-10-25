@@ -68,6 +68,11 @@ in
   # Flake-managed hosts keep their facts in hosts/<name>/host.nix instead.
   inherit lanHosts;
 
+  # Facts of every host the flake builds, keyed by host key. For a module that
+  # needs another host's facts, such as the agent session push, which reads
+  # mini's tailnet address, and mini, which reads each host's push key.
+  inherit hostFacts;
+
   # The account registry from data/users/users.nix, keyed by registry name (not
   # by `username`). `hosts/lib.nix` builds the system accounts from the same
   # file; modules read identity facts (git author, ...) through this.
@@ -80,6 +85,9 @@ in
   # A store path, so APM's local `path:` deps do not depend on where the flake
   # is checked out — see modules/profiles/devenv/agents/apm.nix.
   agentSkillsDir = ../data/agents + "/skills";
+  # Where each agent keeps its sessions. The push on each host and the
+  # archive on mini read the same list.
+  agentSessionSources = import ../data/agents/session-sources.nix;
   # apply: flakeRoot
   agentDataFiles = flakeRoot: rec {
     root = "${flakeRoot}/data/agents";

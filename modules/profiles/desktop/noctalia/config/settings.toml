@@ -690,7 +690,7 @@ transition_on_startup = true
     path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Shipwreck_on_the_Coast_of_Norway_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
 
 [widget.active_window]
 anchor = true
