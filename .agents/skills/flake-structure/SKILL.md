@@ -84,6 +84,7 @@ Hazards:
 - `packages/names.nix` lists every `packages/<name>/default.nix`. `parts/packages.nix` and `parts/overlays/local-packages.nix` share it. Do not add explicit imports.
 - Every updatable package has `update.json` beside `default.nix`. `.update-check.json` is generated cooldown state.
 - Update types: `nix-update` (built in), `binary_channel`, `fetchzip`, `npm`. `fetchzip` serves `iosevka-aile` and `iosevka-etoile`.
+- An optional `hold` in `update.json` keeps a package off known-bad upstream versions. It has a `reason`, a `bad_versions` list, and an optional GitHub `issue` URL. When upstream is at a bad version, `update-packages` puts `default.nix` back and shows the package as held. The first release outside `bad_versions` retires the hold: the run applies the update and prints that the hold is obsolete, with the issue state.
 - Use standard `callPackage` conventions. Verify packages with live nixpkgs tooling before you add them.
 
 ## Scripts

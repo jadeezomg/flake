@@ -12,6 +12,7 @@ Custom flake packages auto-registered into overlays and flake package outputs.
 
 - `packages/*/default.nix` files are auto-registered as `pkgs.<name>`; do not add explicit duplicate imports.
 - Updatable packages need `update.json`; `.update-check.json` is generated state with a cooldown.
+- To keep a package off a bad upstream release, add a `hold` to `update.json` (see `flake-structure`). Do not use `--version=skip` in `extra_args` for this, because it never expires.
 - Use standard `callPackage` signatures; only accept final `pkgs` when the derivation genuinely needs it.
 - Verify packages/dependencies with live nixpkgs tooling and cache availability before adding them.
 - Packages not managed by nixpkgs must ship a removal solution for any mutable side effects (MCP entries, plugins, npm globals, config dirs, etc.) when they are dropped from the flake. Do not leave orphaned state for a later cleanup pass.
