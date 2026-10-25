@@ -34,6 +34,17 @@ sharedNixOSHost
   # see docs/adr/0007-immich-library-on-mini.md.
   miniImmich = true;
 
+  # Agent session archive (./services/agent-sessions.nix): hosts push their agent
+  # session files here, agentsview indexes them, restic backs them up to Unraid.
+  # Plan: docs/agents/session-management-plan.md.
+  miniAgentSessions = true;
+
+  # The push reaches mini by its tailnet name on this port, where OpenSSH answers.
+  # Port 22 on the tailnet belongs to Tailscale SSH, which ignores the forced
+  # rrsync command in authorized_keys. Read by both ends of the push.
+  tailnetAddress = "mini.quokka-qilin.ts.net";
+  agentPushPort = 2222;
+
   # Static LAN address on enp2s0f0np0 (see default.nix mini-lan NM profile).
   miniLanAddress = lanAddress;
 

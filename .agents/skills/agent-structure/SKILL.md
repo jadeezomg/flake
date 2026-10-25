@@ -87,7 +87,8 @@ A mod is a Claude Code plugin of function hooks: a pane, a command, or a hook on
 - `agentsDataDir`: `../data/agents` as a store path.
 - `agentSkillsDir`: `../data/agents/skills` as a store path. `apm.nix` builds its `path:` deps from it on purpose, so APM does not depend on where the flake is checked out.
 - `agentDataFiles flakeRoot`: live checkout paths. Keys: `root`, `globalAgentsMd`, `claudeSettings`, `claudeTheme`, `ompConfig`, `ompTheme`, `localSkills`.
-- Add new agent data files to `agentDataFiles`. Do not hardcode `data/agents/...` in modules.
+- `agentSessionSources`: `data/agents/session-sources.nix` as Nix data. It lists where each agent keeps its sessions. The session push and the archive on mini read it.
+- Add new agent data files to `agentDataFiles`, or to `dotfilesLib` when modules import them as Nix. Do not hardcode `data/agents/...` in modules.
 
 ## Sibling modules (`modules/profiles/devenv/agents/`)
 
@@ -96,6 +97,7 @@ A mod is a Claude Code plugin of function hooks: a pane, a command, or a hook on
 - `global-config.nix`: live symlinks for global config (above).
 - `nono-agent.nix` and `nono-profiles.nix`: nono dispatcher and profiles. Profile data lives in `lib/nono-profiles.nix`.
 - `pi-packages.nix`: declarative pi packages in `~/.pi/agent/settings.json`.
+- `session-push.nix`: a systemd user timer that pushes the session folders from `agentSessionSources` to the archive on mini (`hosts/mini/services/agent-sessions.nix`). Linux only. It runs only when the host has `agentPushKey` in its `host.nix`.
 - `tuicr.nix`: the `git review` alias for tuicr.
 
 ## Related files
