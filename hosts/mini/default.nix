@@ -23,7 +23,7 @@ in
     ./services/caddy.nix
     ./services/hermes.nix
     ./services/hermes-dashboard.nix
-    ./services/homepage.nix
+    ./services/homepage
     ./services/matrix.nix
     ./services/ntfy.nix
     ./services/cinny.nix
@@ -79,7 +79,7 @@ in
       # Format: <address>/<prefix>,<gateway>. The address comes from the host
       # facts so it cannot drift from the ssh alias and Caddy's LAN bind, which
       # read the same value (hosts/mini/host.nix `miniLanAddress`/`sshAddress`).
-      address1 = "${host.miniLanAddress}/24,192.168.178.1";
+      address1 = "${host.miniLanAddress}/24,${dotfilesLib.lanHosts.router.lan}";
       dns = "1.1.1.1;9.9.9.9";
     };
     ipv6.method = "auto";

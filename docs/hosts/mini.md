@@ -455,12 +455,12 @@ true, switch, run `atuin register`, then flip it back and switch again.
 
 ### Homepage start page
 
-`https://home.jadee.fyi` → loopback `:8082` (`services/homepage.nix`). One page
-with a tile for each service on mini and Unraid. Each tile shows a status dot from
-a loopback check. The media tiles also show live numbers from the service API.
+`https://home.jadee.fyi` → loopback `:8082` (`services/homepage/`). One page with a
+tile for each service on mini and Unraid. Each tile shows a status dot from a
+loopback check. Most tiles also show live numbers from the service API.
 
 - The full configuration is in Nix (`services.homepage-dashboard`). Homepage has no
-  web editor. To add a tile, add it to a group in `homepage.nix`.
+  web editor. To add a tile, add it to a group in `homepage/default.nix`.
 - The package comes from `pkgs-small` (nixos-unstable-small), because our
   nixos-unstable lock is behind. An expiry guard warns when the main lock has
   2.6.0, and then the pin goes back to `pkgs`.
@@ -472,9 +472,31 @@ a loopback check. The media tiles also show live numbers from the service API.
 - The page has no login. Access is limited to the tailnet and the LAN, as for the
   other vhosts. The Jellyfin widget has media control off, so a visitor cannot
   pause a stream.
-- Unraid, Immich and Beszel show links and status only. Their widgets need keys
-  that you create in each web UI (an Unraid API key, an Immich API key, a Beszel
-  user). Add the keys to sops, then add the widgets in `homepage.nix`.
+
+Look (`homepage/theme.nix`):
+
+- The colors are the Birds of Paradise palette of mini's theme variant.
+- The background shows the desktop wallpapers (`modules/profiles/theme/wallpapers`)
+  in random order. The interval is Noctalia's
+  `wallpaper.automation.interval_seconds`, so the page and the desktop change
+  together. The build scales the images to 2560x1600, and Caddy serves them at
+  `/wallpapers/`.
+
+Widgets that need a manual step:
+
+- **Unraid:** an API key named `homepage` in Unraid → Settings → Management
+  Access → API, in `mini/homepage/unraid-api-key`. Homepage 2.6 documents the
+  ADMIN role, but the widget only reads: a Viewer key gets all its fields.
+- **Immich:** an API key of the admin account with the `server.statistics`
+  permission, in `mini/homepage/immich-api-key`.
+- **Beszel:** a user `homepage@jadee.fyi` with the role `readonly`, created at
+  `https://beszel.jadee.fyi/_/` (users collection, verified). Its password is
+  `mini/homepage/beszel-password`. The hub sets `SHARE_ALL_SYSTEMS`, so this user
+  sees mini and Unraid.
+- **FRITZ!Box:** the widget uses UPnP status, with no login. If it shows an error,
+  turn on Home Network → Network → Network Settings → "Transmit status information
+  over UPnP".
+- **ntfy:** nothing. The `homepage` ntfy user can only read the `system` topic.
 
 ## 10. Known gaps / deferred
 

@@ -5,7 +5,8 @@
 #   system  failed units on mini (ntfy-alert@, attached with OnFailure=)
 #
 # Users come from the config (NTFY_AUTH_* in a sops template), not from the
-# ntfy CLI: `jadee` (admin) for the phone, `mini` (write-only) for services.
+# ntfy CLI: `jadee` (admin) for the phone, `mini` (write-only) for services,
+# `homepage` (read-only on `system`) for the start page.
 # The phone logs in with mini/ntfy/jadee-password from sops; mini only gets
 # its hash. Nothing else can read or publish (auth-default-access deny-all).
 {
@@ -25,15 +26,21 @@ in
     "mini/ntfy/jadee-password-hash" = { };
     "mini/ntfy/mini-password-hash" = { };
     "mini/ntfy/mini-token" = { };
+    "mini/ntfy/homepage-password-hash" = { };
+    "mini/ntfy/homepage-token" = { };
   };
 
+  # `homepage` reads the system topic for the Homepage ntfy tile
+  # (homepage/default.nix). It logs in only with its token.
   sops.templates."ntfy.env" = {
     content = ''
       NTFY_AUTH_USERS='jadee:${secret."mini/ntfy/jadee-password-hash"}:admin,mini:${
         secret."mini/ntfy/mini-password-hash"
-      }:user'
-      NTFY_AUTH_TOKENS='mini:${secret."mini/ntfy/mini-token"}:mini services'
-      NTFY_AUTH_ACCESS='mini:media:wo,mini:system:wo'
+      }:user,homepage:${secret."mini/ntfy/homepage-password-hash"}:user'
+      NTFY_AUTH_TOKENS='mini:${secret."mini/ntfy/mini-token"}:mini services,homepage:${
+        secret."mini/ntfy/homepage-token"
+      }:homepage'
+      NTFY_AUTH_ACCESS='mini:media:wo,mini:system:wo,homepage:system:ro'
     '';
     restartUnits = [ "ntfy-sh.service" ];
   };

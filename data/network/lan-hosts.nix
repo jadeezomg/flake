@@ -15,8 +15,15 @@
 #   hosts/mini/services/media/storage.nix     NFS mounts (/data, /Music, /media)
 #   hosts/mini/services/immich-backup.nix     restic sftp transport
 #   data/network/ssh-destinations.nix         the `unraid` ssh alias
+#   hosts/mini/default.nix                    mini-lan gateway (`router`)
+#   hosts/mini/services/homepage/             Homepage tiles (`router`, `unraid`)
 {
   hosts = {
+    # FRITZ!Box 6670 Cable: the LAN gateway.
+    router = {
+      lan = "192.168.178.1";
+    };
+
     # Unraid NAS. Runs the household share pool and, since ADR-0007, receives
     # mini's Immich backup. Tailscale SSH is available on the tailnet name but
     # periodically demands an interactive browser re-auth, so automation should
