@@ -87,6 +87,14 @@ in
           }
         ''}
       }
+
+      # For vhosts without a login that must stay off the LAN bind above: answer
+      # 403 to every client outside the tailnet ranges (Tailscale CGNAT IPv4 and
+      # its ULA IPv6). Used by hermes.jadee.fyi and sessions.jadee.fyi.
+      (tailnet-only) {
+        @outside_tailnet not remote_ip 100.64.0.0/10 fd7a:115c:a1e0::/48
+        respond @outside_tailnet 403
+      }
     '';
 
     # CF_API_TOKEN (DNS-01) + TS_AUTHKEY (node registration).
@@ -107,14 +115,12 @@ in
     secrets = {
       cloudflare_dns_api_token = { };
       tailscale_authkey = { };
-      # hermes_dashboard_basic_auth_hash is declared in ../secrets.nix (shared).
     };
     templates."caddy.env" = {
       mode = "0400";
       content = ''
         CF_API_TOKEN=${config.sops.placeholder.cloudflare_dns_api_token}
         TS_AUTHKEY=${config.sops.placeholder.tailscale_authkey}
-        HERMES_DASHBOARD_HASH=${config.sops.placeholder.hermes_dashboard_basic_auth_hash}
       '';
     };
   };

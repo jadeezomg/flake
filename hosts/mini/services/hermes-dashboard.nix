@@ -6,13 +6,14 @@
 # HERMES_HOME (sessions/cron/config). The dashboard server deps (fastapi/uvicorn) come
 # bundled in the hermes-agent package we run (see hermes.nix).
 #
-# Auth model (important): bound to 127.0.0.1, the dashboard runs in its "trusted
-# loopback" mode — it injects its session token into the page, so ANYONE who can
-# load the page gets control. We therefore NEVER expose it directly; Caddy is the
-# only door, gated with basic_auth (HERMES_DASHBOARD_HASH: the sops secret is declared
-# in ../secrets.nix and rendered into caddy.env by services/caddy.nix). Caddy rewrites Host→127.0.0.1 so the dashboard's DNS-rebinding
-# guard accepts the proxied request. Net: only someone on the tailnet AND past
-# basic_auth reaches a machine-control surface.
+# Access model (important): bound to 127.0.0.1, the dashboard runs in its "trusted
+# loopback" mode. It puts its session token into the page, so ANYONE who can load
+# the page controls hermes. We never expose it directly. Caddy is the only door,
+# and it has no login (decided 2026-10-26): the `tailnet-only` snippet
+# (services/caddy.nix) answers 403 to every client outside the tailnet. That
+# matters because the `tsnet` snippet also binds mini's LAN address. Caddy
+# rewrites Host→127.0.0.1 so the dashboard's DNS-rebinding guard accepts the
+# proxied request. Net: every device on the tailnet controls hermes.
 #
 # DNS: add an A record hermes.jadee.fyi → the mini-proxy node IP (the stale unraid
 # CNAME for that name must be deleted first — `flake mini dns-sync` will flag it).
@@ -79,16 +80,14 @@ in
     ];
   };
 
-  # Front door: tailnet TLS via the shared mini-proxy node, gated by basic_auth.
+  # Front door: tailnet TLS via the shared mini-proxy node, tailnet clients only.
   # The dashboard trusts loopback and rejects non-loopback Host/Origin (DNS-rebinding
   # + CORS guards), so we present the proxied request AS loopback: rewrite both Host
   # and Origin to 127.0.0.1. flush_interval -1 disables buffering so the SSE event
   # feed (/api/events) and the chat WebSockets (/api/ws, /api/pty) stream live.
   services.caddy.virtualHosts."hermes.jadee.fyi".extraConfig = ''
     import tsnet
-    basic_auth {
-      jadee {env.HERMES_DASHBOARD_HASH}
-    }
+    import tailnet-only
     reverse_proxy 127.0.0.1:${toString port} {
       header_up Host 127.0.0.1
       header_up Origin http://127.0.0.1

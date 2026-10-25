@@ -22,9 +22,10 @@
 # /var/lib/agentsview a symlink, and agentsview then cannot write its runtime
 # record there. agentsview writes generated secrets into its own
 # config.toml, so the unit writes that file from the Nix template at each start
-# and keeps the generated lines. Login: Caddy basic_auth with the hermes
-# dashboard credentials (hermes_dashboard_basic_auth_hash). agentsview's own
-# auth stays off, because it listens on loopback only.
+# and keeps the generated lines. No login (decided 2026-10-26): the
+# `tailnet-only` snippet (./caddy.nix) answers 403 to every client outside the
+# tailnet, because the `tsnet` snippet also binds mini's LAN address.
+# agentsview's own auth stays off, because it listens on loopback only.
 #
 # BACKUP. restic over SFTP to Unraid, same transport as ./immich-backup.nix,
 # with its own repo and password. agentsview's database is not in the backup:
@@ -171,11 +172,7 @@ in
 
     caddy.virtualHosts = mkTsnetProxy {
       inherit domain port;
-      extra = ''
-        basic_auth {
-          jadee {env.HERMES_DASHBOARD_HASH}
-        }
-      '';
+      extra = "import tailnet-only";
     };
 
     restic.backups.agent-sessions = {
