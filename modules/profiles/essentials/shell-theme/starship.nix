@@ -158,7 +158,7 @@ in
       };
 
       directory.substitutions = {
-        ".dotfiles/flake" = "${icons.nixos} flake";
+        "git/flake" = "${icons.nixos} flake";
       };
 
       git_branch = {

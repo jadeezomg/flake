@@ -94,7 +94,7 @@ zc
 # zd -> ~/Downloads
 zd
 
-# zf -> flake root (~/.dotfiles/flake by default; see dotfiles.flakeRoot)
+# zf -> flake root (~/git/flake by default; see dotfiles.flakeRoot)
 zf
 
 # zoxide interactive picker

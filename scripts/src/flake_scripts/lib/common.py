@@ -23,7 +23,7 @@ console_err = Console(theme=_THEME, stderr=True)
 def resolve_flake_root(
     explicit: Path | None = None, *, anchor: Path | None = None
 ) -> Path:
-    """Resolve flake root: explicit arg, $FLAKE, cwd walk-up, optional anchor file walk-up, then ~/.dotfiles/flake."""
+    """Resolve flake root: explicit arg, $FLAKE, cwd walk-up, optional anchor file walk-up, then ~/git/flake."""
     if explicit is not None:
         return explicit.resolve()
     env = os.environ.get("FLAKE")
@@ -33,7 +33,7 @@ def resolve_flake_root(
     for parent in [start, *start.parents]:
         if (parent / "flake.nix").is_file():
             return parent
-    return (Path.home() / ".dotfiles" / "flake").resolve()
+    return (Path.home() / "git" / "flake").resolve()
 
 
 def host_is_nixos() -> bool:

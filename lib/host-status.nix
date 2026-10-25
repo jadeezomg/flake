@@ -159,7 +159,7 @@ let
       }
 
       flake_status() {
-        local dir="''${FLAKE:-$HOME/.dotfiles/flake}"
+        local dir="''${FLAKE:-$HOME/git/flake}"
         if [ ! -d "$dir/.git" ]; then
           printf '(no flake)\n'; return 0
         fi
@@ -201,7 +201,7 @@ let
       }
 
       skills_status() {
-        local dir="''${FLAKE:-$HOME/.dotfiles/flake}"
+        local dir="''${FLAKE:-$HOME/git/flake}"
         local local_dir="$dir/data/agents/skills/local"
         local local_count=0
         if [ -d "$local_dir" ]; then

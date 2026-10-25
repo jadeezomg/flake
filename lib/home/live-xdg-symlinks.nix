@@ -16,7 +16,7 @@ in
   /**
     Pure default when not using the `dotfiles.flakeRoot` option (e.g. tests).
   */
-  liveFlakeRoot = homeDirectory: "${homeDirectory}/.dotfiles/flake";
+  liveFlakeRoot = homeDirectory: "${homeDirectory}/git/flake";
 
   inherit mkLiveSymlink;
 

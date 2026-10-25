@@ -94,7 +94,7 @@
 	},
 	"model": "opus",
 	"env": {
-		"CLAUDE_CODE_PLUGIN_DIRS": "~/.dotfiles/flake/data/agents/mods/stereo-view",
+		"CLAUDE_CODE_PLUGIN_DIRS": "~/git/flake/data/agents/mods/stereo-view",
 		"CLAUDE_CODE_ENABLE_TODO_TOOLS": "1"
 	},
 	"enabledPlugins": {

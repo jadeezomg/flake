@@ -50,5 +50,5 @@ These tools are only available on NixOS (desktop/framework hosts).
 ## Key Files
 
 - `/etc/nixos/` - NixOS config (but prefer flake)
-- `~/.dotfiles/flake/` - The flake root, also `$FLAKE`
+- `~/git/flake/` - The flake root, also `$FLAKE`
 - `.flake-host` - Active host; never commit it and never edit it
