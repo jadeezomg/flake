@@ -8,7 +8,6 @@
 # Verified 2026-10-24 against nixpkgs 3ec6363 (fastmcp-slim 3.4.7, mcp 2.2.0).
 {
   expiry,
-  lib,
 }:
 _final: prev: {
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [

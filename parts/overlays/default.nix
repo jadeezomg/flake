@@ -46,7 +46,6 @@ in
     expiry = expiryFor "open-webui-otel-system-metrics";
   })
   (import ./fastmcp-slim-mcp1.nix {
-    inherit lib;
     expiry = expiryFor "fastmcp-slim-mcp1";
   })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
