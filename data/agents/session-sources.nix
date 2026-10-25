@@ -21,7 +21,7 @@
   omp = {
     path = ".omp/agent/sessions";
     parser = "omp";
-    # Command output of each session, not transcript (177 MB on desktop).
+    # Command output of each session, not transcript (177 MB on framework).
     exclude = [ "*.log" ];
   };
   codex = {

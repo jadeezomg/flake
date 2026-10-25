@@ -30,14 +30,14 @@ Status events and telemetry (D) are out of scope. This plan describes D so that 
 
 | Item | State |
 |---|---|
-| herdr | 0.9.5 on every `devenv` host, mini included. desktop has the Claude `SessionStart` hook in `data/agents/global/settings.json`. mini has no integrations installed. No host has saved machines. |
+| herdr | 0.9.5 on every `devenv` host, mini included. The Claude `SessionStart` hook is in `data/agents/global/settings.json`, so every host has it. mini has no integrations installed. No host has saved machines. |
 | tmux, sesh | On every host (`modules/profiles/minimal/shells/core/tmux.nix`). |
 | mini capacity | `free -g` shows 31 GB total, 22 GB available. `docs/hosts/mini.md` says 24 GB. `/srv` has 1.6 TB free. `buildCores = 2`. |
 | mini user | `Linger=yes` for jadee (set by `modules/nixos/virtualization.nix` for `devenv` hosts). |
 | mini content | No repos. No `~/.claude/projects`. `~/.pi`, `~/.omp`, `~/.codex` exist. The flake checkout is at `~/.dotfiles/flake`. |
-| Repo folders | desktop keeps repos in `~/Git` (capital G, 6 entries). `~/Projects` is empty. `modules/profiles/desktop/noctalia/config/settings.toml` points at `~/Git/community-plugins`. framework not checked. |
+| Repo folders | framework keeps repos in `~/Git` (capital G, 6 entries). `~/Projects` is empty. `modules/profiles/desktop/noctalia/config/settings.toml` points at `~/Git/community-plugins`. desktop not checked. |
 | hermes | System service, user `hermes`, `HERMES_HOME=/var/lib/hermes/.hermes`. Matrix and Telegram gateway. Dashboard at `hermes.jadee.fyi`. Model access through OpenRouter. |
-| Network | mini firewall trusts `tailscale0` only. Laptops accept Tailscale SSH only. desktop → mini SSH works in `BatchMode` over the LAN address. |
+| Network | mini firewall trusts `tailscale0` only. Laptops accept Tailscale SSH only. framework → mini SSH works in `BatchMode` over the LAN address. |
 | caya | `sshAddress = null`. Nothing connects into caya. Work laptop. |
 | Claude Remote Control | `remoteControlAtStartup = true`. Claude sessions already show on claude.ai/code. |
 | Precedents on mini | atuin collects shell history from all hosts. restic over SFTP backs up Immich to Unraid. |
@@ -176,7 +176,7 @@ Decided: every git repo lives at `$HOME/git/<repo>`.
 - The one exception is the flake checkout at `~/.dotfiles/flake`. `flakeRoot`, the live symlinks for agent config, the `flake` alias, and mini's checkout depend on that path.
 - A Home Manager module creates `~/git` on each host, so that the folder exists before the first clone.
 
-Migration on desktop (contents on 2026-10-25):
+Migration on framework (contents on 2026-10-25):
 
 | Entry in `~/Git` | Kind | Action |
 |---|---|---|
@@ -187,9 +187,9 @@ Migration on desktop (contents on 2026-10-25):
 | `learn-rust` | Folder with 3 repos inside | Keep as a group folder, or move the 3 repos to the top level. Your choice. |
 | `vault` | Not a repo | Keep, or move out of `~/git`. Your choice. |
 
-Steps: run `mv ~/Git ~/git` on desktop, then update the noctalia path. On a case-sensitive file system, this is one rename. That noctalia file has uncommitted local changes today, so make the path change together with those changes. Do the same check on framework.
+Steps: run `mv ~/Git ~/git` on framework, then update the noctalia path. On a case-sensitive file system, this is one rename. That noctalia file has uncommitted local changes today, so make the path change together with those changes. Do the same check on desktop.
 
-Note on work repos on personal hosts: `graphs` is a work repo on desktop. D1 removes caya. The push still sends the sessions of `~/git/graphs` on desktop to the archive. You manage them by hand (D10). See [§ Work repos on personal hosts](#work-repos-on-personal-hosts).
+Note on work repos on personal hosts: `graphs` is a work repo on framework. D1 removes caya. The push still sends the sessions of `~/git/graphs` on framework to the archive. You manage them by hand (D10). See [§ Work repos on personal hosts](#work-repos-on-personal-hosts).
 
 ### Flake work on mini (D8)
 
@@ -255,9 +255,9 @@ Both tools install hooks into the agent config files. tuios writes through a sym
 
 ### Sources
 
-Measured on desktop on 2026-10-25. Only paths, sizes, and record keys were read.
+Measured on framework on 2026-10-25. Only paths, sizes, and record keys were read.
 
-| Agent | Store | Format | Size on desktop |
+| Agent | Store | Format | Size on framework |
 |---|---|---|---|
 | Claude Code | `~/.claude/projects/<cwd-slug>/<uuid>.jsonl`, plus `subagents/` and `tool-results/` per session | JSONL | 34 MB, oldest file 2026-10-01 |
 | pi | `~/.pi/agent/sessions/--<cwd>--/<ts>_<uuid>.jsonl` | JSONL v3 | 400 KB |
@@ -269,7 +269,7 @@ Measured on desktop on 2026-10-25. Only paths, sizes, and record keys were read.
 
 Facts that shape the transport:
 
-- **Claude deletes old transcripts.** `cleanupPeriodDays` defaults to 30. The minimum is 1, and `0` fails validation ([settings reference](https://code.claude.com/docs/en/settings-reference#cleanupperioddays)). The age is the file mtime. The sweep runs in the background after a session starts, at most once a day. On 2026-10-25 the oldest desktop file was 24 days old, which agrees with the default. We set it to 120 on that day.
+- **Claude deletes old transcripts.** `cleanupPeriodDays` defaults to 30. The minimum is 1, and `0` fails validation ([settings reference](https://code.claude.com/docs/en/settings-reference#cleanupperioddays)). The age is the file mtime. The sweep runs in the background after a session starts, at most once a day. On 2026-10-25 the oldest framework file was 24 days old, which agrees with the default. We set it to 120 on that day.
 - **Folder names come from paths.** Claude, pi, and omp encode the project path differently, and caya paths start with `/Users`. Keep one tree per host. Do not merge hosts.
 - **JSONL files grow during a session.** One push can copy half a file. The next push completes it.
 - **SQLite stores** (opencode, hermes) must be copied as a `sqlite3 .backup` snapshot, not as the live file with its WAL.
@@ -383,7 +383,7 @@ Transcripts contain file contents, command output, and sometimes secrets. The ar
 
 ### Work repos on personal hosts
 
-Work sessions are out of scope (D1). A work repo on a personal host, such as `~/git/graphs` (`AMN-DATA`) on desktop, still creates sessions. The push sends them to mini, because it has no filter (D10).
+Work sessions are out of scope (D1). A work repo on a personal host, such as `~/git/graphs` (`AMN-DATA`) on framework, still creates sessions. The push sends them to mini, because it has no filter (D10).
 
 How each agent stores the project path decides how easy the filter is:
 
@@ -408,7 +408,7 @@ Options that were not picked:
 
 1. **Exclude list in the flake.** `data/agents/session-sources.nix` lists excluded repo folder names, for example `graphs`. The push job turns them into excludes and filters. Static and explicit.
 2. **Exclude by `origin` owner.** The push job skips any repo whose `origin` belongs to `AMN-DATA`. Automatic, but the job must map each session back to a repo on disk.
-3. **No work repos on personal hosts.** Keep work repos on caya only. No filter. `graphs` moves off desktop.
+3. **No work repos on personal hosts.** Keep work repos on caya only. No filter. `graphs` moves off framework.
 4. **Filter in agentsview.** Exclude projects at index time. Raw files still reach mini. Not verified that agentsview can do this.
 
 ---
@@ -440,10 +440,10 @@ All decisions have answers (2026-10-25). Phase 0 has tests and small moves left.
 1. Test the push port: after port 2222 is open, run `nc -vz <mini tailnet name> 2222` from framework on a different network. If the tailnet ACL blocks it, fall back to LAN only.
 2. Test D7: add a Tailscale SSH `accept` rule for one host pair. Run `ssh -o BatchMode=yes <host> true` from the other host.
 3. Record which files `herdr integration install` and `tuios integration install` write. On these hosts, `~/.claude/settings.json` is a live symlink into the flake checkout.
-4. Do a dry run of the push and of agentsview on desktop.
+4. Done 2026-10-25: a local test of the push and of agentsview on framework.
 5. Run the herdr and tuios trial (D2).
 6. Done 2026-10-25: the remote-edit rule in the flake `AGENTS.md` (D8).
-7. Move `~/Git` to `~/git` on desktop, and on framework if it has one (D9). Update the noctalia path.
+7. Move `~/Git` to `~/git` on framework, and on desktop if it has one (D9). Update the noctalia path.
 
 ### Phase 1: C, the archive
 

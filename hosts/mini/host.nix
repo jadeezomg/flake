@@ -45,6 +45,11 @@ sharedNixOSHost
   tailnetAddress = "mini.quokka-qilin.ts.net";
   agentPushPort = 2222;
 
+  # mini pushes its own agent sessions through the same path as the other hosts.
+  # Public half of ~/.ssh/agent_push_ed25519; it can write into
+  # /srv/agent-sessions/mini only.
+  agentPushKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDp5petiiXM4hcsQasFR3unnOEqd0TiS58WYraEgg7LH agent-push@mini";
+
   # Static LAN address on enp2s0f0np0 (see default.nix mini-lan NM profile).
   miniLanAddress = lanAddress;
 
