@@ -3,8 +3,13 @@
 # library for changes, so without this it waits for its scheduled scan.
 #
 # nixflix.notif only reads apiKey/username/password/accessToken from secret
-# files, and the Plex token field is authToken. This unit therefore upserts
-# the entry itself, with the token from sops via LoadCredential.
+# files. The Plex token field is authToken, so through nixflix the token would
+# land in the world-readable Nix store. This unit therefore upserts the entry
+# itself, with the token from sops via LoadCredential.
+#
+# nixflix's <service>-notifications units delete every connection they do not
+# manage, Plex included. This unit runs after them and is PartOf them, so each
+# time nixflix reconciles, it adds Plex back a few seconds later.
 {
   config,
   lib,
@@ -43,6 +48,7 @@ let
     radarr = 7878;
     sonarr = 8989;
   };
+  notifications = lib.mapAttrsToList (service: _: "${service}-notifications.service") services;
 
   curl = lib.getExe pkgs.curl;
   jq = lib.getExe pkgs.jq;
@@ -56,12 +62,15 @@ in
       "plex.service"
       "radarr-config.service"
       "sonarr-config.service"
-    ];
+    ]
+    ++ notifications;
     requires = [
       "radarr-config.service"
       "sonarr-config.service"
     ];
-    wantedBy = [ "multi-user.target" ];
+    # Restarts with nixflix's notification units, which delete this entry.
+    partOf = notifications;
+    wantedBy = [ "multi-user.target" ] ++ notifications;
 
     serviceConfig = {
       Type = "oneshot";
