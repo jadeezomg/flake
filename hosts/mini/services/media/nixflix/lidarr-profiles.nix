@@ -1,12 +1,17 @@
-# Lidarr quality profile: MP3-320 is the target, not FLAC. Lidarr ranks the
+# Lidarr profiles: what Lidarr grabs, and in which quality.
+#
+# Quality: MP3-320 is the target, not FLAC. Lidarr ranks the
 # qualities in a profile and upgrades until the cutoff, so FLAC sits below
 # MP3-320: an album that only exists in FLAC is grabbed in FLAC, then
 # replaced once a 320 shows up. That keeps the library small; replaced files
 # wait 7 days in /Music/.recycle (arr.nix).
 #
-# nixflix matches profiles by name and deletes undeclared ones. This profile
-# is Lidarr's ID 1 (renamed from "Any" on 2026-10-25), which is also the
-# default for new artists in nixflix's root folder.
+# Metadata: albums and EPs, studio releases and soundtracks only. Singles,
+# compilations, live albums, and remixes mostly repeat album tracks.
+#
+# nixflix matches profiles by name and deletes undeclared ones. Both are
+# Lidarr's ID 1 (renamed on 2026-10-25 from "Any" and "Standard"), which
+# nixflix's root folder uses as the default for new artists.
 { lib, ... }:
 let
   quality = allowed: id: name: {
@@ -188,6 +193,39 @@ let
   ) items;
 in
 {
+  nixflix.lidarr.config.metadataProfiles = [
+    {
+      name = "Albums & EPs";
+      primaryAlbumTypes = {
+        enableAlbum = true;
+        enableEP = true;
+      };
+      secondaryAlbumTypes = {
+        enableStudio = true;
+        enableSoundtrack = true;
+      };
+      releaseStatuses.enableOfficial = true;
+    }
+  ];
+
+  # Torrents wait 60 min so a usenet release can win. MP3-320 is the highest
+  # quality and skips the wait.
+  nixflix.lidarr.config.delayProfiles = [
+    {
+      id = 1;
+      order = 2147483647; # the default profile, for all tags
+      enableUsenet = true;
+      enableTorrent = true;
+      preferredProtocol = "usenet";
+      usenetDelay = 0;
+      torrentDelay = 60;
+      bypassIfHighestQuality = true;
+      bypassIfAboveCustomFormatScore = false;
+      minimumCustomFormatScore = 0;
+      tags = [ ];
+    }
+  ];
+
   nixflix.lidarr.config.qualityProfiles = [
     {
       name = "Efficient MP3";

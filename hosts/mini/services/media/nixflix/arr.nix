@@ -17,6 +17,9 @@ let
     # spin up the Unraid array. Imports do not need it.
     rescanAfterRefresh = "afterManual";
   };
+  # Media is deleted by hand (Plex, Jellyfin, files). Without this, the app
+  # sees the file missing and downloads it again. Upgrades are not affected.
+  unmonitorDeleted = field: { ${field} = true; };
 in
 {
   nixflix = {
@@ -29,7 +32,7 @@ in
         "/data/media/Series-PtBr"
       ];
       config = {
-        inherit mediaManagement;
+        mediaManagement = mediaManagement // unmonitorDeleted "autoUnmonitorPreviouslyDownloadedEpisodes";
         # .plexmatch files pin each series to its TVDB ID for Plex matching.
         metadata.PlexMetadata.enable = true;
         apiKey._secret = config.sops.secrets."mini/media/sonarr/api-key".path;
@@ -45,7 +48,7 @@ in
       group = "users";
       mediaDirs = [ "/data/media/Cinema" ];
       config = {
-        inherit mediaManagement;
+        mediaManagement = mediaManagement // unmonitorDeleted "autoUnmonitorPreviouslyDownloadedMovies";
         apiKey._secret = config.sops.secrets."mini/media/radarr/api-key".path;
         hostConfig = {
           bindAddress = "127.0.0.1";
@@ -59,12 +62,13 @@ in
       group = "users";
       mediaDirs = [ "/Music" ];
       config = {
-        # Lidarr replaces FLACs with MP3-320 (lidarr-quality.nix); replaced
+        # Lidarr replaces FLACs with MP3-320 (lidarr-profiles.nix); replaced
         # files wait here for 7 days. Same share as /Music, so moves are cheap.
         mediaManagement = {
           recycleBin = "/Music/.recycle";
           recycleBinCleanupDays = 7;
-        };
+        }
+        // unmonitorDeleted "autoUnmonitorPreviouslyDownloadedTracks";
         apiKey._secret = config.sops.secrets."mini/media/lidarr/api-key".path;
         hostConfig = {
           bindAddress = "127.0.0.1";
@@ -82,9 +86,12 @@ in
           bindAddress = "127.0.0.1";
           password._secret = config.sops.secrets."mini/media/prowlarr/password".path;
         };
+        # Priority breaks ties between equal releases: lower wins. Usenet
+        # first, then Nyaa (most anime), then the general torrent sites.
         indexers = [
           {
             name = "1337x";
+            priority = 40;
             # 1337x is behind Cloudflare. Prowlarr sends indexers with the
             # flaresolverr tag through FlareSolverr.
             tags = [
@@ -94,6 +101,7 @@ in
           }
           {
             name = "NZBgeek";
+            priority = 10;
             apiKey._secret = config.sops.secrets."mini/media/prowlarr/indexers/nzbgeek-api-key".path;
             # Prowlarr shows a health error after this date. Update it on renewal.
             vipExpiration = "2031-07-21";
@@ -103,6 +111,7 @@ in
           # Prowlarr has no preset for it, so it uses Generic Newznab.
           {
             name = "Treasure Maps";
+            priority = 15;
             schemaName = "Generic Newznab";
             baseUrl = "https://treasure-maps.com";
             apiPath = "/api";
@@ -112,10 +121,12 @@ in
           }
           {
             name = "Nyaa.si";
+            priority = 30;
             tags = [ "nyaa" ];
           }
           {
             name = "sukebei.nyaa.si";
+            priority = 45;
             tags = [ "sukebei" ];
           }
         ];
