@@ -65,7 +65,7 @@ just health          # git status, disk, nh os info
 | `zen`         | `zen-sync`, `zen-check` |
 | `llm`         | `unsloth`, `unsloth-stop`, `unsloth-reset`, `unsloth-logs`, `unsloth-status` (mini: `just mini llm`) |
 | `mini`        | `just mini <cmd>`: `pull`, `deploy`, `deploy-dry`, `deploy-boot`, `ssh`, `reboot`, `dns-sync`, hermes/media/immich/immich-backup status + restart, `llm` sub-module (`models`, `chat`, `perf`, `embedding`, `bench`, …) |
-| `unraid`      | `just unraid <cmd>`: `ssh`, `flash-diagnose` |
+| `unraid`      | `just unraid <cmd>`: `ssh`, `fancurve-deploy`, `fancurve-status` |
 | `meta`        | `list`, `info` |
 
 `NH_FLAKE` is set to this repo. Shell helpers live in `scripts/shell/common.sh` (`get_host`, `is_darwin`, `notify`, …).
@@ -100,7 +100,7 @@ flake/
 
 ## Scripts
 
-Bash under `scripts/shell/` backs the Justfile — including host-ops helpers (`mini-*.bash`, `dns-sync.bash`, `unraid-flash-diagnose.bash`, `flatten-dir.bash`, `sync-1password.bash`, …). Python is a uv project in `scripts/` (console entry points in `pyproject.toml`): `symlink-check`, `update-packages`, `read-defaults`, `zen-sync`, etc. See `scripts/README.md` for details.
+Bash under `scripts/shell/` backs the Justfile — including host-ops helpers (`mini-*.bash`, `dns-sync.bash`, `flatten-dir.bash`, `sync-1password.bash`, …). Python is a uv project in `scripts/` (console entry points in `pyproject.toml`): `symlink-check`, `update-packages`, `read-defaults`, `zen-sync`, etc. See `scripts/README.md` for details.
 
 ## Flake inputs (high level)
 
