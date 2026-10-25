@@ -25,6 +25,7 @@ Match the mechanism to what you are changing; an overlay only rewrites packages.
 - **nixpkgs config** (`permittedInsecurePackages`, `allowUnfree`) → `lib/pkgs.nix`. An overlay cannot grant an insecure-package exception, and stripping `meta.knownVulnerabilities` to fake one hides the warning globally instead of recording a version-pinned, loudly-failing exception.
 - **NixOS/HM module or unit option** (`systemd.services.*`, `programs.*`) → the module. No overlay can reach a unit's `serviceConfig`.
 - **One consumer's closure only** → keep it package-local (`packages/<name>/default.nix`), not a global overlay.
+- **Local package held off a bad upstream release** → a `hold` in `packages/<name>/update.json`, not an overlay. `update-packages` is its expiry guard: it runs online, so it can see new releases and issue states (see `flake-structure`).
 - **Deliberate pin** (store-path stability, TCC grants) → not a workaround at all; no expiry guard.
 
 Guards are independent of that choice: anything above except the last can carry one.

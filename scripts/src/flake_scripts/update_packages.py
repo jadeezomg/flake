@@ -3,6 +3,10 @@
 Custom handlers cover package sources `nix-update` cannot resolve directly:
 npm registry tarballs, platform-agnostic release zips (`fetchzip`), and
 prebuilt binary release channels.
+
+An optional `hold` keeps a package off known-bad upstream versions. It is the
+update-time form of the expiry guards in lib/expiry.nix: the first upstream
+release outside `bad_versions` retires it, and the run says so.
 """
 
 import base64
@@ -21,6 +25,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from collections.abc import Callable
+from dataclasses import dataclass
 from typing import Any
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -34,6 +39,7 @@ from rich.progress import (
     TextColumn,
     TimeElapsedColumn,
 )
+from rich.markup import escape
 
 from flake_scripts.lib.common import console, resolve_flake_root
 
@@ -47,6 +53,24 @@ COOLDOWN_DEFAULT_SEC = 3600
 CHECK_STATE_FILENAME = ".update-check.json"
 
 StatusCb = Callable[[str], None]
+
+_GITHUB_ISSUE_RE = re.compile(r"https://github\.com/([^/]+)/([^/]+)/issues/(\d+)")
+
+
+@dataclass(frozen=True)
+class HoldResult:
+    """What the `hold` in update.json did in one run.
+
+    held: upstream is at a bad version, so the update was put back. When it is
+    False, the hold is obsolete: upstream released a version outside
+    bad_versions, and the update applied it.
+    """
+
+    held: bool
+    upstream: str
+    reason: str
+    issue: str | None = None
+    issue_state: str | None = None
 
 
 def _check_state_path(pkg_dir: Path) -> Path:
@@ -213,6 +237,9 @@ def validate_update_metadata(
             f"expected one of {', '.join(sorted(valid_types))}"
         )
 
+    if "hold" in meta:
+        _validate_hold(pkg_name, meta["hold"], _current_version(nix_text))
+
     if handler_type == "nix-update":
         extra_args = meta.get("extra_args", [])
         if not isinstance(extra_args, list) or not all(
@@ -327,6 +354,110 @@ def validate_update_metadata(
 def _current_version(text: str) -> str:
     m = re.search(r'version\s*=\s*"([^"]+)"', text)
     return m.group(1) if m else "unknown"
+
+
+def _validate_hold(pkg_name: str, hold: Any, current_version: str) -> None:
+    if not isinstance(hold, dict):
+        raise ValueError(f"{pkg_name}: update.json field 'hold' must be an object")
+    reason = hold.get("reason")
+    if not isinstance(reason, str) or not reason:
+        raise ValueError(
+            f"{pkg_name}: update.json field 'hold.reason' must be a non-empty string"
+        )
+    bad_versions = hold.get("bad_versions")
+    if (
+        not isinstance(bad_versions, list)
+        or not bad_versions
+        or not all(isinstance(v, str) and v for v in bad_versions)
+    ):
+        raise ValueError(
+            f"{pkg_name}: update.json field 'hold.bad_versions' must be a non-empty list of strings"
+        )
+    if current_version in bad_versions:
+        raise ValueError(
+            f"{pkg_name}: default.nix is at {current_version}, which 'hold.bad_versions' lists as bad"
+        )
+    issue = hold.get("issue")
+    if issue is not None and (
+        not isinstance(issue, str) or not _GITHUB_ISSUE_RE.fullmatch(issue)
+    ):
+        raise ValueError(
+            f"{pkg_name}: update.json field 'hold.issue' must be a GitHub issue URL"
+        )
+
+
+def _issue_state(url: str) -> str:
+    """Return "open", "closed", or "unknown" for a GitHub issue URL.
+
+    Uses the authenticated `gh` CLI when it is on PATH, else the public API.
+    """
+    m = _GITHUB_ISSUE_RE.fullmatch(url)
+    if not m:
+        return "unknown"
+    owner, repo, number = m.groups()
+    path = f"repos/{owner}/{repo}/issues/{number}"
+    try:
+        if shutil.which("gh"):
+            proc = subprocess.run(
+                ["gh", "api", path, "--jq", ".state"],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                check=True,
+            )
+            return proc.stdout.strip() or "unknown"
+        return str(
+            _fetch_json(f"https://api.github.com/{path}").get("state", "unknown")
+        )
+    except (OSError, subprocess.SubprocessError, urllib.error.URLError, ValueError):
+        return "unknown"
+
+
+def _check_hold(meta: dict, upstream: str, current: str) -> HoldResult | None:
+    """Apply the `hold` in update.json to the version a handler resolved.
+
+    Nix eval runs offline, so lib/expiry.nix cannot ask about upstream. This
+    script can: any upstream release outside bad_versions retires the hold.
+    The issue state only goes into the warning.
+    """
+    hold = meta.get("hold")
+    if not hold:
+        return None
+    issue = hold.get("issue")
+    if upstream in hold["bad_versions"]:
+        return HoldResult(
+            held=True, upstream=upstream, reason=hold["reason"], issue=issue
+        )
+    if upstream == current:
+        return None
+    return HoldResult(
+        held=False,
+        upstream=upstream,
+        reason=hold["reason"],
+        issue=issue,
+        issue_state=_issue_state(issue) if issue else None,
+    )
+
+
+def _obsolete_hold_message(name: str, hold: HoldResult) -> str:
+    lines = [
+        f"[yellow]packages/{name}/update.json: the hold is obsolete.[/] "
+        f"Upstream released {escape(hold.upstream)}, which is not in bad_versions, "
+        "so this run updated to it.",
+        f"  Hold reason: {escape(hold.reason)}",
+    ]
+    if hold.issue and hold.issue_state == "open":
+        lines.append(
+            f"  {hold.issue} is still open. Test {escape(hold.upstream)} before you remove the hold."
+        )
+    elif hold.issue and hold.issue_state == "closed":
+        lines.append(f"  {hold.issue} is closed.")
+    elif hold.issue:
+        lines.append(f"  The state of {hold.issue} is unknown.")
+    lines.append(
+        "  Remove the hold from update.json and any note about it in default.nix."
+    )
+    return "\n".join(lines)
 
 
 def _npm_integrity_sha512_from_url(url: str) -> str:
@@ -583,12 +714,13 @@ def update_package(
     *,
     force: bool = False,
     cooldown_s: int = COOLDOWN_DEFAULT_SEC,
-) -> tuple[str, str, bool, bool, bool]:
+) -> tuple[str, str, bool, bool, bool, HoldResult | None]:
     """Update a single package.
 
-    Returns (old_version, new_version, version_changed, fields_changed, cooldown_skipped).
+    Returns (old_version, new_version, version_changed, fields_changed, cooldown_skipped, hold).
     cooldown_skipped is True when no network work ran due to the per-package cooldown.
     fields_changed is True when hashes drifted even without a version bump.
+    hold is set when the `hold` in update.json blocked the update or became obsolete.
     """
     nix_file = pkg_dir / "default.nix"
     nix_text = nix_file.read_text()
@@ -601,24 +733,34 @@ def update_package(
         cooldown_skipped, remaining = _cooldown_skip(pkg_dir, cooldown_s)
         if cooldown_skipped:
             status(f"skipped (cooldown {remaining})")
-            return old_version, old_version, False, False, True
+            return old_version, old_version, False, False, True, None
 
     if meta["type"] == "nix-update":
         old, new, v_changed, f_changed = _handle_nix_update_self(
             meta, pkg_dir, status, old_version, nix_text
         )
+        hold = _check_hold(meta, new, old)
+        if hold and hold.held:
+            # nix-update already rewrote default.nix. Put the held version back.
+            nix_file.write_text(nix_text)
+            new, v_changed, f_changed = old, False, False
         _write_last_checked(pkg_dir)
-        return old, new, v_changed, f_changed, False
+        return old, new, v_changed, f_changed, False, hold
 
     handler = _HANDLERS[meta["type"]]
     new_version, field_updates = handler(meta, pkg_dir, status, old_version)
+
+    hold = _check_hold(meta, new_version, old_version)
+    if hold and hold.held:
+        _write_last_checked(pkg_dir)
+        return old_version, old_version, False, False, False, hold
 
     version_changed = new_version != old_version
     fields_changed = _field_updates_changed(nix_text, field_updates)
 
     if not version_changed and not fields_changed:
         _write_last_checked(pkg_dir)
-        return old_version, new_version, False, False, False
+        return old_version, new_version, False, False, False, hold
 
     status("writing updated default.nix")
     _apply_update_rewrites(
@@ -629,7 +771,7 @@ def update_package(
     )
 
     _write_last_checked(pkg_dir)
-    return old_version, new_version, version_changed, fields_changed, False
+    return old_version, new_version, version_changed, fields_changed, False, hold
 
 
 def discover_packages(flake_root: Path) -> list[Path]:
@@ -665,6 +807,7 @@ def main(args: list[str] | None = None) -> None:
     )
 
     changed: list[str] = []
+    obsolete_holds: list[tuple[str, HoldResult]] = []
     failed = False
 
     # Warm the npm prefetch tool before fanning out so concurrent cold-cache
@@ -724,11 +867,26 @@ def main(args: list[str] | None = None) -> None:
                 tid = pkg_tasks[pkg_dir]
                 name = pkg_dir.name
                 try:
-                    old, new, version_changed, fields_changed, cooldown_skipped = (
-                        future.result()
-                    )
+                    (
+                        old,
+                        new,
+                        version_changed,
+                        fields_changed,
+                        cooldown_skipped,
+                        hold,
+                    ) = future.result()
+                    if hold and not hold.held:
+                        obsolete_holds.append((name, hold))
                     if cooldown_skipped:
                         finish(tid, "[dim]~[/]", "dim", name, "[dim]cooldown (1h)[/]")
+                    elif hold and hold.held:
+                        finish(
+                            tid,
+                            "[yellow]=[/]",
+                            "bold",
+                            name,
+                            f"[yellow]held at {old}[/] ({escape(hold.upstream)} is in bad_versions)",
+                        )
                     elif version_changed:
                         finish(
                             tid, "[green]✓[/]", "bold", name, f"{old} → [green]{new}[/]"
@@ -759,6 +917,9 @@ def main(args: list[str] | None = None) -> None:
                     progress.advance(overall)
 
         progress.update(overall, step="")
+
+    for name, hold in obsolete_holds:
+        console.print(_obsolete_hold_message(name, hold))
 
     if changed:
         console.print(
