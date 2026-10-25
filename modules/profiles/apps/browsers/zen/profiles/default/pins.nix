@@ -32,9 +32,9 @@ in
       isEssential = true;
       position = 104;
     };
-    "Discord - Group Chat That’s All Fun & Games" = {
+    "(216) Discord | #poe2-builds | Rentner mit Keyboard" = {
       id = "5fb91047-d89a-47fd-8a68-0eb8f1ac0f9e";
-      url = "https://discord.com/";
+      url = "https://discord.com/channels/1143944016535228419/1311062719453069324";
       isEssential = true;
       position = 105;
     };
@@ -50,9 +50,9 @@ in
       isEssential = true;
       position = 107;
     };
-    "jadee-server/Main" = {
+    "jadee-server/Login" = {
       id = "98dbc3e9-ee34-44a2-8d1a-5539fa7dea98";
-      url = "http://jadee-server/Main";
+      url = "http://jadee-server/login";
       isEssential = true;
       position = 108;
     };
@@ -199,19 +199,19 @@ in
           id = "4e38f77f-020d-47f5-b250-429c30b93123";
           url = "https://nix-community.github.io/stylix/";
           isEssential = false;
-          position = 225;
+          position = 231;
         };
         "Danklinux" = {
           id = "2403cb1d-efd1-437c-afc0-6c107f675735";
           url = "https://danklinux.com/";
           isEssential = false;
-          position = 226;
+          position = 232;
         };
         "Github_1" = {
           id = "ec56b7ed-f746-4f38-b62e-024f0656f39c";
           url = "https://github.com/AvengeMedia/DankMaterialShell?tab=readme-ov-file";
           isEssential = false;
-          position = 227;
+          position = 233;
         };
       };
     };
@@ -222,91 +222,139 @@ in
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1002;
+          position = 1005;
         };
         "Diablo 2" = {
           id = "{1776271297993-96}";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1003;
+          position = 1006;
+        };
+        "World of Warcraft" = {
+          id = "{1792876051266-98}";
+          isGroup = true;
+          isFolderCollapsed = true;
+          editedTitle = true;
+          position = 1007;
+        };
+        "Protondb" = {
+          id = "cf6593e6-54f8-4c98-89c8-1c628664c2cf";
+          url = "https://www.protondb.com/app/236390";
+          isEssential = false;
+          position = 214;
         };
         "Warthunder" = {
           id = "78a9def4-f240-4cfa-b853-cb7d833e5e1f";
           url = "https://warthunder.com/en/news/";
           isEssential = false;
-          position = 214;
+          position = 215;
           folderParentId = "{1776271316796-17}";
         };
         "Gaijin" = {
           id = "d7c98010-35ea-470d-9b7c-3b2650a879ad";
           url = "https://store.gaijin.net/catalog.php?category=WarThunder&partner=News&partner_val=8jrteghy";
           isEssential = false;
-          position = 215;
+          position = 216;
           folderParentId = "{1776271316796-17}";
         };
         "Gaijin Market" = {
           id = "217f5056-565c-4131-9209-2efbe19aaffb";
           url = "https://trade.gaijin.net/";
           isEssential = false;
-          position = 216;
+          position = 217;
           folderParentId = "{1776271316796-17}";
         };
         "Warthunder_1" = {
           id = "b9323a7a-f3e7-439f-ac7d-0a56ab56b4e1";
           url = "https://live.warthunder.com/feed/camouflages/?q=%23vrcc";
           isEssential = false;
-          position = 217;
+          position = 218;
           folderParentId = "{1776271316796-17}";
         };
         "War Thunder Partner Bonuses" = {
           id = "eab057de-7c16-4696-81c7-093deada68a8";
           url = "https://wtpb.net/";
           isEssential = false;
-          position = 218;
+          position = 219;
           folderParentId = "{1776271316796-17}";
         };
         "Google" = {
           id = "9fc59755-81f5-4826-8fac-fb8f81256197";
           url = "https://docs.google.com/spreadsheets/d/1oNwp_MXszU5J2dcaz5IoCtSAQ-infPdOWhwtJXqtrwU/edit?pli=1&gid=325556979#gid=325556979";
           isEssential = false;
-          position = 219;
+          position = 220;
           folderParentId = "{1776271316796-17}";
         };
         "Diablo 2 Runeword Calculator - PureDiabl" = {
           id = "6743c503-2f65-4f56-9946-ee3c1347b2fa";
           url = "https://www.purediablo.com/diablo-2/runeword-calculator";
           isEssential = false;
-          position = 220;
+          position = 221;
           folderParentId = "{1776271297993-96}";
         };
         "Diablo 2 Resurrected and Diablo 2 Classi" = {
           id = "b5b20d50-ad58-4152-a399-1a0b1a959284";
           url = "https://www.purediablo.com/diablo-2";
           isEssential = false;
-          position = 221;
+          position = 222;
           folderParentId = "{1776271297993-96}";
         };
         "D2runewizard" = {
           id = "f22f858e-39f6-433c-8eae-4f4d85b62978";
           url = "https://d2runewizard.com/runeword-calculator?__cf_chl_tk=YKkhsYiICwms7rvueW_rAXMQ3nUmmF7S59dcL5jQtmM-1777134630-1.0.1.1-Ko1H2VL1fbflV_PoXc5cmAUo4oGvqu02IcIw36QSQIk";
           isEssential = false;
-          position = 222;
+          position = 223;
           folderParentId = "{1776271297993-96}";
         };
         "Summoner Warlock Endgame Build Guide for" = {
           id = "f3283e15-0f38-4911-abce-c84ed4f4a040";
           url = "https://maxroll.gg/d2/guides/summoner-warlock-guide";
           isEssential = false;
-          position = 223;
+          position = 224;
           folderParentId = "{1776271297993-96}";
         };
         "All Diablo 2 Resurrected Cube Recipes •" = {
           id = "be8c0181-ace3-424f-b187-1f80cfd8991f";
           url = "https://diablo2.io/recipes/";
           isEssential = false;
-          position = 224;
+          position = 225;
           folderParentId = "{1776271297993-96}";
+        };
+        "Forever News and Guides" = {
+          id = "0a9bda9a-cc27-4eaf-868e-bfce6f7c8327";
+          url = "https://www.wowhead.com/forever/news";
+          isEssential = false;
+          position = 226;
+          folderParentId = "{1792876051266-98}";
+        };
+        "WoW Forever Map - interactive map for Wo" = {
+          id = "e0c53691-0b73-4320-b31d-526cbccf20b4";
+          url = "https://wowforevermap.com/";
+          isEssential = false;
+          position = 227;
+          folderParentId = "{1792876051266-98}";
+        };
+        "Blizzard" = {
+          id = "576b0ca4-bed8-4f61-a44d-32169e22f66c";
+          url = "https://us.forums.blizzard.com/en/wow/c/wow-forever/346";
+          isEssential = false;
+          position = 228;
+          folderParentId = "{1792876051266-98}";
+        };
+        "World of Warcraft Addons - CurseForge" = {
+          id = "0a84da60-6ef6-4083-bc9e-5cebf9f27029";
+          url = "https://www.curseforge.com/wow";
+          isEssential = false;
+          position = 229;
+          folderParentId = "{1792876051266-98}";
+        };
+        "Patch Notes - EllesmereUI" = {
+          id = "26f5ae2e-77a1-4a46-87c2-60ab55c84fde";
+          url = "https://ellesmereui.com/patch-notes";
+          isEssential = false;
+          position = 230;
+          folderParentId = "{1792876051266-98}";
         };
       };
     };
@@ -317,110 +365,110 @@ in
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1004;
+          position = 1002;
         };
         "Arr Stack" = {
           id = "99e147cc-4caf-47d8-9aff-4173cae0badb";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1005;
+          position = 1003;
         };
         "Media Servers" = {
           id = "013163e2-4100-4d25-8698-189f8fb27f2d";
           isGroup = true;
           isFolderCollapsed = true;
           editedTitle = true;
-          position = 1006;
+          position = 1004;
         };
         "Seerr" = {
           id = "7be8383b-0734-4547-af55-1d6d4026d568";
           url = "https://seerr.jadee.fyi/";
           isEssential = false;
-          position = 228;
+          position = 234;
         };
         "JDownloader 2" = {
           id = "71c66a44-3f74-4149-9714-fb2a5b5af39b";
           url = "http://jadee-server:7807/";
           isEssential = false;
-          position = 229;
+          position = 235;
           folderParentId = "2eeb86a1-ed2e-4608-8faf-2fff492b1464";
         };
-        "Jadee" = {
+        "qBittorrent" = {
           id = "4d625060-e07c-4486-a418-3a6ec5f88bc6";
           url = "https://qbittorrent.jadee.fyi/";
           isEssential = false;
-          position = 230;
+          position = 236;
           folderParentId = "2eeb86a1-ed2e-4608-8faf-2fff492b1464";
         };
         "LinkSnappy - Get your files as a premium" = {
           id = "b19c8441-18b9-4cfb-ad0d-c6151f2cd526";
           url = "https://linksnappy.com/home";
           isEssential = false;
-          position = 231;
+          position = 237;
           folderParentId = "2eeb86a1-ed2e-4608-8faf-2fff492b1464";
         };
         "SABnzbd" = {
           id = "b5d1e5de-cb08-4f4e-9a3d-36be211e1a9c";
           url = "https://sabnzbd.jadee.fyi/";
           isEssential = false;
-          position = 232;
+          position = 238;
           folderParentId = "2eeb86a1-ed2e-4608-8faf-2fff492b1464";
         };
         "Premiumize" = {
           id = "ba982a0b-5742-433c-9aea-e094f469a452";
           url = "https://www.premiumize.me/";
           isEssential = false;
-          position = 233;
+          position = 239;
           folderParentId = "2eeb86a1-ed2e-4608-8faf-2fff492b1464";
         };
         "Sonarr" = {
           id = "e1f41415-ac6e-454b-89bc-a9d834709996";
           url = "https://sonarr.jadee.fyi/";
           isEssential = false;
-          position = 234;
+          position = 240;
           folderParentId = "99e147cc-4caf-47d8-9aff-4173cae0badb";
         };
         "Radarr" = {
           id = "df2e7f9d-9dd7-4a99-b0df-20a86f1bbc9e";
           url = "https://radarr.jadee.fyi/";
           isEssential = false;
-          position = 235;
+          position = 241;
           folderParentId = "99e147cc-4caf-47d8-9aff-4173cae0badb";
         };
         "Lidarr" = {
           id = "2fcb532d-ab4e-4389-b4f3-80353e929aee";
           url = "https://lidarr.jadee.fyi/";
           isEssential = false;
-          position = 236;
+          position = 242;
           folderParentId = "99e147cc-4caf-47d8-9aff-4173cae0badb";
         };
         "Prowlarr" = {
           id = "8f6f65ec-86a1-4211-be9e-e6c6d8decf72";
           url = "https://prowlarr.jadee.fyi/";
           isEssential = false;
-          position = 237;
+          position = 243;
           folderParentId = "99e147cc-4caf-47d8-9aff-4173cae0badb";
         };
         "Bazarr" = {
           id = "ef2fcc8b-fb84-4a8c-809e-8ef256e07fb1";
           url = "https://bazarr.jadee.fyi/";
           isEssential = false;
-          position = 238;
+          position = 244;
           folderParentId = "99e147cc-4caf-47d8-9aff-4173cae0badb";
         };
         "Jellyfin" = {
           id = "50a08368-d776-4aab-86d5-c4eb03753e6d";
           url = "https://jellyfin.jadee.fyi/";
           isEssential = false;
-          position = 239;
+          position = 245;
           folderParentId = "013163e2-4100-4d25-8698-189f8fb27f2d";
         };
         "Plex" = {
           id = "8e096e61-6265-482a-9434-be6a99942cb4";
           url = "https://plex.jadee.fyi/";
           isEssential = false;
-          position = 240;
+          position = 246;
           folderParentId = "013163e2-4100-4d25-8698-189f8fb27f2d";
         };
       };
