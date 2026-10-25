@@ -69,6 +69,16 @@ in
       fsType = "nfs";
       options = mountOptions ++ [ "ro" ];
     };
+    # The Music share inside /media, where the Plex and Jellyfin music
+    # libraries point. /media/Music in the data share is an empty folder, so
+    # without this both libraries showed no music. A plain network mount, not
+    # an automount, for the same reason as /data/media/Music above.
+    "/media/Music" = {
+      device = share "Music";
+      fsType = "nfs";
+      options = lib.remove "x-systemd.automount" mountOptions ++ [ "ro" ];
+      depends = [ "/media" ];
+    };
   };
 
   # NFS read-ahead: the default 256 KiB makes playback a stream of small reads
