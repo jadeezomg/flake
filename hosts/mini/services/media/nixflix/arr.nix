@@ -59,6 +59,12 @@ in
       group = "users";
       mediaDirs = [ "/Music" ];
       config = {
+        # Lidarr replaces FLACs with MP3-320 (lidarr-quality.nix); replaced
+        # files wait here for 7 days. Same share as /Music, so moves are cheap.
+        mediaManagement = {
+          recycleBin = "/Music/.recycle";
+          recycleBinCleanupDays = 7;
+        };
         apiKey._secret = config.sops.secrets."mini/media/lidarr/api-key".path;
         hostConfig = {
           bindAddress = "127.0.0.1";

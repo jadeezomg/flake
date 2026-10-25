@@ -16,8 +16,9 @@
     "/data/media/Comedy"
     "/data/media/Movies"
     "/data/media/Music"
-    # Recycle bin of Radarr and Sonarr (arr.nix).
+    # Recycle bins of Radarr/Sonarr and of Lidarr (arr.nix).
     "/data/media/.recycle"
+    "/Music/.recycle"
     "/data/torrents"
     "/data/torrents/sonarr"
     "/data/torrents/radarr"

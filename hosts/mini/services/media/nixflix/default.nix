@@ -7,6 +7,7 @@ in
     ./arr.nix
     ./downloaders.nix
     ./jellyfin.nix
+    ./lidarr-quality.nix
     ./quality.nix
     ./setup.nix
   ];
