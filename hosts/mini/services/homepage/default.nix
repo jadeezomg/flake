@@ -33,7 +33,6 @@ let
 
   media = host.miniMediaHosting or false;
   immich = host.miniImmich or false;
-  beszel = host.miniMonitoring or false;
   local = port: path: "http://127.0.0.1:${toString port}${path}";
 
   # Credential name -> sops secret. The name must be one word: it becomes
@@ -54,8 +53,7 @@ let
     jellyfin = "mini/media/jellyfin/api-key";
     seerr = "mini/media/seerr/api-key";
   }
-  // lib.optionalAttrs immich { immich = "mini/homepage/immich-api-key"; }
-  // lib.optionalAttrs beszel { beszel = "mini/homepage/beszel-password"; };
+  // lib.optionalAttrs immich { immich = "mini/homepage/immich-api-key"; };
   fileVar = name: "HOMEPAGE_FILE_${lib.toUpper name}";
   secret = name: "{{${fileVar name}}}";
 
@@ -77,7 +75,7 @@ let
       // lib.optionalAttrs (widget != null) { inherit widget; };
     };
 
-  # Radarr, Sonarr, Lidarr, Prowlarr and Bazarr: same tile, same widget shape.
+  # Radarr, Sonarr, Prowlarr and Bazarr: same tile, same widget shape.
   arr =
     name:
     {
@@ -107,7 +105,6 @@ let
   calendarSources = [
     "Sonarr"
     "Radarr"
-    "Lidarr"
   ];
 
   # sabnzbd and qbittorrent run in the VPN network namespace (see
@@ -176,9 +173,14 @@ let
           description = "Movies";
           widgetExtra.enableQueue = true;
         })
-        (arr "Lidarr" {
-          port = 8686;
+        # No widget: it downloads the full artist list (over 7 MB) on every
+        # page load, only to count artists. The calendar gets albums from
+        # Lidarr's iCal feed instead.
+        (tile "Lidarr" {
+          href = "https://lidarr.jadee.fyi";
+          icon = "lidarr.svg";
           description = "Music";
+          monitor = local 8686 "/ping";
         })
         (arr "Bazarr" {
           port = 6767;
@@ -197,12 +199,23 @@ let
             view = "agenda";
             maxEvents = 10;
             showTime = true;
-            integrations = map (name: {
-              type = lib.toLower name;
-              service_group = library;
-              service_name = name;
-              baseUrl = "https://${lib.toLower name}.jadee.fyi";
-            }) calendarSources;
+            integrations =
+              map (name: {
+                type = lib.toLower name;
+                service_group = library;
+                service_name = name;
+                baseUrl = "https://${lib.toLower name}.jadee.fyi";
+              }) calendarSources
+              ++ [
+                # Homepage fetches iCal feeds on the server and removes the
+                # URL (and so the key) from what the browser gets.
+                {
+                  type = "ical";
+                  name = "Lidarr";
+                  url = local 8686 "/feed/v1/calendar/Lidarr.ics?apikey=${secret "lidarr"}";
+                  color = "green";
+                }
+              ];
           };
         }
       ];
@@ -316,21 +329,14 @@ let
           };
         })
       ]
-      ++ lib.optional beszel (
+      # No widget: Homepage's Beszel widget logs in only as a PocketBase
+      # superuser, and Homepage must not hold Beszel admin rights.
+      ++ lib.optional (host.miniMonitoring or false) (
         tile "Beszel" {
           href = "https://beszel.jadee.fyi";
           icon = "beszel.svg";
           description = "System metrics for mini and Unraid";
           monitor = local config.services.beszel.hub.port "/api/health";
-          widget = {
-            type = "beszel";
-            url = local config.services.beszel.hub.port "";
-            # A read-only Beszel user (docs/hosts/mini.md § Homepage).
-            username = "homepage@jadee.fyi";
-            password = secret "beszel";
-            # Beszel 0.9 and later.
-            version = 2;
-          };
         }
       )
       ++ lib.optional (host.miniTracing or false) (
@@ -486,9 +492,14 @@ in
     // lib.mapAttrs' (
       name: _: lib.nameValuePair (fileVar name) "/run/credentials/homepage-dashboard.service/${name}"
     ) credentials;
-    serviceConfig.LoadCredential = lib.mapAttrsToList (
-      name: path: "${name}:${config.sops.secrets.${path}.path}"
-    ) credentials;
+    serviceConfig = {
+      LoadCredential = lib.mapAttrsToList (
+        name: path: "${name}:${config.sops.secrets.${path}.path}"
+      ) credentials;
+      # Node exits with 143 on SIGTERM. Without this, every stop or restart
+      # marks the unit failed.
+      SuccessExitStatus = 143;
+    };
   };
 
   # Restart Homepage when a key changes.
