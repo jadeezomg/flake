@@ -69,9 +69,11 @@ The helper module `lib/home/live-xdg-symlinks.nix` is exposed as `config.lib.dot
 - OMP: `devenv/agents/global-config.nix` links `~/.omp/agent/themes/birds-of-paradise.json` to the `data/agents` file.
 - Noctalia: `desktop/noctalia/default.nix` links `~/.local/state/noctalia/settings.toml` with `mkLiveSymlink`. This file wins over the HM-generated `config.toml`.
 
-## Noctalia Stylix merge contract
+## Noctalia config layers
 
-`programs.noctalia.settings` is built with `lib.mapAttrsRecursive (_: v: lib.mkDefault v)` over the parsed TOML. Stylix defines nested keys at normal priority, so per-leaf `mkDefault` lets Stylix win only the keys it sets. A `mkDefault` around the whole attrset is filtered away before type merging and drops most sections. Keep the per-leaf form.
+Noctalia reads built-in defaults, then `~/.config/noctalia/config.toml`, then the GUI file `settings.toml`. Only Stylix writes `programs.noctalia.settings`, so the generated `config.toml` holds the Stylix keys: theme, font, wallpaper, and opacity. `desktop/noctalia/config/settings.toml` is the full source of truth.
+
+Do not feed `settings.toml` into `programs.noctalia.settings`. When the GUI saves a page, Noctalia removes every key that matches a lower layer. With `settings.toml` as its own lower layer, unchanged keys matched themselves, and the next rebuild removed them from `config.toml` as well. A GUI save can still remove a key that equals a Noctalia default or a Stylix value. The effective value stays the same.
 
 ## Change rules
 
