@@ -26,7 +26,6 @@ let
 
   curl = lib.getExe pkgs.curl;
   jq = lib.getExe pkgs.jq;
-  yq = lib.getExe pkgs.yq-go;
 in
 {
   systemd.services.media-ptbr = {
@@ -39,11 +38,12 @@ in
     onFailure = [ "ntfy-alert@%n.service" ];
     serviceConfig = {
       Type = "oneshot";
-      # Bazarr's API key is only in its config.yaml, which belongs to unraid.
-      User = "unraid";
-      Group = "users";
+      DynamicUser = true;
       RuntimeDirectory = "media-ptbr";
-      LoadCredential = [ "sonarr-api-key:${config.sops.secrets."mini/media/sonarr/api-key".path}" ];
+      LoadCredential = [
+        "sonarr-api-key:${config.sops.secrets."mini/media/sonarr/api-key".path}"
+        "bazarr-api-key:${config.sops.secrets."mini/media/bazarr/api-key".path}"
+      ];
       ProtectSystem = "strict";
       ProtectHome = true;
       PrivateTmp = true;
@@ -54,7 +54,7 @@ in
       umask 077
       run=$RUNTIME_DIRECTORY
       printf 'X-Api-Key: %s\n' "$(<"$CREDENTIALS_DIRECTORY/sonarr-api-key")" >"$run/sonarr"
-      printf 'X-API-KEY: %s\n' "$(${yq} '.auth.apikey' /srv/nixflix/bazarr/config/config.yaml)" >"$run/bazarr"
+      printf 'X-API-KEY: %s\n' "$(<"$CREDENTIALS_DIRECTORY/bazarr-api-key")" >"$run/bazarr"
       sonarr() { ${curl} -sSf --max-time 30 -H @"$run/sonarr" -H "Content-Type: application/json" "$@"; }
       bazarr() { ${curl} -sSf --max-time 120 -H @"$run/bazarr" "$@"; }
       wait_for() {

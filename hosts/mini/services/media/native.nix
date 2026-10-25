@@ -61,6 +61,8 @@ in
             use_sonarr = true;
             use_radarr = true;
           };
+          # A fixed key, so media-ptbr and Homepage can read it from sops.
+          auth.apikey = secret "bazarr/api-key";
           sonarr = {
             ip = "127.0.0.1";
             port = 8989;

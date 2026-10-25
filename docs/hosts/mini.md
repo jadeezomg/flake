@@ -378,7 +378,7 @@ stack-restart | vpn-status | vpn-restart`.
 ## 9. Matrix, Hermes, Caddy vhosts
 
 Subdomains on the `jadee.fyi` Cloudflare zone, all → `mini-proxy`:
-`matrix`, `chat` (open-webui), `beszel`, `cinny`, `immich`, `hermes`, `atuin`, plus the
+`home` (Homepage), `matrix`, `chat` (open-webui), `beszel`, `cinny`, `immich`, `hermes`, `atuin`, `ntfy`, `grafana`, plus the
 media set (`sonarr`, `radarr`, `lidarr`, `prowlarr`, `sabnzbd`, `qbittorrent`, `seerr`,
 `bazarr`, `jellyfin`, `plex`).
 
@@ -452,6 +452,29 @@ history cannot be read**, so keep `atuin key` output in 1Password.
 
 Registration is closed (`openRegistration = false`). To add an account: flip it to
 true, switch, run `atuin register`, then flip it back and switch again.
+
+### Homepage start page
+
+`https://home.jadee.fyi` → loopback `:8082` (`services/homepage.nix`). One page
+with a tile for each service on mini and Unraid. Each tile shows a status dot from
+a loopback check. The media tiles also show live numbers from the service API.
+
+- The full configuration is in Nix (`services.homepage-dashboard`). Homepage has no
+  web editor. To add a tile, add it to a group in `homepage.nix`.
+- The package comes from `pkgs-small` (nixos-unstable-small), because our
+  nixos-unstable lock is behind. An expiry guard warns when the main lock has
+  2.6.0, and then the pin goes back to `pkgs`.
+- API keys come from sops through `LoadCredential`. Homepage reads each file where
+  the configuration says `{{HOMEPAGE_FILE_<NAME>}}`. The browser never gets a key.
+- Bazarr and Seerr keys are in sops too (`mini/media/bazarr/api-key`,
+  `mini/media/seerr/api-key`). Bazarr gets its key from `services.bazarr.settings`.
+  The Seerr preStart writes its key into `settings.json`.
+- The page has no login. Access is limited to the tailnet and the LAN, as for the
+  other vhosts. The Jellyfin widget has media control off, so a visitor cannot
+  pause a stream.
+- Unraid, Immich and Beszel show links and status only. Their widgets need keys
+  that you create in each web UI (an Unraid API key, an Immich API key, a Beszel
+  user). Add the keys to sops, then add the widgets in `homepage.nix`.
 
 ## 10. Known gaps / deferred
 

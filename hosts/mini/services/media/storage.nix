@@ -115,6 +115,7 @@ in
         "prowlarr.service"
       ];
     };
+    "mini/media/bazarr/api-key".restartUnits = [ "bazarr.service" ];
     "mini/media/bazarr/opensubtitles-username".restartUnits = [ "bazarr.service" ];
     "mini/media/bazarr/opensubtitles-password".restartUnits = [ "bazarr.service" ];
     "mini/media/jellyfin/api-key" = { };
