@@ -58,6 +58,10 @@ in
     inherit lib;
     expiry = expiryFor "posthog-mcp1";
   })
+  (import ./tuios-0-11.nix {
+    inherit lib;
+    expiry = expiryFor "tuios-0-11";
+  })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })
 ]
