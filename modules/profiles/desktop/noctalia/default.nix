@@ -2,7 +2,6 @@
   config,
   host,
   inputs,
-  lib,
   pkgs,
   ...
 }:
@@ -14,14 +13,6 @@ let
 
   hostSettingsFile = host.noctaliaSettingsFile or "settings.toml";
   settingsDir = "${config.dotfiles.flakeRoot}/modules/profiles/desktop/noctalia/config";
-
-  # Read as an attrset so Stylix can merge theme/wallpaper/font settings on top.
-  # A raw path here conflicts with stylix's attrset definitions for the same option.
-  #
-  # Not `(pkgs.formats.toml {}).import` — that attribute does not exist (the
-  # format only provides `generate` and `type`). It never threw because the
-  # mkDefault below was priority-filtered away, so this was never forced.
-  baseSettings = builtins.fromTOML (builtins.readFile (./config + "/${hostSettingsFile}"));
 in
 {
   # `programs.noctalia` comes from Home Manager itself. Noctalia's own
@@ -33,19 +24,15 @@ in
     package = noctaliaPkg;
     systemd.enable = false;
     checkConfig = true;
-    # Source of truth: ./config/settings.toml, live-symlinked below. It feeds
-    # both of noctalia's layers — here as the declarative base that HM renders
-    # to ~/.config/noctalia/config.toml (with Stylix merged in), and directly as
-    # the state-dir settings.toml, which per `noctalia config validate` docs
-    # "overrides" that base. One file, so the two layers cannot disagree.
+    # Only Stylix writes `settings` (theme, font, wallpaper), so the generated
+    # ~/.config/noctalia/config.toml holds just those keys. ./config/settings.toml
+    # is the full source of truth, live-symlinked below as the GUI layer.
     #
-    # mkDefault has to be pushed down to each leaf, not wrapped around the whole
-    # attrset. Stylix defines nested paths (settings.theme.source, …) at normal
-    # priority, and the module system filters a whole-attrset mkDefault out
-    # against those *before* type merging — which silently reduced the generated
-    # config.toml to Stylix's 6 sections out of 35 here. Per-leaf defaults merge
-    # instead, so Stylix wins only the keys it actually sets.
-    settings = lib.mapAttrsRecursive (_: value: lib.mkDefault value) baseSettings;
+    # Do not feed settings.toml into `settings` again. When the GUI saves a
+    # page, Noctalia drops every key that matches a lower layer. With
+    # settings.toml as its own lower layer, unchanged keys matched themselves
+    # and were dropped, and the next rebuild removed them from config.toml too.
+    # That lost the panel glass mode and other settings (2026-10-24).
   };
 
   # Allow migration from the old live-symlink layout to HM-managed config.toml.
