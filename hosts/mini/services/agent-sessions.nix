@@ -17,8 +17,10 @@
 # hermes is down, it can create root-owned -wal/-shm files next to state.db.
 # hermes then fails to open its own database.
 #
-# AGENTSVIEW. Runs as a dynamic user in the agent-sessions group. It reads the
-# archive and nothing in /home. agentsview writes generated secrets into its own
+# AGENTSVIEW. Runs as the system user agentsview in the agent-sessions group. It
+# reads the archive and nothing in /home. Not DynamicUser: that makes
+# /var/lib/agentsview a symlink, and agentsview then cannot write its runtime
+# record there. agentsview writes generated secrets into its own
 # config.toml, so the unit writes that file from the Nix template at each start
 # and keeps the generated lines. Login: Caddy basic_auth with the hermes
 # dashboard credentials (hermes_dashboard_basic_auth_hash). agentsview's own
@@ -130,7 +132,16 @@ let
 in
 {
   users = {
-    groups.${group} = { };
+    groups = {
+      ${group} = { };
+      agentsview = { };
+    };
+
+    users.agentsview = {
+      isSystemUser = true;
+      group = "agentsview";
+      extraGroups = [ group ];
+    };
 
     # Push receiver: the forced command limits each host key to its own folder.
     users.agent-push = {
@@ -191,9 +202,12 @@ in
   };
 
   systemd = {
+    # The root folder belongs to root. systemd-tmpfiles refuses to step from a
+    # folder of an unprivileged user into a folder of root, such as
+    # mini-hermes. agent-push owns only the folder of each host.
     tmpfiles.settings.agent-sessions = {
       ${root}.d = {
-        user = "agent-push";
+        user = "root";
         inherit group;
         mode = "2750";
       };
@@ -252,8 +266,8 @@ in
           AGENTSVIEW_DISABLE_UPDATE_CHECK = "1";
         };
         serviceConfig = {
-          DynamicUser = true;
-          SupplementaryGroups = [ group ];
+          User = "agentsview";
+          Group = "agentsview";
           StateDirectory = "agentsview";
           StateDirectoryMode = "0700";
           ExecStartPre = writeConfig;
