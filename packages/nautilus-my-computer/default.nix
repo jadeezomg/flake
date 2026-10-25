@@ -8,13 +8,16 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "nautilus-my-computer";
-  version = "0.13.3";
+  # Held at 0.13.2. With 0.13.3, Nautilus crashes when it opens Network.
+  # The hold in update.json keeps the updater off 0.13.3. The first newer
+  # release retires the hold, and `update-packages` says so.
+  version = "0.13.2";
 
   src = fetchFromGitHub {
     owner = "yannmasoch";
     repo = "nautilus-my-computer";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-UW1BqLQItzjpcALXzu+Zgr3He0XFYTcDmbFvW5lCVKo=";
+    hash = "sha256-+hE39OIp1+uq0TG5E1f4VocK0iMv5xkXLJnmSal5FZM=";
   };
 
   # The extension imports `cairo`. The nautilus-python host only puts
