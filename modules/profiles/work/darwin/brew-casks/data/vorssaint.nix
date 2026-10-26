@@ -4,17 +4,18 @@
 {
   features = {
     appUpdates = false;
-    autoQuit = false;
+    audioPriority = true;
+    autoQuit = true;
     brightness = true;
-    cameraPreview = false;
-    cleaner = false;
+    cameraPreview = true;
+    cleaner = true;
     cleaningMode = false;
-    clipboardHistory = false;
-    colorPicker = false;
+    clipboardHistory = true;
+    colorPicker = true;
     commandBar = false;
     diskImageInstaller = true;
-    dockClick = false;
-    dockPreview = false;
+    dockClick = true;
+    dockPreview = true;
     extraBrightness = true;
     fanControl = false;
     finderCutPaste = true;
@@ -23,8 +24,9 @@
     homebrew = false;
     keepAwake = true;
     keyboardDebounce = false;
+    killProcess = true;
     mediaTools = true;
-    micMute = false;
+    micMute = true;
     middleClick = true;
     mixer = true;
     monitorCPU = true;
@@ -35,66 +37,126 @@
     monitorPower = true;
     mouseButtonShortcuts = false;
     mouseNavigation = true;
-    musicBlock = false;
+    musicBlock = true;
+    notchMascot = true;
     pastePlain = true;
-    quickLauncher = false;
+    portManager = true;
+    quickLauncher = true;
     quickToggles = false;
     radialMenu = false;
-    scratchpad = false;
+    scratchpad = true;
     screenOCR = true;
     screenRecorder = false;
     screenshot = true;
-    scrollInverter = false;
-    shelf = false;
+    scrollInverter = true;
+    shelf = true;
     smoothScroll = false;
-    soundOutputSwitcher = false;
+    soundOutputSwitcher = true;
     superKey = true;
-    switcher = false;
+    switcher = true;
     textSnippets = false;
-    uninstaller = false;
+    uninstaller = true;
     urlCleaner = true;
-    windowLayout = false;
-    windowMaximizer = false;
+    windowLayout = true;
+    windowMaximizer = true;
   };
   settings = {
+    appVolumesArePositions = true;
+    audioPriorityInputEnabled = true;
+    audioPriorityInputUIDs = [
+      "BuiltInMicrophoneDevice"
+      "AppleUSBAudioEngine:Unknown Manufacturer:Fosi Audio K5 Pro:1130000:2"
+      "AppleUSBAudioEngine:Creative Technology Ltd:SB Katana V2:2EBE98C4D50695FC:5"
+    ];
+    audioPriorityOutputEnabled = true;
+    audioPriorityOutputUIDs = [
+      "AppleUSBAudioEngine:Creative Technology Ltd:SB Katana V2:2EBE98C4D50695FC:4"
+      "BuiltInSpeakerDevice"
+      "AppleUSBAudioEngine:Unknown Manufacturer:Fosi Audio K5 Pro:1130000:1"
+      "10ACFDA2-0000-0000-2824-0104B55B2678"
+    ];
     autoCheckUpdates = false;
+    autoQuitEnabled = true;
     batteryLimitPercent = 10;
+    bluetoothSleepEnabled = true;
     brightnessControlEnabled = true;
     brightnessOSDEnabled = true;
     clipboardAutoClearDelaySeconds = 20;
-    clipboardHistoryEnabled = false;
+    clipboardHistoryEnabled = true;
     clipboardHistoryLimit = 50;
     clipboardHistoryMenuBarPreview = false;
     clipboardHistoryMenuBarPreviewLength = 20;
+    clipboardHistoryRetentionDays = 0;
     clipboardHistoryShortcut = "option:9";
+    colorPickerShortcutEnabled = true;
     defaultDurationMinutes = 0;
+    diskImageInstallerRevealsApp = true;
+    diskImageInstallerTrashesDownload = true;
+    diskImageInstallerUseUserApplications = false;
+    dockClickMinimize = true;
+    dockPreviewEnabled = true;
+    dockPreviewQuitAppOnClose = true;
     extraBrightnessEnabled = true;
     finderCutPasteEnabled = true;
     finderRenameEnabled = true;
     focusFollowsMouseDelayMilliseconds = 500;
     focusFollowsMouseEnabled = true;
-    keepAwakeActiveIcon = "vorssaint";
+    keepAwakeActiveIcon = "coffee";
     keepAwakeIconTint = "orange";
     keepAwakeMouseJiggleIntervalMinutes = 5;
+    keepAwakeSwitchUsesUntil = false;
     launchAtLoginWanted = true;
     liquidGlassEnabled = true;
+    mediaGIFEnd = 0.0;
+    mediaGIFStart = 0.0;
+    mediaLastTool = "videoCompressor";
+    mediaVideoEnd = 0.0;
+    mediaVideoStart = 0.0;
+    menuBarHideIconWithMetrics = false;
     menuBarMetricAppearance = "values";
+    micMuteShortcut = "control+option+shift+command:46";
+    micMuteShortcutEnabled = true;
     middleClickEnabled = true;
     middleClickExceptions = [ "com.apple.finder" ];
+    middleClickTapFingers = 3;
+    minimalWindowPreviews = false;
+    mixerHeadphonesDisconnectSilenceAllowed = true;
     monitorIntervalSeconds = 2;
     monitorMemoryMetric = "used";
+    monitorPwrPeripherals = false;
     monitorPwrTemperature = true;
+    mouseAccelerationDisabled = true;
     mouseNavigationEnabled = true;
+    musicBlockEnabled = true;
+    notchAgentsCodex = true;
+    notchAgentsCopilot = false;
+    notchAgentsEnabled = true;
+    notchAgentsOpenCode = false;
     notchAppPanel = true;
+    notchCalendarCountdown = true;
+    notchCalendarExcluded = [
+      "7A90CC94-E0C7-4F72-856B-C3D61E1300B3"
+      "892F07AA-1AB2-45C1-A84F-0E4A24616C91"
+      "A82BFD1C-9DB4-4F11-ADCA-E3F0FA08CF7A"
+      "D8FF8A1F-9902-41D9-A983-A7F2B6994110"
+      "E205D653-70FB-489E-8F18-A6C4249A3D79"
+    ];
+    notchCalendarTimeLeft = true;
+    notchCalendarWeekNumbers = true;
     notchCloseDelay = 0.1;
+    notchCustomHeight = 260.0;
+    notchCustomWidth = 495.75;
+    notchDismissNativeNotifications = true;
     notchDisplay = "all";
+    notchDownloadsEnabled = true;
     notchEnabled = true;
     notchHiddenModules = "music";
     notchHideUntilHover = false;
-    notchHidesMenuBarIcon = true;
-    notchHoverDelay = 0.15;
+    notchHidesMenuBarIcon = false;
+    notchHoverDelay = 0.1;
     notchHoverExpands = true;
     notchIdleContent = "battery";
+    notchKeyboardLight = true;
     notchKeyboardLightControlHidden = true;
     notchLiquidGlassEnabled = true;
     notchLockScreen = true;
@@ -102,21 +164,53 @@
     notchLowBatteryEarlyThreshold = 20;
     notchLowBatteryThreshold = 10;
     notchLowBatteryTint = true;
+    notchMascotEnabled = true;
+    notchMascotPalette = "rose";
+    notchMascotShape = "pill";
+    notchMascotVisitFrequency = "rare";
     notchOpenOnHover = true;
     notchOutlineEnabled = false;
     notchScratchpadControlHidden = true;
     notchSilhouette = "notch";
-    notchSize = "spacious";
+    notchSize = "custom";
+    notchWatchEnabled = false;
     panelControlInputExpanded = true;
     pastePlainEnabled = true;
     pastePlainShortcut = "option+shift+command:9";
+    previewSize = "normal";
+    quickLauncherHiddenItems = "clipboard,keepAwake,micMute";
+    recentCapturesShortcutEnabled = false;
+    screenOCRShortcut = "control+option+shift+command:8";
+    screenOCRShortcutEnabled = true;
     screenshotCopyToClipboard = true;
+    screenshotFullScreenShortcut = "shift+command:20";
+    screenshotShortcut = "shift+command:21";
+    screenshotShortcutEnabled = true;
     scrollInverterHorizontalEnabled = false;
+    shelfEnabled = true;
+    smoothScrollEnabled = true;
+    soundOutputSwitcherDeviceUIDs = [
+      "BuiltInSpeakerDevice"
+      "AppleUSBAudioEngine:Unknown Manufacturer:Fosi Audio K5 Pro:1130000:1"
+      "AppleUSBAudioEngine:Creative Technology Ltd:SB Katana V2:2EBE98C4D50695FC:4"
+    ];
+    soundOutputSwitcherEnabled = true;
+    soundOutputSwitcherShortcut = "control+option+shift+command:1";
     superKeyEnabled = true;
     superKeyModifiers = "control+option+shift+command";
     superKeySoloAction = "escape";
     superKeySource = "capsLock";
+    switcherAppearanceDelay = 0;
+    switcherEnabled = true;
+    switcherIconRowMode = true;
+    switcherPreviewExcludedApps = [ ];
     switcherPreviewSize = "normal";
+    switcherShortcut = "control:48";
+    switcherSimpleMode = false;
+    switcherTakeOverSystemShortcuts = true;
+    systemShortcutTakeOverKeys = [ ];
     urlCleanerEnabled = true;
+    windowLayoutShortcutsEnabled = true;
+    windowMaximizeEnabled = true;
   };
 }

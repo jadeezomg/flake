@@ -5,6 +5,7 @@
 }:
 let
   inherit (dotfilesLib.lanHosts) unraid;
+  inherit (import ./nixflix/common.nix) mediaFolders;
   # NFS export prefix, e.g. "192.168.178.62:/mnt/user". The address lives in
   # data/network/lan-hosts.nix because the backup transport and the ssh alias
   # need the same value (Unraid has no hosts/<name>/host.nix — the flake does
@@ -33,53 +34,55 @@ in
   };
   users.groups.users.gid = lib.mkForce 100;
 
+  # Every mount here is the root of an Unraid export, and no mount sits below
+  # another NFS mount. Unraid gives the folders of a user share synthetic
+  # inode numbers, and it gives the media folder a new one every few minutes
+  # ("NFS: server ... error: fileid changed" in the kernel log;
+  # fuse_remember=-1 did not stop it). A lookup by name recovers from that.
+  # A mount does not:
+  #   - A mount whose root is such a folder stays "Stale file handle" until it
+  #     is mounted again. That was /media, a mount of data/media, on 2026-10-26.
+  #   - The kernel detaches each mount below such a folder, so /media/Music and
+  #     /data/media/Music disappeared every few minutes.
+  # A bind of a folder in /data is no better: it keeps the dead handle when /data
+  # is mounted again (Plex failed with 226/NAMESPACE on 2026-07-31).
   fileSystems = {
     "/data" = {
       device = share "data";
       fsType = "nfs";
       options = mountOptions;
     };
-    # Not an automount. systemd orders every automount before local-fs.target,
-    # and this one needs /data mounted first, so the network ended up in early
-    # boot: an ordering cycle on every boot. systemd broke it by dropping a
-    # random job; on 2026-10-25 that was network-online.target, and /data and
-    # /Music failed with "Network is unreachable". As a plain network mount it
-    # starts after the network, with the other remote mounts.
-    "/data/media/Music" = {
-      device = share "Music";
-      fsType = "nfs";
-      options = lib.remove "x-systemd.automount" mountOptions;
-      depends = [ "/data" ];
-    };
-    # /Music and /media are DIRECT NFS mounts, not binds of the /data tree. A bind of
-    # a subdirectory of an automounted NFS mount pins the superblock it was created
-    # from: when /data is re-mounted during activation (or expired, back when these
-    # carried x-systemd.idle-timeout=600 — removed in d8c1d16 for exactly this reason),
-    # the bind keeps the dead handle and every access returns ESTALE. That wedged plex
-    # on 2026-07-31 — `ls /media` → "Stale file handle", so systemd could not set up its
-    # ReadOnlyPaths=/media namespace and ExecStartPre failed with 226/NAMESPACE.
-    # Mounting the export path directly lets systemd remount each one independently.
     "/Music" = {
       device = share "Music";
       fsType = "nfs";
       options = mountOptions;
     };
-    "/media" = {
-      device = share "data/media";
+    # The data share again, read-only and with FS-Cache (playback-cache.nix),
+    # for Plex and Jellyfin. They read it through the links in /media below.
+    "/mnt/library" = {
+      device = share "data";
       fsType = "nfs";
       options = mountOptions ++ [ "ro" ];
     };
-    # The Music share inside /media, where the Plex and Jellyfin music
-    # libraries point. /media/Music in the data share is an empty folder, so
-    # without this both libraries showed no music. A plain network mount, not
-    # an automount, for the same reason as /data/media/Music above.
-    "/media/Music" = {
-      device = share "Music";
-      fsType = "nfs";
-      options = lib.remove "x-systemd.automount" mountOptions ++ [ "ro" ];
-      depends = [ "/media" ];
-    };
   };
+
+  # /media is a local folder with one link per library folder, and a link to
+  # the Music share. The library paths in Plex and Jellyfin, /media/Music
+  # included, stay as they were when /media was a mount.
+  systemd.tmpfiles.settings."10-media-links" =
+    lib.listToAttrs (
+      map (
+        folder: lib.nameValuePair "/media/${folder}" { "L+".argument = "/mnt/library/media/${folder}"; }
+      ) mediaFolders
+    )
+    // {
+      "/media".d = {
+        mode = "0755";
+        user = "root";
+        group = "root";
+      };
+      "/media/Music"."L+".argument = "/Music";
+    };
 
   # NFS read-ahead: the default 256 KiB makes playback a stream of small reads
   # on the Unraid disks. 16 MiB reads ahead in bigger, sequential pieces. NFS

@@ -109,15 +109,18 @@ export function summarize(
 }
 
 /**
- * A short name for a tool: `mcp__linear__save_issue` reads `linear:save_issue`,
- * and a claude.ai connector's `mcp__claude_ai_Notion__notion-search` reads
- * `Notion:search`. Other tools keep their name.
+ * The server and the tool of an MCP tool's name: `mcp__linear__save_issue`
+ * gives `linear` and `save_issue`, and a claude.ai connector's
+ * `mcp__claude_ai_Notion__notion-search` gives `Notion` and `search`.
+ * Undefined for a tool that is not an MCP tool.
  */
-export function toolLabel(tool: string): string {
-	if (!tool.startsWith("mcp__")) return tool;
+export function mcpParts(
+	tool: string,
+): { server: string; name: string } | undefined {
+	if (!tool.startsWith("mcp__")) return undefined;
 	const rest = tool.slice("mcp__".length);
 	const split = rest.indexOf("__");
-	if (split < 0) return tool;
+	if (split < 0) return undefined;
 	const server = rest.slice(0, split).replace(/^claude_ai_/, "");
 	let name = rest.slice(split + 2);
 	// A tool that repeats its server's name drops it.
@@ -126,7 +129,51 @@ export function toolLabel(tool: string): string {
 	if (prefix === `${own}-` || prefix === `${own}_`)
 		name = name.slice(own.length + 1);
 
-	return `${server}:${name}`;
+	return { server, name };
+}
+
+/**
+ * A short name for a tool: an MCP tool reads `server:tool`, as `mcpParts`
+ * splits it. Other tools keep their name.
+ */
+export function toolLabel(tool: string): string {
+	const parts = mcpParts(tool);
+
+	return parts === undefined ? tool : `${parts.server}:${parts.name}`;
+}
+
+// Short words for the places that a skill comes from.
+const SKILL_ORIGINS: Record<string, string> = {
+	userSettings: "user",
+	projectSettings: "project",
+	policySettings: "policy",
+	syncedSkills: "synced",
+};
+
+/**
+ * How the Skills list names a skill, and where it comes from: its plugin,
+ * else a short word for its source. A plugin skill's name drops the plugin
+ * prefix, so `simple-english:simple-english` reads `simple-english`.
+ */
+export function skillParts(skill: {
+	name: string;
+	source: string;
+	pluginName?: string;
+}): { name: string; origin: string } {
+	const plugin = skill.pluginName;
+	if (plugin !== undefined) {
+		const prefix = `${plugin}:`;
+		const name = skill.name.startsWith(prefix)
+			? skill.name.slice(prefix.length)
+			: skill.name;
+
+		return { name, origin: plugin };
+	}
+
+	return {
+		name: skill.name,
+		origin: SKILL_ORIGINS[skill.source] ?? skill.source,
+	};
 }
 
 /** The full command of a call, for its expanded row. */

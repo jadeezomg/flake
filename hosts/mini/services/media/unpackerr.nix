@@ -49,7 +49,11 @@ in
       ProtectHome = true;
       PrivateTmp = true;
       NoNewPrivileges = true;
-      ReadWritePaths = [ "/data/torrents" ];
+      # One entry for /data, as for the Arr apps (ADR-0006). An entry for
+      # /data/torrents is a bind mount that the kernel detaches when Unraid
+      # gives a parent folder a new inode number. Unpackerr then sees a
+      # read-only /data (docs/hosts/mini.md § Media stack).
+      ReadWritePaths = [ "/data" ];
     };
   };
 }

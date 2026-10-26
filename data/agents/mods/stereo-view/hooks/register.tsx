@@ -15,6 +15,8 @@ import type {
 	ContextRow,
 	FileChange,
 	FileDiff,
+	McpServerUse,
+	SkillUse,
 	TaskItem,
 	TaskStatus,
 } from "../types";
@@ -28,15 +30,31 @@ import {
 	firstLine,
 	hardWrap,
 	limitLabel,
+	mcpParts,
 	pathsOf,
 	resetLabel,
+	skillParts,
 	summarize,
 	tokenCount,
 	toolLabel,
 	turnsLeft,
 } from "./format";
 import { diffColor, diffCounts, gitLabel, parseStatus } from "./git";
-import { FILE_TOOLS, TASK_TOOLS, fit, nextFiles, nextTasks } from "./work";
+import {
+	FILE_TOOLS,
+	TASK_TOOLS,
+	fileRowsOf,
+	fit,
+	fitFiles,
+	matchSkill,
+	mcpRowsOf,
+	nextFiles,
+	nextMcp,
+	nextSkills,
+	nextTasks,
+	shareRows,
+} from "./work";
+import type { FileRow, ListedSkill, McpRow } from "./work";
 
 const PANE = "activity";
 const TITLE = "Activity";
@@ -47,9 +65,9 @@ const MAX_RESULT = 4000;
 const LEAD = 7;
 // The minimum number of body rows for the split. A smaller body scrolls.
 const MIN_BODY_ROWS = 12;
-// The lengths of the two file lists.
-const RECENT_FILES = 5;
-const TOP_FILES = 3;
+// The parts under the context: tasks, skills, MCP servers, and files. The
+// context leaves at least their headings.
+const WORK_PARTS = 4;
 const RULE = "─".repeat(400);
 // From these fills of the window, in percent, the bar takes the warning
 // color and the Compact button shows, then the bar takes the error color.
@@ -101,6 +119,12 @@ const diffScroll = atom(
 const onlyFailed = atom(
 	{ plugin: "stereo-view", key: "onlyFailed" } as const,
 	false,
+);
+const skills = atom({ plugin: "stereo-view", key: "skills" } as const, []);
+const mcp = atom({ plugin: "stereo-view", key: "mcp" } as const, []);
+const closedServers = atom(
+	{ plugin: "stereo-view", key: "closedServers" } as const,
+	[],
 );
 
 // One row of the Tasks list: a task, or the label of the subagent whose
@@ -275,16 +299,24 @@ type ReadBack = {
 	list: ActivityEntry[];
 	taskList: TaskItem[];
 	fileList: FileChange[];
+	skillList: SkillUse[];
+	mcpList: McpServerUse[];
 };
 
-// Rebuilds the list, the tasks and the changed files from the stored
-// conversation, for a resumed session. Subagent calls are not stored there.
+// Rebuilds the list, the tasks, the changed files, the skills and the MCP
+// servers from the stored conversation, for a resumed session. Subagent
+// calls are not stored there. Of the skills, only the Skill tool's calls are
+// stored: a skill that the person typed as `/name` is not read back.
 async function readBack($: EngineInterface): Promise<ReadBack> {
 	const messages = await $.session.messages();
 	const list: ActivityEntry[] = [];
 	let taskList: TaskItem[] = [];
 	let fileList: FileChange[] = [];
-	if (!Array.isArray(messages)) return { list, taskList, fileList };
+	let skillList: SkillUse[] = [];
+	let mcpList: McpServerUse[] = [];
+	if (!Array.isArray(messages))
+		return { list, taskList, fileList, skillList, mcpList };
+	const listed = await skillListing($).catch(() => []);
 	for (const [index, message] of messages.entries()) {
 		if (
 			message.role === "user" &&
@@ -309,7 +341,14 @@ async function readBack($: EngineInterface): Promise<ReadBack> {
 				result: use.text?.slice(0, MAX_RESULT),
 			});
 			// A call in flight has no text yet.
+			if (use.text !== undefined)
+				mcpList = nextMcp(mcpList, use.tool, use.isError === true);
 			if (use.isError === true || use.text === undefined) continue;
+			const skill = use.input.skill;
+			if (use.tool === "Skill" && typeof skill === "string") {
+				const found = matchSkill(listed, skill);
+				skillList = nextSkills(skillList, found ?? { name: skill, source: "" });
+			}
 			if (TASK_TOOLS.has(use.tool))
 				taskList = nextTasks(taskList, use.tool, use.input, use.result);
 			const path = pathsOf(use.input)[0];
@@ -318,7 +357,13 @@ async function readBack($: EngineInterface): Promise<ReadBack> {
 		}
 	}
 
-	return { list: list.slice(-MAX_ENTRIES), taskList, fileList };
+	return {
+		list: list.slice(-MAX_ENTRIES),
+		taskList,
+		fileList,
+		skillList,
+		mcpList,
+	};
 }
 
 // Keeps the label of a subagent and marks it as running. The engine drops
@@ -470,6 +515,32 @@ async function diffOf($: EngineInterface, path: string): Promise<string[]> {
 	return text.split("\n").slice(0, MAX_DIFF_LINES);
 }
 
+// The session's skill listing, from the local context estimate. Empty when
+// the estimate has none.
+async function skillListing($: EngineInterface): Promise<ListedSkill[]> {
+	const usage = await $.session.usage({ breakdown: "summary" });
+
+	return [...(usage.context.breakdown?.skills?.skillFrontmatter ?? [])];
+}
+
+// Records one use of a skill under its listed name and source. The guard
+// that the account seats first skips `skill.prompt` hooks, so the mod sees
+// a skill only as a Skill tool call or as a typed `/name`. A name that the
+// listing does not hold counts only when `isSkill` is true: a typed `/name`
+// can also be a built-in command.
+async function noteSkill(
+	$: EngineInterface,
+	name: string,
+	isSkill: boolean,
+): Promise<void> {
+	const listed = await skillListing($).catch(() => []);
+	const found = matchSkill(listed, name);
+	if (found === undefined && !isSkill) return;
+	await update($, skills, (list) =>
+		nextSkills(list, found ?? { name, source: "" }),
+	);
+}
+
 async function openDiff($: EngineInterface, file: FileChange): Promise<void> {
 	const lines = await diffOf($, file.path);
 	const diff: FileDiff = { path: file.path, label: file.label, lines };
@@ -494,8 +565,10 @@ export const register: Register = (on) => {
 			list: (await read($, entries)).length === 0,
 			taskList: (await read($, tasks)).length === 0,
 			fileList: (await read($, files)).length === 0,
+			skillList: (await read($, skills)).length === 0,
+			mcpList: (await read($, mcp)).length === 0,
 		};
-		if (isEmpty.list || isEmpty.taskList || isEmpty.fileList) {
+		if (Object.values(isEmpty).some((value) => value)) {
 			const back = await readBack($).catch(() => null);
 			if (back !== null && isEmpty.list)
 				await update($, entries, () => back.list);
@@ -503,6 +576,10 @@ export const register: Register = (on) => {
 				await update($, tasks, () => back.taskList);
 			if (back !== null && isEmpty.fileList)
 				await update($, files, () => back.fileList);
+			if (back !== null && isEmpty.skillList)
+				await update($, skills, () => back.skillList);
+			if (back !== null && isEmpty.mcpList)
+				await update($, mcp, () => back.mcpList);
 		}
 
 		// Opened unasked only where the pane is a sidebar: in fullscreen mode.
@@ -529,6 +606,9 @@ export const register: Register = (on) => {
 			await update($, files, () => []);
 			await update($, turnTokens, () => []);
 			await update($, fileDiff, () => null);
+			await update($, skills, () => []);
+			await update($, mcp, () => []);
+			await update($, closedServers, () => []);
 		}
 
 		return next(e);
@@ -623,7 +703,12 @@ export const register: Register = (on) => {
 			);
 		}
 
-		return next(e);
+		const sent = await next(e);
+		// A typed `/name` that the skill listing holds is a use of that skill.
+		if (e.command !== undefined && sent.drop === undefined)
+			await noteSkill($, e.command.name, false);
+
+		return sent;
 	}).catch((_$, e, next) => next(e));
 
 	// These hooks only record. If one fails, the call goes on without the mod.
@@ -675,7 +760,15 @@ export const register: Register = (on) => {
 				// A file tool or a shell command can change the working tree.
 				if (FILE_TOOLS.has(call.tool) || call.tool === "Bash")
 					void readGit($).catch(() => undefined);
+				const skill = input.skill;
+				if (call.tool === "Skill" && typeof skill === "string")
+					await noteSkill($, skill, true);
 			}
+		}
+		// Each MCP call counts, also a failed or denied one.
+		if (mcpParts(call.tool) !== undefined) {
+			const isFailed = ran.deny !== undefined || ran.isError === true;
+			await update($, mcp, (list) => nextMcp(list, call.tool, isFailed));
 		}
 		// The result is now part of the main conversation's context.
 		if (e.agentId === undefined) void readContext($).catch(() => undefined);
@@ -752,11 +845,15 @@ export const register: Register = (on) => {
 		const diff = await read($, fileDiff);
 		const diffAt = await read($, diffScroll);
 		const failedOnly = await read($, onlyFailed);
+		const skillList = await read($, skills);
+		const mcpList = await read($, mcp);
+		const closed = await read($, closedServers);
 		const now = await $.clock.now();
 
 		// The body splits in half. The top half shows the context window,
-		// then the tasks and the changed files. The lower half shows the
-		// calls. Each part gives its first row to its heading.
+		// then the tasks, the skills, the MCP servers and the changed files.
+		// The lower half shows the calls. Each part gives its first row to
+		// its heading.
 		const bodyRows = Math.max(MIN_BODY_ROWS, e.props.scroll.bodyRows);
 		const topRows = Math.floor(bodyRows / 2);
 		const lowRows = bodyRows - topRows;
@@ -859,8 +956,8 @@ export const register: Register = (on) => {
 			}
 		}
 
-		// The context takes the rows it needs. The tasks and the files keep
-		// at least the two rows of their headings.
+		// The context takes the rows it needs, at least its heading and its
+		// bar. The parts under it keep at least the rows of their headings.
 		const contextNeed =
 			info === null
 				? 2
@@ -870,7 +967,10 @@ export const register: Register = (on) => {
 					(categories.length === 0
 						? 0
 						: 1 + (withCategories ? categories.length : 0));
-		const contextRows = Math.min(contextNeed, topRows - 2);
+		const contextRows = Math.min(
+			contextNeed,
+			Math.max(2, topRows - WORK_PARTS),
+		);
 		const workRows = topRows - contextRows;
 
 		const contextPart = (
@@ -949,40 +1049,32 @@ export const register: Register = (on) => {
 			</Box>
 		);
 
-		// The tasks take the rows that the files do not need, and the other
-		// way around. When both need more, each gets about half.
-		// The files show in two lists: the most recent changes, and the
-		// files with the most changes. A file can be in both lists. The sort
-		// is stable, so of two files with equal counts the newer comes first.
-		const recentFiles = fileList.slice(0, RECENT_FILES);
-		const topFiles = [...fileList]
-			.sort((a, b) => b.edits - a.edits)
-			.slice(0, TOP_FILES);
-		// The git state takes one row under the first files heading.
+		// Each of the four parts gets its heading row, then an equal share of
+		// the rows that are left, up to the rows that it needs. The files
+		// show grouped by folder, and the git state takes one row under
+		// their heading. An MCP server shows its tools unless the person
+		// folded it.
 		const gitRows = git === null ? 0 : 1;
-		const fileNeed =
-			fileList.length === 0
-				? 1 + gitRows
-				: 2 + gitRows + recentFiles.length + topFiles.length;
-		// When the whole list does not fit, the completed tasks hide first.
-		// The rows that they free go to the files.
-		const taskRoom = Math.max(Math.ceil(workRows / 2), workRows - fileNeed);
+		const allFileRows = fileRowsOf(fileList);
+		const allMcpRows = mcpRowsOf(mcpList, closed);
+		const otherNeeds = [
+			1 + skillList.length,
+			1 + allMcpRows.length,
+			1 + gitRows + allFileRows.length,
+		];
+		// When the whole task list does not fit, the completed tasks hide
+		// first. The rows that they free go to the other parts.
 		const allTaskRows = taskRowsOf(taskList, agentList);
-		const openTaskRows =
-			allTaskRows.length > taskRoom - 1
-				? taskRowsOf(
-						taskList.filter((task) => task.status !== "completed"),
-						agentList,
-					)
-				: allTaskRows;
-		const taskRows = Math.min(1 + openTaskRows.length, taskRoom);
-		const fileRows = workRows - taskRows;
-		// When the rows are short, both file lists get shorter.
-		const recentRows = Math.min(
-			1 + gitRows + recentFiles.length,
-			Math.max(Math.ceil(fileRows / 2), fileRows - 1 - topFiles.length),
-		);
-		const topFileRows = fileRows - recentRows;
+		let openTaskRows = allTaskRows;
+		let shares = shareRows([1 + allTaskRows.length, ...otherNeeds], workRows);
+		if ((shares[0] ?? 0) - 1 < allTaskRows.length) {
+			openTaskRows = taskRowsOf(
+				taskList.filter((task) => task.status !== "completed"),
+				agentList,
+			);
+			shares = shareRows([1 + openTaskRows.length, ...otherNeeds], workRows);
+		}
+		const [taskRows = 0, skillRows = 0, mcpRows = 0, fileRows = 0] = shares;
 		const done = taskList.filter((task) => task.status === "completed").length;
 		const runningAgents = agentList.filter((one) => !one.isDone).length;
 		const taskDetail: string[] = [];
@@ -992,32 +1084,120 @@ export const register: Register = (on) => {
 				`${runningAgents} ${runningAgents === 1 ? "agent" : "agents"} running`,
 			);
 		const shownTasks = fit(openTaskRows, taskRows - 1);
-		// A press on a file opens its diff in the lower half. A press on the
-		// open file closes the diff. A file can be in both lists, so the key
-		// names the list.
-		const fileRoom = Math.max(1, width - 6);
-		const fileLine = (list: string) => (file: FileChange) => (
-			<Button
-				key={`${list}:${file.path}`}
-				plain
-				onPress={() =>
-					diff?.path === file.path
-						? update($, fileDiff, () => null)
-						: openDiff($, file)
-				}
-			>
-				<Text weight={diff?.path === file.path ? "bold" : undefined}>
-					{cutStart(file.label, fileRoom).padEnd(fileRoom)}
-				</Text>
-				<Text dimColor>{`×${file.edits}`.padStart(6)}</Text>
-			</Button>
+
+		// A count of uses or calls, right-aligned in the last six cells.
+		const countCell = (n: number) => `×${n}`.padStart(6);
+		const failedCell = (n: number) => (n > 0 ? ` ✗${n}` : "");
+		const plural = (n: number, word: string) =>
+			`${n} ${n === 1 ? word : `${word}s`}`;
+
+		// Each skill reads its name, where it comes from, and its uses.
+		const shownSkills = fit(skillList, skillRows - 1);
+		const skillNames = shownSkills.kept.map(skillParts);
+		const originRoom = Math.min(
+			16,
+			Math.max(0, ...skillNames.map((one) => one.origin.length)),
 		);
+		const skillRoom = Math.max(
+			1,
+			width - 6 - (originRoom > 0 ? originRoom + 1 : 0),
+		);
+		const skillLine = (skill: SkillUse, index: number) => {
+			const { name, origin } = skillNames[index] ?? skillParts(skill);
+			const originText =
+				originRoom > 0 ? ` ${cut(origin, originRoom).padEnd(originRoom)}` : "";
+
+			return (
+				<Text wrap="truncate-end">
+					{cut(name, skillRoom).padEnd(skillRoom)}
+					<Text dimColor>{originText + countCell(skill.uses)}</Text>
+				</Text>
+			);
+		};
+
+		// A press on a server folds its tools away, or shows them again.
+		const mcpCalls = mcpList.reduce(
+			(sum, one) => sum + one.tools.reduce((all, t) => all + t.calls, 0),
+			0,
+		);
+		const shownMcp = fit(allMcpRows, mcpRows - 1);
+		const mcpLine = (row: McpRow) => {
+			const failed = row.kind === "server" ? row.failed : row.tool.failed;
+			const calls = row.kind === "server" ? row.calls : row.tool.calls;
+			const tail = failedCell(failed);
+			if (row.kind === "tool") {
+				const room = Math.max(1, width - 4 - 6 - tail.length);
+
+				return (
+					<Text wrap="truncate-end">
+						{`    ${cut(row.tool.name, room).padEnd(room)}`}
+						{tail !== "" && <Text color="error">{tail}</Text>}
+						<Text dimColor>{countCell(calls)}</Text>
+					</Text>
+				);
+			}
+			const room = Math.max(1, width - 2 - 6 - tail.length);
+
+			return (
+				<Button
+					key={`mcp:${row.server}`}
+					plain
+					onPress={() =>
+						update($, closedServers, (list) =>
+							list.includes(row.server)
+								? list.filter((one) => one !== row.server)
+								: [...list, row.server],
+						)
+					}
+				>
+					<Text dimColor>{row.isOpen ? "▾ " : "▸ "}</Text>
+					<Text weight="bold">{cut(row.server, room).padEnd(room)}</Text>
+					{tail !== "" && <Text color="error">{tail}</Text>}
+					<Text dimColor>{countCell(calls)}</Text>
+				</Button>
+			);
+		};
+
+		// A press on a file opens its diff in the lower half. A press on the
+		// open file closes the diff.
+		const gitShown = git !== null && fileRows > 1;
+		const fileListRows = fileRows - 1 - (gitShown ? 1 : 0);
+		const shownFiles = fitFiles(allFileRows, fileListRows);
+		const fileRoom = Math.max(1, width - 2 - 6);
+		const fileLine = (row: FileRow) => {
+			if (row.kind === "dir") {
+				return (
+					<Text dimColor wrap="truncate-end">
+						{cutStart(row.label, width)}
+					</Text>
+				);
+			}
+			const { file } = row;
+
+			return (
+				<Button
+					key={`file:${file.path}`}
+					plain
+					onPress={() =>
+						diff?.path === file.path
+							? update($, fileDiff, () => null)
+							: openDiff($, file)
+					}
+				>
+					<Text weight={diff?.path === file.path ? "bold" : undefined}>
+						{`  ${cut(row.name, fileRoom).padEnd(fileRoom)}`}
+					</Text>
+					<Text dimColor>{countCell(file.edits)}</Text>
+				</Button>
+			);
+		};
 		const gitLine = git !== null && (
 			<Text dimColor wrap="truncate-end">{`⎇ ${gitLabel(git)}`}</Text>
 		);
 
-		// The tasks start at the top. The files end at the bottom, above the
-		// calls, and the free rows stay between the two.
+		// The tasks, the skills and the MCP servers start at the top. The
+		// files end at the bottom, above the calls, and the free rows stay
+		// between them.
 		const workPart = (
 			<Box
 				flexDirection="column"
@@ -1062,29 +1242,47 @@ export const register: Register = (on) => {
 					{shownTasks.hidden > 0 && taskRows > 1 && (
 						<Text dimColor>{`… ${shownTasks.hidden} more`}</Text>
 					)}
+					{skillRows > 0 && (
+						<Box flexDirection="row" height={1}>
+							{heading(
+								"Skills",
+								skillList.length === 0 ? "none" : `${skillList.length} used`,
+							)}
+						</Box>
+					)}
+					{shownSkills.kept.map(skillLine)}
+					{shownSkills.hidden > 0 && skillRows > 1 && (
+						<Text dimColor>{`… ${shownSkills.hidden} more`}</Text>
+					)}
+					{mcpRows > 0 && (
+						<Box flexDirection="row" height={1}>
+							{heading(
+								"MCP",
+								mcpList.length === 0
+									? "none"
+									: `${plural(mcpList.length, "server")} · ${plural(mcpCalls, "call")}`,
+							)}
+						</Box>
+					)}
+					{shownMcp.kept.map(mcpLine)}
+					{shownMcp.hidden > 0 && mcpRows > 1 && (
+						<Text dimColor>{`… ${shownMcp.hidden} more`}</Text>
+					)}
 				</Box>
 				<Box flexDirection="column" flexShrink={0}>
-					{fileRows > 0 && fileList.length === 0 && (
+					{fileRows > 0 && (
 						<Box flexDirection="row" height={1}>
-							{heading("Files", "none")}
+							{heading(
+								"Files",
+								fileList.length === 0 ? "none" : `${fileList.length} changed`,
+							)}
 						</Box>
 					)}
-					{fileRows > 0 && fileList.length > 0 && (
-						<Box flexDirection="row" height={1}>
-							{heading("Recent files", `${fileList.length} changed`)}
-						</Box>
+					{gitShown && gitLine}
+					{shownFiles.kept.map(fileLine)}
+					{shownFiles.hidden > 0 && fileListRows > 0 && (
+						<Text dimColor>{`… ${shownFiles.hidden} more`}</Text>
 					)}
-					{recentRows > 1 && gitLine}
-					{fileList.length > 0 &&
-						recentFiles
-							.slice(0, Math.max(0, recentRows - 1 - gitRows))
-							.map(fileLine("recent"))}
-					{topFileRows > 0 && fileList.length > 0 && (
-						<Box flexDirection="row" height={1}>
-							{heading("Most edited", "")}
-						</Box>
-					)}
-					{topFiles.slice(0, Math.max(0, topFileRows - 1)).map(fileLine("top"))}
 				</Box>
 			</Box>
 		);

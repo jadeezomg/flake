@@ -49,9 +49,10 @@ ARR_UNITS=(sonarr radarr lidarr prowlarr flaresolverr)
 DOWNLOADER_UNITS=(qbittorrent sabnzbd)
 MEDIA_UNITS=(plex jellyfin bazarr seerr)
 # Units that pin the NFS roots open and so must be stopped before a remount — the
-# union of the three groups minus seerr/flaresolverr, which touch no NFS path.
+# union of the three groups minus seerr/flaresolverr, which touch no NFS path, plus
+# unpackerr and media-prefetch, which belong to no group but stop with the mounts.
 # ensure_media_mounts restores whichever of these it found running.
-MOUNT_CONSUMER_UNITS=(qbittorrent sabnzbd sonarr radarr lidarr prowlarr bazarr jellyfin plex)
+MOUNT_CONSUMER_UNITS=(qbittorrent sabnzbd sonarr radarr lidarr prowlarr bazarr jellyfin plex unpackerr media-prefetch)
 
 run_remote() {
     local target="${MINI_SSH:-mini}"
@@ -223,12 +224,13 @@ nfs_path_ok() {
     timeout 5 ls "$path" >/dev/null 2>&1
 }
 
-# storage.nix mounts /media as a DIRECT NFS export, deliberately NOT a bind of
-# /data/media — a bind shares /data's superblock and inherits its dead handle when
-# /data expires (see the comment in hosts/mini/services/media/storage.nix).
-# NFS binds still report fsType nfs4 in findmnt/What=, so detect the drift by
-# superblock instead: a direct mount of a different export has its own device
-# number, a bind of /data/media reuses /data's.
+# storage.nix mounts the data export twice: /data (RW) and /mnt/library (read-only,
+# FS-Cache). The different options give /mnt/library its own superblock. A bind of
+# /data would share /data's superblock and keep its dead handle when /data is
+# mounted again (see the comment in hosts/mini/services/media/storage.nix).
+# NFS binds still report fsType nfs4 in findmnt/What=, so detect that drift by
+# superblock instead: a separate mount has its own device number, a bind reuses
+# /data's.
 own_superblock() {
     local path="$1" parent="$2" pd cd
     pd="$(stat -c '%d' "$parent" 2>/dev/null || true)"
@@ -236,40 +238,42 @@ own_superblock() {
     [[ -n "$cd" && -n "$pd" && "$cd" != "$pd" ]]
 }
 
-# /Music and /data/media/Music are the same export (/mnt/user/Music), so NFS
-# shares one superblock between them and a device check cannot distinguish a
-# bind there — readability (checked by nfs_path_ok) is all we can assert.
 topology_ok() {
     case "$1" in
-    media.mount) own_superblock /media /data ;;
+    mnt-library.mount) own_superblock /mnt/library /data ;;
     *) return 0 ;;
     esac
 }
 
 ensure_media_mounts() {
-    # Nested NFS (/data/media/Music) goes stale after parent /data remounts.
-    # ProtectSystem=strict services then fail NAMESPACE with "Stale file handle"
-    # even when systemctl still reports the mount unit active.
-    # Also repair topology drift: /media and /Music must be binds, not direct NFS.
+    # The topology in hosts/mini/services/media/storage.nix: three NFS mounts, each
+    # the root of an export and behind an .automount, with nothing mounted below them.
+    #   /data          the data export, RW
+    #   /Music         the Music export, RW
+    #   /mnt/library   the data export, read-only with FS-Cache
+    # /media is a local folder of links into /mnt/library/media, and to /Music.
     #
-    # Health is the .automount unit plus a readability probe — NOT the .mount unit.
-    # These carry x-systemd.idle-timeout=600, so an idle .mount going inactive is
-    # normal autofs behaviour, not a fault. Testing the .mount made every invocation
-    # after ten quiet minutes trigger the full teardown below, which is what kept
-    # taking the stack down. nfs_path_ok re-triggers the automount anyway, and
-    # catches the failures that matter (ESTALE, or a hung server via its timeout).
+    # Unraid gives the media folder a new inode number every few minutes ("fileid
+    # changed" in the kernel log). Lookups by name recover from that. A mount root
+    # can still go stale, for example after an array restart on Unraid, and
+    # ProtectSystem=strict services then fail NAMESPACE.
+    #
+    # Health is the .automount unit plus a readability probe, not the .mount unit.
+    # nfs_path_ok re-triggers an automount, and catches the failures that matter
+    # (ESTALE, or a hung server through its timeout).
+    if ! systemctl cat mnt-library.mount >/dev/null 2>&1; then
+        # This script runs from the local checkout, so it can be newer than mini.
+        print_error "mini runs the old mount layout (no mnt-library.mount): no mount repair until you deploy"
+        return 0
+    fi
     local need_remount=false
 
     if ! systemctl is-active --quiet data.automount || ! nfs_path_ok /data; then
         need_remount=true
-    elif ! systemctl is-active --quiet data-media-Music.automount || ! nfs_path_ok /data/media/Music; then
-        need_remount=true
     elif ! systemctl is-active --quiet Music.automount || ! nfs_path_ok /Music; then
         need_remount=true
-    elif ! systemctl is-active --quiet media.automount || ! nfs_path_ok /media || ! topology_ok media.mount; then
-        need_remount=true
-    elif findmnt /media/Music >/dev/null 2>&1; then
-        # Leftover from ad-hoc NFS remount of /media; Music is nested via /data/media/Music.
+    elif ! systemctl is-active --quiet mnt-library.automount || ! nfs_path_ok /mnt/library/media ||
+        ! topology_ok mnt-library.mount; then
         need_remount=true
     fi
 
@@ -293,22 +297,19 @@ ensure_media_mounts() {
     sudo systemctl stop \
         sonarr.service radarr.service lidarr.service prowlarr.service \
         bazarr.service jellyfin.service plex.service \
+        unpackerr.service media-prefetch.service \
         2>/dev/null || true
     # Stop the automount units first. umount -lf under a live automount hangs up the
     # autofs pipe and leaves the .automount unit failed ("unmounted by someone else").
-    sudo systemctl stop \
-        media.automount Music.automount data-media-Music.automount data.automount \
-        2>/dev/null || true
-    sudo systemctl stop media-Music.mount Music.mount media.mount data-media-Music.mount 2>/dev/null || true
-    sudo umount -lf /media/Music 2>/dev/null || true
+    sudo systemctl stop mnt-library.automount Music.automount data.automount 2>/dev/null || true
+    sudo systemctl stop mnt-library.mount Music.mount 2>/dev/null || true
+    sudo umount -lf /mnt/library 2>/dev/null || true
     sudo umount -lf /Music 2>/dev/null || true
-    sudo umount -lf /media 2>/dev/null || true
-    sudo umount -lf /data/media/Music 2>/dev/null || true
     sudo umount -lf /data 2>/dev/null || true
     sleep 1
     local m
-    for m in data.mount data-media-Music.mount Music.mount media.mount media-Music.mount \
-        data.automount data-media-Music.automount Music.automount media.automount; do
+    for m in data.mount Music.mount mnt-library.mount \
+        data.automount Music.automount mnt-library.automount; do
         sudo systemctl reset-failed "$m" 2>/dev/null || true
     done
     # Automount before mount: systemd refuses to set up an automount on a path that
@@ -316,15 +317,18 @@ ensure_media_mounts() {
     sudo systemctl start data.automount 2>/dev/null || true
     sudo systemctl start data.mount
     sleep 1
-    sudo systemctl start data-media-Music.automount Music.automount media.automount 2>/dev/null || true
-    sudo systemctl start data-media-Music.mount Music.mount media.mount
-    if ! nfs_path_ok /data || ! nfs_path_ok /media; then
-        print_error "NFS remount still stale — check Unraid export / network"
-        return 1
-    fi
-    if ! topology_ok media.mount; then
-        print_error "mount topology still drifted from fstab (/media must be its own NFS export, not a bind of /data/media)"
-        findmnt /media || true
+    sudo systemctl start Music.automount mnt-library.automount 2>/dev/null || true
+    sudo systemctl start Music.mount mnt-library.mount
+    local p
+    for p in /data /Music /mnt/library/media /media/Cinema /media/Music; do
+        if ! nfs_path_ok "$p"; then
+            print_error "NFS remount still stale at $p — check the Unraid export / network"
+            return 1
+        fi
+    done
+    if ! topology_ok mnt-library.mount; then
+        print_error "mount topology drifted from fstab (/mnt/library must be its own NFS mount, not a bind of /data)"
+        findmnt /mnt/library || true
         findmnt /data || true
         return 1
     fi

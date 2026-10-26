@@ -476,6 +476,17 @@ test("an opened call near the top holds the window at itself", async ($, on) => 
 	await ui.unmount();
 });
 
+// The text of each file button, its spaces closed up: `a.ts ×2`.
+async function fileLines(ui: {
+	findAll: (query: {
+		type: string;
+	}) => Promise<readonly { key?: string; text: string }[]>;
+}): Promise<string[]> {
+	return (await ui.findAll({ type: "Button" })).flatMap((one) =>
+		one.key?.startsWith("file:") ? [one.text.replace(/\s+/g, " ").trim()] : [],
+	);
+}
+
 test("the top half shows the todo list and the changed files", async ($, on) => {
 	mock.clock(on, { now: 1_000 });
 	on("fs.exists", (_$, e) => ({ value: e.path === "/work/repo/.git" }));
@@ -511,10 +522,9 @@ test("the top half shows the todo list and the changed files", async ($, on) => 
 		expect(await ui.find({ text: /✓ Read the code/ })).toBeDefined();
 		expect(await ui.find({ text: /◐ Write the fix/ })).toBeDefined();
 		expect(await ui.find({ text: /○ Run the tests/ })).toBeDefined();
-		expect(await ui.find({ text: /Recent files 2 changed/ })).toBeDefined();
-		expect(await ui.find({ text: /Most edited/ })).toBeDefined();
-		const text = (await ui.find({ text: /src\/b\.ts/ }))?.text ?? "";
-		expect(text).toMatch(/src\/a\.ts +×2.*src\/b\.ts +×1/s);
+		expect(await ui.find({ text: /Files 2 changed/ })).toBeDefined();
+		expect(await ui.find({ text: /^src\/$/ })).toBeDefined();
+		expect(await fileLines(ui)).toEqual(["a.ts ×2", "b.ts ×1"]);
 		await ui.unmount();
 	}
 });
@@ -542,8 +552,10 @@ test("the task tools keep the task list, and completed tasks hide first", async 
 	await $.tool.call({ tool: "TaskUpdate", taskId: "4", status: "in_progress" });
 	await $.tool.call({ tool: "TaskUpdate", taskId: "15", status: "deleted" });
 
-	// The top half has 15 rows. The context without a reading takes 2.
-	// With no files, the tasks take 12 of the other 13: 11 rows of tasks.
+	// The top half has 15 rows. The context without a reading takes 2. The
+	// skills, the MCP servers and the files have none, so each takes only
+	// its heading row. The tasks take the other 10: their heading, 8 tasks,
+	// and a row that counts the 3 open tasks that do not fit.
 	const ui = await $.ui.mount({
 		plugin: "stereo-view",
 		surface: "terminal",
@@ -555,8 +567,12 @@ test("the task tools keep the task list, and completed tasks hide first", async 
 	expect(await ui.find({ text: /Tasks 3\/14 done/ })).toBeDefined();
 	expect(await ui.find({ text: /✓ Task 01/ })).toBeUndefined();
 	expect(await ui.find({ text: /◐ Task 04/ })).toBeDefined();
-	expect(await ui.find({ text: /○ Task 14/ })).toBeDefined();
+	expect(await ui.find({ text: /○ Task 11/ })).toBeDefined();
+	expect(await ui.find({ text: /○ Task 12/ })).toBeUndefined();
+	expect(await ui.find({ text: /… 3 more/ })).toBeDefined();
 	expect(await ui.find({ text: /○ Task 15/ })).toBeUndefined();
+	expect(await ui.find({ text: /Skills none/ })).toBeDefined();
+	expect(await ui.find({ text: /MCP none/ })).toBeDefined();
 	expect(await ui.find({ text: /Files none/ })).toBeDefined();
 	await ui.unmount();
 });
@@ -627,15 +643,20 @@ test("a subagent's todos show indented under its label", async ($, on) => {
 	await ui.unmount();
 });
 
-test("the files show the 5 newest changes and the 3 most changed files", async ($, on) => {
+test("the files show grouped by folder, the newest change first", async ($, on) => {
 	mock.clock(on, { now: 1_000 });
 	on("fs.exists", (_$, e) => ({ value: e.path === "/work/repo/.git" }));
 	on("tool.call", () => ({ result: {}, text: "ok" }));
 
 	const edit = { tool: "Edit", old_string: "a", new_string: "b" } as const;
-	const order = ["f1", "f1", "f1", "f1", "f2", "f2", "f2", "f3", "f3"];
-	for (const name of [...order, "f4", "f5", "f6", "f7"])
-		await $.tool.call({ ...edit, file_path: `/work/repo/src/${name}.ts` });
+	for (const name of [
+		"src/a.ts",
+		"lib/x.ts",
+		"src/b.ts",
+		"src/a.ts",
+		"README.md",
+	])
+		await $.tool.call({ ...edit, file_path: `/work/repo/${name}` });
 
 	const ui = await $.ui.mount({
 		plugin: "stereo-view",
@@ -645,18 +666,125 @@ test("the files show the 5 newest changes and the 3 most changed files", async (
 		props: PANE_PROPS,
 		viewport: FULLSCREEN,
 	});
-	expect(await ui.find({ text: /Recent files 7 changed/ })).toBeDefined();
-	expect(await ui.find({ text: /── Most edited/ })).toBeDefined();
-	// Each file line is a button keyed by its list. It reads `src/f1.ts  ×4`.
-	const buttons = await ui.findAll({ type: "Button" });
-	const filesOf = (list: string) =>
-		buttons.flatMap((one) =>
-			one.key?.startsWith(`${list}:`)
-				? [one.text.replace(/^src\/(f\d)\.ts +×(\d)$/, "$1×$2")]
-				: [],
+	expect(await ui.find({ text: /Files 4 changed/ })).toBeDefined();
+	// A file at the repository root shows under `./`.
+	for (const dir of [/^\.\/$/, /^src\/$/, /^lib\/$/])
+		expect(await ui.find({ text: dir })).toBeDefined();
+	expect(await fileLines(ui)).toEqual([
+		"README.md ×1",
+		"a.ts ×2",
+		"b.ts ×1",
+		"x.ts ×1",
+	]);
+	await ui.unmount();
+});
+
+// The skill listing of the context estimate: one plugin skill, one project skill.
+const SKILL_USAGE = {
+	...USAGE,
+	context: {
+		...USAGE.context,
+		breakdown: {
+			...USAGE.context.breakdown,
+			skills: {
+				totalSkills: 2,
+				includedSkills: 2,
+				tokens: 300,
+				skillFrontmatter: [
+					{
+						name: "simple-english:simple-english",
+						source: "plugin",
+						pluginName: "simple-english",
+						tokens: 200,
+					},
+					{ name: "agent-structure", source: "projectSettings", tokens: 100 },
+				],
+			},
+		},
+	},
+} as unknown as SessionUsage;
+
+test("Skill tool calls and typed skills count as uses, and a built-in command does not", async ($, on) => {
+	mock.clock(on, { now: 1_000 });
+	on("tool.call", () => ({ result: {}, text: "ok" }));
+	on("prompt.submit", (_$, e) => ({ text: e.text }));
+	on("session.usage", () => ({ value: SKILL_USAGE }));
+
+	const typed = { wait: false, origin: { kind: "composer" } } as const;
+	const command = (name: string) => ({
+		...typed,
+		text: `/${name}`,
+		command: { name, args: "" },
+	});
+	// The model can name a plugin skill without its prefix.
+	await $.tool.call({ tool: "Skill", skill: "simple-english" });
+	await $.prompt.submit(command("agent-structure"));
+	await $.prompt.submit(command("compact"));
+	await $.tool.call({ tool: "Skill", skill: "simple-english:simple-english" });
+
+	const ui = await $.ui.mount({
+		plugin: "stereo-view",
+		surface: "terminal",
+		component: "Pane",
+		requestId: "activity",
+		props: PANE_PROPS,
+		viewport: FULLSCREEN,
+	});
+	expect(await ui.find({ text: /Skills 2 used/ })).toBeDefined();
+	const lines = (await ui.findAll({ type: "Text" })).map((one) =>
+		one.text.replace(/\s+/g, " ").trim(),
+	);
+	// The most recent use comes first. A plugin skill drops its prefix.
+	const first = lines.indexOf("simple-english simple-english ×2");
+	const second = lines.indexOf("agent-structure project ×1");
+	expect(first).toBeGreaterThan(-1);
+	expect(second).toBeGreaterThan(first);
+	await ui.unmount();
+});
+
+test("the MCP servers show their tools, and a press on a server folds them", async ($, on) => {
+	mock.clock(on, { now: 1_000 });
+	on("tool.call", (_$, e) =>
+		e.tool === "mcp__linear__get_issue"
+			? { result: {}, text: "not found", isError: true }
+			: { result: {}, text: "ok" },
+	);
+
+	await $.tool.call({ tool: "mcp__linear__list_issues", query: "a" });
+	await $.tool.call({
+		tool: "mcp__claude_ai_Notion__notion-search",
+		query: "q",
+	});
+	await $.tool.call({ tool: "mcp__linear__get_issue", id: "X-1" });
+	await $.tool.call({ tool: "mcp__linear__list_issues", query: "b" });
+	await $.tool.call({ tool: "Bash", command: "true" });
+
+	const ui = await $.ui.mount({
+		plugin: "stereo-view",
+		surface: "terminal",
+		component: "Pane",
+		requestId: "activity",
+		props: PANE_PROPS,
+		viewport: FULLSCREEN,
+	});
+	const lines = async () =>
+		(await ui.findAll({ type: "Text" })).map((one) =>
+			one.text.replace(/\s+/g, " ").trim(),
 		);
-	expect(filesOf("recent")).toEqual(["f7×1", "f6×1", "f5×1", "f4×1", "f3×2"]);
-	expect(filesOf("top")).toEqual(["f1×4", "f2×3", "f3×2"]);
+	expect(await ui.find({ text: /MCP 2 servers · 4 calls/ })).toBeDefined();
+	// The most recently called server and tool come first.
+	expect((await ui.find({ key: "mcp:linear" }))?.text).toMatch(
+		/▾ linear +✗1 +×3/,
+	);
+	expect((await ui.find({ key: "mcp:Notion" }))?.text).toMatch(/▾ Notion +×1/);
+	expect(await lines()).toContain("list_issues ×2");
+	expect(await lines()).toContain("get_issue ✗1 ×1");
+	expect(await lines()).toContain("search ×1");
+
+	await ui.press({ key: "mcp:linear" });
+	expect((await ui.find({ key: "mcp:linear" }))?.text).toMatch(/▸ linear/);
+	expect(await lines()).not.toContain("list_issues ×2");
+	expect(await lines()).toContain("search ×1");
 	await ui.unmount();
 });
 
@@ -707,7 +835,7 @@ test("the git state shows under the files, and a press on a file opens its diff"
 	});
 
 	// A press settles the work that the hooks left running, the git reading too.
-	await ui.press({ key: "recent:/work/repo/src/a.ts" });
+	await ui.press({ key: "file:/work/repo/src/a.ts" });
 	expect(await ui.find({ text: /⎇ main ↑1 · 1 uncommitted/ })).toBeDefined();
 	expect(await ui.find({ text: /Diff src\/a\.ts \+1 −1/ })).toBeDefined();
 	expect(await ui.find({ text: /\+const a = 2;/ })).toBeDefined();

@@ -300,6 +300,15 @@ periodic scan of their own, because the Arr apps report each import to them.
 Unpackerr extracts torrent downloads that arrive as RAR archives
 (`unpackerr.nix`).
 
+Lidarr monitors nothing. On 2026-10-26 all artists and albums were set to
+unmonitored, and new albums of an artist to `none`. Lidarr grabs only what you
+monitor or search for by hand. The metadata profile (`lidarr-profiles.nix`)
+still limits it to albums and EPs.
+
+SABnzbd has `pre_check` off (`nixflix/downloaders.nix`). nixflix turns it on.
+It asks the server for every article of a job before the download starts, one
+job at a time. On 2026-10-26 the full queue sat in "Checking" for hours.
+
 The media state is backed up every night at 04:15 (`media/backup.nix`): restic
 over SFTP to `/mnt/user/backup/media` on Unraid, with the Immich backup's ssh
 alias and password. Artwork, metadata caches, and logs are not included.
@@ -311,11 +320,11 @@ issues from the Arr apps. The `system` topic gets failed units through
 `sops -d --extract '["mini"]["ntfy"]["jadee-password"]' secrets/secrets.yaml`.
 
 Playback reads through mini's SSD (`hosts/mini/services/media/playback-cache.nix`).
-The `/media` mount uses FS-Cache (`fsc`), with a 200 GiB cache in a sparse ext4
-image at `/srv/fscache.img`. When Plex or Jellyfin start a file of 80 GiB or
+The `/mnt/library` mount uses FS-Cache (`fsc`), with a 200 GiB cache in a sparse
+ext4 image at `/srv/fscache.img`. When Plex or Jellyfin start a file of 80 GiB or
 less, `media-prefetch` reads it once. The Unraid disk then delivers it in one
 burst and can spin down while the file plays from the SSD. A change to the
-`/media` mount options needs a reboot (`just mini deploy-boot`), because NFS
+`/mnt/library` mount options needs a reboot (`just mini deploy-boot`), because NFS
 cannot change `fsc` on a remount.
 
 The custom formats are not in the TRaSH guide. Nix writes them as JSON files,
@@ -328,23 +337,44 @@ Seerr finds the default profile ID by name and merges the settings into
 | Path | What |
 |---|---|
 | `/data` | NFS `192.168.178.62:/mnt/user/data` — downloads **and** library, RW |
-| `/media`, `/Music` | **binds** of `/data/media` (ro) and its Music share |
+| `/Music` | NFS `/mnt/user/Music`, RW — Lidarr's root folder and Jellyfin's music library |
+| `/mnt/library` | NFS `/mnt/user/data` again, read-only, with FS-Cache — what Plex and Jellyfin play |
+| `/media` | local folder of links: `/media/<folder>` → `/mnt/library/media/<folder>`, and `/media/Music` → `/Music` |
 | `/srv/nixflix`, `/var/lib/qBittorrent` | local service state |
 
 Library files are owned by **`unraid` uid 99 / `users` gid 100** to match Unraid's
 share ownership.
 
-- **`/media` and `/Music` must stay binds.** `findmnt` showing `nfs4` for them is
-  normal for a bind of an NFS path — the identity that matters is `/media` ≡
-  `/data/media`.
-- `NAMESPACE` / `Stale file handle` on `/media` = binds drifted or went ESTALE after
-  an Unraid blip → **`just mini media-restart`** (stops consumers, remounts the
-  declared fstab topology, restarts; also clears leftover `/media/Music` mounts from
-  ad-hoc remounts).
+- **Each NFS mount is the root of an export, and nothing is mounted below
+  another NFS mount.** Unraid user shares hand out synthetic inode numbers, and
+  Unraid gives the `media` folder a new one every few minutes. The kernel then
+  logs `NFS: server 192.168.178.62 error: fileid changed`. A lookup by name
+  recovers from that, but a mount does not:
+  - A mount whose root is that folder stays `Stale file handle`. Until
+    2026-10-26, `/media` was a mount of `data/media`, and Plex and Jellyfin lost it
+    every few minutes.
+  - The kernel detaches each mount below that folder. The old nested mounts
+    `/data/media/Music` and `/media/Music` disappeared this way, and so did
+    per-folder `ReadWritePaths` (see below).
+  - A bind of a folder in `/data` keeps the dead handle when `/data` is mounted
+    again (Plex, 2026-07-31).
+
+  `fuse_remember` (**Settings → NFS** on Unraid) is `-1` since 2026-10-26 and did
+  not stop it. Unraid gives that value to `shfs` only when the array starts.
+- **`/media` is a folder of links**, declared in `storage.nix` from the folder list
+  in `nixflix/common.nix`. For a new library folder, add it to that list, or Plex
+  and Jellyfin do not see it under `/media`.
+- `NAMESPACE` / `Stale file handle` → **`just mini media-restart`**. It stops the
+  consumers, mounts the `storage.nix` topology again, and starts again what it
+  stopped. An array restart on Unraid gives new inode numbers to everything, so
+  run it after one.
 - **Hardlinks require one `ReadWritePaths=/data` entry** — not per-subdir binds.
-  Applies to both the Arr services and qBittorrent (`ProtectSystem=strict`).
+  Applies to the Arr services, qBittorrent, Bazarr and Unpackerr
+  (`ProtectSystem=strict`).
   Symptoms of getting it wrong: `EXDEV`, "Read-only file system", or
   `file_open … Read-only file system` while the host mount is plainly RW (ADR-0006).
+  A per-folder entry also loses its write access when Unraid changes the inode
+  number of a parent folder (see above). On 2026-10-26 this made Bazarr read-only.
 - Cleanup chain: qBittorrent `GlobalMaxRatio = 0` + `ShareLimitAction = Stop` stops
   seeding immediately; Arr `removeCompletedDownloads` removes the *client job* while
   library files survive via the hardlink.
@@ -367,7 +397,17 @@ share ownership.
   (`AutoRun.OnTorrentAdded`). The script acts only on torrents without a category
   (search or WebUI adds) that use a sukebei tracker. It logs to the journal under
   `qbittorrent-tag-sukebei`. The folder is under `/data/torrents`, so it stays on
-  the SSD.
+  the SSD. The script calls the WebUI on the namespace address: the WebUI does not
+  listen on loopback.
+- **Port forwarding** (`port-forward.nix`). The namespace drops all inbound traffic
+  on `wg0`. Every 45 s, `qbittorrent-port-forward` asks Proton's gateway
+  (`10.2.0.1`) for a port over NAT-PMP. When the port changes, the unit opens it
+  on `wg0` and makes it the qBittorrent listen port. qBittorrent's own UPnP /
+  NAT-PMP is off (`Network.PortForwardingEnabled`), as Proton's guide says. This
+  works only with a WireGuard configuration for a P2P server with
+  "NAT-PMP (Port Forwarding)" on, and Moderate NAT off.
+  With another configuration, `journalctl -u qbittorrent-port-forward` shows
+  "no port from 10.2.0.1".
 - **Search returns empty but the daemon is up** → check the WireGuard handshake age
   (`just mini vpn-status`). A dead peer makes indexer HTTPS time out.
 - Use **`just mini vpn-restart`**, not a raw `systemctl restart wg`:
@@ -375,8 +415,21 @@ share ownership.
   nixflix's `wg-up` gates on **ICMP ping** — Proton peers commonly drop ping even
   when UDP/51820 is fine, so a stock restart fails after teardown; the recipe
   installs a drop-in that probes UDP instead. Downloaders are `BindsTo=wg.service`.
+- **DNS stays in the tunnel only while `/run/nscd` is hidden.** VPN-Confinement
+  hides `/run/nscd` in the VPN units. Without that, glibc sends lookups to the
+  host's nscd, and they leave through the host resolver. nscd used to delete and
+  make `/run/nscd` again at each restart, and the kernel then dropped the hiding
+  (a test lookup left through `tailscale0` on 2026-10-26). Now nscd keeps the
+  folder (`RuntimeDirectoryPreserve=yes`, `nixflix/downloaders.nix`), and the
+  VPN units start after nscd. Check:
+  `sudo nsenter -t $(systemctl show qbittorrent -p MainPID --value) -m ls /run/nscd`
+  must fail or show nothing. If it shows `socket`, restart the VPN units.
+- `226/NAMESPACE` with `/run/nscd: No such file or directory` → a VPN unit started
+  before nscd. It fails closed on purpose. qBittorrent and SABnzbd restart on
+  failure.
 - Handshake stuck at `0 B received` → that Proton server is down. Export a fresh
-  profile into `mini/media/vpn/wireguard-conf` and `vpn-restart` again.
+  profile into `mini/media/vpn/wireguard-conf` and `vpn-restart` again. Export it
+  for a P2P server with "NAT-PMP (Port Forwarding)" on, or port forwarding stops.
 
 Ops: `just mini media-status | arr-restart | media-restart | downloaders-restart |
 stack-restart | vpn-status | vpn-restart`.
@@ -559,8 +612,8 @@ The plan and its decisions are in [session-management-plan.md](../agents/session
 - **Power tuning** — stock. Candidates: `powersave` governor, `thermald`, ASPM in
   BIOS, `logind.lidSwitch = "ignore"`. No `tlp` (laptop-oriented, conflicts with
   thermald). Wake-on-LAN pointless (always on).
-- **Backups beyond Immich** — `/srv/nixflix`, Matrix, Hermes and the atuin database
-  are unprotected.
+- **Backups beyond Immich, the media state and the agent sessions** — Matrix,
+  Hermes and the atuin database have no backup.
 - **AMT-over-VPN** — needs a Tailscale subnet router on another always-on host.
 - Verify Stylix/DMS/Niri stay inert with `desktop.enable = false` during a
   `just build-dry`; gate their imports on headless if any leak.
