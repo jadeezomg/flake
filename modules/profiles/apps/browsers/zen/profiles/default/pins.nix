@@ -44,9 +44,9 @@ in
       isEssential = true;
       position = 106;
     };
-    "Le Chat" = {
-      id = "f34e2ae1-20bc-4cd3-9ceb-f9b633fd67e2";
-      url = "https://chat.mistral.ai/chat";
+    "AgentsView" = {
+      id = "556d605c-d935-43ec-a665-1a628a331d05";
+      url = "https://sessions.jadee.fyi/";
       isEssential = true;
       position = 107;
     };
