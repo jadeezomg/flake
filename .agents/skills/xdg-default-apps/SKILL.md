@@ -32,8 +32,9 @@ Intentionally unset: `application/octet-stream`, `x-scheme-handler/terminal`, an
 ## Coupled places
 
 - `zen-twilight` is also the app-id in `modules/profiles/desktop/niri/outputs-desktop.kdl` and `keybinds-default.kdl`. A Zen channel change renames the `.desktop` id. Update all of them together.
-- Yazi markdown rules follow `mimeHandlers.markdown`. Change the option, not the yazi file. Add a `markdownOpeners` entry in the yazi file only when a new markdown app needs a direct binary instead of `gtk-launch`.
-- Yazi rules sit inside `lib.optionalAttrs hasMarkdownOpener`, which needs Linux, `apps.notes.enable`, and a non-null markdown handler. When `apps.notes` is off, the opener and the markdown rules vanish.
+- In Yazi, Enter on a Markdown file reads it in glow on every host. The `glow` opener calls `${pkgs.glow}` directly, so it does not need the devenv profile. The desktop markdown app comes second in the open-with menu, then the editor and `open`.
+- The second Yazi entry follows `mimeHandlers.markdown`. Change the option, not the yazi file. If a new markdown app needs a direct binary instead of `gtk-launch`, add a `markdownOpeners` entry in the yazi file.
+- That entry and the `opener.open` override sit inside `lib.optionalAttrs hasMarkdownOpener`. It needs Linux, `apps.notes.enable`, and a non-null markdown handler. When `apps.notes` is off, the menu has glow, the editor, and `open`.
 - Yazi `opener.open` is overridden, not extended. It holds `xdg-open` and "Show in Nautilus". Any new entry must be added to that list, or it drops the existing ones.
 
 ## Workflow

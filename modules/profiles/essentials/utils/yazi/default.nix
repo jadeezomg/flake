@@ -27,10 +27,23 @@ let
     };
   # Opener key: the last segment of the id, lowercased ("dev.zed.Zed" -> "zed").
   markdownOpenerName = lib.toLower (lib.last (lib.splitString "." markdownId));
+  # Enter on a Markdown file reads it in glow, on every host. The open-with
+  # menu keeps the desktop markdown app (Linux with notes), the editor, and
+  # the system opener. The opener calls glow by its store path, so it works
+  # on hosts without the devenv profile that installs glow.
   markdownUse = [
-    markdownOpenerName
+    "glow"
+  ]
+  ++ lib.optional hasMarkdownOpener markdownOpenerName
+  ++ [
     "edit"
     "open"
+  ];
+  markdownRules = map (rule: rule // { use = markdownUse; }) [
+    { mime = "text/markdown"; }
+    { mime = "text/x-markdown"; }
+    { url = "*.md"; }
+    { url = "*.markdown"; }
   ];
 in
 {
@@ -49,48 +62,41 @@ in
         show_symlink = true;
         linemode = "size_and_mtime";
       };
-    }
-    // lib.optionalAttrs hasMarkdownOpener {
-      opener.${markdownOpenerName} = [
-        {
-          inherit (markdownOpener) run desc;
-          orphan = true;
-          "for" = "linux";
-        }
-      ];
 
-      open.prepend_rules = [
-        {
-          mime = "text/markdown";
-          use = markdownUse;
-        }
-        {
-          mime = "text/x-markdown";
-          use = markdownUse;
-        }
-        {
-          url = "*.md";
-          use = markdownUse;
-        }
-        {
-          url = "*.markdown";
-          use = markdownUse;
-        }
-      ];
-      opener.open = [
-        {
-          run = "xdg-open %s1";
-          orphan = true;
-          desc = "Open";
-          "for" = "linux";
-        }
-        {
-          run = "${pkgs.nautilus}/bin/nautilus --select %s1";
-          orphan = true;
-          desc = "Show in Nautilus";
-          "for" = "linux";
-        }
-      ];
+      opener = {
+        glow = [
+          {
+            run = "${pkgs.glow}/bin/glow --tui -- %s1";
+            block = true;
+            desc = "Read in glow";
+          }
+        ];
+      }
+      // lib.optionalAttrs hasMarkdownOpener {
+        ${markdownOpenerName} = [
+          {
+            inherit (markdownOpener) run desc;
+            orphan = true;
+            "for" = "linux";
+          }
+        ];
+        open = [
+          {
+            run = "xdg-open %s1";
+            orphan = true;
+            desc = "Open";
+            "for" = "linux";
+          }
+          {
+            run = "${pkgs.nautilus}/bin/nautilus --select %s1";
+            orphan = true;
+            desc = "Show in Nautilus";
+            "for" = "linux";
+          }
+        ];
+      };
+
+      open.prepend_rules = markdownRules;
     };
 
     initLua = ./init.lua;
