@@ -110,12 +110,12 @@ export type SkillUse = {
 	name: string;
 	/**
 	 * Where the skill comes from, in the engine's words, such as `plugin`.
-	 * Empty for a skill read back on resume.
+	 * Empty when the session's skill listing does not hold the skill.
 	 */
 	source: string;
 	/** The plugin that provides the skill, when one does. */
 	pluginName?: string;
-	/** How many times the engine loaded the skill's prompt. */
+	/** How many times the session used the skill: Skill tool calls and typed `/name`s. */
 	uses: number;
 };
 

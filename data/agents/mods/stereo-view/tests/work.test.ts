@@ -4,6 +4,7 @@ import type { TaskItem } from "../types";
 import {
 	fileRowsOf,
 	fitFiles,
+	matchSkill,
 	mcpRowsOf,
 	nextMcp,
 	nextSkills,
@@ -124,4 +125,21 @@ test("an MCP call counts under its server and tool, and other tools change nothi
 		"server",
 		"tool",
 	]);
+});
+
+test("a skill matches its listed name with or without its plugin prefix", () => {
+	const listed = [
+		{
+			name: "simple-english:simple-english",
+			source: "plugin",
+			pluginName: "simple-english",
+		},
+		{ name: "agent-structure", source: "projectSettings" },
+	];
+
+	expect(matchSkill(listed, "simple-english")?.name).toBe(
+		"simple-english:simple-english",
+	);
+	expect(matchSkill(listed, "agent-structure")?.source).toBe("projectSettings");
+	expect(matchSkill(listed, "compact")).toBeUndefined();
 });

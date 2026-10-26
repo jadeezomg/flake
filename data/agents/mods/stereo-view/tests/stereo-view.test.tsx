@@ -679,23 +679,48 @@ test("the files show grouped by folder, the newest change first", async ($, on) 
 	await ui.unmount();
 });
 
-test("the skills show once each, with where they come from and their uses", async ($, on) => {
-	mock.clock(on, { now: 1_000 });
-	on("skill.prompt", (_$, e) => ({ text: e.text }));
+// The skill listing of the context estimate: one plugin skill, one project skill.
+const SKILL_USAGE = {
+	...USAGE,
+	context: {
+		...USAGE.context,
+		breakdown: {
+			...USAGE.context.breakdown,
+			skills: {
+				totalSkills: 2,
+				includedSkills: 2,
+				tokens: 300,
+				skillFrontmatter: [
+					{
+						name: "simple-english:simple-english",
+						source: "plugin",
+						pluginName: "simple-english",
+						tokens: 200,
+					},
+					{ name: "agent-structure", source: "projectSettings", tokens: 100 },
+				],
+			},
+		},
+	},
+} as unknown as SessionUsage;
 
-	const plugin = {
-		skill: "simple-english:simple-english",
-		text: "Write plainly.",
-		source: "plugin",
-		pluginName: "simple-english",
-	} as const;
-	await $.skill.prompt(plugin);
-	await $.skill.prompt({
-		skill: "agent-structure",
-		text: "Agent files.",
-		source: "projectSettings",
+test("Skill tool calls and typed skills count as uses, and a built-in command does not", async ($, on) => {
+	mock.clock(on, { now: 1_000 });
+	on("tool.call", () => ({ result: {}, text: "ok" }));
+	on("prompt.submit", (_$, e) => ({ text: e.text }));
+	on("session.usage", () => ({ value: SKILL_USAGE }));
+
+	const typed = { wait: false, origin: { kind: "composer" } } as const;
+	const command = (name: string) => ({
+		...typed,
+		text: `/${name}`,
+		command: { name, args: "" },
 	});
-	await $.skill.prompt(plugin);
+	// The model can name a plugin skill without its prefix.
+	await $.tool.call({ tool: "Skill", skill: "simple-english" });
+	await $.prompt.submit(command("agent-structure"));
+	await $.prompt.submit(command("compact"));
+	await $.tool.call({ tool: "Skill", skill: "simple-english:simple-english" });
 
 	const ui = await $.ui.mount({
 		plugin: "stereo-view",

@@ -183,6 +183,27 @@ export function fitFiles(
 	};
 }
 
+/** One skill of the session's skill listing. */
+export type ListedSkill = { name: string; source: string; pluginName?: string };
+
+/**
+ * The listed skill that `name` names, with or without its plugin prefix,
+ * or undefined when the listing does not hold it.
+ */
+export function matchSkill(
+	listed: readonly ListedSkill[],
+	name: string,
+): ListedSkill | undefined {
+	return (
+		listed.find((one) => one.name === name) ??
+		listed.find(
+			(one) =>
+				one.pluginName !== undefined &&
+				one.name === `${one.pluginName}:${name}`,
+		)
+	);
+}
+
 const MAX_SKILLS = 200;
 
 /**
