@@ -74,7 +74,7 @@ in
 
           vaults.vault = {
             enable = true;
-            target = "Git/vault";
+            target = "git/vault";
           };
         };
       }

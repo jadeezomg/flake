@@ -617,7 +617,7 @@ enabled = [
     [[plugins.source]]
     enabled = false
     kind = "path"
-    location = "~/Git/community-plugins"
+    location = "~/git/community-plugins"
     name = "community-plugins-fork"
 
 [shell]
