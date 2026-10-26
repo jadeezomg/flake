@@ -16,7 +16,7 @@ order = [ "default", "side", "laptop" ]
     enabled = false
     end = [ "tray", "group:g6", "group:g5" ]
     margin_edge = 3
-    margin_ends = 900
+    margin_ends = 1700
     margin_opposite_edge = 5
     padding = 20
     radius = 0
@@ -449,11 +449,11 @@ widget_order = [
     [lockscreen_widgets.widget."lockscreen-login-box@DP-2"]
     box_height = 196.0
     box_width = 810.0
-    cx = 2133.5
-    cy = 1572.5
+    cx = 2133.0
+    cy = 1571.6263427734375
     output = "DP-2"
-    placement_height = 1800.0
-    placement_width = 4267.0
+    placement_height = 1799.0
+    placement_width = 4266.0
     rotation = 0.0
     type = "login_box"
 
@@ -505,11 +505,11 @@ widget_order = [
     [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-2"]
     box_height = 196.0
     box_width = 810.0
-    cx = 831.0
-    cy = 2772.0
+    cx = 830.5
+    cy = 2771.061767578125
     output = "HDMI-A-2"
-    placement_height = 2954.0
-    placement_width = 1662.0
+    placement_height = 2953.0
+    placement_width = 1661.0
     rotation = 0.0
     type = "login_box"
 
@@ -672,22 +672,22 @@ transition_on_startup = true
     interval_seconds = 600
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_View_of_Dresden_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_View_of_Dresden_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
     [wallpaper.monitors.DP-1]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_View_of_Dresden_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.DP-2]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Winter_at_the_Sognefjord_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_View_of_Dresden_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.HDMI-A-2]
-    path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Hugo_Charlemont_Bauerngarten.jpg"
 
     [wallpaper.monitors.eDP-1]
     path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
