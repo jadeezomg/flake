@@ -477,13 +477,41 @@ Changes during the rollout:
 
 Operations notes: [mini.md § Agent session archive](../hosts/mini.md).
 
-### Phase 2: A, mini as agent host
+### Phase 2: A, mini as agent host, and the herdr/tuios trial (D2)
 
-1. Add the herdr server service on mini, with a memory limit.
-2. Install the herdr integrations on mini.
-3. Add the git identity and the GitHub token on mini. Repos come from `work --on mini` (Phase 3).
-4. Log in to each agent on mini once.
-5. Run `herdr machine add mini` on each laptop. Set up the phone SSH app.
+In the flake (2026-10-26):
+
+- `hosts/mini/services/agent-host.nix` (flag `miniAgentHost`) caps jadee's user slice on mini: `MemoryHigh` 8G, `MemoryMax` 10G. herdr and tuios start their server from the first client, so they have no service unit of their own.
+- `data/agents/global/settings.json` has the tuios hooks for Claude Code (`tuios agent-hook claude-code --integration 3`) next to the herdr `SessionStart` hook. They were made with `tuios integration install claude-code --no-skill` against a copy (`CLAUDE_CONFIG_DIR`), because the installer writes through the symlink into the checkout. Outside a tuios pane, the hook exits 0 after about 10 ms and prints nothing.
+
+Set up mini once, in an SSH shell on mini. These steps write runtime files, not flake files:
+
+1. Log in to the agents: `claude`, then `codex login`. pi and omp use the provider keys from the sops session env.
+2. Install the herdr integrations: `herdr integration install claude`, then the same for `pi`, `omp`, and `codex`. They write into `~/.claude/hooks`, `~/.pi/agent/extensions`, `~/.omp/agent/extensions`, and `~/.codex`.
+3. Make sure that `git -C ~/git/flake status` shows no change. The herdr entry for Claude is already in `settings.json`.
+4. Install the tuios integrations: `tuios integration install pi omp codex --no-skill`. Do not install `claude-code` (its hooks are in the flake) or `hermes` (hermes runs as a service, not in a pane).
+5. Clone a test repo into `~/git/<repo>`.
+
+Set up each laptop once:
+
+6. `herdr machine add mini`. It asks before it installs or replaces anything on mini.
+7. `tuios hosts add mini mini`, then `tuios hosts test mini`.
+8. Phone: an SSH app to mini over the tailnet, then `herdr` or `tuios attach`.
+
+The `mini` ssh alias uses the LAN address. Away from home, use the tailnet name. Background connections over Tailscale SSH need D7 (an `accept` rule).
+
+Trial: one week from the end of the setup. Run the same project on mini in both tools, with the same agent. Write the results into this table.
+
+| Check | herdr | tuios |
+|---|---|---|
+| The laptop sleeps and wakes. The view reconnects without a manual step. | | |
+| On the phone over SSH: read the agent state, answer a prompt. | | |
+| Stop the server (`herdr server stop`, `tuios kill-server`), then attach. The Claude conversation comes back. | | |
+| The agent state is correct: working, blocked, done. | | |
+| Memory of the server after one day (`systemctl show user-1000.slice -p MemoryCurrent`, and per process). | | |
+| One view of desktop, framework, and mini (preview of Phase 4). | | |
+
+After the trial, keep one tool. Remove the other from `modules/profiles/devenv/agents/default.nix` (and `darwin.nix`), its hooks from `settings.json`, and its integration files on each host (`herdr integration uninstall`, `tuios integration uninstall`).
 
 ### Phase 3: mode selection
 

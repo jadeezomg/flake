@@ -39,6 +39,10 @@ sharedNixOSHost
   # Plan: docs/agents/session-management-plan.md.
   miniAgentSessions = true;
 
+  # Agents run on mini in herdr or tuios sessions. ./services/agent-host.nix caps
+  # their memory. Mode `mini` in the same plan.
+  miniAgentHost = true;
+
   # The push reaches mini by its tailnet name on this port, where OpenSSH answers.
   # Port 22 on the tailnet belongs to Tailscale SSH, which ignores the forced
   # rrsync command in authorized_keys. Read by both ends of the push.
