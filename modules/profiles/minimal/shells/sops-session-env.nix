@@ -26,8 +26,9 @@
 #
 # Each sops secret expands to one or more `exports` (var, path, optional
 # `valuePrefix`). The default mapping is `foo-bar` → `FOO_BAR`. Fan-outs:
-# - GitHub PAT → `GITHUB_TOKEN`, `GITHUB_PAT`, `GITHUB_PERSONAL_ACCESS_TOKEN`,
-#   and `NIX_CONFIG=access-tokens = github.com=…`.
+# - GitHub PAT → only `NIX_CONFIG=access-tokens = github.com=…`. It does not
+#   export `GITHUB_TOKEN`, because `gh` prefers that variable over its own
+#   `gh auth` login.
 # - Hugging Face (`hf-token`) → `HF_TOKEN` and `HUGGING_FACE_HUB_TOKEN`.
 {
   config,
@@ -71,18 +72,6 @@ let
     in
     if lib.elem name githubPatSecretAttrs then
       [
-        {
-          inherit path;
-          var = "GITHUB_TOKEN";
-        }
-        {
-          inherit path;
-          var = "GITHUB_PAT";
-        }
-        {
-          inherit path;
-          var = "GITHUB_PERSONAL_ACCESS_TOKEN";
-        }
         {
           inherit path;
           var = "NIX_CONFIG";
