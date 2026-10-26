@@ -415,6 +415,18 @@ share ownership.
   nixflix's `wg-up` gates on **ICMP ping** — Proton peers commonly drop ping even
   when UDP/51820 is fine, so a stock restart fails after teardown; the recipe
   installs a drop-in that probes UDP instead. Downloaders are `BindsTo=wg.service`.
+- **DNS stays in the tunnel only while `/run/nscd` is hidden.** VPN-Confinement
+  hides `/run/nscd` in the VPN units. Without that, glibc sends lookups to the
+  host's nscd, and they leave through the host resolver. nscd used to delete and
+  make `/run/nscd` again at each restart, and the kernel then dropped the hiding
+  (a test lookup left through `tailscale0` on 2026-10-26). Now nscd keeps the
+  folder (`RuntimeDirectoryPreserve=yes`, `nixflix/downloaders.nix`), and the
+  VPN units start after nscd. Check:
+  `sudo nsenter -t $(systemctl show qbittorrent -p MainPID --value) -m ls /run/nscd`
+  must fail or show nothing. If it shows `socket`, restart the VPN units.
+- `226/NAMESPACE` with `/run/nscd: No such file or directory` → a VPN unit started
+  before nscd. It fails closed on purpose. qBittorrent and SABnzbd restart on
+  failure.
 - Handshake stuck at `0 B received` → that Proton server is down. Export a fresh
   profile into `mini/media/vpn/wireguard-conf` and `vpn-restart` again. Export it
   for a P2P server with "NAT-PMP (Port Forwarding)" on, or port forwarding stops.

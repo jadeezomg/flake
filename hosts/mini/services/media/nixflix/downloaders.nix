@@ -322,10 +322,19 @@ in
   };
 
   systemd.services = {
+    # VPN-Confinement hides /run/nscd in the VPN units, or glibc would resolve
+    # names through the host's nscd, outside the tunnel. systemd deleted and
+    # made /run/nscd again at each nscd restart. The kernel then dropped the
+    # hiding mount, and lookups from qBittorrent left through the host
+    # resolver (seen on 2026-10-26). With the folder kept, the hiding stays.
+    # nscd restarts a few times during boot. A VPN unit that started in such a
+    # gap failed with 226/NAMESPACE, so the VPN units also start after nscd.
+    nscd.serviceConfig.RuntimeDirectoryPreserve = "yes";
+
     # One ReadWritePaths entry for /data (not /data/torrents). Separate systemd
     # binds of NFS subdirs remount RO under ProtectSystem=strict — same fix as Arr.
     qbittorrent = {
-      after = mountDeps;
+      after = mountDeps ++ [ "nscd.service" ];
       requires = mountDeps;
       serviceConfig = {
         ProtectSystem = lib.mkForce "strict";
@@ -339,11 +348,15 @@ in
         LoadCredential = [
           "webui-password:${config.sops.secrets."mini/media/qbittorrent/password".path}"
         ];
+        # The nixpkgs module sets no restart, so one failed start at boot left
+        # qBittorrent down. SABnzbd restarts on failure too.
+        Restart = "on-failure";
+        RestartSec = 10;
       };
     };
 
     sabnzbd = {
-      after = mountDeps;
+      after = mountDeps ++ [ "nscd.service" ];
       requires = mountDeps;
       serviceConfig = {
         BindPaths = lib.mkForce [ ];

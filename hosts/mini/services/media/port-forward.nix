@@ -33,7 +33,11 @@ in
 {
   systemd.services.qbittorrent-port-forward = {
     description = "Forward a Proton VPN port to qBittorrent";
-    after = [ "qbittorrent.service" ];
+    # nscd: see the nscd comment in nixflix/downloaders.nix.
+    after = [
+      "qbittorrent.service"
+      "nscd.service"
+    ];
     wantedBy = [ "qbittorrent.service" ];
     # Stops and restarts with qBittorrent, and so with wg.service. A new
     # namespace has none of our rules, and a restarted qBittorrent can come
