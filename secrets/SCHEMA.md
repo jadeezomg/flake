@@ -17,8 +17,8 @@ Every entry below lists:
 
 ## Conventions
 
-- Flat keys (`github_token`) auto-export to the user session env as
-  `GITHUB_TOKEN` via `modules/profiles/minimal/shells/sops-session-env.nix`. Use this form
+- Flat keys (`openrouter_api_key`) auto-export to the user session env as
+  `OPENROUTER_API_KEY` via `modules/profiles/minimal/shells/sops-session-env.nix`. Use this form
   for any secret that needs to be visible to interactive shells.
 - Nested paths (`users/jadee/password_<hostKey>`, `mini/git/deploy-key`) are
   referenced explicitly by `sops.secrets.<path>` declarations in Nix modules
@@ -49,7 +49,7 @@ host doesn't invalidate the others' `/etc/shadow` on next switch.
 
 | Path | Source | Consumed by | Consumed on |
 |---|---|---|---|
-| `github_token` | https://github.com/settings/tokens — fine-grained, read-only, `public_repo` | shell env `GITHUB_TOKEN` / `GITHUB_PAT`, plus `NIX_CONFIG` access-tokens for flake fetching | all hosts |
+| `github_token` | https://github.com/settings/tokens (fine-grained, read-only, `public_repo`) | `NIX_CONFIG` access-tokens for flake fetching (not exported as `GITHUB_TOKEN`, so `gh` uses `gh auth`) | all hosts |
 | `agent_pat` | GitHub PAT with `repo` + `workflow` scope for AFK agents | shell env `AGENT_PAT` | desktop, framework, caya |
 | `openrouter_api_key` | https://openrouter.ai/keys | shell env `OPENROUTER_API_KEY` | all hosts |
 | `context7_api_key` | https://context7.com/dashboard | `ctx7` CLI via env `CONTEXT7_API_KEY` | all hosts |
