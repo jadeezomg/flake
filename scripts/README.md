@@ -33,7 +33,7 @@ You change Vorssaint settings in the app, and then you copy them into the flake:
 2. Run `just vorssaint-sync`. The script reads the live `com.vorssaint.utils` defaults domain and writes `data/vorssaint.nix`.
 3. Read the diff, then commit the file.
 
-The script leaves out app state, such as onboarding markers, migration flags, window sizes and per-display caches. It also leaves out data and date values, because `targets.darwin.defaults` cannot write them. It shows a warning for each value that it leaves out. Run `just vorssaint-check` to compare the flake with the live app without a write. If they differ, the check exits with 1.
+The script leaves out app state, such as onboarding markers, migration flags, window sizes and per-display caches. It also leaves out data values, date values, and strings with a null character, because `targets.darwin.defaults` cannot write them. It shows a warning for each value that it leaves out. Run `just vorssaint-check` to compare the flake with the live app without a write. If they differ, the check exits with 1.
 
 If you remove a key from the data file, the live app keeps its value. The next sync then adds the key again. To remove a setting, change it in the app.
 

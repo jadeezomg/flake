@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import difflib
 import plistlib
 import re
@@ -29,6 +30,18 @@ _DOMAIN = "com.vorssaint.utils"
 _FEATURE_PREFIX = "featureAvailable."
 _SYNC_TOOL = "vorssaint-sync"
 
+# `defaults export` writes XML, which cannot hold a null character, so one bad
+# string stops the whole export. This JXA script reads the same domain from
+# cfprefsd and prints it as a base64 binary plist, which can hold one.
+_EXPORT_JXA = f"""
+ObjC.import("Foundation");
+const domain = $.NSUserDefaults.standardUserDefaults.persistentDomainForName("{_DOMAIN}");
+if (domain.isNil()) throw new Error("the domain does not exist");
+$.NSPropertyListSerialization.dataWithPropertyListFormatOptionsError(
+  domain, $.NSPropertyListBinaryFormat_v1_0, 0, null
+).base64EncodedStringWithOptions(0).js;
+"""
+
 # Keys that hold app state, not settings. The list mirrors
 # SettingsBackupSupport.machineStateKeys and the onboarding flags in the
 # Vorssaint source: its own settings export leaves these keys out too.
@@ -47,6 +60,14 @@ _STATE_KEYS = frozenset(
         # One-time markers and content that are not in machineStateKeys.
         "notchDefaultProfileInitialized",
         "shelfItems",
+        # The post-update What's New window. The export leaves these keys out.
+        "whatsNewKnownFeatures",
+        "whatsNewPendingVersion",
+        "whatsNewSeenVersion",
+        # Marked "Machine state, never exported" in Defaults.swift, but not in
+        # machineStateKeys: the live Caps Lock mapping and its crash restore.
+        "superKeyMappedSource",
+        "superKeyMappingApplied",
         # SettingsBackupSupport.machineStateKeys
         "appUpdatesLastCheck",
         "appUpdatesLastCount",
@@ -134,9 +155,12 @@ def _is_state(key: str) -> bool:
 
 
 def _nix_expressible(value) -> bool:
-    """False for data and date values: targets.darwin.defaults cannot write them."""
+    """False for data, date and null-character values: targets.darwin.defaults
+    cannot write them. Nix strings and XML plists cannot hold a null character."""
     if isinstance(value, (bytes, datetime)):
         return False
+    if isinstance(value, str):
+        return "\x00" not in value
     if isinstance(value, list):
         return all(_nix_expressible(v) for v in value)
     if isinstance(value, dict):
@@ -233,18 +257,23 @@ def _nix_fmt(content: str) -> str:
 
 def _read_live_domain() -> dict:
     proc = subprocess.run(
-        ["defaults", "export", _DOMAIN, "-"], capture_output=True, check=False
+        ["osascript", "-l", "JavaScript", "-e", _EXPORT_JXA],
+        capture_output=True,
+        check=False,
     )
     if proc.returncode != 0:
         msg = proc.stderr.decode(errors="replace").strip() or f"exit {proc.returncode}"
         raise RuntimeError(f"cannot read the {_DOMAIN} defaults domain: {msg}")
-    return plistlib.loads(proc.stdout)
+    return plistlib.loads(base64.b64decode(proc.stdout.strip()))
 
 
 def sync(domain: dict, *, check: bool = False, quiet: bool = False) -> int:
     features, settings, skipped = split_domain(domain)
     for key in skipped:
-        warn(f"skipped {key}: data and date values cannot go in Nix", stderr=True)
+        warn(
+            f"skipped {key}: data, date and null-character values cannot go in Nix",
+            stderr=True,
+        )
     expected = _nix_fmt(render(features, settings))
     actual = _DATA_FILE.read_text(encoding="utf-8") if _DATA_FILE.is_file() else ""
     if actual == expected:
