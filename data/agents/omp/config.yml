@@ -24,29 +24,33 @@ autoResume: true
 startup:
   checkUpdate: false
 compaction:
-  thresholdPercent: 80
+  thresholdPercent: 70
   handoffSaveToDisk: true
-  idleEnabled: true
+  idleEnabled: false
   methodOrder:
     - shake
-    - remote
     - soft
+    - handoff
+    - remote
+    - snapcompact
+  experimentalContextManagement: true
+  midTurnEnabled: false
 memory:
   backend: "off"
 edit:
   mode: hashline
   streamingAbort: true
   hashlineAutoDropPureInsertDuplicates: true
-readLineNumbers: false
+readLineNumbers: true
 bashInterceptor:
-  enabled: true
+  enabled: false
 python:
   sharedGateway: true
   kernelMode: session
 lsp:
   enabled: true
   diagnosticsOnWrite: false
-  formatOnWrite: true
+  formatOnWrite: false
 todo:
   reminders: true
   eager: default
@@ -63,6 +67,7 @@ mcp:
   notifications: true
 plan:
   enabled: true
+  autosave: true
 task:
   isolation:
     merge: patch
@@ -73,11 +78,14 @@ task:
 commands:
   enableOpencodeUser: false
   enableOpencodeProject: false
+  enableClaudeUser: true
 secrets:
   enabled: true
 providers:
   kimiApiFormat: auto
   openaiWebsockets: auto
+  anthropic:
+    serverSideFallback: false
 exa:
   enabled: false
 searxng:
@@ -98,18 +106,21 @@ browser:
 tools:
   intentTracing: true
   approvalMode: yolo
-autocompleteMaxVisible: 15
+autocompleteMaxVisible: 20
 dev:
   autoqaConsent: granted
+  autoqa: false
 bash:
   autoBackground:
     enabled: true
+  allowCompoundCommands: false
+  gitGuard: false
 async:
   enabled: true
 checkpoint:
   enabled: true
-defaultThinkingLevel: auto
-hideThinkingBlock: false
+defaultThinkingLevel: high
+hideThinkingBlock: true
 retry:
   fallbackRevertPolicy: cooldown-expiry
 steeringMode: one-at-a-time
@@ -120,13 +131,14 @@ treeFilterMode: default
 repeatToolDescriptions: false
 setupVersion: 2
 tier:
-  openai: auto
+  openai: none
 tui:
   tight: true
   textSizing: false
+  mouse: false
 images:
   blockImages: true
-personality: pragmatic
+personality: none
 includeWorkspaceTree: false
 inlineToolDescriptors: auto
 advisor:
@@ -135,11 +147,31 @@ interruptMode: immediate
 ask:
   notify: "on"
 prewalk:
-  enabled: true
+  enabled: false
 contextPromotion:
   enabled: false
 composer:
   shape: box
-  tokenRate: false
+  tokenRate: true
 codexResets:
   autoRedeem: "yes"
+omitThinking: false
+skillful: true
+error:
+  notify: "off"
+recap:
+  enabled: false
+branchSummary:
+  enabled: true
+snapcompact:
+  toolResults: false
+read:
+  renderMarkdown: true
+  toolResultPreview: true
+eval:
+  autoBackground:
+    enabled: true
+web_search:
+  enabled: false
+ida:
+  enabled: false
