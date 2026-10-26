@@ -104,6 +104,38 @@ export type FileChange = {
 	edits: number;
 };
 
+/** One skill that the session used. */
+export type SkillUse = {
+	/** The skill's name, as `/skills` lists it. */
+	name: string;
+	/**
+	 * Where the skill comes from, in the engine's words, such as `plugin`.
+	 * Empty for a skill read back on resume.
+	 */
+	source: string;
+	/** The plugin that provides the skill, when one does. */
+	pluginName?: string;
+	/** How many times the engine loaded the skill's prompt. */
+	uses: number;
+};
+
+/** One tool of an MCP server that the session called. */
+export type McpToolUse = {
+	/** The tool's name without its server, as the Activity rows show it. */
+	name: string;
+	calls: number;
+	/** Of those, the calls that failed or that were denied. */
+	failed: number;
+};
+
+/** One MCP server that the session called. */
+export type McpServerUse = {
+	/** The server's short name, as the Activity rows show it. */
+	server: string;
+	/** Its tools, the most recently called first. */
+	tools: McpToolUse[];
+};
+
 /** The git state of the folder that the session runs in. */
 export type GitState = {
 	/** The branch, or `(detached)`. */
@@ -150,6 +182,12 @@ declare module "claude-code" {
 			diffScroll: number;
 			/** When true, the call list shows only failed and denied calls. */
 			onlyFailed: boolean;
+			/** The skills that the session used, the most recent first. */
+			skills: SkillUse[];
+			/** The MCP servers that the session called, the most recent first. */
+			mcp: McpServerUse[];
+			/** The MCP servers whose tools the person folded away. */
+			closedServers: string[];
 		};
 	}
 }
