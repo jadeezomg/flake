@@ -27,6 +27,9 @@ dotfilesLib.mkProfile {
       gitoui
       gh-dash
 
+      # --- Docs ---
+      glow
+
       # --- Task runners ---
       just
       act
