@@ -510,7 +510,42 @@ Widgets that need a manual step:
   over UPnP".
 - **ntfy:** nothing. The `homepage` ntfy user can only read the `system` topic.
 
-## 10. Known gaps / deferred
+## 10. Agent session archive (`miniAgentSessions`)
+
+The plan and its decisions are in [session-management-plan.md](../agents/session-management-plan.md). The code is `services/agent-sessions.nix` (mini), `modules/profiles/devenv/agents/session-push.nix` (every Linux host), and `data/agents/session-sources.nix` (the folders per agent).
+
+| Part | Facts |
+|---|---|
+| Archive | `/srv/agent-sessions/<host>/<agent>/`, in each agent's own layout. The top folder is `root:agent-sessions 2750`. `agent-push` owns each host folder. |
+| Push | User timer `agent-session-push` on every Linux host, mini included, every 15 minutes. rsync over SSH to `mini.quokka-qilin.ts.net:2222` as `agent-push`. SQLite stores go as `.backup` snapshots without WAL mode. |
+| Receiver | OpenSSH on port 2222, open only on `tailscale0`. Port 22 on the tailnet is Tailscale SSH, which ignores forced commands. Each host key runs `rrsync -wo -no-del /srv/agent-sessions/<host>` only. |
+| hermes | Timer `agent-sessions-hermes`, every 15 minutes, as user `hermes`: `state.db` → `/srv/agent-sessions/mini-hermes/hermes/`. |
+| Index | `agentsview.service`, user `agentsview` (group `agent-sessions`), `127.0.0.1:8089`, state in `/var/lib/agentsview`. |
+| Web UI | `https://sessions.jadee.fyi`, tailnet clients only (Caddy snippet `tailnet-only`), no login. |
+| Backup | `restic-backups-agent-sessions`, 03:45 daily, to Unraid `backup/agent-sessions`. Prune keeps 14 daily, 8 weekly, 24 monthly. The password is `mini/backup/agent-sessions-restic-password`; a copy is in Proton Pass. |
+
+### Add a host to the push
+
+1. Switch the host once. The switch makes `~/.ssh/agent_push_ed25519`.
+2. Put the public key into `hosts/<host>/host.nix` as `agentPushKey`.
+3. Deploy mini. Then switch the host again. The timer starts.
+
+### Checks
+
+- On a host: `systemctl --user status agent-session-push` and `journalctl --user -u agent-session-push`.
+- On mini: `sudo du -sh /srv/agent-sessions/*` and `journalctl -u agentsview`.
+- Session counts on mini: `curl -s -H 'Host: sessions.jadee.fyi' http://127.0.0.1:8089/api/v1/stats`.
+- Backup: `sudo restic-agent-sessions snapshots`. Restore: `sudo restic-agent-sessions restore latest --target / --include /srv/agent-sessions`.
+
+### Failure modes
+
+- **systemd-tmpfiles: "unsafe path transition"**. A folder of root sits under a folder of an unprivileged user. Keep `/srv/agent-sessions` owned by root.
+- **Push fails off the LAN, works at home**. The tailnet ACL blocks port 2222. Test with `nc -vz mini.quokka-qilin.ts.net 2222`.
+- **A new SQLite source stays empty in agentsview**. agentsview opens sources read-only and cannot read WAL mode that way. Send a `.backup` snapshot and set `PRAGMA journal_mode=DELETE`.
+- **An edit to `/var/lib/agentsview/config.toml` disappears**. The unit writes that file from the Nix template at each start. It keeps only the generated `cursor_secret` and `auth_token` lines. Change the template in `services/agent-sessions.nix`.
+- **A work session reached the archive** (D10, manual). Remove it in three places: the raw files, the agentsview database, and the restic snapshots.
+
+## 11. Known gaps / deferred
 
 - **Nightly cachix cache-warm pipeline** — code exists at
   `hosts/mini/flake-cache-warm.nix` but the import is **commented out** in
@@ -530,7 +565,7 @@ Widgets that need a manual step:
 - Verify Stylix/DMS/Niri stay inert with `desktop.enable = false` during a
   `just build-dry`; gate their imports on headless if any leak.
 
-## 11. Rebuilding from scratch
+## 12. Rebuilding from scratch
 
 Full procedure lives in git history (`docs/hosts/mini-install.md` before this
 consolidation). The parts that are not obvious:
