@@ -8,6 +8,8 @@ We host **arr / downloaders / playback UIs on `mini`**, but keep **download and 
 
 **Mount shape.** `/data` is the NFS data share (RW). `/media` is a **read-only bind** of `/data/media` for players. Music is a nested NFS mount under `/data/media/Music` plus a `/Music` bind. Service state stays local under `/srv/nixflix` (and `/var/lib/qBittorrent`).
 
+*Update 2026-10-26:* binds and nested mounts went stale when Unraid changed inode numbers. Now every NFS mount is the root of an export: `/data` (RW), `/Music` (RW), and `/mnt/library` (the data share again, read-only, FS-Cache). `/media` is a local folder of links into `/mnt/library/media` and to `/Music`. Details: `docs/hosts/mini.md` § Media stack and `hosts/mini/services/media/storage.nix`.
+
 **UID bridge.** System user `unraid` (uid **99**) / group `users` (gid **100**) owns library writes so files land with Unraid-compatible ownership (`nixflix.globals.libraryOwner`).
 
 **Toggle.** The whole stack is gated by `miniMediaHosting` in `hosts/mini/host.nix`.

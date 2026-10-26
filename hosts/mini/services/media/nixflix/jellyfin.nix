@@ -80,8 +80,9 @@ in
         "/srv/nixflix/jellyfin"
         "/srv/nixflix/jellyfin-cache"
       ];
+      # The library paths are links in /media into these mounts (storage.nix).
       ReadOnlyPaths = [
-        "/media"
+        "/mnt/library"
         "/Music"
       ];
       InaccessiblePaths = [ "/data" ];

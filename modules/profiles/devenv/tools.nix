@@ -24,7 +24,11 @@ dotfilesLib.mkProfile {
       jjui
       gh
       lazygit
+      gitoui
       gh-dash
+
+      # --- Docs ---
+      glow
 
       # --- Task runners ---
       just

@@ -12,6 +12,7 @@
     ./notify.nix
     ./playback-cache.nix
     ./plex-connect.nix
+    ./port-forward.nix
     ./proxy.nix
     ./ptbr.nix
     ./seerr.nix

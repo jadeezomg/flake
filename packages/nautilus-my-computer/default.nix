@@ -2,23 +2,49 @@
   lib,
   stdenv,
   fetchFromGitHub,
+  fetchpatch,
   gettext,
   glib,
   python3,
 }:
+let
+  # callPackage cannot pass dotfilesLib, so import the guard directly.
+  expiry = import ../../lib/expiry.nix { inherit lib; } "packages/nautilus-my-computer/default.nix";
+in
 stdenv.mkDerivation (finalAttrs: {
   pname = "nautilus-my-computer";
-  # Held at 0.13.2. With 0.13.3, Nautilus crashes when it opens Network.
-  # The hold in update.json keeps the updater off 0.13.3. The first newer
-  # release retires the hold, and `update-packages` says so.
-  version = "0.13.2";
+  version = "0.13.3";
 
   src = fetchFromGitHub {
     owner = "yannmasoch";
     repo = "nautilus-my-computer";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-+hE39OIp1+uq0TG5E1f4VocK0iMv5xkXLJnmSal5FZM=";
+    hash = "sha256-UW1BqLQItzjpcALXzu+Zgr3He0XFYTcDmbFvW5lCVKo=";
   };
+
+  # 0.13.3 crashes Nautilus when you open Network from List view:
+  # https://github.com/yannmasoch/nautilus-my-computer/issues/198
+  # These two commits from upstream `dev` fix it (tested on dev at ba19800).
+  # The guard drops them at 0.13.4, the first release that can contain them.
+  patches =
+    expiry.expireWhen
+      {
+        fixed = lib.versionAtLeast finalAttrs.version "0.13.4";
+        reason = "upstream is at ${finalAttrs.version}. Make sure that this release contains the #198 fix (ba19800), then remove the patches. https://github.com/yannmasoch/nautilus-my-computer/issues/198";
+        fallback = [ ];
+      }
+      [
+        # fix: release native view refs on navigation to stop SIGSEGV (#198)
+        (fetchpatch {
+          url = "https://github.com/yannmasoch/nautilus-my-computer/commit/d3a635a92f0219d6abd7bc5f40bfa2ccc4816b02.patch";
+          hash = "sha256-APZLq2kgmMolPvdD2Oavm3VzDpj2jpPyEdPAFv1Ng38=";
+        })
+        # fix: hold native model weakly in NativeBridge instead of view refs (#198)
+        (fetchpatch {
+          url = "https://github.com/yannmasoch/nautilus-my-computer/commit/ba19800524a81748efec209b087419d32a8d37bc.patch";
+          hash = "sha256-CFlQ0BAONbAek21jSMyHz8jyfC52JrN4hWngECSXM+w=";
+        })
+      ];
 
   # The extension imports `cairo`. The nautilus-python host only puts
   # pygobject on sys.path, so add pycairo in the entry file.
