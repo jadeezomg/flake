@@ -1,0 +1,19 @@
+# lazygit configuration. modules/profiles/devenv/lazygit/default.nix links
+# this file to ~/.config/lazygit/config.yml.
+# Reference: https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
+
+customCommands:
+  # G reads the selected file in glow, full screen. On a folder, glow lists
+  # the Markdown files in it. Quit glow with q to come back to lazygit.
+  - key: G
+    context: files
+    description: Read in glow
+    command: glow --tui -- {{.SelectedPath | quote}}
+    output: terminal
+
+  # G in the files of a commit reads the file as it was in that commit.
+  - key: G
+    context: commitFiles
+    description: Read this version in glow
+    command: git show {{.SelectedCommit.Hash}}:{{.SelectedCommitFile.Name | quote}} | glow --pager -
+    output: terminal
