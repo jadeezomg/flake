@@ -46,6 +46,7 @@ import {
 	fileRowsOf,
 	fit,
 	fitFiles,
+	matchSkill,
 	mcpRowsOf,
 	nextFiles,
 	nextMcp,
@@ -53,7 +54,7 @@ import {
 	nextTasks,
 	shareRows,
 } from "./work";
-import type { FileRow, McpRow } from "./work";
+import type { FileRow, ListedSkill, McpRow } from "./work";
 
 const PANE = "activity";
 const TITLE = "Activity";
@@ -315,6 +316,7 @@ async function readBack($: EngineInterface): Promise<ReadBack> {
 	let mcpList: McpServerUse[] = [];
 	if (!Array.isArray(messages))
 		return { list, taskList, fileList, skillList, mcpList };
+	const listed = await skillListing($).catch(() => []);
 	for (const [index, message] of messages.entries()) {
 		if (
 			message.role === "user" &&
@@ -343,8 +345,10 @@ async function readBack($: EngineInterface): Promise<ReadBack> {
 				mcpList = nextMcp(mcpList, use.tool, use.isError === true);
 			if (use.isError === true || use.text === undefined) continue;
 			const skill = use.input.skill;
-			if (use.tool === "Skill" && typeof skill === "string")
-				skillList = nextSkills(skillList, { name: skill, source: "" });
+			if (use.tool === "Skill" && typeof skill === "string") {
+				const found = matchSkill(listed, skill);
+				skillList = nextSkills(skillList, found ?? { name: skill, source: "" });
+			}
 			if (TASK_TOOLS.has(use.tool))
 				taskList = nextTasks(taskList, use.tool, use.input, use.result);
 			const path = pathsOf(use.input)[0];
@@ -511,6 +515,32 @@ async function diffOf($: EngineInterface, path: string): Promise<string[]> {
 	return text.split("\n").slice(0, MAX_DIFF_LINES);
 }
 
+// The session's skill listing, from the local context estimate. Empty when
+// the estimate has none.
+async function skillListing($: EngineInterface): Promise<ListedSkill[]> {
+	const usage = await $.session.usage({ breakdown: "summary" });
+
+	return [...(usage.context.breakdown?.skills?.skillFrontmatter ?? [])];
+}
+
+// Records one use of a skill under its listed name and source. The guard
+// that the account seats first skips `skill.prompt` hooks, so the mod sees
+// a skill only as a Skill tool call or as a typed `/name`. A name that the
+// listing does not hold counts only when `isSkill` is true: a typed `/name`
+// can also be a built-in command.
+async function noteSkill(
+	$: EngineInterface,
+	name: string,
+	isSkill: boolean,
+): Promise<void> {
+	const listed = await skillListing($).catch(() => []);
+	const found = matchSkill(listed, name);
+	if (found === undefined && !isSkill) return;
+	await update($, skills, (list) =>
+		nextSkills(list, found ?? { name, source: "" }),
+	);
+}
+
 async function openDiff($: EngineInterface, file: FileChange): Promise<void> {
 	const lines = await diffOf($, file.path);
 	const diff: FileDiff = { path: file.path, label: file.label, lines };
@@ -583,21 +613,6 @@ export const register: Register = (on) => {
 
 		return next(e);
 	});
-
-	// The engine loads a skill's prompt for a typed `/name`, for the Skill
-	// tool, and for a subagent that preloads it. This hook only records.
-	on("skill.prompt", async ($, e, next) => {
-		const loaded = await next(e);
-		await update($, skills, (list) =>
-			nextSkills(list, {
-				name: e.skill,
-				source: e.source,
-				...(e.pluginName === undefined ? {} : { pluginName: e.pluginName }),
-			}),
-		);
-
-		return loaded;
-	}).catch((_$, e, next) => next(e));
 
 	// A subagent runs from its spawn. Its own description labels it.
 	on("agent.spawn", async ($, e, next) => {
@@ -688,7 +703,12 @@ export const register: Register = (on) => {
 			);
 		}
 
-		return next(e);
+		const sent = await next(e);
+		// A typed `/name` that the skill listing holds is a use of that skill.
+		if (e.command !== undefined && sent.drop === undefined)
+			await noteSkill($, e.command.name, false);
+
+		return sent;
 	}).catch((_$, e, next) => next(e));
 
 	// These hooks only record. If one fails, the call goes on without the mod.
@@ -740,6 +760,9 @@ export const register: Register = (on) => {
 				// A file tool or a shell command can change the working tree.
 				if (FILE_TOOLS.has(call.tool) || call.tool === "Bash")
 					void readGit($).catch(() => undefined);
+				const skill = input.skill;
+				if (call.tool === "Skill" && typeof skill === "string")
+					await noteSkill($, skill, true);
 			}
 		}
 		// Each MCP call counts, also a failed or denied one.
