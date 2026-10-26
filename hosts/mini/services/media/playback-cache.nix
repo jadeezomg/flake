@@ -1,10 +1,11 @@
 # Playback cache: Plex and Jellyfin read through mini's SSD, not the Unraid
 # disks.
 #
-#   1. FS-Cache: /media (the read-only NFS mount that Plex and Jellyfin play
-#      from) gets the `fsc` option. The kernel keeps the data it reads in
-#      /var/cache/fscache and serves later reads from there, also after a
-#      reboot. /data stays uncached: the Arr apps write there.
+#   1. FS-Cache: /mnt/library (the read-only NFS mount that Plex and Jellyfin
+#      play from, through the links in /media) gets the `fsc` option. The
+#      kernel keeps the data it reads in /var/cache/fscache and serves later
+#      reads from there, also after a reboot. /data stays uncached: the Arr
+#      apps write there.
 #   2. media-prefetch: when playback starts, it reads the whole file once.
 #      The Unraid disk delivers the file in one burst, then playback reads
 #      from the SSD and the disk spins down.
@@ -42,7 +43,7 @@ in
     '';
   };
 
-  fileSystems."/media".options = [
+  fileSystems."/mnt/library".options = [
     "fsc"
     # The cache must be live when the NFS superblock is created.
     "x-systemd.after=cachefilesd.service"
@@ -93,7 +94,8 @@ in
         "cachefilesd.service"
       ];
       wantedBy = [ "multi-user.target" ];
-      unitConfig.RequiresMountsFor = [ "/media" ];
+      # The paths it gets start with /media, a folder of links into this mount.
+      unitConfig.RequiresMountsFor = [ "/mnt/library" ];
       serviceConfig = {
         DynamicUser = true;
         Restart = "always";
