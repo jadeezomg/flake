@@ -1,6 +1,6 @@
 # Plan: Agent session management across hosts
 
-**Status:** decided 2026-10-25, Phase 0 next
+**Status:** Phase 1 (the archive) done 2026-10-26. Phase 2 (the herdr/tuios trial on mini) in progress.
 **Related:** [mini.md](../hosts/mini.md), [ADR-0001](../adr/0001-nono-as-single-sandboxing-system.md), [hermes.nix](../../hosts/mini/services/hermes.nix), [atuin.nix](../../hosts/mini/services/atuin.nix), [immich-backup.nix](../../hosts/mini/services/immich-backup.nix), [`modules/profiles/devenv/agents/`](../../modules/profiles/devenv/agents/)
 
 ---
@@ -174,20 +174,20 @@ Decided: every git repo lives at `$HOME/git/<repo>`.
 - If two repos have the same name, pick a different folder name by hand at clone time. `work --on mini` then uses the same folder name on mini.
 - The rule applies to every user on every host: jadee on desktop, framework, and mini, and user `hermes` (`/var/lib/hermes/git/`).
 - There is no exception. Since 2026-10-26 the flake checkout lives at `~/git/flake` on every host (it was at `~/.dotfiles/flake`). `dotfiles.flakeRoot` defaults to that path. The move steps are in [§ Moving the flake checkout](#moving-the-flake-checkout).
-- A Home Manager module creates `~/git` on each host, so that the folder exists before the first clone.
+- `~/git` exists on every host, because the flake checkout lives there.
 
-Migration on framework (contents on 2026-10-25):
+Migration, done 2026-10-26:
 
-| Entry in `~/Git` | Kind | Action |
+| Entry in `~/Git` (framework) | Kind | Result |
 |---|---|---|
-| `community-plugins` | Repo, `jadeezomg` | Moves with the folder. Update the path in `modules/profiles/desktop/noctalia/config/settings.toml`. |
-| `dotfiles` | Repo, `Mic92/dotfiles` (reference copy) | Moves with the folder. |
-| `graphs` | Repo, `AMN-DATA` (work) | Moves with the folder. Its sessions are work sessions, see the note below. |
-| `skills` | Repo, `mattpocock/skills` | Moves with the folder. |
-| `learn-rust` | Folder with 3 repos inside | Keep as a group folder, or move the 3 repos to the top level. Your choice. |
-| `vault` | Not a repo | Keep, or move out of `~/git`. Your choice. |
+| `community-plugins` | Repo, `jadeezomg` | Moved. `modules/profiles/desktop/noctalia/config/settings.toml` points at `~/git/community-plugins`. |
+| `dotfiles` | Repo, `Mic92/dotfiles` (reference copy) | Moved. |
+| `graphs` | Repo, `AMN-DATA` (work) | Moved. Its sessions are work sessions, see the note below. |
+| `skills` | Repo, `mattpocock/skills` | Moved. |
+| `learn-rust` | Folder with 3 repos inside | Moved as a group folder. |
+| `vault` | Obsidian vault, only Home Manager links | Not moved. `modules/profiles/apps/notes/obsidian.nix` now targets `git/vault`, so the next switch makes `~/git/vault` and removes the old links. |
 
-Steps: run `mv ~/Git ~/git` on framework, then update the noctalia path. On a case-sensitive file system, this is one rename. That noctalia file has uncommitted local changes today, so make the path change together with those changes. Do the same check on desktop.
+desktop had only the Home Manager `vault` in `~/Git`, and an empty `~/Projects`. After the next switch on each host, move `~/Git` to the trash.
 
 Note on work repos on personal hosts: `graphs` is a work repo on framework. D1 removes caya. The push still sends the sessions of `~/git/graphs` on framework to the archive. You manage them by hand (D10). See [§ Work repos on personal hosts](#work-repos-on-personal-hosts).
 
@@ -447,35 +447,35 @@ It stays on. It covers Claude sessions only and routes through Anthropic. This p
 
 ### Phase 0: decisions and tests (no deploy)
 
-All decisions have answers (2026-10-25). Phase 0 has tests and small moves left.
+All decisions have answers (2026-10-25).
 
-1. Test the push port: after port 2222 is open, run `nc -vz <mini tailnet name> 2222` from framework on a different network. If the tailnet ACL blocks it, fall back to LAN only.
-2. Test D7: add a Tailscale SSH `accept` rule for one host pair. Run `ssh -o BatchMode=yes <host> true` from the other host.
-3. Record which files `herdr integration install` and `tuios integration install` write. On these hosts, `~/.claude/settings.json` is a live symlink into the flake checkout.
+1. Open: test the push port from a different network: `nc -vz mini.quokka-qilin.ts.net 2222` from framework. All pushes so far ran on the home LAN. If the tailnet ACL blocks the port, fall back to LAN only.
+2. Open: test D7. Add a Tailscale SSH `accept` rule for one host pair. Then run `ssh -o BatchMode=yes <host> true` from the other host. Needed for Phase 4 only.
+3. Moved to Phase 2: record which files `herdr integration install` and `tuios integration install` write.
 4. Done 2026-10-25: a local test of the push and of agentsview on framework.
-5. Run the herdr and tuios trial (D2).
+5. Moved to Phase 2: the herdr and tuios trial (D2).
 6. Done 2026-10-25: the remote-edit rule in the flake `AGENTS.md` (D8).
-7. Move `~/Git` to `~/git` on framework, and on desktop if it has one (D9). Update the noctalia path.
+7. Done 2026-10-26 on framework: the repos moved from `~/Git` to `~/git`. The Obsidian vault target and the noctalia plugin path follow. desktop had only the Home Manager vault in `~/Git`. After its next switch, `~/Git` can go to the trash on both hosts (D9).
 
 ### Phase 1: C, the archive
 
 1. Done 2026-10-25: `cleanupPeriodDays = 120` in `data/agents/global/settings.json`. Other hosts get it when their checkout has the commit.
-2. Written 2026-10-25 on branch `agent-sessions`, not deployed:
+2. Done 2026-10-26: deployed on mini, desktop, and framework.
    - `hosts/mini/services/agent-sessions.nix`: push receiver (user `agent-push`, port 2222, `rrsync -wo -no-del`), hermes snapshot timer, agentsview, Caddy vhost, restic backup.
    - `modules/profiles/devenv/agents/session-push.nix`: push timer on every Linux host, mini included.
-   - `data/agents/session-sources.nix`: the source list. `dotfilesLib` now exports `hostFacts` and `agentSessionSources`.
-3. Tested locally: rsync with the push flags against `rrsync -wo -no-del` (12 checks), and two agentsview starts with the generated `config.toml`.
+   - `data/agents/session-sources.nix`: the source list. `dotfilesLib` exports `hostFacts` and `agentSessionSources`.
+   - The push keys of desktop, framework, and mini are in their `host.nix`.
+3. Tested before the deploy: rsync with the push flags against `rrsync -wo -no-del` (12 checks), and two agentsview starts with the generated `config.toml`.
+4. Checked after the deploy: framework and desktop push over the tailnet. agentsview had 84 sessions on 2026-10-26: framework 48, desktop 34, hermes 2.
 
-Rollout, in this order:
+Changes during the rollout:
 
-1. Add `mini/backup/agent-sessions-restic-password` to `secrets/secrets.yaml`. A missing key fails the mini switch.
-2. On Unraid: `mkdir -p /mnt/user/backup/agent-sessions`.
-3. Switch desktop, framework, and mini. Each switch makes `~/.ssh/agent_push_ed25519`. No timer runs yet.
-4. Copy each `~/.ssh/agent_push_ed25519.pub` into its `hosts/<host>/host.nix` as `agentPushKey`.
-5. Switch mini, then the other hosts. The timers start.
-6. Run `flake mini dns-sync` for `sessions.jadee.fyi`.
-7. Phase 0 test: `nc -vz mini.quokka-qilin.ts.net 2222` from framework off the LAN.
-8. Check: `systemctl --user status agent-session-push` on each host, `ls /srv/agent-sessions` on mini, and the web UI.
+- `/srv/agent-sessions` belongs to root. systemd-tmpfiles refuses to step from a folder of `agent-push` into a folder of root ("unsafe path transition").
+- agentsview runs as the system user `agentsview`. With `DynamicUser`, its state folder was a symlink, and agentsview could not write its runtime record.
+- The first restic password in sops was the literal text `$(openssl rand -base64 48)`: in nushell, `$(...)` is not command substitution. It was replaced before the first backup ran. Use `just secret-set` for new secrets.
+- No login on `sessions.jadee.fyi` and `hermes.jadee.fyi` (2026-10-26). The Caddy snippet `tailnet-only` answers 403 outside the tailnet, because Caddy also binds the LAN address.
+
+Operations notes: [mini.md § Agent session archive](../hosts/mini.md).
 
 ### Phase 2: A, mini as agent host
 
@@ -513,7 +513,7 @@ Rollout, in this order:
 | `data/agents/session-sources.nix` | Agent name → session folders, relative to `$HOME`. One list for push, index, and backup. |
 | `modules/profiles/devenv/agents/session-push.nix` | HM: systemd user timer (Linux) or launchd agent (Darwin) that pushes to mini. |
 | `modules/profiles/devenv/agents/session-manager.nix` | HM: config of the D2 tool (herdr or tuios). The server unit for hosts that need it. |
-| `modules/profiles/devenv/agents/work.nix` | HM: the `work` command. Also creates `~/git` (D9). |
+| `modules/profiles/devenv/agents/work.nix` | HM: the `work` command. |
 | `modules/profiles/desktop/noctalia/config/settings.toml` | Path `~/Git/community-plugins` becomes `~/git/community-plugins` (D9). |
 | `AGENTS.md` | New text for the remote-edit rule (D8). |
 | `hosts/mini/services/agent-sessions.nix` | Archive folder, push receiver, agentsview service and `[[session_sources]]`, hermes snapshot job, restic backup. |
