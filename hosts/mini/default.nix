@@ -47,6 +47,7 @@ in
   ++ lib.optionals (host.miniAtuinSync or false) [ ./services/atuin.nix ]
   ++ lib.optionals (host.miniTracing or false) [ ./services/tracing.nix ]
   ++ lib.optionals (host.miniAgentSessions or false) [ ./services/agent-sessions.nix ]
+  ++ lib.optionals (host.miniAgentHost or false) [ ./services/agent-host.nix ]
   # One toggle for both: an Immich install without an off-host backup is a trap,
   # and a separate "backup disabled" flag is the kind of thing that gets flipped
   # for one debugging session and never flipped back.
