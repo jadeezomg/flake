@@ -1,21 +1,27 @@
+let
+  # The library folders in the media folder of the data share. Plex and
+  # Jellyfin see each one as /media/<folder> (../storage.nix).
+  mediaFolders = [
+    "Series"
+    "Anime"
+    "Series-PtBr"
+    "Cinema"
+    "Documentaries Feature"
+    "Documentaries"
+    "Comedy"
+    "Movies"
+  ];
+in
 {
+  inherit mediaFolders;
+
   mountDeps = [
     "data.mount"
-    "data-media-Music.mount"
     "Music.mount"
-    "media.mount"
+    "mnt-library.mount"
   ];
 
-  remoteDirs = [
-    "/data/media/Series"
-    "/data/media/Anime"
-    "/data/media/Series-PtBr"
-    "/data/media/Cinema"
-    "/data/media/Documentaries Feature"
-    "/data/media/Documentaries"
-    "/data/media/Comedy"
-    "/data/media/Movies"
-    "/data/media/Music"
+  remoteDirs = map (folder: "/data/media/${folder}") mediaFolders ++ [
     # Recycle bins of Radarr/Sonarr and of Lidarr (arr.nix).
     "/data/media/.recycle"
     "/Music/.recycle"

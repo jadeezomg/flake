@@ -102,9 +102,14 @@ let
   # passes the info hash and the category. The WebUI password comes from the
   # unit's credentials, which qBittorrent's child processes inherit.
   qbittorrent = config.nixflix.torrentClients.qbittorrent;
-  # A plain value, not read back from serverConfig: the script path is part
+  # Plain values, not read back from serverConfig: the script path is part
   # of serverConfig, so reading the username from it is a cycle.
+  # connectionAddress reads serverConfig too.
   webuiUsername = "admin";
+  # The WebUI listens only on the namespace address (nixflix's default for
+  # WebUI.Address), not on loopback. With 127.0.0.1 the login got
+  # "connection refused" and no torrent was ever tagged (2026-10-26).
+  webuiAddress = config.vpnNamespaces.${config.nixflix.vpn.namespace}.namespaceAddress;
   qbittorrentTagSukebei = pkgs.writeShellApplication {
     name = "qbittorrent-tag-sukebei";
     runtimeInputs = [
@@ -117,11 +122,13 @@ let
       category=''${2:-}
       [ -z "$category" ] || exit 0
 
-      api=http://127.0.0.1:${toString qbittorrent.webuiPort}/api/v2
+      api=http://${webuiAddress}:${toString qbittorrent.webuiPort}/api/v2
+      # `|| true`: a failed curl must reach the log line below. Without it,
+      # errexit ended the script with no trace in the journal.
       cookie=$(curl -sS --max-time 10 -D - -o /dev/null \
         --data-urlencode "username=${webuiUsername}" \
         --data-urlencode "password@$CREDENTIALS_DIRECTORY/webui-password" \
-        "$api/auth/login" | sed -n 's/^[Ss]et-[Cc]ookie: \(\(QBT_\)\{0,1\}SID[_0-9]*=[^;]*\).*/\1/p')
+        "$api/auth/login" | sed -n 's/^[Ss]et-[Cc]ookie: \(\(QBT_\)\{0,1\}SID[_0-9]*=[^;]*\).*/\1/p' || true)
       if [ -z "$cookie" ]; then
         logger -t qbittorrent-tag-sukebei "WebUI login failed, $hash not tagged"
         exit 1
@@ -181,6 +188,9 @@ in
           Misc = false;
           RSS = false;
         };
+        # qBittorrent's own UPnP / NAT-PMP is off, as Proton's guide says.
+        # qbittorrent-port-forward (../port-forward.nix) gets the port.
+        Network.PortForwardingEnabled = false;
         BitTorrent.Session = {
           GlobalMaxRatio = 0;
           ShareLimitAction = "Stop";
@@ -238,6 +248,12 @@ in
           complete_dir = "/data/usenet/complete";
           admin_dir = "${sabnzbdState}/admin";
           log_dir = "${sabnzbdState}/logs";
+          # nixflix turns this on. It asks the server for every article of a
+          # job before the download starts, one job at a time, so a full
+          # queue sat in "Checking" for hours (2026-10-26). fast_fail and
+          # fail_hopeless_jobs (both on) already stop a job that cannot
+          # complete.
+          pre_check = false;
           host_whitelist = "sabnzbd.jadee.fyi";
           local_ranges = [
             "192.168.15.0/24"

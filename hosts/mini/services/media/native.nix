@@ -96,7 +96,11 @@ in
           PLEX_MEDIA_SERVER_TMPDIR = lib.mkForce "/srv/nixflix/plex-transcode";
           TMPDIR = lib.mkForce "/srv/nixflix/plex-transcode";
         };
-        unitConfig.RequiresMountsFor = [ "/media" ];
+        # The targets of the links in /media (storage.nix).
+        unitConfig.RequiresMountsFor = [
+          "/mnt/library"
+          "/Music"
+        ];
         # Keep stock plex ExecStartPre (!plex-run-prestart). This only adds a user
         # preStart so migrated Codec trees that lost +x get fixed before PMS starts.
         # Without execute bits, eac3_eae loops: "EAE timeout! EAE not running…".
@@ -114,7 +118,11 @@ in
             "/srv/nixflix/plex"
             "/srv/nixflix/plex-transcode"
           ];
-          ReadOnlyPaths = [ "/media" ];
+          # /media holds only links to these. /Music is RW on the host.
+          ReadOnlyPaths = [
+            "/mnt/library"
+            "/Music"
+          ];
           InaccessiblePaths = [ "/data" ];
         };
       };
@@ -123,22 +131,18 @@ in
         after = mountDeps;
         requires = mountDeps;
         serviceConfig = {
-          BindPaths = [
-            "/data/media/Series"
-            "/data/media/Anime"
-            "/data/media/Series-PtBr"
-            "/data/media/Cinema"
-          ];
           # The nixpkgs module hardens Bazarr (PrivateTmp = "disconnected" and
           # more). It sets ProtectSystem = "full"; "strict" is stricter and
           # works with the ReadWritePaths below.
           ProtectSystem = lib.mkForce "strict";
+          # One entry for /data, as for the Arr apps (ADR-0006). An entry per
+          # library folder is a bind mount below /data/media. The kernel
+          # detaches it when Unraid gives /data/media a new inode number
+          # (docs/hosts/mini.md § Media stack). Then all of /data was
+          # read-only for Bazarr, and it saved no subtitles (2026-10-26).
           ReadWritePaths = [
             "/srv/nixflix/bazarr"
-            "/data/media/Series"
-            "/data/media/Anime"
-            "/data/media/Series-PtBr"
-            "/data/media/Cinema"
+            "/data"
           ];
         };
       };
