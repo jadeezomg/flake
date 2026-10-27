@@ -51,6 +51,7 @@ These files repeat the hex values by hand. A palette change must update all of t
 ## Palette consumers that generate config
 
 - `apps/notes/typora/theme.nix` renders CSS from `{ palette }`. The owning module writes it to `Typora/themes/birds-of-paradise.css`.
+- `devenv/glow/theme.nix` renders a glamour style from `{ palette }`. `devenv/glow/default.nix` writes it to `glow/birds-of-paradise.json` and points `glow/glow.yml` at it. Stylix has no glow target. If a Stylix update adds one, an `expireWhen` guard warns and turns the module off.
 - `essentials/fastfetch.nix` colors the logo and section keys from `config.dotfiles.theme.palette`.
 - `theme/qt-kde.nix` (see above).
 - Keep generator code next to the app module. Keep shared data in `lib/`.

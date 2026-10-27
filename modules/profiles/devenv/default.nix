@@ -20,12 +20,13 @@ dotfilesLib.mkProfile {
     ./languages
   ];
   # HM dev tooling without its own category (biome config, gh CLI config,
-  # lazygit config, flake git hooks). fnox is not here: each repo pins it in
+  # glow and lazygit config, flake git hooks). fnox is not here: each repo pins it in
   # its mise.toml, and no shell hook loads secrets. A command that needs a
   # secret runs through `fnox exec`.
   hm = [
     ./biome.nix
     ./gh
+    ./glow
     ./lazygit
     ./git-hooks.nix
   ];
