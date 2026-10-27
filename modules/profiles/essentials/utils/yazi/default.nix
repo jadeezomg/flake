@@ -1,4 +1,5 @@
 {
+  config,
   isDarwin,
   lib,
   osConfig,
@@ -39,12 +40,26 @@ let
     "edit"
     "open"
   ];
-  markdownRules = map (rule: rule // { use = markdownUse; }) [
+  markdownMatchers = [
     { mime = "text/markdown"; }
     { mime = "text/x-markdown"; }
     { url = "*.md"; }
     { url = "*.markdown"; }
   ];
+  markdownRules = map (rule: rule // { use = markdownUse; }) markdownMatchers;
+
+  # The preview pane shows Markdown as glow renders it, through the piper
+  # plugin. glow uses a plain style when its output is not a terminal, so the
+  # script names the style: the palette style of the devenv glow module, or
+  # glow's dark style when that file is missing. Arguments: width, file.
+  glowPreview = pkgs.writeShellScript "glow-preview" ''
+    style="${config.xdg.configHome}/glow/birds-of-paradise.json"
+    [ -f "$style" ] || style=dark
+    CLICOLOR_FORCE=1 exec ${pkgs.glow}/bin/glow --style "$style" --width "$1" -- "$2"
+  '';
+  markdownPreviewers = map (
+    rule: rule // { run = ''piper -- ${glowPreview} "$w" "$1"''; }
+  ) markdownMatchers;
 in
 {
   programs.yazi = {
@@ -99,13 +114,17 @@ in
       };
 
       open.prepend_rules = markdownRules;
+      plugin.prepend_previewers = markdownPreviewers;
     };
 
     initLua = ./init.lua;
 
-    # Plugins/flavors go here as `name = ./path/to/foo.yazi;` once added.
+    # Plugins/flavors go here as `name = ./path/to/foo.yazi;` or as a package
+    # from pkgs.yaziPlugins. piper runs the glow preview above.
     # See https://yazi-rs.github.io/docs/plugins/overview
-    plugins = { };
+    plugins = {
+      inherit (pkgs.yaziPlugins) piper;
+    };
     flavors = { };
   };
 }

@@ -1,7 +1,9 @@
 # glow config with a Birds-of-Paradise style. glow has no Stylix target, so
 # theme.nix renders a glamour style from config.dotfiles.theme.palette, and
 # glow.yml points glow at it. The yazi opener and the lazygit G keys read the
-# same config. glow itself installs from ../tools.nix.
+# same config. The yazi preview reads the style file by its path
+# (essentials/utils/yazi), so a new file name must change there too. glow
+# itself installs from ../tools.nix.
 {
   config,
   dotfilesLib,
@@ -30,12 +32,13 @@ in
       import ./theme.nix { inherit (config.dotfiles.theme) palette; }
     );
 
-    # glow wrote these values itself on its first start. Only `style` is new.
+    # glow wrote the other values itself on its first start. `width: 0` wraps
+    # at the terminal width, which glow 3.0.0 caps at 120 columns.
     xdg.configFile."glow/glow.yml".text = ''
       style: "${config.xdg.configHome}/${styleFile}"
       mouse: false
       pager: false
-      width: 80
+      width: 0
       all: false
     '';
   };
