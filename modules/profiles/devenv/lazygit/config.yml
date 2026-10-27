@@ -3,17 +3,22 @@
 # Reference: https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
 
 customCommands:
-  # G reads the selected file in glow, full screen. On a folder, glow lists
-  # the Markdown files in it. Quit glow with q to come back to lazygit.
+  # Both G keys show the glow output in less, full screen. Quit less with q
+  # to come back to lazygit. glow 3.0.0's own reader (--tui) loses the text
+  # when the window changes size (charmbracelet/glow#983). The commands set
+  # PAGER because the shell's PAGER is bat, which adds a frame.
+
+  # G reads the selected file. On a folder, glow lists the Markdown files
+  # in it.
   - key: G
     context: files
     description: Read in glow
-    command: glow --tui -- {{.SelectedPath | quote}}
+    command: PAGER='less -R' glow --pager -- {{.SelectedPath | quote}}
     output: terminal
 
   # G in the files of a commit reads the file as it was in that commit.
   - key: G
     context: commitFiles
     description: Read this version in glow
-    command: git show {{.SelectedCommit.Hash}}:{{.SelectedCommitFile.Name | quote}} | glow --pager -
+    command: git show {{.SelectedCommit.Hash}}:{{.SelectedCommitFile.Name | quote}} | PAGER='less -R' glow --pager -
     output: terminal

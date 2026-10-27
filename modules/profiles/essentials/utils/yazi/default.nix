@@ -29,8 +29,8 @@ let
   markdownOpenerName = lib.toLower (lib.last (lib.splitString "." markdownId));
   # Enter on a Markdown file reads it in glow, on every host. The open-with
   # menu keeps the desktop markdown app (Linux with notes), the editor, and
-  # the system opener. The opener calls glow by its store path, so it works
-  # on hosts without the devenv profile that installs glow.
+  # the system opener. The opener calls glow and less by their store paths,
+  # so it works on hosts without the devenv profile that installs glow.
   markdownUse = [
     "glow"
   ]
@@ -64,9 +64,11 @@ in
       };
 
       opener = {
+        # glow shows its output in less: glow 3.0.0's own reader (--tui)
+        # loses the text when the window changes size (charmbracelet/glow#983).
         glow = [
           {
-            run = "${pkgs.glow}/bin/glow --tui -- %s1";
+            run = "PAGER='${pkgs.less}/bin/less -R' ${pkgs.glow}/bin/glow --pager -- %s1";
             block = true;
             desc = "Read in glow";
           }
