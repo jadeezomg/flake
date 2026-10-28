@@ -1,346 +1,342 @@
-config_version = 15
+config_version = 16
 
 [backdrop]
 enabled = true
 
 [bar]
-order = ["default", "side", "laptop"]
+order = [ "default", "side", "laptop" ]
 
-[bar.default]
-background_opacity = 0.80000000000000004
-border = "on_secondary"
-border_width = 3.0
-capsule_radius = 0
-capsule_thickness = 0.69999999999999996
-center = ["group:g3"]
-enabled = false
-end = ["tray", "group:g6", "group:g5"]
-margin_edge = 3
-margin_ends = 1700
-margin_opposite_edge = 5
-padding = 20
-radius = 0
-reserve_space = false
-show_on_workspace_switch = false
-start = ["status", "group:g1"]
-thickness = 25
+    [bar.default]
+    background_opacity = 0.80000000000000004
+    border = "on_secondary"
+    border_width = 3.0
+    capsule_radius = 0
+    capsule_thickness = 0.69999999999999996
+    center = [ "group:g3" ]
+    enabled = false
+    end = [ "tray", "group:g6", "group:g5" ]
+    margin_edge = 3
+    margin_ends = 1700
+    margin_opposite_edge = 5
+    padding = 20
+    radius = 0
+    reserve_space = false
+    show_on_workspace_switch = false
+    start = [ "status", "group:g1" ]
+    thickness = 25
 
-[bar.default.monitor.DP-1]
-enabled = true
-margin_ends = 1700
+        [bar.default.monitor.DP-1]
+        enabled = true
+        margin_ends = 1700
 
-[bar.default.monitor.DP-2]
-enabled = true
+        [bar.default.monitor.DP-2]
+        enabled = true
 
-[[bar.default.capsule_group]]
-accordion = false
-accordion_direction = "end"
-border = ""
-border_width = 1.0
-enabled = true
-fill = "on_primary"
-id = "g1"
-members = ["clipboard", "recorder", "screenshot", "launcher_2", "privacy"]
-opacity = 0.60000002384185791
-padding = 6.0
+        [[bar.default.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        border = ""
+        border_width = 1.0
+        enabled = true
+        fill = "on_primary"
+        id = "g1"
+        members = [ "clipboard", "recorder", "screenshot", "launcher_2", "privacy" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
 
-[[bar.default.capsule_group]]
-accordion = false
-accordion_direction = "end"
-border_width = 1.0
-enabled = true
-fill = "surface_variant"
-id = "g3"
-members = ["active_window"]
-opacity = 1.0
-padding = 6.0
-radius = 0.0
+        [[bar.default.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        border_width = 1.0
+        enabled = true
+        fill = "surface_container"
+        id = "g3"
+        members = [ "active_window" ]
+        opacity = 1.0
+        padding = 6.0
+        radius = 0.0
 
-[[bar.default.capsule_group]]
-accordion = false
-accordion_direction = "end"
-border_width = 1.0
-enabled = true
-fill = "surface_variant"
-id = "g5"
-members = ["control-center", "bar_5", "clock"]
-opacity = 1.0
-padding = 6.0
-radius = 0.0
+        [[bar.default.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        border_width = 1.0
+        enabled = true
+        fill = "surface_container"
+        id = "g5"
+        members = [ "control-center", "bar_5", "clock" ]
+        opacity = 1.0
+        padding = 6.0
+        radius = 0.0
 
-[[bar.default.capsule_group]]
-accordion = true
-accordion_direction = "start"
-border_width = 1.0
-enabled = true
-fill = "surface_variant"
-id = "g6"
-members = ["notifications", "network", "volume"]
-opacity = 1.0
-padding = 6.0
-radius = 0.0
+        [[bar.default.capsule_group]]
+        accordion = true
+        accordion_direction = "start"
+        border_width = 1.0
+        enabled = true
+        fill = "surface_container"
+        id = "g6"
+        members = [ "notifications", "network", "volume" ]
+        opacity = 1.0
+        padding = 6.0
+        radius = 0.0
 
-[bar.laptop]
-background_opacity = 0.80000000000000004
-border = "on_secondary"
-border_width = 3.0
-capsule_radius = 0
-capsule_thickness = 0.69999999999999996
-center = ["active_window"]
-enabled = false
-end = ["tray", "group:g3", "group:g7"]
-margin_edge = 3
-margin_ends = 600
-padding = 20
-radius = 0
-reserve_space = true
-show_on_workspace_switch = false
-start = ["status_2", "group:g1", "group:g6", "media"]
-thickness = 25
+    [bar.laptop]
+    background_opacity = 0.80000000000000004
+    border = "on_secondary"
+    border_width = 3.0
+    capsule_radius = 0
+    capsule_thickness = 0.69999999999999996
+    center = [ "active_window" ]
+    enabled = false
+    end = [ "tray", "group:g3", "group:g7" ]
+    margin_edge = 3
+    margin_ends = 600
+    padding = 20
+    radius = 0
+    reserve_space = true
+    show_on_workspace_switch = false
+    start = [ "status_2", "group:g1", "group:g6", "media" ]
+    thickness = 25
 
-[bar.laptop.monitor.eDP-1]
-enabled = true
+        [bar.laptop.monitor.eDP-1]
+        enabled = true
 
-[[bar.laptop.capsule_group]]
-accordion = true
-accordion_direction = "end"
-border = ""
-enabled = true
-fill = "on_primary"
-id = "g1"
-members = ["clipboard", "recorder", "screenshot", "privacy"]
-opacity = 0.60000002384185791
-padding = 6.0
+        [[bar.laptop.capsule_group]]
+        accordion = true
+        accordion_direction = "end"
+        border = ""
+        enabled = true
+        fill = "on_primary"
+        id = "g1"
+        members = [ "clipboard", "recorder", "screenshot", "privacy" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
 
-[[bar.laptop.capsule_group]]
-accordion = false
-accordion_direction = "end"
-enabled = true
-fill = "surface_variant"
-id = "g2"
-members = ["control-center", "notifications", "bar_2"]
-opacity = 0.60000002384185791
-padding = 6.0
-radius = 0.0
+        [[bar.laptop.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        enabled = true
+        fill = "surface_container"
+        id = "g2"
+        members = [ "control-center", "notifications", "bar_2" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 0.0
 
-[[bar.laptop.capsule_group]]
-accordion = false
-accordion_direction = "end"
-enabled = true
-fill = "surface_variant"
-id = "g4"
-members = ["weather", "clock"]
-opacity = 0.60000002384185791
-padding = 6.0
-radius = 0.0
+        [[bar.laptop.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        enabled = true
+        fill = "surface_container"
+        id = "g4"
+        members = [ "weather", "clock" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 0.0
 
-[[bar.laptop.capsule_group]]
-accordion = true
-accordion_direction = "start"
-enabled = true
-fill = "surface_variant"
-id = "g5"
-members = ["power_profile", "network", "bluetooth", "volume", "brightness"]
-opacity = 0.60000002384185791
-padding = 6.0
-radius = 0.0
+        [[bar.laptop.capsule_group]]
+        accordion = true
+        accordion_direction = "start"
+        enabled = true
+        fill = "surface_container"
+        id = "g5"
+        members = [ "power_profile", "network", "bluetooth", "volume", "brightness" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 0.0
 
-[[bar.laptop.capsule_group]]
-accordion = false
-accordion_direction = "end"
-enabled = true
-fill = "surface_variant"
-id = "g6"
-members = ["battery", "cpu"]
-opacity = 0.60000002384185791
-padding = 6.0
-radius = 0.0
+        [[bar.laptop.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        enabled = true
+        fill = "surface_container"
+        id = "g6"
+        members = [ "battery", "cpu" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 0.0
 
-[[bar.laptop.capsule_group]]
-accordion = true
-accordion_direction = "start"
-enabled = true
-fill = "surface_variant"
-id = "g3"
-members = ["notifications", "network", "bluetooth", "volume", "brightness"]
-opacity = 0.60000002384185791
-padding = 6.0
-radius = 0.0
+        [[bar.laptop.capsule_group]]
+        accordion = true
+        accordion_direction = "start"
+        enabled = true
+        fill = "surface_container"
+        id = "g3"
+        members = [ "notifications", "network", "bluetooth", "volume", "brightness" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 0.0
 
-[[bar.laptop.capsule_group]]
-accordion = false
-accordion_direction = "end"
-enabled = true
-fill = "surface_variant"
-id = "g7"
-members = ["control-center", "bar_4", "weather", "clock"]
-opacity = 0.60000002384185791
-padding = 6.0
-radius = 0.0
+        [[bar.laptop.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        enabled = true
+        fill = "surface_container"
+        id = "g7"
+        members = [ "control-center", "bar_4", "weather", "clock" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 0.0
 
-[bar.side]
-background_opacity = 0.69999999999999996
-capsule_radius = 0
-capsule_thickness = 0.69999999999999996
-center = ["group:g4"]
-enabled = false
-end = ["group:g6", "group:g1"]
-margin_edge = 10
-margin_ends = 10
-padding = 6
-radius = 0
-start = ["group:g5", "group:g2", "group:g3"]
-thickness = 45
+    [bar.side]
+    background_opacity = 0.69999999999999996
+    capsule_radius = 0
+    capsule_thickness = 0.69999999999999996
+    center = [ "group:g4" ]
+    enabled = false
+    end = [ "group:g6", "group:g1" ]
+    margin_edge = 10
+    margin_ends = 10
+    padding = 6
+    radius = 0
+    start = [ "group:g5", "group:g2", "group:g3" ]
+    thickness = 45
 
-[bar.side.monitor.HDMI-A-1]
-enabled = true
+        [bar.side.monitor.HDMI-A-1]
+        enabled = true
 
-[bar.side.monitor.HDMI-A-2]
-enabled = true
+        [bar.side.monitor.HDMI-A-2]
+        enabled = true
 
-[[bar.side.capsule_group]]
-enabled = true
-fill = "surface_variant"
-id = "g2"
-members = ["network_tx", "network_rx"]
-opacity = 0.59999999999999998
-padding = 6.0
-radius = 0.0
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_container"
+        id = "g2"
+        members = [ "network_tx", "network_rx" ]
+        opacity = 0.59999999999999998
+        padding = 6.0
+        radius = 0.0
 
-[[bar.side.capsule_group]]
-enabled = true
-fill = "surface_variant"
-id = "g3"
-members = ["ram", "temp", "cat", "cpu"]
-opacity = 0.59999999999999998
-padding = 6.0
-radius = 0.0
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_container"
+        id = "g3"
+        members = [ "ram", "temp", "cat", "cpu" ]
+        opacity = 0.59999999999999998
+        padding = 6.0
+        radius = 0.0
 
-[[bar.side.capsule_group]]
-enabled = true
-fill = "surface_variant"
-id = "g1"
-members = ["clock", "date"]
-opacity = 0.59999999999999998
-padding = 6.0
-radius = 0.0
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_container"
+        id = "g1"
+        members = [ "clock", "date" ]
+        opacity = 0.59999999999999998
+        padding = 6.0
+        radius = 0.0
 
-[[bar.side.capsule_group]]
-enabled = true
-fill = "surface_variant"
-id = "g4"
-members = ["media", "audio_visualizer"]
-opacity = 0.59999999999999998
-padding = 6.0
-radius = 0.0
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_container"
+        id = "g4"
+        members = [ "media", "audio_visualizer" ]
+        opacity = 0.59999999999999998
+        padding = 6.0
+        radius = 0.0
 
-[[bar.side.capsule_group]]
-enabled = true
-fill = "surface_variant"
-id = "g5"
-members = ["keyboard_layout"]
-opacity = 0.59999999999999998
-padding = 6.0
-radius = 0.0
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_container"
+        id = "g5"
+        members = [ "keyboard_layout" ]
+        opacity = 0.59999999999999998
+        padding = 6.0
+        radius = 0.0
 
-[[bar.side.capsule_group]]
-enabled = true
-fill = "surface_variant"
-id = "g6"
-members = ["weather"]
-opacity = 0.59999999999999998
-padding = 6.0
-radius = 0.0
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_container"
+        id = "g6"
+        members = [ "weather" ]
+        opacity = 0.59999999999999998
+        padding = 6.0
+        radius = 0.0
 
 [battery.device."/org/freedesktop/UPower/devices/battery_hidpp_battery_0"]
 warning_threshold = 15
 
 [control_center]
-hidden_tabs = []
+hidden_tabs = [  ]
 
-[control_center.calendar]
-show_week_numbers = true
+    [control_center.calendar]
+    show_week_numbers = true
 
-[[control_center.shortcuts]]
-type = "system"
+    [[control_center.shortcuts]]
+    type = "system"
 
-[[control_center.shortcuts]]
-type = "caffeine"
+    [[control_center.shortcuts]]
+    type = "caffeine"
 
-[[control_center.shortcuts]]
-type = "notification"
+    [[control_center.shortcuts]]
+    type = "notification"
 
-[[control_center.shortcuts]]
-type = "keyboard_layout"
+    [[control_center.shortcuts]]
+    type = "keyboard_layout"
 
-[[control_center.shortcuts]]
-type = "bluetooth"
+    [[control_center.shortcuts]]
+    type = "bluetooth"
 
-[[control_center.shortcuts]]
-type = "icefish/phone-connect:tile"
+    [[control_center.shortcuts]]
+    type = "icefish/phone-connect:tile"
 
 [desktop_widgets]
 enabled = false
 schema_version = 2
-widget_order = [
-    "desktop-widget-0000000000000001",
-    "desktop-widget-0000000000000002",
-    "desktop-widget-0000000000000003",
-]
+widget_order = [ "desktop-widget-0000000000000001", "desktop-widget-0000000000000002", "desktop-widget-0000000000000003" ]
 
-[desktop_widgets.grid]
-cell_size = 16
-major_interval = 4
-visible = true
+    [desktop_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
 
-[desktop_widgets.widget.desktop-widget-0000000000000001]
-box_height = 208.0
-box_width = 432.0
-cx = 1430.138916015625
-cy = 156.94685363769531
-output = "HDMI-A-1"
-placement_height = 2953.0
-placement_width = 1661.0
-rotation = -0.0
-type = "media_player"
+    [desktop_widgets.widget.desktop-widget-0000000000000001]
+    box_height = 208.0
+    box_width = 432.0
+    cx = 1430.138916015625
+    cy = 156.94685363769531
+    output = "HDMI-A-1"
+    placement_height = 2953.0
+    placement_width = 1661.0
+    rotation = -0.0
+    type = "media_player"
 
-[desktop_widgets.widget.desktop-widget-0000000000000001.settings]
-background = false
-hide_when_no_media = true
-layout = "horizontal"
+        [desktop_widgets.widget.desktop-widget-0000000000000001.settings]
+        background = false
+        hide_when_no_media = true
+        layout = "horizontal"
 
-[desktop_widgets.widget.desktop-widget-0000000000000002]
-box_height = 112.0
-box_width = 288.0
-cx = 1406.1534423828125
-cy = 356.879150390625
-output = "HDMI-A-1"
-placement_height = 2953.0
-placement_width = 1661.0
-rotation = -0.0
-type = "sysmon"
+    [desktop_widgets.widget.desktop-widget-0000000000000002]
+    box_height = 112.0
+    box_width = 288.0
+    cx = 1406.1534423828125
+    cy = 356.879150390625
+    output = "HDMI-A-1"
+    placement_height = 2953.0
+    placement_width = 1661.0
+    rotation = -0.0
+    type = "sysmon"
 
-[desktop_widgets.widget.desktop-widget-0000000000000002.settings]
-background = true
-display = "graph"
-shadow = true
-show_label = true
-stat = "cpu_usage"
-stat2 = "cpu_temp"
+        [desktop_widgets.widget.desktop-widget-0000000000000002.settings]
+        background = true
+        display = "graph"
+        shadow = true
+        show_label = true
+        stat = "cpu_usage"
+        stat2 = "cpu_temp"
 
-[desktop_widgets.widget.desktop-widget-0000000000000003]
-box_height = 96.0
-box_width = 272.0
-cx = 1174.29296875
-cy = 596.79791259765625
-output = "HDMI-A-1"
-placement_height = 2953.0
-placement_width = 1661.0
-rotation = 0.0
-type = "weather"
+    [desktop_widgets.widget.desktop-widget-0000000000000003]
+    box_height = 96.0
+    box_width = 272.0
+    cx = 1174.29296875
+    cy = 596.79791259765625
+    output = "HDMI-A-1"
+    placement_height = 2953.0
+    placement_width = 1661.0
+    rotation = 0.0
+    type = "weather"
 
-[desktop_widgets.widget.desktop-widget-0000000000000003.settings]
-show_forecast = true
+        [desktop_widgets.widget.desktop-widget-0000000000000003.settings]
+        show_forecast = true
 
 [dock]
 background_opacity = 0.80000000000000004
@@ -348,45 +344,45 @@ border = "on_secondary"
 border_width = 3.0
 concave_edge_corners = false
 enabled = true
-pinned = ["org.gnome.Nautilus", "steam", "zen-twilight", "dev.zed.Zed", "kitty"]
+pinned = [ "org.gnome.Nautilus", "steam", "zen-twilight", "dev.zed.Zed", "kitty" ]
 radius = 0
 show_dots = true
 
-[dock.monitor.DP-1]
-enabled = false
+    [dock.monitor.DP-1]
+    enabled = false
 
-[dock.monitor.DP-2]
-enabled = false
+    [dock.monitor.DP-2]
+    enabled = false
 
-[dock.monitor.eDP-1]
-auto_hide = false
-reserve_space = false
-smart_auto_hide = true
+    [dock.monitor.eDP-1]
+    auto_hide = false
+    reserve_space = false
+    smart_auto_hide = true
 
 [idle]
-behavior_order = ["lock", "screen-off", "lock-and-suspend"]
+behavior_order = [ "lock", "screen-off", "lock-and-suspend" ]
 pre_action_fade_seconds = 30
 
-[idle.behavior.lock]
-action = "lock"
-enabled = true
-timeout = 300.0
+    [idle.behavior.lock]
+    action = "lock"
+    enabled = true
+    timeout = 300.0
 
-[idle.behavior.lock-and-suspend]
-action = "lock_and_suspend"
-enabled = true
-timeout = 900.0
+    [idle.behavior.lock-and-suspend]
+    action = "lock_and_suspend"
+    enabled = true
+    timeout = 900.0
 
-[idle.behavior.screen-off]
-action = "screen_off"
-enabled = true
-timeout = 420.0
+    [idle.behavior.screen-off]
+    action = "screen_off"
+    enabled = true
+    timeout = 420.0
 
 [location]
 auto_locate = true
 
 [lockscreen]
-monitors = ["eDP-1"]
+monitors = [ "eDP-1" ]
 
 [lockscreen_widgets]
 enabled = false
@@ -397,191 +393,191 @@ widget_order = [
     "lockscreen-login-box@HDMI-A-2",
     "lockscreen-login-box@DP-1",
     "lockscreen-login-box@HDMI-A-1",
-    "lockscreen-login-box@DP-3",
+    "lockscreen-login-box@DP-3"
 ]
 
-[lockscreen_widgets.grid]
-cell_size = 16
-major_interval = 4
-visible = true
+    [lockscreen_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
 
-[lockscreen_widgets.widget."lockscreen-login-box@DP-1"]
-box_height = 196.0
-box_width = 810.0
-cx = 2133.0
-cy = 1551.0128173828125
-output = "DP-1"
-placement_height = 1799.0
-placement_width = 4266.0
-rotation = 0.0
-type = "login_box"
+    [lockscreen_widgets.widget."lockscreen-login-box@DP-1"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 2133.0
+    cy = 1551.0128173828125
+    output = "DP-1"
+    placement_height = 1799.0
+    placement_width = 4266.0
+    rotation = 0.0
+    type = "login_box"
 
-[lockscreen_widgets.widget."lockscreen-login-box@DP-1".settings]
-background_color = "surface_variant"
-background_opacity = 0.88
-background_radius = 12.0
-center_password_text = false
-input_opacity = 1.0
-input_radius = 6.0
-layout = "regular"
-show_caps_lock = true
-show_keyboard_layout = true
-show_login_button = true
-show_media = true
-show_password_reveal = true
-show_session_buttons = true
-show_unlock_hint = true
-show_weather = true
+        [lockscreen_widgets.widget."lockscreen-login-box@DP-1".settings]
+        background_color = "surface_container"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_password_reveal = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
 
-[lockscreen_widgets.widget."lockscreen-login-box@DP-2"]
-box_height = 196.0
-box_width = 810.0
-cx = 2133.0
-cy = 1571.6263427734375
-output = "DP-2"
-placement_height = 1799.0
-placement_width = 4266.0
-rotation = 0.0
-type = "login_box"
+    [lockscreen_widgets.widget."lockscreen-login-box@DP-2"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 2133.0
+    cy = 1571.6263427734375
+    output = "DP-2"
+    placement_height = 1799.0
+    placement_width = 4266.0
+    rotation = 0.0
+    type = "login_box"
 
-[lockscreen_widgets.widget."lockscreen-login-box@DP-2".settings]
-background_color = "surface_variant"
-background_opacity = 0.88
-background_radius = 12.0
-center_password_text = false
-input_opacity = 1.0
-input_radius = 6.0
-layout = "regular"
-show_caps_lock = true
-show_keyboard_layout = true
-show_login_button = true
-show_media = true
-show_password_reveal = true
-show_session_buttons = true
-show_unlock_hint = true
-show_weather = true
+        [lockscreen_widgets.widget."lockscreen-login-box@DP-2".settings]
+        background_color = "surface_container"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_password_reveal = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
 
-[lockscreen_widgets.widget."lockscreen-login-box@DP-3"]
-box_height = 196.0
-box_width = 810.0
-cx = 1920.0
-cy = 1978.0
-output = "DP-3"
-placement_height = 2160.0
-placement_width = 3840.0
-rotation = 0.0
-type = "login_box"
+    [lockscreen_widgets.widget."lockscreen-login-box@DP-3"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 1920.0
+    cy = 1978.0
+    output = "DP-3"
+    placement_height = 2160.0
+    placement_width = 3840.0
+    rotation = 0.0
+    type = "login_box"
 
-[lockscreen_widgets.widget."lockscreen-login-box@DP-3".settings]
-background_color = "surface_variant"
-background_opacity = 0.88
-background_radius = 12.0
-center_password_text = false
-input_opacity = 1.0
-input_radius = 6.0
-layout = "regular"
-show_caps_lock = true
-show_keyboard_layout = true
-show_login_button = true
-show_media = true
-show_password_reveal = true
-show_session_buttons = true
-show_unlock_hint = true
-show_weather = true
+        [lockscreen_widgets.widget."lockscreen-login-box@DP-3".settings]
+        background_color = "surface_container"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_password_reveal = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
 
-[lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1"]
-box_height = 196.0
-box_width = 810.0
-cx = 830.5
-cy = 2754.5673828125
-output = "HDMI-A-1"
-placement_height = 2953.0
-placement_width = 1661.0
-rotation = 0.0
-type = "login_box"
+    [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 830.5
+    cy = 2754.5673828125
+    output = "HDMI-A-1"
+    placement_height = 2953.0
+    placement_width = 1661.0
+    rotation = 0.0
+    type = "login_box"
 
-[lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1".settings]
-background_color = "surface_variant"
-background_opacity = 0.88
-background_radius = 12.0
-center_password_text = false
-input_opacity = 1.0
-input_radius = 6.0
-layout = "regular"
-show_caps_lock = true
-show_keyboard_layout = true
-show_login_button = true
-show_media = true
-show_password_reveal = true
-show_session_buttons = true
-show_unlock_hint = true
-show_weather = true
+        [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1".settings]
+        background_color = "surface_container"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_password_reveal = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
 
-[lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-2"]
-box_height = 196.0
-box_width = 810.0
-cx = 830.5
-cy = 2771.061767578125
-output = "HDMI-A-2"
-placement_height = 2953.0
-placement_width = 1661.0
-rotation = 0.0
-type = "login_box"
+    [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-2"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 830.5
+    cy = 2771.061767578125
+    output = "HDMI-A-2"
+    placement_height = 2953.0
+    placement_width = 1661.0
+    rotation = 0.0
+    type = "login_box"
 
-[lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-2".settings]
-background_color = "surface_variant"
-background_opacity = 0.88
-background_radius = 12.0
-center_password_text = false
-input_opacity = 1.0
-input_radius = 6.0
-layout = "regular"
-show_caps_lock = true
-show_keyboard_layout = true
-show_login_button = true
-show_media = true
-show_password_reveal = true
-show_session_buttons = true
-show_unlock_hint = true
-show_weather = true
+        [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-2".settings]
+        background_color = "surface_container"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_password_reveal = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
 
-[lockscreen_widgets.widget."lockscreen-login-box@eDP-1"]
-box_height = 196.0
-box_width = 810.0
-cx = 960.0
-cy = 1098.0
-output = "eDP-1"
-placement_height = 1371.0
-placement_width = 2057.0
-rotation = 0.0
-type = "login_box"
+    [lockscreen_widgets.widget."lockscreen-login-box@eDP-1"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 960.0
+    cy = 1098.0
+    output = "eDP-1"
+    placement_height = 1371.0
+    placement_width = 2057.0
+    rotation = 0.0
+    type = "login_box"
 
-[lockscreen_widgets.widget."lockscreen-login-box@eDP-1".settings]
-background_color = "surface_variant"
-background_opacity = 0.88
-background_radius = 12.0
-center_password_text = false
-input_opacity = 1.0
-input_radius = 6.0
-layout = "regular"
-show_caps_lock = true
-show_keyboard_layout = true
-show_login_button = true
-show_media = true
-show_password_reveal = true
-show_session_buttons = true
-show_unlock_hint = true
-show_weather = true
+        [lockscreen_widgets.widget."lockscreen-login-box@eDP-1".settings]
+        background_color = "surface_container"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_password_reveal = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
 
 [notification]
 background_opacity = 0.59999998658895493
 border = false
-monitors = ["HDMI-A-1", "eDP-1"]
+monitors = [ "HDMI-A-1", "eDP-1" ]
 
 [osd]
 background_opacity = 0.59999998658895493
 border = false
-monitors = ["DP-1", "eDP-1"]
+monitors = [ "DP-1", "eDP-1" ]
 offset_y = 40
 
 [plugin_settings."alexander/game-launcher"]
@@ -616,24 +612,24 @@ enabled = [
     "alexander/game-launcher",
     "dotnetrob/cat",
     "kenn/keybind-cheatsheet",
-    "icefish/phone-connect",
+    "icefish/phone-connect"
 ]
 
-[[plugins.source]]
-kind = "git"
-location = "https://github.com/noctalia-dev/official-plugins"
-name = "official"
+    [[plugins.source]]
+    kind = "git"
+    location = "https://github.com/noctalia-dev/official-plugins"
+    name = "official"
 
-[[plugins.source]]
-kind = "git"
-location = "https://github.com/noctalia-dev/community-plugins"
-name = "community"
+    [[plugins.source]]
+    kind = "git"
+    location = "https://github.com/noctalia-dev/community-plugins"
+    name = "community"
 
-[[plugins.source]]
-enabled = false
-kind = "path"
-location = "~/git/community-plugins"
-name = "community-plugins-fork"
+    [[plugins.source]]
+    enabled = false
+    kind = "path"
+    location = "~/git/community-plugins"
+    name = "community-plugins-fork"
 
 [shell]
 app_icon_color = "secondary"
@@ -643,72 +639,72 @@ corner_radius_scale = 0.0
 input_borders = false
 password_style = "random"
 
-[shell.animation]
-speed = 1.5000000223517418
+    [shell.animation]
+    speed = 1.5000000223517418
 
-[shell.greeter_sync]
-auto_sync = true
+    [shell.greeter_sync]
+    auto_sync = true
 
-[shell.keyboard_layout.custom_labels]
-"English (US, intl., with dead keys)" = "en"
-German = "de"
+    [shell.keyboard_layout.custom_labels]
+    "English (US, intl., with dead keys)" = "en"
+    German = "de"
 
-[shell.panel]
-borders = false
-clipboard_placement = "attached"
-floating_offset = 10
-polkit_placement = "attached"
-transparency_mode = "glass"
-wallpaper_placement = "attached"
+    [shell.panel]
+    borders = false
+    clipboard_placement = "attached"
+    floating_offset = 10
+    polkit_placement = "attached"
+    transparency_mode = "glass"
+    wallpaper_placement = "attached"
 
-[shell.screen_corners]
-enabled = true
-size = 15
+    [shell.screen_corners]
+    enabled = true
+    size = 15
 
-[shell.session]
-grid = true
+    [shell.session]
+    grid = true
 
-[shell.shadow]
-alpha = 0.29999999329447746
+    [shell.shadow]
+    alpha = 0.29999999329447746
 
 [theme]
 builtin = "Gruvbox"
 
-[theme.templates]
-enable_builtin_templates = false
-enable_community_templates = false
+    [theme.templates]
+    enable_builtin_templates = false
+    enable_community_templates = false
 
 [wallpaper]
 directory = "/home/jadee/Pictures/Wallpapers"
 transition_on_startup = true
 
-[wallpaper.automation]
-enabled = true
-interval_seconds = 600
+    [wallpaper.automation]
+    enabled = true
+    interval_seconds = 600
 
-[wallpaper.default]
-path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Stugunøset_at_Filefjell_-_Google_Art_Project.jpg"
+    [wallpaper.default]
+    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
 
-[wallpaper.last]
-path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Stugunøset_at_Filefjell_-_Google_Art_Project.jpg"
+    [wallpaper.last]
+    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
 
-[wallpaper.monitors.DP-1]
-path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
+    [wallpaper.monitors.DP-1]
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
 
-[wallpaper.monitors.DP-2]
-path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Stugunøset_at_Filefjell_-_Google_Art_Project.jpg"
+    [wallpaper.monitors.DP-2]
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Stugunøset_at_Filefjell_-_Google_Art_Project.jpg"
 
-[wallpaper.monitors.DP-3]
-path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
+    [wallpaper.monitors.DP-3]
+    path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
 
-[wallpaper.monitors.HDMI-A-1]
-path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
+    [wallpaper.monitors.HDMI-A-1]
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
 
-[wallpaper.monitors.HDMI-A-2]
-path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Stugunøset_at_Filefjell_-_Google_Art_Project.jpg"
+    [wallpaper.monitors.HDMI-A-2]
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Stugunøset_at_Filefjell_-_Google_Art_Project.jpg"
 
-[wallpaper.monitors.eDP-1]
-path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Late_Afternoon_Onderdonk_2000x1409.jpg"
+    [wallpaper.monitors.eDP-1]
+    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
 
 [widget.active_window]
 anchor = true
@@ -813,7 +809,7 @@ visualization = "graph"
 drawer = true
 drawer_columns = 5
 drawer_item_size = 20.0
-hidden = ["Network"]
+hidden = [ "Network" ]
 
 [widget.volume]
 mute_color = "secondary"
