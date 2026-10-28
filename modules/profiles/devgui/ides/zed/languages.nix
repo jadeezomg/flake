@@ -169,6 +169,22 @@ in
           settings = { };
         };
 
+        # taplo (`toml` extension) formats TOML on save. Its defaults remove
+        # all indentation. These options match the layout that toml++ writes,
+        # for example Noctalia's settings: sub-tables indented under the parent
+        # table and spaces inside array brackets. A project `.taplo.toml`
+        # overrides them. Zed sends `settings` to taplo whole, so `formatter`
+        # sits at the top level with camelCase keys.
+        taplo.settings.formatter = {
+          indentTables = true;
+          indentString = "    ";
+          compactArrays = false;
+          arrayTrailingComma = false;
+          # toml++ breaks an array into lines at about 120 columns of
+          # content. Taplo counts the full line, key included.
+          columnWidth = 130;
+        };
+
         # Pin VSCodium-extracted servers from pkgs (avoid stale 4.x on PATH / in Zed).
         "json-language-server" = vscodeLangServer "vscode-json-language-server";
         "html-language-server" = vscodeLangServer "vscode-html-language-server";
