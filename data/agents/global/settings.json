@@ -104,7 +104,8 @@
 		"caya-mailroom-api@caya": true,
 		"simple-english@simple-english": true,
 		"typescript-lsp@claude-plugins-official": true,
-		"caya-customer-ops@caya": true
+		"caya-customer-ops@caya": true,
+		"ponytail@ponytail": true
 	},
 	"extraKnownMarketplaces": {
 		"caya": {
@@ -152,6 +153,7 @@
 	"editorMode": "normal",
 	"preferredNotifChannel": "kitty",
 	"autoCompactEnabled": true,
+	"idleCompaction": false,
 	"cleanupPeriodDays": 120,
 	"switchModelsOnFlag": false,
 	"showTurnDuration": true,

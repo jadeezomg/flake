@@ -14,7 +14,7 @@ Use this skill for agent-facing files: `.agents/skills/`, `data/agents/**` (incl
 - Project-only skills for this repo live in `.agents/skills/<name>/SKILL.md`.
 - `.claude/skills` is a symlink to `../.agents/skills`. The `linkFlakeProjectSkills` activation step in `apm.nix` creates it on switch.
 - Global-install skills that you author live in `data/agents/skills/local/<name>/`.
-- Upstream global skills are Claude Code plugins. `data/agents/global/settings.json` names the marketplace under `extraKnownMarketplaces` and turns the plugin on under `enabledPlugins` (`mattpocock-skills@mattpocock`, `ponytail@ponytail`, `simple-english@simple-english`). Claude Code installs them on start into `~/.claude/plugins`. They are not flake inputs and are not vendored in this repo.
+- Upstream global skills are Claude Code plugins. `data/agents/global/settings.json` names the marketplace under `extraKnownMarketplaces` and turns the plugin on under `enabledPlugins` (`ponytail@ponytail`, `simple-english@simple-english`). Claude Code installs them on start into `~/.claude/plugins`. They are not flake inputs and are not vendored in this repo.
 - Plugins are visible to Claude Code only. APM deploys only the two local skills into `~/.claude/skills`, which omp and Zed's ACP agents also read.
 - Never edit installed copies under `~/.claude/skills/`. APM overwrites them on switch.
 
