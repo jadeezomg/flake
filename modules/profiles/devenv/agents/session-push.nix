@@ -8,10 +8,6 @@
 # key, so the key can only write into this host's folder. The push never
 # deletes: a session that an agent removes here stays in the archive.
 #
-# SQLite stores go through `sqlite3 .backup` into a staging folder first. A copy
-# of the live file and its WAL can be corrupt. The snapshot then leaves WAL mode,
-# because agentsview opens it read-only and cannot read a WAL database that way.
-#
 # FIRST RUN (once per host):
 #   1. Switch this host. Activation makes ~/.ssh/agent_push_ed25519 if it is
 #      missing.
@@ -33,7 +29,6 @@ let
   inherit (dotfilesLib.hostFacts) mini;
   home = config.home.homeDirectory;
   keyFile = "${home}/.ssh/agent_push_ed25519";
-  stageDir = "${config.xdg.cacheHome}/agent-session-push";
 
   ssh = lib.concatStringsSep " " [
     "ssh"
@@ -57,24 +52,11 @@ let
         src.exclude or [ ]
       );
     in
-    if src ? sqlite then
-      ''
-        if [[ -f ${lib.escapeShellArg "${dir}/${src.sqlite}"} ]]; then
-          mkdir -p ${lib.escapeShellArg "${stageDir}/${name}"}
-          sqlite3 ${lib.escapeShellArg "${dir}/${src.sqlite}"} \
-            ".backup '${stageDir}/${name}/${src.sqlite}'" \
-            && sqlite3 ${lib.escapeShellArg "${stageDir}/${name}/${src.sqlite}"} \
-              "PRAGMA journal_mode=DELETE;" >/dev/null \
-            && send ${lib.escapeShellArg "${stageDir}/${name}"} ${name} \
-            || failed+=(${name})
-        fi
-      ''
-    else
-      ''
-        if [[ -d ${lib.escapeShellArg dir} ]]; then
-          send ${lib.escapeShellArg dir} ${name} ${excludes} || failed+=(${name})
-        fi
-      '';
+    ''
+      if [[ -d ${lib.escapeShellArg dir} ]]; then
+        send ${lib.escapeShellArg dir} ${name} ${excludes} || failed+=(${name})
+      fi
+    '';
 
   push = pkgs.writeShellApplication {
     name = "agent-session-push";
@@ -82,7 +64,6 @@ let
       coreutils
       openssh
       rsync
-      sqlite
     ];
     text = ''
       failed=()

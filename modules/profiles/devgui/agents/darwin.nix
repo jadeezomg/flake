@@ -1,7 +1,5 @@
-# Darwin-only leaf of devgui.agents. openwork ships as an Electron app with no
-# nixpkgs package, so it comes from the autobumped homebrew/cask instead of a
-# hash-pinned local package. The openwork MCP endpoint that the app pairs with
-# is registered by APM (modules/profiles/devenv/agents/apm.nix).
+# Darwin-only leaf of devgui.agents: Zed's Delta as a Homebrew cask. Linux gets
+# it from the delta-nix input (devgui/ides).
 { dotfilesLib, lib, ... }@args:
 dotfilesLib.mkProfile {
   path = [ "devgui" ];
@@ -10,9 +8,6 @@ dotfilesLib.mkProfile {
     # devgui alone still turns homebrew on for a darwin host without work.
     enable = lib.mkDefault true;
 
-    casks = [
-      "openwork" # Open-source desktop agent workspace (powered by opencode)
-      "zed-delta" # Zed's Delta; Linux gets it from the delta-nix input (devgui/ides)
-    ];
+    casks = [ "zed-delta" ];
   };
 } args

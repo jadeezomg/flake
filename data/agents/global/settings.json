@@ -28,6 +28,7 @@
 			"Read(//run/current-system/**)",
 			"Read(//tmp/**)",
 			"Bash(agent *)",
+			"Bash(agent-review *)",
 			"Bash(claude mcp *)",
 			"Bash(ctx7 *)",
 			"Bash(nono *)",
@@ -119,13 +120,6 @@
 			"source": {
 				"source": "github",
 				"repo": "AminBlg/SimpleEnglish"
-			},
-			"autoUpdate": true
-		},
-		"mattpocock": {
-			"source": {
-				"source": "github",
-				"repo": "mattpocock/skills"
 			},
 			"autoUpdate": true
 		},

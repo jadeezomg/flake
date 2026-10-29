@@ -79,6 +79,8 @@ commands:
   enableOpencodeUser: false
   enableOpencodeProject: false
   enableClaudeUser: true
+enabledProviders:
+  - claude-plugins
 secrets:
   enabled: true
 providers:
