@@ -256,7 +256,7 @@ order = [ "default", "side", "laptop" ]
 warning_threshold = 15
 
 [control_center]
-hidden_tabs = [  ]
+hidden_tabs = []
 
     [control_center.calendar]
     show_week_numbers = true
@@ -683,10 +683,10 @@ transition_on_startup = true
     interval_seconds = 600
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Late_Afternoon_Onderdonk_2000x1409.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Late_Afternoon_Onderdonk_2000x1409.jpg"
 
     [wallpaper.monitors.DP-1]
     path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
@@ -704,7 +704,7 @@ transition_on_startup = true
     path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Stugunøset_at_Filefjell_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Late_Afternoon_Onderdonk_2000x1409.jpg"
 
 [widget.active_window]
 anchor = true
