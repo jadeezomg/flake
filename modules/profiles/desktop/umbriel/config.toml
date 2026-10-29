@@ -4,14 +4,14 @@
 # graphical-session.target, which starts the shell unit (gnome/home.nix).
 
 [include]
-files = ["window-rules.toml", "keybinds.toml"]
+files = [ "window-rules.toml", "keybinds.toml" ]
 
-# shell.toml holds the shell binds and rules, host.toml the outputs.
-# noctalia.toml holds the colors that the Noctalia Umbriel template writes.
-# Keep "noctalia.toml" as the last entry: if it is not, the Noctalia template
-# rewrites this file.
-[include.optional]
-files = ["shell.toml", "host.toml", "noctalia.toml"]
+    # shell.toml holds the shell binds and rules, host.toml the outputs.
+    # noctalia.toml holds the colors that the Noctalia Umbriel template writes.
+    # Keep "noctalia.toml" as the last entry: if it is not, the Noctalia template
+    # rewrites this file.
+    [include.optional]
+    files = [ "shell.toml", "host.toml", "noctalia.toml" ]
 
 # X11 apps see each output at its physical size, so games render sharp on
 # scaled outputs instead of being upscaled. Toolkits that read XSETTINGS
@@ -48,42 +48,42 @@ follows_mouse_max_scroll = 0.0
 [layout]
 gap = 10
 
-# A strip that does not fill the screen starts at the left edge (the top edge
-# on a vertical strip), like niri. Umbriel centers it by default.
-[layout.scrolling]
-center_underfull_strip = false
+    # A strip that does not fill the screen starts at the left edge (the top edge
+    # on a vertical strip), like niri. Umbriel centers it by default.
+    [layout.scrolling]
+    center_underfull_strip = false
 
 [appearance]
 prefer_no_csd = true
 # niri focus-ring width
 border_width = 3
 
-# niri shadow {}. Umbriel has no spread.
-[appearance.shadow]
-enabled = true
-softness = 30
-offset_x = 0
-offset_y = 5
+    # niri shadow {}. Umbriel has no spread.
+    [appearance.shadow]
+    enabled = true
+    softness = 30
+    offset_x = 0
+    offset_y = 5
 
-# niri blur {}. niri has no brightness or contrast step, so both stay neutral.
-[appearance.blur]
-enabled = true
-passes = 3
-radius = 3
-noise = 0.02
-saturation = 1.5
-brightness = 1.0
-contrast = 1.0
+    # niri blur {}. niri has no brightness or contrast step, so both stay neutral.
+    [appearance.blur]
+    enabled = true
+    passes = 3
+    radius = 3
+    noise = 0.02
+    saturation = 1.5
+    brightness = 1.0
+    contrast = 1.0
 
 # niri focus-ring and shadow colors. This file loads last, so these values win
 # over noctalia.toml.
 [colors]
 shadow = "#00000080"
 
-# The active window gets the brown palette background (bg-primary #372725),
-# fully opaque. The host file sets the unfocused color.
-[colors.border]
-focused = "#372725ff"
+    # The active window gets the brown palette background (bg-primary #372725),
+    # fully opaque. The host file sets the unfocused color.
+    [colors.border]
+    focused = "#372725ff"
 
 # niri hot-corners top-right. Umbriel hot corners apply to every output.
 [hot_corners.top_right]

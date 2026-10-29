@@ -9,11 +9,11 @@ unfocused = "#110c0bff"
 
 # Window sizes in thirds (Mod+R)
 [layout]
-extent_presets = [0.33333, 0.5, 0.66667]
+extent_presets = [ 0.33333, 0.5, 0.66667 ]
 
 [output.eDP-1]
 mode = "2880x1920@120"
 scale = 1.4
-position = [1440, 0]
+position = [ 1440, 0 ]
 vrr = "always"
 focus_at_startup = true
