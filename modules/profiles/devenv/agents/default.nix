@@ -10,6 +10,8 @@
 }@args:
 dotfilesLib.mkProfile {
   path = [ "devenv" ];
+  # A leaf of its own: it also has a darwin-only system part.
+  imports = [ ./retired-cleanup.nix ];
   hm = [
     ./agent-review.nix
     ./apm.nix
@@ -19,7 +21,6 @@ dotfilesLib.mkProfile {
     ./nono-agent.nix
     ./nono-profiles.nix
     ./pi-packages.nix
-    ./retired-cleanup.nix
     ./session-push.nix
     ./tuicr.nix
   ];
