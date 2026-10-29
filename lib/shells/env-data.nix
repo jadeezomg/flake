@@ -8,6 +8,8 @@
     PAGER = "bat";
     LC_ALL = "en_US.UTF-8";
     LANG = "en_US.UTF-8";
+    # terminal-browser sends usage and crash events to PostHog without it.
+    TERMINAL_BROWSER_NO_TELEMETRY = "1";
   };
 
   # System overlay. Gated on dotfiles.profiles.essentials.enable. Hosts get

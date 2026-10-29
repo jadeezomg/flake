@@ -7,7 +7,6 @@
 #
 #   path     the folder to send, in the agent's own layout
 #   parser   the agentsview parser name for that folder
-#   sqlite   send only a `.backup` snapshot of this database file
 #   exclude  rsync exclude patterns
 {
   claude = {
@@ -27,11 +26,6 @@
   codex = {
     path = ".codex/sessions";
     parser = "codex";
-  };
-  opencode = {
-    path = ".local/share/opencode";
-    parser = "opencode";
-    sqlite = "opencode.db";
   };
   dsh = {
     path = ".dsh/sessions";

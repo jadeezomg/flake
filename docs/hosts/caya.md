@@ -59,4 +59,3 @@ All git repos live at `~/git/<repo>`, the flake included (D9 in [session-managem
 ## 2. What caya does not get
 
 - **No agent session push.** `modules/profiles/devenv/agents/session-push.nix` is Linux only, and work sessions stay off mini (D1). caya has no `agentPushKey`.
-- **tuios from Homebrew, not Nix.** nixpkgs has 0.10.1 with GHSA-78rj-pghh-vh42. The Nix 0.11.0 comes from an overlay that no cache builds for aarch64-darwin. See `modules/profiles/devenv/agents/darwin.nix`.
