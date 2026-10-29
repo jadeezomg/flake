@@ -50,10 +50,40 @@ let
     lib.filterAttrs (_name: type: type == "directory") (builtins.readDir localSkillsDir)
   );
 
+  tuicr = pkgs.llm-agents.tuicr;
+
+  # tuicr's herdr launcher types `bash -c '<script>'` into the new pane and
+  # escapes each ' in the script as '\''. nu, the pane shell here, has no such
+  # escape, so the end marker never reaches the pane and the launcher waits
+  # forever. The patch writes the script to a file and types `bash <file>`,
+  # which every shell parses the same way. The script deletes its own file.
+  tuicrSkill =
+    (dotfilesLib.expiry { inherit lib; } "modules/profiles/devenv/agents/apm.nix").recheckWhen
+      {
+        stale = lib.versionAtLeast tuicr.version "0.31";
+        reason = "tuicr reached 0.31 (nu patch written for 0.28.0); check whether skills/tuicr/tuicr-wrapper-herdr.sh still types `bash -c '...'` into the pane, and drop tuicrSkill's patch if the launcher works in nu.";
+      }
+      (
+        pkgs.runCommand "tuicr-skill-${tuicr.version}" { } ''
+          cp -r ${tuicr}/share/skills/tuicr/tuicr $out
+          chmod -R u+w $out
+          substituteInPlace $out/tuicr-wrapper-herdr.sh --replace-fail \
+            ${lib.escapeShellArg ''pane_command="bash -c '$escaped_inner_script'"''} \
+            ${lib.escapeShellArg (
+              lib.concatStringsSep "\n  " [
+                "script_file=$(mktemp /tmp/tuicr-run.XXXXXX)"
+                ''printf '%s\n' 'rm -f -- "$0"' "$inner_script" >"$script_file"''
+                ''pane_command="bash $script_file"''
+              ]
+            )}
+        ''
+      );
+
   # Skills that ship inside a Nix package. APM deploys them like the local
   # skills, and deploys them again when the package changes.
   packageSkills = {
     terminal-browser = "${pkgs.llm-agents.terminal-browser}/lib/terminal-browser/skills/default/terminal-browser";
+    tuicr = "${tuicrSkill}";
   };
 
   # Name → store path of each skill that APM copies to both targets.

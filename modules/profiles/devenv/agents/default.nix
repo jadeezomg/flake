@@ -1,6 +1,6 @@
 # Agents feature folder — agent CLI packages (system half) plus the HM halves:
 # the agent-review command (./agent-review.nix), global config links, herdr
-# plugins (./herdr-plugins.nix), nono profiles, pi/omp package state, the
+# configuration and plugins (./herdr-config.nix, ./herdr-plugins.nix), nono profiles, pi/omp package state, the
 # cleanup of retired tools (./retired-cleanup.nix), and the session push to
 # mini (./session-push.nix). Skills and MCP registration belong to APM (./apm.nix);
 # nono profile data lives in `dotfilesLib.nonoProfiles`.
@@ -17,6 +17,7 @@ dotfilesLib.mkProfile {
     ./apm.nix
     ./dsh.nix
     ./global-config.nix
+    ./herdr-config.nix
     ./herdr-plugins.nix
     ./nono-agent.nix
     ./nono-profiles.nix

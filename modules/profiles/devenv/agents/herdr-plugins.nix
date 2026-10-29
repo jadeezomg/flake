@@ -61,7 +61,6 @@ let
   '';
 
   plugins = [
-    "${pkgs.herdr-sidebar}/share/herdr/plugins/herdr-sidebar"
     "${terminalBrowserPlugin}"
   ];
 in
