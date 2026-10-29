@@ -107,6 +107,7 @@ A mod is a Claude Code plugin of function hooks: a pane, a command, or a hook on
 - `apm.nix`: skills and MCP (above).
 - `global-config.nix`: live symlinks for global config (above).
 - `retired-cleanup.nix`: one-time steps that remove what a retired tool left on each host (opencode state folders, the openwork MCP entries and cask, the global mattpocock-skills plugin). It is a profile leaf with a Home Manager part and a darwin `preActivation` part, because the cask zap must run before `brew bundle`. Each step does nothing once its target is gone. A `todo` warns on every evaluation until you delete the file, after every host has switched once.
+- `herdr-config.nix`: owns `~/.config/herdr/config.toml` as a read-only file, including the Caps prefix chords for Linux and macOS. herdr cannot save settings from its UI, so change the values in the module.
 - `herdr-plugins.nix`: links herdr plugin folders from flake packages (`share/herdr/plugins/<id>`) with `herdr plugin link` on switch. It unlinks a store-path plugin that left the list. herdr writes its registry (`~/.config/herdr/plugins.json`) itself, so the flake cannot own that file. Hand-linked and `herdr plugin install` plugins stay as they are.
 - `nono-agent.nix` and `nono-profiles.nix`: nono dispatcher and profiles. Profile data lives in `lib/nono-profiles.nix`.
 - `pi-packages.nix`: declarative pi packages in `~/.pi/agent/settings.json`.

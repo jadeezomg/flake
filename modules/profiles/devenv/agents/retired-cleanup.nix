@@ -46,6 +46,13 @@ let
         ".cache/agent-session-push"
       ];
 
+      # The herdr-sidebar plugin left on 2026-10-30. ./herdr-plugins.nix
+      # unlinks it, but `herdr plugin unlink` keeps its config and state folders.
+      herdrSidebarDirs = map (dir: "${home}/${dir}") [
+        ".config/herdr/plugins/config/herdr-sidebar"
+        ".local/state/herdr/plugins/herdr-sidebar"
+      ];
+
       trash =
         if pkgs.stdenv.hostPlatform.isDarwin then
           ''mv "$d" "${home}/.Trash/$(basename "$d")-$(date +%s)"''
@@ -73,7 +80,7 @@ let
     in
     {
       home.activation.retiredCleanup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        for d in ${lib.escapeShellArgs opencodeDirs}; do
+        for d in ${lib.escapeShellArgs (opencodeDirs ++ herdrSidebarDirs)}; do
           if [ -e "$d" ]; then
             $DRY_RUN_CMD ${trash} || echo "cleanup: could not move $d to the trash"
           fi
