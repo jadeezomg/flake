@@ -32,6 +32,34 @@ ssh:
 reboot:
     ssh {{mini_ssh}} 'bash -lc "sudo systemctl reboot"'
 
+# The groups name the services to watch. FAILED lists every failed unit on the
+# host, so a service that is missing from the groups still shows when it fails.
+[doc('State of every mini service by group, then all failed units')]
+status:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ssh {{mini_ssh}} 'bash -s' <<'EOF'
+    group() {
+        printf '\n━━ %s ━━\n' "$1"
+        shift
+        local u s m
+        for u in "$@"; do
+            s=$(systemctl is-active "$u" || true)
+            [[ $s == active ]] && m='▲' || m='▼'
+            printf '  %s %-26s %s\n' "$m" "$u" "$s"
+        done
+    }
+    group CORE caddy tailscaled sshd nix-daemon
+    group MONITORING ntfy-sh beszel-hub beszel-agent grafana tempo homepage-dashboard
+    group VPN/DOWNLOADERS wg qbittorrent qbittorrent-port-forward sabnzbd
+    group ARR sonarr radarr lidarr prowlarr flaresolverr bazarr unpackerr
+    group MEDIA plex jellyfin seerr media-prefetch cachefilesd
+    group IMMICH immich-server immich-machine-learning postgresql redis-immich
+    group AGENTS/CHAT hermes-agent hermes-dashboard open-webui llama-cpp agentsview continuwuity atuin
+    printf '\n━━ FAILED ━━\n'
+    systemctl --failed --no-pager --plain --no-legend | grep . || echo '  none'
+    EOF
+
 [doc('Reconcile Cloudflare DNS A records with the mini Caddy vhosts (create if missing). Runs locally.')]
 dns-sync:
     bash "$FLAKE/scripts/shell/dns-sync.bash"

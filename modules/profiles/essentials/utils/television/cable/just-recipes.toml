@@ -7,12 +7,10 @@
 [metadata]
 name = "just-recipes"
 description = "Select recipes from a Justfile"
-requirements = ["just", "bash"]
+requirements = [ "just", "bash" ]
 
 [source]
-command = [
-  "bash -lc 'bash \"${FLAKE}/scripts/shell/just-recipes.bash\" \"${FLAKE}\"'",
-]
+command = [ "bash -lc 'bash \"${FLAKE}/scripts/shell/just-recipes.bash\" \"${FLAKE}\"'" ]
 no_sort = true
 frecency = false
 
@@ -25,18 +23,18 @@ input_bar_position = "bottom"
 input_header = "Just · Enter/F5 = run recipe · Tab = multi-select"
 input_prompt = "recipe › "
 
-[ui.preview_panel]
-size = 46
-border_type = "rounded"
+    [ui.preview_panel]
+    size = 46
+    border_type = "rounded"
 
-[ui.results_panel]
-border_type = "rounded"
+    [ui.results_panel]
+    border_type = "rounded"
 
-[ui.input_bar]
-border_type = "rounded"
+    [ui.input_bar]
+    border_type = "rounded"
 
-[ui.remote_control]
-disabled = true
+    [ui.remote_control]
+    disabled = true
 
 [keybindings]
 enter = "actions:execute-recipe"
