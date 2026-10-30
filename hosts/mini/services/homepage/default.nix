@@ -283,7 +283,7 @@ let
             };
           }
         )
-        ++ lib.optional (host.miniLlmHosting or false) (
+        ++ lib.optional config.services.open-webui.enable (
           tile "Open WebUI" {
             href = "https://chat.jadee.fyi";
             icon = "open-webui.svg";
