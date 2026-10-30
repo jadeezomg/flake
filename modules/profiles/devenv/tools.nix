@@ -29,6 +29,7 @@ dotfilesLib.mkProfile {
 
       # --- Docs ---
       glow
+      mmdr
 
       # --- Task runners ---
       just
