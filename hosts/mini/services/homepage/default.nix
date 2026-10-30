@@ -209,10 +209,12 @@ let
               ++ [
                 # Homepage fetches iCal feeds on the server and removes the
                 # URL (and so the key) from what the browser gets.
+                # unmonitored=true: Lidarr monitors nothing, and Homepage shows
+                # an error for a feed with no events.
                 {
                   type = "ical";
                   name = "Lidarr";
-                  url = local 8686 "/feed/v1/calendar/Lidarr.ics?apikey=${secret "lidarr"}";
+                  url = local 8686 "/feed/v1/calendar/Lidarr.ics?apikey=${secret "lidarr"}&unmonitored=true";
                   color = "green";
                 }
               ];
