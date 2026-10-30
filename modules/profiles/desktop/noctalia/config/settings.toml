@@ -4,253 +4,253 @@ config_version = 15
 enabled = true
 
 [bar]
-order = ["default", "side", "laptop"]
+order = [ "default", "side", "laptop" ]
 
-[bar.default]
-background_opacity = 0.80000000000000004
-border = "on_secondary"
-border_width = 3.0
-capsule_radius = 0
-capsule_thickness = 0.69999999999999996
-center = ["group:g3"]
-enabled = false
-end = ["tray", "group:g6", "group:g5"]
-margin_edge = 3
-margin_ends = 1700
-margin_opposite_edge = 5
-padding = 20
-radius = 0
-reserve_space = false
-show_on_workspace_switch = false
-start = ["status", "group:g1"]
-thickness = 25
+    [bar.default]
+    background_opacity = 0.80000000000000004
+    border = "on_secondary"
+    border_width = 3.0
+    capsule_radius = 0
+    capsule_thickness = 0.69999999999999996
+    center = [ "group:g3" ]
+    enabled = false
+    end = [ "tray", "group:g6", "group:g5" ]
+    margin_edge = 3
+    margin_ends = 1700
+    margin_opposite_edge = 5
+    padding = 20
+    radius = 0
+    reserve_space = false
+    show_on_workspace_switch = false
+    start = [ "status", "group:g1" ]
+    thickness = 25
 
-[bar.default.monitor.DP-1]
-enabled = true
-margin_ends = 1700
+        [bar.default.monitor.DP-1]
+        enabled = true
+        margin_ends = 1700
 
-[bar.default.monitor.DP-2]
-enabled = true
+        [bar.default.monitor.DP-2]
+        enabled = true
 
-[[bar.default.capsule_group]]
-accordion = false
-accordion_direction = "end"
-border = ""
-border_width = 1.0
-enabled = true
-fill = "on_primary"
-id = "g1"
-members = ["clipboard", "recorder", "screenshot", "launcher_2", "privacy"]
-opacity = 0.60000002384185791
-padding = 6.0
+        [[bar.default.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        border = ""
+        border_width = 1.0
+        enabled = true
+        fill = "on_primary"
+        id = "g1"
+        members = [ "clipboard", "recorder", "screenshot", "launcher_2", "privacy" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
 
-[[bar.default.capsule_group]]
-accordion = false
-accordion_direction = "end"
-border_width = 1.0
-enabled = true
-fill = "surface_variant"
-id = "g3"
-members = ["active_window"]
-opacity = 1.0
-padding = 6.0
-radius = 0.0
+        [[bar.default.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        border_width = 1.0
+        enabled = true
+        fill = "surface_container"
+        id = "g3"
+        members = [ "active_window" ]
+        opacity = 1.0
+        padding = 6.0
+        radius = 0.0
 
-[[bar.default.capsule_group]]
-accordion = false
-accordion_direction = "end"
-border_width = 1.0
-enabled = true
-fill = "surface_variant"
-id = "g5"
-members = ["control-center", "bar_5", "clock"]
-opacity = 1.0
-padding = 6.0
-radius = 0.0
+        [[bar.default.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        border_width = 1.0
+        enabled = true
+        fill = "surface_container"
+        id = "g5"
+        members = [ "control-center", "bar_5", "clock" ]
+        opacity = 1.0
+        padding = 6.0
+        radius = 0.0
 
-[[bar.default.capsule_group]]
-accordion = true
-accordion_direction = "start"
-border_width = 1.0
-enabled = true
-fill = "surface_variant"
-id = "g6"
-members = ["notifications", "network", "volume"]
-opacity = 1.0
-padding = 6.0
-radius = 0.0
+        [[bar.default.capsule_group]]
+        accordion = true
+        accordion_direction = "start"
+        border_width = 1.0
+        enabled = true
+        fill = "surface_container"
+        id = "g6"
+        members = [ "notifications", "network", "volume" ]
+        opacity = 1.0
+        padding = 6.0
+        radius = 0.0
 
-[bar.laptop]
-background_opacity = 0.80000000000000004
-border = "on_secondary"
-border_width = 3.0
-capsule_radius = 0
-capsule_thickness = 0.69999999999999996
-center = ["active_window"]
-enabled = false
-end = ["tray", "group:g3", "group:g7"]
-margin_edge = 3
-margin_ends = 600
-padding = 20
-radius = 0
-reserve_space = true
-show_on_workspace_switch = false
-start = ["status_2", "group:g1", "group:g6", "media"]
-thickness = 25
+    [bar.laptop]
+    background_opacity = 0.80000000000000004
+    border = "on_secondary"
+    border_width = 3.0
+    capsule_radius = 0
+    capsule_thickness = 0.69999999999999996
+    center = [ "active_window" ]
+    enabled = false
+    end = [ "tray", "group:g3", "group:g7" ]
+    margin_edge = 3
+    margin_ends = 600
+    padding = 20
+    radius = 0
+    reserve_space = true
+    show_on_workspace_switch = false
+    start = [ "status_2", "group:g1", "group:g6", "media" ]
+    thickness = 25
 
-[bar.laptop.monitor.eDP-1]
-enabled = true
+        [bar.laptop.monitor.eDP-1]
+        enabled = true
 
-[[bar.laptop.capsule_group]]
-accordion = true
-accordion_direction = "end"
-border = ""
-enabled = true
-fill = "on_primary"
-id = "g1"
-members = ["clipboard", "recorder", "screenshot", "privacy"]
-opacity = 0.60000002384185791
-padding = 6.0
+        [[bar.laptop.capsule_group]]
+        accordion = true
+        accordion_direction = "end"
+        border = ""
+        enabled = true
+        fill = "on_primary"
+        id = "g1"
+        members = [ "clipboard", "recorder", "screenshot", "privacy" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
 
-[[bar.laptop.capsule_group]]
-accordion = false
-accordion_direction = "end"
-enabled = true
-fill = "surface_variant"
-id = "g2"
-members = ["control-center", "notifications", "bar_2"]
-opacity = 0.60000002384185791
-padding = 6.0
-radius = 0.0
+        [[bar.laptop.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        enabled = true
+        fill = "surface_container"
+        id = "g2"
+        members = [ "control-center", "notifications", "bar_2" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 0.0
 
-[[bar.laptop.capsule_group]]
-accordion = false
-accordion_direction = "end"
-enabled = true
-fill = "surface_variant"
-id = "g4"
-members = ["weather", "clock"]
-opacity = 0.60000002384185791
-padding = 6.0
-radius = 0.0
+        [[bar.laptop.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        enabled = true
+        fill = "surface_container"
+        id = "g4"
+        members = [ "weather", "clock" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 0.0
 
-[[bar.laptop.capsule_group]]
-accordion = true
-accordion_direction = "start"
-enabled = true
-fill = "surface_variant"
-id = "g5"
-members = ["power_profile", "network", "bluetooth", "volume", "brightness"]
-opacity = 0.60000002384185791
-padding = 6.0
-radius = 0.0
+        [[bar.laptop.capsule_group]]
+        accordion = true
+        accordion_direction = "start"
+        enabled = true
+        fill = "surface_container"
+        id = "g5"
+        members = [ "power_profile", "network", "bluetooth", "volume", "brightness" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 0.0
 
-[[bar.laptop.capsule_group]]
-accordion = false
-accordion_direction = "end"
-enabled = true
-fill = "surface_variant"
-id = "g6"
-members = ["battery", "cpu"]
-opacity = 0.60000002384185791
-padding = 6.0
-radius = 0.0
+        [[bar.laptop.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        enabled = true
+        fill = "surface_container"
+        id = "g6"
+        members = [ "battery", "cpu" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 0.0
 
-[[bar.laptop.capsule_group]]
-accordion = true
-accordion_direction = "start"
-enabled = true
-fill = "surface_variant"
-id = "g3"
-members = ["notifications", "network", "bluetooth", "volume", "brightness"]
-opacity = 0.60000002384185791
-padding = 6.0
-radius = 0.0
+        [[bar.laptop.capsule_group]]
+        accordion = true
+        accordion_direction = "start"
+        enabled = true
+        fill = "surface_container"
+        id = "g3"
+        members = [ "notifications", "network", "bluetooth", "volume", "brightness" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 0.0
 
-[[bar.laptop.capsule_group]]
-accordion = false
-accordion_direction = "end"
-enabled = true
-fill = "surface_variant"
-id = "g7"
-members = ["control-center", "bar_4", "weather", "clock"]
-opacity = 0.60000002384185791
-padding = 6.0
-radius = 0.0
+        [[bar.laptop.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        enabled = true
+        fill = "surface_container"
+        id = "g7"
+        members = [ "control-center", "bar_4", "weather", "clock" ]
+        opacity = 0.60000002384185791
+        padding = 6.0
+        radius = 0.0
 
-[bar.side]
-background_opacity = 0.69999999999999996
-capsule_radius = 0
-capsule_thickness = 0.69999999999999996
-center = ["group:g4"]
-enabled = false
-end = ["group:g6", "group:g1"]
-margin_edge = 10
-margin_ends = 10
-padding = 6
-radius = 0
-start = ["group:g5", "group:g2", "group:g3"]
-thickness = 45
+    [bar.side]
+    background_opacity = 0.69999999999999996
+    capsule_radius = 0
+    capsule_thickness = 0.69999999999999996
+    center = [ "group:g4" ]
+    enabled = false
+    end = [ "group:g6", "group:g1" ]
+    margin_edge = 10
+    margin_ends = 10
+    padding = 6
+    radius = 0
+    start = [ "group:g5", "group:g2", "group:g3" ]
+    thickness = 45
 
-[bar.side.monitor.HDMI-A-1]
-enabled = true
+        [bar.side.monitor.HDMI-A-1]
+        enabled = true
 
-[bar.side.monitor.HDMI-A-2]
-enabled = true
+        [bar.side.monitor.HDMI-A-2]
+        enabled = true
 
-[[bar.side.capsule_group]]
-enabled = true
-fill = "surface_variant"
-id = "g2"
-members = ["network_tx", "network_rx"]
-opacity = 0.59999999999999998
-padding = 6.0
-radius = 0.0
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_container"
+        id = "g2"
+        members = [ "network_tx", "network_rx" ]
+        opacity = 0.59999999999999998
+        padding = 6.0
+        radius = 0.0
 
-[[bar.side.capsule_group]]
-enabled = true
-fill = "surface_variant"
-id = "g3"
-members = ["ram", "temp", "cat", "cpu"]
-opacity = 0.59999999999999998
-padding = 6.0
-radius = 0.0
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_container"
+        id = "g3"
+        members = [ "ram", "temp", "cat", "cpu" ]
+        opacity = 0.59999999999999998
+        padding = 6.0
+        radius = 0.0
 
-[[bar.side.capsule_group]]
-enabled = true
-fill = "surface_variant"
-id = "g1"
-members = ["clock", "date"]
-opacity = 0.59999999999999998
-padding = 6.0
-radius = 0.0
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_container"
+        id = "g1"
+        members = [ "clock", "date" ]
+        opacity = 0.59999999999999998
+        padding = 6.0
+        radius = 0.0
 
-[[bar.side.capsule_group]]
-enabled = true
-fill = "surface_variant"
-id = "g4"
-members = ["media", "audio_visualizer"]
-opacity = 0.59999999999999998
-padding = 6.0
-radius = 0.0
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_container"
+        id = "g4"
+        members = [ "media", "audio_visualizer" ]
+        opacity = 0.59999999999999998
+        padding = 6.0
+        radius = 0.0
 
-[[bar.side.capsule_group]]
-enabled = true
-fill = "surface_variant"
-id = "g5"
-members = ["keyboard_layout"]
-opacity = 0.59999999999999998
-padding = 6.0
-radius = 0.0
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_container"
+        id = "g5"
+        members = [ "keyboard_layout" ]
+        opacity = 0.59999999999999998
+        padding = 6.0
+        radius = 0.0
 
-[[bar.side.capsule_group]]
-enabled = true
-fill = "surface_variant"
-id = "g6"
-members = ["weather"]
-opacity = 0.59999999999999998
-padding = 6.0
-radius = 0.0
+        [[bar.side.capsule_group]]
+        enabled = true
+        fill = "surface_container"
+        id = "g6"
+        members = [ "weather" ]
+        opacity = 0.59999999999999998
+        padding = 6.0
+        radius = 0.0
 
 [battery.device."/org/freedesktop/UPower/devices/battery_hidpp_battery_0"]
 warning_threshold = 15
