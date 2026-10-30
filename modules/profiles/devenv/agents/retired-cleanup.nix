@@ -123,7 +123,9 @@ dotfilesLib.mkProfile {
       if [ -x "${config.homebrew.prefix}/bin/brew" ] \
         && ${brew} list --cask openwork >/dev/null 2>&1; then
         echo >&2 "cleanup: zapping the openwork cask..."
-        ${brew} uninstall --zap --cask openwork || echo >&2 "cleanup: could not zap openwork"
+        # --force: caya's app was gone from /Applications, but a copy stayed in
+        # the Caskroom, and without --force brew stops at that copy.
+        ${brew} uninstall --zap --force --cask openwork || echo >&2 "cleanup: could not zap openwork"
       fi
     '';
   };
