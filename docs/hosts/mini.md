@@ -125,6 +125,7 @@ Mini must be a recipient: `&mini` in `.sops.yaml` + `- *mini` under
 just mini deploy        # git pull --ff-only on mini + nh switch (switch-fast)
 just mini deploy-dry    # build only, no activation
 just mini deploy-boot   # stage for next reboot (kernel/bootloader)
+just mini status        # state of every service by group, then all failed units
 just mini pull / ssh / reboot / dns-sync
 just mini llm <cmd>     # LLM service ops (nested module)
 ```

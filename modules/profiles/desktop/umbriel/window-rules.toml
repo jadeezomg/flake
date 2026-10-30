@@ -12,7 +12,7 @@
 
 # Cursor and Zed IDE at full width
 [[window_rule]]
-match.app_id = ['^cursor$', '^dev\.zed\.Zed$']
+match.app_id = [ '^cursor$', '^dev\.zed\.Zed$' ]
 default_scrolling_extent = 1.0
 
 [[window_rule]]
@@ -22,7 +22,7 @@ default_floating_size = { width = 0.5, height = 0.8 }
 
 # GNOME Calculator and Whisp
 [[window_rule]]
-match.app_id = ['^org\.gnome\.Calculator$', '^io\.github\.tanaybhomia\.Whisp$']
+match.app_id = [ '^org\.gnome\.Calculator$', '^io\.github\.tanaybhomia\.Whisp$' ]
 default_floating = true
 default_floating_size_px = { width = 500, height = 700 }
 blur = true
@@ -45,11 +45,7 @@ default_position = { x = 10, y = 10, anchor = "top_right" }
 # Password managers and Bluetooth: float top-right. The app-id and the title
 # rule need separate entries, because match fields must all match.
 [[window_rule]]
-match.app_id = [
-    '^org\.keepassxc\.KeePassXC$',
-    '^org\.gnome\.World\.Secrets$',
-    'blueman-manager',
-]
+match.app_id = [ '^org\.keepassxc\.KeePassXC$', '^org\.gnome\.World\.Secrets$', 'blueman-manager' ]
 default_floating = true
 default_floating_size = { width = 0.3, height = 0.75 }
 default_position = { x = 100, y = 100, anchor = "top_right" }
@@ -92,7 +88,7 @@ match.app_id = [
     '^net\.trowell\.typesetter$',
     '^nm-connection-editor$',
     '^network\.cycles\.wdisplays$',
-    '^rygel-preferences$',
+    '^rygel-preferences$'
 ]
 blur = true
 blur_popups = true
@@ -112,12 +108,7 @@ blur = true
 
 # Terminal applications
 [[window_rule]]
-match.app_id = [
-    '^org\.wezfurlong\.wezterm$',
-    'ghostty',
-    'kitty',
-    'org\.gnome\.NautilusPreviewer',
-]
+match.app_id = [ '^org\.wezfurlong\.wezterm$', 'ghostty', 'kitty', 'org\.gnome\.NautilusPreviewer' ]
 default_scrolling_extent = 0.4
 
 [[window_rule]]
@@ -133,7 +124,7 @@ blur = true
 # later and won. These apps keep the global corner_radius from shell.toml.
 # GNOME apps and Ghostty get their blur from the GTK rule above.
 [[window_rule]]
-match.app_id = ['zen', 'dev\.zed\.Zed']
+match.app_id = [ 'zen', 'dev\.zed\.Zed' ]
 blur = true
 blur_popups = true
 
@@ -163,7 +154,7 @@ blur = true
 
 # Open DMS windows (quickshell) and Vicinae as floating
 [[window_rule]]
-match.app_id = ['org\.quickshell$', 'com\.danklinux\.dms', 'vicinae']
+match.app_id = [ 'org\.quickshell$', 'com\.danklinux\.dms', 'vicinae' ]
 default_floating = true
 blur_optimized = false
 

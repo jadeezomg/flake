@@ -29,8 +29,9 @@ For new nixpkgs names, run `nix search nixpkgs <name>` first; check [Hydra](http
 
 ```bash
 # build / switch
-just switch          # flake check → build → commit on success → activate; errors → clipboard
+just switch          # flake check → build → commit on success → quit apps (macOS) → activate; errors → clipboard
 just switch-fast     # nh switch only
+just quit-apps       # macOS: ask open apps to quit, never forced (--dry-run lists them)
 just switch-check    # nix flake check only
 just build-dry       # dry run (nh darwin build --dry / nh os test)
 just build-dev       # switch with --show-trace
@@ -53,7 +54,7 @@ just health          # git status, disk, nh os info
 | Group         | Recipes |
 | ------------- | ------- |
 | `build`       | `build`, `build-boot`, `build-dev`, `build-dry` |
-| `switch`      | `switch`, `switch-fast`, `switch-check` |
+| `switch`      | `switch`, `switch-fast`, `switch-check`, `quit-apps` |
 | `generations` | `generation-list`, `generation-switch`, `generation-delete`, `generation-bootloader` |
 | `gc`          | `gc` (= `gc-keep`), `gc-days`, `gc-all` |
 | `format`      | `fmt`, `fmt-notree`, `lint` |

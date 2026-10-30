@@ -93,7 +93,7 @@
       };
 
       devgui = {
-        enable = mkEnableOption "the devgui profile, the GUI side of devenv with the same category names: agents (openwork cask on darwin), containers (podman-desktop), databases (tabularis, a cask on darwin for now), ides (vscode, zed)";
+        enable = mkEnableOption "the devgui profile, the GUI side of devenv with the same category names: agents (Zed's Delta cask on darwin), containers (podman-desktop), databases (tabularis, a cask on darwin for now), ides (vscode, zed)";
       };
 
       llm = {

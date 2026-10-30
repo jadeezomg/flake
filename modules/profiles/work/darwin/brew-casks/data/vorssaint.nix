@@ -62,18 +62,29 @@
   };
   settings = {
     appVolumesArePositions = true;
+    audioPriorityDeviceNames = {
+      "AppleUSBAudioEngine:Unknown Manufacturer:Fosi Audio K5 Pro:1130000:2" = "Fosi Audio K5 Pro";
+      BuiltInSpeakerDevice = "MacBook Air Speakers";
+      "AppleUSBAudioEngine:Creative Technology Ltd:SB Katana V2:2EBE98C4D50695FC:4" =
+        "SB Katana V2 Speakers";
+      BuiltInMicrophoneDevice = "MacBook Air Microphone";
+      "AppleUSBAudioEngine:Unknown Manufacturer:Fosi Audio K5 Pro:1130000:1" = "Fosi Audio K5 Pro";
+      "10ACFDA2-0000-0000-2824-0104B55B2678" = "AW3926QW";
+      "1E6DBD5C-0000-0000-0623-0104B53C2278" = "LG ULTRAFINE";
+    };
     audioPriorityInputEnabled = true;
     audioPriorityInputUIDs = [
-      "BuiltInMicrophoneDevice"
       "AppleUSBAudioEngine:Unknown Manufacturer:Fosi Audio K5 Pro:1130000:2"
       "AppleUSBAudioEngine:Creative Technology Ltd:SB Katana V2:2EBE98C4D50695FC:5"
+      "BuiltInMicrophoneDevice"
     ];
     audioPriorityOutputEnabled = true;
     audioPriorityOutputUIDs = [
       "AppleUSBAudioEngine:Creative Technology Ltd:SB Katana V2:2EBE98C4D50695FC:4"
-      "BuiltInSpeakerDevice"
       "AppleUSBAudioEngine:Unknown Manufacturer:Fosi Audio K5 Pro:1130000:1"
+      "BuiltInSpeakerDevice"
       "10ACFDA2-0000-0000-2824-0104B55B2678"
+      "1E6DBD5C-0000-0000-0623-0104B53C2278"
     ];
     autoCheckUpdates = false;
     autoQuitEnabled = true;
@@ -94,7 +105,7 @@
     diskImageInstallerTrashesDownload = true;
     diskImageInstallerUseUserApplications = false;
     dockClickMinimize = true;
-    dockPreviewEnabled = true;
+    dockPreviewEnabled = false;
     dockPreviewQuitAppOnClose = true;
     extraBrightnessEnabled = true;
     finderCutPasteEnabled = true;
@@ -112,8 +123,22 @@
     mediaLastTool = "videoCompressor";
     mediaVideoEnd = 0.0;
     mediaVideoStart = 0.0;
-    menuBarHideIconWithMetrics = false;
-    menuBarMetricAppearance = "values";
+    menuBarCPU = true;
+    menuBarDiskActivity = false;
+    menuBarDiskStyle = "free";
+    menuBarDiskUsage = true;
+    menuBarGPU = true;
+    menuBarHideIconWithMetrics = true;
+    menuBarMemory = true;
+    menuBarMemoryStyle = "both";
+    menuBarMetricAppearance = "bars";
+    menuBarMetricSpacing = "compact";
+    menuBarSeparateMetrics = false;
+    menuBarUsageBarCriticalColor = "#FF453A";
+    menuBarUsageBarElevatedColor = "#FFD60A";
+    menuBarUsageBarHighThreshold = 90;
+    menuBarUsageBarMediumThreshold = 70;
+    menuBarUsageBarNormalColor = "#64D2FF";
     micMuteShortcut = "control+option+shift+command:46";
     micMuteShortcutEnabled = true;
     middleClickEnabled = true;
@@ -121,6 +146,13 @@
     middleClickTapFingers = 3;
     minimalWindowPreviews = false;
     mixerHeadphonesDisconnectSilenceAllowed = true;
+    monitorAlertBatteryPercent = 15;
+    monitorAlertBatteryTemperatureThreshold = 40;
+    monitorAlertCPUTemperatureThreshold = 90;
+    monitorAlertCPUThreshold = 90;
+    monitorAlertCooldownMinutes = 15;
+    monitorAlertDisk = true;
+    monitorAlertDiskFreePercent = 10;
     monitorIntervalSeconds = 2;
     monitorMemoryMetric = "used";
     monitorPwrPeripherals = false;
@@ -131,7 +163,12 @@
     notchAgentsCodex = true;
     notchAgentsCopilot = false;
     notchAgentsEnabled = true;
+    notchAgentsHiddenCards = "spend";
+    notchAgentsLimitDisplay = "used";
+    notchAgentsLimitFocus = "session";
     notchAgentsOpenCode = false;
+    notchAgentsPriceUpdates = false;
+    notchAgentsReadout = "elapsed";
     notchAppPanel = true;
     notchCalendarCountdown = true;
     notchCalendarExcluded = [
@@ -150,12 +187,14 @@
     notchDisplay = "all";
     notchDownloadsEnabled = true;
     notchEnabled = true;
+    notchHiddenControls = "commandBar,keyboardLight,microphone,panel,recording,scratchpad,screenshot,speedTest,timer";
     notchHiddenModules = "music";
     notchHideUntilHover = false;
     notchHidesMenuBarIcon = false;
     notchHoverDelay = 0.1;
     notchHoverExpands = true;
     notchIdleContent = "battery";
+    notchInputSource = true;
     notchKeyboardLight = true;
     notchKeyboardLightControlHidden = true;
     notchLiquidGlassEnabled = true;
@@ -172,7 +211,7 @@
     notchOutlineEnabled = false;
     notchScratchpadControlHidden = true;
     notchSilhouette = "notch";
-    notchSize = "custom";
+    notchSize = "spacious";
     notchWatchEnabled = false;
     panelControlInputExpanded = true;
     pastePlainEnabled = true;
@@ -184,6 +223,7 @@
     screenOCRShortcutEnabled = true;
     screenshotCopyToClipboard = true;
     screenshotFullScreenShortcut = "shift+command:20";
+    screenshotLastTool = "freehand";
     screenshotShortcut = "shift+command:21";
     screenshotShortcutEnabled = true;
     scrollInverterHorizontalEnabled = false;
@@ -212,5 +252,11 @@
     urlCleanerEnabled = true;
     windowLayoutShortcutsEnabled = true;
     windowMaximizeEnabled = true;
+    windowMaximizeExcludedApps = [
+      "com.tinyspeck.slackmacgap"
+      "com.linear"
+      "notion.id"
+      "com.anthropic.claudefordesktop"
+    ];
   };
 }

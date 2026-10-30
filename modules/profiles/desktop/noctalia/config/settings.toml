@@ -725,7 +725,7 @@ transition_on_startup = true
     path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Stugunøset_at_Filefjell_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Late_Afternoon_Onderdonk_2000x1409.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
 
 [widget.active_window]
 anchor = true

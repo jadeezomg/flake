@@ -19,7 +19,8 @@ in
   # Choices to keep when you change settings in the app:
   # - middleClick, superKey, screenshot, screenOCR and mediaTools replace the
   #   MiddleClick, Hyperkey and Shottr casks.
-  # - superKeyModifiers must keep all four modifiers: Handy uses Hyper+Space.
+  # - superKeyModifiers must keep all four modifiers: Handy uses Hyper+Space,
+  #   and the herdr prefix expects all four (devenv/agents/herdr-config.nix).
   # - clipboardHistory stays off: Vicinae owns clipboard history on every host.
   # - musicBlock stays off: noTunes also stops Music launches from headphones,
   #   and the Vorssaint blocker does not.

@@ -1,4 +1,9 @@
 {
+	"cleanupPeriodDays": 120,
+	"env": {
+		"CLAUDE_CODE_PLUGIN_DIRS": "~/git/flake/data/agents/mods/stereo-view",
+		"CLAUDE_CODE_ENABLE_TODO_TOOLS": "1"
+	},
 	"attribution": {
 		"commit": "",
 		"pr": ""
@@ -28,6 +33,7 @@
 			"Read(//run/current-system/**)",
 			"Read(//tmp/**)",
 			"Bash(agent *)",
+			"Bash(agent-review *)",
 			"Bash(claude mcp *)",
 			"Bash(ctx7 *)",
 			"Bash(nono *)",
@@ -93,9 +99,171 @@
 		"defaultMode": "auto"
 	},
 	"model": "opus",
-	"env": {
-		"CLAUDE_CODE_PLUGIN_DIRS": "~/git/flake/data/agents/mods/stereo-view",
-		"CLAUDE_CODE_ENABLE_TODO_TOOLS": "1"
+	"hooks": {
+		"SessionStart": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "tuios agent-hook claude-code --integration 3",
+						"timeout": 5
+					}
+				]
+			},
+			{
+				"matcher": "^(startup|resume|clear|compact|fork)$",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash \"$HOME/.claude/hooks/herdr-agent-state.sh\" session",
+						"timeout": 10
+					}
+				]
+			}
+		],
+		"UserPromptSubmit": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "tuios agent-hook claude-code --integration 3",
+						"timeout": 5
+					}
+				]
+			}
+		],
+		"PreToolUse": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "tuios agent-hook claude-code --integration 3",
+						"timeout": 5
+					}
+				]
+			}
+		],
+		"PermissionRequest": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "tuios agent-hook claude-code --integration 3",
+						"timeout": 310
+					}
+				]
+			}
+		],
+		"PostToolUse": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "tuios agent-hook claude-code --integration 3",
+						"timeout": 5
+					}
+				]
+			}
+		],
+		"PostToolUseFailure": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "tuios agent-hook claude-code --integration 3",
+						"timeout": 5
+					}
+				]
+			}
+		],
+		"PermissionDenied": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "tuios agent-hook claude-code --integration 3",
+						"timeout": 5
+					}
+				]
+			}
+		],
+		"ElicitationResult": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "tuios agent-hook claude-code --integration 3",
+						"timeout": 5
+					}
+				]
+			}
+		],
+		"Notification": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "tuios agent-hook claude-code --integration 3",
+						"timeout": 5
+					}
+				]
+			}
+		],
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "tuios agent-hook claude-code --integration 3",
+						"timeout": 5
+					}
+				]
+			}
+		],
+		"StopFailure": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "tuios agent-hook claude-code --integration 3",
+						"timeout": 5
+					}
+				]
+			}
+		],
+		"SessionEnd": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "tuios agent-hook claude-code --integration 3",
+						"timeout": 5
+					}
+				]
+			}
+		],
+		"SubagentStart": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "tuios agent-hook claude-code --integration 3",
+						"timeout": 5
+					}
+				]
+			}
+		],
+		"SubagentStop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "tuios agent-hook claude-code --integration 3",
+						"timeout": 5
+					}
+				]
+			}
+		]
 	},
 	"enabledPlugins": {
 		"caya-working-docs@caya": true,
@@ -105,7 +273,14 @@
 		"simple-english@simple-english": true,
 		"typescript-lsp@claude-plugins-official": true,
 		"caya-customer-ops@caya": true,
-		"ponytail@ponytail": true
+		"ponytail@ponytail": true,
+		"caya-cowork-git@synced": false,
+		"caya-phil@synced": false,
+		"cowork-plugin-management@synced": false,
+		"cc-plugin-diff@builtin": false,
+		"cc-plugin-telemetry@builtin": false,
+		"caya-engineering@synced": false,
+		"caya-plugin-maintenance@synced": false
 	},
 	"extraKnownMarketplaces": {
 		"caya": {
@@ -122,13 +297,6 @@
 			},
 			"autoUpdate": true
 		},
-		"mattpocock": {
-			"source": {
-				"source": "github",
-				"repo": "mattpocock/skills"
-			},
-			"autoUpdate": true
-		},
 		"ponytail": {
 			"source": {
 				"source": "github",
@@ -139,10 +307,20 @@
 	},
 	"feedbackDrafts": "notify",
 	"effortLevel": "medium",
+	"modelSettings": {
+		"claude-opus-5-5": {
+			"effortLevel": "xhigh"
+		}
+	},
 	"pluginConfigs": {
 		"cc-plugin-agents-md@builtin": {
 			"options": {
 				"instructionFiles": "claude-md-and-agents-md"
+			}
+		},
+		"ponytail@ponytail": {
+			"options": {
+				"ledger": false
 			}
 		}
 	},
@@ -154,191 +332,90 @@
 	"preferredNotifChannel": "kitty",
 	"autoCompactEnabled": true,
 	"idleCompaction": false,
-	"cleanupPeriodDays": 120,
 	"switchModelsOnFlag": false,
 	"showTurnDuration": true,
 	"remoteControlAtStartup": true,
 	"inputNeededNotifEnabled": false,
 	"agentPushNotifEnabled": false,
-	"modelSettings": {
-		"claude-opus-5-5": {
-			"effortLevel": "xhigh"
+	"deniedMcpServers": [
+		{
+			"serverName": "claude.ai Amplitude"
+		},
+		{
+			"serverName": "claude.ai Apollo Studio"
+		},
+		{
+			"serverName": "claude.ai Canva"
+		},
+		{
+			"serverName": "claude.ai Chargebee"
+		},
+		{
+			"serverName": "claude.ai Customer.io"
+		},
+		{
+			"serverName": "claude.ai Demodesk"
+		},
+		{
+			"serverName": "claude.ai Excalidraw"
+		},
+		{
+			"serverName": "claude.ai Figma"
+		},
+		{
+			"serverName": "claude.ai Jotform"
+		},
+		{
+			"serverName": "claude.ai Mermaid Chart"
+		},
+		{
+			"serverName": "claude.ai Miro"
+		},
+		{
+			"serverName": "claude.ai Netlify"
+		},
+		{
+			"serverName": "claude.ai PandaDoc"
+		},
+		{
+			"serverName": "claude.ai Peec AI"
+		},
+		{
+			"serverName": "claude.ai Sentry"
+		},
+		{
+			"serverName": "claude.ai vanta"
+		},
+		{
+			"serverName": "claude.ai Zapier"
+		},
+		{
+			"serverName": "claude.ai Zoho CRM"
+		},
+		{
+			"serverName": "claude.ai Zoho Desk"
 		}
-	},
-	"hooks": {
-		"SessionStart": [
-			{
-				"matcher": "^(startup|resume|clear|compact|fork)$",
-				"hooks": [
-					{
-						"type": "command",
-						"command": "bash '/home/jadee/.claude/hooks/herdr-agent-state.sh' session",
-						"timeout": 10
-					}
-				]
-			},
-			{
-				"hooks": [
-					{
-						"command": "tuios agent-hook claude-code --integration 3",
-						"timeout": 5,
-						"type": "command"
-					}
-				]
-			},
-			{
-				"matcher": "^(startup|resume|clear|compact|fork)$",
-				"hooks": [
-					{
-						"type": "command",
-						"command": "bash '/Users/jonashippauf/.claude/hooks/herdr-agent-state.sh' session",
-						"timeout": 10
-					}
-				]
-			}
-		],
-		"UserPromptSubmit": [
-			{
-				"hooks": [
-					{
-						"command": "tuios agent-hook claude-code --integration 3",
-						"timeout": 5,
-						"type": "command"
-					}
-				]
-			}
-		],
-		"PreToolUse": [
-			{
-				"hooks": [
-					{
-						"command": "tuios agent-hook claude-code --integration 3",
-						"timeout": 5,
-						"type": "command"
-					}
-				]
-			}
-		],
-		"PermissionRequest": [
-			{
-				"hooks": [
-					{
-						"command": "tuios agent-hook claude-code --integration 3",
-						"timeout": 310,
-						"type": "command"
-					}
-				]
-			}
-		],
-		"PostToolUse": [
-			{
-				"hooks": [
-					{
-						"command": "tuios agent-hook claude-code --integration 3",
-						"timeout": 5,
-						"type": "command"
-					}
-				]
-			}
-		],
-		"PostToolUseFailure": [
-			{
-				"hooks": [
-					{
-						"command": "tuios agent-hook claude-code --integration 3",
-						"timeout": 5,
-						"type": "command"
-					}
-				]
-			}
-		],
-		"PermissionDenied": [
-			{
-				"hooks": [
-					{
-						"command": "tuios agent-hook claude-code --integration 3",
-						"timeout": 5,
-						"type": "command"
-					}
-				]
-			}
-		],
-		"ElicitationResult": [
-			{
-				"hooks": [
-					{
-						"command": "tuios agent-hook claude-code --integration 3",
-						"timeout": 5,
-						"type": "command"
-					}
-				]
-			}
-		],
-		"Notification": [
-			{
-				"hooks": [
-					{
-						"command": "tuios agent-hook claude-code --integration 3",
-						"timeout": 5,
-						"type": "command"
-					}
-				]
-			}
-		],
-		"Stop": [
-			{
-				"hooks": [
-					{
-						"command": "tuios agent-hook claude-code --integration 3",
-						"timeout": 5,
-						"type": "command"
-					}
-				]
-			}
-		],
-		"StopFailure": [
-			{
-				"hooks": [
-					{
-						"command": "tuios agent-hook claude-code --integration 3",
-						"timeout": 5,
-						"type": "command"
-					}
-				]
-			}
-		],
-		"SessionEnd": [
-			{
-				"hooks": [
-					{
-						"command": "tuios agent-hook claude-code --integration 3",
-						"timeout": 5,
-						"type": "command"
-					}
-				]
-			}
-		],
-		"SubagentStart": [
-			{
-				"hooks": [
-					{
-						"command": "tuios agent-hook claude-code --integration 3",
-						"timeout": 5,
-						"type": "command"
-					}
-				]
-			}
-		],
-		"SubagentStop": [
-			{
-				"hooks": [
-					{
-						"command": "tuios agent-hook claude-code --integration 3",
-						"timeout": 5,
-						"type": "command"
-					}
-				]
-			}
-		]
+	],
+	"skillOverrides": {
+		"anthropic-skills:feature-description": "off",
+		"anthropic-skills:caya-customer-meeting-log": "off",
+		"anthropic-skills:caya-onboarding-setup-map": "off",
+		"meeting-fact-filer": "off",
+		"sales-questionnaire": "off",
+		"qbr-slides": "off",
+		"morning": "off",
+		"attio-cs-list-creator": "off",
+		"automation-rule-schema": "off",
+		"seizure-regex-builder": "off",
+		"workato-api": "off",
+		"google-workspace": "off",
+		"import-memory": "off",
+		"skill-creator": "off",
+		"web-artifacts-builder": "off",
+		"docs": "user-invocable-only",
+		"docx": "user-invocable-only",
+		"pptx": "user-invocable-only",
+		"xlsx": "user-invocable-only",
+		"pdf": "user-invocable-only"
 	}
 }

@@ -103,7 +103,12 @@ in
     };
 
     environment = {
-      sessionVariables.XDG_CURRENT_DESKTOP = "niri:GNOME";
+      sessionVariables = {
+        XDG_CURRENT_DESKTOP = "niri:GNOME";
+        # kitty reports Hyper (caps:hyper, Mod3) to apps only with this set.
+        # The herdr prefix (devenv/agents/herdr-config.nix) needs it.
+        KITTY_WAYLAND_DETECT_MODIFIERS = "1";
+      };
 
       etc."wayland-sessions/niri.desktop".text = ''
         [Desktop Entry]
@@ -120,7 +125,9 @@ in
         xwayland-satellite
         (symlinkJoin {
           name = "handy";
-          paths = [ pkgs.llm-agents.handy ];
+          # nixpkgs, not llm-agents: the llm-agents build pins an older glibc, so
+          # WebKit cannot load the host Mesa driver and the window stays blank.
+          paths = [ pkgs.handy ];
           buildInputs = [ makeWrapper ];
           postBuild = ''
             wrapProgram $out/bin/handy --set GTK_THEME Adwaita:dark

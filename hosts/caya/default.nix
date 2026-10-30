@@ -1,9 +1,26 @@
 {
   config,
+  dotfilesLib,
   inputs,
+  lib,
+  pkgs,
   user,
   ...
 }:
+let
+  # homebrew-cask uses `zap :not_required` since 2026-10-27 (font-sf-mono,
+  # font-sf-pro). Homebrew reads it from 7.0.11 on, but nix-homebrew pins 7.0.4,
+  # so `brew bundle` failed on those casks. nix-homebrew patches this package
+  # the same way as its own pin.
+  brewVersion = "7.0.11";
+  nixHomebrewBrewVersion =
+    (lib.importJSON "${inputs.nix-homebrew}/flake.lock").nodes.brew-src.original.ref;
+  newerBrew = (dotfilesLib.expiry { inherit lib; } "hosts/caya/default.nix").expireWhen {
+    fixed = lib.versionAtLeast nixHomebrewBrewVersion brewVersion;
+    reason = "nix-homebrew now pins Homebrew ${nixHomebrewBrewVersion}. Delete newerBrew and the nix-homebrew.package override.";
+    fallback = false;
+  } true;
+in
 {
   imports = [
     ../../modules/shared
@@ -15,6 +32,19 @@
   nix-homebrew = {
     inherit user;
     enable = true;
+
+    package = lib.mkIf newerBrew (
+      pkgs.fetchFromGitHub {
+        owner = "Homebrew";
+        repo = "brew";
+        tag = brewVersion;
+        hash = "sha256-8mCor0DDjNhi+0e+FllfqiMABujBl+/RxYW+wgMpcto=";
+      }
+      // {
+        name = "brew-${brewVersion}";
+        version = brewVersion;
+      }
+    );
 
     # Homebrew >= 6.0 refuses to load formulae and casks from untrusted
     # third-party taps. `brew bundle` trusts the entries in its own Brewfile
