@@ -1,0 +1,17 @@
+{
+	"enabledPlugins": {
+		"caya-working-docs@caya": false,
+		"caya-working-docs@synced": false,
+		"caya-customer-api@caya": false,
+		"caya-customer-api@synced": false,
+		"caya-design-system@caya": false,
+		"caya-design-system@synced": false,
+		"caya-mailroom-api@caya": false,
+		"caya-mailroom-api@synced": false,
+		"caya-customer-ops@caya": false,
+		"caya-customer-ops@synced": false,
+		"caya-schema-navigator@caya": false,
+		"caya-schema-navigator@synced": false,
+		"caya-slide-creator@synced": false
+	}
+}
