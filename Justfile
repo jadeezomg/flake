@@ -100,7 +100,9 @@ switch:
     echo ""
     # 2) Tree is known-good: optional commit + push.
     command -v just >/dev/null && just --justfile "$JUSTFILE" git || true; echo ""
-    # 3) Activate (everything is cached from step 1).
+    # 3) Activate (everything is cached from step 1). On macOS, quit the open
+    # apps first, so the activation does not replace an app while it runs.
+    if is_darwin; then bash "$FLAKE/scripts/shell/quit-apps.bash"; echo ""; fi
     notify "Flake Switch" "Switching $h..." "pending"
     print_info "-> $nhp switch"
     run_logged "Flake Switch" bash -lc "$nhp switch '${FLAKE_REF}#${h}'"
@@ -108,6 +110,13 @@ switch:
     hm_vars="/etc/profiles/per-user/${USER}/etc/profile.d/hm-session-vars.sh"
     [[ -f "$hm_vars" ]] && bash -lc "source '$hm_vars'" || true
     print_header "END"
+
+[doc('macOS: ask the open apps to quit (as Cmd+Q, never forced); --dry-run lists them')]
+[group('switch')]
+quit-apps *ARGS:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    bash "$FLAKE/scripts/shell/quit-apps.bash" {{ ARGS }}
 
 [doc('nh switch only; skip flake check and pre-commit git step')]
 [group('switch')]
