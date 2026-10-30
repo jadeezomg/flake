@@ -25,6 +25,12 @@ in
     # (ansi:black), in place of the lighter ansi:blackBright.
     ".claude/themes/dark-ansi-dock.json" = mkLiveSymlink agentFiles.claudeTheme;
 
+    # ponytail: sessions start at the ultra level, and its band above the
+    # prompt stays hidden. `/ponytail lite|full|off` changes the level for one
+    # session. settings.json turns off the band's task ledger.
+    ".config/ponytail/config.json".text = builtins.toJSON { defaultMode = "ultra"; };
+    ".claude/.ponytail-band".text = "off";
+
     ".omp/agent/config.yml" = mkLiveSymlink agentFiles.ompConfig;
     ".omp/agent/themes/birds-of-paradise.json" = mkLiveSymlink agentFiles.ompTheme;
   };

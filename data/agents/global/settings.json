@@ -325,6 +325,11 @@
 			"options": {
 				"instructionFiles": "claude-md-and-agents-md"
 			}
+		},
+		"ponytail@ponytail": {
+			"options": {
+				"ledger": false
+			}
 		}
 	},
 	"tui": "fullscreen",
