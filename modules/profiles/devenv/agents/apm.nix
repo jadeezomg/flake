@@ -197,16 +197,29 @@ let
         reason = "apm reached 0.36 (chmod workaround verified needed at 0.32.0); check whether _on_readonly_retry still uses S_IWRITE alone and drop fixLocalCopyPerms if fixed.";
       }
       ''
-        for d in "$HOME/.apm/apm_modules/_local" ${
-          lib.concatMapStringsSep " " (
-            name: ''"$HOME/.claude/skills/${name}" "$HOME/.agents/skills/${name}"''
-          ) (lib.attrNames storeSkills)
-        }; do
+        for d in "$HOME/.apm/apm_modules/_local" ${skillDirs}; do
           if [ -d "$d" ]; then
             $DRY_RUN_CMD chmod -R u+rwX "$d"
           fi
         done
       '';
+
+  skillDirs = lib.concatMapStringsSep " " (
+    name: ''"$HOME/.claude/skills/${name}" "$HOME/.agents/skills/${name}"''
+  ) (lib.attrNames storeSkills);
+
+  # terminal-browser links its skill into a missing ~/.claude/skills or
+  # ~/.agents/skills folder, as a symlink into the Nix store. APM refuses to
+  # replace a file it did not write, and chmod -R fails on the read-only store,
+  # so drop such links before the install. terminal-browser does not touch the
+  # folder again once APM's copy is there. Seen with terminal-browser 0.13.4.
+  dropSkillLinks = ''
+    for d in ${skillDirs}; do
+      if [ -L "$d" ]; then
+        $DRY_RUN_CMD unlink "$d"
+      fi
+    done
+  '';
 in
 {
   home = {
@@ -219,6 +232,7 @@ in
       # before it, ~/.apm/apm.yml still links to the previous generation's
       # manifest, and APM applies that one.
       apmInstall = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+        ${dropSkillLinks}
         ${fixLocalCopyPerms}
         ${adoptMcpServers}
         PATH=${gitBinPath}:$PATH $DRY_RUN_CMD ${apm}/bin/apm update -g --yes \
