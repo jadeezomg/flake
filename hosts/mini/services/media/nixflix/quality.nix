@@ -4,7 +4,8 @@
 #
 # All profiles share one ladder. Every 720p/1080p/2160p quality sits in one
 # quality group, so Radarr/Sonarr rank releases by custom format score alone:
-#   1. efficient 4K   2. 1080p   3. high-bitrate 4K   4. 720p
+#   1. efficient 4K   2. 1080p AV1/HEVC   3. high-bitrate 4K   4. other 1080p
+#   5. 4K over 40 GB (Radarr only)   6. 720p
 # Radarr splits 4K by size and gates 1080p/720p by size. Sonarr cannot (its
 # Size condition measures a whole season pack), so it splits 4K by codec.
 #
@@ -31,22 +32,33 @@ let
   subsPtBr = "Subs: PT-BR";
   av1 = "Codec: AV1";
   hevc = "Codec: HEVC";
+  codec1080 = "Codec: efficient 1080p";
   webDl = "Source: WEB-DL";
   webRip = "Source: WEBRip";
   tier4k = "Tier 1: 4K efficient";
   tier1080 = "Tier 2: 1080p";
   tier4kBig = "Tier 3: 4K high bitrate";
   tier720 = "Tier 4: 720p";
+  tier4kHuge = "Tier 5: 4K over 40 GB";
 
-  # Scores. Each band is larger than the sum of all bands below it, so a
-  # tiebreak never lifts a release into a better tier.
+  # Scores. The bands never overlap, so a small bonus never lifts a release
+  # into a better band (checked by `checks` below):
+  #   efficient 4K       60000-64800
+  #   1080p AV1/HEVC     48000-52800
+  #   high-bitrate 4K    32000-36800
+  #   other 1080p        26000-30800
+  #   4K over 40 GB       6000-10800
+  #   720p                1000-5800
   langScore = 100000;
   tierScores = {
-    ${tier4k} = 40000;
-    ${tier1080} = 30000;
-    ${tier4kBig} = 20000;
-    ${tier720} = 10000;
+    ${tier4k} = 60000;
+    ${tier1080} = 26000;
+    ${tier4kBig} = 32000;
+    ${tier4kHuge} = 6000;
+    ${tier720} = 1000;
   };
+  # On top of the 1080p tier.
+  codec1080Score = 22000;
   tiebreakScores = {
     ${av1} = 600;
     ${hevc} = 400;
@@ -60,6 +72,60 @@ let
   seasonPackScore = 1500;
   # TRaSH "unwanted" formats: no release with one can reach min_format_score.
   rejectScore = -1000000;
+
+  # Only files below the high-bitrate 4K band get replaced: other 1080p by
+  # 1080p AV1/HEVC or efficient 4K, 4K over 40 GB and 720p by 1080p or better,
+  # and a wrong language by the right one. Files at 1080p AV1/HEVC or
+  # high-bitrate 4K (25-40 GB in Radarr) or better stay, so nothing is
+  # downgraded.
+  minUpgradeScore = 15000;
+  # The most the small bonuses add up to: AV1, WEB-DL, subs, season pack and
+  # the original track.
+  smallMax =
+    tiebreakScores.${av1} + tiebreakScores.${webDl} + subsScore + seasonPackScore + originalBonus;
+  bandOf = tier: tierScores.${tier};
+  checks = [
+    {
+      ok = smallMax < minUpgradeScore;
+      msg = "small bonuses alone trigger an upgrade";
+    }
+    {
+      ok = bandOf tier4k > bandOf tier1080 + codec1080Score + smallMax;
+      msg = "1080p AV1/HEVC reaches the efficient 4K band";
+    }
+    {
+      ok = bandOf tier1080 + codec1080Score > bandOf tier4kBig + smallMax;
+      msg = "high-bitrate 4K reaches the 1080p AV1/HEVC band";
+    }
+    {
+      ok = bandOf tier4kBig > bandOf tier1080 + smallMax;
+      msg = "other 1080p reaches high-bitrate 4K, so the cutoff cannot protect it";
+    }
+    {
+      ok = bandOf tier4kBig + smallMax - bandOf tier1080 < minUpgradeScore;
+      msg = "other 1080p files get replaced by high-bitrate 4K";
+    }
+    {
+      ok = bandOf tier1080 + codec1080Score - (bandOf tier1080 + smallMax) >= minUpgradeScore;
+      msg = "H.264 1080p files are not replaced by AV1/HEVC";
+    }
+    {
+      ok = bandOf tier1080 - (bandOf tier720 + smallMax) >= minUpgradeScore;
+      msg = "720p files are not replaced by 1080p";
+    }
+    {
+      ok = bandOf tier1080 - (bandOf tier4kHuge + smallMax) >= minUpgradeScore;
+      msg = "4K files over 40 GB are not replaced by 1080p";
+    }
+    {
+      ok = bandOf tier4kHuge > bandOf tier720 + smallMax;
+      msg = "720p reaches the band of 4K over 40 GB";
+    }
+    {
+      ok = bandOf tier4k + smallMax < langScore;
+      msg = "a release in the wrong language can outrank the right one";
+    }
+  ];
 
   # Formats from the TRaSH guide, by trash_id (Recyclarr's official provider).
   guide = {
@@ -156,16 +222,25 @@ let
     // {
       ${tier4k} = [
         (resolution 2160)
-        (sizeGb 0 15)
+        (sizeGb 0 25)
       ];
       ${tier1080} = [
         (resolution 1080)
         (sizeGb 5 12)
       ];
-      # "No cap": the largest size Radarr accepts. Remux is not in the group.
+      ${codec1080} = [
+        (resolution 1080)
+        (sizeGb 5 12)
+        (required (title "AV1 or HEVC" efficientCodec))
+      ];
       ${tier4kBig} = [
         (resolution 2160)
-        (sizeGb 15 1000)
+        (sizeGb 25 40)
+      ];
+      # "No cap": the largest size Radarr accepts. Remux is not in the group.
+      ${tier4kHuge} = [
+        (resolution 2160)
+        (sizeGb 40 1000)
       ];
       ${tier720} = [
         (resolution 720)
@@ -185,6 +260,10 @@ let
         (required (title "AV1 or HEVC" efficientCodec))
       ];
       ${tier1080} = [ (resolution 1080) ];
+      ${codec1080} = [
+        (resolution 1080)
+        (required (title "AV1 or HEVC" efficientCodec))
+      ];
       ${tier4kBig} = [
         (resolution 2160)
         (required (negated (title "Not AV1 or HEVC" efficientCodec)))
@@ -257,7 +336,15 @@ let
     ptBr
   ];
 
-  scoresFor = p: { ${p.lang} = langScore; } // tierScores // tiebreakScores // p.bonus;
+  scoresFor =
+    p:
+    {
+      ${p.lang} = langScore;
+      ${codec1080} = codec1080Score;
+    }
+    // tierScores
+    // tiebreakScores
+    // p.bonus;
 
   ladderGroup = "720p-2160p";
   ladder =
@@ -280,11 +367,12 @@ let
     upgrade = {
       allowed = true;
       until_quality = ladderGroup;
-      # Stop once an efficient 4K with HEVC or better is found.
-      until_score = langScore + tierScores.${tier4k} + tiebreakScores.${hevc};
+      # Files at high-bitrate 4K or better meet the cutoff and stay.
+      until_score = langScore + tierScores.${tier4kBig};
     };
     min_format_score = langScore + tierScores.${tier720};
-    min_upgrade_format_score = 1;
+    # With 1, a WEB-DL (+200) replaced every HDTV or Bluray file of its tier.
+    min_upgrade_format_score = minUpgradeScore;
     # Unlisted qualities (SD, Remux, BR-DISK) end up disabled.
     qualities = [
       {
@@ -347,7 +435,7 @@ let
 
   # Torrents wait 60 min so a usenet release can win. Every quality sits in
   # the one ladder group, so "highest quality" would bypass the delay for
-  # every release; bypass only at the upgrade target score instead.
+  # every release; bypass only for an efficient 4K with HEVC or better instead.
   delayProfiles = [
     {
       id = 1;
@@ -371,6 +459,11 @@ let
   };
 in
 {
+  assertions = map (c: {
+    assertion = c.ok;
+    message = "nixflix/quality.nix: ${c.msg}";
+  }) checks;
+
   nixflix.radarr.config = { inherit delayProfiles; };
   nixflix.sonarr.config = { inherit delayProfiles; };
 
@@ -398,7 +491,7 @@ in
             preferred = 45;
             max = 135;
           };
-          # No cap, so tier 3 can exist. Tier 1 keeps 4K at <= 15 GB.
+          # No cap, so tier 5 can exist. Tier 1 keeps 4K at <= 25 GB.
           "2160p" = {
             min = 25;
             preferred = 85;
