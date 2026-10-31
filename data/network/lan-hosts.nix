@@ -33,7 +33,8 @@
       tailnet = "unraid"; # MagicDNS; also the LAN hostname
       sshUser = "root";
       # Unraid user-share root. Individual exports hang off this
-      # (/mnt/user/data, /mnt/user/Music, /mnt/user/backup, ...).
+      # (/mnt/user/data, /mnt/user/backup, ...). Exclusive shares, like Music, are
+      # exported under their pool path instead (/mnt/cache/Music).
       shareRoot = "/mnt/user";
     };
   };

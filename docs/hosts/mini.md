@@ -338,7 +338,7 @@ Seerr finds the default profile ID by name and merges the settings into
 | Path | What |
 |---|---|
 | `/data` | NFS `192.168.178.200:/mnt/user/data` — downloads **and** library, RW |
-| `/Music` | NFS `/mnt/user/Music`, RW — Lidarr's root folder and Jellyfin's music library |
+| `/Music` | NFS `/mnt/cache/Music` (exclusive share), RW — Lidarr's root folder and Jellyfin's music library |
 | `/mnt/library` | NFS `/mnt/user/data` again, read-only, with FS-Cache — what Plex and Jellyfin play |
 | `/media` | local folder of links: `/media/<folder>` → `/mnt/library/media/<folder>`, and `/media/Music` → `/Music` |
 | `/srv/nixflix`, `/var/lib/qBittorrent` | local service state |

@@ -52,8 +52,11 @@ in
       fsType = "nfs";
       options = mountOptions;
     };
+    # Music lives only on the cache pool, so Unraid makes it an exclusive share
+    # (Permit exclusive shares: Yes). /mnt/user/Music is then a link to the
+    # pool, and NFS exports the pool path instead.
     "/Music" = {
-      device = share "Music";
+      device = "${unraid.lan}:/mnt/cache/Music";
       fsType = "nfs";
       options = mountOptions;
     };
