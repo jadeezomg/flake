@@ -20,6 +20,7 @@ in
     ./dms/greeter-acl.nix
     ./gnome
     ./mime.nix
+    ./nas.nix
     ./noctalia/greeter.nix
     ./peripherals.nix
   ];
