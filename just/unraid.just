@@ -1,8 +1,8 @@
-# Unraid (jadee-server) — invoked as `just unraid <cmd>`.
-# Override off-LAN: UNRAID_SSH=root@jadee-server.tailnet.example just unraid ssh
+# Unraid (unraid) — invoked as `just unraid <cmd>`.
+# Override off-LAN: UNRAID_SSH=root@unraid.tailnet.example just unraid ssh
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
-unraid_ssh := env('UNRAID_SSH', 'root@jadee-server')
+unraid_ssh := env('UNRAID_SSH', 'root@unraid')
 
 [doc('Open an interactive ssh shell on Unraid')]
 ssh:
