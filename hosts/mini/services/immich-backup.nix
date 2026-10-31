@@ -2,7 +2,7 @@
 #
 # Docs: docs/hosts/mini.md § Immich → Backup
 #
-# TRANSPORT: restic over SFTP to root@192.168.178.62:/mnt/user/backup/immich.
+# TRANSPORT: restic over SFTP to root@192.168.178.200:/mnt/user/backup/immich.
 #
 #   Deliberately NOT an NFS mount. ./media/storage.nix documents how an
 #   NFS-backed path inside a systemd namespace wedges this host (idle-timeout
@@ -55,7 +55,7 @@
 #   2. WebGUI -> Shares -> Add Share `backup`; cache No, SMB No, NFS No.
 #      Not exporting it is the point: the only access path is the SSH key.
 #   3. In a shell ON Unraid: mkdir -p /mnt/user/backup/immich
-#      (not `ssh root@192.168.178.62 ...` from Unraid itself — that loops back
+#      (not `ssh root@192.168.178.200 ...` from Unraid itself — that loops back
 #      and prompts for the root password.)
 #   4. Settings -> Disk Settings -> md_write_method = "reconstruct write".
 #      Parity read/modify/write caps the initial seed at ~40-80 MB/s.

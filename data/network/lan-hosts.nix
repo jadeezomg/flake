@@ -29,8 +29,8 @@
     # periodically demands an interactive browser re-auth, so automation should
     # prefer `lan`.
     unraid = {
-      lan = "192.168.178.62";
-      tailnet = "jadee-server"; # MagicDNS; also the LAN hostname
+      lan = "192.168.178.200";
+      tailnet = "unraid"; # MagicDNS; also the LAN hostname
       sshUser = "root";
       # Unraid user-share root. Individual exports hang off this
       # (/mnt/user/data, /mnt/user/Music, /mnt/user/backup, ...).

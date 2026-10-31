@@ -235,7 +235,7 @@ sudo -u postgres psql -d immich \
 `postgresql-setup` only REINDEXes when an *already-installed* vchord changes
 version — it never fires on a fresh database.
 
-### Backup (restic → Unraid `sftp:root@192.168.178.62:/mnt/user/backup/immich`)
+### Backup (restic → Unraid `sftp:root@192.168.178.200:/mnt/user/backup/immich`)
 
 | Unit | When | Job |
 |---|---|---|
@@ -337,7 +337,7 @@ Seerr finds the default profile ID by name and merges the settings into
 
 | Path | What |
 |---|---|
-| `/data` | NFS `192.168.178.62:/mnt/user/data` — downloads **and** library, RW |
+| `/data` | NFS `192.168.178.200:/mnt/user/data` — downloads **and** library, RW |
 | `/Music` | NFS `/mnt/user/Music`, RW — Lidarr's root folder and Jellyfin's music library |
 | `/mnt/library` | NFS `/mnt/user/data` again, read-only, with FS-Cache — what Plex and Jellyfin play |
 | `/media` | local folder of links: `/media/<folder>` → `/mnt/library/media/<folder>`, and `/media/Music` → `/Music` |

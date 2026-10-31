@@ -206,7 +206,7 @@ in
           #      writing it over NFS: the write then lands on an unlinked inode
           #      and the download is silently corrupted. The Mover Tuning skip
           #      list (/boot/config/plugins/ca.mover.tuning/skiplist.txt on
-          #      jadee-server) holds /mnt/array_cache/data/torrents and
+          #      unraid) holds /mnt/array_cache/data/torrents and
           #      /mnt/array_cache/data/usenet, so downloads never leave the SSD.
           #   2. Only finished files reach the array, so the array disks stay
           #      spun down during a download.

@@ -6,7 +6,7 @@
 let
   inherit (dotfilesLib.lanHosts) unraid;
   inherit (import ./nixflix/common.nix) mediaFolders;
-  # NFS export prefix, e.g. "192.168.178.62:/mnt/user". The address lives in
+  # NFS export prefix, e.g. "192.168.178.200:/mnt/user". The address lives in
   # data/network/lan-hosts.nix because the backup transport and the ssh alias
   # need the same value (Unraid has no hosts/<name>/host.nix — the flake does
   # not build it).
