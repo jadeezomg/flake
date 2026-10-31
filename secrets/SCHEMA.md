@@ -166,6 +166,8 @@ All media secrets are nested, runtime-only values consumed by
 | `mini/ntfy/mini-token` | `ntfy token generate` | ntfy `NTFY_AUTH_TOKENS`; nixflix notif ntfy; `ntfy-alert@` | mini |
 | `mini/ntfy/homepage-password-hash` | `ntfy user hash` of a discarded random password | ntfy `NTFY_AUTH_USERS` for the read-only `homepage` user | mini |
 | `mini/ntfy/homepage-token` | `ntfy token generate` | ntfy `NTFY_AUTH_TOKENS`; Homepage ntfy widget (reads `system`) | mini |
+| `mini/ntfy/unraid-password-hash` | `ntfy user hash` of a discarded random password | ntfy `NTFY_AUTH_USERS` for the write-only `unraid` user | mini |
+| `mini/ntfy/unraid-token` | `ntfy token generate` | ntfy `NTFY_AUTH_TOKENS`; Unraid's ntfy.sh notification agent (posts to `system`) | mini |
 | `mini/homepage/unraid-api-key` | Unraid → Settings → Management Access → API, key `homepage` | Homepage Unraid widget | mini |
 | `mini/homepage/immich-api-key` | Immich → Account Settings → API Keys, admin account, permission `server.statistics` | Homepage Immich widget | mini |
 | `mini/media/plex/token` | `PlexOnlineToken` in Plex `Preferences.xml` on mini | `plex-connect` (Radarr/Sonarr Plex connection); Homepage Plex widget | mini |

@@ -2,11 +2,13 @@
 #
 # Topics:
 #   media   imports, health issues, and manual actions from Radarr/Sonarr/Lidarr
-#   system  failed units on mini (ntfy-alert@, attached with OnFailure=)
+#   system  failed units on mini (ntfy-alert@, attached with OnFailure=) and
+#           Unraid's notifications (its built-in ntfy.sh agent, user `unraid`)
 #
 # Users come from the config (NTFY_AUTH_* in a sops template), not from the
 # ntfy CLI: `jadee` (admin) for the phone, `mini` (write-only) for services,
-# `homepage` (read-only on `system`) for the start page.
+# `homepage` (read-only on `system`) for the start page, `unraid` (write-only on
+# `system`) for the Unraid server.
 # The phone logs in with mini/ntfy/jadee-password from sops; mini only gets
 # its hash. Nothing else can read or publish (auth-default-access deny-all).
 {
@@ -28,6 +30,8 @@ in
     "mini/ntfy/mini-token" = { };
     "mini/ntfy/homepage-password-hash" = { };
     "mini/ntfy/homepage-token" = { };
+    "mini/ntfy/unraid-password-hash" = { };
+    "mini/ntfy/unraid-token" = { };
   };
 
   # `homepage` reads the system topic for the Homepage ntfy tile
@@ -36,11 +40,13 @@ in
     content = ''
       NTFY_AUTH_USERS='jadee:${secret."mini/ntfy/jadee-password-hash"}:admin,mini:${
         secret."mini/ntfy/mini-password-hash"
-      }:user,homepage:${secret."mini/ntfy/homepage-password-hash"}:user'
+      }:user,homepage:${secret."mini/ntfy/homepage-password-hash"}:user,unraid:${
+        secret."mini/ntfy/unraid-password-hash"
+      }:user'
       NTFY_AUTH_TOKENS='mini:${secret."mini/ntfy/mini-token"}:mini services,homepage:${
         secret."mini/ntfy/homepage-token"
-      }:homepage'
-      NTFY_AUTH_ACCESS='mini:media:wo,mini:system:wo,homepage:system:ro'
+      }:homepage,unraid:${secret."mini/ntfy/unraid-token"}:unraid'
+      NTFY_AUTH_ACCESS='mini:media:wo,mini:system:wo,homepage:system:ro,unraid:system:wo'
     '';
     restartUnits = [ "ntfy-sh.service" ];
   };
