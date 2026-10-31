@@ -77,10 +77,11 @@ let
         "7357cf5161efbf8c4d5d0c30b4815ee2" # Obfuscated
       ];
       # Rejected in the original-language profile only: many German and
-      # PT-BR dual-audio releases come from these groups or carry no group.
+      # PT-BR dual-audio releases come from these groups.
+      # No No-RlsGroup: it also scores existing files, and most library files
+      # have no group in their name, so every release became an upgrade.
       junkOriginalOnly = [
         "b6832f586342ef70d9c128d40c07b872" # Bad Dual Groups
-        "ae9b7c9ebde1f3bd336a8cbd1ec4c5e5" # No-RlsGroup
       ];
       bonus = { };
     };
@@ -96,7 +97,6 @@ let
       ];
       junkOriginalOnly = [
         "32b367365729d530ca1c124a0b180c64" # Bad Dual Groups
-        "82d40da2bc6923f41e14394075dd4b03" # No-RlsGroup
       ];
       bonus = {
         "3bc5f395426614e155e585a2f056cdf1" = seasonPackScore; # Season Pack
