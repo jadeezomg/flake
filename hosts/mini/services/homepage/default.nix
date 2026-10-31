@@ -257,7 +257,7 @@ let
         ]
         ++ [
           (tile "JDownloader" {
-            href = "http://${unraid.tailnet}:7807";
+            href = "https://jdownloader.jadee.fyi";
             icon = "jdownloader.svg";
             description = "Direct downloads (Unraid)";
             monitor = "http://${unraid.lan}:7807";
@@ -312,7 +312,7 @@ let
       columns = 4;
       tiles = [
         (tile "Unraid" {
-          href = "http://${unraid.tailnet}";
+          href = "https://unraid.jadee.fyi";
           icon = "unraid.svg";
           description = "NAS: array, shares and containers";
           monitor = "http://${unraid.lan}";

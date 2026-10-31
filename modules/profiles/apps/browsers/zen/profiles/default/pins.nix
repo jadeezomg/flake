@@ -52,7 +52,7 @@ in
     };
     "unraid/Login" = {
       id = "98dbc3e9-ee34-44a2-8d1a-5539fa7dea98";
-      url = "http://unraid/login";
+      url = "https://unraid.jadee.fyi/";
       isEssential = true;
       position = 108;
     };
@@ -389,7 +389,7 @@ in
         };
         "JDownloader 2" = {
           id = "71c66a44-3f74-4149-9714-fb2a5b5af39b";
-          url = "http://unraid:7807/";
+          url = "https://jdownloader.jadee.fyi/";
           isEssential = false;
           position = 235;
           folderParentId = "2eeb86a1-ed2e-4608-8faf-2fff492b1464";

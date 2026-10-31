@@ -26,6 +26,7 @@ in
     ./services/homepage
     ./services/matrix.nix
     ./services/ntfy.nix
+    ./services/unraid-proxy.nix
     ./services/cinny.nix
     # Nightly cachix pipeline — disabled until the host is up (docs/hosts/mini.md § Known gaps).
     # ./flake-cache-warm.nix
