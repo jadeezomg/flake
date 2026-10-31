@@ -432,11 +432,11 @@ widget_order = [
     [lockscreen_widgets.widget."lockscreen-login-box@DP-2"]
     box_height = 196.0
     box_width = 810.0
-    cx = 2133.0
-    cy = 1571.6263427734375
+    cx = 2048.0
+    cy = 1509.5999755859375
     output = "DP-2"
-    placement_height = 1799.0
-    placement_width = 4266.0
+    placement_height = 1728.0
+    placement_width = 4096.0
     rotation = 0.0
     type = "login_box"
 
@@ -683,16 +683,16 @@ transition_on_startup = true
     interval_seconds = 600
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.DP-1]
     path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.DP-2]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Stugunøset_at_Filefjell_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Late_Afternoon_Onderdonk_2000x1409.jpg"
 
     [wallpaper.monitors.DP-3]
     path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
@@ -704,7 +704,7 @@ transition_on_startup = true
     path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Stugunøset_at_Filefjell_-_Google_Art_Project.jpg"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/jadee/Pictures/Wallpapers/August_Malmström_-_Dancing_Fairies_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
 
 [widget.active_window]
 anchor = true
