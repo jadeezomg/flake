@@ -16,12 +16,10 @@
   host,
   lib,
   pkgs,
-  pkgs-small,
   ...
 }:
 let
   inherit (import ../lib.nix { inherit lib; }) mkTsnetProxy;
-  inherit (dotfilesLib.expiry { inherit lib; } "hosts/mini/services/homepage/default.nix") expireWhen;
   inherit (dotfilesLib.lanHosts) router unraid;
   domain = "home.jadee.fyi";
   port = 8082;
@@ -404,14 +402,6 @@ in
 {
   services.homepage-dashboard = {
     enable = true;
-    # Our nixos-unstable lock has 2.4.0. nixos-unstable-small already has
-    # 2.6.0 in the binary cache. 2.6.0 fixes GHSA-qxcr-4rv3-v23r and keeps "$"
-    # in file secrets.
-    package = expireWhen {
-      fixed = lib.versionAtLeast pkgs.homepage-dashboard.version "2.6.0";
-      reason = "nixos-unstable now ships homepage-dashboard >= 2.6.0.";
-      fallback = pkgs.homepage-dashboard;
-    } pkgs-small.homepage-dashboard;
     listenPort = port;
     allowedHosts = domain;
 
