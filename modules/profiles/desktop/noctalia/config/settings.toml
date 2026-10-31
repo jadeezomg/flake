@@ -385,7 +385,7 @@ auto_locate = true
 monitors = [ "eDP-1" ]
 
 [lockscreen_widgets]
-enabled = false
+enabled = true
 schema_version = 2
 widget_order = [
     "lockscreen-login-box@eDP-1",
@@ -393,7 +393,8 @@ widget_order = [
     "lockscreen-login-box@HDMI-A-2",
     "lockscreen-login-box@DP-1",
     "lockscreen-login-box@HDMI-A-1",
-    "lockscreen-login-box@DP-3"
+    "lockscreen-login-box@DP-3",
+    "lockscreen-widget-0000000000000001"
 ]
 
     [lockscreen_widgets.grid]
@@ -413,12 +414,12 @@ widget_order = [
     type = "login_box"
 
         [lockscreen_widgets.widget."lockscreen-login-box@DP-1".settings]
-        background_color = "surface_container"
-        background_opacity = 0.88
-        background_radius = 12.0
-        center_password_text = false
+        background_color = "on_primary"
+        background_opacity = 0.80000000000000004
+        background_radius = 0.0
+        center_password_text = true
         input_opacity = 1.0
-        input_radius = 6.0
+        input_radius = 0.0
         layout = "regular"
         show_caps_lock = true
         show_keyboard_layout = true
@@ -426,7 +427,7 @@ widget_order = [
         show_media = true
         show_password_reveal = true
         show_session_buttons = true
-        show_unlock_hint = true
+        show_unlock_hint = false
         show_weather = true
 
     [lockscreen_widgets.widget."lockscreen-login-box@DP-2"]
@@ -569,6 +570,26 @@ widget_order = [
         show_unlock_hint = true
         show_weather = true
 
+    [lockscreen_widgets.widget.lockscreen-widget-0000000000000001]
+    box_height = 192.0
+    box_width = 480.0
+    cx = 2133.5
+    cy = 1332.0
+    output = "DP-1"
+    placement_height = 1799.0
+    placement_width = 4266.0
+    rotation = 0.0
+    type = "clock"
+
+        [lockscreen_widgets.widget.lockscreen-widget-0000000000000001.settings]
+        background_opacity = 0.0
+        background_padding = 0
+        background_radius = 0
+        center_text = true
+        clock_style = "digital"
+        color = "error"
+        font_family = "Iosevka NF Thin"
+
 [notification]
 background_opacity = 0.59999998658895493
 border = false
@@ -683,13 +704,13 @@ transition_on_startup = true
     interval_seconds = 600
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
 
     [wallpaper.monitors.DP-1]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
 
     [wallpaper.monitors.DP-2]
     path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Late_Afternoon_Onderdonk_2000x1409.jpg"
@@ -698,7 +719,7 @@ transition_on_startup = true
     path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Larvik_by_Moonlight_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
 
     [wallpaper.monitors.HDMI-A-2]
     path = "/home/jadee/Pictures/Wallpapers/Johan_Christian_Dahl_-_Stugunøset_at_Filefjell_-_Google_Art_Project.jpg"

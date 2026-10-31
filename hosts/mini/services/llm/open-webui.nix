@@ -11,15 +11,29 @@
 #   (modules/nixos/networking.nix); only :22 is public.
 #
 # open-webui is unfree ("Open WebUI License") — allowed flake-wide in lib/pkgs.nix.
-{ config, lib, ... }:
+{
+  config,
+  dotfilesLib,
+  lib,
+  pkgs,
+  ...
+}:
 let
   inherit (import ../lib.nix { inherit lib; }) mkTsnetProxy;
   webuiPort = 8080;
   llmPort = config.dotfiles.profiles.llm.serve.port;
+  # Off while nixpkgs ships open-webui 0.12.3: it imports the mcp 1 API, but
+  # nixpkgs has mcp 2, so it exits at startup. 0.12.4 moved to mcp 2.
+  # Verified 2026-10-30 at nixpkgs 31ecbac (open-webui 0.12.3, mcp 2.2.0).
+  enable = (dotfilesLib.expiry { inherit lib; } "hosts/mini/services/llm/open-webui.nix").expireWhen {
+    fixed = lib.versionAtLeast pkgs.open-webui.version "0.12.4";
+    reason = "nixpkgs ships open-webui 0.12.4+ (mcp 2 API), so open-webui is on again; drop this guard.";
+    fallback = true;
+  } false;
 in
 {
   services.open-webui = {
-    enable = true;
+    inherit enable;
     # Loopback only: Caddy (services/caddy.nix) fronts it with TLS; never public.
     host = "127.0.0.1";
     port = webuiPort;
@@ -41,8 +55,8 @@ in
   };
 
   # Fronted by the shared Caddy tailnet-node proxy (services/caddy.nix).
-  services.caddy.virtualHosts = mkTsnetProxy {
+  services.caddy.virtualHosts = lib.mkIf enable (mkTsnetProxy {
     domain = "chat.jadee.fyi";
     port = webuiPort;
-  };
+  });
 }
