@@ -161,15 +161,15 @@ let
       name = library;
       columns = 4;
       tiles = lib.optionals media [
+        # No queue lists: Homepage has no limit for them, and a busy queue
+        # fills the page. The tiles still show the queued count.
         (arr "Sonarr" {
           port = 8989;
           description = "Series";
-          widgetExtra.enableQueue = true;
         })
         (arr "Radarr" {
           port = 7878;
           description = "Movies";
-          widgetExtra.enableQueue = true;
         })
         # No widget: it downloads the full artist list (over 7 MB) on every
         # page load, only to count artists. The calendar gets albums from
