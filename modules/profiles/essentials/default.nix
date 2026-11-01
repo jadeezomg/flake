@@ -22,6 +22,7 @@ dotfilesLib.mkProfile {
 
       # --- Networking polish ---
       ipfetch
+      netwatch
       resterm
 
       # --- Security / crypto ---
