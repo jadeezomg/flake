@@ -155,6 +155,8 @@ All media secrets are nested, runtime-only values consumed by
 | `mini/media/sabnzbd/password` | current unset `sabnzbd.ini` web password (encrypted empty value) | nixflix SABnzbd configuration | mini |
 | `mini/media/sabnzbd/premiumize-username` | existing Premiumize server username in `sabnzbd.ini` | nixflix SABnzbd Premiumize server | mini |
 | `mini/media/sabnzbd/premiumize-password` | existing Premiumize server password in `sabnzbd.ini` | nixflix SABnzbd Premiumize server | mini |
+| `mini/media/sabnzbd/newshosting-username` | Newshosting account username | nixflix SABnzbd Newshosting server | mini |
+| `mini/media/sabnzbd/newshosting-password` | Newshosting account password | nixflix SABnzbd Newshosting server | mini |
 | `mini/media/qbittorrent/password` | generated WebUI/Arr password (plaintext) | nixflix Arr→qBittorrent integration; qbittorrent ExecStartPre derives `Password_PBKDF2` for WebUI; Homepage widget | mini |
 | `mini/media/bazarr/api-key` | generated 16-byte hexadecimal API key (`openssl rand -hex 16`) | Bazarr `auth.apikey`; `media-ptbr`; Homepage Bazarr widget | mini |
 | `mini/media/seerr/api-key` | generated 32-byte hexadecimal API key (`openssl rand -hex 32`) | Seerr `main.apiKey` (seerr preStart); Homepage Seerr widget | mini |

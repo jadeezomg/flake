@@ -261,7 +261,22 @@ in
             "100.64.0.0/10"
           ];
         };
+        # Newshosting downloads first; Premiumize only fetches the articles
+        # Newshosting is missing (a higher priority number is tried later).
         servers = [
+          {
+            name = "Newshosting";
+            host = "news.newshosting.com";
+            port = 563;
+            connections = 8;
+            ssl = true;
+            ssl_verify = 2;
+            priority = 0;
+            optional = false;
+            backup = false;
+            username._secret = config.sops.secrets."mini/media/sabnzbd/newshosting-username".path;
+            password._secret = config.sops.secrets."mini/media/sabnzbd/newshosting-password".path;
+          }
           {
             name = "Premiumize";
             host = "usenet.premiumize.me";
@@ -269,7 +284,7 @@ in
             connections = 8;
             ssl = true;
             ssl_verify = 2;
-            priority = 0;
+            priority = 1;
             optional = false;
             backup = false;
             username._secret = config.sops.secrets."mini/media/sabnzbd/premiumize-username".path;
