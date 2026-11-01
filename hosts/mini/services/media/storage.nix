@@ -113,6 +113,7 @@ in
     "mini/media/sabnzbd/premiumize-password" = { };
     "mini/media/sabnzbd/newshosting-username" = { };
     "mini/media/sabnzbd/newshosting-password" = { };
+    "mini/media/sabnzbd/tweaknews-username" = { };
     "mini/media/qbittorrent/password" = {
       # WebUI hash is derived at qbittorrent start; Arr clients re-read on restart.
       restartUnits = [

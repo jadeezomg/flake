@@ -261,8 +261,9 @@ in
             "100.64.0.0/10"
           ];
         };
-        # Newshosting downloads first; Premiumize only fetches the articles
-        # Newshosting is missing (a higher priority number is tried later).
+        # Newshosting downloads first. Premiumize and Tweaknews (another
+        # backbone, included with the Newshosting plan) only fetch the articles
+        # Newshosting is missing: a higher priority number is tried later.
         servers = [
           {
             name = "Newshosting";
@@ -289,6 +290,20 @@ in
             backup = false;
             username._secret = config.sops.secrets."mini/media/sabnzbd/premiumize-username".path;
             password._secret = config.sops.secrets."mini/media/sabnzbd/premiumize-password".path;
+          }
+          {
+            name = "Tweaknews";
+            host = "news.tweaknews.eu";
+            port = 563;
+            connections = 8;
+            ssl = true;
+            ssl_verify = 2;
+            priority = 1;
+            optional = false;
+            backup = false;
+            username._secret = config.sops.secrets."mini/media/sabnzbd/tweaknews-username".path;
+            # The bundled account shares the Newshosting password.
+            password._secret = config.sops.secrets."mini/media/sabnzbd/newshosting-password".path;
           }
         ];
       };
