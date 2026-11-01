@@ -5,7 +5,7 @@
 # All profiles share one ladder. Every 720p/1080p/2160p quality sits in one
 # quality group, so Radarr/Sonarr rank releases by custom format score alone:
 #   1. efficient 4K   2. 1080p AV1/HEVC   3. high-bitrate 4K   4. other 1080p
-#   5. 4K over 40 GB (Radarr only)   6. 720p
+#   5. 4K over 40 GB (Radarr only)   6. 720p   7. SD (480p and 576p)
 # Radarr splits 4K by size and gates 1080p/720p by size. Sonarr cannot (its
 # Size condition measures a whole season pack), so it splits 4K by codec.
 #
@@ -40,22 +40,25 @@ let
   tier4kBig = "Tier 3: 4K high bitrate";
   tier720 = "Tier 4: 720p";
   tier4kHuge = "Tier 5: 4K over 40 GB";
+  tierSd = "Tier 6: SD";
 
   # Scores. The bands never overlap, so a small bonus never lifts a release
   # into a better band (checked by `checks` below):
-  #   efficient 4K       60000-64800
-  #   1080p AV1/HEVC     48000-52800
-  #   high-bitrate 4K    32000-36800
-  #   other 1080p        26000-30800
-  #   4K over 40 GB       6000-10800
-  #   720p                1000-5800
+  #   efficient 4K       80000-84800
+  #   1080p AV1/HEVC     68000-72800
+  #   high-bitrate 4K    52000-56800
+  #   other 1080p        46000-50800
+  #   4K over 40 GB      26000-30800
+  #   720p               21000-25800
+  #   SD                  1000-5800
   langScore = 100000;
   tierScores = {
-    ${tier4k} = 60000;
-    ${tier1080} = 26000;
-    ${tier4kBig} = 32000;
-    ${tier4kHuge} = 6000;
-    ${tier720} = 1000;
+    ${tier4k} = 80000;
+    ${tier1080} = 46000;
+    ${tier4kBig} = 52000;
+    ${tier4kHuge} = 26000;
+    ${tier720} = 21000;
+    ${tierSd} = 1000;
   };
   # On top of the 1080p tier.
   codec1080Score = 22000;
@@ -75,7 +78,7 @@ let
 
   # Only files below the high-bitrate 4K band get replaced: other 1080p by
   # 1080p AV1/HEVC or efficient 4K, 4K over 40 GB and 720p by 1080p or better,
-  # and a wrong language by the right one. Files at 1080p AV1/HEVC or
+  # SD by 720p or better, and a wrong language by the right one. Files at 1080p AV1/HEVC or
   # high-bitrate 4K (25-40 GB in Radarr) or better stay, so nothing is
   # downgraded.
   minUpgradeScore = 15000;
@@ -120,6 +123,10 @@ let
     {
       ok = bandOf tier4kHuge > bandOf tier720 + smallMax;
       msg = "720p reaches the band of 4K over 40 GB";
+    }
+    {
+      ok = bandOf tier720 - (bandOf tierSd + smallMax) >= minUpgradeScore;
+      msg = "SD files are not replaced by 720p";
     }
     {
       ok = bandOf tier4k + smallMax < langScore;
@@ -193,6 +200,12 @@ let
       }
     );
 
+  # Either one matches: the two specifications are not required.
+  sdResolutions = map (r: spec "ResolutionSpecification" "${toString r}p" { value = r; }) [
+    480
+    576
+  ];
+
   efficientCodec = ''\b(?:AV1|AV01|x265|h[ ._-]?265|HEVC)\b'';
 
   # Service-specific enum values: source and Portuguese (Brazil) differ.
@@ -246,6 +259,7 @@ let
         (resolution 720)
         (sizeGb 2 8)
       ];
+      ${tierSd} = sdResolutions;
     };
 
   sonarrFormats =
@@ -269,6 +283,7 @@ let
         (required (negated (title "Not AV1 or HEVC" efficientCodec)))
       ];
       ${tier720} = [ (resolution 720) ];
+      ${tierSd} = sdResolutions;
     };
 
   # Recyclarr wants a stable trash_id per format; derive it from the name.
@@ -346,7 +361,7 @@ let
     // tiebreakScores
     // p.bonus;
 
-  ladderGroup = "720p-2160p";
+  ladderGroup = "SD-2160p";
   ladder =
     map
       (res: [
@@ -359,7 +374,18 @@ let
         "2160p"
         "1080p"
         "720p"
-      ];
+      ]
+    # Older shows often exist only in SD.
+    ++ [
+      [
+        "Bluray-576p"
+        "Bluray-480p"
+        "WEBDL-480p"
+        "WEBRip-480p"
+        "DVD"
+        "SDTV"
+      ]
+    ];
 
   qualityProfile = name: {
     inherit name;
@@ -370,10 +396,10 @@ let
       # Files at high-bitrate 4K or better meet the cutoff and stay.
       until_score = langScore + tierScores.${tier4kBig};
     };
-    min_format_score = langScore + tierScores.${tier720};
+    min_format_score = langScore + tierScores.${tierSd};
     # With 1, a WEB-DL (+200) replaced every HDTV or Bluray file of its tier.
     min_upgrade_format_score = minUpgradeScore;
-    # Unlisted qualities (SD, Remux, BR-DISK) end up disabled.
+    # Unlisted qualities (Remux, BR-DISK, Raw-HD, ...) end up disabled.
     qualities = [
       {
         name = ladderGroup;

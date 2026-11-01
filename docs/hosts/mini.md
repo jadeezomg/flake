@@ -296,8 +296,9 @@ All three profiles use the same ladder, best first:
 4. Other 1080p.
 5. 4K over 40 GB (Radarr only).
 6. 720p.
+7. SD (480p and 576p), for older shows that exist in nothing better.
 
-All 720p-2160p qualities are in one quality group, so the custom format score
+All SD-2160p qualities are in one quality group, so the custom format score
 sets this order. In Radarr, efficient 4K is 25 GB or less, high-bitrate 4K is
 25-40 GB, 1080p is 5-12 GB, and 720p is 2-8 GB. In Sonarr, the Size condition
 measures a full season pack, so efficient 4K means AV1 or HEVC instead. Bazarr
@@ -306,11 +307,11 @@ gets the English subtitles after the download.
 Only files below the high-bitrate 4K band get replaced, and only by a release
 at least one band higher. Other 1080p files get replaced by 1080p AV1/HEVC or
 efficient 4K. 4K files over 40 GB and 720p files get replaced by 1080p or
-better. A file in the wrong language gets replaced by the right one. Files at
-1080p AV1/HEVC or high-bitrate 4K or better stay, so nothing gets downgraded.
-Smaller differences, such as WEB-DL over HDTV or a season pack, never trigger a
-replacement. Assertions in `nixflix/quality.nix` check these rules whenever the
-configuration builds.
+better, and SD files by 720p or better. A file in the wrong language gets
+replaced by the right one. Files at 1080p AV1/HEVC or high-bitrate 4K or better
+stay, so nothing gets downgraded. Smaller differences, such as WEB-DL over HDTV
+or a season pack, never trigger a replacement. Assertions in
+`nixflix/quality.nix` check these rules whenever the configuration builds.
 
 Library scans run in one daily window at 06:30
 (`hosts/mini/services/media/library-scan.nix`). Plex and Jellyfin have no
