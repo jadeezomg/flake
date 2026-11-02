@@ -42,7 +42,7 @@ _build mode:
         pending="Boot $h..."; done_msg="Next reboot"
         ;;
       dry)
-        is_darwin && sc="nh darwin build --dry '${FLAKE_REF}#${h}'" || sc="nh os test '${FLAKE_REF}#${h}'"
+        is_darwin && sc="nh darwin build --dry '${FLAKE_REF}#${h}'" || sc="nh os build --dry '${FLAKE_REF}#${h}'"
         pending="Dry $h..."; done_msg=""
         ;;
       dev)
