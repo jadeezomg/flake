@@ -132,6 +132,8 @@ The AMT/MEBx password is set from the procedure in `docs/hosts/mini.md`
 ## 5. Deploy & ops
 
 ```bash
+just mini ship "msg"    # commit+push mini-nix, re-pin the input, deploy
+just mini bump          # re-pin flake.lock to mini-nix main, push
 just mini deploy        # git pull --ff-only on mini + nh switch (switch-fast)
 just mini deploy-dry    # build only, no activation
 just mini deploy-boot   # stage for next reboot (kernel/bootloader)
@@ -141,10 +143,14 @@ just mini llm <cmd>     # LLM service ops (nested module)
 ```
 
 - **`deploy` pulls `origin/main`** — commit *and push* first, or you deploy the old tree.
-- **The `mini-nix` input is private.** The build on mini fetches it over SSH, so
-  mini needs a read-only deploy key for `jadeezomg/mini-nix`; the
-  `mini/git/deploy-key` key is scoped to this repo. Without access the eval fails
-  at input fetch, before any module is read.
+- **`mini-nix` is pinned to a commit in `flake.lock`.** A plain `deploy` never
+  picks up new mini-nix commits: push mini-nix, then `just mini bump` (or let
+  `just mini ship "msg"` do commit + push + bump + deploy). The deploy recipes
+  print a note when `flake.lock` is behind mini-nix `main`.
+- **The `mini-nix` input is private.** The build on mini fetches it over SSH
+  with `jadee`'s own key, which has read access; no separate deploy key is
+  configured. Without access the eval fails at input fetch, before any module
+  is read.
 - `just mini secret-set mini/...` writes `mini-nix/secrets/secrets.yaml`;
   `just secret-set` still writes this repo's shared secrets file.
 - `deploy` uses `switch-fast` (no flake check, no commit on mini) since you authored

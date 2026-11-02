@@ -12,16 +12,70 @@ mini_ssh := env('MINI_SSH', 'mini')
 pull:
     ssh {{mini_ssh}} 'bash -lc "git -C ~/git/flake pull --ff-only"'
 
+# The mini-nix input is pinned in flake.lock: `deploy` builds the pinned rev,
+# never mini-nix main. `bump` re-pins it; `ship` does the whole loop.
+[private]
+_input-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    locked="$(jq -r '.nodes["mini-nix"].locked.rev // empty' "$FLAKE/flake.lock")"
+    [[ -n "$locked" ]] || exit 0
+    remote="$(GIT_SSH_COMMAND='ssh -o BatchMode=yes -o ConnectTimeout=5' \
+      git ls-remote git@github.com:jadeezomg/mini-nix refs/heads/main 2>/dev/null | cut -f1)"
+    [[ -n "$remote" ]] || exit 0
+    if [[ "$locked" != "$remote" ]]; then
+      printf 'note: mini-nix main is %s but flake.lock pins %s — run `just mini bump` to deploy it.\n' \
+        "${remote:0:8}" "${locked:0:8}"
+    fi
+
+[doc('Re-pin the mini-nix input to its pushed main, then commit + push flake.lock')]
+bump:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "$FLAKE"
+    before="$(jq -r '.nodes["mini-nix"].locked.rev // "none"' flake.lock)"
+    nix flake lock --update-input mini-nix
+    after="$(jq -r '.nodes["mini-nix"].locked.rev' flake.lock)"
+    if [[ "$before" == "$after" ]]; then
+      echo "bump: flake.lock already pins mini-nix ${after:0:8}; push the mini-nix commit first"
+      exit 0
+    fi
+    git add flake.lock
+    git commit -q -m "mini-nix: bump input to ${after:0:8}" -- flake.lock
+    git push
+    echo "bump: mini-nix ${before:0:8} -> ${after:0:8}, flake.lock pushed"
+
+[doc('Commit + push mini-nix, re-pin the input, then deploy (msg = mini-nix commit message)')]
+ship msg="mini-nix: update services":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mini="${MINI_NIX_DIR:-$HOME/git/mini-nix}"
+    branch="$(git -C "$mini" rev-parse --abbrev-ref HEAD)"
+    [[ "$branch" == main ]] || {
+      echo "ship: $mini is on '$branch', not main" >&2
+      exit 1
+    }
+    if [[ -z "$(git -C "$mini" status --porcelain)" ]]; then
+      echo "ship: mini-nix has no local changes"
+    else
+      git -C "$mini" add -A
+      git -C "$mini" commit -q -m {{ quote(msg) }}
+      echo "ship: committed $(git -C "$mini" rev-parse --short HEAD) in mini-nix"
+    fi
+    git -C "$mini" push
+    just --justfile "$FLAKE/Justfile" mini bump
+    just --justfile "$FLAKE/Justfile" mini deploy
+
 [doc('Pull newest flake on mini, then nh switch')]
-deploy:
+deploy: _input-check
     ssh -t {{mini_ssh}} 'bash -lc "set -e; cd ~/git/flake && git pull --ff-only && just switch-fast"'
 
 [doc('Pull newest flake on mini, then build-dry (no activation)')]
-deploy-dry:
+deploy-dry: _input-check
     ssh -t {{mini_ssh}} 'bash -lc "set -e; cd ~/git/flake && git pull --ff-only && just build-dry"'
 
 [doc('Pull newest flake on mini, stage for next reboot')]
-deploy-boot:
+deploy-boot: _input-check
     ssh -t {{mini_ssh}} 'bash -lc "set -e; cd ~/git/flake && git pull --ff-only && just build-boot"'
 
 [doc('Open an interactive ssh shell on mini')]
