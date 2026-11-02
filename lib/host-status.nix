@@ -42,7 +42,7 @@ let
 
         # Credential sources: 1Password on Darwin, libsecret on Linux.
         if [ "$(uname)" = "Darwin" ]; then
-          key="$(op read "op://Personal/openrouter_api_key/credential" 2>/dev/null || true)"
+          key="$(op read "op://Employee/openrouter_api_key/credential" 2>/dev/null || true)"
         else
           key="$(secret-tool lookup service nono account openrouter_api_key 2>/dev/null || true)"
         fi
