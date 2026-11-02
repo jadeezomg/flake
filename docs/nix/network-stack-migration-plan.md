@@ -3,6 +3,8 @@
 **Status:** proposed — NetBird recommended, Pangolin rejected
 **Related:** [research/netbird.md](../research/netbird.md), [research/pangolin.md](../research/pangolin.md), [mini-nix/services/caddy.nix](../../mini-nix/services/caddy.nix), [modules/nixos/networking.nix](../../modules/nixos/networking.nix), [scripts/shell/dns-sync.bash](../../scripts/shell/dns-sync.bash)
 
+**Implementation (status on 2026-11-02):** open. No phase started. The flake has no NetBird configuration, and Tailscale still runs on every host (`modules/nixos/networking.nix`, `modules/darwin/default.nix`). Blocker B1 needs no overlay now: the locked nixpkgs has `netbird` 0.81.5. B2 is still open.
+
 ---
 
 ## Current state

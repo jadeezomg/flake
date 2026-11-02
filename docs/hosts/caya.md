@@ -33,7 +33,7 @@ All git repos live at `~/git/<repo>`, the flake included (D9 in [session-managem
    cd ~/git/flake; just switch-fast
    ```
 
-   This switch repoints the live symlinks to `~/git/flake`, installs the `tuios` brew, and sets the black theme. If it fails, keep the error output.
+   This switch repoints the live symlinks to `~/git/flake`, installs `tuios` from nixpkgs, and sets the black theme. If it fails, keep the error output.
 
 4. Open a new terminal. Make sure that the new path is in use:
 
@@ -43,7 +43,7 @@ All git repos live at `~/git/<repo>`, the flake included (D9 in [session-managem
    ^readlink ~/.claude/settings.json
    ```
 
-   Expected: `/Users/<you>/git/flake`, `tuios version 0.11.0`, and a target under `.../git/flake/...`.
+   Expected: `/Users/<you>/git/flake`, `tuios version 0.12.0` or newer, and a target under `.../git/flake/...`.
 
 5. If `~/.claude/CLAUDE.md` exists, move it to the trash. It is an old link that no module manages, and Claude Code then loads the global instructions twice:
 

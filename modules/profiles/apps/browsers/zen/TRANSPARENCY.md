@@ -13,6 +13,7 @@ Current wiring:
 - Linux keeps `"zen.widget.linux.transparency" = true` in `profiles/default/default.nix`. Stylix does not set browser runtime prefs.
 - the Transparent Zen mod prefs in `settings.nix` remain intentional runtime settings
 - workspace sync now writes only workspace metadata, not theme overrides
-- `default.nix` appends the Square UI stylesheet (square corners) to the Stylix userChrome. It is not a transparency override.
+- `default.nix` appends `zenOpacityChrome` to the Stylix userChrome. It keeps one translucent layer, so Zen shows the Stylix opacity like kitty. With the two Stylix layers at 90%, Zen measured about 96% (2026-10-24).
+- `default.nix` also appends the Square UI stylesheet (square corners) to the Stylix userChrome. It is not a transparency override.
 
 If transparency issues return, check upstream Zen, Stylix, and the Transparent Zen mod behavior first before reintroducing local CSS workarounds.

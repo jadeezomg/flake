@@ -3,6 +3,14 @@
 **Status:** proposed  
 **Related:** [mini.md § Known gaps](../hosts/mini.md), [mini-nix/services/flake-cache-warm.nix](../../mini-nix/services/flake-cache-warm.nix), [per-host-and-pass-plan.md](../secrets/per-host-and-pass-plan.md), Mic92 `nixosModules/{builder,remote-builder}.nix`.
 
+**Implementation (status on 2026-11-02):** mostly open.
+
+- Phase 1 is open. Nothing imports `flake-cache-warm.nix` in mini-nix. The `jadee-flake` substituter in `lib/nix-caches.nix` is still commented out.
+- Phase 2 is open. The flake has no `nix.buildMachines` and no `nix.distributedBuilds`.
+- Phase 3 is open. There is no `fast-nix-gc` and no `keep-outputs`. `modules/shared/environment.nix` still sets `max-jobs = 1`.
+- Phase 4 is partial, with restic instead of borg. mini backs up its own service data to Unraid (`scripts/shell/mini-immich-drill.bash`). framework and desktop have no backup job.
+- Phase 5 is open.
+
 ---
 
 ## Why caya is out of the remote-build path

@@ -6,7 +6,7 @@ We unify the previously parallel `nono` and `agent-sandbox.nix` paths onto **non
 
 ## Coupled decisions
 
-**Broker-mode credentials via libsecret.** OpenRouter, Context7, and GitHub credentials are loaded from sops into the gnome-keyring (libsecret) at home-manager activation by `home/shared/shells/sops-keyring.nix`. Profiles reference them via `keyring://nono/<account>` URIs; nono's reverse proxy injects them as headers on outbound requests, so the sandbox env never sees the value.
+**Broker-mode credentials via libsecret.** OpenRouter, Context7, and GitHub credentials are loaded from sops into the gnome-keyring (libsecret) at home-manager activation by `modules/profiles/minimal/shells/sops-keyring.nix`. Profiles reference them via `keyring://nono/<account>` URIs; nono's reverse proxy injects them as headers on outbound requests, so the sandbox env never sees the value.
 
 **Per-agent git identity with co-author trailer.** Each agent gets its own author/committer identity (`claude-jadee <claude@jadee.fyi>`, `pi-jadee <pi@jadee.fyi>`) via `GIT_AUTHOR_*` / `GIT_COMMITTER_*` env vars set in the agent profile. omp shares pi's identity since both are pi-derived ("the pi family"); differentiation is via config dir (`~/.omp` vs `~/.pi`), not author. A flake-built `prepare-commit-msg` hook (referenced via `GIT_CONFIG_GLOBAL` → `core.hooksPath`) appends `Co-Authored-By: jadeezomg <github@jadee.fyi>` to every commit, idempotently via `git interpret-trailers --if-exists doNothing`. The host's `~/.gitconfig` remains visible inside the sandbox via the inherited `git_config` policy group; env vars override identity at git's resolution layer, so leaked aliases are not a security concern.
 
