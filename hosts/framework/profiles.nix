@@ -13,7 +13,7 @@ _: {
     theme.variant = "black";
     desktop = {
       shell = "noctalia";
-      loginManager = "gdm"; # required for noctalia
+      loginManager = "gdm"; # input.nix has fingerprint PAM rules for gdm, none for noctalia-greeter
     };
   };
 }
