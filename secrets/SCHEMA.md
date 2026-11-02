@@ -109,7 +109,7 @@ services also read. The `services/...` paths are in mini-nix.
 | `telegram/allowed_users` | Telegram users that can talk to the hermes bot | `services/hermes.nix` → `TELEGRAM_ALLOWED_USERS` in hermes env | mini |
 | `telegram/home_channel` | Telegram home channel for hermes | `services/hermes.nix` → `TELEGRAM_HOME_CHANNEL` in hermes env | mini |
 | `matrix/registration_token` | continuwuity registration token (gates account creation) | `services/matrix.nix` → continuwuity `EnvironmentFile` | mini |
-| `matrix/hermes_password` | `@hermes` bot account password. **Break-glass only** — used out-of-band to mint the access token / re-bootstrap cross-signing (see `docs/hosts/mini.md § Matrix, Hermes, Caddy`); declared but not put in the hermes env | `services/hermes.nix` | mini |
+| `matrix/hermes_password` | `@hermes` bot account password. **Break-glass only** — used out-of-band to mint the access token / re-bootstrap cross-signing (see mini-nix `docs/services.md § Matrix, Hermes, Caddy`); declared but not put in the hermes env | `services/hermes.nix` | mini |
 | `matrix/hermes_access_token` | Long-lived access token for `@hermes` bound to device `hermes-mini` (preferred auth — avoids password re-login key churn that breaks E2EE) | `services/hermes.nix` → `MATRIX_ACCESS_TOKEN` in hermes env | mini |
 | `matrix/hermes_recovery_key` | Cross-signing recovery key that verifies the `hermes-mini` device for E2EE; generated during the one-time cross-signing bootstrap | `services/hermes.nix` → `MATRIX_RECOVERY_KEY` in hermes env | mini |
 

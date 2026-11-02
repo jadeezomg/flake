@@ -1,7 +1,7 @@
 # Plan: Linux remote builders, Cachix warm, store hygiene, backups
 
 **Status:** proposed  
-**Related:** [mini.md § Known gaps](../hosts/mini.md), [mini-nix/services/flake-cache-warm.nix](../../mini-nix/services/flake-cache-warm.nix), [per-host-and-pass-plan.md](../secrets/per-host-and-pass-plan.md), Mic92 `nixosModules/{builder,remote-builder}.nix`.
+**Related:** mini-nix `docs/services.md` § Known gaps, [mini-nix/services/flake-cache-warm.nix](../../mini-nix/services/flake-cache-warm.nix), [per-host-and-pass-plan.md](../secrets/per-host-and-pass-plan.md), Mic92 `nixosModules/{builder,remote-builder}.nix`.
 
 **Implementation (status on 2026-11-02):** mostly open.
 
@@ -107,7 +107,7 @@ Also bump today’s global [`max-jobs = 1`](../../modules/shared/environment.nix
 
 ### Phase 1 — Enable Cachix warm on mini (independent, high ROI)
 
-Already documented in mini.md; code exists but **not imported**.
+Already documented in mini-nix `docs/services.md`; code exists but **not imported**.
 
 1. `cachix create jadee-flake` (if missing); put real pubkey in `modules/shared/environment.nix` (uncomment substituter).
 2. Push token → sops `cachix/auth-token`; deploy key → `mini/git/deploy-key`.

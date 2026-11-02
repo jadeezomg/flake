@@ -7,7 +7,7 @@ description: Change local LLM serving (llama.cpp router models, context, embeddi
 
 ## Scope
 
-The `dotfiles.profiles.llm` profile has two toggles. Options are declared in `modules/profiles/default.nix` (the `llm` block). Reference doc: `docs/hosts/mini.md` § 6 LLM stack.
+The `dotfiles.profiles.llm` profile has two toggles. Options are declared in `modules/profiles/default.nix` (the `llm` block). Reference doc: mini-nix `docs/services.md` § LLM stack.
 
 - `llm.tools.enable`: llama.cpp CLI, `hf` CLI (`huggingface-hub`), and the `unsloth-studio` podman user service (`modules/profiles/llm/unsloth.nix`). Darwin gets podman only. On: desktop.
 - `llm.serve.enable`: the llama.cpp router server, one `llama-cpp` systemd unit (`modules/profiles/llm/serve.nix`). Linux only. On: mini, through `host.miniLlmHosting` in `hosts/mini/host.nix`. The toggle imports `services/llm/` from the private `mini-nix` repo (flake input `mini-nix`).

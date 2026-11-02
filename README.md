@@ -17,7 +17,7 @@ Per-host metadata lives in `hosts/<name>/host.nix`. The registry is `hosts/hosts
 
 The active host is read from **`.flake-host`** (not committed). Set it with `just init` (prompts) or `just _init <host>` (no prompt).
 
-**`mini`** is the headless server (Minisforum MS-01): local LLM chat + embeddings (llama.cpp via `mini llm`), Beszel monitoring, Atuin shell-history sync, the Nixflix media stack (Jellyfin, VPN-confined downloaders, Unraid payloads — see `docs/adr/`), and an Immich photo library with off-host backups. Ops notes live in [`docs/hosts/mini.md`](docs/hosts/mini.md); deploy with `mini deploy` (recipes live in the private mini-nix repo). mini's service modules and `mini/**` secrets also live in mini-nix, the `mini-nix` flake input that `hosts/mini/default.nix` imports.
+**`mini`** is the headless server (Minisforum MS-01): local LLM chat + embeddings (llama.cpp via `mini llm`), Beszel monitoring, Atuin shell-history sync, the Nixflix media stack (Jellyfin, VPN-confined downloaders, Unraid payloads, see `docs/adr/` in mini-nix), and an Immich photo library with off-host backups. Ops notes live in [`docs/hosts/mini.md`](docs/hosts/mini.md); deploy with `mini deploy` (recipes live in the private mini-nix repo). mini's service modules and `mini/**` secrets also live in mini-nix, the `mini-nix` flake input that `hosts/mini/default.nix` imports.
 
 ## Conventions
 
@@ -33,7 +33,7 @@ just switch          # flake check → build → commit on success → quit apps
 just switch-fast     # nh switch only
 just quit-apps       # macOS: ask open apps to quit, never forced (--dry-run lists them)
 just switch-check    # nix flake check only
-just build-dry       # dry run (nh darwin build --dry / nh os test)
+just build-dry       # dry run (nh darwin build --dry / nh os build --dry)
 just build-dev       # switch with --show-trace
 just rollback        # previous generation
 
@@ -94,7 +94,7 @@ flake/
 ├── modules/                  # profiles (features, system + HM halves) / platform base
 ├── packages/                 # custom packages; auto-registered as pkgs.<name> (see overlays)
 ├── data/agents/              # global AGENTS.md + local skills + Claude Code mods
-├── docs/                     # ADRs (docs/adr), host runbooks (docs/hosts), bench, research
+├── docs/                     # ADRs (docs/adr), host runbooks (docs/hosts), plans, research
 ├── scripts/                  # Justfile helpers + uv Python package (flake-scripts)
 └── secrets/secrets.yaml        # sops + age
 ```
@@ -156,7 +156,7 @@ Home-manager exports select secrets to the user session env via `modules/profile
 | ---- | ---- |
 | Profile toggles | `dotfiles.profiles` in `modules/profiles/`; enable per host in `hosts/<name>/` |
 | **Profiles overview** | [`docs/profiles.md`](docs/profiles.md) (structure + conventions; the tree is its own index) |
-| Architecture decisions | [`docs/adr/`](docs/adr/) (media stack, Immich, network stack, …) |
+| Architecture decisions | [`docs/adr/`](docs/adr/) (agent sandboxing). The mini service ADRs are in mini-nix. |
 | Host ops / troubleshooting | [`docs/hosts/`](docs/hosts/) (e.g. [`docs/hosts/mini.md`](docs/hosts/mini.md)) |
 | System packages (profile-gated) | `modules/profiles/<profile>.nix` (platform extras inline) |
 | System packages (unconditional base) | `modules/shared/`, `modules/nixos/`, `modules/darwin/` |

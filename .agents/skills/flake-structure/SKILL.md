@@ -111,7 +111,8 @@ Hazards:
 
 - `docs/ALIASES.md`: shell alias reference. `docs/profiles.md`: profile reference.
 - `docs/adr/`: numbered ADRs for durable decisions.
-- `docs/agents/`, `docs/bench/`, `docs/handoffs/`, `docs/hosts/`, `docs/nix/`, `docs/research/`, `docs/secrets/`: focused notes by area.
+- `docs/agents/`, `docs/hosts/`, `docs/nix/`, `docs/research/`, `docs/secrets/`: focused notes by area.
+- mini's service notes (`docs/services.md`), service ADRs (`docs/adr/`) and LLM benchmarks (`docs/bench/`) are in mini-nix, not here. `docs/hosts/mini.md` keeps only the machine notes.
 - `CONTEXT.md` at the root defines agent sandboxing vocabulary.
 - Do not create docs to narrate a small code change.
 
