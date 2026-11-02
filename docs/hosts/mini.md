@@ -3,7 +3,7 @@
 Single reference for the `mini` host (Minisforum MS-01, headless NixOS).
 
 **Scope:** only what is *not* readable from the flake. Every "what is configured"
-question is answered by `hosts/mini/**` and the module tree; this file records the
+question is answered by `hosts/mini/**`, `mini-nix` and the module tree; this file records the
 ordering constraints, failure modes, one-time runtime steps and deliberate
 decisions that the Nix code cannot express. When the two disagree, the flake wins
 — fix this file.
@@ -160,11 +160,12 @@ mini llm <cmd>     # LLM service ops (nested module)
   tracked files.
 - **Mini's login shell is nushell** — for one-liners use `ssh mini 'bash -lc "…"'`.
 - **`mini` is the CLI for these recipes.** It runs the `Justfile` in the private
-  mini-nix checkout (`~/git/mini-nix`; `MINI_NIX_DIR` overrides), which owns the
+  mini-nix checkout (`~/git/mini-nix`), which owns the
   host ops, the secrets recipes and the LLM ops (`mini llm <cmd>`). The flake
   installs a thin `mini` wrapper (`modules/profiles/minimal/shells/mini-cli.nix`).
   List with `mini --list`, `mini --list llm`. Recipes that run flake scripts
-  read `DOTFILES_DIR` (default `~/git/flake`).
+  read `DOTFILES_DIR` (default `~/git/flake`). `MINI_NIX_DIR` changes only the
+  checkout that `ship` and `bump` use.
 - Host is reached **by address, not name** (`sshAddress = 192.168.178.100`) because
   it is headless and ops must work before name resolution does. Off-LAN:
   `MINI_SSH=mini.quokka-qilin.ts.net`.
@@ -372,7 +373,7 @@ the account pages (stashdb.org, javstash.org). Matching is the **Identify**
 task with a stash-box source; **Auto Tag** only matches names already in the
 database and never queries a box. Identify applies title/date/stash ID always,
 and studio/performers/tags only when its field options say so
-(`MERGE` + create missing). JAV leftovers use `mini stash-jav-match`
+(`MERGE` + create missing). JAV leftovers use `mini jav-match`
 (dry run; add `--apply`): it matches the product code in the filename against
 JAVStash's scene `code`, because JAVStash scenes often carry no fingerprint for
 Identify to match. The script lives in `mini-nix/scripts/stash-jav-match.py`.
@@ -558,7 +559,7 @@ There is **no CLI user creation**. Register against loopback `:6167` with
   the NousResearch module turns them into `cfg.package.override`, which only the
   hermes repo's own uv2nix build accepts.
 - The dashboard is loopback-only behind Caddy, with no login (since 2026-10-26).
-  The `tailnet-only` snippet in `services/caddy.nix` answers 403 to clients
+  The `tailnet-only` snippet in `mini-nix/services/caddy.nix` answers 403 to clients
   outside the tailnet, because Caddy also binds the LAN address. Every tailnet
   device controls hermes through it.
 - The Tailscale auth key must be **reusable + non-ephemeral** or `mini-proxy` does
@@ -580,7 +581,7 @@ true, switch, run `atuin register`, then flip it back and switch again.
 
 ### Homepage start page
 
-`https://home.jadee.fyi` → loopback `:8082` (`services/homepage/`). One page with a
+`https://home.jadee.fyi` → loopback `:8082` (`mini-nix/services/homepage/`). One page with a
 tile for each service on mini and Unraid. Each tile shows a status dot from a
 loopback check. Most tiles also show live numbers from the service API.
 
@@ -630,7 +631,7 @@ Widgets that need a manual step:
 
 ## 10. Agent session archive (`miniAgentSessions`)
 
-The plan and its decisions are in [session-management-plan.md](../agents/session-management-plan.md). The code is `services/agent-sessions.nix` (mini), `modules/profiles/devenv/agents/session-push.nix` (every Linux host), and `data/agents/session-sources.nix` (the folders per agent).
+The plan and its decisions are in [session-management-plan.md](../agents/session-management-plan.md). The code is `mini-nix/services/agent-sessions.nix` (mini), `modules/profiles/devenv/agents/session-push.nix` (every Linux host), and `data/agents/session-sources.nix` (the folders per agent).
 
 | Part | Facts |
 |---|---|
@@ -660,17 +661,17 @@ The plan and its decisions are in [session-management-plan.md](../agents/session
 - **systemd-tmpfiles: "unsafe path transition"**. A folder of root sits under a folder of an unprivileged user. Keep `/srv/agent-sessions` owned by root.
 - **Push fails off the LAN, works at home**. The tailnet ACL blocks port 2222. Test with `nc -vz mini.quokka-qilin.ts.net 2222`.
 - **A new SQLite source stays empty in agentsview**. agentsview opens sources read-only and cannot read WAL mode that way. Send a `.backup` snapshot and set `PRAGMA journal_mode=DELETE`.
-- **An edit to `/var/lib/agentsview/config.toml` disappears**. The unit writes that file from the Nix template at each start. It keeps only the generated `cursor_secret` and `auth_token` lines. Change the template in `services/agent-sessions.nix`.
+- **An edit to `/var/lib/agentsview/config.toml` disappears**. The unit writes that file from the Nix template at each start. It keeps only the generated `cursor_secret` and `auth_token` lines. Change the template in `mini-nix/services/agent-sessions.nix`.
 - **A work session reached the archive** (D10, manual). Remove it in three places: the raw files, the agentsview database, and the restic snapshots.
 
 ## 11. Known gaps / deferred
 
 - **Nightly cachix cache-warm pipeline** — code exists at
-  `mini-nix/services/flake-cache-warm.nix` but the import is **commented out** in
-  `hosts/mini/default.nix`. To bring online: `cachix create jadee-flake` (public
+  `mini-nix/services/flake-cache-warm.nix` but `mini-nix/module.nix` does **not
+  import** it. To bring online: `cachix create jadee-flake` (public
   read) → paste the public key over the TODO in `modules/shared/environment.nix` →
   push-scoped token into sops `cachix/auth-token` → GitHub deploy key (write) into
-  `mini/git/deploy-key` → uncomment → `just switch` → `systemctl start
+  `mini/git/deploy-key` → add the import → `just switch` → `systemctl start
   flake-cache-warm.service`. Design (mass `nix flake update`, build the three
   closures, bisect per-input on failure and revert only the offending inputs, push
   the maximal working lockfile) lives in the module header.
@@ -707,7 +708,7 @@ consolidation). The parts that are not obvious:
    `host.nix`.** sops-nix cannot decrypt before mini's age host key exists, so
    `users.users.jadee.hashedPasswordFile` cannot be declared on first install.
    Re-introduce a `miniBootstrap` toggle that (a) uses `initialPassword` and (b)
-   skips `./services/llm`, then flip it off only after the sops checklist in §4 is
+   skips `mini-nix/services/llm`, then flip it off only after the sops checklist in §4 is
    complete. `--no-root-password` is correct — root stays locked, jadee has
    NOPASSWD wheel.
 6. **Password SSH is disabled from first boot** — your key must already be in

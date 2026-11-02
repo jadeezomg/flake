@@ -1,6 +1,6 @@
 ---
 name: llm-hosting
-description: Change local LLM serving (llama.cpp router models, context, embeddings) or the LLM toolbox. Use when editing modules/profiles/llm/**, hosts/mini/services/llm/**, tuning the served chat/embedding models, context/KV/slots, MTP, or the `mini llm` ops, or when the local LLM fails to load/serve.
+description: Change local LLM serving (llama.cpp router models, context, embeddings) or the LLM toolbox. Use when editing modules/profiles/llm/** or services/llm/** in the private mini-nix repo. Also use it to tune the served chat/embedding models, context/KV/slots, MTP, or the `mini llm` ops. If the local LLM fails to load/serve, use it too.
 ---
 
 # LLM Hosting
@@ -10,7 +10,7 @@ description: Change local LLM serving (llama.cpp router models, context, embeddi
 The `dotfiles.profiles.llm` profile has two toggles. Options are declared in `modules/profiles/default.nix` (the `llm` block). Reference doc: `docs/hosts/mini.md` § 6 LLM stack.
 
 - `llm.tools.enable`: llama.cpp CLI, `hf` CLI (`huggingface-hub`), and the `unsloth-studio` podman user service (`modules/profiles/llm/unsloth.nix`). Darwin gets podman only. On: desktop.
-- `llm.serve.enable`: the llama.cpp router server, one `llama-cpp` systemd unit (`modules/profiles/llm/serve.nix`). Linux only. On: mini, through `host.miniLlmHosting` in `hosts/mini/host.nix`, which imports `hosts/mini/services/llm/`.
+- `llm.serve.enable`: the llama.cpp router server, one `llama-cpp` systemd unit (`modules/profiles/llm/serve.nix`). Linux only. On: mini, through `host.miniLlmHosting` in `hosts/mini/host.nix`. The toggle imports `services/llm/` from the private `mini-nix` repo (flake input `mini-nix`).
 
 ## llama-cpp build
 
@@ -22,16 +22,16 @@ The `dotfiles.profiles.llm` profile has two toggles. Options are declared in `mo
 - `threads` (`--threads`, `null` = server default). `modelsMax` (`--models-max`, `null` = all models resident). `gpuLayers` (default `999`, all layers).
 - `device` sets `LLAMA_ARG_DEVICE` (`null` = auto). List ids with `llama-server --list-devices`. No-rebuild escape hatch: `sudo systemctl edit llama-cpp` and add `Environment=LLAMA_ARG_DEVICE=...`.
 - `stateDir` (default `/var/lib/llama-cpp`). Models download into `<stateDir>/huggingface`.
-- `environmentFile`: the unit's `EnvironmentFile`. mini passes the sops template `mini-llm-hf.env` (`HF_TOKEN`), declared in `hosts/mini/secrets.nix`.
+- `environmentFile`: the unit's `EnvironmentFile`. mini passes the sops template `mini-llm-hf.env` (`HF_TOKEN`), declared in `mini-nix/secrets.nix`.
 - `models.<id>`: one INI section per served model. `<id>` is the OpenAI model id. Fields: `hfRepo`, `quant` (rendered as `repo:quant`), `ctx` (TOTAL pool, split across `slots`), `slots` (`parallel`), `kvType` (`cache-type-k`/`-v`), `embedding`, `pooling`, `mmprojAuto`, `flashAttn` (`on`/`off`/`auto`), and `settings` for any other long-form `llama-server` arg without `--`. Write floats as strings (`temp = "1.0"`).
 
 The module renders the INI, the `llama` system user, tmpfiles, and the unit. Do not add a second llama-server unit on a host; add a model instead.
 
-## mini (`hosts/mini/services/llm/`)
+## mini (`mini-nix/services/llm/`)
 
 - `default.nix`: enables `llm.serve` with mini's values and imports `open-webui.nix`. Edit the model knobs here, not raw args.
 - `open-webui.nix`: Open WebUI on loopback `127.0.0.1:8080`. Caddy serves it at `chat.jadee.fyi`. It reads the port from `llm.serve.port` and talks to `http://127.0.0.1:8000/v1` with `OPENAI_API_KEY = "sk-no-auth"` (the server has no auth). `ENABLE_OLLAMA_API = "False"`.
-- `hosts/mini/services/tracing.nix` adds the `ENABLE_OTEL*` and `OTEL_*` variables to `services.open-webui.environment` when `miniTracing` is on (OTLP/gRPC to Tempo on `127.0.0.1:4317`). Look there before you add OTel settings here.
+- When `miniTracing` is on, `mini-nix/services/tracing.nix` adds the `ENABLE_OTEL*` and `OTEL_*` variables to `services.open-webui.environment` (OTLP/gRPC to Tempo on `127.0.0.1:4317`). Look there before you add OTel settings here.
 
 Current presets (`--models-max 2`, both resident; `1` swaps on demand and gives chat the full VRAM):
 
@@ -42,7 +42,7 @@ Current presets (`--models-max 2`, both resident; `1` swaps on demand and gives 
 
 ## VRAM budget (15 GiB Arc B50)
 
-QAT ~6.7 + mmproj ~1 + embedder ~0.6 + overhead ~1.5 ≈ 9.8 GB. About 5.2 GB remain for chat KV. Gemma 4 is cheap on KV (8 of 48 layers are full-attention, the rest cap at a 1024 sliding window), about 32 KiB/token at q8_0. 128K ≈ 4.2 GB, with about 1 GB margin. The true maximum is empirical. `journalctl -u llama-cpp` prints the KV size on load. `intel_gpu_top` shows VRAM. The comments in `hosts/mini/services/llm/default.nix` carry the current math.
+QAT ~6.7 + mmproj ~1 + embedder ~0.6 + overhead ~1.5 ≈ 9.8 GB. About 5.2 GB remain for chat KV. Gemma 4 is cheap on KV (8 of 48 layers are full-attention, the rest cap at a 1024 sliding window), about 32 KiB/token at q8_0. 128K ≈ 4.2 GB, with about 1 GB margin. The true maximum is empirical. `journalctl -u llama-cpp` prints the KV size on load. `intel_gpu_top` shows VRAM. The comments in `mini-nix/services/llm/default.nix` carry the current math.
 
 ## Apply
 
@@ -50,8 +50,8 @@ Author changes locally. Never edit over SSH on mini.
 
 1. `git add -A` (flakes only see tracked files).
 2. `flake fmt` after `.nix` edits.
-3. Eval-check the unit: `nix eval --raw .#nixosConfigurations.mini.config.systemd.services.llama-cpp.serviceConfig.ExecStart`.
-4. Commit and push. `deploy` pulls `origin/main` on mini.
+3. Eval-check the unit: `nix eval --raw .#nixosConfigurations.mini.config.systemd.services.llama-cpp.serviceConfig.ExecStart`. The eval reads the mini-nix commit in `flake.lock`. To check mini-nix edits that are not pinned yet, add `--override-input mini-nix ~/git/mini-nix`.
+4. Commit and push. `deploy` pulls `origin/main` on mini. If you changed mini-nix, push it and run `mini bump` to pin the new commit in `flake.lock`. `mini ship "msg"` does the commit, push, bump, and deploy in one step.
 5. `mini deploy` (pull, then `switch-fast`). Siblings: `mini deploy-dry` (build only), `mini deploy-boot` (stage for reboot).
 
 The first boot downloads about 10 GB into `/var/lib/llama-cpp/huggingface`.
