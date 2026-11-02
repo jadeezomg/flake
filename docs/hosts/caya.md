@@ -8,53 +8,34 @@ Nothing connects into caya (`sshAddress = null` in `hosts/caya/host.nix`). Do ev
 
 ---
 
-## 1. Move the flake checkout to `~/git/flake` (2026-10)
+## 1. Darwin workflows
 
-All git repos live at `~/git/<repo>`, the flake included (D9 in [session-management-plan.md](../agents/session-management-plan.md)). `dotfiles.flakeRoot` now defaults to `~/git/flake`. The first switch from the new path also sets the black theme variant on caya.
+caya is an `aarch64-darwin` host with the user `jonashippauf` (`caya-jonas` in `data/users/users.nix`). `hosts/caya/profiles.nix` turns on the `work` profile. Its Darwin part, `modules/profiles/work/darwin/default.nix`, holds the Homebrew configuration.
 
-1. Pull and move the checkout. `bash -c` keeps `&&` working in nushell:
+### Add a Homebrew cask or tap
 
-   ```
-   bash -c 'git -C ~/.dotfiles/flake pull --ff-only && git -C ~/.dotfiles/flake remote set-url origin git@github.com:jadeezomg/flake.git && mkdir -p ~/git && mv ~/.dotfiles/flake ~/git/flake && ln -s ../git/flake ~/.dotfiles/flake'
-   ```
+1. Add the cask to `homebrew.casks` in `modules/profiles/work/darwin/default.nix`. A cask from a third-party tap takes the full name, for example `nkzw-tech/tap/codiff`.
+2. For a new tap, add its repo to `flake.nix` as an input with `flake = false`, as `homebrew-nkzw-tap` does. Then add the input to `nix-homebrew.taps` in `hosts/caya/default.nix`. `homebrew.taps` takes its names from that list.
+3. Also add a third-party tap to `nix-homebrew.trust.taps`, for example `nkzw-tech/tap`. Homebrew 6.0 and later does not load casks from a tap that it does not trust.
+4. To set the macOS defaults of the app, add a file to `modules/profiles/work/darwin/brew-casks/` and import it in `brew-casks/default.nix`.
 
-2. Make sure that the move is complete:
+The activation uses `cleanup = "uninstall"`. If you remove a cask from the list, the next switch uninstalls it.
 
-   ```
-   ls -la ~/.dotfiles
-   open ~/git/flake/.flake-host
-   ```
+### Homebrew version pin
 
-   The first command shows `flake -> ../git/flake`. The second shows `caya`.
+nix-homebrew pins its own Homebrew release. `hosts/caya/default.nix` replaces it with Homebrew `brewVersion` (7.0.11) through `nix-homebrew.package`. Older releases cannot read `zap :not_required` in the `font-sf-mono` and `font-sf-pro` casks. The `newerBrew` guard (`lib/expiry.nix`) compares the pin of nix-homebrew with `brewVersion`. If nix-homebrew pins `brewVersion` or later, the evaluation prints a warning and the override stops. Then delete `newerBrew` and the `nix-homebrew.package` override.
 
-3. Switch from the new path. The switch asks for the sudo password:
+### Environment variables for GUI apps
 
-   ```
-   cd ~/git/flake; just switch-fast
-   ```
+An app that starts from Finder, the Dock or Spotlight does not see shell exports. To give a GUI app a variable, add it to `launchd.user.envVariables`. The `xdg-env` launch agent in `modules/darwin/default.nix` runs `launchctl setenv` for each entry at every login. `CODIFF_CODEX_PATH` in `modules/profiles/work/darwin/default.nix` is an example.
 
-   This switch repoints the live symlinks to `~/git/flake`, installs `tuios` from nixpkgs, and sets the black theme. If it fails, keep the error output.
+### Nix daemon configuration
 
-4. Open a new terminal. Make sure that the new path is in use:
+Determinate Nix owns `/etc/nix/nix.conf`, so `nix.settings` has no effect on caya. Put the daemon configuration in `determinateNix.customSettings` in `modules/darwin/nix.nix`. Determinate writes it to `/etc/nix/nix.custom.conf`. The binary caches come from the entries in `lib/nix-caches.nix` that have `darwin = true`. Do not set `nix.enable = true`.
 
-   ```
-   $env.FLAKE
-   tuios --version
-   ^readlink ~/.claude/settings.json
-   ```
+### Quit apps before a switch
 
-   Expected: `/Users/<you>/git/flake`, `tuios version 0.12.0` or newer, and a target under `.../git/flake/...`.
-
-5. If `~/.claude/CLAUDE.md` exists, move it to the trash. It is an old link that no module manages, and Claude Code then loads the global instructions twice:
-
-   ```
-   ls -la ~/.claude/CLAUDE.md
-   trash ~/.claude/CLAUDE.md
-   ```
-
-   On caya, `trash` is the brew from the work profile. The `gio trash` alias exists on Linux only.
-
-6. When nothing uses the old path, remove the symlink: `trash ~/.dotfiles/flake`.
+On caya, `just switch` runs `scripts/shell/quit-apps.bash` after the build and before the activation. The script asks each open app to quit, as Cmd+Q does. It never forces an app to quit. Terminals, Finder and menu bar apps stay open. `just switch-fast` does not run this step. To see the list of apps first, run `just quit-apps --dry-run`.
 
 ## 2. What caya does not get
 
