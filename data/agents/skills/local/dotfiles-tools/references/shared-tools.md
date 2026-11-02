@@ -17,17 +17,16 @@
 
 | Tool | Command | Notes |
 |------|---------|-------|
-| trash | `trash <path>` | Preferred delete (user shell alias); never `rm`/`rmdir` |
-| gio | `gio trash <path>` | Trash via GLib; **required under `sudo`** (alias unavailable) |
+| trash | `trash <path>` | Preferred delete. Never use `rm`/`rmdir`. On Linux it is a shell alias for `gio trash`. On caya it is the Homebrew `trash` |
+| gio | `gio trash <path>` | Trash via GLib, Linux only. **Required under `sudo`** (alias unavailable) |
 | dust | `dust` | Visual disk usage (like du but better) |
-| difftastic | `difft` | Structural diff (understands syntax) |
 | p7zip | `7z` | Archive tool |
 
 ## Git & Version Control
 
 | Tool | Command | Notes |
 |------|---------|-------|
-| git | `git` | Standard (delta configured as pager) |
+| git | `git` | Standard (no custom pager) |
 | gh | `gh pr`, `gh issue`, `gh repo` | GitHub CLI |
 | act | `act` | Run GitHub Actions locally |
 
@@ -68,7 +67,7 @@
 | uv | `uv add pkg` | Fast package manager |
 | ruff | `ruff check .` / `ruff format .` | Linter + formatter |
 | ty | `ty check` | Type checker |
-| python3 | `python3` | Python (with pip, lz4) |
+| python3 | `python3` | Plain interpreter for ad-hoc scripts. Project dependencies go in uv projects |
 
 ### JavaScript / TypeScript
 | Tool | Command | Notes |
@@ -104,12 +103,11 @@
 | Tool | Command | Notes |
 |------|---------|-------|
 | marksman | LSP | Heading references, TOC action, link diagnostics |
-| markdownlint-cli2 | `markdownlint-cli2 '**/*.md'` | Style linter; no config and no caller in this repo |
 
 ### Agents
 | Tool | Command | Notes |
 |------|---------|-------|
-| apm | `apm install -g` | Agent Package Manager; owns global skills + MCP |
+| apm | `apm update -g` | Agent Package Manager. It owns global skills + MCP. `flake switch` runs it. The manifest is read-only, so add packages in `modules/profiles/devenv/agents/apm.nix` |
 | kagi | `kagi search "<q>"` | Web search, page extract, referenced answers |
 | ctx7 | `ctx7 library <name> "<q>"` | Library and SDK docs |
 

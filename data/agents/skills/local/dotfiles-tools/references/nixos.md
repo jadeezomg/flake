@@ -1,6 +1,7 @@
 # NixOS-Specific CLI Tools
 
 These tools are only available on NixOS (desktop/framework hosts).
+mini, the NixOS server, also has them, but not autorandr, the gaming tools, or the llama.cpp CLI.
 
 ## System Information & Hardware
 
@@ -18,7 +19,6 @@ These tools are only available on NixOS (desktop/framework hosts).
 |------|---------|-------|
 | psmisc | `killall`, `pstree`, `fuser` | Process tools |
 | util-linux | `lsblk`, `blkid`, `mount`, `umount` | Core Linux utilities |
-| coreutils | `uutils-coreutils` | Standard tools (Rust rewrite) |
 | autorandr | `autorandr --change` | Auto-configure display on connect |
 
 ## Development
@@ -27,13 +27,12 @@ These tools are only available on NixOS (desktop/framework hosts).
 |------|-------|
 | gdb | GNU debugger (`gdb ./binary`) |
 
-## Gaming (desktop host only)
+## Gaming (desktop and framework)
 
 | Tool | Notes |
 |------|-------|
 | steamcmd | Steam command-line interface |
 | mangohud | In-game overlay (FPS, temps) |
-| protonup-ng | Update Proton/GE versions — binary is `protonup`, not `protonup-ng` |
 | protonup-rs | Update Proton/GE versions (`protonup-rs`) |
 | heroic | Launcher for Epic/GOG games |
 
@@ -41,7 +40,7 @@ These tools are only available on NixOS (desktop/framework hosts).
 
 | Tool | Notes |
 |------|-------|
-| llama-cpp | Local LLM inference (mini serves via systemd router) |
+| llama-cpp | Local LLM inference. The CLI comes from the `llm.tools` profile, on desktop only. mini serves models with the llama.cpp router (`llm.serve`) |
 
 ## nix-index
 

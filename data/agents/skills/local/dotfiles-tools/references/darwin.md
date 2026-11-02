@@ -11,11 +11,11 @@ the `work` profile is on — which today means caya.
 |------|---------|-------|
 | trash | `trash <path>` | Finder Trash from CLI (preferred over `rm`) |
 
-## Nix-provided (both platforms)
+## Homebrew, devenv profile
 
 | Tool | Command | Notes |
 |------|---------|-------|
-| mise | `mise install`, `mise use` | Polyglot runtime version manager. Comes from the nix closure via `programs.mise.enable`, not Homebrew. |
+| mise | `mise install`, `mise use` | Polyglot runtime version manager. A Homebrew brew from `modules/profiles/devenv/mise-darwin.nix`, because nixpkgs lags behind the mise releases. NixOS hosts get no mise. |
 
 ## 1Password CLI (op)
 
