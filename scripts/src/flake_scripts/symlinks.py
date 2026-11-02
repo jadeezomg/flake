@@ -1,4 +1,4 @@
-"""Check desktop config symlinks (DMS, Noctalia, niri, quickshell) against the flake."""
+"""Check desktop config symlinks (DMS, Noctalia, niri) against the flake."""
 
 from __future__ import annotations
 
@@ -8,28 +8,6 @@ import sys
 from pathlib import Path
 
 from flake_scripts.lib import common as C
-
-
-def _single_symlink_audit(path: Path) -> int:
-    issues = 0
-    if path.is_symlink():
-        raw = os.readlink(path)
-        target = path.resolve()
-        line = f"{path} → {target}"
-        if C.symlink_has_store_hop(path):
-            issues += 1
-            C.warn(f"{line} (store hop via {raw}; run just switch-fast)")
-        elif target.is_file():
-            C.ok(line)
-        else:
-            issues += 1
-            C.bad(f"{line} (target missing)")
-    elif path.is_file():
-        issues += 1
-        C.bad(f"{path} is a regular file (not a symlink)")
-    else:
-        C.warn(f"{path} does not exist")
-    return issues
 
 
 def _noctalia_config_dir(flake: Path) -> Path:
@@ -81,7 +59,6 @@ def _audit_config_file(label: str, config_file: Path, config_dir: Path) -> int:
 def cmd_all(flake: Path) -> int:
     ch = C.xdg_config_home()
     dms, noctalia, niri = ch / "DankMaterialShell", ch / "noctalia", ch / "niri"
-    qs = ch / "quickshell" / "config.kdl"
 
     issues = 0
 
@@ -97,9 +74,6 @@ def cmd_all(flake: Path) -> int:
     C.rule("Niri config symlinks")
     issues += C.print_dir_symlink_audit(niri)
 
-    C.rule("Quickshell config")
-    issues += _single_symlink_audit(qs)
-
     C.rule("Summary")
     C.dim(f"Expected: {dms}/* → {flake}/modules/profiles/desktop/dms/config/*")
     C.dim(
@@ -109,7 +83,6 @@ def cmd_all(flake: Path) -> int:
         f"overridden by that settings.toml)"
     )
     C.dim(f"Expected: {niri}/* → {flake}/modules/profiles/desktop/niri/*")
-    C.dim(f"Expected: {qs} → {flake}/modules/profiles/desktop/dms/config/config.kdl")
     C.info(
         f"Edit DMS/niri/Noctalia under {flake}/modules/profiles/desktop/. "
         f"Noctalia's settings.toml is live-symlinked, so GUI changes land in the "
@@ -172,7 +145,7 @@ def console_fix_regular_file(config_file: Path) -> None:
 
 def main(args: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
-        description="Verify DMS / Noctalia / niri / quickshell config symlinks against the flake.",
+        description="Verify DMS / Noctalia / niri config symlinks against the flake.",
     )
     ap.add_argument(
         "--flake",
@@ -181,7 +154,7 @@ def main(args: list[str] | None = None) -> int:
         help="Flake root (default: $FLAKE, upward flake.nix, else ~/git/flake)",
     )
     sub = ap.add_subparsers(dest="command", metavar="COMMAND")
-    sub.add_parser("all", help="DMS, Noctalia, niri, quickshell report (non-fatal)")
+    sub.add_parser("all", help="DMS, Noctalia, niri report (non-fatal)")
     sub.add_parser(
         "dms-settings", help="Strict DMS settings.json → flake (exit 1 on failure)"
     )

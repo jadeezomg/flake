@@ -79,7 +79,7 @@ just git
 # Write .flake-host for this machine (prompts)
 just init
 
-# DMS/niri/quickshell symlink report
+# DMS/Noctalia/niri symlink report
 just symlink-check
 
 # Search nixpkgs for a package

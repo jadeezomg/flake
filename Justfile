@@ -658,7 +658,7 @@ nix-update-pkg:
     fi
     just --justfile "${JUSTFILE:?}" fmt
 
-[doc('DMS / niri / quickshell symlink report (uv symlink-check all)')]
+[doc('DMS / Noctalia / niri symlink report (uv symlink-check all)')]
 [group('check')]
 symlink-check:
     @cd "$FLAKE" && uv run --project "$FLAKE/scripts" symlink-check all

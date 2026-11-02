@@ -26,7 +26,7 @@ Two options in `modules/profiles/default.nix` (the `desktop` block) select the s
 
 - Every desktop host gets two compositor sessions: niri and Umbriel (`programs.umbriel`). The user selects one on the login screen. `services.desktopManager.gnome.enable` is always on. It adds a GNOME session and the GNOME apps.
 - The shell runs in niri and in Umbriel. With `dms-greeter`, the DMS module starts DMS. With the other login managers, `gnome/home.nix` starts the shell as a user unit on `graphical-session.target`.
-- The assertion in `desktop/default.nix` forbids `noctalia` with `dms-greeter`. No assertion covers the other pairs. The comment `# required for noctalia` in `hosts/framework/profiles.nix` is stale, because `noctalia-greeter` now exists.
+- The assertion in `desktop/default.nix` forbids `noctalia` with `dms-greeter`. No assertion covers the other pairs.
 - `gdm` enables `gnome/default.nix`. `noctalia-greeter` enables `noctalia/greeter.nix`. `dms-greeter` with DMS enables `programs.dms-greeter` and `dms/greeter-acl.nix`.
 - `hosts/framework/input.nix` sets fingerprint PAM rules for `gdm` and `dms-greeter` only. Read it before you change the login manager of framework.
 - Do not set the `host.desktopShell` registry field. `desktop/default.nix`, `niri-hm.nix`, `umbriel-hm.nix`, and `greeter-acl.nix` read it, but `gnome/home.nix` and `apps/editors/helix.nix` read only the option.
@@ -103,10 +103,10 @@ Before a commit, follow these rules:
 
 `just symlink-check` runs `symlink-check all` from `scripts/src/flake_scripts/symlinks.py`:
 
-- It lists `~/.config/DankMaterialShell`, `~/.local/state/noctalia/settings.toml`, `~/.config/niri`, and `~/.config/quickshell/config.kdl`. It reports a regular file, a missing target, or a store hop. It always exits 0.
+- It lists `~/.config/DankMaterialShell`, `~/.local/state/noctalia/settings.toml`, and `~/.config/niri`. It reports a regular file, a missing target, or a store hop. It always exits 0.
 - It also reports every unlinked file in those folders, for example DMS state files and `config.kdl.*backup*`. These files are not drift.
-- The Noctalia link always shows a store hop. `directFlakeSymlinks` in `lib/home/dotfiles.nix` does not repoint `~/.local/state`. If the target is in the checkout, the hop is harmless. The quickshell row expects `dms/config/config.kdl`, which does not exist.
-- If `DankMaterialShell/settings.json` does not resolve into `dms/config/` or is not writable, `just symlink-check-dms` exits 1. `uv run --project scripts symlink-check noctalia-settings` is the same test for Noctalia. It has no recipe, and the store hop makes it exit 1.
+- `directFlakeSymlinks` in `lib/home/dotfiles.nix` repoints the links in `~/.config` and `~/.local/state/noctalia` to point straight into the checkout after each switch. A store hop on one of them means that the link changed after the last switch.
+- If `DankMaterialShell/settings.json` does not resolve into `dms/config/` or is not writable, `just symlink-check-dms` exits 1. `uv run --project scripts symlink-check noctalia-settings` is the same test for Noctalia. It has no recipe.
 - No mode looks at `~/.config/umbriel`, at file content, or at git. For Umbriel, run `ls -l ~/.config/umbriel` and make sure that each entry points into the checkout.
 
 ## Hazards from module comments
