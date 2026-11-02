@@ -57,7 +57,7 @@ sharedNixOSHost
   # Static LAN address on enp2s0f0np0 (see default.nix mini-lan NM profile).
   miniLanAddress = lanAddress;
 
-  # Reach mini by address, not by name: it is headless and `just mini <cmd>`
+  # Reach mini by address, not by name: it is headless and `mini <cmd>`
   # must work before any name resolution does. Feeds the `mini` ssh alias via
   # data/network/ssh-destinations.nix.
   sshAddress = lanAddress;

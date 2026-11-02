@@ -98,8 +98,10 @@ Hazards:
 
 ## Just
 
-- `Justfile` loads `just/mini.just` as `mod mini` and `just/unraid.just` as `mod unraid`.
-- `just/mini.just` nests `just/mini-llm.just` as `mod llm` (`just mini llm <cmd>`).
+- `Justfile` loads `just/unraid.just` as `mod unraid`.
+- Mini host ops are not here: they live in the private mini-nix repo (`Justfile`
+  + `mini-llm.just`) and are installed as the `mini` command
+  (`modules/profiles/minimal/shells/mini-cli.nix`).
 - `flake <recipe>` is a shell alias for `just --justfile $FLAKE/Justfile <recipe>`.
 
 ## Docs

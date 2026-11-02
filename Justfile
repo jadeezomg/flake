@@ -358,7 +358,7 @@ init:
 #   sudo cat /dev/shm/k              | just secret-set tailscale_authkey
 #
 # `mini/**` lives in the private mini-nix repo, not here: use
-# `just mini secret-set mini/...` for those.
+# `mini secret-set mini/...` for those.
 #
 # Content is stored byte-for-byte, so pipe through `tr -d '\n'` for single-line
 # values; multi-line values (ssh keys, env files) want their trailing newline.
@@ -369,7 +369,7 @@ secret-set path:
     #!/usr/bin/env bash
     set -euo pipefail
     if [[ "{{ path }}" == mini/* ]]; then
-      echo "secret-set: mini/** moved to mini-nix — use: just mini secret-set {{ path }}" >&2
+      echo "secret-set: mini/** moved to mini-nix — use: mini secret-set {{ path }}" >&2
       exit 2
     fi
     if [[ -t 0 ]]; then
@@ -691,9 +691,9 @@ vorssaint-check *ARGS:
 
 
 
-# Mini host + LLM commands, grouped as a module: `just mini <cmd>` and
-# `just mini llm <cmd>`. Definitions live in just/mini.just + just/mini-llm.just.
-mod mini "just/mini.just"
+# Mini host + LLM commands live in the mini-nix repo and are installed as the
+# `mini` command (`mini deploy`, `mini llm status`); they are not a module here.
+
 mod unraid "just/unraid.just"
 
 [doc('Start declarative Unsloth Studio user service')]

@@ -4,6 +4,7 @@
   imports = [
     ./core
     ./env
+    ./mini-cli.nix
     ./sops-session-env.nix
     ./sops-keyring.nix
   ];

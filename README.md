@@ -17,7 +17,7 @@ Per-host metadata lives in `hosts/<name>/host.nix`. The registry is `hosts/hosts
 
 The active host is read from **`.flake-host`** (not committed). Set it with `just init` (prompts) or `just _init <host>` (no prompt).
 
-**`mini`** is the headless server (Minisforum MS-01): local LLM chat + embeddings (llama.cpp via `just mini llm`), Beszel monitoring, Atuin shell-history sync, the Nixflix media stack (Jellyfin, VPN-confined downloaders, Unraid payloads — see `docs/adr/`), and an Immich photo library with off-host backups. Ops notes live in [`docs/hosts/mini.md`](docs/hosts/mini.md); deploy with `just mini deploy` (definitions in `just/mini.just`).
+**`mini`** is the headless server (Minisforum MS-01): local LLM chat + embeddings (llama.cpp via `mini llm`), Beszel monitoring, Atuin shell-history sync, the Nixflix media stack (Jellyfin, VPN-confined downloaders, Unraid payloads — see `docs/adr/`), and an Immich photo library with off-host backups. Ops notes live in [`docs/hosts/mini.md`](docs/hosts/mini.md); deploy with `mini deploy` (recipes live in the private mini-nix repo).
 
 ## Conventions
 
@@ -64,8 +64,8 @@ just health          # git status, disk, nh os info
 | `system`      | `health`, `rollback`, `update`, `flatten-dir`, `flatten-dir-dry` |
 | `repo`        | `git` (quiet fmt + status/log + commit + push) |
 | `zen`         | `zen-sync`, `zen-check` |
-| `llm`         | `unsloth`, `unsloth-stop`, `unsloth-reset`, `unsloth-logs`, `unsloth-status` (mini: `just mini llm`) |
-| `mini`        | `just mini <cmd>`: `pull`, `deploy`, `deploy-dry`, `deploy-boot`, `ssh`, `reboot`, `dns-sync`, hermes/media/immich/immich-backup status + restart, `llm` sub-module (`models`, `chat`, `perf`, `embedding`, `bench`, …) |
+| `llm`         | `unsloth`, `unsloth-stop`, `unsloth-reset`, `unsloth-logs`, `unsloth-status` (mini: `mini llm`) |
+| `mini`        | `mini <cmd>`: `pull`, `deploy`, `deploy-dry`, `deploy-boot`, `ssh`, `reboot`, `dns-sync`, hermes/media/immich/immich-backup status + restart, `llm` sub-module (`models`, `chat`, `perf`, `embedding`, `bench`, …) |
 | `unraid`      | `just unraid <cmd>`: `ssh`, `fancurve-deploy`, `fancurve-status` |
 | `meta`        | `list`, `info` |
 

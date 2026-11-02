@@ -1,6 +1,6 @@
 ---
 name: llm-hosting
-description: Change local LLM serving (llama.cpp router models, context, embeddings) or the LLM toolbox. Use when editing modules/profiles/llm/**, hosts/mini/services/llm/**, tuning the served chat/embedding models, context/KV/slots, MTP, or the `just mini llm` ops, or when the local LLM fails to load/serve.
+description: Change local LLM serving (llama.cpp router models, context, embeddings) or the LLM toolbox. Use when editing modules/profiles/llm/**, hosts/mini/services/llm/**, tuning the served chat/embedding models, context/KV/slots, MTP, or the `mini llm` ops, or when the local LLM fails to load/serve.
 ---
 
 # LLM Hosting
@@ -52,14 +52,14 @@ Author changes locally. Never edit over SSH on mini.
 2. `flake fmt` after `.nix` edits.
 3. Eval-check the unit: `nix eval --raw .#nixosConfigurations.mini.config.systemd.services.llama-cpp.serviceConfig.ExecStart`.
 4. Commit and push. `deploy` pulls `origin/main` on mini.
-5. `just mini deploy` (pull, then `switch-fast`). Siblings: `just mini deploy-dry` (build only), `just mini deploy-boot` (stage for reboot).
+5. `mini deploy` (pull, then `switch-fast`). Siblings: `mini deploy-dry` (build only), `mini deploy-boot` (stage for reboot).
 
 The first boot downloads about 10 GB into `/var/lib/llama-cpp/huggingface`.
 
-## Ops (`just mini llm <cmd>`)
+## Ops (`mini llm <cmd>`)
 
 `overview`, `status`, `logs`, `restart`, `models`, `chat [prompt]`, `perf`, `embedding [text]`, `gpu`, `troubleshoot`, `bench`. Script: `scripts/shell/mini-llm.bash` (targets the `llama-cpp` unit).
 
-`just mini llm status` is the first diagnostic. It prints the running `ExecStart` and flags drift from the flake output. Drift means the switch did not apply, or systemd runs a stale unit. Deploy again, then `restart`.
+`mini llm status` is the first diagnostic. It prints the running `ExecStart` and flags drift from the flake output. Drift means the switch did not apply, or systemd runs a stale unit. Deploy again, then `restart`.
 
-`bench` (llama-benchy) runs from any host. Keep `MINI_BENCH_CONCURRENCY` (default `1 2` in `just/mini-llm.just`) in sync with `models.local-chat.slots`. Requests past the slot count only measure queueing.
+`bench` (llama-benchy) runs from any host. Keep `MINI_BENCH_CONCURRENCY` (default `1 2` in `mini-nix/mini-llm.just`) in sync with `models.local-chat.slots`. Requests past the slot count only measure queueing.

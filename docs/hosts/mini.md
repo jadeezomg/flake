@@ -96,7 +96,7 @@ DNS-01** challenge, independent of the A records — issuance works before DNS e
 - LAN clients without Tailscale need a **local DNS override** to
   `192.168.178.100` (`miniCaddyLanEnable` binds the LAN IP with the same certs).
   **Never point Cloudflare at the RFC1918 address** — that breaks off-LAN resolution.
-- `just mini dns-sync` reconciles Cloudflare from the Caddy vhost set (the vhosts
+- `mini dns-sync` reconciles Cloudflare from the Caddy vhost set (the vhosts
   are the registry). It creates missing A records, reports existing ones, and
   **flags conflicts without overwriting** — a stale CNAME must be deleted by hand.
   Needs your tailnet view + sops editor key; CF token needs Zone:Read + DNS:Edit.
@@ -132,26 +132,26 @@ The AMT/MEBx password is set from the procedure in `docs/hosts/mini.md`
 ## 5. Deploy & ops
 
 ```bash
-just mini ship "msg"    # commit+push mini-nix, re-pin the input, deploy
-just mini bump          # re-pin flake.lock to mini-nix main, push
-just mini deploy        # git pull --ff-only on mini + nh switch (switch-fast)
-just mini deploy-dry    # build only, no activation
-just mini deploy-boot   # stage for next reboot (kernel/bootloader)
-just mini status        # state of every service by group, then all failed units
-just mini pull / ssh / reboot / dns-sync
-just mini llm <cmd>     # LLM service ops (nested module)
+mini ship "msg"    # commit+push mini-nix, re-pin the input, deploy
+mini bump          # re-pin flake.lock to mini-nix main, push
+mini deploy        # git pull --ff-only on mini + nh switch (switch-fast)
+mini deploy-dry    # build only, no activation
+mini deploy-boot   # stage for next reboot (kernel/bootloader)
+mini status        # state of every service by group, then all failed units
+mini pull / ssh / reboot / dns-sync
+mini llm <cmd>     # LLM service ops (nested module)
 ```
 
 - **`deploy` pulls `origin/main`** — commit *and push* first, or you deploy the old tree.
 - **`mini-nix` is pinned to a commit in `flake.lock`.** A plain `deploy` never
-  picks up new mini-nix commits: push mini-nix, then `just mini bump` (or let
-  `just mini ship "msg"` do commit + push + bump + deploy). The deploy recipes
+  picks up new mini-nix commits: push mini-nix, then `mini bump` (or let
+  `mini ship "msg"` do commit + push + bump + deploy). The deploy recipes
   print a note when `flake.lock` is behind mini-nix `main`.
 - **The `mini-nix` input is private.** The build on mini fetches it over SSH
   with `jadee`'s own key, which has read access; no separate deploy key is
   configured. Without access the eval fails at input fetch, before any module
   is read.
-- `just mini secret-set mini/...` writes `mini-nix/secrets/secrets.yaml`;
+- `mini secret-set mini/...` writes `mini-nix/secrets/secrets.yaml`;
   `just secret-set` still writes this repo's shared secrets file.
 - `deploy` uses `switch-fast` (no flake check, no commit on mini) since you authored
   upstream. Run `deploy-dry` first when you want a pre-flight build.
@@ -159,9 +159,12 @@ just mini llm <cmd>     # LLM service ops (nested module)
 - `flake fmt` after `.nix` edits, `git add -A` before any eval — flakes only see
   tracked files.
 - **Mini's login shell is nushell** — for one-liners use `ssh mini 'bash -lc "…"'`.
-- `just mini …` recipes are a `just` module (`just/mini.just`, `just/mini-llm.just`),
-  so they appear as `mini::…` and show on **every** host. `just --list mini`,
-  `just --list mini llm`.
+- **`mini` is the CLI for these recipes.** It runs the `Justfile` in the private
+  mini-nix checkout (`~/git/mini-nix`; `MINI_NIX_DIR` overrides), which owns the
+  host ops, the secrets recipes and the LLM ops (`mini llm <cmd>`). The flake
+  installs a thin `mini` wrapper (`modules/profiles/minimal/shells/mini-cli.nix`).
+  List with `mini --list`, `mini --list llm`. Recipes that run flake scripts
+  read `DOTFILES_DIR` (default `~/git/flake`).
 - Host is reached **by address, not name** (`sshAddress = 192.168.178.100`) because
   it is headless and ops must work before name resolution does. Off-LAN:
   `MINI_SSH=mini.quokka-qilin.ts.net`.
@@ -208,12 +211,12 @@ Troubleshooting:
 
 | Symptom | Action |
 |---|---|
-| Silence / very slow | `just mini llm status` — it prints the running command and **flags drift from the flake**. Drifted → `git add -A && just switch`, restart. Smoke tests: `max_tokens: 8`. |
+| Silence / very slow | `mini llm status` — it prints the running command and **flags drift from the flake**. Drifted → `git add -A && just switch`, restart. Smoke tests: `max_tokens: 8`. |
 | `jq` prints nothing | Never pipe SSE into `jq`; use `"stream": false` or read raw. |
-| HTTP/TLS errors | Confirm `/v1/models` first, then `just mini llm logs`. |
-| Live view | `just mini llm gpu` (`intel_gpu_top`) beside the journal — there is no built-in HTTP dashboard. |
+| HTTP/TLS errors | Confirm `/v1/models` first, then `mini llm logs`. |
+| Live view | `mini llm gpu` (`intel_gpu_top`) beside the journal — there is no built-in HTTP dashboard. |
 
-`just mini llm bench` (llama-benchy) runs from any host. It exports
+`mini llm bench` (llama-benchy) runs from any host. It exports
 `LD_LIBRARY_PATH` at nix-ld's lib dir because uv's standalone Python bypasses the
 nix-ld loader and PyPI wheels then cannot find `libstdc++`. Keep
 `MINI_BENCH_CONCURRENCY` ≤ the server's slot count (2) — beyond that you measure
@@ -287,11 +290,11 @@ version — it never fires on a fresh database.
   the DB from `/srv/immich/backups/`. Nothing about the repo is mini-specific — any
   host with an age key can decrypt `mini/backup/{restic-password,unraid-ssh-key}`
 from `mini-nix/secrets/secrets.yaml`.
-- **An unverified backup is a rumour**: `just mini immich-backup-drill` within a week
+- **An unverified backup is a rumour**: `mini immich-backup-drill` within a week
   of the seed and quarterly after (checks repo, verifies newest dump, byte-compares
   20 random originals out of the repository).
 
-Ops: `just mini immich-{status,logs,restart,du,users,vectors}` and
+Ops: `mini immich-{status,logs,restart,du,users,vectors}` and
 `immich-backup-{status,now,snapshots,check,drill,mount,unlock}`.
 
 ## 8. Media stack (`miniMediaHosting`)
@@ -364,12 +367,12 @@ writes plaintext) and injects the StashDB and JAVStash API keys. The nightly
 backup leaves out `generated/`, `blobs/` and `cache/`. Streaming transcodes
 share `/dev/dri/renderD128` with Plex and Jellyfin. The five
 `mini/media/stash/*` secrets live in `mini-nix`; set them with
-`just mini secret-set` before the first deploy. Both stash-box keys come from
+`mini secret-set` before the first deploy. Both stash-box keys come from
 the account pages (stashdb.org, javstash.org). Matching is the **Identify**
 task with a stash-box source; **Auto Tag** only matches names already in the
 database and never queries a box. Identify applies title/date/stash ID always,
 and studio/performers/tags only when its field options say so
-(`MERGE` + create missing). JAV leftovers use `just mini stash-jav-match`
+(`MERGE` + create missing). JAV leftovers use `mini stash-jav-match`
 (dry run; add `--apply`): it matches the product code in the filename against
 JAVStash's scene `code`, because JAVStash scenes often carry no fingerprint for
 Identify to match. The script lives in `mini-nix/scripts/stash-jav-match.py`.
@@ -385,7 +388,7 @@ The `/mnt/library` mount uses FS-Cache (`fsc`), with a 200 GiB cache in a sparse
 ext4 image at `/srv/fscache.img`. When Plex or Jellyfin start a file of 80 GiB or
 less, `media-prefetch` reads it once. The Unraid disk then delivers it in one
 burst and can spin down while the file plays from the SSD. A change to the
-`/mnt/library` mount options needs a reboot (`just mini deploy-boot`), because NFS
+`/mnt/library` mount options needs a reboot (`mini deploy-boot`), because NFS
 cannot change `fsc` on a remount.
 
 The custom formats are not in the TRaSH guide. Nix writes them as JSON files,
@@ -426,7 +429,7 @@ share ownership.
 - **`/media` is a folder of links**, declared in `storage.nix` from the folder list
   in `nixflix/common.nix`. For a new library folder, add it to that list, or Plex
   and Jellyfin do not see it under `/media`.
-- `NAMESPACE` / `Stale file handle` → **`just mini media-restart`**. It stops the
+- `NAMESPACE` / `Stale file handle` → **`mini media-restart`**. It stops the
   consumers, mounts the `storage.nix` topology again, and starts again what it
   stopped. An array restart on Unraid gives new inode numbers to everything, so
   run it after one.
@@ -471,8 +474,8 @@ share ownership.
   With another configuration, `journalctl -u qbittorrent-port-forward` shows
   "no port from 10.2.0.1".
 - **Search returns empty but the daemon is up** → check the WireGuard handshake age
-  (`just mini vpn-status`). A dead peer makes indexer HTTPS time out.
-- Use **`just mini vpn-restart`**, not a raw `systemctl restart wg`:
+  (`mini vpn-status`). A dead peer makes indexer HTTPS time out.
+- Use **`mini vpn-restart`**, not a raw `systemctl restart wg`:
   SABnzbd usually hangs on stop with a dead tunnel (the recipe SIGKILLs it), and
   nixflix's `wg-up` gates on **ICMP ping** — Proton peers commonly drop ping even
   when UDP/51820 is fine, so a stock restart fails after teardown; the recipe
@@ -493,7 +496,7 @@ share ownership.
   profile into `mini/media/vpn/wireguard-conf` and `vpn-restart` again. Export it
   for a P2P server with "NAT-PMP (Port Forwarding)" on, or port forwarding stops.
 
-Ops: `just mini media-status | arr-restart | media-restart | downloaders-restart |
+Ops: `mini media-status | arr-restart | media-restart | downloaders-restart |
 stack-restart | vpn-status | vpn-restart`.
 
 ## 9. Matrix, Hermes, Caddy vhosts
@@ -716,4 +719,4 @@ consolidation). The parts that are not obvious:
 
 Smoke test: key-only SSH from desktop and over Tailscale, `sudo whoami` without a
 prompt, `sbctl status`, `amtterm`, `https://<amt-ip>:16993`, then each service's
-`just mini …-status`.
+`mini …-status`.

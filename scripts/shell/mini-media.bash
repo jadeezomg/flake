@@ -2,7 +2,7 @@
 # Mini media-stack maintenance (VPN / downloaders / *arr / playback).
 #
 # Local (on mini):   bash scripts/shell/mini-media.bash <cmd>
-# Remote:            just mini <cmd>
+# Remote:            mini <cmd>
 #                    MINI_SSH=mini.quokka-qilin.ts.net bash ... --remote <cmd>
 set -euo pipefail
 

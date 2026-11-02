@@ -65,8 +65,8 @@ require_endpoint() {
     if ((elapsed >= timeout)); then
       print_error "$label is not reachable after ${timeout}s."
       print_info "The HTTP API is still not listening; inspect the systemd unit before running the smoke test."
-      print_info "Try: just mini llm status"
-      print_info "Try: just mini llm logs"
+      print_info "Try: mini llm status"
+      print_info "Try: mini llm logs"
       print_pending "$out"
       print_header "${unit}.service status"
       systemctl --no-pager --full --lines=80 status "${unit}.service" || true
@@ -136,7 +136,7 @@ perf_probe() {
 
   if [[ -z "$completion_tokens" || -z "$first" ]]; then
     print_error "Throughput probe did not complete (no tokens or no usage chunk)."
-    print_info "Inspect: just mini llm logs"
+    print_info "Inspect: mini llm logs"
     return 1
   fi
 
@@ -228,7 +228,7 @@ chat)
   require_endpoint "chat :8000" "http://127.0.0.1:8000/v1/models" "$(primary_unit)"
   print_header "chat request (local-chat)"
   print_pending "POST /v1/chat/completions model=local-chat max_tokens=8 stream=true enable_thinking=false"
-  print_info "Smoke test: short output, thinking disabled. If it crawls, watch: just mini llm logs"
+  print_info "Smoke test: short output, thinking disabled. If it crawls, watch: mini llm logs"
   jq -n --arg prompt "$prompt" \
     '{model:"local-chat",messages:[{role:"user",content:$prompt}],max_tokens:8,stream:true,chat_template_kwargs:{enable_thinking:false}}' |
     xh --stream --timeout=120 POST http://127.0.0.1:8000/v1/chat/completions Content-Type:application/json

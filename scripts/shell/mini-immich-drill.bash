@@ -9,7 +9,7 @@
 # Docs: docs/hosts/mini.md § Immich → Backup
 #
 # Local (on mini):      bash scripts/shell/mini-immich-drill.bash
-# Remote (workstation): just mini immich-backup-drill
+# Remote (workstation): mini immich-backup-drill
 set -uo pipefail
 
 SCRIPT_PATH="${BASH_SOURCE[0]}"
