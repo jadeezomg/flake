@@ -34,10 +34,13 @@ bump:
     set -euo pipefail
     cd "$FLAKE"
     before="$(jq -r '.nodes["mini-nix"].locked.rev // "none"' flake.lock)"
-    nix flake lock --update-input mini-nix
+    nix flake update mini-nix
     after="$(jq -r '.nodes["mini-nix"].locked.rev' flake.lock)"
     if [[ "$before" == "$after" ]]; then
-      echo "bump: flake.lock already pins mini-nix ${after:0:8}; push the mini-nix commit first"
+      echo "bump: flake.lock already pins mini-nix ${after:0:8}"
+      if [[ -n "$(git -C "${MINI_NIX_DIR:-$HOME/git/mini-nix}" status --porcelain 2>/dev/null)" ]]; then
+        echo "      but mini-nix has uncommitted changes — use \`just mini ship \"msg\"\`"
+      fi
       exit 0
     fi
     git add flake.lock
