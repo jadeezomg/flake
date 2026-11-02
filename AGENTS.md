@@ -6,20 +6,23 @@ Single-flake, multi-host NixOS/Darwin dotfiles for `desktop`, `framework`, `caya
 
 ## Use skills
 
-- `flake-structure` — top-level layout: hosts, parts, packages, lib, scripts, docs, and what belongs in the private mini-nix input.
-- `module-structure` — `modules/profiles/**` profile/app layout.
-- `overlays` — `parts/overlays/` and the self-expiring workaround pattern.
-- `agent-structure` — `.agents/skills/`, global `data/agents/`, and installed agent config.
-- `secrets-structure` — SOPS/age secret layout and wiring.
-- `theme-structure` — shared palette and generated app themes.
-- `xdg-default-apps` — MIME defaults and desktop app ownership.
-- `llm-hosting` — mini's local LLM serving: backends, models, context/KV, embeddings, `mini llm` ops.
-- `nix-tracing` — OpenTelemetry: Nix eval/build traces, mini's Tempo/Grafana, traced services (hermes, open-webui, Caddy).
+- `flake-structure`: top-level layout: hosts, parts, packages, lib, scripts, docs, and what belongs in the private mini-nix input.
+- `module-structure`: `modules/profiles/**` profile/app layout.
+- `overlays`: `parts/overlays/` and the self-expiring workaround pattern.
+- `agent-structure`: `.agents/skills/`, global `data/agents/`, and installed agent config.
+- `secrets-structure`: SOPS/age secret layout and wiring.
+- `theme-structure`: shared palette and generated app themes.
+- `xdg-default-apps`: MIME defaults and desktop app ownership.
+- `llm-hosting`: mini's local LLM serving: backends, models, context/KV, embeddings, `mini llm` ops.
+- `nix-tracing`: OpenTelemetry: Nix eval/build traces, mini's Tempo/Grafana, traced services (hermes, open-webui, Caddy).
+- `desktop-session`: niri, umbriel, Noctalia, DMS, greeters, keybinds and per-host outputs.
+- `flake-update`: input and package updates, and builds that broke after a bump.
 
 ## Local hazards
 
 - Use `flake` recipes; do not run bare `nixos-rebuild`, `home-manager switch`, or `nh` directly.
-- Never run build/switch commands yourself (`just build*`, `just switch`, or anything that evaluates/builds the system). Ask the user to run them and report back the output.
+- Never run build/switch commands yourself (`just build*`, `just switch`, `nix build`, or a full system evaluation). Ask the user to run them and report back the output. You can run `nix eval` on one attribute, for example `nix eval .#nixosConfigurations.<host>.config.<path>`.
+- mini's service modules and `mini/**` secrets live in the private mini-nix repo (`~/git/mini-nix`), not in `hosts/mini/`. A mini-nix push changes nothing here until `mini bump`.
 - Edit flake config only in the checkout of the host the agent runs on. An agent that runs on mini edits mini's checkout. Never edit a checkout over SSH from another host; remote hosts are for inspect/deploy/ops only. The user reviews the diff on the host where the agent made it.
 - Verify packages with live nixpkgs tooling before adding them; check cache availability for costly packages.
 - Every workaround overlay must carry an expiry guard (`overlays` skill); nixpkgs bumps silently make them redundant.

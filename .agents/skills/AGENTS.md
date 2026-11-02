@@ -6,7 +6,7 @@ Project-only skills for this repository.
 
 ## Use skills
 
-- `agent-structure` — project-only `.agents/skills/` vs global-install `data/agents/skills/`.
+- `agent-structure`: project-only `.agents/skills/` vs global-install `data/agents/skills/`.
 
 ## Local hazards
 
@@ -17,12 +17,14 @@ Project-only skills for this repository.
 
 ## Structure skills
 
-- `module-structure` — `modules/profiles/**` profile/app layout.
-- `flake-structure` — top-level flake layout outside profiles.
-- `overlays` — `parts/overlays/` and self-expiring workaround overlays.
-- `agent-structure` — `.agents/skills/`, global `data/agents/`, and installed agent config.
-- `secrets-structure` — SOPS/age secret layout and wiring.
-- `theme-structure` — shared palette and app theme generation.
-- `xdg-default-apps` — MIME defaults and desktop app ownership.
-- `llm-hosting` — mini's local LLM serving: backends, models, context/KV, embeddings, ops.
-- `nix-tracing` — OpenTelemetry: Nix traces, mini's Tempo/Grafana, traced services.
+- `module-structure`: `modules/profiles/**` profile/app layout.
+- `flake-structure`: top-level flake layout outside profiles.
+- `overlays`: `parts/overlays/` and self-expiring workaround overlays.
+- `agent-structure`: `.agents/skills/`, global `data/agents/`, and installed agent config.
+- `secrets-structure`: SOPS/age secret layout and wiring.
+- `theme-structure`: shared palette and app theme generation.
+- `xdg-default-apps`: MIME defaults and desktop app ownership.
+- `llm-hosting`: mini's local LLM serving: backends, models, context/KV, embeddings, ops.
+- `nix-tracing`: OpenTelemetry: Nix traces, mini's Tempo/Grafana, traced services.
+- `desktop-session`: niri, umbriel, Noctalia, DMS, greeters, keybinds and per-host outputs.
+- `flake-update`: input and package updates, and builds that broke after a bump.
