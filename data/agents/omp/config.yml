@@ -1,6 +1,6 @@
 modelRoles:
   plan: openai-codex/gpt-6-astra:xhigh
-  default: openai-codex/gpt-6.1-sol
+  default: openrouter/deepseek/deepseek-v4.1-flash-1017:high
 theme:
   dark: birds-of-paradise
   light: light-gruvbox
