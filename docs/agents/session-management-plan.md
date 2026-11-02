@@ -1,7 +1,7 @@
 # Plan: Agent session management across hosts
 
 **Status:** Phase 1 (the archive) done 2026-10-26. Phase 2 (the herdr/tuios trial on mini) in progress.
-**Related:** [mini.md](../hosts/mini.md), [ADR-0001](../adr/0001-nono-as-single-sandboxing-system.md), [hermes.nix](../../mini-nix/services/hermes.nix), [atuin.nix](../../mini-nix/services/atuin.nix), [immich-backup.nix](../../mini-nix/services/immich-backup.nix), [`modules/profiles/devenv/agents/`](../../modules/profiles/devenv/agents/)
+**Related:** [mini.md](../hosts/mini.md), [ADR-0001](../adr/0001-nono-as-single-sandboxing-system.md), [`modules/profiles/devenv/agents/`](../../modules/profiles/devenv/agents/). In the private mini-nix repo: `services/hermes.nix`, `services/atuin.nix`, `services/immich-backup.nix` and `docs/services.md`.
 
 ---
 
@@ -193,7 +193,7 @@ Note on work repos on personal hosts: `graphs` is a work repo on framework. D1 r
 
 ### Moving the flake checkout
 
-`dotfiles.flakeRoot` now defaults to `~/git/flake`. Live symlinks, `$FLAKE`, `$NH_FLAKE`, the flake git hooks, and the sesh `flake` session follow it after a switch. Do these steps on each host, mini first, because the new `just mini deploy` recipes expect `~/git/flake` on mini.
+`dotfiles.flakeRoot` now defaults to `~/git/flake`. Live symlinks, `$FLAKE`, `$NH_FLAKE`, the flake git hooks, and the sesh `flake` session follow it after a switch. Do these steps on each host, mini first, because the new `mini deploy` recipes expect `~/git/flake` on mini.
 
 1. In the old checkout, run `git pull`.
 2. Move the checkout and leave a symlink at the old path: `mv ~/.dotfiles/flake ~/git/flake && ln -s ../git/flake ~/.dotfiles/flake`.
@@ -475,7 +475,7 @@ Changes during the rollout:
 - The first restic password in sops was the literal text `$(openssl rand -base64 48)`: in nushell, `$(...)` is not command substitution. It was replaced before the first backup ran. Use `just secret-set` for new secrets.
 - No login on `sessions.jadee.fyi` and `hermes.jadee.fyi` (2026-10-26). The Caddy snippet `tailnet-only` answers 403 outside the tailnet, because Caddy also binds the LAN address.
 
-Operations notes: [mini.md § Agent session archive](../hosts/mini.md).
+Operations notes: `docs/services.md` § 6 Agent session archive, in the private mini-nix repo.
 
 ### Phase 2: A, mini as agent host, and the herdr/tuios trial (D2)
 
@@ -548,7 +548,7 @@ After the trial, keep one tool. Remove the other from `modules/profiles/devenv/a
 | `mini-nix/services/caddy.nix` | A tailnet-only vhost for the agentsview web UI. |
 | `mini-nix/services/hermes.nix` | Extra packages and credentials for delegation (Phase 5). |
 | `lib/default.nix` | Add `session-sources.nix` to `agentDataFiles` if modules read it live. |
-| `docs/hosts/mini.md` | Ops notes after the build: restore, rotate keys, reindex. |
+| mini-nix `docs/services.md` | Ops notes after the build: restore, rotate keys, reindex. |
 | `docs/adr/` | One ADR after Phase 0: "mini is the hub for agent sessions". |
 
 ## Secrets touchpoints
