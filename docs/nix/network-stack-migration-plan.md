@@ -1,9 +1,11 @@
 # Plan: network stack migration
 
 **Status:** proposed — NetBird recommended, Pangolin rejected
-**Related:** [research/netbird.md](../research/netbird.md), [research/pangolin.md](../research/pangolin.md), [mini-nix/services/caddy.nix](../../mini-nix/services/caddy.nix), [modules/nixos/networking.nix](../../modules/nixos/networking.nix), [scripts/shell/dns-sync.bash](../../scripts/shell/dns-sync.bash)
+**Related:** [research/netbird.md](../research/netbird.md), [research/pangolin.md](../research/pangolin.md), `services/caddy.nix` in the private mini-nix repo, [modules/nixos/networking.nix](../../modules/nixos/networking.nix), [scripts/shell/dns-sync.bash](../../scripts/shell/dns-sync.bash)
 
-**Implementation (status on 2026-11-02):** open. No phase started. The flake has no NetBird configuration, and Tailscale still runs on every host (`modules/nixos/networking.nix`, `modules/darwin/default.nix`). Blocker B1 needs no overlay now: the locked nixpkgs has `netbird` 0.81.5. B2 is still open.
+**Implementation (status on 2026-11-02):** open. No phase started. The flake has no NetBird configuration, and Tailscale still runs on every host (`modules/nixos/networking.nix`, `modules/darwin/default.nix`). Blocker B1 is closed: the locked nixpkgs has `netbird` 0.81.5. B2 is still open, but it is now cheap.
+
+**Re-checked on 2026-11-02** against NetBird v0.82.0 and Pangolin 1.25.3. The decision still holds. The research notes keep their August state. The facts below that changed are marked with their source.
 
 ---
 
@@ -39,7 +41,7 @@
 
 | Target | Current | Pangolin | NetBird |
 |---|---|---|---|
-| 1. Same or more function | baseline | Loses mesh, exit node, client-to-client | Matches, adds self-hosting and ingress |
+| 1. Same or more function | baseline | Loses mesh and client-to-client | Matches, adds self-hosting and ingress |
 | 2. Declarative | Everything is Nix | Resources live in a database | Good client module. Policy needs Terraform |
 | 3. Simplicity | 2 services | 6 components and a VPS, Caddy still stays | 1 service on cloud, 3 containers if self-hosted |
 | 4. Public access + zero trust | None | Strongest of the three | Works, but beta and Traefik-only |
@@ -47,8 +49,10 @@
 
 ### Why Pangolin is rejected
 
-Pangolin fails three of the five targets. It is hub-and-spoke, so it removes the mesh, the
-exit node, and client-to-client access. Its resources live in a database and are created
+Pangolin fails three of the five targets. It is hub-and-spoke, so it removes the mesh and
+client-to-client access. Clients connect only to sites. Pangolin 1.24.0 added exit nodes,
+which need Newt 1.18.0 or later. It also added a subnet router that runs only on Linux. Its
+own docs still say to use a VPN for broad network access. Its resources live in a database and are created
 through the dashboard, so ingress stops being Nix. It adds Pangolin, Gerbil, Traefik, Badger,
 Newt, Olm clients, and a VPS host, while Caddy still has to stay for LAN access. Public
 resources have no direct path, so every byte of a public media stream transits the VPS.
@@ -85,30 +89,34 @@ Honest limits:
 
 Do not start Phase 1 until both are closed.
 
-### B1 — The packaged version is vulnerable
+### B1 — The packaged version is vulnerable (closed)
 
 GHSA-qcpp-8vwj-hhwr: the client daemon IPC socket was world-writable at mode 0666 with no
 authentication, from 0.5.0 to 0.75.1. A local unprivileged user could enable SSH root login.
-The fix is 0.76.0.
+The fix is 0.76.0. GHSA-28q5-j9qm-gx35 (published 2026-09-01) let a local user read any
+root-owned file through the same daemon socket. Its fix is 0.76.1, so 0.76.1 is now the
+minimum safe version. Four other advisories from August and September are fixed at 0.75.0
+or earlier.
 
 | Channel | Version | State |
 |---|---|---|
-| nixpkgs stable 26.05 | 0.60.2 | Vulnerable |
-| nixpkgs unstable | 0.67.3 | Vulnerable |
+| nixpkgs stable 26.05 | 0.71.4 | Vulnerable |
+| nixpkgs unstable (this flake's lock) | 0.81.5 | Safe |
 
-Both are below the fix. mini runs services under several users, so this is a real exposure
-there.
-
-Add an overlay that bumps `netbird` to 0.76.0 or later, with an expiry guard
-(`overlays` skill). Retire the overlay when nixpkgs passes 0.76.0.
+The flake follows unstable, so no overlay is needed. If you pin `netbird` to stable, the
+version is vulnerable again. mini runs services under several users, so this is a real
+exposure there.
 
 ### B2 — Address range collision
 
 NetBird and Tailscale both default to `100.64.0.0/10`. Stale `ts-input` iptables rules also
 drop NetBird traffic without a message.
 
-Set the NetBird range off Tailscale's range **before the first peer joins**. Changing it after
-peers exist means re-enrolling every peer.
+Set the NetBird network range to a range outside `100.64.0.0/10`, for example
+`10.100.0.0/16`, before the first peer joins. NetBird now accepts any IPv4 range, and a range
+change re-addresses every peer live, so no peer has to enroll again
+(`https://docs.netbird.io/manage/settings/networks`). A range outside `100.64.0.0/10` also avoids the
+stale `ts-input` drop rule. The release that added this is not known.
 
 ---
 
@@ -209,6 +217,10 @@ CAUTION: `services.netbird.server.*` in nixpkgs tracks the pre-0.62 architecture
 `oidcConfigEndpoint`, it uses Coturn instead of the new relay, and there is no module for the
 combined server or the proxy. Either wait for the module to catch up, or write your own.
 
+Since this plan was written, nixpkgs gained the `netbird-combined` package (0.82.0) and a
+`services.netbird.relay` module (merged 2026-09-16). They do not remove the caution above:
+the server module still requires an OIDC endpoint and Coturn.
+
 This step also needs a public FQDN and a public VM, which the hosted control plane does not.
 That is a cost against target 3.
 
@@ -230,9 +242,11 @@ Appendix A.
 
 | Risk | Detail |
 |---|---|
-| Maturity | Still 0.x. 1,287 open issues against 1,554 closed. About six people hold most commits |
+| Maturity | Still 0.x. 470 open issues against 2,419 closed (2026-11-02). v0.80.0 (#7647) moved bug reports to Discussions, so the drop shows triage, not quality. About six people hold most commits |
 | Support policy | Latest release only. No backports |
-| Security history | The 3.5-year IPC socket bug (B1). Also a default-admin-password CVE at CVSS 9.3, fixed in 0.57.0 |
+| Security history | The 3.5-year IPC socket bug (B1), then GHSA-28q5-j9qm-gx35 on the same socket and four more advisories in August and September 2026, all fixed by 0.76.1. Also a default-admin-password CVE at CVSS 9.3, fixed in 0.57.0 |
+| Known issues | #2454 (macOS sleep recovery) closed on 2026-10-06. The vendor says v0.60.4 and v0.70.2 fixed it. #4990 (LAN subnets relayed because of route metrics) is still open. Check it in Phase 3 |
+| Deprecations | v0.82.0 deprecates Rosenpass, the post-quantum feature. This plan does not use it |
 | Audit | No public audit. Pentest reports sit behind a request form |
 | Breaking changes | The SSH model changed twice. The client was rewritten from Fyne to Wails. Management-first upgrade ordering is required, with at least one silent version-skew failure |
 | License drift | Relicensed once in 2025, BSD to a BSD/AGPL split. There is a CLA and Series A funding |
@@ -256,11 +270,17 @@ ingress alone.
   is out.
 - Do not run it on mini. That opens 80/443 TCP and 51820 UDP at home, points public DNS at the
   home address, and puts an authentication bypass on the host with Immich, Matrix, and the NFS
-  mounts into Unraid. CVE-2025-56332 was a CVSS 9.1 bypass from an insecure default.
-- nixpkgs has `services.pangolin`, `fosrl-pangolin` 1.16.2, and `fosrl-newt`. Stable ships
-  1.10.3, which is vulnerable to CVE-2026-3209.
-- The module pins Badger to `v1.2.0`, which Pangolin 1.19+ rejects. Traefik also downloads
-  Badger from GitHub at every start, so the VPS needs egress to GitHub.
+  mounts into Unraid. CVE-2025-56332 was a CVSS 9.1 bypass from an insecure default. Two more
+  bypasses on public resources followed: CVE-2026-72001 before 1.22.0 (CVSS 4.0 score 8.6,
+  NVD) and CVE-2026-72564 up to 1.20.0 (no NVD score yet). Pangolin publishes no GitHub
+  security advisories.
+- nixpkgs has `services.pangolin`, `fosrl-pangolin` 1.24.0 on unstable and on stable 26.05,
+  and `fosrl-newt`. Upstream is at 1.25.3. 1.25.0 can export resources to a blueprint (a YAML
+  resource file), which helps a little with declarative configuration.
+- The module still pins Badger to `v1.2.0`, which Pangolin 1.19+ rejects, and it still has
+  its TODOs. Set Badger to `v1.7.0`: upstream says to stay there, because v1.8.0 fails
+  Traefik's integrity check. Traefik also downloads Badger from GitHub at every start, so the
+  VPS needs egress to GitHub.
 - Expose only the services that need public access. Keep everything else on Caddy.
 - Media served this way always transits the VPS. Keep split-horizon DNS so LAN clients never
   leave the LAN.
