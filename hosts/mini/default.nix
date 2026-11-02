@@ -18,48 +18,16 @@ in
     ../../modules/nixos
     ../../modules/profiles
     ./profiles.nix
-    ./secrets.nix
-    inputs.hermes-agent.nixosModules.default
-    ./services/caddy.nix
-    ./services/hermes.nix
-    ./services/hermes-dashboard.nix
-    ./services/homepage
-    ./services/matrix.nix
-    ./services/ntfy.nix
-    ./services/unraid-proxy.nix
-    ./services/cinny.nix
-    # Nightly cachix pipeline — disabled until the host is up (docs/hosts/mini.md § Known gaps).
-    # ./flake-cache-warm.nix
+    # Service modules and their secrets live in the private mini-nix flake
+    # (services/, secrets/, module.nix). It imports the external input modules
+    # those services need and picks them by the host.mini* toggles.
+    inputs.mini-nix.nixosModules.default
   ]
-  # Dead file guard: warns on every eval until the pipeline is enabled or the
-  # file is deleted (see its header).
-  ++
-    todo "hosts/mini/flake-cache-warm.nix is not imported; enable the pipeline or delete the file"
-      [ ]
   # disko.nix is only forced when disko runs, so its own guards stay silent on
   # a normal eval. Mirror them here.
-  ++ todo "hosts/mini/disko.nix still carries REPLACE_ME device ids; resolve before any disko run" [ ]
-  ++ lib.optionals (host.miniLlmHosting or false) [
-    # Turns on the shared llama.cpp router (dotfiles.profiles.llm.serve) with
-    # mini's models and adds open-webui (see hosts/mini/services/llm/default.nix).
-    ./services/llm
-  ]
-  ++ lib.optionals (host.miniMonitoring or false) [ ./services/beszel.nix ]
-  ++ lib.optionals (host.miniAtuinSync or false) [ ./services/atuin.nix ]
-  ++ lib.optionals (host.miniTracing or false) [ ./services/tracing.nix ]
-  ++ lib.optionals (host.miniAgentSessions or false) [ ./services/agent-sessions.nix ]
-  ++ lib.optionals (host.miniAgentHost or false) [ ./services/agent-host.nix ]
-  # One toggle for both: an Immich install without an off-host backup is a trap,
-  # and a separate "backup disabled" flag is the kind of thing that gets flipped
-  # for one debugging session and never flipped back.
-  ++ lib.optionals (host.miniImmich or false) [
-    ./services/immich.nix
-    ./services/immich-backup.nix
-  ]
-  ++ lib.optionals (host.miniMediaHosting or false) [
-    inputs.nixflix.nixosModules.default
-    ./services/media
-  ];
+  ++
+    todo "hosts/mini/disko.nix still carries REPLACE_ME device ids; resolve before any disko run"
+      [ ];
   # NOPASSWD wheel — quality-of-life over SSH on a key-only headless host.
   # Desktop/framework keep password-required sudo (gated by hostKey == "mini"
   # is unnecessary because this file only loads for the mini host).

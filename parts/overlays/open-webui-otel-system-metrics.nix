@@ -1,7 +1,7 @@
 # open-webui 0.11.4 imports opentelemetry.instrumentation.system_metrics when
 # ENABLE_OTEL is on (utils/telemetry/instrumentors.py). nixpkgs does not list
 # that package in its dependencies, so the service exits at startup with
-# ModuleNotFoundError. mini turns OTel on in hosts/mini/services/tracing.nix.
+# ModuleNotFoundError. mini turns OTel on in mini-nix/services/tracing.nix.
 #
 # open-webui is unfree and not in the binary cache, so mini builds it locally
 # in any case. This overlay adds no extra build cost.

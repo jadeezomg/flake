@@ -181,7 +181,7 @@ items:
     vault: Nixflix
     title: "Nixflix — Jellyfin (jadee)"
     kind: login
-    sops: { file: hosts/mini, path: mini/media/jellyfin/users/jadee-password }
+    sops: { file: mini-nix, path: mini/media/jellyfin/users/jadee-password }
     pass_fields: { password: value }
     class: A
     rotate: generate

@@ -6,9 +6,9 @@ We run **both** Plex and Jellyfin on `mini` for playback. A 2026 ponytail audit 
 
 ## Coupled decisions
 
-**Split ownership across modules.** Plex lives in `hosts/mini/services/media/native.nix` (`services.plex`, `unraid` user, `/srv/nixflix/plex`, Intel QSV via `/dev/dri/renderD128`, transcode tmp on `/srv/nixflix/plex-transcode`). Jellyfin is declared in `hosts/mini/services/media/nixflix/jellyfin.nix` via the nixflix module (`nixflix.jellyfin`, declarative users/libraries/encoding, same GPU). Both read the same library tree under `/media` (NFS from Unraid); download payloads stay under `/data` and are invisible to the players.
+**Split ownership across modules.** Plex lives in `mini-nix/services/media/native.nix` (`services.plex`, `unraid` user, `/srv/nixflix/plex`, Intel QSV via `/dev/dri/renderD128`, transcode tmp on `/srv/nixflix/plex-transcode`). Jellyfin is declared in `mini-nix/services/media/nixflix/jellyfin.nix` via the nixflix module (`nixflix.jellyfin`, declarative users/libraries/encoding, same GPU). Both read the same library tree under `/media` (NFS from Unraid); download payloads stay under `/data` and are invisible to the players.
 
-**Tailnet exposure via Caddy, not host firewall.** Neither server opens the NixOS firewall. Playback UIs are fronted on `plex.jadee.fyi` → `127.0.0.1:32400` and `jellyfin.jadee.fyi` → `127.0.0.1:8096` (`hosts/mini/services/media/proxy.nix`, `import tsnet`). Plex keeps LAN discovery helpers (GDM/SSDP) on the home subnet only — IPv4-only rules in `native.nix` so Plex is not advertised on global IPv6.
+**Tailnet exposure via Caddy, not host firewall.** Neither server opens the NixOS firewall. Playback UIs are fronted on `plex.jadee.fyi` → `127.0.0.1:32400` and `jellyfin.jadee.fyi` → `127.0.0.1:8096` (`mini-nix/services/media/proxy.nix`, `import tsnet`). Plex keeps LAN discovery helpers (GDM/SSDP) on the home subnet only — IPv4-only rules in `native.nix` so Plex is not advertised on global IPv6.
 
 **Why keep Plex.** Existing Plex clients (TV apps, mobile, Plex Pass features), historical server state under `/srv/nixflix/plex`, and the `unraid` library UID model already tuned for Plex. Dropping Plex would force every household client to migrate and lose Plex-specific features (Live TV, Plexamp ecosystem, etc.) with no upside beyond line count.
 

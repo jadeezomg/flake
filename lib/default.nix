@@ -34,6 +34,11 @@ in
   # dconf profile. apply: { pkgs }
   themeFonts = import ./theme-fonts.nix;
 
+  # Paths the private mini-nix service modules need (Homepage's wallpaper
+  # route and Noctalia's wallpaper interval).
+  themeWallpapersDir = ../modules/profiles/theme/wallpapers;
+  noctaliaSettingsToml = ../modules/profiles/desktop/noctalia/config/settings.toml;
+
   # Shell env/path data shared by minimal's shells tree and essentials'
   # shell-system-env.
   shellEnvData = import ./shells/env-data.nix;

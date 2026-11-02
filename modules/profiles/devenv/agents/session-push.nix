@@ -1,5 +1,5 @@
 # Push this host's agent session files to the archive on mini
-# (hosts/mini/services/agent-sessions.nix). Plan and decisions:
+# (mini-nix/services/agent-sessions.nix). Plan and decisions:
 # docs/agents/session-management-plan.md.
 #
 # A systemd user timer runs every 15 minutes. rsync sends each folder from

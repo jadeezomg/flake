@@ -901,6 +901,21 @@
         "type": "github"
       }
     },
+    "mini-nix": {
+      "locked": {
+        "lastModified": 1793636236,
+        "narHash": "sha256-fJ/Yb68PzdNLs8XkbWQQGCaNbLtNIXBe1JPKjmSwiHk=",
+        "ref": "refs/heads/main",
+        "rev": "c4ca6351fd4ed3fd7f9695316d0ccb2f29a56891",
+        "revCount": 1,
+        "type": "git",
+        "url": "ssh://git@github.com/jadeezomg/mini-nix"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/jadeezomg/mini-nix"
+      }
+    },
     "mkdocs-catppuccin": {
       "flake": false,
       "locked": {
@@ -1580,6 +1595,7 @@
         "homebrew-nkzw-tap": "homebrew-nkzw-tap",
         "lanzaboote": "lanzaboote",
         "llm-agents": "llm-agents",
+        "mini-nix": "mini-nix",
         "nix-cachyos-kernel": "nix-cachyos-kernel",
         "nix-darwin": "nix-darwin",
         "nix-flatpak": "nix-flatpak",

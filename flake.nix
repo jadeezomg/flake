@@ -47,6 +47,10 @@
       url = "github:kiriwalawren/nixflix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Private: mini's service modules and their secrets. A module bundle with
+    # no inputs; hosts/mini/default.nix imports nixosModules.default. The SSH
+    # URL is required because the repo is private.
+    mini-nix.url = "git+ssh://git@github.com/jadeezomg/mini-nix";
 
     # --- desktop / UI ---
     stylix = {

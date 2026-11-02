@@ -1,7 +1,7 @@
 # Plan: network stack migration
 
 **Status:** proposed — NetBird recommended, Pangolin rejected
-**Related:** [research/netbird.md](../research/netbird.md), [research/pangolin.md](../research/pangolin.md), [hosts/mini/services/caddy.nix](../../hosts/mini/services/caddy.nix), [modules/nixos/networking.nix](../../modules/nixos/networking.nix), [scripts/shell/dns-sync.bash](../../scripts/shell/dns-sync.bash)
+**Related:** [research/netbird.md](../research/netbird.md), [research/pangolin.md](../research/pangolin.md), [mini-nix/services/caddy.nix](../../mini-nix/services/caddy.nix), [modules/nixos/networking.nix](../../modules/nixos/networking.nix), [scripts/shell/dns-sync.bash](../../scripts/shell/dns-sync.bash)
 
 ---
 

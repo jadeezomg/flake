@@ -23,11 +23,14 @@ See also: [SCHEMA.md](./SCHEMA.md).
 
 > **Current model:** one shared recipient set for the whole `secrets/secrets.yaml`.
 > Every listed anchor (`&editor`, `&framework`, `&desktop`, `&caya`, `&mini`) can
-> decrypt **every** secret. Paths like `users/jadee/password_desktop` or
-> `mini/git/deploy-key` are **organizational only** — not cryptographic isolation.
+> decrypt **every** secret. Paths like `users/jadee/password_desktop` are
+> **organizational only** — not cryptographic isolation.
 >
-> Any host with a valid runtime private key can read all secrets. Tighter
-> per-path `creation_rules` are possible later but not used today.
+> Mini's service secrets (`mini/**`) live in the private `mini-nix` repo with
+> its own recipient set (`editor`, `framework`, `mini`).
+>
+> Any host with a valid runtime private key can read all secrets in a file.
+> Tighter per-path `creation_rules` are possible later but not used today.
 
 ---
 

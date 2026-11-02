@@ -2,6 +2,10 @@
 
 Canonical layout of `secrets/secrets.yaml`. Edit with `sops secrets/secrets.yaml`.
 
+Mini's service secrets (`mini/**`) live in the private `mini-nix` repo
+(`secrets/secrets.yaml`, schema in that repo). This file holds everything
+shared: user password hashes, session-env keys, matrix/telegram/hermes, wifi.
+
 Every entry below lists:
 - **Path** — the YAML key (slash-separated for nested attrs)
 - **Source** — how to generate / obtain the value
@@ -20,11 +24,12 @@ Every entry below lists:
 - Flat keys (`openrouter_api_key`) auto-export to the user session env as
   `OPENROUTER_API_KEY` via `modules/profiles/minimal/shells/sops-session-env.nix`. Use this form
   for any secret that needs to be visible to interactive shells.
-- Nested paths (`users/jadee/password_<hostKey>`, `mini/git/deploy-key`) are
+- Nested paths (`users/jadee/password_<hostKey>`, `matrix/registration_token`) are
   referenced explicitly by `sops.secrets.<path>` declarations in Nix modules
   and are *not* exported to the env.
 - Multi-line values (SSH keys, env files) use YAML literal block (`|`).
-- Anything host-specific lives under `<hostKey>/...`.
+- Anything host-specific lives under `<hostKey>/...`; `mini/**` now lives in
+  the private `mini-nix` repo.
 
 ## Schema
 
@@ -86,98 +91,20 @@ Shared across every host with a radio, so the path is not host-scoped.
 > Both the SAE and the WPA2 fallback profile read this one key. The access
 > point runs WPA2 and WPA3 together, so the two profiles share a password.
 
-### mini host
+### mini host (shared keys used by mini's services)
+
+Mini-only keys (`mini/**`) live in the private `mini-nix` repo; see its
+`secrets/SCHEMA.md`. The rows below are shared namespaces (matrix, hermes,
+cachix) that mini's services also read.
 
 | Path | Source | Consumed by | Consumed on |
 |---|---|---|---|
-| `mini/amt/password` | the MEBx password set in `docs/hosts/mini.md` § Rebuilding from scratch | **reference only** — not consumed declaratively; stored for recovery | (reference) |
-| `mini/git/deploy-key` | `ssh-keygen -t ed25519 -N '' -C 'mini@flake-bot'` on mini; register `.pub` as a deploy key with write access on `github.com/jadeezomg/flake`. Paste the **private** key here. | `hosts/mini/flake-cache-warm.nix` → `systemd LoadCredential` → `GIT_SSH_COMMAND` | mini |
-| `cachix/auth-token` | `cachix authtoken --create-token --scope push --cache jadee-flake` | `hosts/mini/flake-cache-warm.nix` → `cachix push` | mini |
-| `hermes/env` | API keys + provider creds for `services.hermes-agent`. Format: multi-line `KEY=value`. Schema TBD on first hermes run. | `hosts/mini/services/hermes.nix` → `services.hermes-agent.environmentFiles` (currently optional) | mini |
-| `matrix/registration_token` | continuwuity registration token (gates account creation) | `hosts/mini/services/matrix.nix` → continuwuity `EnvironmentFile` | mini |
-| `matrix/hermes_password` | `@hermes` bot account password. **Break-glass only** — used out-of-band to mint the access token / re-bootstrap cross-signing (see `docs/hosts/mini.md § Matrix, Hermes, Caddy`); declared but not put in the hermes env | `hosts/mini/services/hermes.nix` | mini |
-| `matrix/hermes_access_token` | Long-lived access token for `@hermes` bound to device `hermes-mini` (preferred auth — avoids password re-login key churn that breaks E2EE) | `hosts/mini/services/hermes.nix` → `MATRIX_ACCESS_TOKEN` in hermes env | mini |
-| `matrix/hermes_recovery_key` | Cross-signing recovery key that verifies the `hermes-mini` device for E2EE; generated during the one-time cross-signing bootstrap | `hosts/mini/services/hermes.nix` → `MATRIX_RECOVERY_KEY` in hermes env | mini |
-
-### mini backup
-
-Off-host Immich backup to Unraid (`hosts/mini/services/immich-backup.nix`).
-
-**Public keys are deliberately not stored here.** For outbound deploy keys
-(`mini/git/deploy-key`, `mini/backup/unraid-ssh-key`) the public half is
-registered only at the destination — GitHub and Unraid's `authorized_keys`
-respectively — because it is always recoverable from the private half:
-
-```sh
-sudo ssh-keygen -y -f /run/secrets/mini/backup/unraid-ssh-key            # on the host
-sops -d --extract '["mini"]["backup"]["unraid-ssh-key"]' secrets/secrets.yaml \
-  | ssh-keygen -y -f /dev/stdin                                          # anywhere with an age key
-```
-
-This is the opposite of the *inbound* keys in `data/users/users.nix`, which are
-public halves committed to the flake because `users.users.*.openssh.authorizedKeys`
-needs them declaratively. Do not confuse the two directions.
-
-**Immich itself has no secrets.** `hosts/mini/services/immich.nix` reaches
-postgres over the `/run/postgresql` unix socket with peer auth as role `immich`,
-which satisfies the nixpkgs module's `!isPostgresUnixSocket -> secretsFile != null`
-assertion without a `secretsFile`. Redis is a unix socket too, and all
-application config lives in the Immich database rather than in Nix. Only the
-backup job below needs credentials.
-
-| Path | Source | Consumed by | Consumed on |
-|---|---|---|---|
-| `mini/backup/restic-password` | `openssl rand -base64 48`. **Also store this outside the flake** (password manager + paper): without it the Unraid repo is unrecoverable ciphertext, and the sops copy is only readable while at least one host holding an age key survives. | `services.restic.backups.{immich,immich-maint}.passwordFile`, `immich-backup-watchdog` | mini |
-| `mini/backup/unraid-ssh-key` | `ssh-keygen -t ed25519 -N '' -C 'mini@immich-backup' -f /dev/shm/k` **on mini** (tmpfs — mini's `/tmp` is persistent btrfs); paste the `.pub` into Unraid WebGUI → Users → root → "SSH authorized keys" (required — `/root` is tmpfs on Unraid, so a hand-appended key does not survive a reboot). Store the **private** key here, then `shred -u` both halves. | `programs.ssh.extraConfig` `Host unraid-backup` → restic sftp backend | mini |
-| `mini/backup/matrix-notify` | Multi-line `MATRIX_ROOM=!id:matrix.jadee.fyi` + `MATRIX_TOKEN=syt_…` for a **non-E2EE** notification room on the local continuwuity. Optional: the notifier no-ops (exit 0) when unset rather than going red. | `backup-notify@.service` `EnvironmentFile` | mini |
-| `mini/backup/agent-sessions-restic-password` | `openssl rand -base64 48 \| tr -d '\n' \| just secret-set mini/backup/agent-sessions-restic-password` (in nushell, `$(...)` is not command substitution, so do not pass the value as an argument). **Also store this outside the flake**, as for `mini/backup/restic-password`. | `services.restic.backups.agent-sessions.passwordFile` (`hosts/mini/services/agent-sessions.nix`) | mini |
-
-### mini media
-
-All media secrets are nested, runtime-only values consumed by
-`hosts/mini/services/media/storage.nix`; none are exported to interactive shells.
-
-| Path | Source | Consumed by | Consumed on |
-|---|---|---|---|
-| `mini/media/sonarr/api-key` | existing Sonarr `config.xml` API key | nixflix Sonarr configuration and Seerr cutover rewrite; Homepage widget | mini |
-| `mini/media/sonarr/password` | generated web UI password | nixflix Sonarr host configuration | mini |
-| `mini/media/radarr/api-key` | existing Radarr `config.xml` API key | nixflix Radarr configuration and Seerr cutover rewrite; Homepage widget | mini |
-| `mini/media/radarr/password` | generated web UI password | nixflix Radarr host configuration | mini |
-| `mini/media/lidarr/api-key` | existing Lidarr `config.xml` API key | nixflix Lidarr configuration; Homepage widget | mini |
-| `mini/media/lidarr/password` | generated web UI password | nixflix Lidarr host configuration | mini |
-| `mini/media/prowlarr/api-key` | existing Prowlarr `config.xml` API key | nixflix Prowlarr configuration; Homepage widget | mini |
-| `mini/media/prowlarr/password` | generated web UI password | nixflix Prowlarr host configuration | mini |
-| `mini/media/prowlarr/indexers/nzbgeek-api-key` | existing NZBgeek Prowlarr indexer settings | nixflix Prowlarr indexer reconciliation | mini |
-| `mini/media/prowlarr/indexers/treasuremaps-api-key` | Treasure Maps (formerly SceneNZBs) account API key | nixflix Prowlarr indexer reconciliation | mini |
-| `mini/media/sabnzbd/api-key` | existing `sabnzbd.ini` API key | nixflix SABnzbd and Arr download-client integration; Homepage widget | mini |
-| `mini/media/sabnzbd/nzb-key` | existing `sabnzbd.ini` NZB key | nixflix SABnzbd configuration | mini |
-| `mini/media/sabnzbd/username` | current unset `sabnzbd.ini` web username (encrypted empty value) | nixflix SABnzbd configuration | mini |
-| `mini/media/sabnzbd/password` | current unset `sabnzbd.ini` web password (encrypted empty value) | nixflix SABnzbd configuration | mini |
-| `mini/media/sabnzbd/premiumize-username` | existing Premiumize server username in `sabnzbd.ini` | nixflix SABnzbd Premiumize server | mini |
-| `mini/media/sabnzbd/premiumize-password` | existing Premiumize server password in `sabnzbd.ini` | nixflix SABnzbd Premiumize server | mini |
-| `mini/media/sabnzbd/newshosting-username` | Newshosting account username | nixflix SABnzbd Newshosting server | mini |
-| `mini/media/sabnzbd/newshosting-password` | Newshosting account password | nixflix SABnzbd Newshosting and Tweaknews servers | mini |
-| `mini/media/sabnzbd/tweaknews-username` | Tweaknews account name (included with Newshosting, same password) | nixflix SABnzbd Tweaknews server | mini |
-| `mini/media/qbittorrent/password` | generated WebUI/Arr password (plaintext) | nixflix Arr→qBittorrent integration; qbittorrent ExecStartPre derives `Password_PBKDF2` for WebUI; Homepage widget | mini |
-| `mini/media/bazarr/api-key` | generated 16-byte hexadecimal API key (`openssl rand -hex 16`) | Bazarr `auth.apikey`; `media-ptbr`; Homepage Bazarr widget | mini |
-| `mini/media/seerr/api-key` | generated 32-byte hexadecimal API key (`openssl rand -hex 32`) | Seerr `main.apiKey` (seerr preStart); Homepage Seerr widget | mini |
-| `mini/media/bazarr/opensubtitles-username` | OpenSubtitles.com account username (not email) | Bazarr English subtitle provider | mini |
-| `mini/media/bazarr/opensubtitles-password` | OpenSubtitles.com account password | Bazarr English subtitle provider | mini |
-| `mini/ntfy/jadee-password` | generated (24 chars) — log in to https://ntfy.jadee.fyi as `jadee` | not deployed; read with `sops -d` for the phone app | — |
-| `mini/ntfy/jadee-password-hash` | `ntfy user hash` of the password above | ntfy `NTFY_AUTH_USERS` (sops template) | mini |
-| `mini/ntfy/mini-password-hash` | `ntfy user hash` of a discarded random password | ntfy `NTFY_AUTH_USERS` for the `mini` publisher | mini |
-| `mini/ntfy/mini-token` | `ntfy token generate` | ntfy `NTFY_AUTH_TOKENS`; nixflix notif ntfy; `ntfy-alert@` | mini |
-| `mini/ntfy/homepage-password-hash` | `ntfy user hash` of a discarded random password | ntfy `NTFY_AUTH_USERS` for the read-only `homepage` user | mini |
-| `mini/ntfy/homepage-token` | `ntfy token generate` | ntfy `NTFY_AUTH_TOKENS`; Homepage ntfy widget (reads `system`) | mini |
-| `mini/ntfy/unraid-password-hash` | `ntfy user hash` of a discarded random password | ntfy `NTFY_AUTH_USERS` for the write-only `unraid` user | mini |
-| `mini/ntfy/unraid-token` | `ntfy token generate` | ntfy `NTFY_AUTH_TOKENS`; Unraid's ntfy.sh notification agent (posts to `system`) | mini |
-| `mini/homepage/unraid-api-key` | Unraid → Settings → Management Access → API, key `homepage` | Homepage Unraid widget | mini |
-| `mini/homepage/immich-api-key` | Immich → Account Settings → API Keys, admin account, permission `server.statistics` | Homepage Immich widget | mini |
-| `mini/media/plex/token` | `PlexOnlineToken` in Plex `Preferences.xml` on mini | `plex-connect` (Radarr/Sonarr Plex connection); Homepage Plex widget | mini |
-| `mini/media/jellyfin/api-key` | generated 32-byte hexadecimal API key | nixflix Jellyfin management services and one-shot watch migration; Homepage Jellyfin widget | mini |
-| `mini/media/jellyfin/users/jadee-password` | generated initial Jellyfin password | nixflix Jellyfin user creation | mini |
-| `mini/media/jellyfin/users/angeli265-password` | generated initial Jellyfin password | nixflix Jellyfin user creation | mini |
-| `mini/media/vpn/wireguard-conf` | Proton VPN WireGuard profile downloaded from the existing account | nixflix VPN confinement `wgConfFile` | mini |
+| `cachix/auth-token` | `cachix authtoken --create-token --scope push --cache jadee-flake` | `services/flake-cache-warm.nix` → `cachix push` | mini |
+| `hermes/env` | API keys + provider creds for `services.hermes-agent`. Format: multi-line `KEY=value`. Schema TBD on first hermes run. | `services/hermes.nix` → `services.hermes-agent.environmentFiles` (currently optional) | mini |
+| `matrix/registration_token` | continuwuity registration token (gates account creation) | `services/matrix.nix` → continuwuity `EnvironmentFile` | mini |
+| `matrix/hermes_password` | `@hermes` bot account password. **Break-glass only** — used out-of-band to mint the access token / re-bootstrap cross-signing (see `docs/hosts/mini.md § Matrix, Hermes, Caddy`); declared but not put in the hermes env | `services/hermes.nix` | mini |
+| `matrix/hermes_access_token` | Long-lived access token for `@hermes` bound to device `hermes-mini` (preferred auth — avoids password re-login key churn that breaks E2EE) | `services/hermes.nix` → `MATRIX_ACCESS_TOKEN` in hermes env | mini |
+| `matrix/hermes_recovery_key` | Cross-signing recovery key that verifies the `hermes-mini` device for E2EE; generated during the one-time cross-signing bootstrap | `services/hermes.nix` → `MATRIX_RECOVERY_KEY` in hermes env | mini |
 
 ### Future / not yet wired
 
@@ -190,7 +117,7 @@ See [docs/secrets/sops-age-keys.md](../docs/secrets/sops-age-keys.md).
 - **Editor key** — `~/.config/sops/age/keys.txt` → `&editor`; for `sops secrets/secrets.yaml`
 - **Host runtime keys** — NixOS: `/var/lib/private/sops/age/keys.txt`; Darwin: HM path → `&<hostKey>`
 - **SSH login** — public keys in `data/users/users.nix`; private keys stay on clients
-- **SSH deploy** — private keys in sops (e.g. `mini/git/deploy-key`) for daemons only
+- **SSH deploy** — private keys in sops for daemons only; mini's are in the private mini-nix repo
 
 ## YAML layout (illustrative)
 

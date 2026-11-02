@@ -1,5 +1,5 @@
 # Send OpenTelemetry traces of every Nix command (client and daemon) to Tempo
-# on mini (hosts/mini/services/tracing.nix) over the tailnet.
+# on mini (mini-nix/services/tracing.nix) over the tailnet.
 #
 # The settings are in a separate file, not in nix.settings. NixOS validates the
 # generated nix.conf in the build sandbox with `nix config show` and fails on

@@ -1,12 +1,12 @@
 # Atuin shell history. Every host syncs to mini's own server
-# (hosts/mini/services/atuin.nix), never to the public api.atuin.sh.
+# (mini-nix/services/atuin.nix), never to the public api.atuin.sh.
 #
 # The address resolves over the tailnet, and on the LAN when local DNS points at
 # mini. Off both networks, sync fails quietly and history stays local until the
 # next connection.
 #
 # Sync needs a one-time `atuin login` per host — see the onboarding steps in
-# hosts/mini/services/atuin.nix.
+# mini-nix/services/atuin.nix.
 { ... }:
 {
   programs.atuin = {

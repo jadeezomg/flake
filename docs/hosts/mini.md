@@ -8,6 +8,13 @@ ordering constraints, failure modes, one-time runtime steps and deliberate
 decisions that the Nix code cannot express. When the two disagree, the flake wins
 — fix this file.
 
+**Service modules are private.** `hosts/mini/**` keeps only the host facts,
+profiles, hardware/disko and base system. Every service (media, LLM, agents,
+Hermes, Matrix, Immich, Homepage, …) and their wiring now live in the private
+`mini-nix` repo, imported as the `mini-nix` flake input. Paths written as
+`mini-nix/services/...` below are relative to that repo; its secrets and schema
+are in `mini-nix/secrets/`.
+
 ---
 
 ## 1. Hardware & storage facts
@@ -102,7 +109,8 @@ not break pagers/`systemctl`. On a pre-that generation use `kitty +kitten ssh`.
 
 ## 4. Secrets
 
-Canonical paths: `secrets/SCHEMA.md`. Two different age keys live on mini:
+Canonical paths: `secrets/SCHEMA.md` and, for mini's services,
+`mini-nix/secrets/SCHEMA.md`. Two different age keys live on mini:
 
 | Key | Path | Used by |
 |---|---|---|
@@ -114,10 +122,12 @@ editor key as your workstation, so it must be copied to mini (dir `0700`, file
 `0600`) or `just switch` fails on the HM side. `just bootstrap-sops-host-key`
 handles the host half; `just verify-sops-host-key mini` checks it.
 
-Mini must be a recipient: `&mini` in `.sops.yaml` + `- *mini` under
-`creation_rules`, then `sops updatekeys secrets/secrets.yaml`.
+Mini must be a recipient in both `.sops.yaml` files: `&mini` in the dotfiles
+repo and in `mini-nix`, with `- *mini` under `creation_rules`, then
+`sops updatekeys secrets/secrets.yaml` in each repo you changed.
 
-`mini/amt/password` is stored for recovery only — nothing consumes it declaratively.
+The AMT/MEBx password is set from the procedure in `docs/hosts/mini.md`
+§ Rebuilding from scratch and is not stored in sops.
 
 ## 5. Deploy & ops
 
@@ -131,6 +141,12 @@ just mini llm <cmd>     # LLM service ops (nested module)
 ```
 
 - **`deploy` pulls `origin/main`** — commit *and push* first, or you deploy the old tree.
+- **The `mini-nix` input is private.** The build on mini fetches it over SSH, so
+  mini needs a read-only deploy key for `jadeezomg/mini-nix`; the
+  `mini/git/deploy-key` key is scoped to this repo. Without access the eval fails
+  at input fetch, before any module is read.
+- `just mini secret-set mini/...` writes `mini-nix/secrets/secrets.yaml`;
+  `just secret-set` still writes this repo's shared secrets file.
 - `deploy` uses `switch-fast` (no flake check, no commit on mini) since you authored
   upstream. Run `deploy-dry` first when you want a pre-flight build.
 - **Author changes locally, never over SSH on mini.** Remote is inspect/deploy only.
@@ -150,7 +166,7 @@ One unit, **`llama-cpp`**: `llama-server` in **router mode** on `:8000`
 (`--models-preset <generated INI> --models-max 2`, both models resident, no swap
 latency). INI section name = the OpenAI model id. The unit comes from the shared
 module `modules/profiles/llm/serve.nix` (`dotfiles.profiles.llm.serve`); mini's
-models and knobs live in `hosts/mini/services/llm/default.nix`.
+models and knobs live in `mini-nix/services/llm/default.nix`.
 
 | Preset | Model | Notes |
 |---|---|---|
@@ -263,7 +279,8 @@ version — it never fires on a fresh database.
 - Restore: `restic-immich restore latest --target / --include /srv/immich --sparse
   --verify`, then `chown -R immich:immich /srv/immich && chmod 0700`, then restore
   the DB from `/srv/immich/backups/`. Nothing about the repo is mini-specific — any
-  host with an age key can decrypt `mini/backup/{restic-password,unraid-ssh-key}`.
+  host with an age key can decrypt `mini/backup/{restic-password,unraid-ssh-key}`
+from `mini-nix/secrets/secrets.yaml`.
 - **An unverified backup is a rumour**: `just mini immich-backup-drill` within a week
   of the seed and quarterly after (checks repo, verifies newest dump, byte-compares
   20 random originals out of the repository).
@@ -278,7 +295,7 @@ postgres/caddy/nginx/seerr are **disabled** — mini's Caddy fronts everything a
 Seerr/Bazarr/Plex run as native NixOS services.
 
 Quality profiles are in Nix. Recyclarr syncs them every day from
-`hosts/mini/services/media/nixflix/quality.nix`. Do not edit them in the UI,
+`mini-nix/services/media/nixflix/quality.nix`. Do not edit them in the UI,
 because the next sync replaces your edits. A cleanup unit deletes all other
 profiles and moves their media to `Original + EN Subs`.
 
@@ -314,7 +331,7 @@ or a season pack, never trigger a replacement. Assertions in
 `nixflix/quality.nix` check these rules whenever the configuration builds.
 
 Library scans run in one daily window at 06:30
-(`hosts/mini/services/media/library-scan.nix`). Plex and Jellyfin have no
+(`mini-nix/services/media/library-scan.nix`). Plex and Jellyfin have no
 periodic scan of their own, because the Arr apps report each import to them.
 Unpackerr extracts torrent downloads that arrive as RAR archives
 (`unpackerr.nix`).
@@ -328,17 +345,29 @@ SABnzbd has `pre_check` off (`nixflix/downloaders.nix`). nixflix turns it on.
 It asks the server for every article of a job before the download starts, one
 job at a time. On 2026-10-26 the full queue sat in "Checking" for hours.
 
-The media state is backed up every night at 04:15 (`media/backup.nix`): restic
+The media state is backed up every night at 04:15 (`mini-nix/services/media/backup.nix`): restic
 over SFTP to `/mnt/user/backup/media` on Unraid, with the Immich backup's ssh
 alias and password. Artwork, metadata caches, and logs are not included.
 
+Stash (`mini-nix/services/media/stash.nix`) is a standalone app, not part of
+nixflix. It scans the Unraid `stuff` share read-only (NFS mount `/stuff`) and
+keeps its SQLite database, `config.yml`, previews and blobs under
+`/srv/nixflix/stash`. Nix renders `config.yml` on every start; the unit hashes
+the sops password (Stash compares bcrypt hashes, while the nixpkgs module
+writes plaintext) and injects the StashDB API key. The nightly backup leaves
+out `generated/`, `blobs/` and `cache/`. Streaming transcodes share
+`/dev/dri/renderD128` with Plex and Jellyfin. The four `mini/media/stash/*`
+secrets live in `mini-nix`; set them with `just mini secret-set` before the
+first deploy. `stashdb-api-key` is an empty placeholder until you paste one
+from stashdb.org.
+
 Notifications go through ntfy at https://ntfy.jadee.fyi (tailnet,
-`hosts/mini/services/ntfy.nix`). The `media` topic gets imports and health
+`mini-nix/services/ntfy.nix`). The `media` topic gets imports and health
 issues from the Arr apps. The `system` topic gets failed units through
 `ntfy-alert@`. On the phone, add the server and log in as `jadee` with
-`sops -d --extract '["mini"]["ntfy"]["jadee-password"]' secrets/secrets.yaml`.
+`sops -d --extract '["mini"]["ntfy"]["jadee-password"]' ../mini-nix/secrets/secrets.yaml`.
 
-Playback reads through mini's SSD (`hosts/mini/services/media/playback-cache.nix`).
+Playback reads through mini's SSD (`mini-nix/services/media/playback-cache.nix`).
 The `/mnt/library` mount uses FS-Cache (`fsc`), with a 200 GiB cache in a sparse
 ext4 image at `/srv/fscache.img`. When Plex or Jellyfin start a file of 80 GiB or
 less, `media-prefetch` reads it once. The Unraid disk then delivers it in one
@@ -349,7 +378,7 @@ cannot change `fsc` on a remount.
 The custom formats are not in the TRaSH guide. Nix writes them as JSON files,
 and Recyclarr reads them through a `custom-formats` resource provider. The Seerr
 request settings (default profile, season picker, specials, TVDB metadata) are
-in `hosts/mini/services/media/seerr.nix`. Before each start, the `preStart` of
+in `mini-nix/services/media/seerr.nix`. Before each start, the `preStart` of
 Seerr finds the default profile ID by name and merges the settings into
 `settings.json`.
 
@@ -359,6 +388,7 @@ Seerr finds the default profile ID by name and merges the settings into
 | `/Music` | NFS `/mnt/cache/Music` (exclusive share), RW — Lidarr's root folder and Jellyfin's music library |
 | `/mnt/library` | NFS `/mnt/user/data` again, read-only, with FS-Cache — what Plex and Jellyfin play |
 | `/media` | local folder of links: `/media/<folder>` → `/mnt/library/media/<folder>`, and `/media/Music` → `/Music` |
+| `/stuff` | NFS `192.168.178.200:/mnt/user/stuff`, read-only — Stash's library only |
 | `/srv/nixflix`, `/var/lib/qBittorrent` | local service state |
 
 Library files are owned by **`unraid` uid 99 / `users` gid 100** to match Unraid's
@@ -458,7 +488,7 @@ stack-restart | vpn-status | vpn-restart`.
 Subdomains on the `jadee.fyi` Cloudflare zone, all → `mini-proxy`:
 `home` (Homepage), `matrix`, `chat` (open-webui), `beszel`, `cinny`, `immich`, `hermes`, `atuin`, `ntfy`, `grafana`, plus the
 media set (`sonarr`, `radarr`, `lidarr`, `prowlarr`, `sabnzbd`, `qbittorrent`, `seerr`,
-`bazarr`, `jellyfin`, `plex`).
+`bazarr`, `jellyfin`, `plex`, `stash`).
 
 The first switch after a Caddy/Hermes bump builds two **uncached** packages locally
 (plugin Caddy; Matrix-augmented Hermes).
@@ -620,7 +650,7 @@ The plan and its decisions are in [session-management-plan.md](../agents/session
 ## 11. Known gaps / deferred
 
 - **Nightly cachix cache-warm pipeline** — code exists at
-  `hosts/mini/flake-cache-warm.nix` but the import is **commented out** in
+  `mini-nix/services/flake-cache-warm.nix` but the import is **commented out** in
   `hosts/mini/default.nix`. To bring online: `cachix create jadee-flake` (public
   read) → paste the public key over the TODO in `modules/shared/environment.nix` →
   push-scoped token into sops `cachix/auth-token` → GitHub deploy key (write) into

@@ -21,7 +21,7 @@ consistent with the filesystem. A stale or slow mount does not degrade Immich
 gracefully — it produces "missing files" across the library.
 
 **This host has already been burned by NFS under a service.** The long comment
-in `hosts/mini/services/media/storage.nix` records the 2026-07-31 incident: a
+in `mini-nix/services/media/storage.nix` records the 2026-07-31 incident: a
 bind mount of a subdirectory under the automounted NFS tree pinned the
 superblock, `x-systemd.idle-timeout=600` expired it, and the resulting ESTALE
 wedged the consumer's systemd namespace (`226/NAMESPACE`). Putting a database's
@@ -33,7 +33,7 @@ free. Unraid does not currently export a photos share at all (only `Music`,
 new export plus a fourth mount unit carrying the hazard above.
 
 **Backing up therefore becomes mandatory, not optional.** Because mini now holds
-the only copy of irreplaceable data, `hosts/mini/services/immich-backup.nix` ships
+the only copy of irreplaceable data, `mini-nix/services/immich-backup.nix` ships
 in the same host toggle (`miniImmich`) as the service itself. There is no
 separate "backup disabled" flag — that is the kind of switch that gets flipped
 for one debugging session and never flipped back.
@@ -82,4 +82,4 @@ predating it.
   different tag is a small follow-up.
 - Sharing the Arc Pro B50 with Immich for video transcoding. Off by default to
   avoid contention with Plex (QSV) and llama.cpp (Vulkan); opt-in instructions
-  are in `hosts/mini/services/immich.nix`.
+  are in `mini-nix/services/immich.nix`.

@@ -17,7 +17,7 @@
 # prompt is fine when you are sitting there. Automation wants the opposite
 # tradeoff and uses `dotfilesLib.lanHosts.unraid.lan`, because Tailscale SSH's
 # re-auth check blocks non-interactive runs — see
-# hosts/mini/services/immich-backup.nix.
+# mini-nix/services/immich-backup.nix.
 { hosts, lanHosts }:
 let
   named = builtins.filter (n: hosts.${n}.sshAddress != null) (builtins.attrNames hosts);

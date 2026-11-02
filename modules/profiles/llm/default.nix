@@ -4,7 +4,7 @@
 #   tools.enable  llama.cpp CLI, huggingface-hub CLI, unsloth-studio podman
 #                 user service. For workstations.
 #   serve.enable  the llama.cpp router server (./serve.nix, Linux only).
-#                 mini turns it on in hosts/mini/services/llm/.
+#                 mini turns it on in mini-nix/services/llm/.
 #
 # The llama-cpp build follows the GPU trait (`dotfiles.hardware.gpu`) unless
 # `llamaCppBackend` overrides it. Both toggles share `llamaCppPackage`.

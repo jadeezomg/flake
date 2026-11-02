@@ -3,7 +3,7 @@
 # The attribute name is the folder in the archive on mini:
 # /srv/agent-sessions/<host>/<name>/. The push on each host
 # (modules/profiles/devenv/agents/session-push.nix) and agentsview on mini
-# (hosts/mini/services/agent-sessions.nix) read this list.
+# (mini-nix/services/agent-sessions.nix) read this list.
 #
 #   path     the folder to send, in the agent's own layout
 #   parser   the agentsview parser name for that folder

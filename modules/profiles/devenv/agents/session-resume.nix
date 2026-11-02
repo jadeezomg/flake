@@ -1,5 +1,5 @@
 # Resume a Claude session of any host from the archive on mini
-# (hosts/mini/services/agent-sessions.nix) on this host.
+# (mini-nix/services/agent-sessions.nix) on this host.
 #
 # `tv agent-sessions` lists the sessions from the agentsview API at
 # sessions.jadee.fyi, shows the transcript as preview, and runs

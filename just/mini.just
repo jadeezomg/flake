@@ -174,3 +174,18 @@ immich-backup-mount:
 [doc('Clear a stale restic lock (only after confirming no backup is running)')]
 immich-backup-unlock:
     ssh {{mini_ssh}} 'bash -lc "sudo restic-immich unlock"'
+
+# Service config and its secrets live in the private mini-nix repo, not this
+# flake. Set values there; the path keeps the full `mini/` prefix.
+[doc('Set a secret in the private mini-nix repo (pipe the value in)')]
+secret-set path:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    repo="${MINI_NIX_DIR:-$HOME/git/mini-nix}"
+    if [[ -t 0 ]]; then
+      echo "secret-set: refusing to read a secret from a terminal — pipe the value in." >&2
+      exit 2
+    fi
+    idx="$(printf '%s' '{{ path }}' | awk -F/ '{ for (i = 1; i <= NF; i++) printf "[\"%s\"]", $i }')"
+    jq -Rs . | sops set --value-stdin "$repo/secrets/secrets.yaml" "$idx"
+    echo "set {{ path }} in $repo/secrets/secrets.yaml"

@@ -12,11 +12,11 @@
 # through the named channel instead of climbing with `../../`.
 #
 # Consumers:
-#   hosts/mini/services/media/storage.nix     NFS mounts (/data, /Music, /media)
-#   hosts/mini/services/immich-backup.nix     restic sftp transport
+#   mini-nix/services/media/storage.nix     NFS mounts (/data, /Music, /media)
+#   mini-nix/services/immich-backup.nix     restic sftp transport
 #   data/network/ssh-destinations.nix         the `unraid` ssh alias
 #   hosts/mini/default.nix                    mini-lan gateway (`router`)
-#   hosts/mini/services/homepage/             Homepage tiles (`router`, `unraid`)
+#   mini-nix/services/homepage/             Homepage tiles (`router`, `unraid`)
 {
   hosts = {
     # FRITZ!Box 6670 Cable: the LAN gateway.

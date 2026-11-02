@@ -1,7 +1,7 @@
 # Plan: Linux remote builders, Cachix warm, store hygiene, backups
 
 **Status:** proposed  
-**Related:** [mini.md § Known gaps](../hosts/mini.md), [hosts/mini/flake-cache-warm.nix](../../hosts/mini/flake-cache-warm.nix), [per-host-and-pass-plan.md](../secrets/per-host-and-pass-plan.md), Mic92 `nixosModules/{builder,remote-builder}.nix`.
+**Related:** [mini.md § Known gaps](../hosts/mini.md), [mini-nix/services/flake-cache-warm.nix](../../mini-nix/services/flake-cache-warm.nix), [per-host-and-pass-plan.md](../secrets/per-host-and-pass-plan.md), Mic92 `nixosModules/{builder,remote-builder}.nix`.
 
 ---
 
@@ -18,7 +18,7 @@
 So:
 
 - **Remote `buildMachines`:** Linux hosts only (framework → mini/desktop; optionally desktop → mini).
-- **Cachix warm on mini:** keep building **only** the three NixOS tops (`mini`, `desktop`, `framework`) — already what [`flake-cache-warm.nix`](../../hosts/mini/flake-cache-warm.nix) does. Do **not** add caya to that job.
+- **Cachix warm on mini:** keep building **only** the three NixOS tops (`mini`, `desktop`, `framework`) — already what [`flake-cache-warm.nix`](../../mini-nix/services/flake-cache-warm.nix) does. Do **not** add caya to that job.
 - **caya still benefits from substituters** for any *cached* paths that happen to match (nixpkgs fixed-output, some pure deps) — leave `jadee-flake.cachix.org` in shared nix settings — but expect most Darwin-native paths to build locally on caya.
 - **Optional later (not this plan):** after a successful caya switch, push *that Mac’s* closure to Cachix from caya itself so a second Mac (or reinstall) can pull. That is “Darwin self-push,” not remote build.
 
@@ -153,7 +153,7 @@ modules/nixos/nix-builder.nix          # builder user on mini + desktop
 modules/nixos/nix-remote-builds.nix    # clients: framework (+ optional desktop)
 modules/nixos/gc.nix                   # extend with fast-nix-gc / keep-*
 hosts/mini/default.nix                 # import flake-cache-warm.nix
-hosts/mini/services/borg-repo.nix      # Phase 4
+mini-nix/services/borg-repo.nix      # Phase 4
 hosts/framework/…                      # enable remote-builds
 hosts/desktop/…                        # enable builder (+ optional client)
 data/network/ssh-destinations.nix      # ensure mini/desktop builder aliases

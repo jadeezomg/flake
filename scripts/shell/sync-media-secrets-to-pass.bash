@@ -9,14 +9,14 @@ source "${FLAKE:-${HOME}/git/flake}/scripts/shell/common.sh"
 
 export PROTON_PASS_LINUX_KEYRING="${PROTON_PASS_LINUX_KEYRING:-dbus}"
 
-NOTE="Managed from secrets/secrets.yaml by sync-media-secrets-to-pass.bash"
+NOTE="Managed from the mini-nix secrets file by sync-media-secrets-to-pass.bash"
 
 apply=false
 case "${1:---dry-run}" in
 --apply) apply=true ;;
 --dry-run) ;;
 -h | --help)
- printf 'Usage: %s [--dry-run|--apply]\n' "$0"
+ printf 'Usage: %s [--dry-run|--apply]\n  MINI_SOPS_FILE=<path> overrides the mini-nix secrets file (default: ../mini-nix/secrets/secrets.yaml).\n' "$0"
  exit 0
  ;;
 *)
@@ -32,7 +32,7 @@ for command in jq sops; do
  fi
 done
 
-secrets_file="${FLAKE:-${HOME}/git/flake}/secrets/secrets.yaml"
+secrets_file="${MINI_SOPS_FILE:-${FLAKE:-${HOME}/git/flake}/../mini-nix/secrets/secrets.yaml}"
 if [[ ! -r "$secrets_file" ]]; then
  print_error "Cannot read $secrets_file"
  exit 1

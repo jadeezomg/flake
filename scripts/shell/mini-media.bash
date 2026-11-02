@@ -47,12 +47,12 @@ fi
 
 ARR_UNITS=(sonarr radarr lidarr prowlarr flaresolverr)
 DOWNLOADER_UNITS=(qbittorrent sabnzbd)
-MEDIA_UNITS=(plex jellyfin bazarr seerr)
+MEDIA_UNITS=(plex jellyfin bazarr seerr stash)
 # Units that pin the NFS roots open and so must be stopped before a remount — the
 # union of the three groups minus seerr/flaresolverr, which touch no NFS path, plus
 # unpackerr and media-prefetch, which belong to no group but stop with the mounts.
 # ensure_media_mounts restores whichever of these it found running.
-MOUNT_CONSUMER_UNITS=(qbittorrent sabnzbd sonarr radarr lidarr prowlarr bazarr jellyfin plex unpackerr media-prefetch)
+MOUNT_CONSUMER_UNITS=(qbittorrent sabnzbd sonarr radarr lidarr prowlarr bazarr jellyfin plex unpackerr media-prefetch stash)
 
 run_remote() {
     local target="${MINI_SSH:-mini}"
@@ -246,11 +246,12 @@ topology_ok() {
 }
 
 ensure_media_mounts() {
-    # The topology in hosts/mini/services/media/storage.nix: three NFS mounts, each
+    # The topology in hosts/mini/services/media/storage.nix: four NFS mounts, each
     # the root of an export and behind an .automount, with nothing mounted below them.
     #   /data          the data export, RW
     #   /Music         the Music export, RW
     #   /mnt/library   the data export, read-only with FS-Cache
+    #   /stuff         the stuff export, read-only, Stash's library
     # /media is a local folder of links into /mnt/library/media, and to /Music.
     #
     # Unraid gives the media folder a new inode number every few minutes ("fileid
@@ -275,6 +276,8 @@ ensure_media_mounts() {
     elif ! systemctl is-active --quiet mnt-library.automount || ! nfs_path_ok /mnt/library/media ||
         ! topology_ok mnt-library.mount; then
         need_remount=true
+    elif ! systemctl is-active --quiet stuff.automount || ! nfs_path_ok /stuff; then
+        need_remount=true
     fi
 
     if [[ "$need_remount" != true ]]; then
@@ -296,20 +299,21 @@ ensure_media_mounts() {
     stop_downloaders
     sudo systemctl stop \
         sonarr.service radarr.service lidarr.service prowlarr.service \
-        bazarr.service jellyfin.service plex.service \
+        bazarr.service jellyfin.service plex.service stash.service \
         unpackerr.service media-prefetch.service \
         2>/dev/null || true
     # Stop the automount units first. umount -lf under a live automount hangs up the
     # autofs pipe and leaves the .automount unit failed ("unmounted by someone else").
-    sudo systemctl stop mnt-library.automount Music.automount data.automount 2>/dev/null || true
-    sudo systemctl stop mnt-library.mount Music.mount 2>/dev/null || true
+    sudo systemctl stop mnt-library.automount Music.automount data.automount stuff.automount 2>/dev/null || true
+    sudo systemctl stop mnt-library.mount Music.mount stuff.mount 2>/dev/null || true
     sudo umount -lf /mnt/library 2>/dev/null || true
     sudo umount -lf /Music 2>/dev/null || true
     sudo umount -lf /data 2>/dev/null || true
+    sudo umount -lf /stuff 2>/dev/null || true
     sleep 1
     local m
-    for m in data.mount Music.mount mnt-library.mount \
-        data.automount Music.automount mnt-library.automount; do
+    for m in data.mount Music.mount mnt-library.mount stuff.mount \
+        data.automount Music.automount mnt-library.automount stuff.automount; do
         sudo systemctl reset-failed "$m" 2>/dev/null || true
     done
     # Automount before mount: systemd refuses to set up an automount on a path that
@@ -317,10 +321,10 @@ ensure_media_mounts() {
     sudo systemctl start data.automount 2>/dev/null || true
     sudo systemctl start data.mount
     sleep 1
-    sudo systemctl start Music.automount mnt-library.automount 2>/dev/null || true
-    sudo systemctl start Music.mount mnt-library.mount
+    sudo systemctl start Music.automount mnt-library.automount stuff.automount 2>/dev/null || true
+    sudo systemctl start Music.mount mnt-library.mount stuff.mount
     local p
-    for p in /data /Music /mnt/library/media /media/Cinema /media/Music; do
+    for p in /data /Music /mnt/library/media /stuff /media/Cinema /media/Music; do
         if ! nfs_path_ok "$p"; then
             print_error "NFS remount still stale at $p — check the Unraid export / network"
             return 1

@@ -1,7 +1,7 @@
 # Plan: Agent session management across hosts
 
 **Status:** Phase 1 (the archive) done 2026-10-26. Phase 2 (the herdr/tuios trial on mini) in progress.
-**Related:** [mini.md](../hosts/mini.md), [ADR-0001](../adr/0001-nono-as-single-sandboxing-system.md), [hermes.nix](../../hosts/mini/services/hermes.nix), [atuin.nix](../../hosts/mini/services/atuin.nix), [immich-backup.nix](../../hosts/mini/services/immich-backup.nix), [`modules/profiles/devenv/agents/`](../../modules/profiles/devenv/agents/)
+**Related:** [mini.md](../hosts/mini.md), [ADR-0001](../adr/0001-nono-as-single-sandboxing-system.md), [hermes.nix](../../mini-nix/services/hermes.nix), [atuin.nix](../../mini-nix/services/atuin.nix), [immich-backup.nix](../../mini-nix/services/immich-backup.nix), [`modules/profiles/devenv/agents/`](../../modules/profiles/devenv/agents/)
 
 ---
 
@@ -461,7 +461,7 @@ All decisions have answers (2026-10-25).
 
 1. Done 2026-10-25: `cleanupPeriodDays = 120` in `data/agents/global/settings.json`. Other hosts get it when their checkout has the commit.
 2. Done 2026-10-26: deployed on mini, desktop, and framework.
-   - `hosts/mini/services/agent-sessions.nix`: push receiver (user `agent-push`, port 2222, `rrsync -wo -no-del`), hermes snapshot timer, agentsview, Caddy vhost, restic backup.
+   - `mini-nix/services/agent-sessions.nix`: push receiver (user `agent-push`, port 2222, `rrsync -wo -no-del`), hermes snapshot timer, agentsview, Caddy vhost, restic backup.
    - `modules/profiles/devenv/agents/session-push.nix`: push timer on every Linux host, mini included.
    - `data/agents/session-sources.nix`: the source list. `dotfilesLib` exports `hostFacts` and `agentSessionSources`.
    - The push keys of desktop, framework, and mini are in their `host.nix`.
@@ -481,7 +481,7 @@ Operations notes: [mini.md § Agent session archive](../hosts/mini.md).
 
 In the flake (2026-10-26):
 
-- `hosts/mini/services/agent-host.nix` (flag `miniAgentHost`) caps jadee's user slice on mini: `MemoryHigh` 8G, `MemoryMax` 10G. herdr and tuios start their server from the first client, so they have no service unit of their own.
+- `mini-nix/services/agent-host.nix` (flag `miniAgentHost`) caps jadee's user slice on mini: `MemoryHigh` 8G, `MemoryMax` 10G. herdr and tuios start their server from the first client, so they have no service unit of their own.
 - `data/agents/global/settings.json` has the tuios hooks for Claude Code (`tuios agent-hook claude-code --integration 3`) next to the herdr `SessionStart` hook. They were made with `tuios integration install claude-code --no-skill` against a copy (`CLAUDE_CONFIG_DIR`), because the installer writes through the symlink into the checkout. Outside a tuios pane, the hook exits 0 after about 10 ms and prints nothing.
 
 Set up mini once, in an SSH shell on mini. These steps write runtime files, not flake files:
@@ -544,9 +544,9 @@ After the trial, keep one tool. Remove the other from `modules/profiles/devenv/a
 | `modules/profiles/devenv/agents/work.nix` | HM: the `work` command. |
 | `modules/profiles/desktop/noctalia/config/settings.toml` | Path `~/Git/community-plugins` becomes `~/git/community-plugins` (D9). |
 | `AGENTS.md` | New text for the remote-edit rule (D8). |
-| `hosts/mini/services/agent-sessions.nix` | Archive folder, push receiver, agentsview service and `[[session_sources]]`, hermes snapshot job, restic backup. |
-| `hosts/mini/services/caddy.nix` | A tailnet-only vhost for the agentsview web UI. |
-| `hosts/mini/services/hermes.nix` | Extra packages and credentials for delegation (Phase 5). |
+| `mini-nix/services/agent-sessions.nix` | Archive folder, push receiver, agentsview service and `[[session_sources]]`, hermes snapshot job, restic backup. |
+| `mini-nix/services/caddy.nix` | A tailnet-only vhost for the agentsview web UI. |
+| `mini-nix/services/hermes.nix` | Extra packages and credentials for delegation (Phase 5). |
 | `lib/default.nix` | Add `session-sources.nix` to `agentDataFiles` if modules read it live. |
 | `docs/hosts/mini.md` | Ops notes after the build: restore, rotate keys, reindex. |
 | `docs/adr/` | One ADR after Phase 0: "mini is the hub for agent sessions". |
