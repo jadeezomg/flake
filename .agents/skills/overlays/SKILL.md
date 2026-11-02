@@ -12,7 +12,7 @@ Use this for everything under `parts/overlays/`, and for every expiry guard outs
 ## Layout
 
 - One overlay per file: `parts/overlays/<name>.nix`.
-- `parts/overlays/default.nix` is the only registry — every overlay is imported and named there. Two entries come from flake inputs, not files: `inputs.llm-agents.overlays.shared-nixpkgs`, and `inputs.nix-cachyos-kernel.overlays.pinned`, which is appended only under `isX86_64Linux`. That registry-level platform gate is the exception for input overlays; file overlays still gate inside.
+- `parts/overlays/default.nix` is the only registry — every overlay is imported and named there. Two entries come from flake inputs, not files: an inline overlay that sets `pkgs.llm-agents` to `inputs.llm-agents.packages.${system}` (upstream's cached builds, not `overlays.shared-nixpkgs`), and `inputs.nix-cachyos-kernel.overlays.pinned`, which is appended only under `isX86_64Linux`. That registry-level platform gate is the exception for input overlays; file overlays still gate inside.
 - `lib/expiry.nix` holds the obsolescence guards. Overlays receive them as `expiry`, bound to their file name in `default.nix`; modules reach them through `dotfilesLib.expiry { inherit lib; } "<repo-relative path>"`.
 - `parts/overlays/local-packages.nix` auto-registers `packages/<name>`; never add a second registry. `packages/names.nix` is the single source of package names. Both `local-packages.nix` and `parts/packages.nix` read it, so the overlay and the flake `packages` output cannot drift.
 - Restrict by platform inside the overlay with `builtins.match ".*-darwin" system != null` and return `{ }` when it does not apply.
@@ -98,6 +98,7 @@ The same guards apply to workarounds in NixOS/HM modules and host files. The for
 ```
 
 - The location string is hand-written. It must follow the file when the file moves or is renamed.
+- The mini-nix modules use the same guards, with paths relative to `~/git/mini-nix` (for example `services/atuin.nix`). If a warning names a path that is not in this repo, fix it in mini-nix. Then run `mini bump`.
 - Modules have no `prev`. Read the condition from `cfg.package.version` or `pkgs.foo.version` instead.
 - Keep the condition off `config.*` values where possible. A guard on the module fixpoint can loop or make eval order fragile. `cfg.package` is fine when the option has a default and nothing in the guard sets it.
 - Live example: `hosts/mini/default.nix` (`recheckWhen` around a `serviceConfig` value). The `expireWhen` example below lived in `modules/profiles/minimal/shells/core/atuin.nix` until atuin 18.20.1 retired it (2026-09-14).

@@ -1,6 +1,6 @@
 ---
 name: flake-structure
-description: Apply this dotfiles flake's top-level layout rules. Use when adding, moving, or reorganizing hosts, flake-parts, custom packages, shared lib helpers, data registries, scripts, just modules, docs, or other non-profile flake structure.
+description: Apply this dotfiles flake's top-level layout rules. Use when adding, moving, or reorganizing hosts, flake-parts, custom packages, shared lib helpers, data registries, scripts, just modules, docs, or other non-profile flake structure. Also use it to decide whether a mini change belongs here or in the private mini-nix input.
 ---
 
 # Flake Structure
@@ -28,7 +28,8 @@ This skill maps the tree outside `modules/profiles/**`. For profile and app layo
 
 - `nixpkgs` is the main channel. `nixpkgs-small` and `nixpkgs-stable` back `getPkgsSmall` and `getPkgsStable` in `lib/pkgs.nix`.
 - `nixpkgs-skhd` is a standing pin with no expiry guard. `parts/overlays/skhd-pinned-darwin.nix` consumes it.
-- `nixpkgs-zed` is declared but has no consumer. Do not document it as live.
+- `mini-nix` is a private flake with mini's service modules and its `mini/**` secrets. Its layout is in `~/git/mini-nix/README.md`. `hosts/mini/default.nix` imports `inputs.mini-nix.nixosModules.default`. A new mini service goes into mini-nix, not into `hosts/mini/`.
+- `flake.lock` pins the mini-nix commit. A push to mini-nix changes nothing here until `mini bump` updates the lock.
 
 ## Hosts
 
@@ -36,7 +37,7 @@ This skill maps the tree outside `modules/profiles/**`. For profile and app layo
 - `hosts/hosts.nix` defaults `sshAddress` to `hostname`. A host sets `sshAddress = null` to opt out (caya) or a fixed address (mini). `data/network/ssh-destinations.nix` consumes it.
 - `hosts/lib.nix` holds shared host defaults: `sharedNixOSHost`, `sharedNixOSUser`, `darwinUser`, `nixosExtraUsers`. It reads `data/users/users.nix`.
 - Each `hosts/<name>/` has:
-  - `host.nix`: facts such as `hostname`, `hostClass` (`workstation` or `server`), `buildCores`, `extraUsers`, monitor data, `nixpkgsConfig`.
+  - `host.nix`: facts such as `hostname`, `buildCores`, `extraUsers`, monitor data, `nixpkgsConfig`. mini's `host.nix` also holds the `mini*` toggles that select the mini-nix services. `hostClass` is `workstation` by default (`hosts/lib.nix`). `hosts/hosts.nix` sets it to `server` for mini.
   - `profiles.nix`: `dotfiles.profiles.*` toggles.
   - `default.nix`: host-specific system overrides and single-host modules.
 
@@ -60,13 +61,15 @@ Hazards:
 ## Lib
 
 - `lib/default.nix` builds `dotfilesLib`. `parts/hosts.nix` passes it to every system and HM module. Do not add `../../` imports for shared data.
+- The mini-nix modules also read `dotfilesLib`, and they do not import dotfiles files by path. If a mini-nix module needs a path from this repo, expose it in `lib/default.nix`, as `themeWallpapersDir` and `noctaliaSettingsToml` do.
 - `lib/default.nix` reads two address registries and keeps them apart: `hostFacts` (machines the flake builds, from `hosts/hosts.nix`) and `lanHosts` (machines it only talks to, from `data/network/lan-hosts.nix`).
 - `pkgs.nix`: `getPkgs`, `getPkgsWithConfig`, `getPkgsSmall`, `getPkgsStable`.
 - `systems.nix`: the supported systems list.
 - `expiry.nix`: expiry guard for workaround overlays.
+- `profile.nix`: `mkProfile`, the shape of a plain profile leaf (see `module-structure`).
 - `nix-caches.nix`, `nix-experimental-features.nix`: Nix settings data.
 - `host-status.nix`, `nono-profiles.nix`: helpers applied with `pkgs`.
-- `theme-palette.nix`, `theme-base16.nix`, `theme-fonts.nix`: theme data (see `theme-structure`).
+- `theme-palette.nix`, `theme-palette-variants.nix`, `theme-base16.nix`, `theme-fonts.nix`: theme data (see `theme-structure`). `home/theme.nix`: the HM `dotfiles.theme` options.
 - `shells/env-data.nix`, `shells/paths.nix`: shell env and path data.
 - `packages/minimal.nix`: the minimal package set.
 - `home/dotfiles.nix`: the `dotfiles.flakeRoot` option and `config.lib.dotfiles`. `home/live-xdg-symlinks.nix`: live symlink helpers.
@@ -92,7 +95,7 @@ Hazards:
 - `scripts/shell/`: bash helpers that source `common.sh`. Use `[[ ]]`, not `[ ]`.
 - `scripts/unraid/<plugin>/`: Unraid plugins (`.plg` plus `src/`). They run on Unraid, so they use `#!/bin/bash` and do not source `common.sh`. `just unraid <plugin>-deploy` installs them.
 - `scripts/src/flake_scripts/`: Python package. Subpackages: `lib/` (`common.py`, `palette.py`) and `zen/` (`session.py`, `sync.py`).
-- Entry points in `scripts/pyproject.toml`: `symlink-check`, `zen-sync`, `vorssaint-sync`, `update-packages`, `media-quality`.
+- Entry points in `scripts/pyproject.toml`: `symlink-check`, `zen-sync`, `vorssaint-sync`, `update-packages`.
 - Recipes call `uv run --project "$FLAKE/scripts" <entry-point>`.
 - Keep `scripts/src/flake_scripts/lib/palette.py` in sync with `lib/theme-palette.nix`.
 
@@ -100,15 +103,15 @@ Hazards:
 
 - `Justfile` loads `just/unraid.just` as `mod unraid`.
 - Mini host ops are not here: they live in the private mini-nix repo (`Justfile`
-  + `mini-llm.just`) and are installed as the `mini` command
+  and `mini-llm.just`) and are installed as the `mini` command
   (`modules/profiles/minimal/shells/mini-cli.nix`).
-- `flake <recipe>` is a shell alias for `just --justfile $FLAKE/Justfile <recipe>`.
+- `flake <recipe>` is a shell function (`modules/profiles/essentials/shell-system-env.nix`) for `just --justfile $FLAKE/Justfile <recipe>`.
 
 ## Docs
 
 - `docs/ALIASES.md`: shell alias reference. `docs/profiles.md`: profile reference.
 - `docs/adr/`: numbered ADRs for durable decisions.
-- `docs/bench/`, `docs/handoffs/`, `docs/hosts/`, `docs/nix/`, `docs/research/`, `docs/secrets/`: focused notes by area.
+- `docs/agents/`, `docs/bench/`, `docs/handoffs/`, `docs/hosts/`, `docs/nix/`, `docs/research/`, `docs/secrets/`: focused notes by area.
 - `CONTEXT.md` at the root defines agent sandboxing vocabulary.
 - Do not create docs to narrate a small code change.
 

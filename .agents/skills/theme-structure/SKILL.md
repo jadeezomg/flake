@@ -45,7 +45,7 @@ These files repeat the hex values by hand. A palette change must update all of t
 - App modules can read `config.stylix.*` (for example, `ghostty.nix` reads the font names).
 - App modules can post-process Stylix output. `devgui/ides/zed/theme.nix` is the pattern: an activation script after `linkGeneration` copies `zed/themes/stylix.json` out of the store and patches it with `jq`.
 - Two deliberate exceptions exist:
-  - Starship: `essentials/shell-theme/starship.nix` sets `palette = lib.mkForce "birds-of-paradise"` and builds the palette from `config.dotfiles.theme.palette`. `shell-theme/` holds only this file.
+  - Starship: `essentials/shell-theme/starship.nix` sets `palette = lib.mkForce "birds-of-paradise"` and builds the palette from `config.dotfiles.theme.palette`. `shell-theme/` holds only this file and the `default.nix` that imports it.
   - VSCode: `stylix.nix` disables the `vscode` target. `devgui/ides/vscode/default.nix` installs the marketplace `birds-of-paradise` extension instead. This is the one sanctioned second palette source for an app.
 
 ## Palette consumers that generate config
@@ -54,6 +54,7 @@ These files repeat the hex values by hand. A palette change must update all of t
 - `devenv/glow/theme.nix` renders a glamour style from `{ palette }`. `devenv/glow/default.nix` writes it to `glow/birds-of-paradise.json` and points `glow/glow.yml` at it. The yazi preview reads the same file by its path. Stylix has no glow target. If a Stylix update adds one, an `expireWhen` guard warns and turns the module off.
 - `essentials/fastfetch.nix` colors the logo and section keys from `config.dotfiles.theme.palette`.
 - `theme/qt-kde.nix` (see above).
+- Homepage on mini: the private mini-nix repo renders it in `services/homepage/theme.nix`. That file reads `dotfilesLib.paletteVariants` with the host variant and the wallpapers through `dotfilesLib.themeWallpapersDir`. If you move `theme/wallpapers` or `desktop/noctalia/config/settings.toml`, update `themeWallpapersDir` and `noctaliaSettingsToml` in `lib/default.nix`.
 - Keep generator code next to the app module. Keep shared data in `lib/`.
 
 ## Wallpapers and images

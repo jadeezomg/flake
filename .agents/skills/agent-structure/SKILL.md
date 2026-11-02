@@ -87,8 +87,9 @@ A mod is a Claude Code plugin of function hooks: a pane, a command, or a hook on
 - `data/agents/global/AGENTS.md` is the source for global instructions.
 - `data/agents/global/settings.json` is the source for Claude settings.
 - `data/agents/global/themes/dark-ansi-dock.json` is the custom Claude theme that `settings.json` selects. It is `dark-ansi` with the docked pane on the terminal background.
-- `data/agents/omp/config.yml` and `data/agents/omp/themes/birds-of-paradise.json` own the Oh-my-posh agent config.
+- `data/agents/omp/config.yml` and `data/agents/omp/themes/birds-of-paradise.json` own the omp (oh-my-pi) agent config.
 - `global-config.nix` installs these as live symlinks (`mkOutOfStoreSymlink` and `mkLiveSymlink`). Edits take effect without a rebuild.
+- `global-config.nix` also writes two read-only files for ponytail: `~/.config/ponytail/config.json` (sessions start at the `ultra` level) and `~/.claude/.ponytail-band` (`off`, so the band stays hidden). Change them in the module.
 - `AGENTS.md` fans out to `~/AGENTS.md`, `~/.codex/AGENTS.md`, `~/.config/agents/AGENTS.md`, and `~/.pi/agent/AGENTS.md`. Claude Code reads `~/AGENTS.md` as a parent of every project under `$HOME`, so there is no `~/.claude/CLAUDE.md`. Sessions outside `$HOME` get no global instructions.
 - Do not edit the installed copies. Edit the source under `data/agents/` instead.
 
@@ -105,13 +106,15 @@ A mod is a Claude Code plugin of function hooks: a pane, a command, or a hook on
 - `default.nix`: registers the HM modules below in `home-manager.sharedModules` and installs agent CLI packages in `environment.systemPackages`. Most come from `pkgs.llm-agents`. A new agent CLI goes here.
 - `agent-review.nix` and `agent-review.bash`: the `agent-review` command. It starts an omp reviewer in a new herdr pane for the change of the agent in the current pane. The agents send messages to each other with `herdr agent prompt`. The local skills `request-review` (author) and `peer-review` (reviewer) hold the protocol. State is in `<git dir>/agent-review/<review>/`.
 - `apm.nix`: skills and MCP (above).
+- `dsh.nix`: an activation step that adds the `openai-codex` provider route to the dsh web profile (`~/.dsh/profiles/web/cordis.patch.yml`). dsh writes that file itself, so the step merges with `yq` and keeps the other entries.
 - `global-config.nix`: live symlinks for global config (above).
-- `retired-cleanup.nix`: one-time steps that remove what a retired tool left on each host (opencode state folders, the openwork MCP entries and cask, the global mattpocock-skills plugin). It is a profile leaf with a Home Manager part and a darwin `preActivation` part, because the cask zap must run before `brew bundle`. Each step does nothing once its target is gone. A `todo` warns on every evaluation until you delete the file, after every host has switched once.
+- `retired-cleanup.nix`: one-time steps that remove what a retired tool left on each host. They remove the opencode state folders, the herdr-sidebar plugin folders, the openwork MCP entries and cask, and the global mattpocock-skills plugin. It is a profile leaf with a Home Manager part and a darwin `preActivation` part, because the cask zap must run before `brew bundle`. Each step does nothing once its target is gone. A `todo` warns on every evaluation until you delete the file, after every host has switched once.
 - `herdr-config.nix`: owns `~/.config/herdr/config.toml` as a read-only file, including the Caps prefix chords for Linux and macOS. herdr cannot save settings from its UI, so change the values in the module.
 - `herdr-plugins.nix`: links herdr plugin folders from flake packages (`share/herdr/plugins/<id>`) with `herdr plugin link` on switch. It unlinks a store-path plugin that left the list. herdr writes its registry (`~/.config/herdr/plugins.json`) itself, so the flake cannot own that file. Hand-linked and `herdr plugin install` plugins stay as they are.
 - `nono-agent.nix` and `nono-profiles.nix`: nono dispatcher and profiles. Profile data lives in `lib/nono-profiles.nix`.
 - `pi-packages.nix`: declarative pi packages in `~/.pi/agent/settings.json`.
-- `session-push.nix`: a systemd user timer that pushes the session folders from `agentSessionSources` to the archive on mini (`hosts/mini/services/agent-sessions.nix`). Linux only. It runs only when the host has `agentPushKey` in its `host.nix`.
+- `session-push.nix`: a systemd user timer that pushes the session folders from `agentSessionSources` to the archive on mini (`services/agent-sessions.nix` in the private mini-nix repo). Linux only. It runs only when the host has `agentPushKey` in its `host.nix`.
+- `session-resume.nix`: the `agent-resume <id>` command and the `tv agent-sessions` channel. They resume a Claude session of any host from the archive on mini. Linux only.
 - `tuicr.nix`: the `git review` alias for tuicr.
 
 ## Related files

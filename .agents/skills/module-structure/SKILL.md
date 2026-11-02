@@ -22,15 +22,15 @@ Use this skill for `modules/**`, mainly `modules/profiles/**`. For hosts, packag
 
 - System modules (NixOS and darwin): `inputs`, `hostData`, `dotfilesLib`, `host`, `hostKey`, `user`, `isDarwin`, `pkgs-stable`, `pkgs-small`. NixOS also gets `system`. Darwin does not.
 - HM modules: `inputs`, `hostData`, `dotfilesLib`, `host`, `hostKey`, `isDarwin`, `pkgs`, `pkgs-stable`, `pkgs-small`. HM does not get `user` or `system`. HM reads system profile flags through `osConfig`.
-- `pkgs-small` is passed but no module uses it today.
+- `pkgs-small` is for a package that is newer on `nixos-unstable-small`. Today only `devenv/agents/default.nix` uses it (`tuios`, behind an `expireWhen` guard).
 - `hostKey` is `desktop`, `framework`, `caya`, or `mini`. `host` is the record from `hosts/hosts.nix`. `hostData` is the full registry.
-- `dotfilesLib` is `lib/default.nix`. It exports `palette`, `paletteVariants`, `mkThemeBase16`, `themeFonts`, `shellEnvData`, `shellPaths`, `minimalPackages`, `nixCaches`, `sshDestinations`, `lanHosts`, `users`, `hostStatus`, `nonoProfiles`, `nixExperimentalFeatures`, `expiry`, `mkProfile`, `agentsDataDir`, `agentSkillsDir`, `agentDataFiles`, and `sopsFile`. Functions are unapplied. MCP registration lives in `modules/profiles/devenv/agents/apm.nix`, not in `dotfilesLib`.
+- `dotfilesLib` is `lib/default.nix`. It exports `palette`, `paletteVariants`, `mkThemeBase16`, `themeFonts`, `themeWallpapersDir`, `noctaliaSettingsToml`, `shellEnvData`, `shellPaths`, `minimalPackages`, `nixCaches`, `sshDestinations`, `lanHosts`, `hostFacts`, `users`, `hostStatus`, `nonoProfiles`, `nixExperimentalFeatures`, `expiry`, `mkProfile`, `agentsDataDir`, `agentSkillsDir`, `agentSessionSources`, `agentDataFiles`, and `sopsFile`. Functions are unapplied. MCP registration lives in `modules/profiles/devenv/agents/apm.nix`, not in `dotfilesLib`.
 
 ## Options
 
 - Declare every `dotfiles.profiles.*` and `dotfiles.hardware.*` option in `modules/profiles/default.nix`. Set them per host in `hosts/<name>/profiles.nix`.
 - Use `enableOn` for default-on profiles (minimal, essentials, fonts, theme, desktop, integrations). Use `mkEnableOption` for opt-in profiles (apps, devenv, devgui, llm, gaming, work, server).
-- One `enable` flag per profile. The category files under `apps/`, `devenv/`, and `devgui/` read the parent flag. Do not add a sub-flag unless a host needs to vary it. The sub-options that exist today: `devenv.languages.<name>`, `apps.notes`, `fonts.full`, `theme.gui`, `desktop.shell`, `desktop.loginManager`, and the `llm.*` tree.
+- One `enable` flag per profile. The category files under `apps/`, `devenv/`, and `devgui/` read the parent flag. Do not add a sub-flag unless a host needs to vary it. The sub-options that exist today: `devenv.languages.<name>`, `apps.notes`, `fonts.full`, `theme.gui`, `theme.variant`, `desktop.shell`, `desktop.loginManager`, and the `llm.*` tree.
 - `modules/profiles/server.nix` sets `desktop`, `integrations`, `fonts.full`, and `theme.gui` to `mkDefault false` when `host.hostClass == "server"`. A server host does not repeat those lines in its `profiles.nix`.
 - Declare options unconditionally. Gate Linux-only leaves at import level with `lib.optionals (!isDarwin) [ ... ]`, as in `modules/profiles/default.nix` and `apps/default.nix`. Do not use `mkIf` for this. The option namespaces do not exist on darwin.
 - Profiles say what a machine is for. `dotfiles.hardware` traits say what a machine is: `wireless.enable`, `gpu` (`nvidia`, `amd`, `intel`, `none`), `cpu.zen4.enable`, `cpu.x3d.enable`. The leaves live in `modules/profiles/hardware/`.
@@ -65,7 +65,7 @@ Keep helpers that belong to one app inside that app's folder. A greeter belongs 
 - Pure shared data comes from `dotfilesLib`. HM helpers come from `config.lib.dotfiles`.
 - A file that no `default.nix` imports is ignored.
 - Cross-cutting policy lives with the policy domain, not with the app it names.
-  - MIME defaults: `modules/profiles/minimal/linux/environment.nix`.
+  - MIME defaults: `modules/profiles/desktop/mime.nix` (see `xdg-default-apps`).
   - Yazi openers: `modules/profiles/essentials/utils/yazi/default.nix`.
   - Palette: `lib/theme-palette.nix` and its variants. Home Manager modules read `config.dotfiles.theme.palette`.
 

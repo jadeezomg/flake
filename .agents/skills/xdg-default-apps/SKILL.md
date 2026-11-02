@@ -31,7 +31,10 @@ Intentionally unset: `application/octet-stream`, `x-scheme-handler/terminal`, an
 
 ## Coupled places
 
-- `zen-twilight` is also the app-id in `modules/profiles/desktop/niri/outputs-desktop.kdl` and `keybinds-default.kdl`. A Zen channel change renames the `.desktop` id. Update all of them together.
+- `zen-twilight` is also an app-id or a launch command in other files. A Zen channel change renames the `.desktop` id. Update all of these files together:
+  - `modules/profiles/desktop/niri/outputs-desktop.kdl` and `keybinds-default.kdl`.
+  - `modules/profiles/desktop/umbriel/keybinds.toml` and `outputs-desktop.toml`.
+  - The Noctalia dock pins in `modules/profiles/desktop/noctalia/config/settings.toml`.
 - In Yazi, Enter on a Markdown file reads it in glow on every host. The `glow` opener calls `${pkgs.glow}` and `${pkgs.less}` directly, so it does not need the devenv profile. If the window changes size, the glow 3.0.0 reader (`--tui`) loses the text. For that reason, the opener uses `glow --pager` with less. The preview pane renders Markdown with glow through the `piper` plugin. The desktop markdown app comes second in the open-with menu, then the editor and `open`.
 - The second Yazi entry follows `mimeHandlers.markdown`. Change the option, not the yazi file. If a new markdown app needs a direct binary instead of `gtk-launch`, add a `markdownOpeners` entry in the yazi file.
 - That entry and the `opener.open` override sit inside `lib.optionalAttrs hasMarkdownOpener`. It needs Linux, `apps.notes.enable`, and a non-null markdown handler. When `apps.notes` is off, the menu has glow, the editor, and `open`.
