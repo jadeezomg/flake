@@ -360,12 +360,16 @@ nixflix. It scans the Unraid `stuff` share read-only (NFS mount `/stuff`) and
 keeps its SQLite database, `config.yml`, previews and blobs under
 `/srv/nixflix/stash`. Nix renders `config.yml` on every start; the unit hashes
 the sops password (Stash compares bcrypt hashes, while the nixpkgs module
-writes plaintext) and injects the StashDB API key. The nightly backup leaves
-out `generated/`, `blobs/` and `cache/`. Streaming transcodes share
-`/dev/dri/renderD128` with Plex and Jellyfin. The four `mini/media/stash/*`
-secrets live in `mini-nix`; set them with `just mini secret-set` before the
-first deploy. `stashdb-api-key` is an empty placeholder until you paste one
-from stashdb.org.
+writes plaintext) and injects the StashDB and JAVStash API keys. The nightly
+backup leaves out `generated/`, `blobs/` and `cache/`. Streaming transcodes
+share `/dev/dri/renderD128` with Plex and Jellyfin. The five
+`mini/media/stash/*` secrets live in `mini-nix`; set them with
+`just mini secret-set` before the first deploy. Both stash-box keys come from
+the account pages (stashdb.org, javstash.org). Matching is the **Identify**
+task with a stash-box source; **Auto Tag** only matches names already in the
+database and never queries a box. Identify applies title/date/stash ID always,
+and studio/performers/tags only when its field options say so
+(`MERGE` + create missing).
 
 Notifications go through ntfy at https://ntfy.jadee.fyi (tailnet,
 `mini-nix/services/ntfy.nix`). The `media` topic gets imports and health

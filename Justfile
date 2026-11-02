@@ -354,17 +354,24 @@ init:
 # argument: sops documents that flag precisely to keep secrets out of process
 # listings, and it also keeps them out of shell history.
 #
-#   openssl rand -base64 48 | tr -d '\n' | just secret-set mini/backup/restic-password
-#   sudo cat /dev/shm/k              | just secret-set mini/backup/unraid-ssh-key
+#   openssl rand -base64 48 | tr -d '\n' | just secret-set openrouter_api_key
+#   sudo cat /dev/shm/k              | just secret-set tailscale_authkey
+#
+# `mini/**` lives in the private mini-nix repo, not here: use
+# `just mini secret-set mini/...` for those.
 #
 # Content is stored byte-for-byte, so pipe through `tr -d '\n'` for single-line
 # values; multi-line values (ssh keys, env files) want their trailing newline.
 # Remember to update secrets/SCHEMA.md — it is not derived from this file.
-[doc('Set a sops secret from stdin, no editor: `<cmd> | just secret-set mini/backup/restic-password`')]
+[doc('Set a shared sops secret from stdin, no editor: `<cmd> | just secret-set <slash/path>`')]
 [group('config')]
 secret-set path:
     #!/usr/bin/env bash
     set -euo pipefail
+    if [[ "{{ path }}" == mini/* ]]; then
+      echo "secret-set: mini/** moved to mini-nix — use: just mini secret-set {{ path }}" >&2
+      exit 2
+    fi
     if [[ -t 0 ]]; then
       echo "secret-set: refusing to read a secret from a terminal — pipe the value in." >&2
       echo "  e.g. openssl rand -base64 48 | tr -d '\\n' | just secret-set {{ path }}" >&2

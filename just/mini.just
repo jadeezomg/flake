@@ -239,6 +239,10 @@ secret-set path:
     #!/usr/bin/env bash
     set -euo pipefail
     repo="${MINI_NIX_DIR:-$HOME/git/mini-nix}"
+    if [[ "{{ path }}" != mini/* ]]; then
+      echo "secret-set: $repo holds mini/** only — use: just secret-set {{ path }}" >&2
+      exit 2
+    fi
     if [[ -t 0 ]]; then
       echo "secret-set: refusing to read a secret from a terminal — pipe the value in." >&2
       exit 2
