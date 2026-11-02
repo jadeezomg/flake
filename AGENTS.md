@@ -6,7 +6,7 @@ Single-flake, multi-host NixOS/Darwin dotfiles for `desktop`, `framework`, `caya
 
 ## Use skills
 
-- `flake-structure` — top-level layout: hosts, parts, packages, lib, scripts, docs.
+- `flake-structure` — top-level layout: hosts, parts, packages, lib, scripts, docs, and what belongs in the private mini-nix input.
 - `module-structure` — `modules/profiles/**` profile/app layout.
 - `overlays` — `parts/overlays/` and the self-expiring workaround pattern.
 - `agent-structure` — `.agents/skills/`, global `data/agents/`, and installed agent config.

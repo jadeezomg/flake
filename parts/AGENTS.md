@@ -12,7 +12,7 @@ flake-parts modules that assemble hosts, Home Manager configs, packages, checks,
 
 ## Local hazards
 
-- `nixosConfigurations.*` and `darwinConfigurations.*` are keyed by host `hostname` with `hostKey` fallback.
+- `nixosConfigurations.*` and `darwinConfigurations.*` are keyed by host `hostname`. It is a required host field, and `hosts/hosts.nix` validates it.
 - Single-host modules belong in `hosts/<name>/default.nix`, not common platform imports.
 - `homeModules` is the flat unconditional HM base; profiles push user config through `home-manager.sharedModules`.
 - Local packages are auto-registered by `parts/overlays/local-packages.nix` from `packages/names.nix`; do not add a second registry.

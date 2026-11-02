@@ -19,7 +19,7 @@ Source: `modules/profiles/minimal/shells/core/data/aliases.nix` (same `shellAlia
 
 | Alias | Command | Description |
 |-------|---------|-------------|
-| `ls` | `eza --icons -l --git` | Git-aware list with icons |
+| `ll` | `eza --icons -l --git` | Git-aware list with icons |
 | `l2` | `eza --icons -l -T -L=2` | List with tree view, depth 2 |
 | `l3` | `eza --icons -l -T -L=3` | List with tree view, depth 3 |
 | `llt` | `eza --icons -T` | Tree view (icons) |
@@ -90,87 +90,44 @@ Implemented per shell in `modules/profiles/minimal/shells/core/bash.nix`, `core/
 
 ## Dotfiles & flake helpers (Bash, Nushell, Zsh)
 
-All defined in `modules/profiles/essentials/shell-system-env.nix` (pushed by the essentials profile), together with `FLAKE`, `NH_FLAKE`, and workstation `PATH` bits. Intended to apply when the **essentials** system profile is enabled; see the `lib.mkIf` in that file for the exact condition.
+All defined in `modules/profiles/essentials/shell-system-env.nix` (pushed by the essentials profile), together with `FLAKE`, `NH_FLAKE`, and workstation `PATH` bits.
 
 | Function | Description |
 |----------|-------------|
 | `zf` | `cd` to `dotfiles.flakeRoot` (default `$HOME/git/flake`) |
-| `flake` | `just --justfile $FLAKE/Justfile` — no args → **`tv … just-recipes`** (cable in `modules/profiles/essentials/utils/television/cable/`). With extra args on `build`/`switch`/`generation`/`gc`/`fmt`/`backups`/`init`, forwards to private `_…` recipes, e.g. `flake build --dry`, `flake init myhost`. |
-| `nuflake` | `nu $FLAKE/build/flake.nu` |
+| `flake` | `just --justfile $FLAKE/Justfile` with your arguments. No args → the `default` recipe, **`tv … just-recipes`** (cable in `modules/profiles/essentials/utils/television/cable/`). |
 
 Requires **`just`** on PATH. **`FLAKE`** / **`NH_FLAKE`** follow **`dotfiles.flakeRoot`** (default `~/git/flake`).
 
+`mini <cmd>` is a command on PATH, not a shell function. It runs the Justfile of the private mini-nix repo in `~/git/mini-nix`. Source: `modules/profiles/minimal/shells/mini-cli.nix`.
+
 ---
 
-## Git.nu Workflow Commands (Nushell Only)
+## Git shortcuts (Nushell only)
 
-These commands are provided by [git.nu](https://github.com/fj0r/git.nu) and are **only available in Nushell**.
+These are small functions in `modules/profiles/minimal/shells/core/nushell.nix`. Each one passes its arguments to git.
 
-### Core Git Commands (Nushell)
-
-| Command | Function | Description |
-|---------|----------|-------------|
-| `gl` | `git-log` | View git log |
-| `gst` | `git-stash` | Git stash operations |
-| `gb` | `git-branch` | Branch operations |
-| `gn` | `git-new` | Create new repository |
-| `gig` | `git-ignore` | Manage .gitignore |
-| `gp` | `git-pull-push` | Pull and push |
-| `ga` | `git-add` | Stage files |
-| `gdel` | `git-delete` | Delete files from git |
-| `gc` | `git-commit` | Commit changes |
-| `gd` | `git-diff` | Show differences |
-| `gm` | `git-merge` | Merge branches |
-| `gr` | `git-rebase` | Rebase branches |
-| `gcp` | `git-cherry-pick` | Cherry-pick commits |
-| `gcpf` | `git-copy-file` | Copy file from another branch |
-| `grs` | `git-reset` | Reset changes |
-| `grm` | `git-remote` | Manage remotes |
-| `gbs` | `git-bisect` | Binary search for bugs |
-| `ggc` | `git-garbage-collect` | Clean up repository |
-| `ghm` | `git-histogram-merger` | Histogram merger |
-| `gha` | `git-histogram-activities` | Histogram activities |
-
-### Git Config & Switching (Nushell)
-
-| Command | Function | Description |
-|---------|----------|-------------|
-| `gcl` | `git config --list` | List git config |
-| `gsw` | `git switch` | Switch branches |
-| `gswc` | `git switch -c` | Create and switch branch |
-| `gts` | `git tag -s` | Create signed tag |
-
-### GitFlow Commands (Nushell)
-
-| Command | Function | Description |
-|---------|----------|-------------|
-| `gfof` | `gitflow-open-feature` | Open feature branch |
-| `gfcf` | `gitflow-close-feature` | Close feature branch |
-| `gfrf` | `gitflow-resolve-feature` | Resolve feature |
-| `gfrl` | `gitflow-release` | Release operations |
-| `gfoh` | `gitflow-open-hotfix` | Open hotfix branch |
-| `gfch` | `gitflow-close-hotfix` | Close hotfix branch |
-
-### GitLab Commands (Nushell)
-
-| Command | Function | Description |
-|---------|----------|-------------|
-| `gof` | `gitlab-open-feature` | Open GitLab feature |
-| `gcf` | `gitlab-close-feature` | Close GitLab feature |
-| `grf` | `gitlab-resolve-feature` | Resolve GitLab feature |
-| `grl` | `gitlab-release` | GitLab release |
-| `goh` | `gitflow-open-hotfix` | Open hotfix (GitLab) |
-| `gch` | `gitflow-close-hotfix` | Close hotfix (GitLab) |
+| Command | Runs | Description |
+|---------|------|-------------|
+| `gs` | `git status` | Show git status |
+| `gl` | `git log --oneline --decorate --graph` | Compact log graph |
+| `gb` | `git branch` | Branch operations |
+| `gp` | `git push` | Push |
+| `ga` | `git add` | Stage files |
+| `gc` | `git commit -v` | Commit, with the diff in the editor |
+| `gd` | `git diff` | Show differences |
+| `gm` | `git merge` | Merge branches |
+| `gr` | `git remote` (`git remote -v` with no arguments) | Manage remotes |
 
 ---
 
 ## Notes
 
-- **Shared aliases** (`cat`, `find`, `grep`, `ls`, eza shortcuts, git one-liners, `search*`, etc.) live in `modules/profiles/minimal/shells/core/data/aliases.nix` and are wired as `shellAliases` from `modules/profiles/minimal/shells/core/{bash,zsh,nushell}.nix`.
+- **Shared aliases** (`cat`, `find`, `grep`, `ll`, eza shortcuts, git one-liners, `search*`, etc.) live in `modules/profiles/minimal/shells/core/data/aliases.nix` and are wired as `shellAliases` from `modules/profiles/minimal/shells/core/{bash,zsh,nushell}.nix`.
 - **`zz` / `zc` / `zd`** and **`p`** are small functions in those same `core/*.nix` files (not separate alias modules). `p <question...>` wraps `pi -p "<question...>"` while preserving piped stdin.
-- **`zf` / `flake` / `nuflake`** and workstation env (`FLAKE`, extra `PATH`) come from `modules/profiles/essentials/shell-system-env.nix`.
+- **`zf` / `flake`** and workstation env (`FLAKE`, extra `PATH`) come from `modules/profiles/essentials/shell-system-env.nix`.
 - **Navi cheat** for quick lookup: `modules/profiles/essentials/utils/navi/cheats/aliases.cheat` (points at the paths above).
-- **git.nu** commands are loaded in `modules/profiles/minimal/shells/core/nushell.nix` from the upstream `git.nu` flake input fetch; **Nushell only**. Some names overlap bash-style `gst` / `gad` aliases but implement different flows — see [git.nu](https://github.com/fj0r/git.nu).
+- **Nushell git functions** (`gs`, `gl`, `gb`, …) are defined in `modules/profiles/minimal/shells/core/nushell.nix`. **Nushell only.**
 
 ---
 
@@ -182,16 +139,16 @@ These commands are provided by [git.nu](https://github.com/fj0r/git.nu) and are 
 - `zz`, `zc`, `zd`, `zf` - Quick directory navigation
 - `..`, `...`, `....`, `.....` - Navigate up directories
 
-**Git - git.nu (Nushell only):**
+**Git (Nushell only):**
 - `gl` - View log
 - `gb` - Branch operations
 - `ga` - Stage files
 - `gc` - Commit
-- `gp` - Pull/push
+- `gp` - Push
 - `gd` - View diff
 
 **System:**
-- `flake` / `nuflake` - Flake (`tv`/`fzf` chooser when no args) vs legacy Nu
+- `flake` - Run a flake recipe (`tv` chooser when no args)
 - `cl` - Clear terminal
 - `p <question...>` - Ask Pi a one-shot question, including piped stdin
 

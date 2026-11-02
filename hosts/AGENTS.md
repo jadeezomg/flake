@@ -17,3 +17,4 @@ Per-machine configuration: host facts, profile toggles, and host-specific system
 - `.flake-host` selects the active host and must not be committed.
 - `stateVersion` is per-host; never bump it without auditing release notes, and never lower it.
 - `extraUsers` also receive Home Manager configs through `parts/hosts.nix`.
+- mini's service modules and `mini/**` secrets are not in `hosts/mini/`. They live in the private mini-nix repo (`~/git/mini-nix`), which `hosts/mini/default.nix` imports as the `mini-nix` input. `flake.lock` pins its commit, so a push to mini-nix changes nothing until `mini bump`.

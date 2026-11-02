@@ -2,28 +2,28 @@
 
 jadee's NixOS and nix-darwin flake. One `flake-parts` entry point builds four machines with shared home-manager modules on Linux and macOS.
 
-**Full reference:** [AGENTS.md](AGENTS.md) (workflows, profiles, desktop stack, gotchas). This file is the short tour.
+**Agent guide:** [AGENTS.md](AGENTS.md) (local hazards, and the project skills in `.agents/skills/` that hold the layout rules). This file is the short tour.
 
 ## Hosts
 
 | Host        | System          | Hardware              | Notes                                              |
 | ----------- | --------------- | --------------------- | -------------------------------------------------- |
-| `desktop`   | `x86_64-linux`  | NVIDIA GPU            | `DP-2` @ 2560×1440 / 170 Hz                        |
-| `framework` | `x86_64-linux`  | AMD, Framework 13 7040 | `eDP-2` @ 2880×1920 / 120 Hz, 2.0× scale           |
-| `caya`      | `aarch64-darwin` | Apple Silicon        | user `caya-jonas`; Homebrew casks via nix-homebrew |
-| `mini`      | `x86_64-linux`  | Minisforum MS-01     | headless server; `hostClass = "server"`; static LAN `192.168.178.100`; tailnet-only firewall |
+| `desktop`   | `x86_64-linux`  | NVIDIA GPU            | Dell AW3926QW 5120×2160 / 165 Hz + Dell S2722QC 3840×2160 / 60 Hz (portrait) |
+| `framework` | `x86_64-linux`  | AMD, Framework 13 7040 | `eDP-1` @ 2880×1920 / 120 Hz, 1.4× scale           |
+| `caya`      | `aarch64-darwin` | Apple Silicon, M4 MacBook Air | user `jonashippauf` (`caya-jonas` in `data/users/users.nix`), Homebrew casks via nix-homebrew |
+| `mini`      | `x86_64-linux`  | Minisforum MS-01     | headless server; `hostClass = "server"`; static LAN `192.168.178.100`; firewall trusts `tailscale0`, SSH also open on the LAN |
 
-Per-host metadata lives in `hosts/<name>/host.nix`. The registry is `hosts/hosts.nix` (hostnames, users, home directories, main monitor, build cores, DMS/niri config filenames, host class). Linux hosts share `sharedNixOSUser = jadee` and an extra `angelie` account (`hosts/lib.nix`); `mini` opts out (`extraUsers = []` — no guest accounts on a headless server).
+Per-host metadata lives in `hosts/<name>/host.nix`. The registry is `hosts/hosts.nix` (hostnames, users, home directories, build cores, DMS/niri config filenames, host class). Linux hosts share `sharedNixOSUser = jadee` and an extra `angelie` account (`hosts/lib.nix`); `mini` opts out (`extraUsers = []` — no guest accounts on a headless server).
 
 The active host is read from **`.flake-host`** (not committed). Set it with `just init` (prompts) or `just _init <host>` (no prompt).
 
-**`mini`** is the headless server (Minisforum MS-01): local LLM chat + embeddings (llama.cpp via `mini llm`), Beszel monitoring, Atuin shell-history sync, the Nixflix media stack (Jellyfin, VPN-confined downloaders, Unraid payloads — see `docs/adr/`), and an Immich photo library with off-host backups. Ops notes live in [`docs/hosts/mini.md`](docs/hosts/mini.md); deploy with `mini deploy` (recipes live in the private mini-nix repo).
+**`mini`** is the headless server (Minisforum MS-01): local LLM chat + embeddings (llama.cpp via `mini llm`), Beszel monitoring, Atuin shell-history sync, the Nixflix media stack (Jellyfin, VPN-confined downloaders, Unraid payloads — see `docs/adr/`), and an Immich photo library with off-host backups. Ops notes live in [`docs/hosts/mini.md`](docs/hosts/mini.md); deploy with `mini deploy` (recipes live in the private mini-nix repo). mini's service modules and `mini/**` secrets also live in mini-nix, the `mini-nix` flake input that `hosts/mini/default.nix` imports.
 
 ## Conventions
 
 Use **`just` recipes** for builds and switches (not bare `nixos-rebuild` / `home-manager switch` / `nh` without the Justfile). Flakes only see **git-tracked** files: run `git add` before `nix build`, `nix eval`, or anything that must see new files.
 
-For new nixpkgs names, run `nix search nixpkgs <name>` first; check [Hydra](https://hydra.nixos.org/) if you care about binary cache hits ([AGENTS.md](AGENTS.md) has a one-liner).
+For new nixpkgs names, run `nix search nixpkgs <name>` first; check [Hydra](https://hydra.nixos.org/) if you care about binary cache hits (the `overlays` skill in `.agents/skills/overlays/SKILL.md` has a one-liner).
 
 ## Quick start
 
@@ -60,14 +60,16 @@ just health          # git status, disk, nh os info
 | `format`      | `fmt`, `fmt-notree`, `lint` |
 | `backups`     | `backups`, `backups-clean`, `backups-clean-dry` |
 | `check`       | `update-packages`, `nix-update-pkg`, `symlink-check`, `symlink-check-dms` |
-| `config`      | `init`, `_init`, `read-defaults`, `secret-set`, `setup-age-editor`, `setup-age-darwin`, sops host-key lifecycle (`bootstrap-sops-host-key`, `bootstrap-sops-host-key-from-editor`, `rotate-sops-host-key`, `verify-sops-host-key`), `sync-1password`, `sync-media-secrets-to-pass` |
-| `system`      | `health`, `rollback`, `update`, `flatten-dir`, `flatten-dir-dry` |
+| `config`      | `init`, `_init`, `secret-set`, `setup-age-editor`, `setup-age-darwin`, sops host-key lifecycle (`bootstrap-sops-host-key`, `bootstrap-sops-host-key-from-editor`, `rotate-sops-host-key`, `verify-sops-host-key`), `sync-1password`, `sync-media-secrets-to-pass` |
+| `system`      | `health`, `rollback`, `update`, `flatten-dir`, `flatten-dir-dry`, `wow-ui` |
 | `repo`        | `git` (quiet fmt + status/log + commit + push) |
 | `zen`         | `zen-sync`, `zen-check` |
+| `vorssaint`   | `vorssaint-sync`, `vorssaint-check` |
 | `llm`         | `unsloth`, `unsloth-stop`, `unsloth-reset`, `unsloth-logs`, `unsloth-status` (mini: `mini llm`) |
-| `mini`        | `mini <cmd>`: `pull`, `deploy`, `deploy-dry`, `deploy-boot`, `ssh`, `reboot`, `dns-sync`, hermes/media/immich/immich-backup status + restart, `llm` sub-module (`models`, `chat`, `perf`, `embedding`, `bench`, …) |
 | `unraid`      | `just unraid <cmd>`: `ssh`, `fancurve-deploy`, `fancurve-status` |
 | `meta`        | `list`, `info` |
+
+`mini <cmd>` is a separate command, not a group in this Justfile. It runs the Justfile of the private mini-nix repo (`modules/profiles/minimal/shells/mini-cli.nix`): `pull`, `deploy`, `deploy-dry`, `deploy-boot`, `bump`, `ship`, `ssh`, `reboot`, `dns-sync`, `secret-set`, hermes/media/immich/immich-backup status + restart, and the `llm` sub-module (`models`, `chat`, `perf`, `embedding`, `bench`, …).
 
 `NH_FLAKE` is set to this repo. Shell helpers live in `scripts/shell/common.sh` (`get_host`, `is_darwin`, `notify`, …).
 
@@ -77,7 +79,7 @@ just health          # git status, disk, nh os info
 flake/
 ├── flake.nix                 # inputs, per-system packages, formatter = nixfmt-tree
 ├── Justfile                  # root recipes + module imports
-├── just/                     # Justfile modules: mini.just, mini-llm.just, unraid.just
+├── just/                     # Justfile modules: unraid.just
 ├── .flake-host               # active host (local only)
 ├── lib/                      # getPkgs / getPkgsStable / getPkgsSmall / getPkgsWithConfig
 ├── parts/
@@ -101,7 +103,7 @@ flake/
 
 ## Scripts
 
-Bash under `scripts/shell/` backs the Justfile — including host-ops helpers (`mini-*.bash`, `dns-sync.bash`, `flatten-dir.bash`, `sync-1password.bash`, …). Python is a uv project in `scripts/` (console entry points in `pyproject.toml`): `symlink-check`, `update-packages`, `read-defaults`, `zen-sync`, etc. See `scripts/README.md` for details.
+Bash under `scripts/shell/` backs the Justfile — including host-ops helpers (`flatten-dir.bash`, `sync-1password.bash`, …). The `mini` command also runs `mini-*.bash` and `dns-sync.bash` from this checkout. Python is a uv project in `scripts/` (console entry points in `pyproject.toml`): `symlink-check`, `update-packages`, `zen-sync`, `vorssaint-sync`. See `scripts/README.md` for details.
 
 ## Flake inputs (high level)
 
@@ -111,7 +113,6 @@ Bash under `scripts/shell/` backs the Justfile — including host-ops helpers (`
 | `nixpkgs-small` | nixos-unstable-small (exposed via `lib/pkgs.nix` → `getPkgsSmall`) |
 | `nixpkgs-stable` | nixos-26.05 → `pkgs-stable` in modules |
 | `nixpkgs-skhd` | pinned nixpkgs for skhd (macOS Accessibility grant; standing pin, not a workaround — `parts/overlays/skhd-pinned-darwin.nix`) |
-| `nixpkgs-zed` | declared but currently unused (Zed Darwin pin removed 2026-08-17; zed builds from `nixpkgs`) |
 | `systems` | this repo's `lib/systems.nix` (drops `x86_64-darwin` from the systems list) |
 | `home-manager`, `nix-darwin` | user / macOS system config |
 | `flake-parts` | module structure |
@@ -120,28 +121,28 @@ Bash under `scripts/shell/` backs the Justfile — including host-ops helpers (`
 | `stylix` | theming |
 | `lanzaboote` | secure boot (Linux) |
 | `disko` | disk partitioning (mini: `hosts/mini/disko.nix`) |
-| `niri` | niri compositor (Wayland) |
 | `dms` | DankMaterialShell (bar / desktop shell) |
 | `dank-greeter`, `dankcalendar` | DMS greeter / calendar widget |
-| `noctalia` | Noctalia v5 shell (niri alternative; flake TOML via HM `settings`) |
+| `noctalia` | Noctalia v5 shell (DMS alternative on niri; flake TOML via HM `settings`) |
 | `quickshell` | shell/bar framework |
 | `zen-browser` | Zen browser |
 | `vicinae`, `vicinae-extensions` | Vicinae browser integration (Zen native-messaging host) |
 | `nix-flatpak` | declarative Flatpak remotes/packages (`modules/profiles/integrations.nix`) |
-| `nixflix` | Jellyfin/Plex wrapper for mini's media stack |
+| `nixflix` | Jellyfin/Plex wrapper for mini's media stack (used by mini-nix) |
+| `mini-nix` | private repo with mini's service modules and `mini/**` secrets (`hosts/mini/default.nix`) |
 | `nix-homebrew`, `homebrew-*` | Homebrew pins (non-flake fetches) |
 | `nixos-hardware` | hardware modules |
 | `nix-cachyos-kernel` | CachyOS kernel (x86_64-linux) |
-| `google-workspace-cli` | `gws` in per-system `packages` |
-| `llm-agents` | agent CLI overlay (`pkgs.llm-agents.*`: codex, claude-code, apm, hermes, handy, …) |
-| `hermes-agent` | Hermes agent NixOS module + service on mini (`services.hermes-agent`) |
-| `corecycler` | kept while disabled (upstream bug); not wired into any host |
+| `llm-agents` | agent CLI overlay (`pkgs.llm-agents.*`: codex, claude-code, pi, omp, apm, nono, herdr, …) |
+| `hermes-agent` | Hermes agent NixOS module; mini-nix runs `services.hermes-agent` on mini |
+| `corecycler` | CoreCycler stability tester on desktop (`hosts/desktop/corecycler.nix`) |
+| `delta` | Zed's Delta, Linux only (`modules/profiles/devgui/ides/default.nix`) |
 
 `packages.<system>` exposes every `packages/<name>` automatically (`parts/packages.nix` + `packages/names.nix`).
 
 ## specialArgs
 
-Available in system/home modules (see [AGENTS.md](AGENTS.md) for the full list): `inputs`, `hostData`, `hostKey`, `host`, `user`, `isDarwin`, `system`, `pkgs-stable`, …
+Available in system/home modules (see `parts/hosts.nix` for the full list): `inputs`, `hostData`, `hostKey`, `host`, `user`, `isDarwin`, `system`, `pkgs-stable`, …
 
 ## Secrets
 
@@ -164,7 +165,8 @@ Home-manager exports select secrets to the user session env via `modules/profile
 | NixOS services | `modules/nixos/` |
 | Desktop / Wayland | `modules/profiles/desktop/` (system + DMS or Noctalia/niri HM + data) |
 | Custom package | `packages/<name>/` + `update.json` when you want `just update-packages` to handle bumps |
-| New secret | sops file + declarations (see `modules/shared/security/` / encryption) |
+| mini service or `mini/**` secret | the private mini-nix repo (`~/git/mini-nix`), then `mini bump` to pin it here |
+| New secret | sops file + declarations (see the `secrets-structure` skill and `secrets/SCHEMA.md`) |
 
 New `.nix` files must be listed in the parent directory’s `default.nix` imports.
 
@@ -177,4 +179,4 @@ New `.nix` files must be listed in the parent directory’s `default.nix` import
 
 ---
 
-*Theme, Stylix, niri, DMS, and recovery topics are documented in [AGENTS.md](AGENTS.md).*
+*Theme and Stylix rules are in the `theme-structure` skill. The niri and DMS file layout is in the `module-structure` skill. Host recovery notes are in [`docs/hosts/`](docs/hosts/).*

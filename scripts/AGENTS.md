@@ -16,5 +16,6 @@ Shell helpers sourced by Justfile recipes and Python automation exposed through 
 - Add Python entry points in `scripts/pyproject.toml` before calling them from Justfile.
 - `palette.py` mirrors `lib/theme-palette.nix`. Update both together.
 - New scripts must be staged before Nix eval/build.
+- The `mini` command (the mini-nix Justfile) runs `mini-*.bash` and `dns-sync.bash` from this checkout by path. If you rename or move them, update `~/git/mini-nix` too.
 - macOS defaults are hand-written: declare them as `targets.darwin.defaults."<domain>" = { ... }` in a normal module (see `modules/profiles/work/darwin/brew-casks/*.nix`). There is no generic generator. The former `darwin-defaults` script and its `defaults.generated.nix` outputs were removed.
 - The one exception is `vorssaint-sync`. It writes only `brew-casks/data/vorssaint.nix` from the live `com.vorssaint.utils` domain. Its state-key deny list mirrors `SettingsBackupSupport.machineStateKeys` in the Vorssaint source. If a Vorssaint update adds state keys, add them to the list.
