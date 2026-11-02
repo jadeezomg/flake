@@ -1,6 +1,10 @@
 # Plan: per-host sops + Proton Pass (human + agent)
 
-**Status:** proposed  
+**Status (2026-11-02):** proposed, mostly not implemented.
+Done: commit 5319f9bc moved `mini/**` to the private `mini-nix` repo. Its `.sops.yaml` lists `editor`, `framework` and `mini`, so the desktop and caya keys cannot decrypt `mini/**`.
+Open: the framework key still decrypts `mini/**`. Matrix, Telegram and the password hashes stay in the one shared `secrets/secrets.yaml`, and `.sops.yaml` has one creation rule.
+Phases 0 to 5 are open: no `shared.yaml`, `secrets/hosts/`, `secrets/pass-inventory.yaml` or `secrets-rotate` recipes exist. `sessionEnvExcludeAttrs` is empty, so `KAGI_*` still export. `sops-keyring.nix` still copies sops values into libsecret.
+
 **Decisions locked:** per-host files **plus** a shared all-hosts file; Proton Pass for interactive approval **and** Pass CLI agent mode (`agent create` / `access grant` / `monitor`).
 
 Related: [sops-age-keys.md](./sops-age-keys.md), [SCHEMA.md](../../secrets/SCHEMA.md), [ADR 0001](../adr/0001-nono-as-single-sandboxing-system.md), existing [sync-media-secrets-to-pass.bash](../../scripts/shell/sync-media-secrets-to-pass.bash).

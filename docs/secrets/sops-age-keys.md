@@ -15,7 +15,7 @@ Reference for age/sops key management in this flake. SSH login/destinations: [Ap
 | Verify host key | `just verify-sops-host-key framework` |
 | After `.sops.yaml` changes | `sops updatekeys secrets/secrets.yaml` |
 
-See also: [SCHEMA.md](./SCHEMA.md).
+See also: [SCHEMA.md](../../secrets/SCHEMA.md).
 
 ---
 
@@ -178,7 +178,7 @@ If caya is also a secret-editing machine, that same file is the editor key — e
 
 ## Phase 4 — Mini first install
 
-`bootstrap = true` in `hosts/mini/default.nix` skips sops password until the host age key exists at `/var/lib/private/sops/age/keys.txt`.
+Mini has no bootstrap toggle today. Commit 275f4673 removed `bootstrap = true` from `hosts/mini/default.nix`. For a fresh install, add a temporary toggle again before §4.1, as `docs/hosts/mini.md` § Rebuilding from scratch describes. The toggle skips the sops password until the host age key exists at `/var/lib/private/sops/age/keys.txt`.
 
 ### 4.1 Install with bootstrap
 
@@ -191,7 +191,7 @@ sudo nixos-install --flake .#mini --no-root-password
 ### 4.2 Bootstrap host age key on mini
 
 ```bash
-ssh jadee@192.168.1.10
+ssh jadee@192.168.178.100
 cd ~/git/flake
 just bootstrap-sops-host-key    # only when host path is empty
 ```
@@ -203,7 +203,8 @@ just bootstrap-sops-host-key    # only when host path is empty
 - [ ] `users/jadee/password_mini` exists in `secrets/secrets.yaml` (`mkpasswd -m sha-512` hash, not plaintext)
 - [ ] `&mini` uncommented in `.sops.yaml` with pubkey from step 4.2
 - [ ] `- *mini` added under `creation_rules`
-- [ ] `sops updatekeys secrets/secrets.yaml` run locally
+- [ ] The same `&mini` change made in the `mini-nix` repo's `.sops.yaml`
+- [ ] `sops updatekeys secrets/secrets.yaml` run locally, in each repo you changed
 - [ ] `.sops.yaml` and `secrets/secrets.yaml` committed and pushed
 
 ```bash
@@ -221,7 +222,7 @@ git push
 ### 4.4 Exit bootstrap (only after §4.3 checklist)
 
 ```bash
-# Workstation: hosts/mini/default.nix → bootstrap = false
+# Workstation: remove the temporary bootstrap toggle from §4
 git commit -am "feat(mini): exit sops bootstrap"
 git push
 
@@ -264,7 +265,7 @@ Consumed by `modules/nixos/user.nix` → `hashedPasswordFile`.
 - [ ] `&editor` set; editor key backed up
 - [ ] Framework: Phase 1 (if needed) → **`rotate-sops-host-key`** → verify → switch
 - [ ] Desktop: dedicated host key + verify
-- [ ] Mini: §4.3 checklist complete → `bootstrap = false`
+- [ ] Mini: §4.3 checklist complete → bootstrap toggle removed
 - [ ] Caya: `&caya` matches HM key
 - [ ] `sops updatekeys` after every recipient change
 - [ ] Host private keys backed up outside git

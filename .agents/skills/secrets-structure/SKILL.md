@@ -16,6 +16,7 @@ Use this for `secrets/`, `.sops.yaml`, secret-consuming Nix modules, `Justfile` 
 - `.sops.yaml`: age recipient anchors and one creation rule.
 - `docs/secrets/`: key-management procedures (`sops-age-keys.md`, `per-host-and-pass-plan.md`).
 - `lib/default.nix`: `sopsFile` points at `secrets/secrets.yaml` for all modules.
+- The private `mini-nix` repo (flake input `mini-nix`) holds mini's `mini/**` keys in its own `secrets/secrets.yaml`, with its own `.sops.yaml` and `secrets/SCHEMA.md`. Its `module.nix` sets `sopsFile` for each `mini/**` key. Shared keys stay in this repo. Some mini-nix services read them too.
 
 ## Key model
 
@@ -23,7 +24,7 @@ Use this for `secrets/`, `.sops.yaml`, secret-consuming Nix modules, `Justfile` 
 - NixOS host runtime keys: `/var/lib/private/sops/age/keys.txt`, anchors `&framework`, `&desktop`, `&mini`. Set in `modules/nixos/sops.nix`.
 - Darwin (`caya`): anchor `&caya`. There is no Darwin system-level sops config. The key path `~/.config/sops/age/keys.txt` comes from the shared HM module `modules/profiles/minimal/security.nix`, which applies on all hosts. `just setup-age-darwin` creates it.
 - SSH login private keys stay on clients. Host age private keys stay on hosts. Never store either in SOPS.
-- SSH deploy private keys can live in SOPS for daemon use only. Current examples: `mini/git/deploy-key` (`hosts/mini/flake-cache-warm.nix`) and `mini/backup/unraid-ssh-key` (`hosts/mini/services/immich-backup.nix`). Public halves are not stored.
+- SSH deploy private keys can live in SOPS for daemon use only. Current example: `mini/backup/unraid-ssh-key` in mini-nix (`services/immich-backup.nix`, `services/agent-sessions.nix`). Public halves are not stored.
 - The `.sops.yaml` `path_regex` matches only files directly in `secrets/`. A file in a subdirectory gets no recipients.
 - Every recipient can decrypt the whole file. The schema's "Consumed on" column says who reads a value, not who can decrypt it.
 
@@ -38,12 +39,13 @@ Use this for `secrets/`, `.sops.yaml`, secret-consuming Nix modules, `Justfile` 
 
 1. HM session-env secret. Declare `sops.secrets."<attr>" = { key = "<yaml/path>"; path = ...; }` in `security.nix`. `sops-session-env.nix` exports every attribute declared there. The variable name is the attribute in upper case, with `-` changed to `_` (`openrouter-api-key` -> `OPENROUTER_API_KEY`). `sessionEnvExcludeAttrs` is empty, so `kagi-api-key` and `kagi-session-token` (from nested `kagi/*`) export as `KAGI_API_KEY` and `KAGI_SESSION_TOKEN`. Fan-outs: `github-token` -> `NIX_CONFIG` only. It does not export `GITHUB_TOKEN`, because `gh` prefers that variable over `gh auth`. `hf-token` -> `HF_TOKEN`, `HUGGING_FACE_HUB_TOKEN` (`hfTokenSecretAttrs`). Delivery: shell init for bash, zsh, and nushell. On Linux, also `~/.config/environment.d/50-sops-secrets.conf` plus `systemctl --user set-environment`. On Darwin, a launchd agent that calls `launchctl setenv`.
 2. Keyring secret. `sops-keyring.nix` (Linux only) copies a curated subset into libsecret (gnome-keyring) for the nono sandbox broker. The map is `agentKeyMap`: `openrouter-api-key`, `context7-api-key`, and `agent-pat` (stored as `github_token`).
-3. Plain `sops.secrets` file. Declare `sops.secrets."<yaml/path>"` and read `.path` in the consumer. Examples: `mini/media/**` in `hosts/mini/services/media/`, `mini/backup/**`, `mini/git/deploy-key`, `cachix/auth-token`, and `grafana_secret_key` (`hosts/mini/services/tracing.nix`, `owner = "grafana"`, read through Grafana's `$__file{<path>}` syntax).
+3. Plain `sops.secrets` file. Declare `sops.secrets."<yaml/path>"` and read `.path` in the consumer. Examples: `users/jadee/password_<hostKey>` (`modules/nixos/user.nix`), `mini/media/**` and `mini/backup/**` in mini-nix `services/`, and `grafana_secret_key` (mini-nix `services/tracing.nix`, `owner = "grafana"`, read through Grafana's `$__file{<path>}` syntax).
 4. `sops.templates`. Declare the secrets, then render a file with `config.sops.placeholder.<attr>`. Current templates:
-   - `caddy.env` (`hosts/mini/services/caddy.nix`): `cloudflare_dns_api_token`, `tailscale_authkey`.
-   - `hermes.env` (`hosts/mini/services/hermes.nix`): `openrouter_api_key`, `agent_pat`, `hf_token`, `kagi/session_token`, `context7_api_key`, `matrix/hermes_*`, `telegram/*`.
-   - `matrix-continuwuity.env` (`hosts/mini/services/matrix.nix`): `matrix/registration_token`.
-   - `mini-llm-hf.env` (`hosts/mini/secrets.nix`): `hf_token`.
+   - `caddy.env` (mini-nix `services/caddy.nix`): `cloudflare_dns_api_token`, `tailscale_authkey`.
+   - `hermes.env` (mini-nix `services/hermes.nix`): `openrouter_api_key`, `agent_pat`, `hf_token`, `kagi/session_token`, `context7_api_key`, `matrix/hermes_*`, `telegram/*`.
+   - `matrix-continuwuity.env` (mini-nix `services/matrix.nix`): `matrix/registration_token`.
+   - `mini-llm-hf.env` (mini-nix `secrets.nix`): `hf_token`.
+   - `ntfy.env` (mini-nix `services/ntfy.nix`): `mini/ntfy/*`.
    - `networkmanager-yukikaze.env` (`modules/nixos/home-wifi.nix`): `wifi/yukikaze_psk`.
    - `kagi.toml` (`security.nix`, HM): `kagi-api-key`, `kagi-session-token` -> `~/.kagi.toml`.
    - `vicinae-github.json` (`modules/profiles/apps/vicinae.nix`, HM): `github-token`, only if that attribute exists.
@@ -51,7 +53,7 @@ Use this for `secrets/`, `.sops.yaml`, secret-consuming Nix modules, `Justfile` 
 ## Procedure: add a secret
 
 1. Choose the wiring form. Do not add a new form without a reason.
-2. Set the value: `<cmd> | just secret-set <slash/path>`. The recipe refuses a terminal on stdin. For single-line values, pipe through `tr -d '\n'` first. Or edit with `sops secrets/secrets.yaml`.
+2. Set the value: `<cmd> | just secret-set <slash/path>`. The recipe refuses a terminal on stdin. For single-line values, pipe through `tr -d '\n'` first. Or edit with `sops secrets/secrets.yaml`. For a `mini/**` key, use `mini secret-set <path>`. `just secret-set` refuses `mini/**` paths.
 3. Declare the secret in the consuming module.
 4. Add a row to `secrets/SCHEMA.md` with path, source, consumer, and runtime host.
 5. If recipients changed, run `sops updatekeys secrets/secrets.yaml`.
@@ -66,11 +68,7 @@ Use this for `secrets/`, `.sops.yaml`, secret-consuming Nix modules, `Justfile` 
 - `rotate-sops-host-key`: back up, generate a new host key, print the pubkey. Update `.sops.yaml` and `updatekeys` before switch.
 - `verify-sops-host-key <anchor>`: compare host pubkey with the anchor. Fails if host key equals editor key.
 - `sync-1password`: push secrets to the 1Password vault on Darwin.
-- `sync-media-secrets-to-pass`: push `mini/media/**` to Proton Pass.
-
-## Known schema gaps
-
-`secrets/SCHEMA.md` currently lacks rows for `cloudflare_dns_api_token`, `tailscale_authkey`, `hf_token`, `telegram/bot_token`, `telegram/allowed_users`, and `telegram/home_channel`. Its `hermes/env` row is stale: hermes reads the `hermes.env` template, not a `hermes/env` key. Correct these when you touch the schema.
+- `sync-media-secrets-to-pass`: push `mini/media/**` from the mini-nix secrets file to Proton Pass. `MINI_SOPS_FILE` overrides the path.
 
 ## Safety rules
 
