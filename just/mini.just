@@ -232,6 +232,15 @@ immich-backup-mount:
 immich-backup-unlock:
     ssh {{mini_ssh}} 'bash -lc "sudo restic-immich unlock"'
 
+# Stash matching by product code: Stash's Identify needs fingerprints, and
+# JAVStash often has none, so this script matches the filename code instead.
+[doc('Match JAV scenes to JAVStash by filename code (dry run; pass --apply)')]
+stash-jav-match *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    repo="${MINI_NIX_DIR:-$HOME/git/mini-nix}"
+    exec python3 "$repo/scripts/stash-jav-match.py" {{args}}
+
 # Service config and its secrets live in the private mini-nix repo, not this
 # flake. Set values there; the path keeps the full `mini/` prefix.
 [doc('Set a secret in the private mini-nix repo (pipe the value in)')]

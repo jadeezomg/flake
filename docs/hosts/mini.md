@@ -369,7 +369,10 @@ the account pages (stashdb.org, javstash.org). Matching is the **Identify**
 task with a stash-box source; **Auto Tag** only matches names already in the
 database and never queries a box. Identify applies title/date/stash ID always,
 and studio/performers/tags only when its field options say so
-(`MERGE` + create missing).
+(`MERGE` + create missing). JAV leftovers use `just mini stash-jav-match`
+(dry run; add `--apply`): it matches the product code in the filename against
+JAVStash's scene `code`, because JAVStash scenes often carry no fingerprint for
+Identify to match. The script lives in `mini-nix/scripts/stash-jav-match.py`.
 
 Notifications go through ntfy at https://ntfy.jadee.fyi (tailnet,
 `mini-nix/services/ntfy.nix`). The `media` topic gets imports and health
