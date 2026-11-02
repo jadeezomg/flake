@@ -21,7 +21,11 @@ in
     # Explicit clipboard provider, by platform/session:
     # - darwin: absolute pbcopy/pbpaste paths — helix spawns the provider via
     #   the editor's PATH, which can lack /usr/bin ("os error 2" on yank).
-    # - Noctalia desktops: built-in Wayland clipboard (wl-clipboard).
+    # - Noctalia desktops: wl-clipboard, the commands of the built-in "wayland"
+    #   provider. A mouse selection yanks to the primary register (*), so
+    #   paste-primary writes it to the clipboard too. Helix names the read
+    #   command `yank` and the write command `paste`. Its docs call the key
+    #   `primary-paste`, but 25.07 reads `paste-primary`.
     # - DMS desktops: the DMS clipboard manager owns the Wayland clipboard
     #   (https://danklinux.com/docs/dankmaterialshell/cli-clipboard) — use
     #   `dms cl` instead of shipping wl-clipboard.
@@ -40,7 +44,25 @@ in
           };
         }
       else if hasDesktopSession && desktopShell == "noctalia" then
-        "wayland"
+        let
+          wlCopy = {
+            command = "wl-copy";
+            args = [
+              "--type"
+              "text/plain"
+            ];
+          };
+        in
+        {
+          custom = {
+            yank = {
+              command = "wl-paste";
+              args = [ "--no-newline" ];
+            };
+            paste = wlCopy;
+            paste-primary = wlCopy;
+          };
+        }
       else if hasDesktopSession then
         {
           custom = {
