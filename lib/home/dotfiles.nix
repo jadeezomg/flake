@@ -53,6 +53,7 @@
         "$home/Pictures" \
         "$home/.claude" \
         "$home/.agents" \
+        "$home/.local/state/noctalia" \
         ; do
         if [[ -d "$tree" ]]; then
           find "$tree" -type l -print0 2>/dev/null | while IFS= read -r -d $'\0' link; do
