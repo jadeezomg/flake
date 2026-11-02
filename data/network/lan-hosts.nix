@@ -24,7 +24,7 @@
       lan = "192.168.178.1";
     };
 
-    # Unraid NAS. Runs the household share pool and, since ADR-0007, receives
+    # Unraid NAS. Runs the household share pool and, since ADR-0007 (in mini-nix), receives
     # mini's Immich backup. Tailscale SSH is available on the tailnet name but
     # periodically demands an interactive browser re-auth, so automation should
     # prefer `lan`.

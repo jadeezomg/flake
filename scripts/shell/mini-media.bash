@@ -227,7 +227,7 @@ nfs_path_ok() {
 # storage.nix mounts the data export twice: /data (RW) and /mnt/library (read-only,
 # FS-Cache). The different options give /mnt/library its own superblock. A bind of
 # /data would share /data's superblock and keep its dead handle when /data is
-# mounted again (see the comment in hosts/mini/services/media/storage.nix).
+# mounted again (see the comment in mini-nix/services/media/storage.nix).
 # NFS binds still report fsType nfs4 in findmnt/What=, so detect that drift by
 # superblock instead: a separate mount has its own device number, a bind reuses
 # /data's.
@@ -246,7 +246,7 @@ topology_ok() {
 }
 
 ensure_media_mounts() {
-    # The topology in hosts/mini/services/media/storage.nix: four NFS mounts, each
+    # The topology in mini-nix/services/media/storage.nix: four NFS mounts, each
     # the root of an export and behind an .automount, with nothing mounted below them.
     #   /data          the data export, RW
     #   /Music         the Music export, RW

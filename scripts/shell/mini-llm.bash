@@ -6,7 +6,7 @@ root="${FLAKE:-$(cd "$script_dir/../.." && pwd)}"
 source "$root/scripts/shell/common.sh"
 
 # mini serves local LLMs via llama.cpp (`llama-cpp` systemd unit, router mode) on
-# :8000 as `local-chat` / `local-embed`. Config: hosts/mini/services/llm/default.nix.
+# :8000 as `local-chat` / `local-embed`. Config: mini-nix/services/llm/default.nix.
 
 usage() {
   cat <<'USAGE'

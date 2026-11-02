@@ -7,39 +7,39 @@ sharedNixOSHost
   hostname = "mini";
   user = sharedNixOSUser;
 
-  # Gates the local LLM stack (`./services/llm`): it turns on the shared llama.cpp
+  # Gates the local LLM stack (`mini-nix/services/llm`): it turns on the shared llama.cpp
   # router `dotfiles.profiles.llm.serve` with mini's models (`local-chat` +
   # `local-embed` on :8000) and adds open-webui. All serving knobs live there.
   miniLlmHosting = true;
 
-  # Beszel hub + agent (./services/beszel.nix): server/service/container monitoring.
+  # Beszel hub + agent (mini-nix/services/beszel.nix): server/service/container monitoring.
   miniMonitoring = true;
 
-  # Atuin sync server (./services/atuin.nix): shell history for every host, on
+  # Atuin sync server (mini-nix/services/atuin.nix): shell history for every host, on
   # the postgres this box already runs. Clients point at atuin.jadee.fyi.
   miniAtuinSync = true;
 
-  # Tempo + Grafana (./services/tracing.nix): OpenTelemetry traces of Nix builds
+  # Tempo + Grafana (mini-nix/services/tracing.nix): OpenTelemetry traces of Nix builds
   # from the NixOS hosts (modules/nixos/nix-tracing.nix), at grafana.jadee.fyi.
   miniTracing = true;
 
-  # Nixflix media stack (./services/media/): automation and playback on mini,
+  # Nixflix media stack (mini-nix/services/media/): automation and playback on mini,
   # with library and download payloads mounted from Unraid.
   miniMediaHosting = true;
 
-  # Immich photo/video library (./services/immich.nix) + its off-host backup to
-  # Unraid (./services/immich-backup.nix). Migrated off the Unraid container;
+  # Immich photo/video library (mini-nix/services/immich.nix) + its off-host backup to
+  # Unraid (mini-nix/services/immich-backup.nix). Migrated off the Unraid container;
   # brings this host's first postgresql + redis. Unlike the media stack, the
   # payload lives on mini's local NVMe and Unraid is the backup target —
-  # see docs/adr/0007-immich-library-on-mini.md.
+  # see mini-nix docs/adr/0007-immich-library-on-mini.md.
   miniImmich = true;
 
-  # Agent session archive (./services/agent-sessions.nix): hosts push their agent
+  # Agent session archive (mini-nix/services/agent-sessions.nix): hosts push their agent
   # session files here, agentsview indexes them, restic backs them up to Unraid.
   # Plan: docs/agents/session-management-plan.md.
   miniAgentSessions = true;
 
-  # Agents run on mini in herdr or tuios sessions. ./services/agent-host.nix caps
+  # Agents run on mini in herdr or tuios sessions. mini-nix/services/agent-host.nix caps
   # their memory. Mode `mini` in the same plan.
   miniAgentHost = true;
 
