@@ -1,6 +1,6 @@
 # 0001 — Nono as the single agent sandboxing system
 
-**Status:** accepted
+**Status:** accepted, partly superseded. See "Changes since the decision" at the end.
 
 We unify the previously parallel `nono` and `agent-sandbox.nix` paths onto **nono** as the sole sandboxing layer for coding agents (Claude Code, pi, omp). nono won on three criteria: (1) it composes via `extends` and policy groups, so adding a third agent is small and the two existing profiles stay in lockstep; (2) its native HTTPS broker (reverse proxy with header injection) lets us avoid LLM/git API keys in the sandbox env, satisfying the "broker over passthrough" principle; (3) it integrates with libsecret/secret-service, the de-facto Linux credential standard. `agent-sandbox.nix` is removed in the same change — flake input dropped, `claude-sandbox` devShell deleted.
 
@@ -35,3 +35,12 @@ We unify the previously parallel `nono` and `agent-sandbox.nix` paths onto **non
 7. **Codex OAuth login broker route.** When `codex` lands in the agents profile (already shipped, broker-side TBD), it'll need its own OpenAI/Anthropic login flow. Likely path: extend `mkAgentProfile`'s `extraCredentials` with codex-specific routes once we have the auth surface mapped. Tracked alongside item 2 since both are "OAuth, not API key" workflows.
 
 8. **Declarative omp plugins.** Skipped at intro time because omp's plugin manager (`bun install` against `~/.omp/plugins/package.json`) doesn't fit a JSON-rewrite activation model cleanly. If this becomes painful (multiple machines drifting on plugin sets), revisit by either: (a) pre-populating `~/.omp/plugins/package.json` declaratively + running `bun install` at HM activation, or (b) shipping a small wrapper that runs `omp plugin install` for missing entries on first launch. No omp plugins are managed declaratively today.
+
+## Changes since the decision (2026-11-02)
+
+The code moved past four parts of this ADR. The decision itself, nono as the single agent sandbox, still holds.
+
+- omp packaging: the flake does not fetch the omp release binary now. `lib/nono-profiles.nix` takes `pkgs.llm-agents.omp` from the `llm-agents` input (commit 2a431e59, 2026-07-27), so `update-packages` does not handle omp. This replaces "oh-my-pi as a multi-platform binary release".
+- omp MCP: `omp-mcp.nix` does not exist now. Nothing manages `~/.omp/agent/mcp.json`, and APM does not write it (`modules/profiles/devenv/agents/apm.nix`). This replaces the MCP sentence in "omp coexists with pi".
+- mini: agents run on mini now, in herdr or tuios sessions (mode `mini` in `docs/agents/session-management-plan.md`). Item 5 is on the roadmap again. This ADR does not record how those agents get their credentials.
+- Names: the profiles use `open_port`, not `port_localhost`. The Kagi CLI is `kagi` (package `kagi-cli`), not `kagi-ken-cli`.
