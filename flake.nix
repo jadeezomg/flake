@@ -117,6 +117,12 @@
     # --- AI / agents ---
     llm-agents.url = "github:numtide/llm-agents.nix";
     hermes-agent.url = "github:NousResearch/hermes-agent";
+    # Rex server (superlogical, in beta) for mini (mini-nix/services/rex.nix).
+    # The preview channel: tagged previews, since there is no stable release yet.
+    rex = {
+      url = "https://pkgs.superlogical.com/rex/nix/preview.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # Zed's Delta (proprietary binary, Linux only). Follows our nixpkgs so its
     # glibc matches the host Mesa/LLVM in /run/opengl-driver.
     delta = {

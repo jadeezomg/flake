@@ -43,6 +43,10 @@ sharedNixOSHost
   # their memory. Mode `mini` in the same plan.
   miniAgentHost = true;
 
+  # Rex login server (mini-nix/services/rex.nix): Rex clients reach terminal
+  # and agent sessions on mini over the tailnet, as jadee.
+  miniRex = true;
+
   # The push reaches mini by its tailnet name on this port, where OpenSSH answers.
   # Port 22 on the tailnet belongs to Tailscale SSH, which ignores the forced
   # rrsync command in authorized_keys. Read by both ends of the push.
