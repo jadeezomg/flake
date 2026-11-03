@@ -15,7 +15,7 @@ let
 
   # Per-platform credential-key resolution.
   #   Linux  → libsecret account name (service "nono", account <name>)
-  #   Darwin → 1Password URI under the Personal vault
+  #   Darwin → 1Password URI under the Employee vault
   # The vault name is duplicated in scripts/shell/sync-1password.bash.
   # Item-naming convention is shared so the same `<name>` works on both.
   opVault = "Employee";
@@ -47,6 +47,16 @@ let
     9229
     11434
   ];
+
+  # agentsview session search for agents (MCP entry in apm.nix). The Linux
+  # hosts read the private archive on mini. caya keeps its work sessions to
+  # itself (D1 in docs/agents/session-management-plan.md), so it reads a local
+  # server (modules/profiles/devenv/agents/agentsview.nix).
+  isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
+  agentsviewDomain = "sessions.jadee.fyi";
+  agentsviewPort = 8089;
+  agentsviewServer =
+    if isDarwin then "http://127.0.0.1:${toString agentsviewPort}" else "https://${agentsviewDomain}";
 
   # The rootless podman socket lets agents reach host-managed containers.
   # Sockets must go in `allow_file` (r+w on a single path); `unix_socket`
@@ -109,8 +119,12 @@ let
         # Hosts our custom_credentials inject auth for. Listed so `nono why`
         # static analysis matches runtime — without this, `nono why` reports
         # DENIED for these even though the broker rewrites them at runtime.
-        allow_domain = [ "context7.com" ] ++ lib.optional (extraCredentials ? openrouter) "openrouter.ai";
-        open_port = loopbackPorts;
+        allow_domain = [
+          "context7.com"
+        ]
+        ++ lib.optional (extraCredentials ? openrouter) "openrouter.ai"
+        ++ lib.optional (!isDarwin) agentsviewDomain;
+        open_port = loopbackPorts ++ lib.optional isDarwin agentsviewPort;
         custom_credentials = sharedCustomCredentials // extraCredentials;
         credentials = [
           "context7"
@@ -487,5 +501,7 @@ in
     doctor
     status
     agentGitconfig
+    agentsviewPort
+    agentsviewServer
     ;
 }

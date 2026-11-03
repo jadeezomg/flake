@@ -142,11 +142,23 @@ let
         );
 
       # The `claude` target writes these into Claude's config, which Zed's
-      # Claude ACP agent also reads. omp reads its own ~/.omp/agent/mcp.json,
-      # which APM does not write. Remote endpoints authenticate interactively
+      # Claude ACP agent also reads. omp gets them through `ompMcp` below.
+      # Remote endpoints authenticate interactively
       # per client (OAuth on first use) — nothing to install, no secret to wire.
       mcp = [
         (mkStdioServer "context7-mcp")
+        # Read-only search over past agent sessions: mini's archive on Linux,
+        # caya's local server on Darwin (./agentsview.nix).
+        (
+          mkStdioServer "agentsview"
+          // {
+            args = [
+              "mcp"
+              "--server"
+              (dotfilesLib.nonoProfiles { inherit pkgs; }).agentsviewServer
+            ];
+          }
+        )
       ]
       # mcp-nixos pulls python3.lupa → luajit_2_0, unsupported on
       # aarch64-darwin; ./default.nix omits the package there too.
@@ -156,6 +168,29 @@ let
   };
 
   manifestFile = (pkgs.formats.yaml { }).generate "apm.yml" manifest;
+
+  # omp reads only its own ~/.omp/agent/mcp.json: it reads the user configs
+  # of other tools only for the providers in `enabledProviders`, and
+  # data/agents/omp/config.yml enables just `claude-plugins`. So `ompMcp` merges
+  # the same servers into omp's file. The merge keeps servers added with omp's
+  # own `/mcp add`, and extra fields such as `enabled`.
+  ompMcpFile = "${config.home.homeDirectory}/.omp/agent/mcp.json";
+  ompMcpServers = builtins.toJSON (
+    lib.listToAttrs (
+      map (
+        s:
+        lib.nameValuePair s.name (
+          if s.transport == "stdio" then
+            { inherit (s) command args; }
+          else
+            {
+              type = "http";
+              inherit (s) url;
+            }
+        )
+      ) manifest.dependencies.mcp
+    )
+  );
 
   claude = "${pkgs.llm-agents.claude-code}/bin/claude --settings ${claudeNoHooks}";
 
@@ -237,6 +272,25 @@ in
         ${adoptMcpServers}
         PATH=${gitBinPath}:$PATH $DRY_RUN_CMD ${apm}/bin/apm update -g --yes \
           || echo "apm: update -g failed (will retry next switch)"
+      '';
+
+      # `tee` writes into the existing file, so its mode stays as it is. An
+      # unreadable file is left alone.
+      ompMcp = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        f=${lib.escapeShellArg ompMcpFile}
+        m=${lib.escapeShellArg ompMcpServers}
+        jq=${pkgs.jq}/bin/jq
+        if [ ! -s "$f" ]; then
+          $DRY_RUN_CMD mkdir -p "$(dirname "$f")"
+          $DRY_RUN_CMD tee "$f" <<<'{}' >/dev/null
+        fi
+        if ! $jq -e --argjson m "$m" '(.mcpServers // {}) * $m == (.mcpServers // {})' "$f" >/dev/null 2>&1; then
+          if new=$($jq --argjson m "$m" '.mcpServers = ((.mcpServers // {}) * $m)' "$f"); then
+            $DRY_RUN_CMD tee "$f" <<<"$new" >/dev/null
+          else
+            echo "apm: could not merge the MCP servers into ~/.omp/agent/mcp.json"
+          fi
+        fi
       '';
 
       # Upstream skills are Claude Code plugins (see `manifest`). The flake does

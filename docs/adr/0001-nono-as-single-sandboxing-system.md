@@ -41,6 +41,6 @@ We unify the previously parallel `nono` and `agent-sandbox.nix` paths onto **non
 The code moved past four parts of this ADR. The decision itself, nono as the single agent sandbox, still holds.
 
 - omp packaging: the flake does not fetch the omp release binary now. `lib/nono-profiles.nix` takes `pkgs.llm-agents.omp` from the `llm-agents` input (commit 2a431e59, 2026-07-27), so `update-packages` does not handle omp. This replaces "oh-my-pi as a multi-platform binary release".
-- omp MCP: `omp-mcp.nix` does not exist now. Nothing manages `~/.omp/agent/mcp.json`, and APM does not write it (`modules/profiles/devenv/agents/apm.nix`). This replaces the MCP sentence in "omp coexists with pi".
+- omp MCP: `omp-mcp.nix` does not exist now. The `ompMcp` step in `modules/profiles/devenv/agents/apm.nix` merges the APM servers into `~/.omp/agent/mcp.json`. omp reads the user configs of other tools, such as `~/.claude.json`, only for the providers in `enabledProviders`. This replaces the MCP sentence in "omp coexists with pi".
 - mini: agents run on mini now, in herdr or tuios sessions (mode `mini` in `docs/agents/session-management-plan.md`). Item 5 is on the roadmap again. This ADR does not record how those agents get their credentials.
 - Names: the profiles use `open_port`, not `port_localhost`. The Kagi CLI is `kagi` (package `kagi-cli`), not `kagi-ken-cli`.

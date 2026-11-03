@@ -21,6 +21,7 @@ dotfilesLib.mkProfile {
   imports = [ ./retired-cleanup.nix ];
   hm = [
     ./agent-review.nix
+    ./agentsview.nix
     ./apm.nix
     ./dsh.nix
     ./global-config.nix
@@ -42,6 +43,7 @@ dotfilesLib.mkProfile {
     in
     nonoAgents.agentPackages
     ++ (with agents; [
+      agentsview
       codex
       codex-acp
       dsh
