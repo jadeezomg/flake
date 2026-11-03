@@ -42,5 +42,3 @@ Custom flake packages auto-registered into overlays and flake package outputs.
 The `npm` type also writes the tarball URL into `url` in `default.nix`.
 
 Each time the script looks for a new version, it writes the time to `.update-check.json` in the package folder. For one hour after that time, a run skips the package. To ignore this cooldown, run `just update-packages --force`, or set `UPDATE_FORCE=1` for `just update`.
-
-`tern` has no `update.json`. Its tarball needs a Stencil sign-in, so `requireFile` finds the file in the Nix store by its hash. To update `tern`, follow the comment at the top of `packages/tern/default.nix`.

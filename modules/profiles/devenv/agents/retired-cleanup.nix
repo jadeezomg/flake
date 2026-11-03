@@ -53,6 +53,15 @@ let
         ".local/state/herdr/plugins/herdr-sidebar"
       ];
 
+      # Tern (Stencil's closed-beta terminal) left on 2026-11-02. It wrote
+      # these folders outside the store.
+      ternDirs = map (dir: "${home}/${dir}") [
+        ".config/tern"
+        ".cache/tern"
+        ".cache/stencil-term"
+        ".local/state/tern"
+      ];
+
       trash =
         if pkgs.stdenv.hostPlatform.isDarwin then
           ''mv "$d" "${home}/.Trash/$(basename "$d")-$(date +%s)"''
@@ -80,7 +89,7 @@ let
     in
     {
       home.activation.retiredCleanup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        for d in ${lib.escapeShellArgs (opencodeDirs ++ herdrSidebarDirs)}; do
+        for d in ${lib.escapeShellArgs (opencodeDirs ++ herdrSidebarDirs ++ ternDirs)}; do
           if [ -e "$d" ]; then
             $DRY_RUN_CMD ${trash} || echo "cleanup: could not move $d to the trash"
           fi

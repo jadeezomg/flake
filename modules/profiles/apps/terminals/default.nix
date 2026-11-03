@@ -14,6 +14,5 @@ dotfilesLib.mkProfile {
     pkgs: with pkgs; [
       ghostty
       kitty
-      tern
     ];
 } args
