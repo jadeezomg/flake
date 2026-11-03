@@ -1,0 +1,21 @@
+--- a/src/NzbDrone.Core/IndexerSearch/ReleaseSearchService.cs	2026-11-03 16:11:14.477617708 +0100
++++ b/src/NzbDrone.Core/IndexerSearch/ReleaseSearchService.cs	2026-11-03 16:11:14.566584578 +0100
+@@ -145,6 +145,18 @@
+                     }
+                 }
+ 
++                // Interactive search is the manual verification path. Add the
++                // scene code as a code-only query there so releases named only
++                // by performer/title/code show up alongside the normal results.
++                // Automatic search stays unchanged: a code can be shared by
++                // unrelated scenes, so it must not grab without a human look.
++                if (sceneSearchSpec.InteractiveSearch &&
++                    code.IsNotNullOrWhiteSpace() &&
++                    !sceneSearchSpec.SceneTitles.Contains(code))
++                {
++                    sceneSearchSpec.SceneTitles.Add(code);
++                }
++
+                 decisions = await Dispatch(indexer => indexer.Fetch(sceneSearchSpec), sceneSearchSpec);
+             }
+ 
