@@ -27,6 +27,10 @@ sharedNixOSHost
   # with library and download payloads mounted from Unraid.
   miniMediaHosting = true;
 
+  # FC2 catalogue (mini-nix/services/fc2-catalog.nix): JavArchive discovery,
+  # SQLite, and a Prowlarr release preview at fc2.jadee.fyi.
+  miniFc2Catalog = true;
+
   # Immich photo/video library (mini-nix/services/immich.nix) + its off-host backup to
   # Unraid (mini-nix/services/immich-backup.nix). Migrated off the Unraid container;
   # brings this host's first postgresql + redis. Unlike the media stack, the
