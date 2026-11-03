@@ -13,13 +13,13 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "nautilus-my-computer";
-  version = "0.13.3";
+  version = "0.13.4";
 
   src = fetchFromGitHub {
     owner = "yannmasoch";
     repo = "nautilus-my-computer";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-UW1BqLQItzjpcALXzu+Zgr3He0XFYTcDmbFvW5lCVKo=";
+    hash = "sha256-5Pjd6L6sig/ZM8m3Y/13DSbppF11x3hvMlMsu+8kU50=";
   };
 
   # 0.13.3 crashes Nautilus when you open Network from List view:
