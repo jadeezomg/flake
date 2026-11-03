@@ -69,6 +69,13 @@ dotfilesLib.mkProfile {
         reason = "nixos-unstable now ships tuios >= 0.12.0.";
         fallback = pkgs.tuios;
       } pkgs-small.tuios)
+      # herdr-core (`hc`): runs terminals and agents headless and keeps them
+      # alive. nixpkgs#581031 reached nixos-unstable-small first.
+      (expireWhen {
+        fixed = pkgs ? herdr-core;
+        reason = "nixos-unstable now ships herdr-core (nixpkgs#581031).";
+        fallback = pkgs.herdr-core;
+      } pkgs-small.herdr-core)
     ])
     # mcp-nixos pulls python3.lupa → luajit_2_0, which nixpkgs 26.05 marks
     # unsupported on aarch64-darwin. Drop it on Darwin until fixed upstream.
