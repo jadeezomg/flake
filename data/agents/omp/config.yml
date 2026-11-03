@@ -1,6 +1,6 @@
 modelRoles:
-  plan: openai-codex/gpt-6-astra:xhigh
-  default: openrouter/deepseek/deepseek-v4.1-flash-1017:high
+  plan: opencode-go/glm-5.3
+  default: opencode-go/deepseek-v4.1-flash
 theme:
   dark: birds-of-paradise
   light: light-gruvbox
@@ -121,7 +121,7 @@ async:
   enabled: true
 checkpoint:
   enabled: true
-defaultThinkingLevel: high
+defaultThinkingLevel: auto
 hideThinkingBlock: true
 retry:
   fallbackRevertPolicy: cooldown-expiry
