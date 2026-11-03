@@ -37,5 +37,7 @@ in
     "search@kagi.com" = "kagi-search-for-firefox";
     "{135c3428-66bc-4b5b-9503-282dc00802e7}" = "toxcancel";
     "firefox@vicinae.com" = "vicinae";
+    # Userscript manager for the stash2whisparr script (see ./userscripts).
+    "{aecec67f-0d10-4fa7-b7c7-609a2db280cf}" = "violentmonkey";
   };
 }

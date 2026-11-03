@@ -94,6 +94,12 @@ in
     inputs.zen-browser.homeModules.twilight
   ];
 
+  # Violentmonkey is force-installed above. Import this file once (drag it
+  # onto the Violentmonkey dashboard) and replace the API key placeholder
+  # with the value from sops `mini/media/whisparr/api-key`.
+  home.file.".local/share/zen-userscripts/stash2whisparr.user.js".source =
+    ./userscripts/stash2whisparr.user.js;
+
   programs.zen-browser = {
     enable = true;
     nativeMessagingHosts = [ vicinaeNativeMessagingHost ];
