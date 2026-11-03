@@ -16,6 +16,7 @@ dotfilesLib.mkProfile {
     pkgs: with pkgs; [
       # --- Text / docs polish ---
       ripgrep-all # ripgrep for archives, pdfs, etc.
+      rura # TUI for building shell pipelines with live output
       exiftool
       qpdf
       pdftk
