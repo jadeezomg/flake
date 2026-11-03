@@ -45,6 +45,10 @@ in
     inherit lib;
     expiry = expiryFor "open-webui-otel-system-metrics";
   })
+  (import ./whisparr-code-search.nix {
+    inherit lib system;
+    expiry = expiryFor "whisparr-code-search";
+  })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })
 ]

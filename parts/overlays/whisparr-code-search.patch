@@ -1,0 +1,17 @@
+--- a/src/NzbDrone.Core/IndexerSearch/ReleaseSearchService.cs	2026-11-03 16:01:54.763339165 +0100
++++ b/src/NzbDrone.Core/IndexerSearch/ReleaseSearchService.cs	2026-11-03 16:01:54.833650112 +0100
+@@ -145,6 +145,14 @@
+                     }
+                 }
+ 
++                // Release names often contain the scene code but not the
++                // studio, date or full scene title. Query the code on its own
++                // as an extra search title so those releases still surface.
++                if (code.IsNotNullOrWhiteSpace() && !sceneSearchSpec.SceneTitles.Contains(code))
++                {
++                    sceneSearchSpec.SceneTitles.Add(code);
++                }
++
+                 decisions = await Dispatch(indexer => indexer.Fetch(sceneSearchSpec), sceneSearchSpec);
+             }
+ 
