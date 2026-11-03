@@ -22,56 +22,59 @@ const rootFolderPath = "/stuff";
 const apiBase = `${scheme}://${userDomain}/api/v3`;
 
 (function () {
-  'use strict';
+	"use strict";
 
-  const triggerButton = document.createElement('button');
-  triggerButton.textContent = 'Add scene to Whisparr';
-  triggerButton.style.cssText =
-    'position:fixed;top:56px;left:12px;z-index:1000;padding:10px;' +
-    'border:0;border-radius:5px;cursor:pointer;background:#e385ed;color:#fff';
-  document.body.appendChild(triggerButton);
+	const triggerButton = document.createElement("button");
+	triggerButton.textContent = "Add scene to Whisparr";
+	triggerButton.style.cssText =
+		"position:fixed;top:56px;left:12px;z-index:1000;padding:10px;" +
+		"border:0;border-radius:5px;cursor:pointer;background:#e385ed;color:#fff";
+	document.body.appendChild(triggerButton);
 
-  triggerButton.addEventListener('click', async () => {
-    const sceneID = window.location.pathname.split('/scenes/')[1]?.split('/')[0];
-    if (!sceneID) {
-      window.alert('No StashDB scene id in the URL.');
-      return;
-    }
-    try {
-      const lookup = await fetch(
-        `${apiBase}/lookup/scene?term=${encodeURIComponent(sceneID)}`,
-        { headers: { Accept: '*/*', 'X-Api-Key': apiKey } }
-      );
-      if (!lookup.ok) throw new Error(await lookup.text());
-      const [hit] = await lookup.json();
-      if (!hit || !hit.movie) throw new Error('scene not found in Whisparr metadata');
+	triggerButton.addEventListener("click", async () => {
+		const sceneID = window.location.pathname
+			.split("/scenes/")[1]
+			?.split("/")[0];
+		if (!sceneID) {
+			window.alert("No StashDB scene id in the URL.");
+			return;
+		}
+		try {
+			const lookup = await fetch(
+				`${apiBase}/lookup/scene?term=${encodeURIComponent(sceneID)}`,
+				{ headers: { Accept: "*/*", "X-Api-Key": apiKey } },
+			);
+			if (!lookup.ok) throw new Error(await lookup.text());
+			const [hit] = await lookup.json();
+			if (!hit || !hit.movie)
+				throw new Error("scene not found in Whisparr metadata");
 
-      const movie = hit.movie;
-      const body = {
-        title: movie.title,
-        year: movie.year || 0,
-        foreignId: hit.foreignId,
-        stashId: hit.foreignId,
-        qualityProfileId: Number(quality),
-        rootFolderPath,
-        monitored: true,
-        addOptions: { monitor: 'movieOnly', searchForMovie: true },
-      };
-      const added = await fetch(`${apiBase}/movie`, {
-        method: 'POST',
-        headers: {
-          Accept: '*/*',
-          'X-Api-Key': apiKey,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-      const text = await added.text();
-      if (!added.ok) throw new Error(text);
-      window.alert(`Requested in Whisparr: ${movie.title}`);
-    } catch (error) {
-      console.error(error);
-      window.alert(`Whisparr: ${error.message}`);
-    }
-  });
+			const movie = hit.movie;
+			const body = {
+				title: movie.title,
+				year: movie.year || 0,
+				foreignId: hit.foreignId,
+				stashId: hit.foreignId,
+				qualityProfileId: Number(quality),
+				rootFolderPath,
+				monitored: true,
+				addOptions: { monitor: "movieOnly", searchForMovie: true },
+			};
+			const added = await fetch(`${apiBase}/movie`, {
+				method: "POST",
+				headers: {
+					Accept: "*/*",
+					"X-Api-Key": apiKey,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(body),
+			});
+			const text = await added.text();
+			if (!added.ok) throw new Error(text);
+			window.alert(`Requested in Whisparr: ${movie.title}`);
+		} catch (error) {
+			console.error(error);
+			window.alert(`Whisparr: ${error.message}`);
+		}
+	});
 })();
