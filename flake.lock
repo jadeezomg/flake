@@ -903,11 +903,11 @@
     },
     "mini-nix": {
       "locked": {
-        "lastModified": 1793674371,
-        "narHash": "sha256-rhtbalfpIhZ6beGVxFMFI5ALItvKDTci0r9fanDbx24=",
+        "lastModified": 1793674671,
+        "narHash": "sha256-kgpRypEe3whStVlI0DhtgvlSe/NBK9nZswYK616xoIs=",
         "ref": "refs/heads/main",
-        "rev": "fceb30c15ecfdc6799f617d6f999be13727670f7",
-        "revCount": 46,
+        "rev": "5962d0cc153d84c336fb2a016e2be47c0a70c1e6",
+        "revCount": 47,
         "type": "git",
         "url": "ssh://git@github.com/jadeezomg/mini-nix"
       },
