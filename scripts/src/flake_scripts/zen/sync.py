@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import json
 import os
 import subprocess
 import sys
@@ -77,6 +78,43 @@ def target_profile_dir() -> Path:
     )
 
 
+def _private_pin_ids() -> set[str]:
+    """Ids of the pins that must stay out of the public pins.nix.
+
+    They live in zen-pins.json in the private mini-nix repo, and
+    profiles/default/default.nix merges them in. The local checkout covers pins
+    that flake.lock does not pin yet. The pinned input covers hosts without a
+    checkout. If neither loads, zen-sync stops instead of writing them out.
+    """
+    sources = []
+    mini_nix = os.environ.get("MINI_NIX_DIR") or str(Path.home() / "git" / "mini-nix")
+    local = Path(mini_nix) / "zen-pins.json"
+    if local.is_file():
+        sources.append(json.loads(local.read_text(encoding="utf-8")))
+    expr = (
+        f"(builtins.getFlake {json.dumps(str(_FLAKE_ROOT))})"
+        ".inputs.mini-nix.lib.zenPins or {}"
+    )
+    proc = subprocess.run(
+        ["nix", "eval", "--json", "--impure", "--expr", expr],
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode == 0:
+        sources.append(json.loads(proc.stdout))
+    if not sources:
+        raise RuntimeError(
+            f"cannot load the private Zen pins ({local} or the mini-nix input); "
+            "not writing pins.nix"
+        )
+    return {
+        str(pin["id"]).lower()
+        for src in sources
+        for space in src.values()
+        for pin in space.values()
+    }
+
+
 def _unique_nix_key(base: str, seen: set[str]) -> str:
     key = nix_escape(base)
     c = 0
@@ -144,7 +182,7 @@ def _attrset_body(entries) -> str:
     return "\n".join('    "' + k + '" = {\n' + v + "\n    };" for k, v in entries)
 
 
-def _render_pins(windows, folders, spaces_list):
+def _render_pins(windows, folders, spaces_list, private_ids=frozenset()):
     """Render pins in the space-scoped form: `spaces.<name>.pins`.
 
     Essentials stay in the flat `pins` set. With
@@ -167,9 +205,12 @@ def _render_pins(windows, folders, spaces_list):
     def key_for(namespace: str, base: str) -> str:
         return _unique_nix_key(base, seen_keys.setdefault(namespace, set()))
 
+    def is_private(pin) -> bool:
+        return str(pin.get("tabId") or "").lower() in private_ids
+
     for group in windows:
         for p in group["pins"]:
-            if not p.get("isEssential"):
+            if not p.get("isEssential") or is_private(p):
                 continue
             url = p["url"]
             if url in seen_urls_essential:
@@ -204,7 +245,7 @@ def _render_pins(windows, folders, spaces_list):
             group.get("spaceId") or "", nix_escape(group.get("spaceName") or "Default")
         )
         for p in group["pins"]:
-            if p.get("isEssential"):
+            if p.get("isEssential") or is_private(p):
                 continue
             url = p["url"]
             title = p.get("title") or slug(None, url)
@@ -272,13 +313,20 @@ def _unified_diff(name, actual, expected):
     )
 
 
-def sync_profile(profile_dir, session, *, check=False, quiet=False):
+def sync_profile(
+    profile_dir, session, *, check=False, quiet=False, private_ids=frozenset()
+):
     spaces_path = profile_dir / "spaces.nix"
     pins_path = profile_dir / "pins.nix"
     spaces_list = session["spaces"]
     expected_spaces = _nix_fmt(_render_spaces(spaces_list))
     expected_pins = _nix_fmt(
-        _render_pins(session["windows"], session.get("folders") or [], spaces_list)
+        _render_pins(
+            session["windows"],
+            session.get("folders") or [],
+            spaces_list,
+            private_ids,
+        )
     )
     actual_spaces = (
         spaces_path.read_text(encoding="utf-8") if spaces_path.is_file() else ""
@@ -336,7 +384,23 @@ def main(argv=None):
         warn("no spaces in session", stderr=True)
     if not session.get("windows"):
         warn("no windows/pins in session", stderr=True)
-    return sync_profile(profile_dir, session, check=args.check, quiet=args.quiet)
+    try:
+        # Only the default profile merges the private pins.
+        private_ids = (
+            _private_pin_ids()
+            if profile_dir.name == _FLAKE_ZEN_PROFILE_PRIMARY
+            else frozenset()
+        )
+    except (RuntimeError, OSError) as e:
+        bad(str(e), stderr=True)
+        return 1
+    return sync_profile(
+        profile_dir,
+        session,
+        check=args.check,
+        quiet=args.quiet,
+        private_ids=private_ids,
+    )
 
 
 if __name__ == "__main__":

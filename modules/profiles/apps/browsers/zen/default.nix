@@ -12,10 +12,13 @@ let
   defaultProfile = import ./profiles/default {
     inherit
       pkgs
+      lib
       extensions
       sharedSettings
       sharedSearch
       ;
+    # Pins that stay out of this public repo (zen-pins.json in mini-nix).
+    privatePins = inputs.mini-nix.lib.zenPins or { };
   };
   cayaProfile = import ./profiles/caya {
     inherit

@@ -2,15 +2,25 @@
 # Regenerate spaces.nix / pins.nix from the live session: `just zen-sync` (or `zen-sync`).
 # pins.nix must merge last: it re-emits `spaces` with each space's pins nested
 # under it, built from the metadata in spaces.nix.
+#
+# `privatePins` come from the private mini-nix repo, keyed by space name. They
+# join their space here, and zen-sync leaves their ids out of pins.nix.
 {
   extensions,
+  lib,
+  privatePins ? { },
   sharedSearch,
   sharedSettings,
   ...
 }:
 let
   spaces = import ./spaces.nix { };
-  pinsModule = import ./pins.nix { };
+  publicPins = import ./pins.nix { };
+  pinsModule = publicPins // {
+    spaces = lib.mapAttrs (
+      name: space: space // { pins = (space.pins or { }) // (privatePins.${name} or { }); }
+    ) publicPins.spaces;
+  };
 in
 {
   settings = sharedSettings // {
