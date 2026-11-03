@@ -141,6 +141,13 @@ in
           position = 206;
           folderParentId = "{1781804380368-15}";
         };
+        "OpenCode Console" = {
+          id = "8b741cf1-22a4-4962-bd73-d60f43b0e9a2";
+          url = "https://opencode.ai/console/";
+          isEssential = false;
+          position = 247;
+          folderParentId = "{1781804380368-15}";
+        };
         "NixOS Search - Packages" = {
           id = "ff1c9c5d-10a5-4792-9bff-48ed684fa7a1";
           url = "https://search.nixos.org/packages?type=packages&channel=unstable&query=asd";
