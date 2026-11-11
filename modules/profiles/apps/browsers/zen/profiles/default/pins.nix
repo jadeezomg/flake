@@ -363,6 +363,13 @@ in
           position = 230;
           folderParentId = "{1792876051266-98}";
         };
+        "Talentsforever" = {
+          id = "0d5efc2b-f0cf-422f-8fd8-c443b9d42f8f";
+          url = "https://talentsforever.com/";
+          isEssential = false;
+          position = 231;
+          folderParentId = "{1792876051266-98}";
+        };
       };
     };
     "Downloads" = baseSpaces."Downloads" // {

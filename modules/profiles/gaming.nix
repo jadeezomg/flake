@@ -1,15 +1,12 @@
 {
   config,
-  dotfilesLib,
   host,
   lib,
   pkgs,
-  pkgs-small,
   ...
 }:
 let
   cfg = config.dotfiles.profiles.gaming;
-  inherit (dotfilesLib.expiry { inherit lib; } "modules/profiles/gaming.nix") expireWhen;
 in
 {
   config = lib.mkIf cfg.enable {
@@ -56,14 +53,15 @@ in
       gamescope-wsi
       wineWow64Packages.staging
       winetricks
-      # instawow: WoW add-on manager. It only detects a "WoW Forever" client
-      # install (`wowf`, `_forever_`) from 7.3.0. Our nixos-unstable lock has
-      # 7.2.4; nixos-unstable-small already has 7.3.0.
-      (expireWhen {
-        fixed = lib.versionAtLeast pkgs.instawow.version "7.3.0";
-        reason = "nixos-unstable now ships instawow >= 7.3.0.";
-        fallback = pkgs.instawow;
-      } pkgs-small.instawow)
+      # Native WoW launcher that also runs the rest of Battle.net; replaces the
+      # Battle.net-under-wine dance. Installs and verifies WoW itself (TACT/CASC),
+      # downloads its own Proton-GE, and finds existing Lutris/Bottles/Heroic
+      # prefixes instead of re-downloading. Upstream's derivation (flake input
+      # `lightforge`) wraps it in steam-run-free for Proton's 32-bit loader.
+      lightforge
+      # instawow: WoW add-on manager. 7.3.0+ detects a "WoW Forever" client
+      # install (`wowf`, `_forever_`).
+      instawow
     ];
 
     environment.sessionVariables = {

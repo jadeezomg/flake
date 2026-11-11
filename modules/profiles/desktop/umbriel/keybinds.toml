@@ -9,20 +9,20 @@
 "Mod+Shift+Slash" = "cheatsheet-toggle"
 
 # Apps
-"Mod+T" = { action = "spawn:kitty", repeat = false }
-"Mod+Z" = { action = '''spawn:id=$(umbriel windows --json | jq -r '(.windows? // .) | map(select(.app_id | test("^zen(-|$)"))) | first | .id // empty'); if [ -n "$id" ]; then umbriel msg "window-focus:$id"; else zen-twilight || zen-beta; fi''', repeat = false }
+"Mod+T" = { action = "spawn kitty", repeat = false }
+"Mod+Z" = { action = '''spawn id=$(umbriel windows --json | jq -r '(.windows? // .) | map(select(.app_id | test("^zen(-|$)"))) | first | .id // empty'); if [ -n "$id" ]; then umbriel msg window-focus "$id"; else zen-twilight || zen-beta; fi''', repeat = false }
 # Mod+P shows or hides the Proton Pass scratchpad (window-rules.toml). With no
 # Proton Pass window open, it starts the app, which opens in the scratchpad.
-"Mod+P" = { action = '''spawn:if umbriel windows --json | jq -e '(.windows? // .) | any(.app_id == "proton-pass")' >/dev/null; then umbriel msg scratchpad-toggle:pass; else proton-pass; fi''', repeat = false }
-"Mod+B" = { action = "spawn:blueman-manager", repeat = false }
-"Mod+Period" = { action = "spawn:flatpak kill io.github.tanaybhomia.Whisp || flatpak run io.github.tanaybhomia.Whisp", repeat = false }
-"Super+Alt+S" = { action = "spawn:pkill orca || exec orca", allow_when_locked = true }
+"Mod+P" = { action = '''spawn if umbriel windows --json | jq -e '(.windows? // .) | any(.app_id == "proton-pass")' >/dev/null; then umbriel msg scratchpad-toggle pass; else proton-pass; fi''', repeat = false }
+"Mod+B" = { action = "spawn blueman-manager", repeat = false }
+"Mod+Period" = { action = "spawn flatpak kill io.github.tanaybhomia.Whisp || flatpak run io.github.tanaybhomia.Whisp", repeat = false }
+"Super+Alt+S" = { action = "spawn pkill orca || exec orca", allow_when_locked = true }
 
-"XF86AudioMicMute" = { action = "spawn:wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle", allow_when_locked = true }
-"XF86AudioPlay" = { action = "spawn:playerctl play-pause", allow_when_locked = true }
-"XF86AudioStop" = { action = "spawn:playerctl stop", allow_when_locked = true }
-"XF86AudioPrev" = { action = "spawn:playerctl previous", allow_when_locked = true }
-"XF86AudioNext" = { action = "spawn:playerctl next", allow_when_locked = true }
+"XF86AudioMicMute" = { action = "spawn wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle", allow_when_locked = true }
+"XF86AudioPlay" = { action = "spawn playerctl play-pause", allow_when_locked = true }
+"XF86AudioStop" = { action = "spawn playerctl stop", allow_when_locked = true }
+"XF86AudioPrev" = { action = "spawn playerctl previous", allow_when_locked = true }
+"XF86AudioNext" = { action = "spawn playerctl next", allow_when_locked = true }
 
 "Mod+X" = { action = "overview-toggle", repeat = false }
 "Mod+Q" = { action = "window-close", repeat = false }
@@ -86,24 +86,24 @@
 "Mod+Ctrl+Shift+WheelDown" = "column-move-right"
 "Mod+Ctrl+Shift+WheelUp" = "column-move-left"
 
-"Mod+1" = "workspace-switch:1"
-"Mod+2" = "workspace-switch:2"
-"Mod+3" = "workspace-switch:3"
-"Mod+4" = "workspace-switch:4"
-"Mod+5" = "workspace-switch:5"
-"Mod+6" = "workspace-switch:6"
-"Mod+7" = "workspace-switch:7"
-"Mod+8" = "workspace-switch:8"
-"Mod+9" = "workspace-switch:9"
-"Mod+Ctrl+1" = "column-move-to-workspace:1"
-"Mod+Ctrl+2" = "column-move-to-workspace:2"
-"Mod+Ctrl+3" = "column-move-to-workspace:3"
-"Mod+Ctrl+4" = "column-move-to-workspace:4"
-"Mod+Ctrl+5" = "column-move-to-workspace:5"
-"Mod+Ctrl+6" = "column-move-to-workspace:6"
-"Mod+Ctrl+7" = "column-move-to-workspace:7"
-"Mod+Ctrl+8" = "column-move-to-workspace:8"
-"Mod+Ctrl+9" = "column-move-to-workspace:9"
+"Mod+1" = "workspace-switch 1"
+"Mod+2" = "workspace-switch 2"
+"Mod+3" = "workspace-switch 3"
+"Mod+4" = "workspace-switch 4"
+"Mod+5" = "workspace-switch 5"
+"Mod+6" = "workspace-switch 6"
+"Mod+7" = "workspace-switch 7"
+"Mod+8" = "workspace-switch 8"
+"Mod+9" = "workspace-switch 9"
+"Mod+Ctrl+1" = "column-move-to-workspace 1"
+"Mod+Ctrl+2" = "column-move-to-workspace 2"
+"Mod+Ctrl+3" = "column-move-to-workspace 3"
+"Mod+Ctrl+4" = "column-move-to-workspace 4"
+"Mod+Ctrl+5" = "column-move-to-workspace 5"
+"Mod+Ctrl+6" = "column-move-to-workspace 6"
+"Mod+Ctrl+7" = "column-move-to-workspace 7"
+"Mod+Ctrl+8" = "column-move-to-workspace 8"
+"Mod+Ctrl+9" = "column-move-to-workspace 9"
 
 # Columns (niri: consume-or-expel, preset sizes, maximize)
 "Mod+BracketLeft" = "window-consume-or-expel-left"
@@ -116,10 +116,10 @@
 "Mod+A" = { action = "window-toggle-maximize", repeat = false }
 "Mod+Shift+F" = { action = "window-toggle-fullscreen", repeat = false }
 "Mod+C" = "column-center"
-"Mod+Minus" = "window-modify-primary-extent:-0.1"
-"Mod+Equal" = "window-modify-primary-extent:0.1"
-"Mod+Shift+Minus" = "window-modify-secondary-extent:-0.1"
-"Mod+Shift+Equal" = "window-modify-secondary-extent:0.1"
+"Mod+Minus" = "window-modify-primary-extent -0.1"
+"Mod+Equal" = "window-modify-primary-extent 0.1"
+"Mod+Shift+Minus" = "window-modify-secondary-extent -0.1"
+"Mod+Shift+Equal" = "window-modify-secondary-extent 0.1"
 "Mod+F" = { action = "window-toggle-floating", repeat = false }
 "Mod+Shift+V" = { action = "window-focus-switch-floating", repeat = false }
 "Mod+W" = { action = "column-toggle-tabbed", repeat = false }

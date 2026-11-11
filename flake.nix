@@ -91,6 +91,16 @@
     # daemon. Wired in modules/profiles/integrations.nix.
     nix-flatpak.url = "github:gmodena/nix-flatpak/v0.7.0";
 
+    # --- gaming ---
+    # Native WoW/Battle.net launcher. Upstream maintains the Nix packaging: a
+    # source build plus a steam-run-free wrapper, because Proton needs a 32-bit
+    # loader in the standard paths and NixOS has none. x86_64-linux only; the
+    # overlay is system-gated in parts/overlays/default.nix.
+    lightforge = {
+      url = "github:LightforgeProject/lightforge";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # --- macOS / Homebrew ---
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
     homebrew-bundle = {

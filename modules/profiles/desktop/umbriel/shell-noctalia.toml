@@ -10,28 +10,28 @@ corner_radius = 0
 [keybinds]
 # niri Mod+Space opens the overview with type-to-search. That catcher reads
 # niri IPC, so here Mod+Space opens Vicinae directly.
-"Mod+Space" = { action = "spawn:vicinae toggle", repeat = false }
-"Mod+V" = "spawn:noctalia msg panel-toggle clipboard"
-"Mod+Comma" = "spawn:noctalia msg settings-toggle"
-"Mod+N" = "spawn:noctalia msg panel-toggle control-center notifications"
-"Mod+M" = "spawn:noctalia msg panel-toggle control-center system"
-"Mod+L" = "spawn:noctalia msg session lock"
-"Mod+Shift+Y" = "spawn:noctalia msg panel-toggle wallpaper"
-"Mod+Tab" = "spawn:noctalia msg window-switcher"
-"Print" = "spawn:noctalia msg screenshot-region"
-"Alt+Print" = "spawn:noctalia msg screenshot-fullscreen"
-"Ctrl+Print" = "spawn:noctalia msg screenshot-fullscreen all"
-"XF86AudioRaiseVolume" = { action = "spawn:noctalia msg volume-up", allow_when_locked = true }
-"XF86AudioLowerVolume" = { action = "spawn:noctalia msg volume-down", allow_when_locked = true }
-"XF86AudioMute" = { action = "spawn:noctalia msg volume-mute", allow_when_locked = true, repeat = false }
-"XF86AudioMicMute" = { action = "spawn:noctalia msg mic-mute", allow_when_locked = true, repeat = false }
-"XF86AudioNext" = { action = "spawn:noctalia msg media next", allow_when_locked = true }
-"XF86AudioPrev" = { action = "spawn:noctalia msg media previous", allow_when_locked = true }
-"XF86AudioPlay" = { action = "spawn:noctalia msg media toggle", allow_when_locked = true, repeat = false }
-"XF86AudioPause" = { action = "spawn:noctalia msg media toggle", allow_when_locked = true, repeat = false }
-"XF86MonBrightnessUp" = { action = "spawn:noctalia msg brightness-up", allow_when_locked = true }
-"XF86MonBrightnessDown" = { action = "spawn:noctalia msg brightness-down", allow_when_locked = true }
-"Mod+Shift+P" = { action = "spawn:noctalia msg dpms-off", repeat = false }
+"Mod+Space" = { action = "spawn vicinae toggle", repeat = false }
+"Mod+V" = "spawn noctalia msg panel-toggle clipboard"
+"Mod+Comma" = "spawn noctalia msg settings-toggle"
+"Mod+N" = "spawn noctalia msg panel-toggle control-center notifications"
+"Mod+M" = "spawn noctalia msg panel-toggle control-center system"
+"Mod+L" = "spawn noctalia msg session lock"
+"Mod+Shift+Y" = "spawn noctalia msg panel-toggle wallpaper"
+"Mod+Tab" = "spawn noctalia msg window-switcher"
+"Print" = "spawn noctalia msg screenshot-region"
+"Alt+Print" = "spawn noctalia msg screenshot-fullscreen"
+"Ctrl+Print" = "spawn noctalia msg screenshot-fullscreen all"
+"XF86AudioRaiseVolume" = { action = "spawn noctalia msg volume-up", allow_when_locked = true }
+"XF86AudioLowerVolume" = { action = "spawn noctalia msg volume-down", allow_when_locked = true }
+"XF86AudioMute" = { action = "spawn noctalia msg volume-mute", allow_when_locked = true, repeat = false }
+"XF86AudioMicMute" = { action = "spawn noctalia msg mic-mute", allow_when_locked = true, repeat = false }
+"XF86AudioNext" = { action = "spawn noctalia msg media next", allow_when_locked = true }
+"XF86AudioPrev" = { action = "spawn noctalia msg media previous", allow_when_locked = true }
+"XF86AudioPlay" = { action = "spawn noctalia msg media toggle", allow_when_locked = true, repeat = false }
+"XF86AudioPause" = { action = "spawn noctalia msg media toggle", allow_when_locked = true, repeat = false }
+"XF86MonBrightnessUp" = { action = "spawn noctalia msg brightness-up", allow_when_locked = true }
+"XF86MonBrightnessDown" = { action = "spawn noctalia msg brightness-down", allow_when_locked = true }
+"Mod+Shift+P" = { action = "spawn noctalia msg dpms-off", repeat = false }
 
 # Floating Noctalia settings window
 [[window_rule]]

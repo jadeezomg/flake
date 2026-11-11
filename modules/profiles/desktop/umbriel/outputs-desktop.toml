@@ -49,7 +49,7 @@ struts = { top = 10 }
 # toggle: Mod+R goes back to a preset. On the portrait screen it sets 90%
 # height. This bind overrides keybinds.toml on this host only.
 [keybinds]
-"Mod+A" = { action = "window-set-primary-extent:0.9", repeat = false }
+"Mod+A" = { action = "window-set-primary-extent 0.9", repeat = false }
 
 [output."Dell Inc. DELL S2722QC 88THMD3"]
 mode = "3840x2160@60"
@@ -185,6 +185,19 @@ vrr = "always"
 # the output, so open it maximized to the edges.
 [[window_rule]]
 match.app_id = [ '^forzahorizon6\.exe$', '^steam_app_2483190$' ]
+default_output = "Dell Inc. AW3926QW C2DR7K4"
+default_maximize_to_edges = true
+vrr = "always"
+
+# World of Warcraft, a Steam non-Steam entry running on Xwayland: it reports
+# neither xdg_tag nor content_type, so the game rules above do not reach it.
+# The Battle.net launcher shares the app id, so the title picks the game out.
+# A rule-set fullscreen does not hold: Wine un-fullscreens 10 ms after map and
+# the compositor honours the client, so open maximized to the edges instead,
+# which covers the output and lets WoW keep its own display mode.
+[[window_rule]]
+match.app_id = '^steam_app_3026738831$'
+match.title = '^World of Warcraft$'
 default_output = "Dell Inc. AW3926QW C2DR7K4"
 default_maximize_to_edges = true
 vrr = "always"
