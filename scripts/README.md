@@ -2,16 +2,16 @@
 
 ## Layout
 
-| Path | Purpose |
-|------|---------|
-| **`shell/`** | Bash helpers (`common.sh`). |
+| Path                                                   | Purpose                                                                                                                                                          |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`shell/`**                                           | Bash helpers (`common.sh`).                                                                                                                                      |
 | **HM `modules/profiles/essentials/utils/television/`** | Cable TOMLs under `cable/` (like navi `cheats/`). `default.nix` symlinks into `~/.config/television/cable/`. Root `Justfile` `default` runs `tv … just-recipes`. |
-| **`pyproject.toml`** | uv / Hatch project **`flake-scripts`** (console scripts below). |
-| **`src/flake_scripts/`** | Python package. |
-| **`lib/`** | `common.py` (flake paths, Rich consoles), `palette.py` (hex mirror of `lib/theme-palette.nix`). |
-| **`zen/`** | Zen browser → flake: `session.py` (MozLZ4 reader), `sync.py` (`zen-sync` CLI). |
-| **`vorssaint_sync.py`** | Vorssaint → flake: `vorssaint-sync` CLI, writes `modules/profiles/work/darwin/brew-casks/data/vorssaint.nix`. |
-| Package root | `symlinks.py`, `update_packages.py` (other entry points). |
+| **`pyproject.toml`**                                   | uv / Hatch project **`flake-scripts`** (console scripts below).                                                                                                  |
+| **`src/flake_scripts/`**                               | Python package.                                                                                                                                                  |
+| **`lib/`**                                             | `common.py` (flake paths, Rich consoles), `palette.py` (hex mirror of `lib/theme-palette.nix`).                                                                  |
+| **`zen/`**                                             | Zen browser → flake: `session.py` (MozLZ4 reader), `sync.py` (`zen-sync` CLI).                                                                                   |
+| **`vorssaint_sync.py`**                                | Vorssaint → flake: `vorssaint-sync` CLI, writes `modules/profiles/work/darwin/brew-casks/data/vorssaint.nix`.                                                    |
+| Package root                                           | `symlinks.py`, `update_packages.py` (other entry points).                                                                                                        |
 
 ## Commands
 

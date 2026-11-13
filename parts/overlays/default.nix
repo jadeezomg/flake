@@ -53,18 +53,6 @@ in
     inherit lib system;
     expiry = expiryFor "protonup-rs-system-zstd";
   })
-  (import ./herdr-desktop-system-zstd.nix {
-    inherit lib system;
-    expiry = expiryFor "herdr-desktop-system-zstd";
-  })
-  (import ./rainfrog-missing-sqlite.nix {
-    inherit lib system;
-    expiry = expiryFor "rainfrog-missing-sqlite";
-  })
-  (import ./rusty-man-system-oniguruma.nix {
-    inherit lib system;
-    expiry = expiryFor "rusty-man-system-oniguruma";
-  })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })
 ]
@@ -75,11 +63,6 @@ in
       # Upstream's own derivation (source build wrapped in steam-run-free).
       # Their flake only supports x86_64-linux, hence the gate.
       inputs.lightforge.overlays.default
-      # Must follow the line above: it overrides `lightforge-unwrapped`.
-      (import ./lightforge-system-zstd.nix {
-        inherit lib system;
-        expiry = expiryFor "lightforge-system-zstd";
-      })
     ]
   else
     [ ]

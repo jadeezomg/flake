@@ -11,16 +11,16 @@
 
 ## Current state
 
-| Layer | What runs today |
-|---|---|
-| Mesh | Tailscale (hosted control plane) on `desktop`, `framework`, `caya`, `mini`; `--ssh` on |
-| Trust anchor | `networking.firewall.trustedInterfaces = [ "tailscale0" ]` on every NixOS host |
-| Ingress | Caddy on a dedicated tailnet node `mini-proxy`, with `caddy-tailscale` and `caddy-dns/cloudflare` |
-| TLS | Let's Encrypt, Cloudflare DNS-01, real certificates on private names |
-| DNS | Cloudflare A records point at the private `100.x` Tailscale address. LAN clients get a split-horizon override to `miniLanAddress` |
-| Public exposure | None. No inbound port open. Matrix federation off |
-| Services | 16 `*.jadee.fyi` vhosts on mini. Media payloads come from Unraid over NFS |
-| Secrets | sops-nix (`cloudflare_dns_api_token`, `tailscale_authkey`, basic-auth hash) |
+| Layer           | What runs today                                                                                                                   |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Mesh            | Tailscale (hosted control plane) on `desktop`, `framework`, `caya`, `mini`; `--ssh` on                                            |
+| Trust anchor    | `networking.firewall.trustedInterfaces = [ "tailscale0" ]` on every NixOS host                                                    |
+| Ingress         | Caddy on a dedicated tailnet node `mini-proxy`, with `caddy-tailscale` and `caddy-dns/cloudflare`                                 |
+| TLS             | Let's Encrypt, Cloudflare DNS-01, real certificates on private names                                                              |
+| DNS             | Cloudflare A records point at the private `100.x` Tailscale address. LAN clients get a split-horizon override to `miniLanAddress` |
+| Public exposure | None. No inbound port open. Matrix federation off                                                                                 |
+| Services        | 16 `*.jadee.fyi` vhosts on mini. Media payloads come from Unraid over NFS                                                         |
+| Secrets         | sops-nix (`cloudflare_dns_api_token`, `tailscale_authkey`, basic-auth hash)                                                       |
 
 ## Goals
 
@@ -39,13 +39,13 @@
 
 ## Options considered
 
-| Target | Current | Pangolin | NetBird |
-|---|---|---|---|
-| 1. Same or more function | baseline | Loses mesh and client-to-client | Matches, adds self-hosting and ingress |
-| 2. Declarative | Everything is Nix | Resources live in a database | Good client module. Policy needs Terraform |
-| 3. Simplicity | 2 services | 6 components and a VPS, Caddy still stays | 1 service on cloud, 3 containers if self-hosted |
-| 4. Public access + zero trust | None | Strongest of the three | Works, but beta and Traefik-only |
-| 5. Streaming speed | Direct peer, LAN bind on Caddy | Public traffic always transits the VPS | Best. Kernel WireGuard, ICE host candidates |
+| Target                        | Current                        | Pangolin                                  | NetBird                                         |
+| ----------------------------- | ------------------------------ | ----------------------------------------- | ----------------------------------------------- |
+| 1. Same or more function      | baseline                       | Loses mesh and client-to-client           | Matches, adds self-hosting and ingress          |
+| 2. Declarative                | Everything is Nix              | Resources live in a database              | Good client module. Policy needs Terraform      |
+| 3. Simplicity                 | 2 services                     | 6 components and a VPS, Caddy still stays | 1 service on cloud, 3 containers if self-hosted |
+| 4. Public access + zero trust | None                           | Strongest of the three                    | Works, but beta and Traefik-only                |
+| 5. Streaming speed            | Direct peer, LAN bind on Caddy | Public traffic always transits the VPS    | Best. Kernel WireGuard, ICE host candidates     |
 
 ### Why Pangolin is rejected
 
@@ -66,14 +66,14 @@ the ingress-only variant, because NetBird's own ingress is still in beta.
 
 It replaces Tailscale and keeps Caddy. The service count stays at two, the same as today.
 
-| Gain | Detail |
-|---|---|
-| Speed on Linux | Kernel WireGuard on `desktop`, `framework`, `mini`. `caya` stays userspace |
-| LAN stays on the LAN | ICE host candidates are priority 1, so two LAN peers connect direct |
-| No SaaS dependency | The control plane is self-hostable |
-| Free SSH and MFA | Identity-based SSH and TOTP, with no external IdP since v0.62 |
-| Policy as code | Official Terraform provider, 24 resources: policies, groups, routes, DNS, setup keys |
-| A path to target 4 | NetBird Reverse Proxy, when it leaves beta |
+| Gain                 | Detail                                                                               |
+| -------------------- | ------------------------------------------------------------------------------------ |
+| Speed on Linux       | Kernel WireGuard on `desktop`, `framework`, `mini`. `caya` stays userspace           |
+| LAN stays on the LAN | ICE host candidates are priority 1, so two LAN peers connect direct                  |
+| No SaaS dependency   | The control plane is self-hostable                                                   |
+| Free SSH and MFA     | Identity-based SSH and TOTP, with no external IdP since v0.62                        |
+| Policy as code       | Official Terraform provider, 24 resources: policies, groups, routes, DNS, setup keys |
+| A path to target 4   | NetBird Reverse Proxy, when it leaves beta                                           |
 
 Honest limits:
 
@@ -98,10 +98,10 @@ root-owned file through the same daemon socket. Its fix is 0.76.1, so 0.76.1 is 
 minimum safe version. Four other advisories from August and September are fixed at 0.75.0
 or earlier.
 
-| Channel | Version | State |
-|---|---|---|
-| nixpkgs stable 26.05 | 0.71.4 | Vulnerable |
-| nixpkgs unstable (this flake's lock) | 0.81.5 | Safe |
+| Channel                              | Version | State      |
+| ------------------------------------ | ------- | ---------- |
+| nixpkgs stable 26.05                 | 0.71.4  | Vulnerable |
+| nixpkgs unstable (this flake's lock) | 0.81.5  | Safe       |
 
 The flake follows unstable, so no overlay is needed. If you pin `netbird` to stable, the
 version is vulnerable again. mini runs services under several users, so this is a real
@@ -240,17 +240,17 @@ Appendix A.
 
 ## Risk register
 
-| Risk | Detail |
-|---|---|
-| Maturity | Still 0.x. 470 open issues against 2,419 closed (2026-11-02). v0.80.0 (#7647) moved bug reports to Discussions, so the drop shows triage, not quality. About six people hold most commits |
-| Support policy | Latest release only. No backports |
+| Risk             | Detail                                                                                                                                                                                                                   |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Maturity         | Still 0.x. 470 open issues against 2,419 closed (2026-11-02). v0.80.0 (#7647) moved bug reports to Discussions, so the drop shows triage, not quality. About six people hold most commits                                |
+| Support policy   | Latest release only. No backports                                                                                                                                                                                        |
 | Security history | The 3.5-year IPC socket bug (B1), then GHSA-28q5-j9qm-gx35 on the same socket and four more advisories in August and September 2026, all fixed by 0.76.1. Also a default-admin-password CVE at CVSS 9.3, fixed in 0.57.0 |
-| Known issues | #2454 (macOS sleep recovery) closed on 2026-10-06. The vendor says v0.60.4 and v0.70.2 fixed it. #4990 (LAN subnets relayed because of route metrics) is still open. Check it in Phase 3 |
-| Deprecations | v0.82.0 deprecates Rosenpass, the post-quantum feature. This plan does not use it |
-| Audit | No public audit. Pentest reports sit behind a request form |
-| Breaking changes | The SSH model changed twice. The client was rewritten from Fyne to Wails. Management-first upgrade ordering is required, with at least one silent version-skew failure |
-| License drift | Relicensed once in 2025, BSD to a BSD/AGPL split. There is a CLA and Series A funding |
-| Exit cost | Low. Nothing is BSL. One Go repo, so a fork is realistic |
+| Known issues     | #2454 (macOS sleep recovery) closed on 2026-10-06. The vendor says v0.60.4 and v0.70.2 fixed it. #4990 (LAN subnets relayed because of route metrics) is still open. Check it in Phase 3                                 |
+| Deprecations     | v0.82.0 deprecates Rosenpass, the post-quantum feature. This plan does not use it                                                                                                                                        |
+| Audit            | No public audit. Pentest reports sit behind a request form                                                                                                                                                               |
+| Breaking changes | The SSH model changed twice. The client was rewritten from Fyne to Wails. Management-first upgrade ordering is required, with at least one silent version-skew failure                                                   |
+| License drift    | Relicensed once in 2025, BSD to a BSD/AGPL split. There is a CLA and Series A funding                                                                                                                                    |
+| Exit cost        | Low. Nothing is BSL. One Go repo, so a fork is realistic                                                                                                                                                                 |
 
 Paid gates on self-hosted are HA, SCIM, EDR/MDM, and traffic-flow logging, at a €2,000/yr
 minimum with a hard cliff. Everything this plan uses is free: SSO, MFA, unlimited users,

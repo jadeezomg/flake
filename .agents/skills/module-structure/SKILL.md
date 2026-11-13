@@ -1,4 +1,5 @@
 ---
+
 name: module-structure
 description: Apply this flake's module/profile organization rules. Use when adding or reorganizing files under modules/profiles, splitting mixed app config, deciding between default.nix, app.nix, and app/default.nix, or moving Home Manager settings.
 ---

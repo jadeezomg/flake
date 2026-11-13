@@ -7,14 +7,14 @@ These tools are only available on the caya host (aarch64 Apple Silicon, macOS).
 Declared in `modules/profiles/work/darwin/default.nix`, so they exist only when
 the `work` profile is on — which today means caya.
 
-| Tool | Command | Notes |
-|------|---------|-------|
+| Tool  | Command        | Notes                                       |
+| ----- | -------------- | ------------------------------------------- |
 | trash | `trash <path>` | Finder Trash from CLI (preferred over `rm`) |
 
 ## Homebrew, devenv profile
 
-| Tool | Command | Notes |
-|------|---------|-------|
+| Tool | Command                    | Notes                                                                                                                                                                     |
+| ---- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | mise | `mise install`, `mise use` | Polyglot runtime version manager. A Homebrew brew from `modules/profiles/devenv/mise-darwin.nix`, because nixpkgs lags behind the mise releases. NixOS hosts get no mise. |
 
 ## 1Password CLI (op)
@@ -31,24 +31,25 @@ op item list --vault Private       # list items
 
 ## macOS System Tools (always available)
 
-| Tool | Notes |
-|------|-------|
-| `open` | Open files/URLs/apps (`open -a AppName`) |
-| `pbcopy` / `pbpaste` | Clipboard I/O |
-| `defaults` | Read/write macOS preferences |
-| `launchctl` | Manage launch agents/daemons |
-| `plutil` | Property list (plist) tool |
-| `security` | Keychain access |
-| `sips` | Image processing (resize, convert) |
-| `say` | Text-to-speech |
-| `mdls` | Spotlight metadata |
-| `mdfind` | Spotlight search |
-| `scutil` | System configuration |
-| `dscl` | Directory services |
-| `xcode-select` | Xcode CLI tools |
+| Tool                 | Notes                                    |
+| -------------------- | ---------------------------------------- |
+| `open`               | Open files/URLs/apps (`open -a AppName`) |
+| `pbcopy` / `pbpaste` | Clipboard I/O                            |
+| `defaults`           | Read/write macOS preferences             |
+| `launchctl`          | Manage launch agents/daemons             |
+| `plutil`             | Property list (plist) tool               |
+| `security`           | Keychain access                          |
+| `sips`               | Image processing (resize, convert)       |
+| `say`                | Text-to-speech                           |
+| `mdls`               | Spotlight metadata                       |
+| `mdfind`             | Spotlight search                         |
+| `scutil`             | System configuration                     |
+| `dscl`               | Directory services                       |
+| `xcode-select`       | Xcode CLI tools                          |
 
 ## nix-darwin Integration
 
 macOS is managed via nix-darwin (caya host). The flake handles:
+
 - Homebrew casks and formulas declaratively
 - System defaults (`system.defaults.*`)

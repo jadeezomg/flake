@@ -17,18 +17,18 @@
 
 **Correct: do not wire caya as a remote-build client or builder for day-to-day switches.**
 
-| Fact | Consequence |
-|---|---|
-| `caya` is `aarch64-darwin` | Only a Darwin machine can build those store paths |
-| mini / desktop are `x86_64-linux` | They cannot produce Darwin closures |
+| Fact                              | Consequence                                                                   |
+| --------------------------------- | ----------------------------------------------------------------------------- |
+| `caya` is `aarch64-darwin`        | Only a Darwin machine can build those store paths                             |
+| mini / desktop are `x86_64-linux` | They cannot produce Darwin closures                                           |
 | No second Mac / Darwin build farm | Nowhere to offload `darwin-rebuild` / `nix build .#darwinConfigurations.caya` |
 
 So:
 
 - **Remote `buildMachines`:** Linux hosts only (framework → mini/desktop; optionally desktop → mini).
 - **Cachix warm on mini:** keep building **only** the three NixOS tops (`mini`, `desktop`, `framework`) — already what [`flake-cache-warm.nix`](../../mini-nix/services/flake-cache-warm.nix) does. Do **not** add caya to that job.
-- **caya still benefits from substituters** for any *cached* paths that happen to match (nixpkgs fixed-output, some pure deps) — leave `jadee-flake.cachix.org` in shared nix settings — but expect most Darwin-native paths to build locally on caya.
-- **Optional later (not this plan):** after a successful caya switch, push *that Mac’s* closure to Cachix from caya itself so a second Mac (or reinstall) can pull. That is “Darwin self-push,” not remote build.
+- **caya still benefits from substituters** for any _cached_ paths that happen to match (nixpkgs fixed-output, some pure deps) — leave `jadee-flake.cachix.org` in shared nix settings — but expect most Darwin-native paths to build locally on caya.
+- **Optional later (not this plan):** after a successful caya switch, push _that Mac’s_ closure to Cachix from caya itself so a second Mac (or reinstall) can pull. That is “Darwin self-push,” not remote build.
 
 Cross-compile / Linux-from-Mac (`pkgsCross`, container images) is rare here; ignore unless a concrete need appears.
 
@@ -68,12 +68,12 @@ Non-goals: Harmonia, clan SSH CA / WG mesh, Darwin remote builders, iroh-ssh, `m
 caya (Darwin): local builds only; may pull Cachix hits; no buildMachines entry
 ```
 
-| Host | Builder? | Remote-build client? | Cachix |
-|---|---|---|---|
-| **mini** | yes (`x86_64-linux`) | no (builds locally; weak `buildCores = 2` — prefer not to *receive* huge jobs if desktop is up) | push (warm) + pull |
-| **desktop** | yes (`maxJobs` high, `buildCores = 24`) | optional → mini for idle/overnight | pull (+ optional push later) |
-| **framework** | no | yes → desktop primary, mini fallback | pull |
-| **caya** | n/a (self only) | **no** | pull only |
+| Host          | Builder?                                | Remote-build client?                                                                            | Cachix                       |
+| ------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------- |
+| **mini**      | yes (`x86_64-linux`)                    | no (builds locally; weak `buildCores = 2` — prefer not to _receive_ huge jobs if desktop is up) | push (warm) + pull           |
+| **desktop**   | yes (`maxJobs` high, `buildCores = 24`) | optional → mini for idle/overnight                                                              | pull (+ optional push later) |
+| **framework** | no                                      | yes → desktop primary, mini fallback                                                            | pull                         |
+| **caya**      | n/a (self only)                         | **no**                                                                                          | pull only                    |
 
 Prefer **desktop as primary builder** (cores); **mini as fallback / always-on** when desktop is asleep. Framework should set `max-jobs` locally low and rely on remotes for `big-parallel`.
 
@@ -175,12 +175,12 @@ Darwin: no new modules for remote builds.
 
 ## Secrets touchpoints
 
-| Secret | Where | Used by |
-|---|---|---|
-| `nix/remote-builder` | shared or each Linux client host file | framework (desktop) SSH identity to `nix@` |
-| `cachix/auth-token` | mini (or shared) | flake-cache-warm |
-| `mini/git/deploy-key` | mini | flake-cache-warm git push |
-| `backup/…` | per client + mini | borg (Phase 4) |
+| Secret                | Where                                 | Used by                                    |
+| --------------------- | ------------------------------------- | ------------------------------------------ |
+| `nix/remote-builder`  | shared or each Linux client host file | framework (desktop) SSH identity to `nix@` |
+| `cachix/auth-token`   | mini (or shared)                      | flake-cache-warm                           |
+| `mini/git/deploy-key` | mini                                  | flake-cache-warm git push                  |
+| `backup/…`            | per client + mini                     | borg (Phase 4)                             |
 
 Align names with SCHEMA + pass-inventory when the secrets split lands; builder private key is class A/B machine — not Pass session-env.
 
@@ -207,10 +207,10 @@ Align names with SCHEMA + pass-inventory when the secrets split lands; builder p
 
 ## Suggested implementation order
 
-1. **Phase 1** — Cachix warm (unblocks everyone Linux immediately).  
-2. **Phase 2** — builders (framework quality-of-life).  
-3. **Phase 3** — GC hygiene.  
-4. **Phase 4** — backups.  
+1. **Phase 1** — Cachix warm (unblocks everyone Linux immediately).
+2. **Phase 2** — builders (framework quality-of-life).
+3. **Phase 3** — GC hygiene.
+4. **Phase 4** — backups.
 5. **Phase 5** — polish / optional Darwin self-push.
 
-Secrets per-host work can proceed in parallel; only share secret *names* with this plan.
+Secrets per-host work can proceed in parallel; only share secret _names_ with this plan.

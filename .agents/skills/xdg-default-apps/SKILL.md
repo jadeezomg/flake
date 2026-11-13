@@ -1,4 +1,5 @@
 ---
+
 name: xdg-default-apps
 description: Manage default desktop applications and MIME associations in jadee's dotfiles flake. Use when changing file type defaults, xdg.mimeApps, .desktop handlers, Nautilus/Yazi open-with behavior, or when an app unexpectedly opens a file type.
 ---

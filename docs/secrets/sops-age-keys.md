@@ -4,16 +4,16 @@ Reference for age/sops key management in this flake. SSH login/destinations: [Ap
 
 **Quick links**
 
-| Task | Command |
-|------|---------|
-| Edit secrets | `sops secrets/secrets.yaml` |
-| Create editor key | `just setup-age-editor` |
-| Caya HM/runtime age key | `just setup-age-darwin` |
-| First install host key (empty path only) | `just bootstrap-sops-host-key` |
-| Unblock switch (temporary) | `just bootstrap-sops-host-key-from-editor` |
-| **Dedicated host key (after Phase 1)** | **`just rotate-sops-host-key`** |
-| Verify host key | `just verify-sops-host-key framework` |
-| After `.sops.yaml` changes | `sops updatekeys secrets/secrets.yaml` |
+| Task                                     | Command                                    |
+| ---------------------------------------- | ------------------------------------------ |
+| Edit secrets                             | `sops secrets/secrets.yaml`                |
+| Create editor key                        | `just setup-age-editor`                    |
+| Caya HM/runtime age key                  | `just setup-age-darwin`                    |
+| First install host key (empty path only) | `just bootstrap-sops-host-key`             |
+| Unblock switch (temporary)               | `just bootstrap-sops-host-key-from-editor` |
+| **Dedicated host key (after Phase 1)**   | **`just rotate-sops-host-key`**            |
+| Verify host key                          | `just verify-sops-host-key framework`      |
+| After `.sops.yaml` changes               | `sops updatekeys secrets/secrets.yaml`     |
 
 See also: [SCHEMA.md](../../secrets/SCHEMA.md).
 
@@ -56,13 +56,13 @@ See also: [SCHEMA.md](../../secrets/SCHEMA.md).
 
 ## Recipients in `.sops.yaml`
 
-| Anchor | Role | Private key location |
-|--------|------|-------------------|
-| `&editor` | Human edits secrets | `~/.config/sops/age/keys.txt` |
-| `&framework` | Framework runtime | `/var/lib/private/sops/age/keys.txt` |
-| `&desktop` | Desktop runtime | same path on desktop |
-| `&mini` | Mini runtime | same path on mini |
-| `&caya` | Caya HM/runtime | `~/.config/sops/age/keys.txt` on macOS |
+| Anchor       | Role                | Private key location                   |
+| ------------ | ------------------- | -------------------------------------- |
+| `&editor`    | Human edits secrets | `~/.config/sops/age/keys.txt`          |
+| `&framework` | Framework runtime   | `/var/lib/private/sops/age/keys.txt`   |
+| `&desktop`   | Desktop runtime     | same path on desktop                   |
+| `&mini`      | Mini runtime        | same path on mini                      |
+| `&caya`      | Caya HM/runtime     | `~/.config/sops/age/keys.txt` on macOS |
 
 ---
 
@@ -85,7 +85,7 @@ If the printed pubkey **does not** match `&editor` in `.sops.yaml`:
 
 - **Do not** run `setup-age-editor` again — it skips when the file already exists.
 - **Restore** the private key that matches `&editor` from backup / password manager, **or**
-- **Rotate** `&editor` from a machine that still holds *any* recipient private key that can decrypt `secrets/secrets.yaml`, then run `sops updatekeys secrets/secrets.yaml`.
+- **Rotate** `&editor` from a machine that still holds _any_ recipient private key that can decrypt `secrets/secrets.yaml`, then run `sops updatekeys secrets/secrets.yaml`.
 
 If the old editor private key is lost **and** no other recipient private key remains, secrets are **unrecoverable**.
 
@@ -127,7 +127,7 @@ This backs up the old key, generates a **new** dedicated host key, and prints th
 Replace `&<hostKey>` with the **new** pubkey (must differ from `&editor`):
 
 ```yaml
-  - &framework age1NEW_FROM_ROTATE   # not the same as &editor
+- &framework age1NEW_FROM_ROTATE # not the same as &editor
 ```
 
 For mini's first dedicated key (fresh install, not Phase 1 copy), use
@@ -249,14 +249,14 @@ Consumed by `modules/nixos/user.nix` → `hashedPasswordFile`.
 
 ## Troubleshooting
 
-| Error | Fix |
-|-------|-----|
-| `Cannot read ssh key … ssh_host_ed25519_key` | Pull latest flake; model uses `age.keyFile`, not `sshKeyPaths` |
-| `failed to decrypt … 0 successful groups` | Missing host key file or pubkey not in `.sops.yaml` |
-| `bootstrap-sops-host-key` exits 1 (exists) | Use `rotate-sops-host-key` or `verify-sops-host-key` |
-| Host key equals editor after "Phase 2" | You ran bootstrap, not rotate — run `just rotate-sops-host-key` |
-| `sops updatekeys` fails | Need a working recipient private key (editor or any host) |
-| Editor pubkey mismatch | See [Editor pubkey mismatch](#editor-pubkey-mismatch) — not "setup again" |
+| Error                                        | Fix                                                                       |
+| -------------------------------------------- | ------------------------------------------------------------------------- |
+| `Cannot read ssh key … ssh_host_ed25519_key` | Pull latest flake; model uses `age.keyFile`, not `sshKeyPaths`            |
+| `failed to decrypt … 0 successful groups`    | Missing host key file or pubkey not in `.sops.yaml`                       |
+| `bootstrap-sops-host-key` exits 1 (exists)   | Use `rotate-sops-host-key` or `verify-sops-host-key`                      |
+| Host key equals editor after "Phase 2"       | You ran bootstrap, not rotate — run `just rotate-sops-host-key`           |
+| `sops updatekeys` fails                      | Need a working recipient private key (editor or any host)                 |
+| Editor pubkey mismatch                       | See [Editor pubkey mismatch](#editor-pubkey-mismatch) — not "setup again" |
 
 ---
 

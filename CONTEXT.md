@@ -55,7 +55,7 @@ A `Co-Authored-By: jadeezomg <github@jadee.fyi>` line appended to every agent co
 ## Example dialogue
 
 > **Dev:** "Can the agent talk to the Postgres **container** running on `localhost:5432`?"
-> **Domain expert:** "Yes — the agent profile lists the port in `open_port` and grants the rootless podman socket. The agent isn't *inside* a container; it's in a **sandbox** on the host that can reach containers via host loopback."
+> **Domain expert:** "Yes — the agent profile lists the port in `open_port` and grants the rootless podman socket. The agent isn't _inside_ a container; it's in a **sandbox** on the host that can reach containers via host loopback."
 
 > **Dev:** "If the OpenRouter key is in libsecret, how does pi see it?"
 > **Domain expert:** "It doesn't. The **broker** injects `Authorization: Bearer <key>` on outbound requests to `openrouter.ai`. Pi's env has `OPENROUTER_API_KEY` set to a placeholder; the real value never enters the sandbox."

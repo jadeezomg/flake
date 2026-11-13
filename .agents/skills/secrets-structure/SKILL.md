@@ -1,4 +1,5 @@
 ---
+
 name: secrets-structure
 description: Apply this flake's SOPS/age secret layout rules. Use when adding, moving, documenting, or wiring secrets, age recipients, host runtime keys, deploy keys, session-env API keys, sops templates, or keyring delivery.
 ---

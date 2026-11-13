@@ -1,4 +1,5 @@
 ---
+
 name: flake-structure
 description: Apply this dotfiles flake's top-level layout rules. Use when adding, moving, or reorganizing hosts, flake-parts, custom packages, shared lib helpers, data registries, scripts, just modules, docs, or other non-profile flake structure. Also use it to decide whether a mini change belongs here or in the private mini-nix input.
 ---

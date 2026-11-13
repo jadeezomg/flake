@@ -30,6 +30,7 @@ Gather evidence proportional to risk. For behavior/API/infra changes, trace exec
 ## Writing
 
 Invoke the `simple-english` skill before you write prose. This rule covers three targets:
+
 - Code comments and docstrings.
 - Documentation: `README.md`, `AGENTS.md`, ADRs, skills, commit and PR messages.
 - Replies, status reports, and questions that the user reads.
@@ -40,7 +41,7 @@ Invoke the `simple-english` skill before you write prose. This rule covers three
 
 These handle all web, docs, and retrieval needs. Reach for them before built-in `WebFetch` / `WebSearch` — built-ins are gated by user approval and lack the caching, summarization, and quotas that these provide.
 
-- **Web search, page content, referenced answers** → `kagi`: `search "<q>"` to discover, `quick "<q>"` for a referenced answer, `extract <url>` for full page text, `summarize --subscriber --url <url>` for a gist, `ask-page <url> "<q>"` to question one page. For anything else — AI, Assistant, batch, account config — run `kagi agent`. It is embedded in the binary and version-matched, so read it instead of guessing a flag. 
+- **Web search, page content, referenced answers** → `kagi`: `search "<q>"` to discover, `quick "<q>"` for a referenced answer, `extract <url>` for full page text, `summarize --subscriber --url <url>` for a gist, `ask-page <url> "<q>"` to question one page. For anything else — AI, Assistant, batch, account config — run `kagi agent`. It is embedded in the binary and version-matched, so read it instead of guessing a flag.
 - **Library / SDK / framework / API docs** → `ctx7`: `ctx7 library <name> "<q>"` to resolve, then `ctx7 docs <id> "<q>"`. Your training data lags months behind; these do not.
 - **nixpkgs packages / NixOS, home-manager, darwin, nixvim options / flakes / channels / store paths** → the `mcp-nixos` MCP. Its `nix` tool covers search / info / stats / browse (default channel is already `unstable`); `nix_versions` gives commit-accurate package history. Caveat: `search`/`info` hit search.nixos.org Elasticsearch and can miss brand-new packages when mcp-nixos resolves `unstable` to a stale index generation — if those miss, retry with `nix_versions`, `nix {action="cache"}`, `source=nixhub`, or local `nix search`/`nix eval`.
 

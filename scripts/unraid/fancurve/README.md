@@ -21,9 +21,9 @@ The fan gets the higher speed of the two. Without this plugin, the BIOS controls
 With the default settings, each curve gives 30% at its low temperature and 100% at its high temperature:
 
 | Curve | 30% at | 100% at |
-|---|---|---|
-| CPU | 50 °C | 80 °C |
-| HDD | 35 °C | 45 °C |
+| ----- | ------ | ------- |
+| CPU   | 50 °C  | 80 °C   |
+| HDD   | 35 °C  | 45 °C   |
 
 45 °C is also the "hot" warning level of Unraid for disks (`hot="45"`, `max="55"` in `dynamix.cfg`). Thus the fans are at full speed before Unraid warns.
 
@@ -59,11 +59,11 @@ ich777's "ITE IT87 Driver" plugin (`it87-driver.plg`, version 2024.07.10) suppli
 
 The chip has three PWM outputs and two fan speed inputs. There is no `pwm4` or `fan4`. Another IT8613E board uses `fan4` for the CPU fan, but this board does not.
 
-| Channel | BIOS setting | Speed input | Header |
-|---|---|---|---|
-| `pwm2` | mode 2 (automatic), starts at 26/255 (10%) | `fan2`, about 118 RPM at idle | CPU_FAN |
-| `pwm3` | mode 1 (manual), fixed 230/255 (90%) | `fan3`, about 1870 RPM at 90% (0 RPM until 2026-10-25) | The case fans |
-| `pwm5` | mode 1 (manual), fixed 127/255 (50%) | none | Not known |
+| Channel | BIOS setting                               | Speed input                                            | Header        |
+| ------- | ------------------------------------------ | ------------------------------------------------------ | ------------- |
+| `pwm2`  | mode 2 (automatic), starts at 26/255 (10%) | `fan2`, about 118 RPM at idle                          | CPU_FAN       |
+| `pwm3`  | mode 1 (manual), fixed 230/255 (90%)       | `fan3`, about 1870 RPM at 90% (0 RPM until 2026-10-25) | The case fans |
+| `pwm5`  | mode 1 (manual), fixed 127/255 (50%)       | none                                                   | Not known     |
 
 How each channel was identified:
 
@@ -94,22 +94,22 @@ Other chip values:
 
 ### Trial on 2026-10-25
 
-| Time | Event |
-|---|---|
-| 17:45 | `just unraid fancurve-deploy` installed the plugin. It stayed disabled. |
-| 17:52 | Trial on `pwm3` started: hottest HDD 36 °C, duty 37% (94/255). The duty stayed there, and the log showed no errors. |
-| 19:39 | The server shut down (`system halt`). |
+| Time  | Event                                                                                                                       |
+| ----- | --------------------------------------------------------------------------------------------------------------------------- |
+| 17:45 | `just unraid fancurve-deploy` installed the plugin. It stayed disabled.                                                     |
+| 17:52 | Trial on `pwm3` started: hottest HDD 36 °C, duty 37% (94/255). The duty stayed there, and the log showed no errors.         |
+| 19:39 | The server shut down (`system halt`).                                                                                       |
 | 19:41 | At shutdown, the daemon got SIGTERM and put `pwm3` back in mode 1. This was the first test of the release on real hardware. |
-| 19:44 | The server started again. The plugin installed and stayed disabled, so the BIOS held `pwm3` at 90%. |
-| 23:00 | Trial started again: hottest HDD 33 °C, duty 30%. |
+| 19:44 | The server started again. The plugin installed and stayed disabled, so the BIOS held `pwm3` at 90%.                         |
+| 23:00 | Trial started again: hottest HDD 33 °C, duty 30%.                                                                           |
 
 ### Trial on 2026-10-31
 
 Unraid 7.3.4 on a new install. A parity build kept all disks busy.
 
-| Time | Event |
-|---|---|
-| 20:41 | `just unraid fancurve-deploy` installed the plugin. It stayed disabled. |
+| Time  | Event                                                                                                                                             |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 20:41 | `just unraid fancurve-deploy` installed the plugin. It stayed disabled.                                                                           |
 | 20:41 | Trial on `pwm3` started: CPU 48 °C, hottest HDD 38 °C, duty 51% (130/255). In 32 s, `fan3` went from 1864 RPM to 1128 RPM. The fans became quiet. |
 
 ## Unraid notes

@@ -1,4 +1,5 @@
 ---
+
 name: overlays
 description: Apply this flake's nixpkgs overlay rules and the self-expiring workaround pattern (lib/expiry.nix). Use when adding, editing, or retiring anything under parts/overlays — package patches, overrideAttrs/overridePythonAttrs workarounds, doCheck or test skips, version pins, upstream-bug mirrors — or when a module or host guards a workaround with dotfilesLib.expiry, or when an evaluation warning says a workaround is obsolete or needs re-checking.
 ---
@@ -43,7 +44,7 @@ So an overlay must encode its own justification as an eval-time condition and wa
 })
 ```
 
-### `expireWhen` — the condition *is* the justification
+### `expireWhen` — the condition _is_ the justification
 
 Use when the condition is exactly why the workaround exists. Once it holds, the override is provably redundant, so the guard hands back untouched upstream and warns.
 
@@ -57,17 +58,17 @@ foo = expiry.expireWhen {
 
 `fallback` is nearly always the bare `prev` package.
 
-Conditions must be evaluable **offline**. Nix cannot ask whether an upstream issue is closed, so never try to link a guard to a PR directly — guard on something in the pinned tree that the fix would change, and put the issue URL in `reason` for whoever reads the warning. Prefer conditions that observe the *fix* rather than proxy for it:
+Conditions must be evaluable **offline**. Nix cannot ask whether an upstream issue is closed, so never try to link a guard to a PR directly — guard on something in the pinned tree that the fix would change, and put the issue URL in `reason` for whoever reads the warning. Prefer conditions that observe the _fix_ rather than proxy for it:
 
-| Workaround | Condition |
-| --- | --- |
-| Need a newer version | `lib.versionAtLeast prev.foo.version "X"` |
-| Mirror an upstream patch | that patch's marker is in `prev.foo.postPatch` |
-| Relax a dep bound | `lib.elem "dep" (prev.foo.pythonRelaxDeps or [ ])` |
-| Skip a test file | `lib.elem "tests/test_x.py" (prev.foo.disabledTestPaths or [ ])` |
-| Fix wrong metadata | `prev.foo.pname == "expected"` |
-| Pin a dep version | the right version is already in `prev.foo.buildInputs` |
-| `markUnbroken` | `!prev.foo.meta.broken` |
+| Workaround               | Condition                                                        |
+| ------------------------ | ---------------------------------------------------------------- |
+| Need a newer version     | `lib.versionAtLeast prev.foo.version "X"`                        |
+| Mirror an upstream patch | that patch's marker is in `prev.foo.postPatch`                   |
+| Relax a dep bound        | `lib.elem "dep" (prev.foo.pythonRelaxDeps or [ ])`               |
+| Skip a test file         | `lib.elem "tests/test_x.py" (prev.foo.disabledTestPaths or [ ])` |
+| Fix wrong metadata       | `prev.foo.pname == "expected"`                                   |
+| Pin a dep version        | the right version is already in `prev.foo.buildInputs`           |
+| `markUnbroken`           | `!prev.foo.meta.broken`                                          |
 
 If one override fixes two things, the condition must cover both (`&&`) — otherwise a half-fix retires a workaround that is still load-bearing.
 
@@ -117,10 +118,10 @@ renameUpArrowBinding = expiry.expireWhen {
 
 Consume it as `enableNushellIntegration = !renameUpArrowBinding;` and `lib.mkIf renameUpArrowBinding (…)`. Polarity rule: `fallback` is the value that means "workaround off". Here the flag is `true` while the workaround runs, so `fallback = false`.
 
-| Workaround | Condition |
-| --- | --- |
-| Custom snippet until a release | `lib.versionAtLeast cfg.package.version "X"` |
-| Unit or service tweak | `lib.versionAtLeast pkgs.foo.version "X"` (`recheckWhen` if the failure is not observable at eval) |
+| Workaround                     | Condition                                                                                          |
+| ------------------------------ | -------------------------------------------------------------------------------------------------- |
+| Custom snippet until a release | `lib.versionAtLeast cfg.package.version "X"`                                                       |
+| Unit or service tweak          | `lib.versionAtLeast pkgs.foo.version "X"` (`recheckWhen` if the failure is not observable at eval) |
 
 Retirement differs from overlays: re-enable the upstream option, delete the guarded snippet, and drop the `expiry` binding. There is no registry entry to remove. To verify, eval the `nixosConfigurations.<host>` attribute that consumes the value and confirm the warning fires or stays quiet:
 
@@ -141,7 +142,7 @@ openRegistration = todo "close registration after onboarding" true;
 
 ## Hazard: guard values, never the returned attrset
 
-Nixpkgs must know an overlay's attribute *names* before it can evaluate the package set. A guard wrapped around the attrset an overlay returns forces its condition during that step, and any condition reading `prev.<drv>` loops back through `final` — **infinite recursion**, surfacing as a `flake fmt`/eval failure far from the cause.
+Nixpkgs must know an overlay's attribute _names_ before it can evaluate the package set. A guard wrapped around the attrset an overlay returns forces its condition during that step, and any condition reading `prev.<drv>` loops back through `final` — **infinite recursion**, surfacing as a `flake fmt`/eval failure far from the cause.
 
 ```nix
 # WRONG — condition forced while attribute names are being resolved
@@ -168,13 +169,13 @@ When one condition covers several packages, evaluate it per package (a small `gu
 
 1. `git add parts/overlays` before any eval — flakes only see tracked files.
 2. `flake fmt` after editing `.nix` files.
-3. **Before writing a workaround, check whether it is still needed.** Cheapest first: is the *unpatched* upstream output already in the binary cache? If yes, Hydra built it — tests and all — and our override only forces a needless local rebuild.
+3. **Before writing a workaround, check whether it is still needed.** Cheapest first: is the _unpatched_ upstream output already in the binary cache? If yes, Hydra built it — tests and all — and our override only forces a needless local rebuild.
 
 ```bash
 nix path-info --store https://cache.nixos.org "$(nix eval --raw <upstream drv>.outPath)"
 ```
 
-   Then check whether the phase you are disabling even runs (`doCheck`/`doInstallCheck` in `nix derivation show … | jq '.derivations[].env'`) — `buildPythonPackage` maps `doCheck` onto `doInstallCheck`, and a `checkFlags` addition is inert when `doCheck` is false.
+Then check whether the phase you are disabling even runs (`doCheck`/`doInstallCheck` in `nix derivation show … | jq '.derivations[].env'`) — `buildPythonPackage` maps `doCheck` onto `doInstallCheck`, and a `checkFlags` addition is inert when `doCheck` is false.
 4. Eval the overlaid set for each affected system and confirm the guards fire (or stay quiet) as intended:
 
 ```bash

@@ -1,4 +1,5 @@
 ---
+
 name: llm-hosting
 description: Change local LLM serving (llama.cpp router models, context, embeddings) or the LLM toolbox. Use when editing modules/profiles/llm/** or services/llm/** in the private mini-nix repo. Also use it to tune the served chat/embedding models, context/KV/slots, MTP, or the `mini llm` ops. If the local LLM fails to load/serve, use it too.
 ---

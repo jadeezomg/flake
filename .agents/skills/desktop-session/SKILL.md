@@ -1,4 +1,5 @@
 ---
+
 name: desktop-session
 description: Apply this flake's Linux desktop session rules. Use it for changes to niri or Umbriel, Noctalia or DMS, the greeters, keybinds, window rules, or monitor outputs. Also use it for a desktop session file in the checkout that drifts from the flake.
 ---
@@ -18,11 +19,11 @@ This skill covers the compositors, the shells, the login screens, and their per-
 
 Two options in `modules/profiles/default.nix` (the `desktop` block) select the session. Each host sets them in `hosts/<host>/profiles.nix`.
 
-| Host | `desktop.shell` | `desktop.loginManager` |
-| --- | --- | --- |
-| desktop | `noctalia` | `noctalia-greeter` |
-| framework | `noctalia` | `gdm` |
-| option default | `dms` | `dms-greeter` |
+| Host           | `desktop.shell` | `desktop.loginManager` |
+| -------------- | --------------- | ---------------------- |
+| desktop        | `noctalia`      | `noctalia-greeter`     |
+| framework      | `noctalia`      | `gdm`                  |
+| option default | `dms`           | `dms-greeter`          |
 
 - Every desktop host gets two compositor sessions: niri and Umbriel (`programs.umbriel`). The user selects one on the login screen. `services.desktopManager.gnome.enable` is always on. It adds a GNOME session and the GNOME apps.
 - The shell runs in niri and in Umbriel. With `dms-greeter`, the DMS module starts DMS. With the other login managers, `gnome/home.nix` starts the shell as a user unit on `graphical-session.target`.
@@ -35,15 +36,15 @@ Two options in `modules/profiles/default.nix` (the `desktop` block) select the s
 
 A live symlink is a Home Manager link from your home folder to the file in the checkout. An edit to a linked file applies without a switch. A new file gets its link only after a switch, because the link list comes from `builtins.readDir`.
 
-| Area | File in `modules/profiles/desktop/` | How the host selects it | Link |
-| --- | --- | --- | --- |
-| niri outputs | `niri/outputs-<host>.kdl` | `niriOutputsFile` in `hosts/<host>/host.nix`. If it is not set, `host.kdl` is a stub. | `~/.config/niri/host.kdl` |
-| niri shell | `niri/shell-<shell>.kdl`, which includes `keybinds-<shell>.kdl` | `noctalia`, else `dms` | `~/.config/niri/shell.kdl` |
-| Umbriel outputs | `umbriel/outputs-<host>.toml` | The host key. No registry field. A missing file is skipped. | `~/.config/umbriel/host.toml` |
-| Umbriel shell | `umbriel/shell-noctalia.toml` | Noctalia only. DMS has no Umbriel binds. | `~/.config/umbriel/shell.toml` |
-| DMS | `dms/config/settings-<host>.json` | `dmsSettingsFile`. The default is `settings-desktop.json`. | `~/.config/DankMaterialShell/settings.json` |
-| Noctalia | `noctalia/config/settings.toml` | `noctaliaSettingsFile`. No host sets it, so desktop and framework share one file. | `~/.local/state/noctalia/settings.toml` |
-| GDM | `gnome/monitors-<host>.xml` | `gdmMonitorsFile`, used only with `gdm`. Only desktop sets it, and desktop does not use `gdm` today. | `/var/lib/gdm/seat0/config/monitors.xml`, a store copy (not live) |
+| Area            | File in `modules/profiles/desktop/`                             | How the host selects it                                                                              | Link                                                              |
+| --------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| niri outputs    | `niri/outputs-<host>.kdl`                                       | `niriOutputsFile` in `hosts/<host>/host.nix`. If it is not set, `host.kdl` is a stub.                | `~/.config/niri/host.kdl`                                         |
+| niri shell      | `niri/shell-<shell>.kdl`, which includes `keybinds-<shell>.kdl` | `noctalia`, else `dms`                                                                               | `~/.config/niri/shell.kdl`                                        |
+| Umbriel outputs | `umbriel/outputs-<host>.toml`                                   | The host key. No registry field. A missing file is skipped.                                          | `~/.config/umbriel/host.toml`                                     |
+| Umbriel shell   | `umbriel/shell-noctalia.toml`                                   | Noctalia only. DMS has no Umbriel binds.                                                             | `~/.config/umbriel/shell.toml`                                    |
+| DMS             | `dms/config/settings-<host>.json`                               | `dmsSettingsFile`. The default is `settings-desktop.json`.                                           | `~/.config/DankMaterialShell/settings.json`                       |
+| Noctalia        | `noctalia/config/settings.toml`                                 | `noctaliaSettingsFile`. No host sets it, so desktop and framework share one file.                    | `~/.local/state/noctalia/settings.toml`                           |
+| GDM             | `gnome/monitors-<host>.xml`                                     | `gdmMonitorsFile`, used only with `gdm`. Only desktop sets it, and desktop does not use `gdm` today. | `/var/lib/gdm/seat0/config/monitors.xml`, a store copy (not live) |
 
 The other files in `niri/` and `umbriel/` are linked under their own names. A new file does nothing until an include names it. `niri/keybinds-overrides.kdl` is linked, but no file includes it.
 

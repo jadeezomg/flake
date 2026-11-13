@@ -2,7 +2,7 @@
 
 Reference for the `mini` host machine (Minisforum MS-01, headless NixOS).
 
-**Scope:** only what is *not* readable from the flake. Every "what is configured"
+**Scope:** only what is _not_ readable from the flake. Every "what is configured"
 question is answered by `hosts/mini/**`, `mini-nix` and the module tree; this file records the
 ordering constraints, failure modes, one-time runtime steps and deliberate
 decisions that the Nix code cannot express. When the two disagree, the flake wins
@@ -19,13 +19,13 @@ are in `mini-nix/secrets/`.
 
 ## 1. Hardware & storage facts
 
-| | |
-|---|---|
-| CPU / RAM | i5-12600H (4P+8E, vPro), 24 GB |
-| GPU | discrete Intel Arc B50 (~15 GiB) + iGPU; needs `xe.force_probe=e223` |
-| Disks | 256 GB NVMe (ESP + btrfs `@root @nix @home @var-log @snapshots`), 2 TB NVMe (btrfs → `/srv`) |
-| NICs | 4 present, only `enp2s0f0np0` configured (`192.168.178.100/24`, gw `.1`) |
-| OOB | Intel AMT 16.x, Client Control Mode |
+|           |                                                                                              |
+| --------- | -------------------------------------------------------------------------------------------- |
+| CPU / RAM | i5-12600H (4P+8E, vPro), 24 GB                                                               |
+| GPU       | discrete Intel Arc B50 (~15 GiB) + iGPU; needs `xe.force_probe=e223`                         |
+| Disks     | 256 GB NVMe (ESP + btrfs `@root @nix @home @var-log @snapshots`), 2 TB NVMe (btrfs → `/srv`) |
+| NICs      | 4 present, only `enp2s0f0np0` configured (`192.168.178.100/24`, gw `.1`)                     |
+| OOB       | Intel AMT 16.x, Client Control Mode                                                          |
 
 Non-obvious:
 
@@ -40,7 +40,7 @@ Non-obvious:
   (`daily`, `--delete-older-than 3d`).
 - `buildCores = 2` — 24 GB is not much for a rebuild that also serves a 10 GB model.
 - The 2 TB disk holds `/srv` only: `/srv/immich` (photo library) and
-  `/srv/nixflix` (media service state). Media *payloads* are NFS from Unraid, not here.
+  `/srv/nixflix` (media service state). Media _payloads_ are NFS from Unraid, not here.
 
 ## 2. Boot & SecureBoot
 
@@ -52,7 +52,7 @@ Non-obvious:
 2. flip `secureBoot = true` in `hosts/mini/host.nix`, commit
 3. `just switch` → lanzaboote writes **signed** EFI files
 4. `sudo sbctl verify` → every ESP entry must say signed
-5. firmware → Security → *Reset to Setup Mode* / *Clear PK*
+5. firmware → Security → _Reset to Setup Mode_ / _Clear PK_
 6. `sudo sbctl enroll-keys -m`
 7. reboot, enable SecureBoot in firmware, `sudo sbctl status`
 
@@ -92,10 +92,10 @@ not break pagers/`systemctl`. On a pre-that generation use `kitty +kitten ssh`.
 Canonical paths: `secrets/SCHEMA.md` and, for mini's services,
 `mini-nix/secrets/SCHEMA.md`. Two different age keys live on mini:
 
-| Key | Path | Used by |
-|---|---|---|
-| **host** key | `/var/lib/private/sops/age/keys.txt` | NixOS `sops.secrets` |
-| **editor** key | `~/.config/sops/age/keys.txt` | Home Manager `sops-nix.service` |
+| Key            | Path                                 | Used by                         |
+| -------------- | ------------------------------------ | ------------------------------- |
+| **host** key   | `/var/lib/private/sops/age/keys.txt` | NixOS `sops.secrets`            |
+| **editor** key | `~/.config/sops/age/keys.txt`        | Home Manager `sops-nix.service` |
 
 **The host key alone is not enough** — HM decrypts user secrets with the same
 editor key as your workstation, so it must be copied to mini (dir `0700`, file
@@ -122,7 +122,7 @@ mini pull / ssh / reboot / dns-sync
 mini llm <cmd>     # LLM service ops (nested module)
 ```
 
-- **`deploy` pulls `origin/main`** — commit *and push* first, or you deploy the old tree.
+- **`deploy` pulls `origin/main`** — commit _and push_ first, or you deploy the old tree.
 - **`mini-nix` is pinned to a commit in `flake.lock`.** A plain `deploy` never
   picks up new mini-nix commits: push mini-nix, then `mini bump` (or let
   `mini ship "msg"` do commit + push + bump + deploy). The deploy recipes
@@ -185,8 +185,8 @@ consolidation). The parts that are not obvious:
    `802-11-wireless.cloned-mac-address permanent`, `ipv4.method auto`,
    `ipv6.method disabled`.
 3. **disko destroys both NVMes** — re-check `/dev/disk/by-id/nvme-…` for the 256 GB
-   *and* the 2 TB disk before running it.
-4. **`nixos-install --max-jobs 1 --cores 4`** — it uses the *installer's* daemon, so
+   _and_ the 2 TB disk before running it.
+4. **`nixos-install --max-jobs 1 --cores 4`** — it uses the _installer's_ daemon, so
    mini's `buildCores` does not apply, and 24 GB will thrash otherwise.
 5. **Bootstrap mode is the chicken-and-egg fix and has been removed from
    `host.nix`.** sops-nix cannot decrypt before mini's age host key exists, so
@@ -196,7 +196,7 @@ consolidation). The parts that are not obvious:
    complete. `--no-root-password` is correct — root stays locked, jadee has
    NOPASSWD wheel.
 6. **Password SSH is disabled from first boot** — your key must already be in
-   `data/users/users.nix` → `jadee.sshKeys` and committed *before* `nixos-install`.
+   `data/users/users.nix` → `jadee.sshKeys` and committed _before_ `nixos-install`.
    Recovery is console or AMT KVM only.
 7. The installer's `/tmp/flake` clone is gone after reboot — clone to
    `~/git/flake` and run `just _init mini` before any `just` recipe.

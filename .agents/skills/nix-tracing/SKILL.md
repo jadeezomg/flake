@@ -1,4 +1,5 @@
 ---
+
 name: nix-tracing
 description: OpenTelemetry tracing in this flake — Determinate Nix evaluations, builds, and substitutions, plus mini's Tempo/Grafana stack and its traced services (hermes-agent, open-webui, Caddy). Use when a `flake build`/switch, eval, cache fetch, hermes turn, or chat.jadee.fyi request is slow or fails and you need to see where the time goes, or when changing `otlp*` Nix settings or Tempo.
 ---

@@ -1,4 +1,5 @@
 ---
+
 name: flake-update
 description: Update this flake's inputs and local packages, and fix a build that breaks after an update. Use it to run `just update`, `just update-packages`, `just nix-update-pkg`, or `nix flake update` for all or one input. Also use it to fix a build or evaluation that broke after a `flake.lock` or package bump.
 ---
@@ -15,12 +16,12 @@ If the user asks for an update, you can run the update recipes. Do not run `just
 
 The recipe runs these steps in order, with `set -euo pipefail`:
 
-| Step | Effect |
-| --- | --- |
-| 1. `update-packages` | `uv run --project scripts update-packages` updates every `packages/<name>/` that has an `update.json`, in parallel. `UPDATE_FORCE=1` adds `--force`. |
-| 2. `nix flake update` | Moves every input that has no rev or tag in its URL. |
-| 3. `just fmt` | Runs `treefmt`, the same as `flake fmt`. |
-| 4. `fwupdmgr` | Looks for firmware updates, on framework only. |
+| Step                  | Effect                                                                                                                                               |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. `update-packages`  | `uv run --project scripts update-packages` updates every `packages/<name>/` that has an `update.json`, in parallel. `UPDATE_FORCE=1` adds `--force`. |
+| 2. `nix flake update` | Moves every input that has no rev or tag in its URL.                                                                                                 |
+| 3. `just fmt`         | Runs `treefmt`, the same as `flake fmt`.                                                                                                             |
+| 4. `fwupdmgr`         | Looks for firmware updates, on framework only.                                                                                                       |
 
 If one package fails in step 1, the script exits with 1 and the recipe stops before step 2.
 
@@ -49,15 +50,15 @@ Other entry points:
 
 ## Choose a fix after a bump
 
-| Break | Fix | Model |
-| --- | --- | --- |
-| A nixpkgs package fails to build or test, and upstream will fix it | Overlay with `expireWhen` or `recheckWhen` | `parts/overlays/`, rules in `overlays` |
-| The fixed version is already in nixos-unstable-small | `pkgs-small.<pkg>` behind `expireWhen` on `pkgs.<pkg>.version` | `tuios` in `modules/profiles/devenv/agents/default.nix` |
-| A local package in `packages/<name>` got a bad release | `hold` in `update.json`, not `--version=skip` (it never expires) | `packages/AGENTS.md` |
-| A module option or unit changed | Fix the module. If the fix is a workaround, add a guard | `overlays` § Module-level guards |
-| A `permittedInsecurePackages` entry no longer matches | Move the version in `lib/pkgs.nix` | commit `1f04971f` (ventoy) |
-| A fixed-output hash mismatch | Set `lib.fakeHash`, ask for a build, paste the `got:` hash | Caddy below |
-| A store path must stay fixed | Pin the input to a rev in `flake.nix`, with a comment. No guard | `nixpkgs-skhd` |
+| Break                                                              | Fix                                                              | Model                                                   |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------- | ------------------------------------------------------- |
+| A nixpkgs package fails to build or test, and upstream will fix it | Overlay with `expireWhen` or `recheckWhen`                       | `parts/overlays/`, rules in `overlays`                  |
+| The fixed version is already in nixos-unstable-small               | `pkgs-small.<pkg>` behind `expireWhen` on `pkgs.<pkg>.version`   | `tuios` in `modules/profiles/devenv/agents/default.nix` |
+| A local package in `packages/<name>` got a bad release             | `hold` in `update.json`, not `--version=skip` (it never expires) | `packages/AGENTS.md`                                    |
+| A module option or unit changed                                    | Fix the module. If the fix is a workaround, add a guard          | `overlays` § Module-level guards                        |
+| A `permittedInsecurePackages` entry no longer matches              | Move the version in `lib/pkgs.nix`                               | commit `1f04971f` (ventoy)                              |
+| A fixed-output hash mismatch                                       | Set `lib.fakeHash`, ask for a build, paste the `got:` hash       | Caddy below                                             |
+| A store path must stay fixed                                       | Pin the input to a rev in `flake.nix`, with a comment. No guard  | `nixpkgs-skhd`                                          |
 
 ## Known hazards
 

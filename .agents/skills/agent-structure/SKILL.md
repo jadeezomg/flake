@@ -1,4 +1,5 @@
 ---
+
 name: agent-structure
 description: Apply this flake's agent configuration layout rules. Use when editing agent skills, Claude Code mods (data/agents/mods), global agent instructions (AGENTS.md), Claude settings, OMP agent config, MCP server registration in apm.nix, agent CLI packages, or deciding between project .agents/skills and data/agents/skills/local.
 ---

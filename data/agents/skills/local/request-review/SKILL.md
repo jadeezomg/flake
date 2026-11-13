@@ -1,4 +1,5 @@
 ---
+
 name: request-review
 description: Get a review of your finished change from an omp reviewer agent in a new herdr pane, answer its questions, and act on its findings. Use when you finished a feature or fix and its checks pass, when the user asks for a review, peer review, second opinion, or reviewer agent, and when a message starts with "[agent-review".
 ---

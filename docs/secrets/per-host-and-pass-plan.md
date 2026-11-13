@@ -42,24 +42,24 @@ secrets/
 
 `.sops.yaml` gets one `creation_rules` entry per path (not one shared rule for everything):
 
-| `path_regex` | Recipients |
-|---|---|
-| `secrets/shared\.yaml` | editor + framework + desktop + caya + mini |
-| `secrets/hosts/mini\.yaml` | editor + mini |
-| `secrets/hosts/framework\.yaml` | editor + framework |
-| `secrets/hosts/desktop\.yaml` | editor + desktop |
-| `secrets/hosts/caya\.yaml` | editor + caya |
+| `path_regex`                    | Recipients                                 |
+| ------------------------------- | ------------------------------------------ |
+| `secrets/shared\.yaml`          | editor + framework + desktop + caya + mini |
+| `secrets/hosts/mini\.yaml`      | editor + mini                              |
+| `secrets/hosts/framework\.yaml` | editor + framework                         |
+| `secrets/hosts/desktop\.yaml`   | editor + desktop                           |
+| `secrets/hosts/caya\.yaml`      | editor + caya                              |
 
-Yes: **shared + per-host is the intended model.** Sops can only vary recipients per *file*, so this is how per-path isolation works.
+Yes: **shared + per-host is the intended model.** Sops can only vary recipients per _file_, so this is how per-path isolation works.
 
 ### What goes where (classification)
 
-| Class | Store | Examples | Decrypt / unlock |
-|---|---|---|---|
-| **A — machine** | host sops file | `users/jadee/password_*`, mini media/Matrix/Caddy/hermes templates, deploy keys, WireGuard | host age key at `flake switch` |
-| **B — shared machine** | `shared.yaml` | `github_token` for `NIX_CONFIG` access-tokens (if kept declarative) | any host age key |
-| **C — human interactive** | Proton Pass vault `Interactive` | kagi api/session, personal tooling tokens you type/run by hand | Pass login + session unlock; `pass-cli run` |
-| **D — agent-brokered** | Proton Pass vault `Agents` | openrouter, context7, `agent_pat` | Pass **agent** with item/vault grant; host broker fetches with reason |
+| Class                     | Store                           | Examples                                                                                   | Decrypt / unlock                                                      |
+| ------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| **A — machine**           | host sops file                  | `users/jadee/password_*`, mini media/Matrix/Caddy/hermes templates, deploy keys, WireGuard | host age key at `flake switch`                                        |
+| **B — shared machine**    | `shared.yaml`                   | `github_token` for `NIX_CONFIG` access-tokens (if kept declarative)                        | any host age key                                                      |
+| **C — human interactive** | Proton Pass vault `Interactive` | kagi api/session, personal tooling tokens you type/run by hand                             | Pass login + session unlock; `pass-cli run`                           |
+| **D — agent-brokered**    | Proton Pass vault `Agents`      | openrouter, context7, `agent_pat`                                                          | Pass **agent** with item/vault grant; host broker fetches with reason |
 
 Media UI passwords stay **class A** in `hosts/mini.yaml` (daemons need them). Keep syncing **copies** into Pass for browser autofill via the existing sync script (convenience mirror, not source of truth).
 
@@ -128,25 +128,25 @@ version: 1
 vaults:
   Interactive: { purpose: human-cli }
   Agents: { purpose: nono-broker }
-  Nixflix: { purpose: media-autofill-mirror }  # existing sync-media target (rename optional)
+  Nixflix: { purpose: media-autofill-mirror } # existing sync-media target (rename optional)
 
 items:
   - id: openrouter-api-key
     vault: Agents
-    title: openrouter_api_key          # stable Pass item title
-    kind: login                        # login | custom
+    title: openrouter_api_key # stable Pass item title
+    kind: login # login | custom
     sops:
-      file: shared                     # shared | hosts/<hostKey>
-      path: openrouter_api_key         # YAML path inside that file
+      file: shared # shared | hosts/<hostKey>
+      path: openrouter_api_key # YAML path inside that file
     pass_fields:
-      password: value                  # map Pass field ← sops value role
+      password: value # map Pass field ← sops value role
     class: D
-    rotate: external                   # external | generate | hash
+    rotate: external # external | generate | hash
     rotate_hint: "https://openrouter.ai/keys — create key, paste into rotate"
     note: "Managed by flake secrets tooling; do not rename title"
 
   - id: github-token-nix
-    vault: Interactive                 # or Agents if only brokered
+    vault: Interactive # or Agents if only brokered
     title: github_token
     kind: login
     sops: { file: shared, path: github_token }
@@ -171,15 +171,15 @@ items:
     kind: login
     sops:
       file: hosts/mini
-      path: mini/media/sonarr          # parent; fields map below
+      path: mini/media/sonarr # parent; fields map below
     pass_fields:
       password: password
       "API key": api-key
     url: https://sonarr.jadee.fyi
     username: sonarr
     class: A
-    rotate: generate                   # password locally; api-key may be external/service
-    mirrors: true                      # Pass is autofill copy; sops is source of truth
+    rotate: generate # password locally; api-key may be external/service
+    mirrors: true # Pass is autofill copy; sops is source of truth
 
   - id: jellyfin-jadee-password
     vault: Nixflix
@@ -207,24 +207,24 @@ Media sync ([sync-media-secrets-to-pass.bash](../../scripts/shell/sync-media-sec
 
 ### Rotate kinds
 
-| `rotate` | Behavior | Examples |
-|---|---|---|
-| `external` | Prompt/paste new value from provider UI; write sops; upsert Pass | github_token, openrouter, context7, kagi, agent_pat, HF, Cloudflare |
-| `generate` | Locally generate password/token; write sops; upsert Pass; print “update service UI if needed” | jellyfin user passwords, sonarr/radarr UI passwords, qbittorrent, matrix registration token (when we own it) |
-| `hash` | Prompt plaintext once → `mkpasswd -m sha-512` → write hash to sops only (no Pass mirror of plaintext) | `users/jadee/password_*` |
+| `rotate`   | Behavior                                                                                              | Examples                                                                                                     |
+| ---------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `external` | Prompt/paste new value from provider UI; write sops; upsert Pass                                      | github_token, openrouter, context7, kagi, agent_pat, HF, Cloudflare                                          |
+| `generate` | Locally generate password/token; write sops; upsert Pass; print “update service UI if needed”         | jellyfin user passwords, sonarr/radarr UI passwords, qbittorrent, matrix registration token (when we own it) |
+| `hash`     | Prompt plaintext once → `mkpasswd -m sha-512` → write hash to sops only (no Pass mirror of plaintext) | `users/jadee/password_*`                                                                                     |
 
 ### Tooling shape
 
 Prefer one Python module under `scripts/src/flake_scripts/` (uv-run), thin Just wrappers:
 
-| Recipe | What it does |
-|---|---|
-| `just secrets-rotate <inventory-id>` | Load inventory → decrypt target sops file → apply rotate kind → `sops` write → Pass upsert if linked → remind `git commit` + provider steps |
-| `just secrets-generate-password <inventory-id>` | Alias for `rotate: generate` entries |
-| `just secrets-set <inventory-id>` | Paste-only path for `external` (no generator) |
-| `just sync-pass --id <id>\|--vault <name>\|--all` | Sops → Pass upsert for inventory entries (`mirrors: true` or class C/D) |
-| `just pass-inventory-check` | Drift report |
-| `just pass-inventory-bootstrap` | Create missing Pass items from inventory (titles/notes only), write `pass_item_id` back |
+| Recipe                                            | What it does                                                                                                                                |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `just secrets-rotate <inventory-id>`              | Load inventory → decrypt target sops file → apply rotate kind → `sops` write → Pass upsert if linked → remind `git commit` + provider steps |
+| `just secrets-generate-password <inventory-id>`   | Alias for `rotate: generate` entries                                                                                                        |
+| `just secrets-set <inventory-id>`                 | Paste-only path for `external` (no generator)                                                                                               |
+| `just sync-pass --id <id>\|--vault <name>\|--all` | Sops → Pass upsert for inventory entries (`mirrors: true` or class C/D)                                                                     |
+| `just pass-inventory-check`                       | Drift report                                                                                                                                |
+| `just pass-inventory-bootstrap`                   | Create missing Pass items from inventory (titles/notes only), write `pass_item_id` back                                                     |
 
 ### Rotate flow (external token, e.g. OpenRouter)
 
@@ -336,19 +336,19 @@ just secrets-rotate password-framework
 
 ## Just / docs surface (target)
 
-| Recipe / doc | Purpose |
-|---|---|
-| `just sops-edit shared\|mini\|framework\|…` | Edit the right file |
-| `just sops-rekey` | `sops updatekeys` on all secret files |
-| `just secrets-rotate <id>` | Rotate by inventory id (external paste / generate / hash) + Pass upsert |
-| `just secrets-generate-password <id>` | Generate password, write sops, update Pass |
-| `just secrets-set <id>` | Paste value into sops (+ Pass if linked) |
-| `just sync-pass …` | Inventory-driven sops → Pass upsert |
-| `just sync-pass-agents` | Refresh libsecret from Pass agent views |
-| `just pass-inventory-check` | Orphan / missing Pass item report |
-| `just pass-inventory-bootstrap` | Create missing Pass items; write `pass_item_id` |
-| `pass-cli agent monitor <name>` | Audit |
-| `secrets/pass-inventory.yaml` + SCHEMA + this plan | Source of truth for classification and Pass linkage |
+| Recipe / doc                                       | Purpose                                                                 |
+| -------------------------------------------------- | ----------------------------------------------------------------------- |
+| `just sops-edit shared\|mini\|framework\|…`        | Edit the right file                                                     |
+| `just sops-rekey`                                  | `sops updatekeys` on all secret files                                   |
+| `just secrets-rotate <id>`                         | Rotate by inventory id (external paste / generate / hash) + Pass upsert |
+| `just secrets-generate-password <id>`              | Generate password, write sops, update Pass                              |
+| `just secrets-set <id>`                            | Paste value into sops (+ Pass if linked)                                |
+| `just sync-pass …`                                 | Inventory-driven sops → Pass upsert                                     |
+| `just sync-pass-agents`                            | Refresh libsecret from Pass agent views                                 |
+| `just pass-inventory-check`                        | Orphan / missing Pass item report                                       |
+| `just pass-inventory-bootstrap`                    | Create missing Pass items; write `pass_item_id`                         |
+| `pass-cli agent monitor <name>`                    | Audit                                                                   |
+| `secrets/pass-inventory.yaml` + SCHEMA + this plan | Source of truth for classification and Pass linkage                     |
 
 ---
 
@@ -379,8 +379,8 @@ just secrets-rotate password-framework
 
 ## Suggested implementation order
 
-1. Phase 1 (PR: sops split) — security win, no Pass UX change.  
-2. Phase 2 (PR: pass-inventory + rotate/sync tooling; refactor media sync).  
-3. Phase 3 (PR: Interactive vault + wrappers).  
-4. Phase 4 (PR: Agents vault + stop sops-keyring auto-load for class D).  
+1. Phase 1 (PR: sops split) — security win, no Pass UX change.
+2. Phase 2 (PR: pass-inventory + rotate/sync tooling; refactor media sync).
+3. Phase 3 (PR: Interactive vault + wrappers).
+4. Phase 4 (PR: Agents vault + stop sops-keyring auto-load for class D).
 5. Phase 5 cleanup.

@@ -16,31 +16,31 @@ Status events and telemetry (D) are out of scope. This plan describes D so that 
 
 ## Terms
 
-| Term | Meaning |
-|---|---|
-| Session | One conversation of one agent, with its transcript file or database rows. |
-| Run host | The host where the agent process runs. |
+| Term            | Meaning                                                                                                |
+| --------------- | ------------------------------------------------------------------------------------------------------ |
+| Session         | One conversation of one agent, with its transcript file or database rows.                              |
+| Run host        | The host where the agent process runs.                                                                 |
 | Session manager | The multiplexer that keeps agent processes alive when no client is attached (herdr, tmux, and others). |
-| Archive | The copy of all session files on mini. |
-| Client | A terminal that attaches to a session manager: a laptop or a phone. |
+| Archive         | The copy of all session files on mini.                                                                 |
+| Client          | A terminal that attaches to a session manager: a laptop or a phone.                                    |
 
 ---
 
 ## Current state (2026-10-25)
 
-| Item | State |
-|---|---|
-| herdr | 0.9.5 on every `devenv` host, mini included. The Claude `SessionStart` hook is in `data/agents/global/settings.json`, so every host has it. mini has no integrations installed. No host has saved machines. |
-| tmux, sesh | On every host (`modules/profiles/minimal/shells/core/tmux.nix`). |
-| mini capacity | `free -g` shows 31 GB total, 22 GB available. `docs/hosts/mini.md` says 24 GB. `/srv` has 1.6 TB free. `buildCores = 2`. |
-| mini user | `Linger=yes` for jadee (set by `modules/nixos/virtualization.nix` for `devenv` hosts). |
-| mini content | No repos. No `~/.claude/projects`. `~/.pi`, `~/.omp`, `~/.codex` exist. The flake checkout was at `~/.dotfiles/flake` (moves to `~/git/flake`, D9). |
-| Repo folders | framework keeps repos in `~/Git` (capital G, 6 entries). `~/Projects` is empty. `modules/profiles/desktop/noctalia/config/settings.toml` points at `~/Git/community-plugins`. desktop not checked. |
-| hermes | System service, user `hermes`, `HERMES_HOME=/var/lib/hermes/.hermes`. Matrix and Telegram gateway. Dashboard at `hermes.jadee.fyi`. Model access through OpenRouter. |
-| Network | mini firewall trusts `tailscale0` only. Laptops accept Tailscale SSH only. framework → mini SSH works in `BatchMode` over the LAN address. |
-| caya | `sshAddress = null`. Nothing connects into caya. Work laptop. |
-| Claude Remote Control | `remoteControlAtStartup = true`. Claude sessions already show on claude.ai/code. |
-| Precedents on mini | atuin collects shell history from all hosts. restic over SFTP backs up Immich to Unraid. |
+| Item                  | State                                                                                                                                                                                                       |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| herdr                 | 0.9.5 on every `devenv` host, mini included. The Claude `SessionStart` hook is in `data/agents/global/settings.json`, so every host has it. mini has no integrations installed. No host has saved machines. |
+| tmux, sesh            | On every host (`modules/profiles/minimal/shells/core/tmux.nix`).                                                                                                                                            |
+| mini capacity         | `free -g` shows 31 GB total, 22 GB available. `docs/hosts/mini.md` says 24 GB. `/srv` has 1.6 TB free. `buildCores = 2`.                                                                                    |
+| mini user             | `Linger=yes` for jadee (set by `modules/nixos/virtualization.nix` for `devenv` hosts).                                                                                                                      |
+| mini content          | No repos. No `~/.claude/projects`. `~/.pi`, `~/.omp`, `~/.codex` exist. The flake checkout was at `~/.dotfiles/flake` (moves to `~/git/flake`, D9).                                                         |
+| Repo folders          | framework keeps repos in `~/Git` (capital G, 6 entries). `~/Projects` is empty. `modules/profiles/desktop/noctalia/config/settings.toml` points at `~/Git/community-plugins`. desktop not checked.          |
+| hermes                | System service, user `hermes`, `HERMES_HOME=/var/lib/hermes/.hermes`. Matrix and Telegram gateway. Dashboard at `hermes.jadee.fyi`. Model access through OpenRouter.                                        |
+| Network               | mini firewall trusts `tailscale0` only. Laptops accept Tailscale SSH only. framework → mini SSH works in `BatchMode` over the LAN address.                                                                  |
+| caya                  | `sshAddress = null`. Nothing connects into caya. Work laptop.                                                                                                                                               |
+| Claude Remote Control | `remoteControlAtStartup = true`. Claude sessions already show on claude.ai/code.                                                                                                                            |
+| Precedents on mini    | atuin collects shell history from all hosts. restic over SFTP backs up Immich to Unraid.                                                                                                                    |
 
 ---
 
@@ -63,19 +63,19 @@ Status events and telemetry (D) are out of scope. This plan describes D so that 
 
 ## Decisions (Phase 0)
 
-| # | Question | Options | Recommendation |
-|---|---|---|---|
-| D1 | Do caya sessions go to the archive? | (a) No. (b) Yes, in a separate restic repo with its own key. (c) Yes, same as personal hosts. | **Decided 2026-10-25: (a).** Work sessions are out of scope. The push design works for caya later, because caya connects out. |
-| D2 | Which session manager? | herdr, tuios, or another tool from [§ Session manager](#session-manager). | **Decided 2026-10-25: trial both** on mini. herdr is the default until the trial ends. |
-| D3 | Where does a project declare its run mode? | (1) Registry in the flake. (2) Marker file in each repo. (3) Flag at start only. | **Decided 2026-10-25: (3).** See [§ Mode selection](#mode-selection). |
-| D4 | How do session files reach mini? | rsync push timer, Syncthing, or the index tool's own sync. | **Decided 2026-10-25:** rsync push timer with a write-only key. See [§ Transport](#transport). |
-| D4b | Which SSH path for the push off the LAN? | Second OpenSSH port on `tailscale0`, LAN only, or Tailscale SSH without a forced command. | **Decided 2026-10-25:** port 2222 on the tailnet only, dedicated user `agent-push`. See [§ Push path](#push-path-d4b). |
-| D5 | Which index and search tool? | agentsview, cass, and others. | **Decided 2026-10-25:** agentsview. See [§ Index and search](#index-and-search). |
-| D6 | Which user runs the coding agents that hermes starts? | (H1) User `hermes`. (H2) User `jadee`. | **Decided 2026-10-25:** H1, user `hermes`. |
-| D7 | How do hosts connect to each other without a prompt (mode B)? | Tailscale SSH policy `accept` for these host pairs, OpenSSH with keys on the laptops, or no mode B for now. | **Decided 2026-10-25:** Tailscale SSH `accept` rules for the host pairs. The ACL lives in the Tailscale admin console. Test in Phase 0. |
-| D8 | Can agents on mini edit the flake checkout on mini? | Yes, with a rule change in `AGENTS.md`. No, flake work stays `local`. | **Decided 2026-10-25: yes.** See [§ Flake work on mini](#flake-work-on-mini-d8). |
-| D9 | Where do git repos live? | Flat `~/git/<repo>`, or `~/git/<owner>/<repo>`. Flake inside or outside `~/git`. | **Decided 2026-10-25:** flat `$HOME/git/<repo>` for every user on every host. Changed 2026-10-26: the flake checkout moves too, to `~/git/flake`. See [§ Repo location](#repo-location-d9). |
-| D10 | How does the push leave out work repos on personal hosts? | Exclude list, exclude by `origin` owner, no work repos on personal hosts, or filter in agentsview. | **Decided 2026-10-25: manual.** You manage these sessions by hand. The push has no filter. See [§ Work repos on personal hosts](#work-repos-on-personal-hosts). |
+| #   | Question                                                      | Options                                                                                                     | Recommendation                                                                                                                                                                              |
+| --- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Do caya sessions go to the archive?                           | (a) No. (b) Yes, in a separate restic repo with its own key. (c) Yes, same as personal hosts.               | **Decided 2026-10-25: (a).** Work sessions are out of scope. The push design works for caya later, because caya connects out.                                                               |
+| D2  | Which session manager?                                        | herdr, tuios, or another tool from [§ Session manager](#session-manager).                                   | **Decided 2026-10-25: trial both** on mini. herdr is the default until the trial ends.                                                                                                      |
+| D3  | Where does a project declare its run mode?                    | (1) Registry in the flake. (2) Marker file in each repo. (3) Flag at start only.                            | **Decided 2026-10-25: (3).** See [§ Mode selection](#mode-selection).                                                                                                                       |
+| D4  | How do session files reach mini?                              | rsync push timer, Syncthing, or the index tool's own sync.                                                  | **Decided 2026-10-25:** rsync push timer with a write-only key. See [§ Transport](#transport).                                                                                              |
+| D4b | Which SSH path for the push off the LAN?                      | Second OpenSSH port on `tailscale0`, LAN only, or Tailscale SSH without a forced command.                   | **Decided 2026-10-25:** port 2222 on the tailnet only, dedicated user `agent-push`. See [§ Push path](#push-path-d4b).                                                                      |
+| D5  | Which index and search tool?                                  | agentsview, cass, and others.                                                                               | **Decided 2026-10-25:** agentsview. See [§ Index and search](#index-and-search).                                                                                                            |
+| D6  | Which user runs the coding agents that hermes starts?         | (H1) User `hermes`. (H2) User `jadee`.                                                                      | **Decided 2026-10-25:** H1, user `hermes`.                                                                                                                                                  |
+| D7  | How do hosts connect to each other without a prompt (mode B)? | Tailscale SSH policy `accept` for these host pairs, OpenSSH with keys on the laptops, or no mode B for now. | **Decided 2026-10-25:** Tailscale SSH `accept` rules for the host pairs. The ACL lives in the Tailscale admin console. Test in Phase 0.                                                     |
+| D8  | Can agents on mini edit the flake checkout on mini?           | Yes, with a rule change in `AGENTS.md`. No, flake work stays `local`.                                       | **Decided 2026-10-25: yes.** See [§ Flake work on mini](#flake-work-on-mini-d8).                                                                                                            |
+| D9  | Where do git repos live?                                      | Flat `~/git/<repo>`, or `~/git/<owner>/<repo>`. Flake inside or outside `~/git`.                            | **Decided 2026-10-25:** flat `$HOME/git/<repo>` for every user on every host. Changed 2026-10-26: the flake checkout moves too, to `~/git/flake`. See [§ Repo location](#repo-location-d9). |
+| D10 | How does the push leave out work repos on personal hosts?     | Exclude list, exclude by `origin` owner, no work repos on personal hosts, or filter in agentsview.          | **Decided 2026-10-25: manual.** You manage these sessions by hand. The push has no filter. See [§ Work repos on personal hosts](#work-repos-on-personal-hosts).                             |
 
 ---
 
@@ -128,15 +128,15 @@ You give a task to hermes in Matrix, Telegram, or the dashboard. Hermes runs the
 
 ### Comparison
 
-| | `local` (B) | `mini` (A) | `hermes` (H) |
-|---|---|---|---|
-| Agent runs on | Laptop | mini | mini, as user `hermes` |
-| Survives laptop sleep | No | Yes | Yes |
-| Phone access | Only through mini's view (variant) | Yes, SSH + `herdr` | Yes, Matrix or Telegram |
-| Live view from other hosts | herdr saved machines | herdr saved machines | Hermes dashboard |
-| GUI, browser, local hardware | Yes | No | No |
-| Credentials | Already on the laptop | Copy to mini | Separate set for `hermes` |
-| Good for | Interactive work, GUI and browser tasks | Long tasks, overnight runs, personal repos | Small tasks you start from the phone |
+|                              | `local` (B)                             | `mini` (A)                                 | `hermes` (H)                         |
+| ---------------------------- | --------------------------------------- | ------------------------------------------ | ------------------------------------ |
+| Agent runs on                | Laptop                                  | mini                                       | mini, as user `hermes`               |
+| Survives laptop sleep        | No                                      | Yes                                        | Yes                                  |
+| Phone access                 | Only through mini's view (variant)      | Yes, SSH + `herdr`                         | Yes, Matrix or Telegram              |
+| Live view from other hosts   | herdr saved machines                    | herdr saved machines                       | Hermes dashboard                     |
+| GUI, browser, local hardware | Yes                                     | No                                         | No                                   |
+| Credentials                  | Already on the laptop                   | Copy to mini                               | Separate set for `hermes`            |
+| Good for                     | Interactive work, GUI and browser tasks | Long tasks, overnight runs, personal repos | Small tasks you start from the phone |
 
 ---
 
@@ -153,11 +153,11 @@ Options that were not picked:
 
 `work [<path>] [--on local|mini|hermes]`. The path defaults to the current folder. The mode defaults to `local`.
 
-| Mode | Action |
-|---|---|
-| `local` | Open or attach the local herdr workspace for the path. |
-| `mini` | The path must be `~/git/<repo>` or the flake checkout. If mini has no `~/git/<repo>`, clone it there from the local `origin` URL. Then attach to mini (`herdr --remote mini`, or the saved machine) and open the workspace there. |
-| `hermes` | Print the hermes dashboard URL and the Matrix room. |
+| Mode     | Action                                                                                                                                                                                                                            |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `local`  | Open or attach the local herdr workspace for the path.                                                                                                                                                                            |
+| `mini`   | The path must be `~/git/<repo>` or the flake checkout. If mini has no `~/git/<repo>`, clone it there from the local `origin` URL. Then attach to mini (`herdr --remote mini`, or the saved machine) and open the workspace there. |
+| `hermes` | Print the hermes dashboard URL and the Matrix room.                                                                                                                                                                               |
 
 Notes:
 
@@ -178,14 +178,14 @@ Decided: every git repo lives at `$HOME/git/<repo>`.
 
 Migration, done 2026-10-26:
 
-| Entry in `~/Git` (framework) | Kind | Result |
-|---|---|---|
-| `community-plugins` | Repo, `jadeezomg` | Moved. `modules/profiles/desktop/noctalia/config/settings.toml` points at `~/git/community-plugins`. |
-| `dotfiles` | Repo, `Mic92/dotfiles` (reference copy) | Moved. |
-| `graphs` | Repo, `AMN-DATA` (work) | Moved. Its sessions are work sessions, see the note below. |
-| `skills` | Repo, `mattpocock/skills` | Moved. |
-| `learn-rust` | Folder with 3 repos inside | Moved as a group folder. |
-| `vault` | Obsidian vault, only Home Manager links | Not moved. `modules/profiles/apps/notes/obsidian.nix` now targets `git/vault`, so the next switch makes `~/git/vault` and removes the old links. |
+| Entry in `~/Git` (framework) | Kind                                    | Result                                                                                                                                           |
+| ---------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `community-plugins`          | Repo, `jadeezomg`                       | Moved. `modules/profiles/desktop/noctalia/config/settings.toml` points at `~/git/community-plugins`.                                             |
+| `dotfiles`                   | Repo, `Mic92/dotfiles` (reference copy) | Moved.                                                                                                                                           |
+| `graphs`                     | Repo, `AMN-DATA` (work)                 | Moved. Its sessions are work sessions, see the note below.                                                                                       |
+| `skills`                     | Repo, `mattpocock/skills`               | Moved.                                                                                                                                           |
+| `learn-rust`                 | Folder with 3 repos inside              | Moved as a group folder.                                                                                                                         |
+| `vault`                      | Obsidian vault, only Home Manager links | Not moved. `modules/profiles/apps/notes/obsidian.nix` now targets `git/vault`, so the next switch makes `~/git/vault` and removes the old links. |
 
 desktop had only the Home Manager `vault` in `~/Git`, and an empty `~/Projects`. After the next switch on each host, move `~/Git` to the trash.
 
@@ -231,17 +231,17 @@ The session manager keeps agent processes alive and shows their state. Modes A a
 
 Checked on 2026-10-25.
 
-| Tool | Detach / restart | Remote and multi-machine | Agent state | Phone | Worktrees | Nix | Maturity |
-|---|---|---|---|---|---|---|---|
-| **herdr** (installed) | Server. After restart: layout, plus native resume for Claude. | `--remote`, `machine add`: several hosts in one sidebar | working, blocked, done. Integrations for claude, pi, omp, codex, opencode, hermes. | SSH TUI. Collie PWA (in `llm-agents`). | Yes | `llm-agents.herdr` 0.9.5 | Apache-2.0. Pre-1.0. |
-| **tuios** | Daemon. After restart: layout, cwd, scrollback. The Inbox offers to resume agent conversations. | `tuios hosts add` over SSH, `tuios hosts tailnet` discovery. Sidebar per machine. One Inbox for all hosts. Starts agents on other hosts (`fan --host`). | working, needs input, idle, done. Hooks for claude, codex, opencode, pi, omp. hermes by hook and screen. | `tuios-web` in a browser. Android app in private beta. | `tuios worktree`, `tuios fan` | nixpkgs 0.10.1 has advisory GHSA-78rj-pghh-vh42 (one pane can answer another pane's prompt). Fixed in 0.11.0. Upstream flake. | MIT. v0.11.0 on 2026-10-25. Pre-1.0, many changes each week. |
-| agent-deck | tmux. Resume per agent. | `[remotes.*]` over SSH. Remote rows in the TUI. | running, waiting, idle, error. claude, codex, opencode, pi, omp, hermes. | `agent-deck web`. Telegram and Slack bridge. | Yes | `llm-agents.agent-deck` | MIT. Active. |
-| agent-of-empires | tmux plus `aoe serve`. Native resume for claude, codex, pi, omp, hermes. | SSH, `aoe serve --remote`. One host per daemon. | Yes, same agents | Web dashboard, mobile view, PWA, push | Yes, also containers | Own flake only | MIT. Active. |
-| zellij | Server. Resurrects layout; commands wait for your confirmation. | SSH, HTTPS attach. No multi-host view. | None | Web client, mobile UI, PWA | No | nixpkgs 0.45.1 | MIT. Mature. |
-| tmux + sesh (installed) | Server. Restart only with tmux-resurrect. | SSH. No multi-host view. | None | SSH app | No | nixpkgs | Very mature. |
-| workmux | Uses tmux, zellij, kitty, or wezterm. | Through the backend. No multi-host view. | working, waiting, done | SSH | Core feature | `llm-agents.workmux` | MIT. Active. |
-| happy | Daemon per machine, E2E relay (self-hostable) | The app lists sessions from several machines. | In the app | Native iOS and Android, web | Not verified | `llm-agents.happy-coder` | Claude Code and Codex only. Focus moved to a desktop app. |
-| shpool, zmx | Daemon. No restart restore. | SSH. No multi-host view. | None | SSH | No | nixpkgs | Small tools, no agent features. |
+| Tool                    | Detach / restart                                                                                | Remote and multi-machine                                                                                                                                | Agent state                                                                                              | Phone                                                  | Worktrees                     | Nix                                                                                                                           | Maturity                                                     |
+| ----------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| **herdr** (installed)   | Server. After restart: layout, plus native resume for Claude.                                   | `--remote`, `machine add`: several hosts in one sidebar                                                                                                 | working, blocked, done. Integrations for claude, pi, omp, codex, opencode, hermes.                       | SSH TUI. Collie PWA (in `llm-agents`).                 | Yes                           | `llm-agents.herdr` 0.9.5                                                                                                      | Apache-2.0. Pre-1.0.                                         |
+| **tuios**               | Daemon. After restart: layout, cwd, scrollback. The Inbox offers to resume agent conversations. | `tuios hosts add` over SSH, `tuios hosts tailnet` discovery. Sidebar per machine. One Inbox for all hosts. Starts agents on other hosts (`fan --host`). | working, needs input, idle, done. Hooks for claude, codex, opencode, pi, omp. hermes by hook and screen. | `tuios-web` in a browser. Android app in private beta. | `tuios worktree`, `tuios fan` | nixpkgs 0.10.1 has advisory GHSA-78rj-pghh-vh42 (one pane can answer another pane's prompt). Fixed in 0.11.0. Upstream flake. | MIT. v0.11.0 on 2026-10-25. Pre-1.0, many changes each week. |
+| agent-deck              | tmux. Resume per agent.                                                                         | `[remotes.*]` over SSH. Remote rows in the TUI.                                                                                                         | running, waiting, idle, error. claude, codex, opencode, pi, omp, hermes.                                 | `agent-deck web`. Telegram and Slack bridge.           | Yes                           | `llm-agents.agent-deck`                                                                                                       | MIT. Active.                                                 |
+| agent-of-empires        | tmux plus `aoe serve`. Native resume for claude, codex, pi, omp, hermes.                        | SSH, `aoe serve --remote`. One host per daemon.                                                                                                         | Yes, same agents                                                                                         | Web dashboard, mobile view, PWA, push                  | Yes, also containers          | Own flake only                                                                                                                | MIT. Active.                                                 |
+| zellij                  | Server. Resurrects layout; commands wait for your confirmation.                                 | SSH, HTTPS attach. No multi-host view.                                                                                                                  | None                                                                                                     | Web client, mobile UI, PWA                             | No                            | nixpkgs 0.45.1                                                                                                                | MIT. Mature.                                                 |
+| tmux + sesh (installed) | Server. Restart only with tmux-resurrect.                                                       | SSH. No multi-host view.                                                                                                                                | None                                                                                                     | SSH app                                                | No                            | nixpkgs                                                                                                                       | Very mature.                                                 |
+| workmux                 | Uses tmux, zellij, kitty, or wezterm.                                                           | Through the backend. No multi-host view.                                                                                                                | working, waiting, done                                                                                   | SSH                                                    | Core feature                  | `llm-agents.workmux`                                                                                                          | MIT. Active.                                                 |
+| happy                   | Daemon per machine, E2E relay (self-hostable)                                                   | The app lists sessions from several machines.                                                                                                           | In the app                                                                                               | Native iOS and Android, web                            | Not verified                  | `llm-agents.happy-coder`                                                                                                      | Claude Code and Codex only. Focus moved to a desktop app.    |
+| shpool, zmx             | Daemon. No restart restore.                                                                     | SSH. No multi-host view.                                                                                                                                | None                                                                                                     | SSH                                                    | No                            | nixpkgs                                                                                                                       | Small tools, no agent features.                              |
 
 Dropped: ccmanager and claude-squad (no remote, no pi or omp), dmux (no remote), omnara (now a hosted agent platform), vibe-kanban (shut down), abduco and dtach (inactive or too small), wezterm mux (no release since 2024), cmux and Conductor (macOS GUI only).
 
@@ -269,15 +269,15 @@ Both tools install hooks into the agent config files. tuios writes through a sym
 
 Measured on framework on 2026-10-25. Only paths, sizes, and record keys were read.
 
-| Agent | Store | Format | Size on framework |
-|---|---|---|---|
-| Claude Code | `~/.claude/projects/<cwd-slug>/<uuid>.jsonl`, plus `subagents/` and `tool-results/` per session | JSONL | 34 MB, oldest file 2026-10-01 |
-| pi | `~/.pi/agent/sessions/--<cwd>--/<ts>_<uuid>.jsonl` | JSONL v3 | 400 KB |
-| omp | `~/.omp/agent/sessions/<slug>/<ts>_<uuid>.jsonl`, plus `N.bash.log` per session | pi-family JSONL v3 | 263 MB (83 MB JSONL, 177 MB `.log`) |
-| codex | `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` | JSONL | 2.1 MB |
-| opencode | `~/.local/share/opencode/opencode.db` (+ `-wal`) | SQLite | 10.5 MB |
-| dsh | `~/.dsh/sessions/` | JSONL, zstd-compressed | none yet |
-| hermes (mini) | `/var/lib/hermes/.hermes/state.db` | SQLite with WAL and FTS5 | not measured |
+| Agent         | Store                                                                                           | Format                   | Size on framework                   |
+| ------------- | ----------------------------------------------------------------------------------------------- | ------------------------ | ----------------------------------- |
+| Claude Code   | `~/.claude/projects/<cwd-slug>/<uuid>.jsonl`, plus `subagents/` and `tool-results/` per session | JSONL                    | 34 MB, oldest file 2026-10-01       |
+| pi            | `~/.pi/agent/sessions/--<cwd>--/<ts>_<uuid>.jsonl`                                              | JSONL v3                 | 400 KB                              |
+| omp           | `~/.omp/agent/sessions/<slug>/<ts>_<uuid>.jsonl`, plus `N.bash.log` per session                 | pi-family JSONL v3       | 263 MB (83 MB JSONL, 177 MB `.log`) |
+| codex         | `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl`                                                  | JSONL                    | 2.1 MB                              |
+| opencode      | `~/.local/share/opencode/opencode.db` (+ `-wal`)                                                | SQLite                   | 10.5 MB                             |
+| dsh           | `~/.dsh/sessions/`                                                                              | JSONL, zstd-compressed   | none yet                            |
+| hermes (mini) | `/var/lib/hermes/.hermes/state.db`                                                              | SQLite with WAL and FTS5 | not measured                        |
 
 Facts that shape the transport:
 
@@ -310,13 +310,13 @@ Each host sends its files to mini. Pull from mini fails for two reasons:
 
 ### Transport
 
-| Option | How | Fit |
-|---|---|---|
-| **rsync push timer (recommended)** | systemd user timer on NixOS, launchd agent on caya. `rsync --delay-updates`, no `--delete`. Write-only key with a forced `rrsync -wo /srv/agent-sessions/<host>` command. SQLite stores go as `.backup` snapshots. | The laptop starts every connection, so caya stays closed. A sleeping laptop catches up on wake. |
-| Syncthing | Send-only on laptops, receive-only on mini, deletes ignored. | Peers connect into caya on port 22000, which breaks the caya rule. Live SQLite copies can corrupt. |
-| agentsview SSH sync | mini pulls from each host over SSH. | Pull: fails for caya and for sleeping laptops. |
-| agentsview `pg push --watch` | Each host pushes parsed rows to Postgres on mini. | Works from caya, but stores parsed rows, not raw files. An option for D1 (b). |
-| cass `sources` | mini pulls over SSH and rsync. | Pull, same problems as above. |
+| Option                             | How                                                                                                                                                                                                                | Fit                                                                                                |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| **rsync push timer (recommended)** | systemd user timer on NixOS, launchd agent on caya. `rsync --delay-updates`, no `--delete`. Write-only key with a forced `rrsync -wo /srv/agent-sessions/<host>` command. SQLite stores go as `.backup` snapshots. | The laptop starts every connection, so caya stays closed. A sleeping laptop catches up on wake.    |
+| Syncthing                          | Send-only on laptops, receive-only on mini, deletes ignored.                                                                                                                                                       | Peers connect into caya on port 22000, which breaks the caya rule. Live SQLite copies can corrupt. |
+| agentsview SSH sync                | mini pulls from each host over SSH.                                                                                                                                                                                | Pull: fails for caya and for sleeping laptops.                                                     |
+| agentsview `pg push --watch`       | Each host pushes parsed rows to Postgres on mini.                                                                                                                                                                  | Works from caya, but stores parsed rows, not raw files. An option for D1 (b).                      |
+| cass `sources`                     | mini pulls over SSH and rsync.                                                                                                                                                                                     | Pull, same problems as above.                                                                      |
 
 **SSH gotcha.** mini runs `tailscale up --ssh`. On the tailnet address, Tailscale SSH answers port 22 and ignores `authorized_keys` forced commands. The `rrsync -wo` limit then does not apply. On the LAN address, OpenSSH answers and the limit applies. Options (decide in Phase 0):
 
@@ -329,12 +329,12 @@ Each host sends its files to mini. Pull from mini fails for two reasons:
 
 Recommendation: option 1.
 
-| Option | Works off the LAN | Write-only key works | Changes to existing access | Verdict |
-|---|---|---|---|---|
-| 1. Second OpenSSH port on the tailnet | Yes | Yes | None | **Use this.** |
-| 2. LAN only | No. framework catches up at home. | Yes | None | Fallback if the tailnet ACL blocks the port. |
-| 3. Tailscale SSH, no forced command | Yes | No. A stolen laptop key gets a shell on mini. | None | Reject. |
-| 4. Turn off Tailscale SSH on mini | Yes | Yes | All interactive tailnet logins to mini change. | Too large for this plan. |
+| Option                                | Works off the LAN                 | Write-only key works                          | Changes to existing access                     | Verdict                                      |
+| ------------------------------------- | --------------------------------- | --------------------------------------------- | ---------------------------------------------- | -------------------------------------------- |
+| 1. Second OpenSSH port on the tailnet | Yes                               | Yes                                           | None                                           | **Use this.**                                |
+| 2. LAN only                           | No. framework catches up at home. | Yes                                           | None                                           | Fallback if the tailnet ACL blocks the port. |
+| 3. Tailscale SSH, no forced command   | Yes                               | No. A stolen laptop key gets a shell on mini. | None                                           | Reject.                                      |
+| 4. Turn off Tailscale SSH on mini     | Yes                               | Yes                                           | All interactive tailnet logins to mini change. | Too large for this plan.                     |
 
 Design of option 1:
 
@@ -357,14 +357,14 @@ Phase 0 test: the tailnet ACL is not in this repo. If it limits ports, it can bl
 
 ### Index and search
 
-| Tool | Reads our agents | Multi-machine | UI | Nix | License, activity |
-|---|---|---|---|---|---|
-| **agentsview (recommended)** | All seven: Claude, codex, pi, omp, opencode, dsh, hermes `state.db` | Copied folders as `[[session_sources]]` with a machine label ([docs](https://agentsview.io/docs/filesystem-sync/)), SSH pull, or Postgres push | Web UI (`serve --require-auth`), CLI, MCP | `llm-agents.agentsview` in our locked input | MIT. v0.46.1, 2026-10-23 |
-| cass | Claude, codex, pi, omp, opencode, hermes. No dsh. | `cass sources` pulls over SSH | TUI, CLI, JSON. No web UI. | None. llm-agents dropped it on 2026-03-03 | MIT with a rider that excludes some AI companies. v0.10.0 |
-| claude-code-history-viewer | Claude, codex, opencode, pi, omp | Local folders only | Desktop app, `cchv-server` web UI | None | MIT |
-| Agent Sessions | Claude, codex, opencode, pi, hermes, dsh | No | macOS app | None | MIT. A local viewer on caya at most. |
-| SpecStory | Several | Its own cloud only | CLI, cloud | None | Not self-hosted |
-| ccusage | Token use and cost only | No | CLI | nixpkgs, llm-agents | Not an archive |
+| Tool                         | Reads our agents                                                    | Multi-machine                                                                                                                                  | UI                                        | Nix                                         | License, activity                                         |
+| ---------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------- | --------------------------------------------------------- |
+| **agentsview (recommended)** | All seven: Claude, codex, pi, omp, opencode, dsh, hermes `state.db` | Copied folders as `[[session_sources]]` with a machine label ([docs](https://agentsview.io/docs/filesystem-sync/)), SSH pull, or Postgres push | Web UI (`serve --require-auth`), CLI, MCP | `llm-agents.agentsview` in our locked input | MIT. v0.46.1, 2026-10-23                                  |
+| cass                         | Claude, codex, pi, omp, opencode, hermes. No dsh.                   | `cass sources` pulls over SSH                                                                                                                  | TUI, CLI, JSON. No web UI.                | None. llm-agents dropped it on 2026-03-03   | MIT with a rider that excludes some AI companies. v0.10.0 |
+| claude-code-history-viewer   | Claude, codex, opencode, pi, omp                                    | Local folders only                                                                                                                             | Desktop app, `cchv-server` web UI         | None                                        | MIT                                                       |
+| Agent Sessions               | Claude, codex, opencode, pi, hermes, dsh                            | No                                                                                                                                             | macOS app                                 | None                                        | MIT. A local viewer on caya at most.                      |
+| SpecStory                    | Several                                                             | Its own cloud only                                                                                                                             | CLI, cloud                                | None                                        | Not self-hosted                                           |
+| ccusage                      | Token use and cost only                                             | No                                                                                                                                             | CLI                                       | nixpkgs, llm-agents                         | Not an archive                                            |
 
 Recommendation: agentsview on mini.
 
@@ -399,12 +399,12 @@ Work sessions are out of scope (D1). A work repo on a personal host, such as `~/
 
 How each agent stores the project path decides how easy the filter is:
 
-| Agent | Path in | Filter |
-|---|---|---|
-| Claude, pi, omp | Folder name (path slug) | An rsync `--exclude` per repo. Each agent spells the slug differently. |
-| codex | `cwd` inside the session file, folders by date | A script reads `session_meta` and skips matches. |
-| opencode | One SQLite file for all projects | Rows must be filtered, or the whole file stays local. |
-| hermes | Not affected | Hermes does not work in work repos. |
+| Agent           | Path in                                        | Filter                                                                 |
+| --------------- | ---------------------------------------------- | ---------------------------------------------------------------------- |
+| Claude, pi, omp | Folder name (path slug)                        | An rsync `--exclude` per repo. Each agent spells the slug differently. |
+| codex           | `cwd` inside the session file, folders by date | A script reads `session_meta` and skips matches.                       |
+| opencode        | One SQLite file for all projects               | Rows must be filtered, or the whole file stays local.                  |
+| hermes          | Not affected                                   | Hermes does not work in work repos.                                    |
 
 Decided (D10): you manage these sessions by hand. The push has no filter.
 
@@ -429,11 +429,11 @@ Options that were not picked:
 
 Notes for later. Nothing in this plan builds D.
 
-| Option | What it gives |
-|---|---|
-| Agent hooks (`Notification`, `Stop`) post to ntfy on mini | A push message when an agent waits for input, on any host. |
-| herdr notifications | herdr already tracks `blocked` and `done`. Its notification CLI can feed ntfy. |
-| OpenTelemetry from Claude Code and codex to mini | Cost, token, and tool metrics in Grafana. mini has Tempo for traces only. Logs and metrics need Loki and a metrics store. |
+| Option                                                    | What it gives                                                                                                             |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Agent hooks (`Notification`, `Stop`) post to ntfy on mini | A push message when an agent waits for input, on any host.                                                                |
+| herdr notifications                                       | herdr already tracks `blocked` and `done`. Its notification CLI can feed ntfy.                                            |
+| OpenTelemetry from Claude Code and codex to mini          | Cost, token, and tool metrics in Grafana. mini has Tempo for traces only. Logs and metrics need Loki and a metrics store. |
 
 Rule for now: keep host names and agent names in the archive identical to the names that D will use later.
 
@@ -502,14 +502,14 @@ The `mini` ssh alias uses the LAN address. Away from home, use the tailnet name.
 
 Trial: one week from the end of the setup. Run the same project on mini in both tools, with the same agent. Write the results into this table.
 
-| Check | herdr | tuios |
-|---|---|---|
-| The laptop sleeps and wakes. The view reconnects without a manual step. | | |
-| On the phone over SSH: read the agent state, answer a prompt. | | |
-| Stop the server (`herdr server stop`, `tuios kill-server`), then attach. The Claude conversation comes back. | | |
-| The agent state is correct: working, blocked, done. | | |
-| Memory of the server after one day (`systemctl show user-1000.slice -p MemoryCurrent`, and per process). | | |
-| One view of desktop, framework, and mini (preview of Phase 4). | | |
+| Check                                                                                                        | herdr | tuios |
+| ------------------------------------------------------------------------------------------------------------ | ----- | ----- |
+| The laptop sleeps and wakes. The view reconnects without a manual step.                                      |       |       |
+| On the phone over SSH: read the agent state, answer a prompt.                                                |       |       |
+| Stop the server (`herdr server stop`, `tuios kill-server`), then attach. The Claude conversation comes back. |       |       |
+| The agent state is correct: working, blocked, done.                                                          |       |       |
+| Memory of the server after one day (`systemctl show user-1000.slice -p MemoryCurrent`, and per process).     |       |       |
+| One view of desktop, framework, and mini (preview of Phase 4).                                               |       |       |
 
 After the trial, keep one tool. Remove the other from `modules/profiles/devenv/agents/default.nix` (and `darwin.nix`), its hooks from `settings.json`, and its integration files on each host (`herdr integration uninstall`, `tuios integration uninstall`).
 
@@ -536,45 +536,45 @@ After the trial, keep one tool. Remove the other from `modules/profiles/devenv/a
 
 ## File sketch
 
-| File | Purpose |
-|---|---|
-| `data/agents/session-sources.nix` | Agent name → session folders, relative to `$HOME`. One list for push, index, and backup. |
-| `modules/profiles/devenv/agents/session-push.nix` | HM: systemd user timer (Linux) or launchd agent (Darwin) that pushes to mini. |
-| `modules/profiles/devenv/agents/session-manager.nix` | HM: config of the D2 tool (herdr or tuios). The server unit for hosts that need it. |
-| `modules/profiles/devenv/agents/work.nix` | HM: the `work` command. |
-| `modules/profiles/desktop/noctalia/config/settings.toml` | Path `~/Git/community-plugins` becomes `~/git/community-plugins` (D9). |
-| `AGENTS.md` | New text for the remote-edit rule (D8). |
-| `mini-nix/services/agent-sessions.nix` | Archive folder, push receiver, agentsview service and `[[session_sources]]`, hermes snapshot job, restic backup. |
-| `mini-nix/services/caddy.nix` | A tailnet-only vhost for the agentsview web UI. |
-| `mini-nix/services/hermes.nix` | Extra packages and credentials for delegation (Phase 5). |
-| `lib/default.nix` | Add `session-sources.nix` to `agentDataFiles` if modules read it live. |
-| mini-nix `docs/services.md` | Ops notes after the build: restore, rotate keys, reindex. |
-| `docs/adr/` | One ADR after Phase 0: "mini is the hub for agent sessions". |
+| File                                                     | Purpose                                                                                                          |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `data/agents/session-sources.nix`                        | Agent name → session folders, relative to `$HOME`. One list for push, index, and backup.                         |
+| `modules/profiles/devenv/agents/session-push.nix`        | HM: systemd user timer (Linux) or launchd agent (Darwin) that pushes to mini.                                    |
+| `modules/profiles/devenv/agents/session-manager.nix`     | HM: config of the D2 tool (herdr or tuios). The server unit for hosts that need it.                              |
+| `modules/profiles/devenv/agents/work.nix`                | HM: the `work` command.                                                                                          |
+| `modules/profiles/desktop/noctalia/config/settings.toml` | Path `~/Git/community-plugins` becomes `~/git/community-plugins` (D9).                                           |
+| `AGENTS.md`                                              | New text for the remote-edit rule (D8).                                                                          |
+| `mini-nix/services/agent-sessions.nix`                   | Archive folder, push receiver, agentsview service and `[[session_sources]]`, hermes snapshot job, restic backup. |
+| `mini-nix/services/caddy.nix`                            | A tailnet-only vhost for the agentsview web UI.                                                                  |
+| `mini-nix/services/hermes.nix`                           | Extra packages and credentials for delegation (Phase 5).                                                         |
+| `lib/default.nix`                                        | Add `session-sources.nix` to `agentDataFiles` if modules read it live.                                           |
+| mini-nix `docs/services.md`                              | Ops notes after the build: restore, rotate keys, reindex.                                                        |
+| `docs/adr/`                                              | One ADR after Phase 0: "mini is the hub for agent sessions".                                                     |
 
 ## Secrets touchpoints
 
-| Secret | Where |
-|---|---|
-| Push key per host | Private key on each host, made there. The public key goes into the `authorized_keys` of `agent-push` on mini, with `restrict` and `rrsync -wo -no-del`. Public keys are not secret. |
-| restic password for the archive | New sops secret on mini. |
-| Agent logins on mini | Interactive, stored by each agent. Not in sops. |
-| Claude access for user `hermes` | OAuth once, or an API key through sops into `hermes.env`. |
-| GitHub token on mini for jadee | sops. `agent_pat` exists for hermes. Decide if jadee on mini uses the same token. |
+| Secret                          | Where                                                                                                                                                                               |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Push key per host               | Private key on each host, made there. The public key goes into the `authorized_keys` of `agent-push` on mini, with `restrict` and `rrsync -wo -no-del`. Public keys are not secret. |
+| restic password for the archive | New sops secret on mini.                                                                                                                                                            |
+| Agent logins on mini            | Interactive, stored by each agent. Not in sops.                                                                                                                                     |
+| Claude access for user `hermes` | OAuth once, or an API key through sops into `hermes.env`.                                                                                                                           |
+| GitHub token on mini for jadee  | sops. `agent_pat` exists for hermes. Decide if jadee on mini uses the same token.                                                                                                   |
 
 ## Risks
 
-| Risk | Mitigation |
-|---|---|
-| The archive holds secrets from transcripts. | `0750` with a dedicated group, write-only push keys, encrypted backup, no public UI. |
-| Work sessions from personal hosts reach the archive and the backup (D10, manual). | Clean the raw files, the agentsview database, and the restic snapshots. Or run work on caya. |
-| The flake checkouts on desktop and mini diverge (D8). | Push from mini when a session ends. Pull before a session on the other host. |
-| Agents and their builds use the memory that llama.cpp needs. | `MemoryMax` on the herdr service. Heavy Nix builds stay on desktop. |
-| Tailscale SSH check mode blocks herdr background connections. | D7: `accept` rules for the host pairs. Phase 0 test. |
-| Claude deletes transcripts older than `cleanupPeriodDays` (30) before a push. | Set to 120 on 2026-10-25. The push interval is much shorter than any cleanup period. The archive never deletes. |
-| A copy of a live SQLite file with its WAL is corrupt. | Copy only `sqlite3 .backup` snapshots. |
-| Tailscale SSH ignores the forced `rrsync` command. | D4b: a second OpenSSH port for pushes. |
-| herdr is young (0.9.x). Releases are frequent. | Pin through `llm-agents`. Client and server versions do not have to match. |
-| Hermes runs agents without permission prompts. | Worktrees only, user `hermes`, nono profiles where possible. |
+| Risk                                                                              | Mitigation                                                                                                      |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| The archive holds secrets from transcripts.                                       | `0750` with a dedicated group, write-only push keys, encrypted backup, no public UI.                            |
+| Work sessions from personal hosts reach the archive and the backup (D10, manual). | Clean the raw files, the agentsview database, and the restic snapshots. Or run work on caya.                    |
+| The flake checkouts on desktop and mini diverge (D8).                             | Push from mini when a session ends. Pull before a session on the other host.                                    |
+| Agents and their builds use the memory that llama.cpp needs.                      | `MemoryMax` on the herdr service. Heavy Nix builds stay on desktop.                                             |
+| Tailscale SSH check mode blocks herdr background connections.                     | D7: `accept` rules for the host pairs. Phase 0 test.                                                            |
+| Claude deletes transcripts older than `cleanupPeriodDays` (30) before a push.     | Set to 120 on 2026-10-25. The push interval is much shorter than any cleanup period. The archive never deletes. |
+| A copy of a live SQLite file with its WAL is corrupt.                             | Copy only `sqlite3 .backup` snapshots.                                                                          |
+| Tailscale SSH ignores the forced `rrsync` command.                                | D4b: a second OpenSSH port for pushes.                                                                          |
+| herdr is young (0.9.x). Releases are frequent.                                    | Pin through `llm-agents`. Client and server versions do not have to match.                                      |
+| Hermes runs agents without permission prompts.                                    | Worktrees only, user `hermes`, nono profiles where possible.                                                    |
 
 ## Success criteria
 

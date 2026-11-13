@@ -5,41 +5,41 @@ mini, the NixOS server, also has them, but not autorandr, the gaming tools, or t
 
 ## System Information & Hardware
 
-| Tool | Command | Notes |
-|------|---------|-------|
-| inxi | `inxi -F` | Full hardware info report |
-| pciutils | `lspci` | PCI devices (GPU, etc.) |
-| usbutils | `lsusb` | USB devices |
-| lm_sensors | `sensors` | Hardware temperatures/voltages |
-| smartmontools | `smartctl -a /dev/sda` | Disk health |
+| Tool          | Command                | Notes                          |
+| ------------- | ---------------------- | ------------------------------ |
+| inxi          | `inxi -F`              | Full hardware info report      |
+| pciutils      | `lspci`                | PCI devices (GPU, etc.)        |
+| usbutils      | `lsusb`                | USB devices                    |
+| lm_sensors    | `sensors`              | Hardware temperatures/voltages |
+| smartmontools | `smartctl -a /dev/sda` | Disk health                    |
 
 ## System Utilities
 
-| Tool | Command | Notes |
-|------|---------|-------|
-| psmisc | `killall`, `pstree`, `fuser` | Process tools |
-| util-linux | `lsblk`, `blkid`, `mount`, `umount` | Core Linux utilities |
-| autorandr | `autorandr --change` | Auto-configure display on connect |
+| Tool       | Command                             | Notes                             |
+| ---------- | ----------------------------------- | --------------------------------- |
+| psmisc     | `killall`, `pstree`, `fuser`        | Process tools                     |
+| util-linux | `lsblk`, `blkid`, `mount`, `umount` | Core Linux utilities              |
+| autorandr  | `autorandr --change`                | Auto-configure display on connect |
 
 ## Development
 
-| Tool | Notes |
-|------|-------|
-| gdb | GNU debugger (`gdb ./binary`) |
+| Tool | Notes                         |
+| ---- | ----------------------------- |
+| gdb  | GNU debugger (`gdb ./binary`) |
 
 ## Gaming (desktop and framework)
 
-| Tool | Notes |
-|------|-------|
-| steamcmd | Steam command-line interface |
-| mangohud | In-game overlay (FPS, temps) |
+| Tool        | Notes                                     |
+| ----------- | ----------------------------------------- |
+| steamcmd    | Steam command-line interface              |
+| mangohud    | In-game overlay (FPS, temps)              |
 | protonup-rs | Update Proton/GE versions (`protonup-rs`) |
-| heroic | Launcher for Epic/GOG games |
+| heroic      | Launcher for Epic/GOG games               |
 
 ## LLM Tools (NixOS)
 
-| Tool | Notes |
-|------|-------|
+| Tool      | Notes                                                                                                                                        |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | llama-cpp | Local LLM inference. The CLI comes from the `llm.tools` profile, on desktop only. mini serves models with the llama.cpp router (`llm.serve`) |
 
 ## nix-index

@@ -10,12 +10,12 @@
 
 The project renamed its hosts. `digpangolin.com` is gone. The current official hosts are:
 
-| Purpose | URL |
-|---|---|
-| Website and pricing | `https://pangolin.net/` |
-| Documentation | `https://docs.pangolin.net/` |
-| Docs source | `https://github.com/fosrl/docs-v2` |
-| Old docs repo | `fosrl/docs` — archived, README says "Please use fosrl/docs-v2" |
+| Purpose             | URL                                                             |
+| ------------------- | --------------------------------------------------------------- |
+| Website and pricing | `https://pangolin.net/`                                         |
+| Documentation       | `https://docs.pangolin.net/`                                    |
+| Docs source         | `https://github.com/fosrl/docs-v2`                              |
+| Old docs repo       | `fosrl/docs` — archived, README says "Please use fosrl/docs-v2" |
 
 Source: [pangolin README](https://github.com/fosrl/pangolin/blob/main/README.md) links Website, Documentation, and Contact at those hosts.
 
@@ -41,14 +41,14 @@ Pangolin gives remote access to services on private networks without a public IP
 
 The docs give a table of roles and engineering codenames ([system-architecture](https://docs.pangolin.net/development/system-architecture)):
 
-| Component | Repo | Role |
-|---|---|---|
-| **Pangolin** | `fosrl/pangolin` | Control plane. Node.js + Next.js dashboard, REST API, database, policy, identity. Pushes config over WebSocket. |
-| **Gerbil** | `fosrl/gerbil` | Node tunnel manager. Creates the WireGuard interface, manages peers over an HTTP API, relays client UDP, runs an SNI proxy. |
-| **Newt** | `fosrl/newt` | Site connector on the private network. Userspace WireGuard tunnel plus TCP/UDP proxy. |
-| **Traefik** | upstream | Ingress. Terminates TLS, routes HTTP(S) and protocol-aware resources. |
-| **Badger** | `fosrl/badger` | Traefik forward-auth plugin. Enforces Pangolin sessions on public resources. |
-| **Olm** | `fosrl/olm` | Shared client networking core. Tunnel logic, hole punching, relay negotiation, DNS overrides. |
+| Component    | Repo             | Role                                                                                                                        |
+| ------------ | ---------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **Pangolin** | `fosrl/pangolin` | Control plane. Node.js + Next.js dashboard, REST API, database, policy, identity. Pushes config over WebSocket.             |
+| **Gerbil**   | `fosrl/gerbil`   | Node tunnel manager. Creates the WireGuard interface, manages peers over an HTTP API, relays client UDP, runs an SNI proxy. |
+| **Newt**     | `fosrl/newt`     | Site connector on the private network. Userspace WireGuard tunnel plus TCP/UDP proxy.                                       |
+| **Traefik**  | upstream         | Ingress. Terminates TLS, routes HTTP(S) and protocol-aware resources.                                                       |
+| **Badger**   | `fosrl/badger`   | Traefik forward-auth plugin. Enforces Pangolin sessions on public resources.                                                |
+| **Olm**      | `fosrl/olm`      | Shared client networking core. Tunnel logic, hole punching, relay negotiation, DNS overrides.                               |
 
 The docs split this into a **control plane** (config, identity, orchestration) and a **data plane** (tunnels, ingress, relay). Both sites and clients dial **outbound** only.
 
@@ -70,11 +70,11 @@ Client ↔ (direct peer or relay via Gerbil) ↔ Site connector (Newt) → Desti
 
 ### 2.3 What runs where
 
-| Location | Processes |
-|---|---|
-| **Public VPS (node)** | Pangolin control plane, Gerbil, Traefik + Badger, database |
-| **Home network (site)** | Newt only |
-| **User devices** | Pangolin client (embeds or invokes Olm) |
+| Location                | Processes                                                  |
+| ----------------------- | ---------------------------------------------------------- |
+| **Public VPS (node)**   | Pangolin control plane, Gerbil, Traefik + Badger, database |
+| **Home network (site)** | Newt only                                                  |
+| **User devices**        | Pangolin client (embeds or invokes Olm)                    |
 
 Newt "opens a WebSocket to the control plane for configuration" and "a WireGuard tunnel to the node's tunnel manager (Gerbil)". Newt makes HTTP requests to Pangolin with a Newt ID and secret to get a session token, then holds the WebSocket ([newt README](https://github.com/fosrl/newt/blob/main/README.md)).
 
@@ -83,7 +83,7 @@ Newt "opens a WebSocket to the control plane for configuration" and "a WireGuard
 - **Client mode exists.** Clients are a first-class concept, separate from sites. Two classes share the Olm stack: user devices (GUI apps on macOS, Windows, Linux, iOS, Android) and machines (CLI, authenticate with ID and secret).
 - **Peer-to-peer is real.** "By default, the control plane coordinates **NAT hole punching** so a client and site connector can form a direct WireGuard peer connection. Traffic then flows client ↔ site without passing through the node's relay layer."
 - **Relay is the fallback.** "When hole punching fails (restrictive NAT, symmetric NAT, or blocked UDP), the client and site fall back to **relaying** through the node's tunnel manager (Gerbil)." Gerbil listens on UDP 21820. "The connection stays encrypted end to end; only the network path changes." Relay "can be disabled per client if you require direct paths only."
-- **Site-to-site is not a peer mesh.** The peer-to-peer path is **client-to-site**. No doc page describes direct site-to-site peering. Traffic between two sites transits the node. Multi-site behavior is *routing*, not meshing: when several connectors can reach the same destination, Pangolin picks "the healthiest path based on latency and availability" ([pangolin-vs-reverse-proxy-vs-vpn](https://docs.pangolin.net/about/pangolin-vs-reverse-proxy-vs-vpn)).
+- **Site-to-site is not a peer mesh.** The peer-to-peer path is **client-to-site**. No doc page describes direct site-to-site peering. Traffic between two sites transits the node. Multi-site behavior is _routing_, not meshing: when several connectors can reach the same destination, Pangolin picks "the healthiest path based on latency and availability" ([pangolin-vs-reverse-proxy-vs-vpn](https://docs.pangolin.net/about/pangolin-vs-reverse-proxy-vs-vpn)).
 - **No exit-node / egress feature.** No docs page describes routing all internet traffic through a site. The internal term "exit node" means a Pangolin relay node, not a Tailscale-style internet exit. It appears only in `remote-node/backhaul.mdx` and config-file pages.
 
 ---
@@ -94,12 +94,12 @@ Newt "opens a WebSocket to the control plane for configuration" and "a WireGuard
 
 From [choosing-a-vps](https://docs.pangolin.net/self-host/choosing-a-vps):
 
-| Case | Specs |
-|---|---|
-| Minimum | 1 vCPU, 2 GB RAM, 8 GB SSD |
-| Recommended | 2 vCPU, 2 GB RAM, 20 GB SSD |
+| Case                | Specs                       |
+| ------------------- | --------------------------- |
+| Minimum             | 1 vCPU, 2 GB RAM, 8 GB SSD  |
+| Recommended         | 2 vCPU, 2 GB RAM, 20 GB SSD |
 | More users or sites | 4 vCPU, 4 GB RAM, 40 GB SSD |
-| Large | 8 vCPU, 8 GB RAM, 80 GB SSD |
+| Large               | 8 vCPU, 8 GB RAM, 80 GB SSD |
 
 With 1 GB RAM the docs advise swap space. Load scales with site count and throughput.
 
@@ -107,12 +107,12 @@ With 1 GB RAM the docs advise swap space. Load scales with site count and throug
 
 From [dns-and-networking](https://docs.pangolin.net/self-host/dns-and-networking):
 
-| Port | Purpose |
-|---|---|
-| TCP 80 | Let's Encrypt HTTP-01 validation, non-SSL resources. "Can be disabled with wildcard certs" |
-| TCP 443 | Dashboard and all HTTPS resources |
-| UDP 51820 | Site (Newt) tunnels to Gerbil |
-| UDP 21820 | Client relay through Gerbil. "This port is only required for clients" |
+| Port      | Purpose                                                                                    |
+| --------- | ------------------------------------------------------------------------------------------ |
+| TCP 80    | Let's Encrypt HTTP-01 validation, non-SSL resources. "Can be disabled with wildcard certs" |
+| TCP 443   | Dashboard and all HTTPS resources                                                          |
+| UDP 51820 | Site (Newt) tunnels to Gerbil                                                              |
+| UDP 21820 | Client relay through Gerbil. "This port is only required for clients"                      |
 
 The same page carries a warning that matters for a homelab threat model: "By tunneling out to the VPS, you are effectively including the VPS in your security boundary, so you must secure it as part of your overall network strategy."
 
@@ -163,14 +163,14 @@ On NixOS the module puts all of this under `services.pangolin.dataDir` (default 
 
 ### 4.1 Packages
 
-| Attribute | nixpkgs unstable | nixpkgs 25.11 (stable) | Upstream latest |
-|---|---|---|---|
-| `fosrl-pangolin` | 1.16.2 (index) / 1.21.0 (master) | **1.10.3** | 1.21.1 |
-| `fosrl-gerbil` | 1.3.1 | — | 1.4.3 |
-| `fosrl-newt` | 1.10.4 | — | 1.15.0 |
-| `fosrl-olm` | 1.4.4 | — | 1.8.2 |
-| `pangolin-cli` | 0.3.3 | — | — |
-| `badger` | not packaged | not packaged | v1.5.0 |
+| Attribute        | nixpkgs unstable                 | nixpkgs 25.11 (stable) | Upstream latest |
+| ---------------- | -------------------------------- | ---------------------- | --------------- |
+| `fosrl-pangolin` | 1.16.2 (index) / 1.21.0 (master) | **1.10.3**             | 1.21.1          |
+| `fosrl-gerbil`   | 1.3.1                            | —                      | 1.4.3           |
+| `fosrl-newt`     | 1.10.4                           | —                      | 1.15.0          |
+| `fosrl-olm`      | 1.4.4                            | —                      | 1.8.2           |
+| `pangolin-cli`   | 0.3.3                            | —                      | —               |
+| `badger`         | not packaged                     | not packaged           | v1.5.0          |
 
 Badger is absent by design. It is a Traefik Yaegi plugin, loaded from source at Traefik startup, not a binary.
 
@@ -237,16 +237,16 @@ Access is granted to **roles**, **users**, or **machines**. Machines cannot be p
 
 From [public/authentication](https://docs.pangolin.net/manage/resources/public/authentication). All public resources get Pangolin SSO by default. Extra methods:
 
-| Method | Detail |
-|---|---|
-| Pangolin (Platform) SSO | Built-in accounts |
-| External IdP | Google, Azure, Okta, any OIDC |
-| Users and roles | Per-resource grants |
-| PIN and passcode | Numeric PIN or passcode prompt |
-| Header auth | HTTP Basic. `Authorization: Basic …` or `user:pass@host`. "Extended Compatibility" forces a 401 so the browser prompts |
-| Shareable links / access tokens | Self-destructing links with expiry; tokens by query param or header |
-| Email OTP | Whitelist emails or wildcards such as `*@.example.com`, then one-time code by email |
-| Rules | Ranked allow/deny by IP, geolocation, URL path |
+| Method                          | Detail                                                                                                                 |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Pangolin (Platform) SSO         | Built-in accounts                                                                                                      |
+| External IdP                    | Google, Azure, Okta, any OIDC                                                                                          |
+| Users and roles                 | Per-resource grants                                                                                                    |
+| PIN and passcode                | Numeric PIN or passcode prompt                                                                                         |
+| Header auth                     | HTTP Basic. `Authorization: Basic …` or `user:pass@host`. "Extended Compatibility" forces a 401 so the browser prompts |
+| Shareable links / access tokens | Self-destructing links with expiry; tokens by query param or header                                                    |
+| Email OTP                       | Whitelist emails or wildcards such as `*@.example.com`, then one-time code by email                                    |
+| Rules                           | Ranked allow/deny by IP, geolocation, URL path                                                                         |
 
 Resource policies let you share one rule set across many resources.
 
@@ -264,14 +264,14 @@ The documented workaround is to use a client instead: "For raw TCP/UDP traffic t
 
 This is the sharpest CE/EE line. From [add-an-idp](https://docs.pangolin.net/manage/identity-providers/add-an-idp):
 
-| Feature | Tier |
-|---|---|
-| **Generic OAuth2 / OIDC** (Authentik, Keycloak, Okta, Pocket ID, Zitadel) | Works in CE, as a **global** IdP |
-| **Global IdPs** | "Global identity providers are the only supported method in Pangolin Community" |
-| **Organization-scoped IdPs** | Cloud or EE only. EE also needs `app.identity_provider_mode: "org"` in `privateConfig.yml` |
-| **Google IdP** (native) | Cloud or EE only |
-| **Azure Entra ID** (native) | Cloud or EE only |
-| **More than one role per user** | Cloud or EE only |
+| Feature                                                                   | Tier                                                                                       |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| **Generic OAuth2 / OIDC** (Authentik, Keycloak, Okta, Pocket ID, Zitadel) | Works in CE, as a **global** IdP                                                           |
+| **Global IdPs**                                                           | "Global identity providers are the only supported method in Pangolin Community"            |
+| **Organization-scoped IdPs**                                              | Cloud or EE only. EE also needs `app.identity_provider_mode: "org"` in `privateConfig.yml` |
+| **Google IdP** (native)                                                   | Cloud or EE only                                                                           |
+| **Azure Entra ID** (native)                                               | Cloud or EE only                                                                           |
+| **More than one role per user**                                           | Cloud or EE only                                                                           |
 
 For a single-person homelab, generic OIDC on CE is enough. Pocket ID and Authentik both work through the OIDC path.
 
@@ -281,26 +281,26 @@ For a single-person homelab, generic OIDC on CE is enough. Pocket ID and Authent
 
 ### 6.1 Matrix
 
-| | **Pangolin** | **Tailscale** | **Headscale** | **Cloudflare Tunnel** | **Caddy/nginx + WireGuard** |
-|---|---|---|---|---|---|
-| Who terminates TLS | Your VPS (Traefik) | No TLS layer; app-level | Same as Tailscale | **Cloudflare** | Your box |
-| Who sees plaintext | **You** (your VPS) | Only endpoints | Only endpoints | **Cloudflare** | You |
-| Public VPS required | **Yes**, for public ingress. No, for LAN-only mode | No | Yes, for the control server | No | Yes, for ingress |
-| Public visitor ingress | **Yes** — core feature | No | No | Yes | Yes |
-| Private mesh access | Client-to-site only, no peer mesh | **Yes**, full mesh | **Yes**, full mesh | Limited (WARP) | Manual |
-| Exit node / egress | **No** | **Yes** | **Yes** | WARP only | Manual `AllowedIPs` |
-| NAT traversal | Hole punch, relay via Gerbil | DERP + hole punch | DERP + hole punch | Outbound only | **None** — you port-forward |
-| Cost | VPS + free EE license | Free ≤3 users, then per-user | VPS only | Free tier | VPS only |
-| Ops burden | **High** — 4 processes, DB, certs, DNS | Very low | Medium | Very low | Medium |
-| Lock-in | AGPL core; EE needs a vendor-issued key | Full vendor | None | **Full vendor** | None |
+|                        | **Pangolin**                                       | **Tailscale**                | **Headscale**               | **Cloudflare Tunnel** | **Caddy/nginx + WireGuard** |
+| ---------------------- | -------------------------------------------------- | ---------------------------- | --------------------------- | --------------------- | --------------------------- |
+| Who terminates TLS     | Your VPS (Traefik)                                 | No TLS layer; app-level      | Same as Tailscale           | **Cloudflare**        | Your box                    |
+| Who sees plaintext     | **You** (your VPS)                                 | Only endpoints               | Only endpoints              | **Cloudflare**        | You                         |
+| Public VPS required    | **Yes**, for public ingress. No, for LAN-only mode | No                           | Yes, for the control server | No                    | Yes, for ingress            |
+| Public visitor ingress | **Yes** — core feature                             | No                           | No                          | Yes                   | Yes                         |
+| Private mesh access    | Client-to-site only, no peer mesh                  | **Yes**, full mesh           | **Yes**, full mesh          | Limited (WARP)        | Manual                      |
+| Exit node / egress     | **No**                                             | **Yes**                      | **Yes**                     | WARP only             | Manual `AllowedIPs`         |
+| NAT traversal          | Hole punch, relay via Gerbil                       | DERP + hole punch            | DERP + hole punch           | Outbound only         | **None** — you port-forward |
+| Cost                   | VPS + free EE license                              | Free ≤3 users, then per-user | VPS only                    | Free tier             | VPS only                    |
+| Ops burden             | **High** — 4 processes, DB, certs, DNS             | Very low                     | Medium                      | Very low              | Medium                      |
+| Lock-in                | AGPL core; EE needs a vendor-issued key            | Full vendor                  | None                        | **Full vendor**       | None                        |
 
 ### 6.2 Is the "ingress, not a mesh VPN" claim true?
 
 **Partly true, and the claim needs updating.** The vendor now markets both halves, and the code backs it up.
 
-*Refuted:* Pangolin does have real VPN capability. Private resources "function like a zero-trust virtual private network (VPN)". Clients install routes for host, CIDR, FQDN, and alias destinations. Client-to-site hole punching gives direct WireGuard peering. Private HTTPS terminates TLS at the site edge, so the app never touches the public internet.
+_Refuted:_ Pangolin does have real VPN capability. Private resources "function like a zero-trust virtual private network (VPN)". Clients install routes for host, CIDR, FQDN, and alias destinations. Client-to-site hole punching gives direct WireGuard peering. Private HTTPS terminates TLS at the site edge, so the app never touches the public internet.
 
-*Confirmed:* it is **not a mesh**. Tailscale gives you an n-to-n peer graph where any node reaches any node. Pangolin gives a hub-and-spoke graph: clients reach *resources* on *sites*, and only what an admin granted. The docs are explicit that this is deliberate: "Grant users access to specific resources, not entire networks. Unlike traditional VPNs that expose full network access…" (README). There is no site-to-site peering and no exit node.
+_Confirmed:_ it is **not a mesh**. Tailscale gives you an n-to-n peer graph where any node reaches any node. Pangolin gives a hub-and-spoke graph: clients reach _resources_ on _sites_, and only what an admin granted. The docs are explicit that this is deliberate: "Grant users access to specific resources, not entire networks. Unlike traditional VPNs that expose full network access…" (README). There is no site-to-site peering and no exit node.
 
 **Practical reading.** Pangolin replaces Cloudflare Tunnel and a hand-rolled Traefik + authentication stack. It does not replace Tailscale for:
 
@@ -320,16 +320,16 @@ Cloudflare Tunnel terminates TLS at Cloudflare. Cloudflare sees plaintext for ev
 
 ### 7.1 Per-repo license
 
-| Repo | License | Evidence |
-|---|---|---|
-| `fosrl/pangolin` | **Dual: AGPL-3.0 + Fossorial Commercial License**, per file | `LICENSE` |
-| `fosrl/gerbil` | AGPL-3.0 (`LICENSE` is plain AGPL-3); README says "dual licensed under the AGPLv3 and the Fossorial Commercial license" | `LICENSE`, README |
-| `fosrl/newt` | Same as Gerbil | `LICENSE`, README |
-| `fosrl/olm` | Same as Gerbil | `LICENSE`, README |
-| `fosrl/badger` | **MIT** | `LICENSE` |
-| `fosrl/docs-v2` | MIT | GitHub API |
-| `fosrl/helm-charts`, `fosrl/blueprints` | MIT | GitHub API |
-| `fosrl/cli`, `apple`, `windows`, `android` | `NOASSERTION` — GitHub cannot classify them | GitHub API |
+| Repo                                       | License                                                                                                                 | Evidence          |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| `fosrl/pangolin`                           | **Dual: AGPL-3.0 + Fossorial Commercial License**, per file                                                             | `LICENSE`         |
+| `fosrl/gerbil`                             | AGPL-3.0 (`LICENSE` is plain AGPL-3); README says "dual licensed under the AGPLv3 and the Fossorial Commercial license" | `LICENSE`, README |
+| `fosrl/newt`                               | Same as Gerbil                                                                                                          | `LICENSE`, README |
+| `fosrl/olm`                                | Same as Gerbil                                                                                                          | `LICENSE`, README |
+| `fosrl/badger`                             | **MIT**                                                                                                                 | `LICENSE`         |
+| `fosrl/docs-v2`                            | MIT                                                                                                                     | GitHub API        |
+| `fosrl/helm-charts`, `fosrl/blueprints`    | MIT                                                                                                                     | GitHub API        |
+| `fosrl/cli`, `apple`, `windows`, `android` | `NOASSERTION` — GitHub cannot classify them                                                                             | GitHub API        |
 
 ### 7.2 The Pangolin LICENSE is per-file, not per-repo
 
@@ -360,12 +360,12 @@ Cost rule: **free** for personal use and organizations under **$100,000 USD** gr
 
 Paid tiers, from [pangolin.net/pricing](https://pangolin.net/pricing):
 
-| Tier | Price | Adds |
-|---|---|---|
-| Basic | Free | Web proxy resources, private resources and clients, peer-to-peer, 2FA |
-| Team | $4/user/mo | External IdPs, multiple roles per user (RBAC), audit logging, device posture, security policy enforcement |
-| Business | $9/user/mo | Multiple organizations, IdP auto-provisioning, SSH management, device approvals, custom branding |
-| Enterprise | Custom | Custom limits, SIEM log streaming, SCIM, premium relay nodes, SLA |
+| Tier       | Price      | Adds                                                                                                      |
+| ---------- | ---------- | --------------------------------------------------------------------------------------------------------- |
+| Basic      | Free       | Web proxy resources, private resources and clients, peer-to-peer, 2FA                                     |
+| Team       | $4/user/mo | External IdPs, multiple roles per user (RBAC), audit logging, device posture, security policy enforcement |
+| Business   | $9/user/mo | Multiple organizations, IdP auto-provisioning, SSH management, device approvals, custom branding          |
+| Enterprise | Custom     | Custom limits, SIEM log streaming, SCIM, premium relay nodes, SLA                                         |
 
 Log retention also scales by tier: 3 / 30 / 90 days / custom.
 
@@ -391,7 +391,7 @@ export async function verifyLimits(req, res, next) {
 Consequences for a self-hosted install:
 
 - Site count, user count, resource count, and machine-client count are **not capped**.
-- SSO is not capped by count, but is capped by *kind*: generic OIDC works on CE; org-scoped IdPs, native Google, native Azure, and multiple roles per user need EE.
+- SSO is not capped by count, but is capped by _kind_: generic OIDC works on CE; org-scoped IdPs, native Google, native Azure, and multiple roles per user need EE.
 - License expiry does not brick anything. "If your license expires or becomes invalid: Enterprise features will be disabled. You can renew your license to restore Enterprise features."
 - CE ↔ EE is a container swap. "Community and Enterprise Edition share the same database schema, so there should be no data migration issues."
 - CE can hide the locked EE UI with `flags.disable_enterprise_features: true`.
@@ -434,7 +434,7 @@ Ranked by observed issue traffic and doc warnings:
 2. **Certificate issuance**, if TCP 80 is blocked or wildcard DNS is wrong.
 3. **Badger version skew.** Protocol-aware resources need a matching plugin version. See § 4.3.
 4. **Path-based routing and cookies.** Open issues [#2294](https://github.com/fosrl/pangolin/issues/2294) "Path-Based-Routing is broken" and [#2238](https://github.com/fosrl/pangolin/issues/2238) "Redirect loop on resource root path / + cookie explosion".
-5. **OIDC edge cases.** [#737](https://github.com/fosrl/pangolin/issues/737), [#762](https://github.com/fosrl/pangolin/issues/762), [#2301](https://github.com/fosrl/pangolin/issues/2301) (Safari drops `p_oidc_state`), and [#668](https://github.com/fosrl/pangolin/issues/668) — an IdP reachable only *through* Pangolin creates a bootstrap loop. That last one matters if you plan to host Authentik or Pocket ID behind Pangolin.
+5. **OIDC edge cases.** [#737](https://github.com/fosrl/pangolin/issues/737), [#762](https://github.com/fosrl/pangolin/issues/762), [#2301](https://github.com/fosrl/pangolin/issues/2301) (Safari drops `p_oidc_state`), and [#668](https://github.com/fosrl/pangolin/issues/668) — an IdP reachable only _through_ Pangolin creates a bootstrap loop. That last one matters if you plan to host Authentik or Pocket ID behind Pangolin.
 6. **No BYO certificates.** [#3243](https://github.com/fosrl/pangolin/issues/3243) asks for a file provider so you can supply your own certs instead of ACME. Still open.
 
 ### 8.5 Upgrade story
@@ -482,10 +482,10 @@ Positive signals:
 
 **Two CVEs exist.** Both confirmed against NVD:
 
-| CVE | Published | Severity | Detail |
-|---|---|---|---|
-| [CVE-2025-56332](https://nvd.nist.gov/vuln/detail/CVE-2025-56332) | 2025-12-30 | **CVSS 3.1 = 9.1 CRITICAL** | "Authentication Bypass in fosrl/pangolin v1.6.2 and before allows attackers to access Pangolin resource via Insecure Default Configuration" |
-| [CVE-2026-3209](https://nvd.nist.gov/vuln/detail/CVE-2026-3209) | 2026-02-25 | CVSS 2.0 = 6.5 | Improper access control in `verifyRoleAccess` / `verifyApiKeyRoleAccess`. Affects up to 1.15.4-s.3, fixed in 1.15.4-s.4. "The exploit has been disclosed to the public and may be used." |
+| CVE                                                               | Published  | Severity                    | Detail                                                                                                                                                                                   |
+| ----------------------------------------------------------------- | ---------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [CVE-2025-56332](https://nvd.nist.gov/vuln/detail/CVE-2025-56332) | 2025-12-30 | **CVSS 3.1 = 9.1 CRITICAL** | "Authentication Bypass in fosrl/pangolin v1.6.2 and before allows attackers to access Pangolin resource via Insecure Default Configuration"                                              |
+| [CVE-2026-3209](https://nvd.nist.gov/vuln/detail/CVE-2026-3209)   | 2026-02-25 | CVSS 2.0 = 6.5              | Improper access control in `verifyRoleAccess` / `verifyApiKeyRoleAccess`. Affects up to 1.15.4-s.3, fixed in 1.15.4-s.4. "The exploit has been disclosed to the public and may be used." |
 
 A **critical authentication bypass caused by an insecure default** is the worst possible class of bug for this product. Authentication is the entire value proposition. Both CVEs are fixed in current versions, but they set the base rate.
 

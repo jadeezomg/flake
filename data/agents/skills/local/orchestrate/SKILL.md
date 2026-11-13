@@ -1,4 +1,5 @@
 ---
+
 name: orchestrate
 description: Run several interactive agent sessions in herdr worktrees for the user. Pick independent work, start each session with a brief, keep the user in the loop, then review, land and clean up. Use when the user asks to start agents or sessions, or to pick work for agents. Also use it to check on sessions, to land or merge their work, or to clean up sessions and worktrees.
 ---

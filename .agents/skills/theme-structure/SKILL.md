@@ -1,4 +1,5 @@
 ---
+
 name: theme-structure
 description: Apply this flake's cross-application theme and palette structure. Use it to change colors, fonts, wallpapers, or palette variants. Also use it to add app themes, wire Stylix targets, or sync the hand-copied palette mirrors.
 ---
