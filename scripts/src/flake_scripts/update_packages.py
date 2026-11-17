@@ -634,10 +634,14 @@ _HANDLERS = {
 
 
 def _nix_update_cmd(flake_root: Path, args: list[str]) -> list[str]:
-    """Build a `nix-update` invocation, falling back to `nix develop` when nix-update
-    is not on PATH (e.g. when update-packages is invoked outside the flake devShell)."""
-    if shutil.which("nix-update"):
-        return ["nix-update", *args]
+    """Build a `nix-update` invocation from the flake's devShell.
+
+    Never take `nix-update` from PATH: the copy a profile generation installed
+    can lag this tree's package overrides and fail where the flake's own copy
+    works — that mismatch is what broke `just update` on a Determinate store
+    (see parts/overlays/nix-update-flake-store-path.nix). The devShell pins the
+    nix-update this tree declares, so it is the only copy to trust.
+    """
     return ["nix", "develop", str(flake_root), "--command", "nix-update", *args]
 
 

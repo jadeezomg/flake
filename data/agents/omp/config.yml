@@ -131,7 +131,7 @@ loop:
 doubleEscapeAction: tree
 treeFilterMode: default
 repeatToolDescriptions: false
-setupVersion: 2
+setupVersion: 3
 tier:
   openai: none
 tui:
@@ -156,7 +156,8 @@ composer:
   shape: box
   tokenRate: true
 codexResets:
-  autoRedeem: "yes"
+  autoRedeem5h: "yes"
+  autoRedeemWeekly: "yes"
 omitThinking: false
 skillful: true
 error:

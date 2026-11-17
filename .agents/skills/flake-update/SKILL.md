@@ -31,6 +31,8 @@ Other entry points:
 - `just nix-update-pkg <attr> [nix-update flags]` runs `nix-update --flake` on one package attribute, then `just fmt`. It reads no `update.json`, so it ignores the cooldown and the `hold`. Always pass `<attr>`, because without it the recipe opens an interactive picker.
 - `nix flake update <input>...` bumps only the named inputs.
 
+Both `update-packages` and `nix-update-pkg` run `nix-update` from the flake devShell, never the copy on `PATH`. A profile generation can install an older one whose bundled Nix disagrees with this store, which fails with `error: opening file "/nix/store/…-source": No such file or directory` (see `parts/overlays/nix-update-flake-store-path.nix`).
+
 ## How `update-packages` decides
 
 - Handler `type` in `update.json`: `nix-update`, `binary_channel`, `fetchzip`, or `npm` (`_HANDLERS`).

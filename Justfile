@@ -651,11 +651,10 @@ nix-update-pkg:
       set -- "$attr"
     fi
     attr="$1"; shift
-    if command -v nix-update >/dev/null 2>&1; then
-      nix-update --flake "$@" "$attr"
-    else
-      nix develop "$FLAKE" --command nix-update --flake "$@" "$attr"
-    fi
+    # The flake's nix-update, never one from PATH: a copy left by an older
+    # profile generation can lag this tree's overrides and fail where it works
+    # (parts/overlays/nix-update-flake-store-path.nix).
+    nix develop "$FLAKE" --command nix-update --flake "$@" "$attr"
     just --justfile "${JUSTFILE:?}" fmt
 
 [doc('DMS / Noctalia / niri symlink report (uv symlink-check all)')]

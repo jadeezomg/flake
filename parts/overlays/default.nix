@@ -49,6 +49,10 @@ in
     inherit lib system;
     expiry = expiryFor "netwatch-landlock-fastopen-test";
   })
+  (import ./nix-update-flake-store-path.nix {
+    inherit lib;
+    expiry = expiryFor "nix-update-flake-store-path";
+  })
   (import ./protonup-rs-system-zstd.nix {
     inherit lib system;
     expiry = expiryFor "protonup-rs-system-zstd";
