@@ -13,11 +13,11 @@
   autoPatchelfHook,
 }:
 let
-  version = "0.3.7";
+  version = "0.4.1";
 
   # update_packages.py rewrites these top-level attrs for each release asset.
-  linuxX64Hash = "sha256-vhkn08rVw6slBhgzEZe+yvYoy5yIPkU279MLC36lvPg=";
-  darwinArm64Hash = "sha256-KmHeMdDl9K/IYkdS9UfZ9gnqHGtYKOGKjcoMOKPIZjg=";
+  linuxX64Hash = "sha256-minIcr4amLj4G7f2R3A7KXQtr7c/Lq+XLEME6ZPxtws=";
+  darwinArm64Hash = "sha256-x9rysgUTjTNWkM1thGHqIHn82XgJVHth+e3RK1/J+u0=";
 
   platforms = {
     "x86_64-linux" = {
