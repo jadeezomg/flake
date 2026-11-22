@@ -5,9 +5,17 @@
   config,
   dotfilesLib,
   lib,
+  options,
   pkgs,
   ...
 }:
+let
+  # nixpkgs dropped wayprompt (unmaintained upstream); Home Manager's stub now
+  # only asserts if `programs.wayprompt` is defined. Stylix's auto-enabled
+  # target still defines it, so it has to stay off. When Stylix drops the
+  # target, the entry disappears and this guard asks for cleanup.
+  waypromptTarget = lib.hasAttrByPath [ "stylix" "targets" "wayprompt" ] options;
+in
 {
   stylix = {
     enable = true;
@@ -33,6 +41,18 @@
       # GTK/dconf theming needs a graphical session; ./gui.nix turns it on
       # (plain priority beats this mkDefault) for theme.gui hosts.
       gtk.enable = lib.mkDefault false;
-    };
+    }
+    //
+      lib.warnIf (!waypromptTarget)
+        ''
+          modules/profiles/theme/stylix.nix needs re-checking: Stylix no longer has a
+          wayprompt target. Delete the wayprompt entry in stylix.nix.
+        ''
+        (
+          lib.optionalAttrs waypromptTarget {
+            # Stylix still themes wayprompt, which nixpkgs no longer ships.
+            wayprompt.enable = false;
+          }
+        );
   };
 }
