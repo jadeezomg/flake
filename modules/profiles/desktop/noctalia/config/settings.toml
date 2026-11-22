@@ -22,7 +22,7 @@ order = [ "default", "side", "laptop" ]
     radius = 0
     reserve_space = false
     show_on_workspace_switch = false
-    start = [ "status", "group:g1" ]
+    start = [ "status", "group:g1", "widget" ]
     thickness = 25
 
         [bar.default.monitor.DP-1]
@@ -637,10 +637,8 @@ enabled = [
     "noctalia/screen_recorder",
     "jadeezomg/tailscale",
     "davemhammer/tailscale",
-    "alexander/game-launcher",
-    "dotnetrob/cat",
-    "kenn/keybind-cheatsheet",
-    "icefish/phone-connect"
+    "icefish/phone-connect",
+    "alexander/screen-toolkit"
 ]
 
     [[plugins.source]]
@@ -652,12 +650,6 @@ enabled = [
     kind = "git"
     location = "https://github.com/noctalia-dev/community-plugins"
     name = "community"
-
-    [[plugins.source]]
-    enabled = false
-    kind = "path"
-    location = "~/git/community-plugins"
-    name = "community-plugins-fork"
 
 [shell]
 app_icon_color = "secondary"
@@ -711,13 +703,13 @@ transition_on_startup = true
     interval_seconds = 600
 
     [wallpaper.default]
-    path = "/home/jadee/Pictures/Wallpapers/J.C._Dahl_-_Eruption_of_the_Volcano_Vesuvius_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
 
     [wallpaper.last]
-    path = "/home/jadee/Pictures/Wallpapers/J.C._Dahl_-_Eruption_of_the_Volcano_Vesuvius_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
 
     [wallpaper.monitors.DP-1]
-    path = "/home/jadee/Pictures/Wallpapers/J.C._Dahl_-_Eruption_of_the_Volcano_Vesuvius_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
 
     [wallpaper.monitors.DP-2]
     path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
@@ -726,7 +718,7 @@ transition_on_startup = true
     path = "/home/jadee/Pictures/Wallpapers/2021_CKS_20061_0018_001(henriette_gudin_the_bronze_horseman092943).jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/jadee/Pictures/Wallpapers/J.C._Dahl_-_Eruption_of_the_Volcano_Vesuvius_-_Google_Art_Project.jpg"
+    path = "/home/jadee/Pictures/Wallpapers/Blue_Bonnets_at_Twilight_Onderdonk.jpg"
 
     [wallpaper.monitors.HDMI-A-2]
     path = "/home/jadee/Pictures/Wallpapers/Vincent van Gogh's Almond blossom (1890).jpg"
@@ -845,6 +837,9 @@ show_label = false
 
 [widget.weather]
 show_condition = false
+
+[widget.widget]
+type = "alexander/screen-toolkit:widget"
 
 [widget.workspaces]
 enabled = false
