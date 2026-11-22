@@ -13,15 +13,16 @@ let
   # nixpkgs dropped wayprompt (unmaintained upstream); Home Manager's stub now
   # only asserts if `programs.wayprompt` is defined. Stylix's auto-enabled
   # target still defines it, so it has to stay off. Stylix is removing the
-  # target in nix-community/stylix#2557 (issue #2556), which turns the option
-  # into a removal stub that errors if `.enable` is still set. Guard on the
-  # leaf: when the PR lands, the entry disappears and this warns for cleanup.
-  waypromptTarget = lib.hasAttrByPath [
-    "stylix"
-    "targets"
-    "wayprompt"
-    "enable"
-  ] options;
+  # target in nix-community/stylix#2557 (issue #2556), which replaces it with a
+  # `mkRemovedOptionModule` stub at this exact path that errors if still set.
+  # A live target's `enable` is a bool option; the stub's type is `unspecified`,
+  # so this flips false when the PR lands and the entry disappears (with a
+  # warning) instead of erroring.
+  waypromptTarget =
+    let
+      enableOption = lib.attrByPath [ "stylix" "targets" "wayprompt" "enable" ] null options;
+    in
+    enableOption != null && (enableOption.type.name or "") == "bool";
 in
 {
   stylix = {
