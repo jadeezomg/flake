@@ -21,10 +21,6 @@ in
   # Three of them are Rust compiles. Take the cached builds instead.
   (_final: _prev: { llm-agents = inputs.llm-agents.packages.${system}; })
   (import ./local-packages.nix { inherit lib system; })
-  (import ./caddy-plugins-goexperiment.nix {
-    inherit lib;
-    expiry = expiryFor "caddy-plugins-goexperiment";
-  })
   (import ./debugpy-darwin-lldb-test.nix {
     inherit lib system;
     expiry = expiryFor "debugpy-darwin-lldb-test";
