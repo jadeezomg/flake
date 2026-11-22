@@ -12,9 +12,16 @@
 let
   # nixpkgs dropped wayprompt (unmaintained upstream); Home Manager's stub now
   # only asserts if `programs.wayprompt` is defined. Stylix's auto-enabled
-  # target still defines it, so it has to stay off. When Stylix drops the
-  # target, the entry disappears and this guard asks for cleanup.
-  waypromptTarget = lib.hasAttrByPath [ "stylix" "targets" "wayprompt" ] options;
+  # target still defines it, so it has to stay off. Stylix is removing the
+  # target in nix-community/stylix#2557 (issue #2556), which turns the option
+  # into a removal stub that errors if `.enable` is still set. Guard on the
+  # leaf: when the PR lands, the entry disappears and this warns for cleanup.
+  waypromptTarget = lib.hasAttrByPath [
+    "stylix"
+    "targets"
+    "wayprompt"
+    "enable"
+  ] options;
 in
 {
   stylix = {
