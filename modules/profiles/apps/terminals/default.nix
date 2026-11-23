@@ -8,6 +8,7 @@ dotfilesLib.mkProfile {
   # profile is on (./ghostty.nix branches on isDarwin internally).
   hm = [
     ./ghostty.nix
+    ./herdr-app.nix
     ./kitty.nix
   ];
 
