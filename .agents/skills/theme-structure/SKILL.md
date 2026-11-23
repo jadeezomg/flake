@@ -54,6 +54,7 @@ These files repeat the hex values by hand. A palette change must update all of t
 - `apps/notes/typora/theme.nix` renders CSS from `{ palette }`. The owning module writes it to `Typora/themes/birds-of-paradise.css`.
 - `devenv/glow/theme.nix` renders a glamour style from `{ palette }`. `devenv/glow/default.nix` writes it to `glow/birds-of-paradise.json` and points `glow/glow.yml` at it. The yazi preview reads the same file by its path. Stylix has no glow target. If a Stylix update adds one, an `expireWhen` guard warns and turns the module off.
 - `essentials/fastfetch.nix` colors the logo and section keys from `config.dotfiles.theme.palette`.
+- `apps/terminals/herdr-app.nix` writes the Herdr.app theme to `herdr-app/themes/birds-of-paradise.json`. Herdr writes its layout files, which store the selected theme, so the flake does not own them.
 - `theme/qt-kde.nix` (see above).
 - Homepage on mini: the private mini-nix repo renders it in `services/homepage/theme.nix`. That file reads `dotfilesLib.paletteVariants` with the host variant and the wallpapers through `dotfilesLib.themeWallpapersDir`. If you move `theme/wallpapers` or `desktop/noctalia/config/settings.toml`, update `themeWallpapersDir` and `noctaliaSettingsToml` in `lib/default.nix`.
 - Keep generator code next to the app module. Keep shared data in `lib/`.

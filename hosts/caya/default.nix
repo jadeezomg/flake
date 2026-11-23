@@ -8,11 +8,11 @@
   ...
 }:
 let
-  # homebrew-cask uses `zap :not_required` since 2026-10-27 (font-sf-mono,
-  # font-sf-pro). Homebrew reads it from 7.0.11 on, but nix-homebrew pins 7.0.4,
-  # so `brew bundle` failed on those casks. nix-homebrew patches this package
+  # homebrew-core puts `manifest_sha256` in bottle blocks since 2026-11-15 (for
+  # example mise). Homebrew reads it from 7.0.14 on, but nix-homebrew pins 7.0.11,
+  # so `brew bundle` failed on those formulae. nix-homebrew patches this package
   # the same way as its own pin.
-  brewVersion = "7.0.11";
+  brewVersion = "7.0.15";
   nixHomebrewBrewVersion =
     (lib.importJSON "${inputs.nix-homebrew}/flake.lock").nodes.brew-src.original.ref;
   newerBrew = (dotfilesLib.expiry { inherit lib; } "hosts/caya/default.nix").expireWhen {
@@ -38,7 +38,7 @@ in
         owner = "Homebrew";
         repo = "brew";
         tag = brewVersion;
-        hash = "sha256-8mCor0DDjNhi+0e+FllfqiMABujBl+/RxYW+wgMpcto=";
+        hash = "sha256-8qp8StbMuOtXNqnfLa2ABjB+pIdHJBax5LJCs2eMhKQ=";
       }
       // {
         name = "brew-${brewVersion}";

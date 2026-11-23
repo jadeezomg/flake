@@ -1,8 +1,7 @@
 # Agents feature folder — agent CLI packages (system half) plus the HM halves:
 # the agent-review command (./agent-review.nix), global config links, herdr
-# configuration and plugins (./herdr-config.nix, ./herdr-plugins.nix), nono profiles, pi/omp package state, the
-# cleanup of retired tools (./retired-cleanup.nix), the session push to
-# mini (./session-push.nix), and the cross-host resume with its tv channel (./session-resume.nix). Skills and MCP registration belong to APM (./apm.nix);
+# configuration and plugins (./herdr-config.nix, ./herdr-plugins.nix), nono profiles, pi/omp package state,
+# the session push to mini (./session-push.nix), and the cross-host resume with its tv channel (./session-resume.nix). Skills and MCP registration belong to APM (./apm.nix);
 # nono profile data lives in `dotfilesLib.nonoProfiles`.
 {
   dotfilesLib,
@@ -10,8 +9,6 @@
 }@args:
 dotfilesLib.mkProfile {
   path = [ "devenv" ];
-  # A leaf of its own: it also has a darwin-only system part.
-  imports = [ ./retired-cleanup.nix ];
   hm = [
     ./agent-review.nix
     ./agentsview.nix
