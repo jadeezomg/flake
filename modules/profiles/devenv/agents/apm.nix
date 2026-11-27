@@ -65,9 +65,10 @@ let
       }
       (
         pkgs.runCommand "tuicr-skill-${tuicr.version}" { } ''
-          cp -r ${tuicr}/share/skills/tuicr/tuicr $out
+          mkdir $out
+          cp -r ${tuicr}/share/skills/tuicr/tuicr $out/tuicr
           chmod -R u+w $out
-          substituteInPlace $out/tuicr-wrapper-herdr.sh --replace-fail \
+          substituteInPlace $out/tuicr/tuicr-wrapper-herdr.sh --replace-fail \
             ${lib.escapeShellArg ''pane_command="bash -c '$escaped_inner_script'"''} \
             ${lib.escapeShellArg (
               lib.concatStringsSep "\n  " [
@@ -83,7 +84,8 @@ let
   # skills, and deploys them again when the package changes.
   packageSkills = {
     terminal-browser = "${pkgs.llm-agents.terminal-browser}/lib/terminal-browser/skills/default/terminal-browser";
-    tuicr = "${tuicrSkill}";
+    # A bare store path would name the skill after its hash, so the skill sits in $out/tuicr.
+    tuicr = "${tuicrSkill}/tuicr";
   };
 
   # Name → store path of each skill that APM copies to both targets.
