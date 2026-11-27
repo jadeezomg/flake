@@ -1,7 +1,7 @@
 ---
 
 name: request-review
-description: Get a review of your finished change from an omp reviewer agent in a new herdr pane, answer its questions, and act on its findings. Use when you finished a feature or fix and its checks pass. Other triggers: the user asks for a review, peer review, second opinion, or reviewer agent, or a message contains "[agent-review".
+description: Get a review of your finished change from an omp reviewer agent in a new herdr pane, answer its questions, and act on its findings. Use when you finished a feature or fix and its checks pass. Also use it when the user asks for a review, peer review, second opinion, or reviewer agent, or when a message contains "[agent-review".
 ---
 
 # Request a review
