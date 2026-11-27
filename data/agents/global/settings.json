@@ -10,6 +10,10 @@
 	},
 	"permissions": {
 		"allow": [
+			"mcp__linear__get_issue",
+			"mcp__linear__list_comments",
+			"mcp__linear__list_issue_statuses",
+			"mcp__linear__list_issues",
 			"mcp__mcp-nixos__nix",
 			"mcp__mcp-nixos__nix_versions",
 			"mcp__mcp-server-github__pull_request_read",
@@ -371,7 +375,8 @@
 		"cc-plugin-diff@builtin": false,
 		"cc-plugin-telemetry@builtin": false,
 		"caya-engineering@synced": false,
-		"caya-plugin-maintenance@synced": false
+		"caya-plugin-maintenance@synced": false,
+		"cockpit@cockpit": true
 	},
 	"extraKnownMarketplaces": {
 		"caya": {
@@ -394,6 +399,12 @@
 				"repo": "DietrichGebert/ponytail"
 			},
 			"autoUpdate": true
+		},
+		"cockpit": {
+			"source": {
+				"source": "github",
+				"repo": "quaresc/cockpit"
+			}
 		}
 	},
 	"feedbackDrafts": "notify",
