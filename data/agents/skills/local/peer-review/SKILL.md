@@ -30,15 +30,16 @@ If `ponytail-review` is not available, review for bugs, security, missing tests,
 
 If the note of the author or the change points to a page in terminal-browser, look at it with `terminal-browser action`. The `terminal-browser` skill gives the commands. You share the browser with the author, so obey these rules:
 
-- In the tab of the author, only read: `snapshot`, `screenshot`, `get`. Do not click, fill, or navigate there.
+- In the tab of the author, only read: `snapshot`, `screenshot`, `get`. Do not click, fill, or open other pages there.
 - For your own checks, open your own tab: `terminal-browser action -- tab new <url>`. Find its id with `terminal-browser ls`. Then use `terminal-browser action --tab <id> -- <command>`.
 - When you are done, close your tab with `terminal-browser action -- tab close <id>`, and run `terminal-browser action done`. This removes the marker that shows the user an agent is using the browser.
+- In Herdr.app (`$HC_TERMINAL_ID` is set), put `env -u TERM_PROGRAM` before each terminal-browser command, and add `--browser <key>` to each `action`. The note of the author names the key. Else find it by its URL in `terminal-browser ls --all`.
 
 ## Questions
 
 - If a finding depends on intent that the code does not show, ask the author: `agent-review ask review-<id> "<question>"`.
 - Ask one question per command. You can ask 5 questions at most.
-- After you ask, end your turn. The answer arrives as a new message that starts with `[agent-review review-<id>] Answer from the author`.
+- After you ask, end your turn. The answer arrives as a new message that contains `[agent-review review-<id>] Answer from the author`.
 
 ## Finish
 

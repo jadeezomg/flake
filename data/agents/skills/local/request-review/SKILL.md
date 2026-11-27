@@ -1,7 +1,7 @@
 ---
 
 name: request-review
-description: Get a review of your finished change from an omp reviewer agent in a new herdr pane, answer its questions, and act on its findings. Use when you finished a feature or fix and its checks pass, when the user asks for a review, peer review, second opinion, or reviewer agent, and when a message starts with "[agent-review".
+description: Get a review of your finished change from an omp reviewer agent in a new herdr pane, answer its questions, and act on its findings. Use when you finished a feature or fix and its checks pass. Other triggers: the user asks for a review, peer review, second opinion, or reviewer agent, or a message contains "[agent-review".
 ---
 
 # Request a review
@@ -21,14 +21,15 @@ Do not request a review for unfinished work, a plan, or a question. For the same
 
 1. Run `agent-review request`. The default base is the merge base with the upstream branch. The review then covers unpushed commits and uncommitted changes. To set a different base, add `--base <ref>`.
    - If the change has a page that the reviewer must see, open it in terminal-browser first (`terminal-browser open <url> --split right`). Then name the browser tab in a note: `agent-review request --note "The settings page is open in terminal-browser, tab 2."` The reviewer shares the browser with you, and only reads your tab.
+   - In Herdr.app (`$HC_TERMINAL_ID` is set), `--split` does not work. Open the page with the "In Herdr.app" commands in the Browser section of the orchestrate skill's `references/brief.md`. Name the browser key and the tab in the note.
    - Use the note also for context that the diff does not show, for example how to start the app.
 2. End your turn. Tell the user the review name and the pane.
 
-The command works only inside a herdr pane. If it fails, tell the user the error.
+The command works inside a herdr pane or a Herdr.app terminal. If it fails, tell the user the error.
 
 ## Questions from the reviewer
 
-A question arrives as a message that starts with `[agent-review review-<id>] Question from the reviewer`.
+A question arrives as a message that contains `[agent-review review-<id>] Question from the reviewer`.
 
 1. If the code or this session gives the answer, send it: `agent-review answer review-<id> "<answer>"`.
 2. If only the user knows the answer, ask the user. Then send the answer of the user.
@@ -38,9 +39,9 @@ Send one answer per question. Then end your turn.
 
 ## Findings
 
-The findings arrive as a message that starts with `[agent-review review-<id>] Review finished`.
+The findings arrive as a message that contains `[agent-review review-<id>] Review finished`.
 
-1. Read the findings file. The reviewer numbers the findings in three groups: Must fix, Should fix, and Nice to have.
+1. Read the findings file. The reviewer numbers the findings in three groups: `Must fix`, `Should fix`, and `Nice to have`.
 2. Fix each finding that you agree with. Start with Must fix. Run the checks again.
 3. Tell the user which findings you fixed, which findings you did not fix, and why.
 
