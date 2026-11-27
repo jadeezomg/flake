@@ -1,7 +1,7 @@
 ---
 
 name: orchestrate
-description: Run several interactive agent sessions in herdr worktrees for the user. Pick independent work, start each session with a brief, keep the user in the loop, then review, land and clean up. Use when the user asks to start agents or sessions, or to pick work for agents. Also use it to check on sessions, to land or merge their work, or to clean up sessions and worktrees.
+description: Run several interactive agent sessions in herdr worktrees for the user, in the herdr TUI or in Herdr.app. Pick independent work, start each session with a brief, keep the user in the loop, then review, land and clean up. Use when the user asks to start agents or sessions, or to pick work for agents. Also use it to check on sessions, to land or merge their work, or to clean up sessions and worktrees.
 ---
 
 # Orchestrate agent sessions
@@ -11,6 +11,8 @@ You are the orchestrator. You start agent sessions in herdr: one task, one workt
 **Edit this skill in the flake only:** `data/agents/skills/local/orchestrate/`. APM installs it on `flake switch`.
 
 Run `herdr --skill` once for the herdr command reference. The `terminal-browser` and `request-review` skills cover their own commands.
+
+The steps below use the herdr TUI (`$HERDR_PANE_ID` is set). If `$HC_TERMINAL_ID` is set, you run in Herdr.app. Then use the commands of [Herdr app](#herdr-app) in each step.
 
 ## Rules for every step
 
@@ -69,6 +71,8 @@ A web object is a sheet, a recipe, an issue, a file or a web app. If a session w
 3. The user logs in. Each page action that changes data needs the user's yes. Read the page with `snapshot` and `get`.
 4. When you are done with the browser, run `terminal-browser action done`. Leave the pane open for the user.
 
+In Herdr.app, steps 1 and 2 need other commands. herdr-core sets `TERM_PROGRAM=ghostty` in each terminal. terminal-browser then fails its graphics test, and it looks for a Ghostty pane that does not exist. The page still draws in a Herdr pane. The Browser section of [`references/brief.md`](references/brief.md) gives the Herdr.app commands, and agent-browser as the fallback. `PIXEL_SKIP_GRAPHICS_CHECK` is internal to terminal-browser (tested with 0.15.9). If a terminal-browser update breaks it, use agent-browser.
+
 ### Linear
 
 `open -a Linear <linear.app url>` opens an issue or a project in the Linear app. The app takes the focus each time, also with `open -g`. So open it only in these cases, in which the user must read the whole issue:
@@ -78,6 +82,28 @@ A web object is a sheet, a recipe, an issue, a file or a web app. If a session w
 3. When the user asks to see the issue.
 
 In all other cases, give the issue id and its URL in the chat. The app shows each change live, so it needs no reload.
+
+## Herdr app
+
+Herdr.app shows spaces, tabs and panes. herdr-core (`hc`) runs their terminals. `herdr-app` changes what the user sees, and `hc` starts, reads and messages agents. Run `herdr-app --skill` and `hc --skill` once. `<t>` is the terminal address (`t7`) that `space.new` prints.
+
+| Step                           | herdr TUI                                                     | Herdr.app                                                                                                                                                                                                                |
+| ------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Running sessions               | `herdr agent list`                                            | `hc ls`, `herdr-app ls`                                                                                                                                                                                                  |
+| Make the worktree              | `herdr worktree create …`                                     | `git -C <repo> worktree add -b <branch> ~/.herdr/worktrees/<repo>/<branch> origin/<base>` (the path of the app's own worktree dialog, with `/` in the branch as `-`)                                                     |
+| Start the agent with the brief | `herdr agent start …`, then `herdr agent prompt …`            | `herdr-app do space.new "$(jq -n --rawfile task <brief> '{folder:"<worktree>", tab:"<issue-id>", argv:["claude","--permission-mode","<mode>"], task:$task}')"`. Record the `space`, `tab` and `terminal` that it prints. |
+| Status                         | `herdr agent get <name>`                                      | `hc get <t>`, or `hc wait <t>` until it stops working                                                                                                                                                                    |
+| Read the session               | `herdr pane read <pane> --source recent-unwrapped --lines 80` | `hc read <t> --lines 80`                                                                                                                                                                                                 |
+| A question waits               | `agent_blocked`                                               | `hc get <t>` shows `blocked`, and `hc send` exits with code 9                                                                                                                                                            |
+| Send a decision                | `herdr agent prompt <name> "…"`                               | `hc send <t> "…"`                                                                                                                                                                                                        |
+| Close the session              | `herdr agent prompt <name> "/exit"`                           | `hc send <t> "/exit"`, then `hc read <t> --lines 40` for the resume id                                                                                                                                                   |
+| Remove the worktree            | `herdr worktree remove --workspace <ws>`                      | `herdr-app do space.close '{"id":"<space>","confirmed":true}'`, then `git -C <repo> worktree remove <worktree>` and `hc rm <t>`                                                                                          |
+
+- Give `space.new` no `name`. The space then nests under its repo, as the spaces of the worktree dialog do.
+- Start sessions with `space.new`, not with `hc run`. A terminal that you start with `hc run` is your child, and it gets no pane. If your session ends, the child ends too.
+- `hc send` waits while the user types a draft in that session. The session sees your text inside `<hc from="<your t>">`.
+- terminal-browser needs other commands in Herdr.app. [The browser rule](#the-browser-rule) explains why.
+- `request-review` needs a herdr TUI pane. In Herdr.app, the session reports that its change is ready, and you start the review subagent of step 4.
 
 ## Gotchas
 

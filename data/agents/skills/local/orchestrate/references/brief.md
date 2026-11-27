@@ -1,6 +1,6 @@
 # Session brief
 
-Fill in each `<…>`. Keep the fixed sections as they are: understand first, work with the user, the browser rule, the review and the report. A short brief that names its sources beats a long one that copies them.
+Fill in each `<…>`. Keep the fixed sections as they are: understand first, work with the user, the browser rule, the review and the report. A short brief that names its sources beats a long one that copies them. In the herdr TUI, drop the "In Herdr.app" part of the Browser section.
 
 ```markdown
 # Your task: <issue id> (<short title>)
@@ -46,9 +46,38 @@ Each web object that you work on (a sheet, a recipe, an issue, a file, a web app
 - At the end, run `terminal-browser action done`, and leave the pane open.
 - A Linear issue goes into the Linear app (`open -a Linear <linear.app url>`), not into terminal-browser. The app takes the focus, so open it only when the user must read the whole issue: before a yes to a new issue, a new description or a status change, when your question depends on the issue text, or when the user asks. Else give the issue id and its URL in the chat.
 
+### In Herdr.app
+
+You run in Herdr.app, because `$HC_TERMINAL_ID` is set. There, `--split`, `--size`, `new-tab`, and `action` without `--browser` do not work. Use these commands:
+
+~~~sh
+pane=$(herdr-app ls | jq -r --arg t "$HC_TERMINAL_ID" '.. | objects | select(.terminal? == $t) | .pane')
+herdr-app do pane.split "$(jq -n --arg p "$pane" --arg u "<url>" '{direction:"right", pane:$p, argv:["env","PIXEL_SKIP_GRAPHICS_CHECK=1","terminal-browser","open",$u]}')"
+env -u TERM_PROGRAM terminal-browser ls --all
+env -u TERM_PROGRAM terminal-browser action --browser <key> -- reload
+~~~
+
+- `ls --all` shows "no pane" for each browser. Find your key (`<pid>-<n>`) by the URL that you opened.
+- Put `env -u TERM_PROGRAM` and `--browser <key>` into each later command, `action done` included.
+- Open the next object with `action --browser <key> -- tab new <url>`.
+
+### agent-browser
+
+If terminal-browser does not start, use agent-browser. It opens a separate Chrome window, and it takes the same commands as `terminal-browser action`:
+
+~~~sh
+agent-browser --headed --session <issue-id> open <url>
+agent-browser --session <issue-id> reload
+agent-browser --session <issue-id> close
+~~~
+
+Tell the user that the page is in a separate Chrome window. The window starts without the user's logins. Run `agent-browser skills get core` once for the command reference.
+
 ## Review
 
 When your change is done and its checks pass, request a review with the `request-review` skill. Wait for its report. Fix the findings that you agree with, and run the checks again. Tell the user which findings you fixed. Name each Must fix finding that you did not fix, with your reason: the user decides it.
+
+In Herdr.app (`$HC_TERMINAL_ID` is set), `request-review` does not work. Report that your change is ready for review, and wait for the orchestrator's review.
 
 ## Setup
 
