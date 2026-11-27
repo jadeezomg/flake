@@ -117,6 +117,19 @@ in
       plugin.prepend_previewers = markdownPreviewers;
     };
 
+    # Yazi has no command that copies the text of a file. `c y` is free in the
+    # default keymap, next to the `c` keys that copy the path and the name.
+    keymap.mgr.prepend_keymap = [
+      {
+        on = [
+          "c"
+          "y"
+        ];
+        run = if isDarwin then "shell -- pbcopy < %h" else "shell -- ${pkgs.wl-clipboard}/bin/wl-copy < %h";
+        desc = "Copy file contents";
+      }
+    ];
+
     initLua = ./init.lua;
 
     # Plugins/flavors go here as `name = ./path/to/foo.yazi;` or as a package
