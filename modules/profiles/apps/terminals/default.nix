@@ -7,6 +7,7 @@ dotfilesLib.mkProfile {
   # HM halves — plain Home Manager modules, pushed to every user when the
   # profile is on (./ghostty.nix branches on isDarwin internally).
   hm = [
+    ./cockpit.nix
     ./ghostty.nix
     ./herdr-app.nix
     ./kitty.nix
