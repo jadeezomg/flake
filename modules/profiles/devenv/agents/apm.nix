@@ -225,6 +225,8 @@ let
   # fails on ~/.agents, and does not write the lock. The next run then refuses
   # the ~/.claude files as "unmanaged". Verified 2026-10-29 with apm 0.35.0.
   # Make every copy owner-writable and readable before each install.
+  # The same bug also hits a copy that APM makes during one run;
+  # parts/overlays/apm-local-copy-writable.nix covers that case.
   fixLocalCopyPerms =
     (dotfilesLib.expiry { inherit lib; } "modules/profiles/devenv/agents/apm.nix").recheckWhen
       {

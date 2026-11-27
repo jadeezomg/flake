@@ -57,6 +57,10 @@ in
     inherit lib system;
     expiry = expiryFor "protonup-rs-system-zstd";
   })
+  (import ./apm-local-copy-writable.nix {
+    inherit lib;
+    expiry = expiryFor "apm-local-copy-writable";
+  })
   # Standing pin, not a workaround — no expiry guard (see the file's header).
   (import ./skhd-pinned-darwin.nix { inherit inputs system; })
 ]
