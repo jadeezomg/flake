@@ -1,6 +1,6 @@
 modelRoles:
   plan: opencode-go/glm-5.3
-  default: opencode-go/deepseek-v4.1-flash
+  default: openai-codex/gpt-6.2-sol
 theme:
   dark: birds-of-paradise
   light: light-gruvbox
