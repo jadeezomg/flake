@@ -70,7 +70,7 @@ Each session that you start runs Opus or Sonnet. You choose the model for each t
 1. Clean up only a finished session: its report is done, no question waits, and its work landed or is pushed.
 2. Check the worktree: `git status --porcelain` is empty, and the target holds each commit (`git merge-base --is-ancestor`, or `git cherry` and `git range-diff` after a cherry-pick). Keep a worktree that holds untracked files of the user, and tell the user.
 3. Copy the gitignored state that other work still needs.
-4. Close the session with `herdr agent prompt <name> "/exit"`. Read `claude --resume <id>` from the pane, and record it with the open item in your scratchpad.
+4. Close the session with `herdr agent prompt <name> "/exit"` (in Herdr.app, see the table row "Close the session"). Read `claude --resume <id>` from the pane, and record it with the open item in your scratchpad.
 5. Remove the worktree: `herdr worktree remove --workspace <ws>`, or `herdr workspace close <ws>` and `git worktree remove <path>` for a plain git worktree. Then run `git worktree prune`, and delete the branch once the target holds it.
 
 ## The browser rule
@@ -107,8 +107,11 @@ Herdr.app shows spaces, tabs and panes. herdr-core (`hc`) runs their terminals. 
 | Read the session               | `herdr pane read <pane> --source recent-unwrapped --lines 80` | `hc read <t> --lines 80`                                                                                                                                                                  |
 | A question waits               | `agent_blocked`                                               | `hc get <t>` shows `blocked`, and `hc send` exits with code 9                                                                                                                             |
 | Send a decision                | `herdr agent prompt <name> "…"`                               | `hc send <t> "…"`                                                                                                                                                                         |
-| Close the session              | `herdr agent prompt <name> "/exit"`                           | `hc send <t> "/exit"`, then `hc read <t> --lines 40` for the resume id                                                                                                                    |
+| Close the session              | `herdr agent prompt <name> "/exit"`                           | `hc keys <t> / e x i t`, then `hc keys <t> enter`, then `hc read <t> --lines 40` for the resume id. See the note below the table.                                                         |
 | Remove the worktree            | `herdr worktree remove --workspace <ws>`                      | `herdr-app do space.close '{"id":"<sp>","confirmed":true}'` ends the session and its shell. Then `git -C <repo> worktree remove <worktree>`, `hc rm <issue-id>` and `hc rm <issue-id>-sh` |
+
+- Do not close a session with `hc send <t> "/exit"`. The session gets the text inside `<hc from="…">`, so Claude reads it as a message and does not exit. If the session runs a tool, press `hc keys <t> esc` first.
+- `hc rm` takes one terminal per call. If `hc ls` no longer lists the terminal, skip it.
 
 ### Start a session in Herdr.app
 
