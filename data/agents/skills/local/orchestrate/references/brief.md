@@ -1,6 +1,6 @@
 # Session brief
 
-Fill in each `<…>`. Keep the fixed sections as they are: understand first, work with the user, the browser rule, the review and the report. A short brief that names its sources beats a long one that copies them. In the herdr TUI, drop the "In Herdr.app" part of the Browser section.
+Fill in each `<…>`. Keep the fixed sections as they are: understand first, work with the user, the browser rule, the review and the report. A short brief that names its sources beats a long one that copies them. In the herdr TUI, drop the parts for Herdr.app: the "In Herdr.app" part of the Browser section, and the tuicr paragraph of the Review section.
 
 ```markdown
 # Your task: <issue id> (<short title>)
@@ -48,18 +48,24 @@ Each web object that you work on (a sheet, a recipe, an issue, a file, a web app
 
 ### In Herdr.app
 
-You run in Herdr.app, because `$HC_TERMINAL_ID` is set. There, `--split`, `--size`, `new-tab`, and `action` without `--browser` do not work. Use these commands:
+You run in Herdr.app, because `$HC_TERMINAL_ID` is set. The shell `<issue-id>-sh` beside you belongs to the user. Run your own commands with your own tools, not in that shell. In Herdr.app, `--split`, `--size`, `new-tab`, and `action` without `--browser` do not work. Open the browser in the user's shell, and drive it with these commands:
 
 ~~~sh
-pane=$(herdr-app ls | jq -r --arg t "$HC_TERMINAL_ID" '.. | objects | select(.terminal? == $t) | .pane')
-herdr-app do pane.split "$(jq -n --arg p "$pane" --arg u "<url>" '{direction:"right", pane:$p, argv:["env","PIXEL_SKIP_GRAPHICS_CHECK=1","terminal-browser","open",$u]}')"
+hc send <issue-id>-sh "env PIXEL_SKIP_GRAPHICS_CHECK=1 terminal-browser open <url>"
 env -u TERM_PROGRAM terminal-browser ls --all
 env -u TERM_PROGRAM terminal-browser action --browser <key> -- reload
 ~~~
 
+- The browser fills the shell until the user closes it.
 - `ls --all` shows "no pane" for each browser. Find your key (`<pid>-<n>`) by the URL that you opened.
 - Put `env -u TERM_PROGRAM` and `--browser <key>` into each later command, `action done` included.
 - Open the next object with `action --browser <key> -- tab new <url>`.
+- If the user's shell is busy, or you have no shell beside you, open the browser in a new split:
+
+~~~sh
+pane=$(herdr-app ls | jq -r --arg t "$HC_TERMINAL_ID" '.. | objects | select(.terminal? == $t) | .pane')
+herdr-app do pane.split "$(jq -n --arg p "$pane" --arg u "<url>" '{direction:"right", pane:$p, argv:["env","PIXEL_SKIP_GRAPHICS_CHECK=1","terminal-browser","open",$u]}')"
+~~~
 
 ### agent-browser
 
@@ -77,7 +83,7 @@ Tell the user that the page is in a separate Chrome window. The window starts wi
 
 When your change is done and its checks pass, request a review with the `request-review` skill. Wait for its report. Fix the findings that you agree with, and run the checks again. Tell the user which findings you fixed. Name each Must fix finding that you did not fix, with your reason: the user decides it.
 
-In Herdr.app (`$HC_TERMINAL_ID` is set), `request-review` does not work. Report that your change is ready for review, and wait for the orchestrator's review.
+In Herdr.app, start a tuicr review for the user in the user's shell: `hc send <issue-id>-sh "tuicr -w"` for uncommitted changes, or `tuicr -r <revset>` for commits. Then read the user's comments with `tuicr review`, as the tuicr skill says.
 
 ## Setup
 

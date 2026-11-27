@@ -21,6 +21,7 @@ The steps below use the herdr TUI (`$HERDR_PANE_ID` is set). If `$HC_TERMINAL_ID
 - **Sessions are interactive.** Every brief carries the interaction contract of [`references/brief.md`](references/brief.md).
 - **The user answers each question of a session.** A session can wait at a question or an approval. Then tell the user which pane waits, and the answer that fits the user's earlier decision. Do not answer it yourself.
 - **Web work is visible.** Follow the browser rule below, and put it into every brief.
+- **Models.** Follow the model rule below.
 - **Improve this skill.** After a few rounds of sessions, or after a problem that cost time, propose a change of this skill to the user. Say what happened and which line to add or change. Edit the skill only after a yes.
 
 ## 1. Pick the work
@@ -28,15 +29,25 @@ The steps below use the herdr TUI (`$HERDR_PANE_ID` is set). If `$HC_TERMINAL_ID
 1. Read the open tasks in the tracker, and the running sessions (`herdr agent list`, `git worktree list`).
 2. Sort each task: code without a live system, live work that needs the user's yes at each step, or work that only a person can do.
 3. Build sets of tasks whose files do not overlap with each other or with a running session. Read each issue and the code it touches.
-4. Give the user 2 to 4 options, with one recommendation, through the ask tool.
+4. Give the user 2 to 4 options, with one recommendation, through the ask tool. Name the model of each task.
+
+## The model rule
+
+The user chooses your own model. Do not change it, and do not ask the user to change it.
+
+Each session that you start runs Opus or Sonnet. You choose the model for each task:
+
+- `opus`: open design questions, a wide or unclear scope, several systems, live systems (a deploy, data, a recipe), security, a migration, or a hard bug.
+- `sonnet`: a clear scope with a testable "Done means", for example a small fix, a test, a doc or config change, or a mechanical refactor.
+- If you are not sure, choose `opus`. The user can change your choice.
 
 ## 2. Start a session
 
 1. Make the worktree from the repo's parent herdr workspace: `herdr worktree create --workspace <parent> --branch <issue>-<slug> --base origin/<branch> --label <branch> --no-focus`. A repo with no herdr workspace: `git worktree add -b <branch> <path> origin/<branch>`, then `herdr workspace create --cwd <path> --label <branch> --no-focus`. If a clone holds someone's uncommitted work, leave it alone.
 2. Set the upstream (`git branch -u origin/<branch>`). Copy the gitignored state that the task needs, as the repo's `AGENTS.md` says.
-3. Start the agent in the root pane: `herdr agent start <issue-id> --kind claude --pane <pane> -- --permission-mode <the user's mode>`.
+3. Start the agent in the root pane: `herdr agent start <issue-id> --kind claude --pane <pane> -- --permission-mode <the user's mode> --model <opus or sonnet>`.
 4. Write the brief from [`references/brief.md`](references/brief.md) into your scratchpad. Send it with `herdr agent prompt <issue-id> "$(cat <file>)"`, then check that `herdr agent get <issue-id>` shows `working`.
-5. Tell the user the agent, workspace, worktree and task, and what the session will ask them.
+5. Tell the user the agent, workspace, worktree, task and model, and what the session will ask them.
 
 ## 3. Watch
 
@@ -85,25 +96,37 @@ In all other cases, give the issue id and its URL in the chat. The app shows eac
 
 ## Herdr app
 
-Herdr.app shows spaces, tabs and panes. herdr-core (`hc`) runs their terminals. `herdr-app` changes what the user sees, and `hc` starts, reads and messages agents. Run `herdr-app --skill` and `hc --skill` once. `<t>` is the terminal address (`t7`) that `space.new` prints.
+Herdr.app shows spaces, tabs and panes. herdr-core (`hc`) runs their terminals. `herdr-app` changes what the user sees, and `hc` starts, reads and messages agents. Run `herdr-app --skill` and `hc --skill` once. `<t>` is the session name (`--name <issue-id>`) or its terminal address (`t7`).
 
-| Step                           | herdr TUI                                                     | Herdr.app                                                                                                                                                                                                                |
-| ------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Running sessions               | `herdr agent list`                                            | `hc ls`, `herdr-app ls`                                                                                                                                                                                                  |
-| Make the worktree              | `herdr worktree create …`                                     | `git -C <repo> worktree add -b <branch> ~/.herdr/worktrees/<repo>/<branch> origin/<base>` (the path of the app's own worktree dialog, with `/` in the branch as `-`)                                                     |
-| Start the agent with the brief | `herdr agent start …`, then `herdr agent prompt …`            | `herdr-app do space.new "$(jq -n --rawfile task <brief> '{folder:"<worktree>", tab:"<issue-id>", argv:["claude","--permission-mode","<mode>"], task:$task}')"`. Record the `space`, `tab` and `terminal` that it prints. |
-| Status                         | `herdr agent get <name>`                                      | `hc get <t>`, or `hc wait <t>` until it stops working                                                                                                                                                                    |
-| Read the session               | `herdr pane read <pane> --source recent-unwrapped --lines 80` | `hc read <t> --lines 80`                                                                                                                                                                                                 |
-| A question waits               | `agent_blocked`                                               | `hc get <t>` shows `blocked`, and `hc send` exits with code 9                                                                                                                                                            |
-| Send a decision                | `herdr agent prompt <name> "…"`                               | `hc send <t> "…"`                                                                                                                                                                                                        |
-| Close the session              | `herdr agent prompt <name> "/exit"`                           | `hc send <t> "/exit"`, then `hc read <t> --lines 40` for the resume id                                                                                                                                                   |
-| Remove the worktree            | `herdr worktree remove --workspace <ws>`                      | `herdr-app do space.close '{"id":"<space>","confirmed":true}'`, then `git -C <repo> worktree remove <worktree>` and `hc rm <t>`                                                                                          |
+| Step                           | herdr TUI                                                     | Herdr.app                                                                                                                                                                                 |
+| ------------------------------ | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Running sessions               | `herdr agent list`                                            | `hc ls`, `herdr-app ls`                                                                                                                                                                   |
+| Make the worktree              | `herdr worktree create …`                                     | `git -C <repo> worktree add -b <branch> ~/.herdr/worktrees/<repo>/<branch> origin/<base>` (the path of the app's own worktree dialog, with `/` in the branch as `-`)                      |
+| Start the agent with the brief | `herdr agent start …`, then `herdr agent prompt …`            | The steps in [Start a session in Herdr.app](#start-a-session-in-herdrapp)                                                                                                                 |
+| Status                         | `herdr agent get <name>`                                      | `hc get <t>`, or `hc wait --children any` for the next news of any session                                                                                                                |
+| Read the session               | `herdr pane read <pane> --source recent-unwrapped --lines 80` | `hc read <t> --lines 80`                                                                                                                                                                  |
+| A question waits               | `agent_blocked`                                               | `hc get <t>` shows `blocked`, and `hc send` exits with code 9                                                                                                                             |
+| Send a decision                | `herdr agent prompt <name> "…"`                               | `hc send <t> "…"`                                                                                                                                                                         |
+| Close the session              | `herdr agent prompt <name> "/exit"`                           | `hc send <t> "/exit"`, then `hc read <t> --lines 40` for the resume id                                                                                                                    |
+| Remove the worktree            | `herdr worktree remove --workspace <ws>`                      | `herdr-app do space.close '{"id":"<sp>","confirmed":true}'` ends the session and its shell. Then `git -C <repo> worktree remove <worktree>`, `hc rm <issue-id>` and `hc rm <issue-id>-sh` |
 
-- Give `space.new` no `name`. The space then nests under its repo, as the spaces of the worktree dialog do.
-- Start sessions with `space.new`, not with `hc run`. A terminal that you start with `hc run` is your child, and it gets no pane. If your session ends, the child ends too.
+### Start a session in Herdr.app
+
+1. Make two new ids, and record them: `sp=sp$(openssl rand -hex 16)` and `tb=tb$(openssl rand -hex 16)`.
+2. Start the agent with the brief. Write the issue id in lower case, because hc names allow only `a-z 0-9 - _`:
+   `hc run --bg --outlive-parent --name <issue-id> --cwd <worktree> --label herdr.space=$sp --label herdr.tab=$tb --label task=<issue-id> claude --permission-mode <mode> --model <opus or sonnet> "$(cat <brief>)"`
+3. Open the user's shell beside it, in the same tab:
+   `hc run --bg --no-parent --name <issue-id>-sh --cwd <worktree> --label herdr.space=$sp --label herdr.tab=$tb --label task=<issue-id>`
+   The user runs commands and checks progress there. The session opens terminal-browser and tuicr reviews there, as the brief says. Put the shell's name into the brief.
+
+- The session is your child, because you start it with `hc run` from your own terminal. The agents list shows it under you. If a child blocks, fails or exits, herdr-core types a note into your session. If your session ends, `--outlive-parent` keeps the child running. The shell has no parent, so it sends no notes.
+- The new ids make Herdr open a new space for the worktree. The space has no name, so it nests under its repo, as the spaces of the worktree dialog do. Without the labels, a terminal gets no pane.
+- `hc ls --label task=<issue-id>` lists the session and its shell.
+- At the start, pin your own session to the top of the agents list: `herdr-app do terminal.pin "$(jq -n --arg t "$HC_TERMINAL_ID" '{terminal:$t, pinned:true}')"`.
+- When a session waits for the user, show it to the user: `herdr-app do terminal.peek "$(jq -n --arg t "$(hc get <issue-id> --json | jq -r .address)" '{terminal:$t}')"`. `terminal.peek` takes the address (`t7`), not the name.
+- When a session's report is done and only the landing is left, settle its tab: `herdr-app do tab.settle '{"id":"<tb>"}'`. If the session needs the user again, the tab comes back.
 - `hc send` waits while the user types a draft in that session. The session sees your text inside `<hc from="<your t>">`.
 - terminal-browser needs other commands in Herdr.app. [The browser rule](#the-browser-rule) explains why.
-- `request-review` needs a herdr TUI pane. In Herdr.app, the session reports that its change is ready, and you start the review subagent of step 4.
 
 ## Gotchas
 
