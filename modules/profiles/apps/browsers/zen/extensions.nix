@@ -32,7 +32,11 @@ in
     "addon@darkreader.org" = "darkreader";
     "{91aa3897-2634-4a8a-9092-279db23a7689}" = "zen-internet";
     "{74145f27-f039-47ce-a470-a662b129930a}" = "clearurls";
-    "brave-search-extension@brave.com" = "bravesearch";
+    # Blocked, not dropped: Zen keeps a dropped extension installed. Brave Search
+    # 2.1.0 replaces the new tab page, so Ctrl+T no longer opens the URL bar.
+    "brave-search-extension@brave.com" = {
+      installation_mode = "blocked";
+    };
     # https://addons.mozilla.org/firefox/addon/kagi-search-for-firefox/
     "search@kagi.com" = "kagi-search-for-firefox";
     "{135c3428-66bc-4b5b-9503-282dc00802e7}" = "toxcancel";
